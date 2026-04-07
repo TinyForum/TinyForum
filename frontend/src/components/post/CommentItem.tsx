@@ -1,0 +1,107 @@
+'use client';
+
+import { useState } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { Comment } from '@/types';
+import { timeAgo } from '@/lib/utils';
+import { CornerDownRight, Trash2 } from 'lucide-react';
+import { useAuthStore } from '@/store/auth';
+import { commentApi } from '@/lib/api';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import toast from 'react-hot-toast';
+
+interface CommentItemProps {
+  comment: Comment;
+  postId: number;
+  onReply?: (parentId: number, username: string) => void;
+}
+
+export default function CommentItem({ comment, postId, onReply }: CommentItemProps) {
+  const { user, isAuthenticated } = useAuthStore();
+  const queryClient = useQueryClient();
+  const [showReplies, setShowReplies] = useState(true);
+
+  const deleteMutation = useMutation({
+    mutationFn: () => commentApi.delete(comment.id),
+    onSuccess: () => {
+      toast.success('评论已删除');
+      queryClient.invalidateQueries({ queryKey: ['comments', postId] });
+    },
+    onError: () => toast.error('删除失败'),
+  });
+
+  const canDelete = user?.id === comment.author_id || user?.role === 'admin';
+
+  return (
+    <div className="flex gap-3">
+      <Link href={`/users/${comment.author?.id}`} className="flex-none">
+        <div className="avatar">
+          <div className="w-8 h-8 rounded-full">
+            <Image
+              src={comment.author?.avatar || `https://api.dicebear.com/8.x/initials/svg?seed=${comment.author?.username}`}
+              alt={comment.author?.username || ''}
+              width={32}
+              height={32}
+              className="rounded-full"
+            />
+          </div>
+        </div>
+      </Link>
+
+      <div className="flex-1">
+        <div className="bg-base-200 rounded-xl p-3">
+          <div className="flex items-center justify-between mb-1">
+            <Link href={`/users/${comment.author?.id}`} className="text-sm font-semibold hover:text-primary transition-colors">
+              {comment.author?.username}
+            </Link>
+            <span className="text-xs text-base-content/40">{timeAgo(comment.created_at)}</span>
+          </div>
+          <p className="text-sm text-base-content/80 whitespace-pre-wrap">{comment.content}</p>
+        </div>
+
+        <div className="flex items-center gap-3 mt-1.5 px-1">
+          {isAuthenticated && onReply && (
+            <button
+              className="text-xs text-base-content/50 hover:text-primary transition-colors flex items-center gap-1"
+              onClick={() => onReply(comment.id, comment.author?.username)}
+            >
+              <CornerDownRight className="w-3 h-3" /> 回复
+            </button>
+          )}
+          {comment.replies && comment.replies.length > 0 && (
+            <button
+              className="text-xs text-base-content/50 hover:text-primary transition-colors"
+              onClick={() => setShowReplies(!showReplies)}
+            >
+              {showReplies ? '收起' : `展开 ${comment.replies.length} 条回复`}
+            </button>
+          )}
+          {canDelete && (
+            <button
+              className="text-xs text-error/60 hover:text-error transition-colors flex items-center gap-1 ml-auto"
+              onClick={() => deleteMutation.mutate()}
+              disabled={deleteMutation.isPending}
+            >
+              <Trash2 className="w-3 h-3" /> 删除
+            </button>
+          )}
+        </div>
+
+        {/* Nested replies */}
+        {showReplies && comment.replies && comment.replies.length > 0 && (
+          <div className="mt-3 space-y-3 ml-2 border-l-2 border-base-300 pl-3">
+            {comment.replies.map((reply) => (
+              <CommentItem
+                key={reply.id}
+                comment={reply}
+                postId={postId}
+                onReply={onReply}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

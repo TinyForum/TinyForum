@@ -1,0 +1,23 @@
+server:
+  port: 8080
+  mode: debug
+
+database:
+  host: localhost
+  port: 5432
+  user: postgres
+  password: postgres
+  dbname: bbs_forum
+  sslmode: disable
+  timezone: Asia/Shanghai
+
+jwt:
+  secret: "bbs-forum-secret-change-in-production-32chars"
+  expire: 72h
+
+log:
+  level: info
+  filename: logs/app.log
+  max_size: 100
+  max_backups: 10
+  max_age: 30
