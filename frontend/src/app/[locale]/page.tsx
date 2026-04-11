@@ -1,3 +1,4 @@
+// src/app/[locale]/page.tsx
 'use client';
 
 import { useState } from 'react';
@@ -10,12 +11,14 @@ import { Flame, Clock, Tag as TagIcon, Trophy, ChevronRight, PenSquare } from 'l
 import { useAuthStore } from '@/store/auth';
 import { formatDate } from '@/lib/utils';
 import Avatar from '@/components/user/Avatar';
+import {useTranslations} from 'next-intl';
 
 export default function HomePage() {
   const { isAuthenticated } = useAuthStore();
   const [sortBy, setSortBy] = useState<'' | 'hot'>('');
   const [selectedTag, setSelectedTag] = useState<number | null>(null);
   const [page, setPage] = useState(1);
+   const t = useTranslations('post');
 
   const { data: postsData, isLoading } = useQuery({
     queryKey: ['posts', sortBy, selectedTag, page],
@@ -65,7 +68,7 @@ export default function HomePage() {
 
           {isAuthenticated && (
             <Link href="/posts/new" className="btn btn-primary btn-sm gap-1">
-              <PenSquare className="w-4 h-4" /> 发帖
+              <PenSquare className="w-4 h-4" /> {t('create')}
             </Link>
           )}
         </div>

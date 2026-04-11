@@ -35,7 +35,7 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "middleware.ts"
-  ],
+, "src/app/layout", "src/app/page"  ],
   "exclude": [
     "node_modules"
   ]
