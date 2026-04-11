@@ -1,3 +1,3 @@
 export default function Explore() {
-    return(<></>)
+    return(<>explore</>)
 }

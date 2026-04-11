@@ -67,7 +67,7 @@ export default function RegisterPage() {
             <div className="text-center mb-8">
               <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-white text-2xl font-black mx-auto mb-4">
                
-                 <Image src="/logo.svg" width={500} height={500} alt="logo" />
+                 <Image src="/assets/brand/logo.svg" width={500} height={500} alt="logo" />
                  
               </div>
               <h1 className="text-2xl font-bold">{t("create_account")}</h1>

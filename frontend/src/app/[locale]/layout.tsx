@@ -13,10 +13,18 @@ const firaCode = Fira_Code({ subsets: ['latin'], variable: '--font-fira-code' })
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'site' });
-  
+  const brandName = t("brand") || "Your Brand Name";
+    const description = t("description") || "Your brand description goes here.";
+    
   return {
-    title: t("brand"),
-    description: t("description"),
+   title: {
+        default: brandName,
+        template: `%s | ${brandName}`,  // 方便子页面拼接标题
+      },
+      description: description,
+    icons: [
+       { url: '/favicon.ico', sizes: 'any' },{ url: '/assets/brand/logo.svg', type: 'image/svg+xml' }] , 
+
   };
 }
 

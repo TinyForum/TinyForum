@@ -1,7 +1,11 @@
 // src/app/users/[id]/page.tsx (服务端组件)
 import { Suspense } from 'react';
 import UserProfileClient from './UserProfileClient';
-
+import { Metadata } from 'next';
+export const metadata :Metadata = {
+  title: "user",
+  description: "User page"
+}
 export default async function UserProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const userId = Number(id);

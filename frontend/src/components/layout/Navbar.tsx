@@ -125,7 +125,7 @@ export default function Navbar() {
               className="flex items-center gap-2 text-xl font-bold text-primary shrink-0"
             >
               <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white text-sm font-black">
-                <Image src="/logo.svg" width={500} height={500} alt="logo" />
+                <Image src="/assets/brand/logo.svg" width={500} height={500} alt="logo" />
               </div>
               <span className="hidden sm:block">{t("brand")}</span>
             </Link>
@@ -324,7 +324,7 @@ export default function Navbar() {
                   className="flex items-center gap-2 text-xl font-bold text-primary"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
-                  <Image src="/logo.svg" width={32} height={32} alt="logo" />
+                  <Image src="/assets/brand/logo.svg" width={32} height={32} alt="logo" />
                   <span>{t("brand")}</span>
                 </Link>
                 <button
