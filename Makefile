@@ -1,5 +1,8 @@
 .PHONY: help frontend backend docs install clean build dev all
 
+init-config:
+	@echo "🚀 Initializing project..."
+	@bash ./start-dev.sh
 # Default target
 help:
 	@echo "Available targets:"
