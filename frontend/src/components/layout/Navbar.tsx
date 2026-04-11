@@ -8,6 +8,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Bell, PenSquare, Search, LogOut, User, LayoutDashboard, Trophy } from 'lucide-react';
 import { useState } from 'react';
 import Image from 'next/image';
+import Avatar from '../user/Avatar';
 
 export default function Navbar() {
   const { user, isAuthenticated, logout } = useAuthStore();
@@ -88,13 +89,13 @@ export default function Navbar() {
               <div className="dropdown dropdown-end">
                 <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar">
                   <div className="w-9 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
-                    <Image
-                      src={user?.avatar || `https://api.dicebear.com/8.x/initials/svg?seed=${user?.username}`}
-                      alt={user?.username || ''}
-                      width={36}
-                      height={36}
-                      className="rounded-full"
-                    />
+                   
+                    <Avatar 
+  username={user?.username} 
+  avatarUrl={user?.avatar}  // 数据库中的头像
+  size="md" 
+/>
+
                   </div>
                 </div>
                 <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-10 w-52 p-2 shadow-lg border border-base-300 mt-2">

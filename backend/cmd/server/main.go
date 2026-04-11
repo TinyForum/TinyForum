@@ -9,6 +9,17 @@ import (
 	"bbs-forum/pkg/logger"
 )
 
+// @title           BBS Forum API
+// @version         1.0
+// @description     一个基于 Gin 的论坛系统 API
+// @host            localhost:8080
+// @BasePath        /api/v1
+
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description Type "Bearer" followed by a space and the JWT token.
+
 func main() {
 	// Load config
 	cfg, err := config.Load("config/config.yaml")

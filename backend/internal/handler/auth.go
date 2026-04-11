@@ -56,6 +56,15 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		response.BadRequest(c, err.Error())
 		return
 	}
+	c.SetCookie(
+		"bbs_token",
+		result.Token,
+		3600*24*7, // 7 days
+		"/",
+		"",
+		false,
+		true, // HttpOnly
+	)
 	response.Success(c, result)
 }
 

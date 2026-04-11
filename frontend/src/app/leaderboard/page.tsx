@@ -5,6 +5,7 @@ import { userApi } from '@/lib/api';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Trophy, Star, Crown } from 'lucide-react';
+import Avatar from '@/components/user/Avatar';
 
 export default function LeaderboardPage() {
   const { data, isLoading } = useQuery({
@@ -56,13 +57,12 @@ export default function LeaderboardPage() {
                   {/* Avatar */}
                   <div className="avatar">
                     <div className="w-10 h-10 rounded-full">
-                      <Image
-                        src={u.avatar || `https://api.dicebear.com/8.x/initials/svg?seed=${u.username}`}
-                        alt={u.username}
-                        width={40}
-                        height={40}
-                        className="rounded-full"
-                      />
+                     
+                       <Avatar 
+  username={u.username} 
+  avatarUrl={u.avatar}  // 数据库中的头像
+  size="md" 
+/>
                     </div>
                   </div>
 

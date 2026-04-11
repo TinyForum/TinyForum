@@ -10,6 +10,7 @@ import { useAuthStore } from '@/store/auth';
 import { commentApi } from '@/lib/api';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
+import Avatar from '../user/Avatar';
 
 interface CommentItemProps {
   comment: Comment;
@@ -35,16 +36,15 @@ export default function CommentItem({ comment, postId, onReply }: CommentItemPro
 
   return (
     <div className="flex gap-3">
-      <Link href={`/users/${comment.author?.id}`} className="flex-none">
+      <Link href={`/users/${comment.author_id}`} className="flex-none">
         <div className="avatar">
           <div className="w-8 h-8 rounded-full">
-            <Image
-              src={comment.author?.avatar || `https://api.dicebear.com/8.x/initials/svg?seed=${comment.author?.username}`}
-              alt={comment.author?.username || ''}
-              width={32}
-              height={32}
-              className="rounded-full"
-            />
+            <Avatar 
+  username={comment.author?.username} 
+  avatarUrl={comment.author?.avatar}  // 数据库中的头像
+  size="md" 
+/>
+          
           </div>
         </div>
       </Link>

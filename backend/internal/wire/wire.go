@@ -12,8 +12,12 @@ import (
 	jwtpkg "bbs-forum/pkg/jwt"
 	"bbs-forum/pkg/logger"
 
+	_ "bbs-forum/docs"
+
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	gormlogger "gorm.io/gorm/logger"
@@ -115,6 +119,8 @@ func InitApp(cfg *config.Config) (*App, error) {
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 	}))
+	// swagger
+	engine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// Routes
 	api := engine.Group("/api/v1")

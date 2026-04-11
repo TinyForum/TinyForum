@@ -157,7 +157,7 @@ export default function NewPostPage() {
                         backgroundColor: selected ? tag.color + '30' : tag.color + '15',
                         color: tag.color,
                         borderColor: tag.color + '60',
-                        ringColor: tag.color,
+                        // ringColor: tag.color,
                       }}
                     >
                       {selected && <X className="w-3 h-3 mr-1" />}

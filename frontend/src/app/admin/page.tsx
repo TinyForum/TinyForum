@@ -12,20 +12,21 @@ import {
   ShieldCheck, ShieldOff, Search,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import Avatar from '@/components/user/Avatar';
 
 export default function AdminPage() {
   const { user, isAuthenticated } = useAuthStore();
-  const router = useRouter();
+  // const router = useRouter();
   const queryClient = useQueryClient();
   const [tab, setTab] = useState<'users' | 'posts'>('users');
   const [keyword, setKeyword] = useState('');
   const [page, setPage] = useState(1);
 
-  useEffect(() => {
-    if (!isAuthenticated || user?.role !== 'admin') {
-      router.push('/');
-    }
-  }, [isAuthenticated, user, router]);
+  // useEffect(() => {
+  //   if (!isAuthenticated || user?.role !== 'admin') {
+  //     router.push('/');
+  //   }
+  // }, [isAuthenticated, user, router]);
 
   const { data: usersData, isLoading: usersLoading } = useQuery({
     queryKey: ['admin-users', page, keyword],
@@ -132,13 +133,13 @@ export default function AdminPage() {
                         <div className="flex items-center gap-2">
                           <div className="avatar">
                             <div className="w-8 h-8 rounded-full">
-                              <Image
-                                src={u.avatar || `https://api.dicebear.com/8.x/initials/svg?seed=${u.username}`}
-                                alt={u.username}
-                                width={32}
-                                height={32}
-                                className="rounded-full"
-                              />
+                             
+                               <Avatar 
+  username={u.username} 
+  avatarUrl={u.avatar}  // 数据库中的头像
+  size="md" 
+/>
+                              
                             </div>
                           </div>
                           <span className="font-medium text-sm">{u.username}</span>

@@ -37,6 +37,7 @@ export default function LoginPage() {
       const res = await authApi.login(data);
       const { token, user } = res.data.data;
       setAuth(user, token);
+      
       toast.success(`欢迎回来，${user.username}！`);
       router.push('/');
     } catch (err) {

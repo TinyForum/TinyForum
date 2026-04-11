@@ -9,7 +9,7 @@
 | 层 | 技术 |
 |---|---|
 | 后端 | Go 1.21, Gin, GORM, Wire (手动注入), JWT, Zap |
-| 前端 | Next.js 14, TypeScript, Tailwind CSS, DaisyUI, TanStack Query, Zustand, Tiptap |
+| 前端 | Next.js 16, TypeScript, Tailwind CSS, DaisyUI, TanStack Query, Zustand, Tiptap |
 | 数据库 | PostgreSQL 16 |
 | 部署 | Docker + Docker Compose |
 
@@ -51,6 +51,12 @@ docker compose up -d
 - Node.js 20+
 - PostgreSQL 16（本地或 Docker）
 
+#### 初始化数据库
+
+```bash
+# 先创建数据库，然后执行 SQL 文件
+psql -U postgres -h localhost -d postgres -c "CREATE DATABASE bbs_forum;"
+```
 #### 启动 PostgreSQL（Docker 单独启动）
 
 ```bash

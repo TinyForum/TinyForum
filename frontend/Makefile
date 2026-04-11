@@ -1,0 +1,3 @@
+dev:
+	@pnpm run dev
+	

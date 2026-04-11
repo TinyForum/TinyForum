@@ -10,6 +10,7 @@ import Image from 'next/image';
 import { Bell, CheckCheck, Heart, MessageSquare, UserPlus, Info } from 'lucide-react';
 import toast from 'react-hot-toast';
 import type { Notification } from '@/types';
+import Avatar from '@/components/user/Avatar';
 
 const NotifIcon = ({ type }: { type: Notification['type'] }) => {
   const cls = 'w-4 h-4';
@@ -95,13 +96,12 @@ export default function NotificationsPage() {
                   {notif.sender ? (
                     <div className="avatar flex-none">
                       <div className="w-9 h-9 rounded-full">
-                        <Image
-                          src={notif.sender.avatar || `https://api.dicebear.com/8.x/initials/svg?seed=${notif.sender.username}`}
-                          alt={notif.sender.username}
-                          width={36}
-                          height={36}
-                          className="rounded-full"
-                        />
+
+                         <Avatar 
+  username={notif.sender.username} 
+  avatarUrl={notif.sender.avatar}  // 数据库中的头像
+  size="md" 
+/>
                       </div>
                     </div>
                   ) : (

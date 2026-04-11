@@ -34,7 +34,7 @@ type LoginInput struct {
 }
 
 type AuthResult struct {
-	Token string     `json:"token"`
+	Token string      `json:"token"`
 	User  *model.User `json:"user"`
 }
 
@@ -182,5 +182,5 @@ func (s *UserService) SetActive(userID uint, active bool) error {
 }
 
 func avatarURL(username string) string {
-	return "https://api.dicebear.com/8.x/initials/svg?seed=" + username
+	return "https://api.dicebear.com/8.x/lorelei/svg?seed=" + username
 }

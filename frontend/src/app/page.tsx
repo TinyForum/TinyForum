@@ -9,6 +9,7 @@ import Image from 'next/image';
 import { Flame, Clock, Tag as TagIcon, Trophy, ChevronRight, PenSquare } from 'lucide-react';
 import { useAuthStore } from '@/store/auth';
 import { formatDate } from '@/lib/utils';
+import Avatar from '@/components/user/Avatar';
 
 export default function HomePage() {
   const { isAuthenticated } = useAuthStore();
@@ -87,6 +88,7 @@ export default function HomePage() {
           </div>
         ) : (
           <div className="space-y-3">
+            
             {posts.map((post) => (
               <PostCard key={post.id} post={post} />
             ))}
@@ -180,13 +182,13 @@ export default function HomePage() {
                   }`}>
                     {i + 1}
                   </span>
-                  <Image
-                    src={u.avatar || `https://api.dicebear.com/8.x/initials/svg?seed=${u.username}`}
-                    alt={u.username}
-                    width={24}
-                    height={24}
-                    className="rounded-full"
-                  />
+                 
+                  <Avatar 
+  username={u.username} 
+  avatarUrl={u.avatar}  // 数据库中的头像
+  size="md" 
+/>
+
                   <span className="flex-1 text-sm truncate">{u.username}</span>
                   <span className="text-xs text-warning font-medium">{u.score}</span>
                 </Link>

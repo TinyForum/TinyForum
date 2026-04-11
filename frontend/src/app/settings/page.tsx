@@ -75,8 +75,14 @@ export default function SettingsPage() {
                   onError={(e) => {
                     (e.target as HTMLImageElement).src = `https://api.dicebear.com/8.x/initials/svg?seed=${user.username}`;
                   }}
-                />
-              </div>
+                /> 
+                
+                {/* <Avatar 
+  username={avatarValue || user.avatar }
+  avatarUrl={user.avatar}  // 数据库中的头像
+  size="md" 
+/> */}
+</div>
             </div>
             <div className="text-center">
               <p className="font-semibold">{user.username}</p>

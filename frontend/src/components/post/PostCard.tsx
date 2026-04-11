@@ -1,10 +1,12 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import Image from 'next/image';
-import { Post } from '@/types';
-import { timeAgo, truncate } from '@/lib/utils';
-import { Eye, Heart, MessageSquare, Pin, Tag } from 'lucide-react';
+import Link from "next/link";
+import Image from "next/image";
+import { Post } from "@/types";
+import { timeAgo, truncate } from "@/lib/utils";
+import { Eye, Heart, MessageSquare, Pin, Tag } from "lucide-react";
+import Avatar from "../user/Avatar";
+import { useState } from "react";
 
 interface PostCardProps {
   post: Post;
@@ -12,21 +14,30 @@ interface PostCardProps {
 }
 
 export default function PostCard({ post, commentCount }: PostCardProps) {
+   const [userId,setUserId] = useState<number | null>(null);
+  if (!post) return null;
+ console.log('author id: ',post.author_id); 
+  if (!userId){
+    
+    setUserId(post.author_id)
+  }
+
+ 
   return (
-    <div className={`card bg-base-100 shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border border-base-300 ${post.pin_top ? 'border-l-4 border-l-primary' : ''}`}>
+    <div
+      className={`card bg-base-100 shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border border-base-300 ${post.pin_top ? "border-l-4 border-l-primary" : ""}`}
+    >
       <div className="card-body p-4">
         {/* Top row */}
         <div className="flex items-start gap-3">
           {/* Author avatar */}
-          <Link href={`/users/${post.author?.id}`} className="flex-none">
+          <Link href={`/users/${userId}`} className="flex-none">
             <div className="avatar">
               <div className="w-10 h-10 rounded-full">
-                <Image
-                  src={post.author?.avatar || `https://api.dicebear.com/8.x/initials/svg?seed=${post.author?.username}`}
-                  alt={post.author?.username || ''}
-                  width={40}
-                  height={40}
-                  className="rounded-full"
+                <Avatar
+                  username={post.author?.username}
+                  avatarUrl={post.author?.avatar} 
+                  size="md"
                 />
               </div>
             </div>
@@ -40,11 +51,20 @@ export default function PostCard({ post, commentCount }: PostCardProps) {
                   <Pin className="w-3 h-3" /> 置顶
                 </span>
               )}
-              <span className={`badge badge-sm ${
-                post.type === 'article' ? 'badge-secondary' :
-                post.type === 'topic' ? 'badge-accent' : 'badge-ghost'
-              }`}>
-                {post.type === 'article' ? '文章' : post.type === 'topic' ? '话题' : '帖子'}
+              <span
+                className={`badge badge-sm ${
+                  post.type === "article"
+                    ? "badge-secondary"
+                    : post.type === "topic"
+                      ? "badge-accent"
+                      : "badge-ghost"
+                }`}
+              >
+                {post.type === "article"
+                  ? "文章"
+                  : post.type === "topic"
+                    ? "话题"
+                    : "帖子"}
               </span>
             </div>
 
@@ -63,7 +83,10 @@ export default function PostCard({ post, commentCount }: PostCardProps) {
 
           {/* Cover image */}
           {post.cover && (
-            <Link href={`/posts/${post.id}`} className="flex-none hidden sm:block">
+            <Link
+              href={`/posts/${post.id}`}
+              className="flex-none hidden sm:block"
+            >
               <div className="w-20 h-16 rounded-lg overflow-hidden">
                 <Image
                   src={post.cover}
@@ -80,7 +103,10 @@ export default function PostCard({ post, commentCount }: PostCardProps) {
         {/* Bottom row */}
         <div className="flex items-center justify-between mt-3 flex-wrap gap-2">
           <div className="flex items-center gap-3 text-xs text-base-content/50">
-            <Link href={`/users/${post.author?.id}`} className="hover:text-primary transition-colors font-medium">
+            <Link
+              href={`/users/${post.author?.id}`}
+              className="hover:text-primary transition-colors font-medium"
+            >
               {post.author?.username}
             </Link>
             <span>{timeAgo(post.created_at)}</span>
@@ -92,7 +118,11 @@ export default function PostCard({ post, commentCount }: PostCardProps) {
                     key={tag.id}
                     href={`/posts?tag_id=${tag.id}`}
                     className="badge badge-sm"
-                    style={{ backgroundColor: tag.color + '20', color: tag.color, borderColor: tag.color + '40' }}
+                    style={{
+                      backgroundColor: tag.color + "20",
+                      color: tag.color,
+                      borderColor: tag.color + "40",
+                    }}
                   >
                     {tag.name}
                   </Link>
