@@ -4,9 +4,9 @@ import (
 	"errors"
 	"time"
 
-	"bbs-forum/internal/model"
-	"bbs-forum/internal/repository"
-	jwtpkg "bbs-forum/pkg/jwt"
+	"tiny-forum/internal/model"
+	"tiny-forum/internal/repository"
+	jwtpkg "tiny-forum/pkg/jwt"
 
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
@@ -66,7 +66,7 @@ func (s *UserService) Register(input RegisterInput) (*AuthResult, error) {
 	}
 
 	// Send welcome notification
-	s.notifSvc.Create(user.ID, nil, model.NotifySystem, "欢迎加入 BBS Forum！", nil, "")
+	s.notifSvc.Create(user.ID, nil, model.NotifySystem, "欢迎加入 Tiny Forum！", nil, "")
 
 	token, err := s.jwtMgr.Generate(user.ID, user.Username, string(user.Role))
 	if err != nil {

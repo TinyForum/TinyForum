@@ -8,6 +8,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function timeAgo(dateStr: string): string {
+  console.log('dateStr', dateStr);
   // 添加参数验证
   if (!dateStr) {
     return '刚刚';

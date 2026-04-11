@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"bbs-forum/internal/model"
+	"tiny-forum/internal/model"
 
 	"gorm.io/gorm"
 )

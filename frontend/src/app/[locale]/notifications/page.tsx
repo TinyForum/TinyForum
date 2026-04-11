@@ -11,6 +11,7 @@ import { Bell, CheckCheck, Heart, MessageSquare, UserPlus, Info } from 'lucide-r
 import toast from 'react-hot-toast';
 import type { Notification } from '@/types';
 import Avatar from '@/components/user/Avatar';
+import { useTranslations } from 'next-intl';
 
 const NotifIcon = ({ type }: { type: Notification['type'] }) => {
   const cls = 'w-4 h-4';
@@ -27,6 +28,7 @@ export default function NotificationsPage() {
   const { isAuthenticated } = useAuthStore();
   const router = useRouter();
   const queryClient = useQueryClient();
+  const t = useTranslations('notifications');
 
   useEffect(() => {
     if (!isAuthenticated) router.push('/auth/login');
@@ -55,7 +57,7 @@ export default function NotificationsPage() {
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold flex items-center gap-2">
           <Bell className="w-6 h-6 text-primary" />
-          通知
+          {t("title")}
           {unread > 0 && (
             <span className="badge badge-error badge-sm">{unread}</span>
           )}
@@ -66,7 +68,7 @@ export default function NotificationsPage() {
             onClick={() => markAllMutation.mutate()}
             disabled={markAllMutation.isPending}
           >
-            <CheckCheck className="w-4 h-4" /> 全部已读
+            <CheckCheck className="w-4 h-4" /> {t("mark_all_read")}
           </button>
         )}
       </div>
@@ -80,7 +82,7 @@ export default function NotificationsPage() {
       ) : notifications.length === 0 ? (
         <div className="text-center py-20 text-base-content/40">
           <Bell className="w-12 h-12 mx-auto mb-3 opacity-30" />
-          <p>暂无通知</p>
+          <p>{t("no_notifications")}</p>
         </div>
       ) : (
         <div className="space-y-2">

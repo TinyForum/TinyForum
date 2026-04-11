@@ -7,12 +7,12 @@ database:
   port: 5432
   user: postgres
   password: postgres
-  dbname: bbs_forum
+  dbname: tiny_forum
   sslmode: disable
   timezone: Asia/Shanghai
 
 jwt:
-  secret: "bbs-forum-secret-change-in-production-32chars"
+  secret: "tiny-forum-secret-change-in-production-32chars"
   expire: 72h
 
 log:

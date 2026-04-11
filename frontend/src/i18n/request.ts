@@ -14,7 +14,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
   }
 
   try {
-    const messages = (await import(`../../messages/${locale}.json`)).default;
+    const messages = (await import(`../messages/${locale}.json`)).default;
     
     return {
       locale,
@@ -33,7 +33,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
   } catch (error) {
     console.error(`Failed to load messages for locale: ${locale}`, error);
     // 尝试加载默认语言
-    const defaultMessages = (await import(`../../messages/${routing.defaultLocale}.json`)).default;
+    const defaultMessages = (await import(`../messages/${routing.defaultLocale}.json`)).default;
     return {
       locale: routing.defaultLocale,
       messages: defaultMessages,

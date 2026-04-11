@@ -11,6 +11,7 @@ import { useAuthStore } from '@/store/auth';
 import toast from 'react-hot-toast';
 import { Mail, Lock, Eye, EyeOff, LogIn } from 'lucide-react';
 import { getErrorMessage } from '@/lib/utils';
+import { useTranslations } from 'next-intl';
 
 const loginSchema = z.object({
   email: z.string().email('请输入有效的邮箱'),
@@ -24,6 +25,7 @@ export default function LoginPage() {
   const { setAuth } = useAuthStore();
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const t = useTranslations('auth');
 
   const {
     register,
@@ -38,7 +40,7 @@ export default function LoginPage() {
       const { token, user } = res.data.data;
       setAuth(user, token);
       
-      toast.success(`欢迎回来，${user.username}！`);
+      toast.success(t("welcome_back")+`，${user.username}！`);
       router.push('/');
     } catch (err) {
       toast.error(getErrorMessage(err));
@@ -57,15 +59,15 @@ export default function LoginPage() {
               <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white text-2xl font-black mx-auto mb-4">
                 B
               </div>
-              <h1 className="text-2xl font-bold">欢迎回来</h1>
-              <p className="text-base-content/50 text-sm mt-1">登录你的 BBS Forum 账号</p>
+              <h1 className="text-2xl font-bold">{t("welcome_back")}</h1>
+              <p className="text-base-content/50 text-sm mt-1">{t("login_to_your_account")}</p>
             </div>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               {/* Email */}
               <div className="form-control">
                 <label className="label pb-1">
-                  <span className="label-text font-medium">邮箱</span>
+                  <span className="label-text font-medium">{t("email")}</span>
                 </label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-base-content/40" />
@@ -87,7 +89,7 @@ export default function LoginPage() {
               {/* Password */}
               <div className="form-control">
                 <label className="label pb-1">
-                  <span className="label-text font-medium">密码</span>
+                  <span className="label-text font-medium">{t("password")}</span>
                 </label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-base-content/40" />
@@ -123,13 +125,13 @@ export default function LoginPage() {
                 ) : (
                   <LogIn className="w-4 h-4" />
                 )}
-                登录
+                {t("login")}
               </button>
             </form>
 
-            <div className="divider text-base-content/30 text-xs">还没有账号？</div>
+            <div className="divider text-base-content/30 text-xs">{t("Dont_have_an_account")}</div>
             <Link href="/auth/register" className="btn btn-ghost btn-sm w-full">
-              免费注册
+              {t("sign_up_for_free")}
             </Link>
           </div>
         </div>

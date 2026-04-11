@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -11,7 +11,7 @@ import toast from 'react-hot-toast';
 import { getErrorMessage } from '@/lib/utils';
 import { Settings, Save } from 'lucide-react';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 
 const schema = z.object({
   bio: z.string().max(500, '个人简介最多500字'),
@@ -24,10 +24,15 @@ export default function SettingsPage() {
   const { user, isAuthenticated, updateUser } = useAuthStore();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [avatarError, setAvatarError] = useState(false);
+  const t = useTranslations('Settings')
 
-  useEffect(() => {
-    if (!isAuthenticated) router.push('/auth/login');
-  }, [isAuthenticated, router]);
+  // 重定向未登录用户
+  // useEffect(() => {
+  //   if (!isAuthenticated) {
+  //     router.push('/auth/login');
+  //   }
+  // }, [isAuthenticated, router]);
 
   const { register, handleSubmit, watch, formState: { errors } } = useForm<SettingsForm>({
     resolver: zodResolver(schema),
@@ -39,12 +44,27 @@ export default function SettingsPage() {
 
   const avatarValue = watch('avatar');
 
+  // 获取最终显示的头像 URL
+  const getAvatarUrl = () => {
+    if (avatarValue && !avatarError) return avatarValue;
+    return `https://api.dicebear.com/8.x/initials/svg?seed=${user?.username || 'user'}`;
+  };
+
   const onSubmit = async (data: SettingsForm) => {
+    if (!user) return;
+    
     setLoading(true);
     try {
-      await userApi.updateProfile({ bio: data.bio, avatar: data.avatar || undefined });
-      updateUser({ bio: data.bio, avatar: data.avatar || user?.avatar });
+      await userApi.updateProfile({ 
+        bio: data.bio, 
+        avatar: data.avatar || undefined 
+      });
+      updateUser({ 
+        bio: data.bio, 
+        avatar: data.avatar || user.avatar 
+      });
       toast.success('资料已更新');
+      setAvatarError(false); // 重置头像错误状态
     } catch (err) {
       toast.error(getErrorMessage(err));
     } finally {
@@ -52,12 +72,20 @@ export default function SettingsPage() {
     }
   };
 
-  if (!user) return null;
+  // 如果用户数据未加载或未登录，显示加载状态
+  if (!user) {
+    return (
+      <div className="flex justify-center items-center min-h-[400px]">
+        <span className="loading loading-spinner loading-lg"></span>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-lg mx-auto">
       <h1 className="text-2xl font-bold flex items-center gap-2 mb-6">
-        <Settings className="w-6 h-6 text-primary" /> 账号设置
+        <Settings className="w-6 h-6 text-primary" /> 
+        <span>{t('title')}</span>
       </h1>
 
       <div className="card bg-base-100 border border-base-300 shadow-sm">
@@ -67,22 +95,15 @@ export default function SettingsPage() {
             <div className="avatar">
               <div className="w-24 h-24 rounded-2xl ring ring-primary ring-offset-2">
                 <Image
-                  src={avatarValue || user.avatar || `https://api.dicebear.com/8.x/initials/svg?seed=${user.username}`}
+                  src={getAvatarUrl()}
                   alt={user.username}
                   width={96}
                   height={96}
                   className="rounded-2xl object-cover"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = `https://api.dicebear.com/8.x/initials/svg?seed=${user.username}`;
-                  }}
-                /> 
-                
-                {/* <Avatar 
-  username={avatarValue || user.avatar }
-  avatarUrl={user.avatar}  // 数据库中的头像
-  size="md" 
-/> */}
-</div>
+                  onError={() => setAvatarError(true)}
+                  unoptimized={avatarValue?.startsWith('https://api.dicebear.com')}
+                />
+              </div>
             </div>
             <div className="text-center">
               <p className="font-semibold">{user.username}</p>
@@ -93,7 +114,7 @@ export default function SettingsPage() {
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="form-control">
               <label className="label pb-1">
-                <span className="label-text font-medium">头像图片 URL</span>
+                <span className="label-text font-medium">{t('avatar_image_url')}</span>
               </label>
               <input
                 {...register('avatar')}
@@ -107,18 +128,20 @@ export default function SettingsPage() {
                 </label>
               )}
               <label className="label pt-1">
-                <span className="label-text-alt text-base-content/40">留空则使用默认头像</span>
+                <span className="label-text-alt text-base-content/40">
+                 {t("avatar_image_url_tip")}
+                </span>
               </label>
             </div>
 
             <div className="form-control">
               <label className="label pb-1">
-                <span className="label-text font-medium">个人简介</span>
+                <span className="label-text font-medium">{t("about_me")}</span>
               </label>
               <textarea
                 {...register('bio')}
                 rows={4}
-                placeholder="介绍一下自己..."
+                placeholder={t("about_me_placeholder")}
                 className={`textarea textarea-bordered focus:outline-none focus:border-primary resize-none ${errors.bio ? 'textarea-error' : ''}`}
               />
               {errors.bio && (
@@ -126,6 +149,11 @@ export default function SettingsPage() {
                   <span className="label-text-alt text-error">{errors.bio.message}</span>
                 </label>
               )}
+              <label className="label pt-1">
+                <span className="label-text-alt text-base-content/40">
+                  {watch('bio')?.length || 0}/500
+                </span>
+              </label>
             </div>
 
             <button type="submit" className="btn btn-primary w-full gap-2" disabled={loading}>
@@ -134,7 +162,7 @@ export default function SettingsPage() {
               ) : (
                 <Save className="w-4 h-4" />
               )}
-              保存设置
+              {t("save")}
             </button>
           </form>
         </div>

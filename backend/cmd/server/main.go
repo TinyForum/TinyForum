@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"log"
 
-	"bbs-forum/config"
-	"bbs-forum/internal/wire"
-	"bbs-forum/pkg/logger"
+	"tiny-forum/config"
+	"tiny-forum/internal/wire"
+	"tiny-forum/pkg/logger"
 )
 
-// @title           BBS Forum API
+// @title           Tiny Forum API
 // @version         1.0
 // @description     一个基于 Gin 的论坛系统 API
 // @host            localhost:8080
@@ -39,7 +39,7 @@ func main() {
 	}
 
 	addr := fmt.Sprintf(":%d", cfg.Server.Port)
-	logger.Info(fmt.Sprintf("BBS Forum server starting on %s", addr))
+	logger.Info(fmt.Sprintf("Tiny Forum server starting on %s", addr))
 
 	if err := app.Engine.Run(addr); err != nil {
 		logger.Fatal(fmt.Sprintf("Server failed: %v", err))

@@ -3,17 +3,22 @@ import { Inter, Fira_Code } from 'next/font/google';
 import Providers from '@/components/layout/Providers';
 import Navbar from '@/components/layout/Navbar';
 import { NextIntlClientProvider } from 'next-intl';
-import { getMessages } from 'next-intl/server';
 import { notFound } from 'next/navigation';
-
+import { getTranslations } from 'next-intl/server';
 import '../styles/globals.css';
+
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 const firaCode = Fira_Code({ subsets: ['latin'], variable: '--font-fira-code' });
 
-export const metadata: Metadata = {
-  title: 'Mucly 论坛',
-  description: '传统乐器交流社区',
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'site' });
+  
+  return {
+    title: t("brand"),
+    description: t("description"),
+  };
+}
 
 export default async function RootLayout({
   children,
@@ -22,13 +27,11 @@ export default async function RootLayout({
   children: React.ReactNode;
   params: Promise<{ locale: string }> | { locale: string };
 }) {
-  // 在 Next.js 15 中，params 可能是 Promise
   const { locale } = await params;
   
-  // 获取消息文件
   let messages;
   try {
-    messages = (await import(`../../../messages/${locale}.json`)).default;
+    messages = (await import(`../../messages/${locale}.json`)).default;
   } catch (error) {
     notFound();
   }

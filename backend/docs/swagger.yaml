@@ -1,3 +1,4 @@
+basePath: /api/v1
 definitions:
   response.Response:
     properties:
@@ -33,8 +34,12 @@ definitions:
     - password
     - username
     type: object
+host: localhost:8080
 info:
   contact: {}
+  description: 一个基于 Gin 的论坛系统 API
+  title: Tiny Forum API
+  version: "1.0"
 paths:
   /api/v1/auth/login:
     post:
@@ -92,4 +97,10 @@ paths:
       summary: 用户注册
       tags:
       - auth
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and the JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

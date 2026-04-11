@@ -12,6 +12,7 @@ import toast from 'react-hot-toast';
 import { getErrorMessage } from '@/lib/utils';
 import { FileText, Send, X } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
+import { useTranslations } from 'next-intl';
 
 const postSchema = z.object({
   title: z.string().min(2, '标题至少2个字符').max(200, '标题最多200个字符'),
@@ -28,6 +29,7 @@ export default function NewPostPage() {
   const router = useRouter();
   const { isAuthenticated } = useAuthStore();
   const [loading, setLoading] = useState(false);
+  const t = useTranslations('posts');
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -64,7 +66,7 @@ export default function NewPostPage() {
     } else if (current.length < 5) {
       setValue('tag_ids', [...current, tagId]);
     } else {
-      toast.error('最多选择5个标签');
+      toast.error(t("select_up_to_tags"));
     }
   };
 
@@ -76,7 +78,7 @@ export default function NewPostPage() {
         cover: data.cover || undefined,
         summary: data.summary || undefined,
       });
-      toast.success('发布成功！');
+      toast.success(t("publish_success"));
       router.push(`/posts/${res.data.data.id}`);
     } catch (err) {
       toast.error(getErrorMessage(err));
@@ -91,7 +93,7 @@ export default function NewPostPage() {
     <div className="max-w-3xl mx-auto">
       <div className="flex items-center gap-3 mb-6">
         <FileText className="w-6 h-6 text-primary" />
-        <h1 className="text-2xl font-bold">发布新帖子</h1>
+        <h1 className="text-2xl font-bold">{t("publish_new_post")}</h1>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
@@ -100,13 +102,13 @@ export default function NewPostPage() {
             {/* Type */}
             <div className="form-control">
               <label className="label pb-1">
-                <span className="label-text font-medium">帖子类型</span>
+                <span className="label-text font-medium">{t("post_type")}</span>
               </label>
               <div className="flex gap-2">
                 {[
-                  { value: 'post', label: '帖子', desc: '普通讨论帖' },
-                  { value: 'article', label: '文章', desc: '长篇技术文章' },
-                  { value: 'topic', label: '话题', desc: '热门话题讨论' },
+                  { value: 'post', label: t("post"), desc: t("post_desc") },
+                  { value: 'article', label: t("article"), desc: t("article_desc") },
+                  { value: 'topic', label: t("topic"), desc: t("topic_desc") },
                 ].map((t) => (
                   <label key={t.value} className="flex-1 cursor-pointer">
                     <input {...register('type')} type="radio" value={t.value} className="hidden peer" />
@@ -122,12 +124,12 @@ export default function NewPostPage() {
             {/* Title */}
             <div className="form-control">
               <label className="label pb-1">
-                <span className="label-text font-medium">标题 <span className="text-error">*</span></span>
+                <span className="label-text font-medium">{t("post_title")} <span className="text-error">*</span></span>
               </label>
               <input
                 {...register('title')}
                 type="text"
-                placeholder="请输入帖子标题"
+                placeholder={t("post_title_placeholder")}
                 className={`input input-bordered focus:outline-none focus:border-primary ${errors.title ? 'input-error' : ''}`}
               />
               {errors.title && (
@@ -140,7 +142,7 @@ export default function NewPostPage() {
             {/* Tags */}
             <div className="form-control">
               <label className="label pb-1">
-                <span className="label-text font-medium">标签 <span className="text-base-content/40 text-xs">(最多5个)</span></span>
+                <span className="label-text font-medium">{t("tags")} <span className="text-base-content/40 text-xs">{t("select_up_to_tags")}</span></span>
               </label>
               <div className="flex flex-wrap gap-2">
                 {(tags ?? []).map((tag) => {
@@ -171,7 +173,7 @@ export default function NewPostPage() {
             {/* Cover image URL */}
             <div className="form-control">
               <label className="label pb-1">
-                <span className="label-text font-medium">封面图片 <span className="text-base-content/40 text-xs">(可选，填写图片URL)</span></span>
+                <span className="label-text font-medium">{t("cover_image")} <span className="text-base-content/40 text-xs">{t("cover_image_desc")}</span></span>
               </label>
               <input
                 {...register('cover')}
@@ -189,12 +191,12 @@ export default function NewPostPage() {
             {/* Summary */}
             <div className="form-control">
               <label className="label pb-1">
-                <span className="label-text font-medium">摘要 <span className="text-base-content/40 text-xs">(可选，显示在列表页)</span></span>
+                <span className="label-text font-medium">{t("summary")} <span className="text-base-content/40 text-xs">{t("summary_desc")}</span></span>
               </label>
               <textarea
                 {...register('summary')}
                 rows={2}
-                placeholder="简短描述帖子内容..."
+                placeholder={t("summary_placeholder")}
                 className="textarea textarea-bordered focus:outline-none focus:border-primary resize-none"
               />
             </div>
@@ -204,7 +206,7 @@ export default function NewPostPage() {
         {/* Content editor */}
         <div>
           <label className="label pb-2">
-            <span className="label-text font-medium text-base">正文内容 <span className="text-error">*</span></span>
+            <span className="label-text font-medium text-base">{t("post_content")}<span className="text-error">*</span></span>
           </label>
           <Controller
             name="content"
@@ -213,7 +215,7 @@ export default function NewPostPage() {
               <RichEditor
                 content={field.value}
                 onChange={field.onChange}
-                placeholder="开始写作..."
+                placeholder={t("post_content_placeholder")}
               />
             )}
           />
@@ -225,7 +227,7 @@ export default function NewPostPage() {
         {/* Submit */}
         <div className="flex gap-3 justify-end">
           <button type="button" className="btn btn-ghost" onClick={() => router.back()}>
-            取消
+            {t("cancel")}
           </button>
           <button type="submit" className="btn btn-primary gap-2" disabled={loading}>
             {loading ? (
@@ -233,7 +235,7 @@ export default function NewPostPage() {
             ) : (
               <Send className="w-4 h-4" />
             )}
-            发布帖子
+            {t("publish_post")}
           </button>
         </div>
       </form>

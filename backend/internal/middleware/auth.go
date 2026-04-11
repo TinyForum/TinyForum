@@ -3,8 +3,8 @@ package middleware
 import (
 	"strings"
 
-	"bbs-forum/pkg/jwt"
-	"bbs-forum/pkg/response"
+	"tiny-forum/pkg/jwt"
+	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
 )

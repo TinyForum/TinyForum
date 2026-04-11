@@ -3,16 +3,16 @@ package wire
 import (
 	"fmt"
 
-	"bbs-forum/config"
-	"bbs-forum/internal/handler"
-	"bbs-forum/internal/middleware"
-	"bbs-forum/internal/model"
-	"bbs-forum/internal/repository"
-	"bbs-forum/internal/service"
-	jwtpkg "bbs-forum/pkg/jwt"
-	"bbs-forum/pkg/logger"
+	"tiny-forum/config"
+	"tiny-forum/internal/handler"
+	"tiny-forum/internal/middleware"
+	"tiny-forum/internal/model"
+	"tiny-forum/internal/repository"
+	"tiny-forum/internal/service"
+	jwtpkg "tiny-forum/pkg/jwt"
+	"tiny-forum/pkg/logger"
 
-	_ "bbs-forum/docs"
+	_ "tiny-forum/docs"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"

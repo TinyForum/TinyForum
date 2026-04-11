@@ -13,8 +13,5 @@ tidy:
 wire:
 	wire ./internal/wire/...
 
-docs-:
+docs-api:
 	@swag init -g ./cmd/server/main.go --output ./docs
-	@go get -u github.com/swaggo/gin-swagger
-	@go get -u github.com/swaggo/files
-	@go get -u github.com/swaggo/swag

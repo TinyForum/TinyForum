@@ -1,8 +1,8 @@
 package service
 
 import (
-	"bbs-forum/internal/model"
-	"bbs-forum/internal/repository"
+	"tiny-forum/internal/model"
+	"tiny-forum/internal/repository"
 )
 
 type NotificationService struct {

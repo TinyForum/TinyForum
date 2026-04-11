@@ -3,9 +3,9 @@ package handler
 import (
 	"strconv"
 
-	"bbs-forum/internal/repository"
-	"bbs-forum/internal/service"
-	"bbs-forum/pkg/response"
+	"tiny-forum/internal/repository"
+	"tiny-forum/internal/service"
+	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
 )

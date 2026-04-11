@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import Image from 'next/image';
 
 interface AvatarProps {
-  username?: string | 'Mucly';
+  username?: string | 'Hi';
   avatarUrl?: string | null;
   size?: 'sm' | 'md' | 'lg' | number;
   className?: string;

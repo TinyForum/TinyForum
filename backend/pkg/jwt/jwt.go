@@ -37,7 +37,7 @@ func (m *Manager) Generate(userID uint, username, role string) (string, error) {
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(m.expire)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
-			Issuer:    "bbs-forum",
+			Issuer:    "tiny-forum",
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

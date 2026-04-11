@@ -3,8 +3,8 @@ package service
 import (
 	"errors"
 
-	"bbs-forum/internal/model"
-	"bbs-forum/internal/repository"
+	"tiny-forum/internal/model"
+	"tiny-forum/internal/repository"
 )
 
 type CommentService struct {

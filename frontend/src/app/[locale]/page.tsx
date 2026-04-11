@@ -1,43 +1,52 @@
 // src/app/[locale]/page.tsx
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { postApi, tagApi, userApi } from '@/lib/api';
-import PostCard from '@/components/post/PostCard';
-import Link from 'next/link';
-import Image from 'next/image';
-import { Flame, Clock, Tag as TagIcon, Trophy, ChevronRight, PenSquare } from 'lucide-react';
-import { useAuthStore } from '@/store/auth';
-import { formatDate } from '@/lib/utils';
-import Avatar from '@/components/user/Avatar';
-import {useTranslations} from 'next-intl';
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { postApi, tagApi, userApi } from "@/lib/api";
+import PostCard from "@/components/post/PostCard";
+import Link from "next/link";
+import Image from "next/image";
+import {
+  Flame,
+  Clock,
+  Tag as TagIcon,
+  Trophy,
+  ChevronRight,
+  PenSquare,
+} from "lucide-react";
+import { useAuthStore } from "@/store/auth";
+import { formatDate } from "@/lib/utils";
+import Avatar from "@/components/user/Avatar";
+import { useTranslations } from "next-intl";
 
 export default function HomePage() {
   const { isAuthenticated } = useAuthStore();
-  const [sortBy, setSortBy] = useState<'' | 'hot'>('');
+  const [sortBy, setSortBy] = useState<"" | "hot">("");
   const [selectedTag, setSelectedTag] = useState<number | null>(null);
   const [page, setPage] = useState(1);
-   const t = useTranslations('post');
+  const t = useTranslations("post");
 
   const { data: postsData, isLoading } = useQuery({
-    queryKey: ['posts', sortBy, selectedTag, page],
+    queryKey: ["posts", sortBy, selectedTag, page],
     queryFn: () =>
-      postApi.list({
-        page,
-        page_size: 15,
-        sort_by: sortBy,
-        tag_id: selectedTag ?? undefined,
-      }).then((r) => r.data.data),
+      postApi
+        .list({
+          page,
+          page_size: 15,
+          sort_by: sortBy,
+          tag_id: selectedTag ?? undefined,
+        })
+        .then((r) => r.data.data),
   });
 
   const { data: tags } = useQuery({
-    queryKey: ['tags'],
+    queryKey: ["tags"],
     queryFn: () => tagApi.list().then((r) => r.data.data),
   });
 
   const { data: leaderboard } = useQuery({
-    queryKey: ['leaderboard'],
+    queryKey: ["leaderboard"],
     queryFn: () => userApi.leaderboard(10).then((r) => r.data.data),
   });
 
@@ -53,22 +62,28 @@ export default function HomePage() {
         <div className="flex items-center justify-between mb-4 bg-base-100 rounded-xl p-3 border border-base-300">
           <div className="flex items-center gap-2">
             <button
-              className={`btn btn-sm gap-1 ${sortBy === '' ? 'btn-primary' : 'btn-ghost'}`}
-              onClick={() => { setSortBy(''); setPage(1); }}
+              className={`btn btn-sm gap-1 ${sortBy === "" ? "btn-primary" : "btn-ghost"}`}
+              onClick={() => {
+                setSortBy("");
+                setPage(1);
+              }}
             >
-              <Clock className="w-4 h-4" /> 最新
+              <Clock className="w-4 h-4" /> {t("latest_posts")}
             </button>
             <button
-              className={`btn btn-sm gap-1 ${sortBy === 'hot' ? 'btn-primary' : 'btn-ghost'}`}
-              onClick={() => { setSortBy('hot'); setPage(1); }}
+              className={`btn btn-sm gap-1 ${sortBy === "hot" ? "btn-primary" : "btn-ghost"}`}
+              onClick={() => {
+                setSortBy("hot");
+                setPage(1);
+              }}
             >
-              <Flame className="w-4 h-4" /> 热门
+              <Flame className="w-4 h-4" /> {t("hot_posts")}
             </button>
           </div>
 
           {isAuthenticated && (
             <Link href="/posts/new" className="btn btn-primary btn-sm gap-1">
-              <PenSquare className="w-4 h-4" /> {t('create')}
+              <PenSquare className="w-4 h-4" /> {t("create")}
             </Link>
           )}
         </div>
@@ -82,16 +97,15 @@ export default function HomePage() {
           </div>
         ) : posts.length === 0 ? (
           <div className="text-center py-20 text-base-content/40">
-            <p className="text-lg">暂无帖子</p>
+            <p className="text-lg">{t("no_posts")}</p>
             {isAuthenticated && (
               <Link href="/posts/new" className="btn btn-primary mt-4">
-                发布第一篇帖子
+                {t("post_your_first_post")}
               </Link>
             )}
           </div>
         ) : (
           <div className="space-y-3">
-            
             {posts.map((post) => (
               <PostCard key={post.id} post={post} />
             ))}
@@ -109,10 +123,13 @@ export default function HomePage() {
               >
                 «
               </button>
-              {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => i + 1).map((p) => (
+              {Array.from(
+                { length: Math.min(totalPages, 7) },
+                (_, i) => i + 1,
+              ).map((p) => (
                 <button
                   key={p}
-                  className={`join-item btn btn-sm ${page === p ? 'btn-active btn-primary' : ''}`}
+                  className={`join-item btn btn-sm ${page === p ? "btn-active btn-primary" : ""}`}
                   onClick={() => setPage(p)}
                 >
                   {p}
@@ -136,28 +153,37 @@ export default function HomePage() {
         <div className="card bg-base-100 border border-base-300 shadow-sm">
           <div className="card-body p-4">
             <h3 className="font-bold flex items-center gap-2 mb-3">
-              <TagIcon className="w-4 h-4 text-primary" /> 热门标签
+              <TagIcon className="w-4 h-4 text-primary" /> {t("hot_tags")}
             </h3>
             <div className="flex flex-wrap gap-2">
               <button
-                onClick={() => { setSelectedTag(null); setPage(1); }}
-                className={`badge badge-lg cursor-pointer ${!selectedTag ? 'badge-primary' : 'badge-ghost hover:badge-primary'}`}
+                onClick={() => {
+                  setSelectedTag(null);
+                  setPage(1);
+                }}
+                className={`badge badge-lg cursor-pointer ${!selectedTag ? "badge-primary" : "badge-ghost hover:badge-primary"}`}
               >
-                全部
+                {t("all")}
               </button>
               {(tags ?? []).slice(0, 12).map((tag) => (
                 <button
                   key={tag.id}
-                  onClick={() => { setSelectedTag(selectedTag === tag.id ? null : tag.id); setPage(1); }}
+                  onClick={() => {
+                    setSelectedTag(selectedTag === tag.id ? null : tag.id);
+                    setPage(1);
+                  }}
                   className="badge badge-lg cursor-pointer hover:opacity-80 transition-opacity"
                   style={{
-                    backgroundColor: selectedTag === tag.id ? tag.color : tag.color + '20',
+                    backgroundColor:
+                      selectedTag === tag.id ? tag.color : tag.color + "20",
                     color: tag.color,
-                    borderColor: tag.color + '40',
+                    borderColor: tag.color + "40",
                   }}
                 >
                   {tag.name}
-                  <span className="ml-1 opacity-60 text-xs">({tag.post_count})</span>
+                  <span className="ml-1 opacity-60 text-xs">
+                    ({tag.post_count})
+                  </span>
                 </button>
               ))}
             </div>
@@ -168,7 +194,7 @@ export default function HomePage() {
         <div className="card bg-base-100 border border-base-300 shadow-sm">
           <div className="card-body p-4">
             <h3 className="font-bold flex items-center gap-2 mb-3">
-              <Trophy className="w-4 h-4 text-warning" /> 积分排行榜
+              <Trophy className="w-4 h-4 text-warning" /> {t("leaderboard")}
             </h3>
             <div className="space-y-2">
               {(leaderboard ?? []).slice(0, 8).map((u, i) => (
@@ -177,28 +203,38 @@ export default function HomePage() {
                   href={`/users/${u.id}`}
                   className="flex items-center gap-2 hover:bg-base-200 rounded-lg p-1.5 transition-colors"
                 >
-                  <span className={`w-5 h-5 text-xs font-bold flex items-center justify-center rounded-full ${
-                    i === 0 ? 'bg-yellow-400 text-yellow-900' :
-                    i === 1 ? 'bg-gray-300 text-gray-700' :
-                    i === 2 ? 'bg-amber-600 text-white' :
-                    'text-base-content/40'
-                  }`}>
+                  <span
+                    className={`w-5 h-5 text-xs font-bold flex items-center justify-center rounded-full ${
+                      i === 0
+                        ? "bg-yellow-400 text-yellow-900"
+                        : i === 1
+                          ? "bg-gray-300 text-gray-700"
+                          : i === 2
+                            ? "bg-amber-600 text-white"
+                            : "text-base-content/40"
+                    }`}
+                  >
                     {i + 1}
                   </span>
-                 
-                  <Avatar 
-  username={u.username} 
-  avatarUrl={u.avatar}  // 数据库中的头像
-  size="md" 
-/>
+
+                  <Avatar
+                    username={u.username}
+                    avatarUrl={u.avatar} // 数据库中的头像
+                    size="md"
+                  />
 
                   <span className="flex-1 text-sm truncate">{u.username}</span>
-                  <span className="text-xs text-warning font-medium">{u.score}</span>
+                  <span className="text-xs text-warning font-medium">
+                    {u.score}
+                  </span>
                 </Link>
               ))}
             </div>
-            <Link href="/leaderboard" className="btn btn-ghost btn-xs mt-2 gap-1">
-              查看完整排行 <ChevronRight className="w-3 h-3" />
+            <Link
+              href="/leaderboard"
+              className="btn btn-ghost btn-xs mt-2 gap-1"
+            >
+              {t("view_the_full_rankings")} <ChevronRight className="w-3 h-3" />
             </Link>
           </div>
         </div>
@@ -206,9 +242,9 @@ export default function HomePage() {
         {/* Site info */}
         <div className="card bg-base-100 border border-base-300 shadow-sm">
           <div className="card-body p-4 text-xs text-base-content/50 space-y-1">
-            <p className="font-medium text-base-content/70">关于 BBS Forum</p>
-            <p>一个现代化的技术交流社区，欢迎分享你的知识与想法。</p>
-            <p className="pt-1">© {new Date().getFullYear()} BBS Forum</p>
+            <p className="font-medium text-base-content/70">{t("about")}</p>
+            <p>{t("description")}</p>
+            <p className="pt-1">© {new Date().getFullYear()} {t("copyright")}</p>
           </div>
         </div>
       </aside>

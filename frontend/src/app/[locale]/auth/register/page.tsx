@@ -11,6 +11,8 @@ import { useAuthStore } from '@/store/auth';
 import toast from 'react-hot-toast';
 import { Mail, Lock, User, Eye, EyeOff, UserPlus } from 'lucide-react';
 import { getErrorMessage } from '@/lib/utils';
+import { useTranslations } from 'next-intl';
+import Image from "next/image";
 
 const registerSchema = z.object({
   username: z.string().min(2, '用户名至少2个字符').max(50, '用户名最多50个字符'),
@@ -29,6 +31,7 @@ export default function RegisterPage() {
   const { setAuth } = useAuthStore();
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const t = useTranslations('auth');
 
   const {
     register,
@@ -46,7 +49,7 @@ export default function RegisterPage() {
       });
       const { token, user } = res.data.data;
       setAuth(user, token);
-      toast.success('注册成功，欢迎加入！');
+      toast.success(t("registration_successful"));
       router.push('/');
     } catch (err) {
       toast.error(getErrorMessage(err));
@@ -62,25 +65,29 @@ export default function RegisterPage() {
           <div className="card-body p-8">
             {/* Header */}
             <div className="text-center mb-8">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white text-2xl font-black mx-auto mb-4">
-                B
+              <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-white text-2xl font-black mx-auto mb-4">
+               
+                 <Image src="/logo.svg" width={500} height={500} alt="logo" />
+                 
               </div>
-              <h1 className="text-2xl font-bold">创建账号</h1>
-              <p className="text-base-content/50 text-sm mt-1">加入 BBS Forum 社区</p>
+              <h1 className="text-2xl font-bold">{t("create_account")}</h1>
+              <p className="text-base-content/50 text-sm mt-1">{t("join_the_forum")}</p>
             </div>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               {/* Username */}
               <div className="form-control">
                 <label className="label pb-1">
-                  <span className="label-text font-medium">用户名</span>
+                  <span className="label-text font-medium">{t("username")}</span>
                 </label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-base-content/40" />
                   <input
                     {...register('username')}
                     type="text"
-                    placeholder="你的用户名"
+                    placeholder={t(
+                      'username_placeholder',
+                    )}
                     className={`input input-bordered w-full pl-10 focus:outline-none focus:border-primary ${errors.username ? 'input-error' : ''}`}
                     autoComplete="username"
                   />
@@ -95,7 +102,7 @@ export default function RegisterPage() {
               {/* Email */}
               <div className="form-control">
                 <label className="label pb-1">
-                  <span className="label-text font-medium">邮箱</span>
+                  <span className="label-text font-medium">{t("email")}</span>
                 </label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-base-content/40" />
@@ -117,14 +124,14 @@ export default function RegisterPage() {
               {/* Password */}
               <div className="form-control">
                 <label className="label pb-1">
-                  <span className="label-text font-medium">密码</span>
+                  <span className="label-text font-medium">{t("password")}</span>
                 </label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-base-content/40" />
                   <input
                     {...register('password')}
                     type={showPassword ? 'text' : 'password'}
-                    placeholder="至少6个字符"
+                    placeholder={t("password_placeholder")}
                     className={`input input-bordered w-full pl-10 pr-10 focus:outline-none focus:border-primary ${errors.password ? 'input-error' : ''}`}
                     autoComplete="new-password"
                   />
@@ -146,14 +153,14 @@ export default function RegisterPage() {
               {/* Confirm Password */}
               <div className="form-control">
                 <label className="label pb-1">
-                  <span className="label-text font-medium">确认密码</span>
+                  <span className="label-text font-medium">{t("confirm_password")}</span>
                 </label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-base-content/40" />
                   <input
                     {...register('confirmPassword')}
                     type={showPassword ? 'text' : 'password'}
-                    placeholder="再次输入密码"
+                    placeholder={t("confirm_password_placeholder")}
                     className={`input input-bordered w-full pl-10 focus:outline-none focus:border-primary ${errors.confirmPassword ? 'input-error' : ''}`}
                     autoComplete="new-password"
                   />
@@ -175,13 +182,13 @@ export default function RegisterPage() {
                 ) : (
                   <UserPlus className="w-4 h-4" />
                 )}
-                注册
+                {t("register")}
               </button>
             </form>
 
-            <div className="divider text-base-content/30 text-xs">已有账号？</div>
+            <div className="divider text-base-content/30 text-xs">{t("already_have_an_account")}</div>
             <Link href="/auth/login" className="btn btn-ghost btn-sm w-full">
-              立即登录
+              {t("to_login")}
             </Link>
           </div>
         </div>

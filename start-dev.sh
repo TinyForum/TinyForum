@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-echo "🚀 BBS Forum Development Startup"
+echo "🚀 Tiny Forum Development Startup"
 echo "=================================="
 
 # Check dependencies
@@ -15,7 +15,7 @@ docker run -d \
   --name bbs_postgres \
   -e POSTGRES_USER=postgres \
   -e POSTGRES_PASSWORD=postgres \
-  -e POSTGRES_DB=bbs_forum \
+  -e POSTGRES_DB=tiny_forum \
   -p 5432:5432 \
   postgres:16-alpine 2>/dev/null || echo "  (Container may already exist, continuing...)"
 

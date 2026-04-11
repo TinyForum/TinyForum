@@ -54,7 +54,7 @@ export const useAuthStore = create<AuthState>()(
       },
     }),
     {
-      name: 'bbs-auth',
+      name: 'tiny-auth',
       partialize: (state) => ({ 
         user: state.user, 
         token: state.token, 
@@ -68,7 +68,7 @@ export const useAuthStore = create<AuthState>()(
 if (typeof window !== 'undefined') {
   // 从 localStorage 恢复 token
   const storedToken = localStorage.getItem('bbs_token');
-  const storedAuth = localStorage.getItem('bbs-auth');
+  const storedAuth = localStorage.getItem('tiny-auth');
   
   if (storedToken && storedAuth) {
     try {

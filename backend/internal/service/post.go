@@ -3,15 +3,15 @@ package service
 import (
 	"errors"
 
-	"bbs-forum/internal/model"
-	"bbs-forum/internal/repository"
+	"tiny-forum/internal/model"
+	"tiny-forum/internal/repository"
 )
 
 type PostService struct {
-	postRepo  *repository.PostRepository
-	tagRepo   *repository.TagRepository
-	userRepo  *repository.UserRepository
-	notifSvc  *NotificationService
+	postRepo *repository.PostRepository
+	tagRepo  *repository.TagRepository
+	userRepo *repository.UserRepository
+	notifSvc *NotificationService
 }
 
 func NewPostService(
@@ -24,12 +24,12 @@ func NewPostService(
 }
 
 type CreatePostInput struct {
-	Title   string   `json:"title" binding:"required,min=2,max=200"`
-	Content string   `json:"content" binding:"required,min=10"`
-	Summary string   `json:"summary"`
-	Cover   string   `json:"cover"`
-	Type    string   `json:"type"`
-	TagIDs  []uint   `json:"tag_ids"`
+	Title   string `json:"title" binding:"required,min=2,max=200"`
+	Content string `json:"content" binding:"required,min=10"`
+	Summary string `json:"summary"`
+	Cover   string `json:"cover"`
+	Type    string `json:"type"`
+	TagIDs  []uint `json:"tag_ids"`
 }
 
 func (s *PostService) Create(authorID uint, input CreatePostInput) (*model.Post, error) {

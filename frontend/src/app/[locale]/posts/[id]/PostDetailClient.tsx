@@ -14,11 +14,13 @@ import {
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import Avatar from '@/components/user/Avatar';
+import { useTranslations } from 'next-intl';
 
 export default function PostDetailClient({ postId }: { postId: number }) {
   const router = useRouter();
   const { user, isAuthenticated } = useAuthStore();
   const queryClient = useQueryClient();
+    const t = useTranslations("post");
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['post', postId],
@@ -29,23 +31,23 @@ export default function PostDetailClient({ postId }: { postId: number }) {
     mutationFn: () => (data?.liked ? postApi.unlike(postId) : postApi.like(postId)),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['post', postId] });
-      toast.success(data?.liked ? '已取消点赞' : '点赞成功');
+      toast.success(data?.liked ? t("like_has_been_removed") : t("like_successful"));
     },
-    onError: () => toast.error('操作失败'),
+    onError: () => toast.error(t("operation_failed")),
   });
 
   const deleteMutation = useMutation({
     mutationFn: () => postApi.delete(postId),
     onSuccess: () => {
-      toast.success('帖子已删除');
+      toast.success(t("post_deleted"));
       router.push('/');
     },
-    onError: () => toast.error('删除失败'),
+    onError: () => toast.error(t('deletion_failed')),
   });
 
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
-    toast.success('链接已复制到剪贴板');
+    toast.success(t("link_copied"));
   };
 
   if (isLoading) {
@@ -55,8 +57,8 @@ export default function PostDetailClient({ postId }: { postId: number }) {
   if (error || !data) {
     return (
       <div className="text-center py-20">
-        <p className="text-base-content/40 mb-4">帖子不存在或已被删除</p>
-        <Link href="/" className="btn btn-primary">返回首页</Link>
+        <p className="text-base-content/40 mb-4">{t("the_post_does_not_exist_or_has_been_deleted")}</p>
+        <Link href="/" className="btn btn-primary">{t("back_to_home")}</Link>
       </div>
     );
   }
@@ -65,13 +67,14 @@ export default function PostDetailClient({ postId }: { postId: number }) {
   const isAuthor = user?.id === post.author_id;
   const isAdmin = user?.role === 'admin';
 
+
   return (
     <>
       <button
         onClick={() => router.back()}
         className="btn btn-ghost btn-sm gap-1 mb-4"
       >
-        <ArrowLeft className="w-4 h-4" /> 返回
+        <ArrowLeft className="w-4 h-4" /> {t("back")}  
       </button>
 
       <article className="card bg-base-100 border border-base-300 shadow-sm mb-6">
@@ -82,7 +85,7 @@ export default function PostDetailClient({ postId }: { postId: number }) {
               post.type === 'article' ? 'badge-secondary' :
               post.type === 'topic' ? 'badge-accent' : 'badge-ghost'
             }`}>
-              {post.type === 'article' ? '文章' : post.type === 'topic' ? '话题' : '帖子'}
+              {post.type === 'article' ? '文章' : post.type === 'topic' ? t("the_topic") : t("the_post")}
             </span>
             {post.tags?.map((tag) => (
               <Link
@@ -124,7 +127,7 @@ export default function PostDetailClient({ postId }: { postId: number }) {
                 <span title={formatDate(post.created_at)}>{timeAgo(post.created_at)}</span>
                 <span>·</span>
                 <Eye className="w-3 h-3" />
-                <span>{post.view_count} 次阅读</span>
+                <span>{post.view_count} {t("read")}</span>
               </div>
             </div>
 
@@ -133,16 +136,16 @@ export default function PostDetailClient({ postId }: { postId: number }) {
               {(isAuthor || isAdmin) && (
                 <>
                   <Link href={`/posts/${postId}/edit`} className="btn btn-ghost btn-xs gap-1">
-                    <Pencil className="w-3.5 h-3.5" /> 编辑
+                    <Pencil className="w-3.5 h-3.5" /> {t("to_edit")}
                   </Link>
                   <button
                     className="btn btn-ghost btn-xs text-error gap-1"
                     onClick={() => {
-                      if (confirm('确认删除此帖子？')) deleteMutation.mutate();
+                      if (confirm(t("are_you_sure_to_delete_this_post"))) deleteMutation.mutate();
                     }}
                     disabled={deleteMutation.isPending}
                   >
-                    <Trash2 className="w-3.5 h-3.5" /> 删除
+                    <Trash2 className="w-3.5 h-3.5" /> {t("delete")}
                   </button>
                 </>
               )}
@@ -174,7 +177,7 @@ export default function PostDetailClient({ postId }: { postId: number }) {
               className={`btn btn-sm gap-2 ${liked ? 'btn-error' : 'btn-ghost'}`}
               onClick={() => {
                 if (!isAuthenticated) {
-                  toast.error('请先登录');
+                  toast.error(t("please_login_first"));
                   return;
                 }
                 likeMutation.mutate();
@@ -182,10 +185,10 @@ export default function PostDetailClient({ postId }: { postId: number }) {
               disabled={likeMutation.isPending}
             >
               {liked ? <HeartOff className="w-4 h-4" /> : <Heart className="w-4 h-4" />}
-              {post.like_count} 点赞
+              {post.like_count} {t("like")}
             </button>
             <button className="btn btn-ghost btn-sm gap-2" onClick={handleShare}>
-              <Share2 className="w-4 h-4" /> 分享
+              <Share2 className="w-4 h-4" /> {t("share")}
             </button>
           </div>
         </div>

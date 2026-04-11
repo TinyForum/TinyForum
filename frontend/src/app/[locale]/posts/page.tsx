@@ -7,12 +7,14 @@ import { useQuery } from '@tanstack/react-query';
 import { postApi } from '@/lib/api';
 import PostCard from '@/components/post/PostCard';
 import { Search } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 function PostsContent() {
   const searchParams = useSearchParams();
   const keyword = searchParams.get('keyword') || '';
   const tagId = searchParams.get('tag_id') ? Number(searchParams.get('tag_id')) : undefined;
   const [page, setPage] = useState(1);
+  const t = useTranslations('posts');
 
   const { data, isLoading } = useQuery({
     queryKey: ['posts', 'search', keyword, tagId, page],
@@ -29,8 +31,8 @@ function PostsContent() {
       <div className="flex items-center gap-3 mb-6">
         <Search className="w-5 h-5 text-primary" />
         <h1 className="text-xl font-bold">
-          {keyword ? `搜索：${keyword}` : '所有帖子'}
-          {total > 0 && <span className="text-base-content/40 font-normal ml-2">({total} 条结果)</span>}
+          {keyword ? `${t("search")}：${keyword}` : t("all_posts")}
+          {total > 0 && <span className="text-base-content/40 font-normal ml-2">({total} {t("results")})</span>}
         </h1>
       </div>
 
@@ -43,7 +45,7 @@ function PostsContent() {
       ) : posts.length === 0 ? (
         <div className="text-center py-20 text-base-content/40">
           <Search className="w-12 h-12 mx-auto mb-4 opacity-30" />
-          <p className="text-lg">没有找到相关帖子</p>
+          <p className="text-lg">{t("no_results")}</p>
         </div>
       ) : (
         <div className="space-y-3">

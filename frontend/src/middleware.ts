@@ -8,7 +8,7 @@ import { routing } from './i18n/routing';
 const intlMiddleware = createMiddleware(routing);
 
 // 需要认证的路由
-const authRoutes = ['/admin', '/settings', '/profile', '/posts/create'];
+const authRoutes = ['/admin' ];
 const adminRoutes = ['/admin'];
 
 export async function middleware(request: NextRequest) {
