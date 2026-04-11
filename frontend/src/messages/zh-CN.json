@@ -73,7 +73,12 @@
     "admin": "管理后台",
     "logout": "退出登陆",
     "login": "登录",
-    "register": "注册"
+    "register": "注册",
+    "home": "首页",
+    "explore": "探索",
+    "settings": "设置",
+    "help": "帮助",
+    "track": "追踪"
   },
   "post": {
     "create": "发帖",

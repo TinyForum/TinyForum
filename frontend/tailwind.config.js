@@ -8,7 +8,7 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
+        sans: ['Dongguan', 'Helvetica Neue', 'Helvetica', 'PingFang SC', 'Microsoft YaHei', '微软雅黑', 'system-ui', 'sans-serif'],
         mono: ['var(--font-fira-code)', 'monospace'],
       },
       animation: {
