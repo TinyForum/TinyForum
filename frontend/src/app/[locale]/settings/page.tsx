@@ -12,6 +12,7 @@ import { getErrorMessage } from '@/lib/utils';
 import { Settings, Save } from 'lucide-react';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
+import Avatar from '@/components/user/Avatar';
 
 const schema = z.object({
   bio: z.string().max(500, '个人简介最多500字'),
@@ -44,11 +45,6 @@ export default function SettingsPage() {
 
   const avatarValue = watch('avatar');
 
-  // 获取最终显示的头像 URL
-  const getAvatarUrl = () => {
-    if (avatarValue && !avatarError) return avatarValue;
-    return `https://api.dicebear.com/8.x/initials/svg?seed=${user?.username || 'user'}`;
-  };
 
   const onSubmit = async (data: SettingsForm) => {
     if (!user) return;
@@ -94,12 +90,9 @@ export default function SettingsPage() {
           <div className="flex flex-col items-center gap-3 mb-6">
             <div className="avatar">
               <div className="w-24 h-24 rounded-2xl ring ring-primary ring-offset-2">
-                <Image
-                  src={getAvatarUrl()}
-                  alt={user.username}
-                  width={96}
-                  height={96}
-                  className="rounded-2xl object-cover"
+              <Avatar 
+  avatarUrl={user.avatar}
+  username={user.username}
                   onError={() => setAvatarError(true)}
                   unoptimized={avatarValue?.startsWith('https://api.dicebear.com')}
                 />

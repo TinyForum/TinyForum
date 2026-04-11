@@ -8,6 +8,7 @@ import CommentItem from './CommentItem';
 import toast from 'react-hot-toast';
 import { Send, MessageSquare } from 'lucide-react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 
 interface CommentSectionProps {
   postId: number;
@@ -19,6 +20,7 @@ export default function CommentSection({ postId }: CommentSectionProps) {
   const [content, setContent] = useState('');
   const [replyTo, setReplyTo] = useState<{ id: number; username: string } | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const t = useTranslations('Comment');
 
   const { data, isLoading } = useQuery({
     queryKey: ['comments', postId],
@@ -34,7 +36,7 @@ export default function CommentSection({ postId }: CommentSectionProps) {
       setReplyTo(null);
       queryClient.invalidateQueries({ queryKey: ['comments', postId] });
     },
-    onError: () => toast.error('评论失败，请稍后重试'),
+    onError: () => toast.error(t("comment_failed")),
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -58,7 +60,7 @@ export default function CommentSection({ postId }: CommentSectionProps) {
     <div className="mt-8">
       <h3 className="text-lg font-bold flex items-center gap-2 mb-6">
         <MessageSquare className="w-5 h-5 text-primary" />
-        评论 <span className="text-base-content/40 font-normal text-base">({total})</span>
+        {t("comments")} <span className="text-base-content/40 font-normal text-base">({total})</span>
       </h3>
 
       {/* Comment input */}
@@ -66,13 +68,13 @@ export default function CommentSection({ postId }: CommentSectionProps) {
         <form onSubmit={handleSubmit} className="mb-8">
           {replyTo && (
             <div className="flex items-center gap-2 mb-2 text-sm text-base-content/60 bg-base-200 px-3 py-1.5 rounded-lg">
-              <span>回复 <strong className="text-primary">@{replyTo.username}</strong></span>
+              <span>{t("reply_to")} <strong className="text-primary">@{replyTo.username}</strong></span>
               <button
                 type="button"
                 className="ml-auto text-error hover:text-error/80 text-xs"
                 onClick={() => setReplyTo(null)}
               >
-                取消
+                {t("cancel")}
               </button>
             </div>
           )}
@@ -81,7 +83,7 @@ export default function CommentSection({ postId }: CommentSectionProps) {
               ref={textareaRef}
               className="textarea textarea-bordered flex-1 resize-none focus:outline-none focus:border-primary"
               rows={3}
-              placeholder={replyTo ? `回复 @${replyTo.username}...` : '写下你的评论...'}
+              placeholder={replyTo ? `${t("reply_to")} @${replyTo.username}...` : t("write_comment")}
               value={content}
               onChange={(e) => setContent(e.target.value)}
               maxLength={2000}
@@ -99,14 +101,14 @@ export default function CommentSection({ postId }: CommentSectionProps) {
               ) : (
                 <Send className="w-4 h-4" />
               )}
-              发布评论
+              {t("send")}
             </button>
           </div>
         </form>
       ) : (
         <div className="alert mb-6">
           <span>
-            请 <Link href="/auth/login" className="link link-primary">登录</Link> 后发表评论
+            {t("please")} <Link href="/auth/login" className="link link-primary">{t("login")}</Link> {t("to_comment")}
           </span>
         </div>
       )}
@@ -119,7 +121,7 @@ export default function CommentSection({ postId }: CommentSectionProps) {
       ) : comments.length === 0 ? (
         <div className="text-center py-12 text-base-content/40">
           <MessageSquare className="w-12 h-12 mx-auto mb-3 opacity-30" />
-          <p>还没有评论，来发表第一条吧</p>
+          <p>{t("no_comments")}</p>
         </div>
       ) : (
         <div className="space-y-6">

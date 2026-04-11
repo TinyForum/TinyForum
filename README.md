@@ -1,6 +1,19 @@
-# Tiny Forum — 全栈技术交流社区
+# Tiny Forum
 
-> Go (Gin + GORM) 后端 × Next.js 14 (App Router) 前端 × PostgreSQL
+> Go (Gin + GORM) 后端 × Next.js 15.5 (App Router) 前端 × PostgreSQL
+
+ <img src="./docs/assets/logo.svg" width="100%" />
+
+<summary>
+Tiny Forum 是一个基于 Go 和 Next.js 的开源论坛项目，旨在提供一个简单、易用的社区平台。项目采用现代技术栈，包括 Gin、GORM、Next.js、PostgreSQL 等，为用户提供丰富的功能，包括帖子发布、评论、点赞、标签系统、用户管理等。
+<details>
+  <img src="./docs/assets/home.png" width="100%" />
+  <img src="./docs/assets/admin.png" width="100%" />
+  <img src="./docs/assets/editor.png" width="100%" />
+  <img src="./docs/assets/score.png" width="100%" />
+  <img src="./docs/assets/user.png" width="100%" />
+</details>
+</summary>
 
 ---
 
@@ -32,6 +45,18 @@
 
 ## 快速启动
 
+基本配置
+
+env.local
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:8080/api/v1
+NEXT_PUBLIC_JWT_SECRET=tiny-forum-secret-change-in-production-32chars
+NEXT_PUBLIC_AVATAR_BASE_URL=https://api.dicebear.com/8.x/initials/svg
+```
+
+
+
 ### 方式一：Docker Compose（推荐，一键启动）
 
 ```bash
@@ -42,6 +67,7 @@ docker compose up -d
 # 前端：http://localhost:3000
 # 后端 API：http://localhost:8080/api/v1
 ```
+
 
 ### 方式二：本地开发
 
@@ -102,6 +128,10 @@ npm run dev
 ```
 
 访问 http://localhost:3000
+
+## 配置
+
+默认头像： https://www.dicebear.com/how-to-use/http-api/
 
 ---
 

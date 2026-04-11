@@ -76,7 +76,8 @@ export default function UserProfileClient({ userId }: { userId: number }) {
                 <Avatar 
   username={profile.username} 
   avatarUrl={profile.avatar}  // 数据库中的头像
-  size="md" 
+  shape="square"
+  
 />
 
               </div>

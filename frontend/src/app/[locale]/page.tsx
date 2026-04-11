@@ -1,24 +1,13 @@
-// src/app/[locale]/page.tsx
 "use client";
 
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { postApi, tagApi, userApi } from "@/lib/api";
-import PostCard from "@/components/post/PostCard";
-import Link from "next/link";
-import Image from "next/image";
-import {
-  Flame,
-  Clock,
-  Tag as TagIcon,
-  Trophy,
-  ChevronRight,
-  PenSquare,
-} from "lucide-react";
 import { useAuthStore } from "@/store/auth";
-import { formatDate } from "@/lib/utils";
-import Avatar from "@/components/user/Avatar";
 import { useTranslations } from "next-intl";
+import PostFilterBar from "@/components/home/PostFilterBar";
+import PostList from "@/components/home/PostList";
+import Sidebar from "@/components/home/Sidebar";
 
 export default function HomePage() {
   const { isAuthenticated } = useAuthStore();
@@ -51,203 +40,46 @@ export default function HomePage() {
   });
 
   const posts = postsData?.list ?? [];
+console.log('API Response:', postsData); 
   const total = postsData?.total ?? 0;
   const totalPages = Math.ceil(total / 15);
+
+  const handleSortChange = (newSortBy: "" | "hot") => {
+    setSortBy(newSortBy);
+    setPage(1);
+  };
+
+  const handleTagChange = (tagId: number | null) => {
+    setSelectedTag(tagId);
+    setPage(1);
+  };
 
   return (
     <div className="flex flex-col lg:flex-row gap-6">
       {/* Main content */}
       <div className="flex-1 min-w-0">
-        {/* Filter bar */}
-        <div className="flex items-center justify-between mb-4 bg-base-100 rounded-xl p-3 border border-base-300">
-          <div className="flex items-center gap-2">
-            <button
-              className={`btn btn-sm gap-1 ${sortBy === "" ? "btn-primary" : "btn-ghost"}`}
-              onClick={() => {
-                setSortBy("");
-                setPage(1);
-              }}
-            >
-              <Clock className="w-4 h-4" /> {t("latest_posts")}
-            </button>
-            <button
-              className={`btn btn-sm gap-1 ${sortBy === "hot" ? "btn-primary" : "btn-ghost"}`}
-              onClick={() => {
-                setSortBy("hot");
-                setPage(1);
-              }}
-            >
-              <Flame className="w-4 h-4" /> {t("hot_posts")}
-            </button>
-          </div>
+        <PostFilterBar
+          sortBy={sortBy}
+          onSortChange={handleSortChange}
+          isAuthenticated={isAuthenticated}
+        />
 
-          {isAuthenticated && (
-            <Link href="/posts/new" className="btn btn-primary btn-sm gap-1">
-              <PenSquare className="w-4 h-4" /> {t("create")}
-            </Link>
-          )}
-        </div>
-
-        {/* Posts */}
-        {isLoading ? (
-          <div className="space-y-3">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="skeleton h-28 w-full rounded-xl" />
-            ))}
-          </div>
-        ) : posts.length === 0 ? (
-          <div className="text-center py-20 text-base-content/40">
-            <p className="text-lg">{t("no_posts")}</p>
-            {isAuthenticated && (
-              <Link href="/posts/new" className="btn btn-primary mt-4">
-                {t("post_your_first_post")}
-              </Link>
-            )}
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {posts.map((post) => (
-              <PostCard key={post.id} post={post} />
-            ))}
-          </div>
-        )}
-
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="flex justify-center mt-6">
-            <div className="join">
-              <button
-                className="join-item btn btn-sm"
-                disabled={page === 1}
-                onClick={() => setPage((p) => p - 1)}
-              >
-                «
-              </button>
-              {Array.from(
-                { length: Math.min(totalPages, 7) },
-                (_, i) => i + 1,
-              ).map((p) => (
-                <button
-                  key={p}
-                  className={`join-item btn btn-sm ${page === p ? "btn-active btn-primary" : ""}`}
-                  onClick={() => setPage(p)}
-                >
-                  {p}
-                </button>
-              ))}
-              <button
-                className="join-item btn btn-sm"
-                disabled={page === totalPages}
-                onClick={() => setPage((p) => p + 1)}
-              >
-                »
-              </button>
-            </div>
-          </div>
-        )}
+        <PostList
+          posts={posts}
+          isLoading={isLoading}
+          totalPages={totalPages}
+          currentPage={page}
+          onPageChange={setPage}
+        />
       </div>
 
       {/* Sidebar */}
-      <aside className="w-full lg:w-64 xl:w-72 flex-none space-y-4">
-        {/* Tags */}
-        <div className="card bg-base-100 border border-base-300 shadow-sm">
-          <div className="card-body p-4">
-            <h3 className="font-bold flex items-center gap-2 mb-3">
-              <TagIcon className="w-4 h-4 text-primary" /> {t("hot_tags")}
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              <button
-                onClick={() => {
-                  setSelectedTag(null);
-                  setPage(1);
-                }}
-                className={`badge badge-lg cursor-pointer ${!selectedTag ? "badge-primary" : "badge-ghost hover:badge-primary"}`}
-              >
-                {t("all")}
-              </button>
-              {(tags ?? []).slice(0, 12).map((tag) => (
-                <button
-                  key={tag.id}
-                  onClick={() => {
-                    setSelectedTag(selectedTag === tag.id ? null : tag.id);
-                    setPage(1);
-                  }}
-                  className="badge badge-lg cursor-pointer hover:opacity-80 transition-opacity"
-                  style={{
-                    backgroundColor:
-                      selectedTag === tag.id ? tag.color : tag.color + "20",
-                    color: tag.color,
-                    borderColor: tag.color + "40",
-                  }}
-                >
-                  {tag.name}
-                  <span className="ml-1 opacity-60 text-xs">
-                    ({tag.post_count})
-                  </span>
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Leaderboard */}
-        <div className="card bg-base-100 border border-base-300 shadow-sm">
-          <div className="card-body p-4">
-            <h3 className="font-bold flex items-center gap-2 mb-3">
-              <Trophy className="w-4 h-4 text-warning" /> {t("leaderboard")}
-            </h3>
-            <div className="space-y-2">
-              {(leaderboard ?? []).slice(0, 8).map((u, i) => (
-                <Link
-                  key={u.id}
-                  href={`/users/${u.id}`}
-                  className="flex items-center gap-2 hover:bg-base-200 rounded-lg p-1.5 transition-colors"
-                >
-                  <span
-                    className={`w-5 h-5 text-xs font-bold flex items-center justify-center rounded-full ${
-                      i === 0
-                        ? "bg-yellow-400 text-yellow-900"
-                        : i === 1
-                          ? "bg-gray-300 text-gray-700"
-                          : i === 2
-                            ? "bg-amber-600 text-white"
-                            : "text-base-content/40"
-                    }`}
-                  >
-                    {i + 1}
-                  </span>
-
-                  <Avatar
-                    username={u.username}
-                    avatarUrl={u.avatar} // 数据库中的头像
-                    size="md"
-                  />
-
-                  <span className="flex-1 text-sm truncate">{u.username}</span>
-                  <span className="text-xs text-warning font-medium">
-                    {u.score}
-                  </span>
-                </Link>
-              ))}
-            </div>
-            <Link
-              href="/leaderboard"
-              className="btn btn-ghost btn-xs mt-2 gap-1"
-            >
-              {t("view_the_full_rankings")} <ChevronRight className="w-3 h-3" />
-            </Link>
-          </div>
-        </div>
-
-        {/* Site info */}
-        <div className="card bg-base-100 border border-base-300 shadow-sm">
-          <div className="card-body p-4 text-xs text-base-content/50 space-y-1">
-            <p className="font-medium text-base-content/70">{t("about")}</p>
-            <p>{t("description")}</p>
-            <p className="pt-1">© {new Date().getFullYear()} {t("copyright")}</p>
-          </div>
-        </div>
-      </aside>
+      <Sidebar
+        tags={tags ?? []}
+        selectedTag={selectedTag}
+        onTagChange={handleTagChange}
+        leaderboard={leaderboard ?? []}
+      />
     </div>
   );
 }

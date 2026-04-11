@@ -6,6 +6,13 @@ import (
 	"gorm.io/gorm"
 )
 
+type BaseModel struct {
+	ID        uint           `json:"id" gorm:"primaryKey"`
+	CreatedAt time.Time      `json:"created_at"`
+	UpdatedAt time.Time      `json:"updated_at"`
+	DeletedAt gorm.DeletedAt `json:"deleted_at,omitempty" gorm:"index"`
+}
+
 // ─── User ────────────────────────────────────────────────────────────────────
 
 type UserRole string
@@ -16,15 +23,16 @@ const (
 )
 
 type User struct {
-	gorm.Model
-	Username  string    `gorm:"uniqueIndex;not null;size:50" json:"username"`
-	Email     string    `gorm:"uniqueIndex;not null;size:100" json:"email"`
-	Password  string    `gorm:"not null" json:"-"`
-	Avatar    string    `gorm:"size:500" json:"avatar"`
-	Bio       string    `gorm:"size:500" json:"bio"`
-	Role      UserRole  `gorm:"type:varchar(20);default:'user'" json:"role"`
-	Score     int       `gorm:"default:0" json:"score"`
-	IsActive  bool      `gorm:"default:true" json:"is_active"`
+	// gorm.Model
+	BaseModel
+	Username  string     `gorm:"uniqueIndex;not null;size:50" json:"username"`
+	Email     string     `gorm:"uniqueIndex;not null;size:100" json:"email"`
+	Password  string     `gorm:"not null" json:"-"`
+	Avatar    string     `gorm:"size:500" json:"avatar"`
+	Bio       string     `gorm:"size:500" json:"bio"`
+	Role      UserRole   `gorm:"type:varchar(20);default:'user'" json:"role"`
+	Score     int        `gorm:"default:0" json:"score"`
+	IsActive  bool       `gorm:"default:true" json:"is_active"`
 	LastLogin *time.Time `json:"last_login"`
 
 	// Relations
@@ -75,7 +83,8 @@ const (
 )
 
 type Post struct {
-	gorm.Model
+	// gorm.Model
+	BaseModel
 	Title     string     `gorm:"not null;size:200" json:"title"`
 	Content   string     `gorm:"not null;type:text" json:"content"`
 	Summary   string     `gorm:"size:500" json:"summary"`
@@ -97,17 +106,17 @@ type Post struct {
 
 type Comment struct {
 	gorm.Model
-	Content  string `gorm:"not null;type:text" json:"content"`
-	PostID   uint   `gorm:"not null;index" json:"post_id"`
-	AuthorID uint   `gorm:"not null;index" json:"author_id"`
-	ParentID *uint  `gorm:"index" json:"parent_id"`
-	LikeCount int   `gorm:"default:0" json:"like_count"`
+	Content   string `gorm:"not null;type:text" json:"content"`
+	PostID    uint   `gorm:"not null;index" json:"post_id"`
+	AuthorID  uint   `gorm:"not null;index" json:"author_id"`
+	ParentID  *uint  `gorm:"index" json:"parent_id"`
+	LikeCount int    `gorm:"default:0" json:"like_count"`
 
-	Post     Post      `gorm:"foreignKey:PostID" json:"-"`
-	Author   User      `gorm:"foreignKey:AuthorID" json:"author,omitempty"`
-	Parent   *Comment  `gorm:"foreignKey:ParentID" json:"parent,omitempty"`
-	Replies  []Comment `gorm:"foreignKey:ParentID" json:"replies,omitempty"`
-	Likes    []Like    `gorm:"foreignKey:CommentID" json:"-"`
+	Post    Post      `gorm:"foreignKey:PostID" json:"-"`
+	Author  User      `gorm:"foreignKey:AuthorID" json:"author,omitempty"`
+	Parent  *Comment  `gorm:"foreignKey:ParentID" json:"parent,omitempty"`
+	Replies []Comment `gorm:"foreignKey:ParentID" json:"replies,omitempty"`
+	Likes   []Like    `gorm:"foreignKey:CommentID" json:"-"`
 }
 
 // ─── Like ─────────────────────────────────────────────────────────────────────
@@ -128,11 +137,11 @@ type Like struct {
 type NotificationType string
 
 const (
-	NotifyComment  NotificationType = "comment"
-	NotifyLike     NotificationType = "like"
-	NotifyFollow   NotificationType = "follow"
-	NotifyReply    NotificationType = "reply"
-	NotifySystem   NotificationType = "system"
+	NotifyComment NotificationType = "comment"
+	NotifyLike    NotificationType = "like"
+	NotifyFollow  NotificationType = "follow"
+	NotifyReply   NotificationType = "reply"
+	NotifySystem  NotificationType = "system"
 )
 
 type Notification struct {
@@ -171,13 +180,13 @@ const (
 
 type Report struct {
 	gorm.Model
-	ReporterID  uint         `gorm:"not null;index" json:"reporter_id"`
-	TargetID    uint         `gorm:"not null" json:"target_id"`
-	TargetType  string       `gorm:"size:50;not null" json:"target_type"` // post | comment | user
-	Reason      string       `gorm:"size:500;not null" json:"reason"`
-	Status      ReportStatus `gorm:"type:varchar(20);default:'pending'" json:"status"`
-	HandlerID   *uint        `json:"handler_id"`
-	HandleNote  string       `gorm:"size:500" json:"handle_note"`
+	ReporterID uint         `gorm:"not null;index" json:"reporter_id"`
+	TargetID   uint         `gorm:"not null" json:"target_id"`
+	TargetType string       `gorm:"size:50;not null" json:"target_type"` // post | comment | user
+	Reason     string       `gorm:"size:500;not null" json:"reason"`
+	Status     ReportStatus `gorm:"type:varchar(20);default:'pending'" json:"status"`
+	HandlerID  *uint        `json:"handler_id"`
+	HandleNote string       `gorm:"size:500" json:"handle_note"`
 
 	Reporter User  `gorm:"foreignKey:ReporterID" json:"reporter,omitempty"`
 	Handler  *User `gorm:"foreignKey:HandlerID" json:"handler,omitempty"`

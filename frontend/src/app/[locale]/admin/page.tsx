@@ -187,9 +187,11 @@ export default function AdminPage() {
                           className={`badge badge-sm ${u.is_active ? "badge-success" : "badge-error"}`}
                         >
                           {u.is_active ? t("active") : t("banned")}
+                        
                         </span>
                       </td>
                       <td>
+                      
                         {u.id !== user?.id && (
                           <button
                             className={`btn btn-xs gap-1 ${u.is_active ? "btn-error btn-outline" : "btn-success btn-outline"}`}
@@ -198,6 +200,7 @@ export default function AdminPage() {
                                 id: u.id,
                                 active: !u.is_active,
                               })
+                              
                             }
                             disabled={toggleActiveMutation.isPending}
                           >

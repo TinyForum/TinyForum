@@ -15,11 +15,15 @@ interface PostCardProps {
 
 export default function PostCard({ post, commentCount }: PostCardProps) {
    const [userId,setUserId] = useState<number | null>(null);
+   const [postId,setPostId] = useState<number | null>(null);
   if (!post) return null;
  console.log('author id: ',post.author_id); 
   if (!userId){
     
+    console.log('setting user id: ',post.author_id, '\npost id:',post.id);
     setUserId(post.author_id)
+    setPostId(post.id)
+
   }
 
  

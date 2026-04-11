@@ -50,8 +50,12 @@ export async function middleware(request: NextRequest) {
 
   // 管理员路由验证
   if (isAdminRoute && token) {
+    const jwt = process.env.NEXT_PUBLIC_JWT_SECRET
     try {
-      const secret = new TextEncoder().encode(process.env.JWT_SECRET || 'your-secret-key');
+      if (!jwt) {
+        throw new Error('JWT_SECRET is not set\n Check your environment variables');
+      }
+      const secret = new TextEncoder().encode(jwt);
       const { payload } = await jwtVerify(token, secret);
       const role = payload.role as string;
       

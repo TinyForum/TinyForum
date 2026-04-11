@@ -1,7 +1,28 @@
 {
   "site":{
     "brand": "天方论坛",
-    "description": "一个完全开源的论坛项目，由 Nextjs 和 Gin 构建"
+    "description": "一个完全开源的论坛项目，由 Nextjs 和 Gin 构建",
+    "repo": "https://github.com/caoyang2002/TinyForum",
+    "license": "MIT"
+  },
+  "Comment":{
+    "deleted": "评论已删除",
+    "delete_failed": "删除失败",
+    "reply": "回复",
+    "collapse": "收起",
+    "expand": "展开",
+    "replies": "条回复",
+    "delete": "删除",
+    "comment_failed": "评论失败，请稍后重试'",
+    "comments": "评论",
+    "reply_to": "回复给",
+    "cancel": "取消",
+    "write_comment": "写下你的评论...",
+    "send": "发送评论",
+    "please": "请",
+    "login": "登录",
+    "to_comment": "后发表评论",
+    "no_comments": "暂无评论，快来发表第一条评论吧！"
   },
   "posts":{
     "title": "帖子",
@@ -58,6 +79,7 @@
     "create": "发帖",
     "latest_posts": "最新",
     "hot_posts": "热门",
+     "read":"阅读",
     "no_posts": "暂无帖子",
     "post_your_first_post": "快来发布你的第一条帖子吧！",
     "hot_tags": "热门标签",
