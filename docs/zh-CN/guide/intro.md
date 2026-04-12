@@ -1,26 +1,30 @@
 # 介绍
 
-本项目是一个基于 **Docsify** 的双语文档模板，支持中文和英文内容独立维护，通过 URL hash 前缀（`/zh-CN/` 和 `/en/`）区分语言版本。
+Tiny Forum（天方论坛）是一个基于 MIT 协议开源的论坛项目模板，提供了开箱即用的论坛解决方案。
 
-## 工作原理
+> Go (Gin + GORM) 后端 × Next.js 15.5 (App Router) 前端 × PostgreSQL
 
-```
-用户点击 [EN] 按钮
-    ↓
-location.hash 改为 #/en/...
-    ↓
-Docsify 根据 alias 规则加载 /en/ 目录下的 .md 文件
-    ↓
-侧边栏也来自 /en/_sidebar.md
-```
+<div align="center">
+  <img src="../../assets/logo.svg" alt="Tiny Forum Logo" width="200" />
+  <p>Tiny Forum（天方论坛）</p>
+</div>
 
-## 为什么选择目录分离方式？
+<details>
+<summary>Tiny Forum 是一个基于 Go 和 Next.js 的开源论坛项目，旨在提供一个简单、易用的社区平台。项目采用现代技术栈，包括 Gin、GORM、Next.js、PostgreSQL 等，为用户提供丰富的功能，包括帖子发布、评论、点赞、标签系统、用户管理等。</summary>
 
-相比在同一个 Markdown 文件里用 HTML 注释切换语言，**目录分离**的优势在于：
+### 主页
+<img src="../../assets/home.png" width="100%" />
 
-- ✅ 每种语言独立维护，互不干扰
-- ✅ 侧边栏结构可以按语言独立定制
-- ✅ 搜索结果准确，不会混入另一语言的内容
-- ✅ 便于团队分工翻译
+### 后台管理
+<img src="../../assets/admin.png" width="100%" />
 
-[→ 快速开始](/zh-CN/guide/quickstart)
+### 发布文章
+<img src="../../assets/editor.png" width="100%" />
+
+### 积分排行
+<img src="../../assets/score.png" width="100%" />
+
+### 用户中心
+<img src="../../assets/user.png" width="100%" />
+
+</details>
