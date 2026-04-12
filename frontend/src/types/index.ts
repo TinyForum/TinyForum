@@ -14,6 +14,7 @@ export interface User {
   is_following?: boolean;
 }
 
+export  type SortBy = 'latest'  | 'hot' | "most_like"| '';
 export interface Tag {
   id: number;
   name: string;
@@ -22,7 +23,7 @@ export interface Tag {
   post_count: number;
 }
 
-export type PostType = 'post' | 'article' | 'topic';
+export type PostType = 'post' | 'article' | 'topic' | "question" | "all";
 export type PostStatus = 'draft' | 'published' | 'hidden';
 
 export interface Post {
