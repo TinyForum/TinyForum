@@ -1,7 +1,10 @@
 package handler
 
 import (
+	"bytes"
 	"errors"
+	"fmt"
+	"io"
 	"net/http"
 	"strconv"
 
@@ -69,6 +72,15 @@ func (h *QuestionHandler) GetQuestions(c *gin.Context) {
 // @Failure 403 {object} response.Response "积分不足"
 // @Router /posts/question [post]
 func (h *QuestionHandler) CreateQuestion(c *gin.Context) {
+	body, err := io.ReadAll(c.Request.Body)
+	if err != nil {
+		fmt.Printf("读取请求体失败: %v\n", err)
+	} else {
+		fmt.Printf("原始请求体: %s\n", string(body))
+		// 关键：重新设置请求体，否则后续绑定会失败
+		c.Request.Body = io.NopCloser(bytes.NewBuffer(body))
+	}
+
 	var input model.CreateQuestionInput
 	if err := c.ShouldBindJSON(&input); err != nil {
 		response.BadRequest(c, "参数错误: "+err.Error())
@@ -132,6 +144,7 @@ func (h *QuestionHandler) GetQuestionDetail(c *gin.Context) {
 		response.NotFound(c, err.Error())
 		return
 	}
+	fmt.Printf("读取post: %v\n", post.IsQuestion)
 	if !post.IsQuestion {
 		response.BadRequest(c, "该帖子不是问答类型")
 		return
