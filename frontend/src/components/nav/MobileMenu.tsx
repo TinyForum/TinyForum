@@ -65,7 +65,7 @@ export default function MobileMenu({
               onClick={onClose}
             >
               <Image src="/assets/brand/logo.svg" width={32} height={32} alt="logo" />
-              <span>微论坛</span>
+              <span>天方论坛</span>
             </Link>
             <button
               onClick={onClose}

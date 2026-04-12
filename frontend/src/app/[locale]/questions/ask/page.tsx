@@ -1,118 +1,104 @@
+// app/questions/ask/page.tsx
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useForm } from 'react-hook-form';
-import { questionsApi } from '@/lib/api/questions';
-import { tagApi } from '@/lib/api';
+import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import { useAuthStore } from '@/store/auth';
-import { toast } from 'react-hot-toast';
-import {
-  ArrowLeftIcon,
-  TagIcon,
-  CurrencyDollarIcon,
-  DocumentTextIcon,
-} from '@heroicons/react/24/outline';
-import type { Tag } from '@/types';
-
-interface AskForm {
-  title: string;
-  content: string;
-  summary: string;
-  reward_score: number;
-}
+import { useBoard } from '@/hooks/useBoard';
+import { useQuestionForm } from '@/hooks/useQuestionForm';
+import { useTags } from '@/hooks/useTags';
+import { QuestionForm } from '@/components/question/QuestionForm';
+import { BoardSelector } from '@/components/question/BoardSelector';
+import { TagSelector } from '@/components/question/TagSelector';
+import { RewardScoreInput } from '@/components/question/RewardScoreInput';
+import { FormActions } from '@/components/question/FormActions';
 
 export default function AskQuestionPage() {
   const router = useRouter();
   const { isAuthenticated, user } = useAuthStore();
-  const [loading, setLoading] = useState(false);
-  const [content, setContent] = useState('');
-  const [tags, setTags] = useState<Tag[]>([]);
-  const [selectedTags, setSelectedTags] = useState<number[]>([]);
-
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    watch,
-    formState: { errors },
-  } = useForm<AskForm>({
-    defaultValues: {
-      title: '',
-      summary: '',
-      reward_score: 0,
-    },
+  const { boards, loading: boardsLoading, getDefaultBoard, error: boardsError } = useBoard({ 
+    autoLoad: true,
+    pageSize: 100 
   });
+  const { tags, selectedTags, loading: tagsLoading, toggleTag } = useTags();
+  const { form, content, setContent, loading, handleSubmit } = useQuestionForm({
+    onSuccess: (questionId) => router.push(`/questions/${questionId}`),
+  });
+  
+  const [selectedBoardId, setSelectedBoardId] = useState<number>(0);
 
+  const { register, watch, formState: { errors } } = form;
   const rewardScore = watch('reward_score');
 
+  // 设置默认板块（只在加载完成后设置一次）
   useEffect(() => {
-    loadTags();
-  }, []);
-
-  const loadTags = async () => {
-    try {
-      const response = await tagApi.list();
-      if (response.data.code === 200) {
-        setTags(response.data.data);
+    if (!boardsLoading && boards.length > 0 && selectedBoardId === 0) {
+      const defaultBoard = getDefaultBoard();
+      if (defaultBoard) {
+        setSelectedBoardId(defaultBoard.id);
+        console.log('设置默认板块:', defaultBoard.id, defaultBoard.name);
       }
-    } catch (error) {
-      console.error('Failed to load tags:', error);
     }
-  };
+  }, [boards, boardsLoading, getDefaultBoard, selectedBoardId]);
 
   // 检查登录状态
-  if (typeof window !== 'undefined' && !isAuthenticated) {
-    router.push('/login?redirect=/questions/ask');
+  useEffect(() => {
+    if (typeof window !== 'undefined' && !isAuthenticated) {
+      router.push('/login?redirect=/questions/ask');
+    }
+  }, [isAuthenticated, router]);
+
+  // 显示加载状态
+  if (boardsLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="max-w-4xl mx-auto px-4">
+          <div className="bg-white rounded-lg shadow-sm p-8">
+            <div className="flex items-center justify-center">
+              <div className="text-center">
+                <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                <p className="text-gray-600">加载中...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // 显示错误状态
+  if (boardsError) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="max-w-4xl mx-auto px-4">
+          <div className="bg-white rounded-lg shadow-sm p-8">
+            <div className="text-center">
+              <div className="text-red-500 text-lg mb-4">⚠️ 加载板块失败</div>
+              <p className="text-gray-600 mb-4">{boardsError}</p>
+              <button
+                onClick={() => window.location.reload()}
+                className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+              >
+                重新加载
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
     return null;
   }
 
-  const onSubmit = async (data: AskForm) => {
-    if (!content.trim()) {
-      toast.error('请输入问题内容');
+  const onSubmit = async () => {
+    if (selectedBoardId === 0) {
       return;
     }
-
-    if (data.title.length < 5) {
-      toast.error('标题至少需要5个字符');
-      return;
-    }
-
-    if (data.reward_score > (user?.score || 0)) {
-      toast.error('悬赏积分不能超过当前积分');
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const response = await questionsApi.create({
-        title: data.title,
-        content: content,
-        summary: data.summary,
-        reward_score: data.reward_score,
-        tag_ids: selectedTags,
-      });
-
-      if (response.data.code === 200) {
-        toast.success('问题发布成功！');
-        router.push(`/questions/${response.data.data.id}`);
-      } else {
-        toast.error(response.data.message || '发布失败');
-      }
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || '发布失败');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const toggleTag = (tagId: number) => {
-    setSelectedTags(prev =>
-      prev.includes(tagId)
-        ? prev.filter(id => id !== tagId)
-        : [...prev, tagId]
-    );
+    await handleSubmit(selectedTags, selectedBoardId);
   };
 
   return (
@@ -133,151 +119,40 @@ export default function AskQuestionPage() {
             <p className="text-gray-500 mt-1">详细描述你的问题，获得更精准的回答</p>
           </div>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-6">
-            {/* 标题 */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                标题 <span className="text-red-500">*</span>
-              </label>
-              <input
-                {...register('title', { 
-                  required: '请输入标题', 
-                  minLength: { value: 5, message: '标题至少5个字符' },
-                  maxLength: { value: 200, message: '标题最多200个字符' }
-                })}
-                type="text"
-                placeholder="例如：如何在 Next.js 中实现动态路由？"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
-              />
-              {errors.title && (
-                <p className="mt-1 text-sm text-red-500">{errors.title.message}</p>
-              )}
-            </div>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="p-6 space-y-6">
+            {/* 板块选择 */}
+            <BoardSelector
+              boards={boards}
+              selectedBoardId={selectedBoardId}
+              onBoardChange={setSelectedBoardId}
+              loading={boardsLoading}
+            />
 
-            {/* 内容 */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                问题描述 <span className="text-red-500">*</span>
-              </label>
-              <textarea
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                rows={12}
-                placeholder={`详细描述你的问题...
+            {/* 问题表单 */}
+            <QuestionForm
+              register={register}
+              errors={errors}
+              content={content}
+              setContent={setContent}
+            />
 
-建议包含以下内容：
-1. 你想要实现什么功能？
-2. 你尝试过哪些方法？
-3. 遇到了什么具体的错误？`}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none font-mono text-sm"
-              />
-              {!content && (
-                <p className="mt-1 text-sm text-red-500">请输入问题内容</p>
-              )}
-              <p className="mt-1 text-sm text-gray-400">
-                支持 Markdown 格式，{content.length} 字符
-              </p>
-            </div>
-
-            {/* 摘要 */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                问题摘要
-              </label>
-              <textarea
-                {...register('summary')}
-                rows={2}
-                placeholder="简要描述问题（可选，将显示在列表中）"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
-              />
-            </div>
-
-            {/* 标签 */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                <TagIcon className="w-4 h-4 inline mr-1" />
-                标签
-              </label>
-              <div className="flex flex-wrap gap-2">
-                {tags.map((tag) => (
-                  <button
-                    key={tag.id}
-                    type="button"
-                    onClick={() => toggleTag(tag.id)}
-                    className={`px-3 py-1.5 rounded-full text-sm transition-colors ${
-                      selectedTags.includes(tag.id)
-                        ? 'bg-indigo-600 text-white'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
-                    style={{
-                      borderLeft: selectedTags.includes(tag.id) ? undefined : `3px solid ${tag.color || '#6366f1'}`
-                    }}
-                  >
-                    {tag.name}
-                  </button>
-                ))}
-              </div>
-              <p className="mt-2 text-sm text-gray-400">选择相关的标签，帮助其他人更快找到你的问题</p>
-            </div>
+            {/* 标签选择 */}
+            <TagSelector
+              tags={tags}
+              selectedTags={selectedTags}
+              onToggleTag={toggleTag}
+              loading={tagsLoading}
+            />
 
             {/* 悬赏积分 */}
-            <div className="bg-amber-50 rounded-lg p-4 border border-amber-200">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                <CurrencyDollarIcon className="w-4 h-4 inline mr-1 text-amber-600" />
-                悬赏积分
-              </label>
-              <div className="flex items-center gap-4">
-                <input
-                  {...register('reward_score', { 
-                    min: { value: 0, message: '悬赏积分不能为负数' }, 
-                    max: { value: 100, message: '悬赏积分不能超过100' }
-                  })}
-                  type="number"
-                  min="0"
-                  max="100"
-                  step="5"
-                  className="w-32 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
-                />
-                <span className="text-gray-600 text-sm">
-                  当前积分: <span className="font-semibold text-indigo-600">{user?.score || 0}</span>
-                </span>
-              </div>
-              {rewardScore > 0 && (
-                <p className="mt-2 text-sm text-amber-700">
-                  💡 悬赏 {rewardScore} 积分，回答被采纳后将扣除相应积分
-                </p>
-              )}
-              {rewardScore === 0 && (
-                <p className="mt-2 text-sm text-gray-500">
-                  设置悬赏积分可以吸引更多回答者
-                </p>
-              )}
-            </div>
+            <RewardScoreInput
+              register={register}
+              rewardScore={rewardScore}
+              userScore={user?.score}
+            />
 
-            {/* 提交按钮 */}
-            <div className="flex justify-end gap-3 pt-4 border-t">
-              <button
-                type="button"
-                onClick={() => router.back()}
-                className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-              >
-                取消
-              </button>
-              <button
-                type="submit"
-                disabled={loading}
-                className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {loading ? (
-                  <span className="flex items-center gap-2">
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    发布中...
-                  </span>
-                ) : (
-                  '发布问题'
-                )}
-              </button>
-            </div>
+            {/* 表单按钮 */}
+            <FormActions loading={loading} />
           </form>
         </div>
       </div>

@@ -14,9 +14,10 @@ import {
   EyeIcon,
   TagIcon,
 } from '@heroicons/react/24/outline';
-import { questionsApi } from '@/lib/api/questions';
 import { useAuthStore } from '@/store/auth';
-import type { Post } from '@/types';
+// import type { Post } from '@/types';
+import { postApi } from '@/lib/api';
+import { Post } from '@/lib/api/types';
 
 type FilterType = 'all' | 'unanswered' | 'answered';
 type SortType = 'latest' | 'hot' | 'score';
@@ -43,14 +44,18 @@ export default function QuestionsPage() {
   const loadQuestions = async () => {
     setLoading(true);
     try {
-      const response = await questionsApi.list({
+      // 使用 getQuestions API 获取问答列表
+      const response = await postApi.getQuestions({
         page,
         page_size: pageSize,
         filter: filter === 'all' ? undefined : filter,
         keyword: keyword || undefined,
+        // 根据 sort 类型映射到对应的排序参数
+        // 注意：API 可能不支持直接传 sort，需要根据实际情况调整
       });
+      
       if (response.data.code === 200) {
-        setQuestions(response.data.data.list);
+        setQuestions(response.data.data.items);
         setTotal(response.data.data.total);
       }
     } catch (error) {
@@ -75,6 +80,22 @@ export default function QuestionsPage() {
     if (days === 1) return '昨天';
     if (days < 7) return `${days}天前`;
     return date.toLocaleDateString();
+  };
+
+  // 获取问题的回答数量
+  const getAnswerCount = (question: Post) => {
+    // 根据实际 API 返回的数据结构调整
+    return (question as any).answer_count || (question as any).answers_total || 0;
+  };
+
+  // 获取问题的悬赏积分
+  const getRewardScore = (question: Post) => {
+    return (question as any).reward_score || 0;
+  };
+
+  // 获取问题是否已解决
+  const getIsAccepted = (question: Post) => {
+    return !!(question as any).accepted_answer_id;
   };
 
   const totalPages = Math.ceil(total / pageSize);
@@ -190,25 +211,25 @@ export default function QuestionsPage() {
                         {question.title}
                       </h3>
                       <p className="text-gray-500 text-sm line-clamp-2 mb-3">
-                        {question.summary || question.content.replace(/<[^>]*>/g, '').slice(0, 150)}
+                        {question.summary || question.content?.replace(/<[^>]*>/g, '').slice(0, 150) || '暂无内容'}
                       </p>
                       <div className="flex items-center gap-4 text-sm text-gray-400">
                         <span className="flex items-center gap-1">
                           <UserCircleIcon className="w-4 h-4" />
-                          {question.author?.username}
+                          {question.author?.username || '匿名用户'}
                         </span>
                         <span>{formatTime(question.created_at)}</span>
                         <span className="flex items-center gap-1">
                           <ChatBubbleLeftRightIcon className="w-4 h-4" />
-                          {(question as any).answer_count || 0} 回答
+                          {getAnswerCount(question)} 回答
                         </span>
                         <span className="flex items-center gap-1">
                           <EyeIcon className="w-4 h-4" />
-                          {question.view_count} 浏览
+                          {question.view_count || 0} 浏览
                         </span>
-                        {(question as any).reward_score > 0 && (
+                        {getRewardScore(question) > 0 && (
                           <span className="text-orange-500 flex items-center gap-1">
-                            💰 {(question as any).reward_score} 积分
+                            💰 {getRewardScore(question)} 积分
                           </span>
                         )}
                       </div>
@@ -228,7 +249,7 @@ export default function QuestionsPage() {
                         </div>
                       )}
                     </div>
-                    {(question as any).accepted_answer_id && (
+                    {getIsAccepted(question) && (
                       <div className="ml-4 text-center">
                         <div className="px-3 py-1 bg-green-50 rounded-lg">
                           <CheckBadgeIcon className="w-5 h-5 text-green-500 mx-auto" />
