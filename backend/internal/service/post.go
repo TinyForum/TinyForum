@@ -2,9 +2,13 @@ package service
 
 import (
 	"errors"
+	"fmt"
 
+	apperrors "tiny-forum/internal/errors"
 	"tiny-forum/internal/model"
 	"tiny-forum/internal/repository"
+
+	"gorm.io/gorm"
 )
 
 type PostService struct {
@@ -184,7 +188,10 @@ func (s *PostService) SetStatus(postID uint, status model.PostStatus) error {
 func (s *PostService) TogglePin(postID uint) error {
 	post, err := s.postRepo.FindByID(postID)
 	if err != nil {
-		return err
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return apperrors.ErrPostNotFound // 返回标准错误
+		}
+		return fmt.Errorf("查询帖子失败: %w", err)
 	}
 	post.PinTop = !post.PinTop
 	return s.postRepo.Update(post)

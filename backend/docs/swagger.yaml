@@ -51,22 +51,18 @@ definitions:
     - reason
     - user_id
     type: object
-  handler.SetUserActiveRequest:
-    properties:
-      active:
-        description: 用户状态：true-启用，false-禁用
-        example: true
-        type: boolean
-    type: object
   handler.SetUserRoleRequest:
     properties:
       role:
-        description: 用户角色
+        description: 角色：user / member / moderator / reviewer / bot / admin / super_admin
         enum:
         - user
+        - member
         - moderator
+        - reviewer
+        - bot
         - admin
-        example: moderator
+        - super_admin
         type: string
     required:
     - role
@@ -450,10 +446,8 @@ definitions:
       id:
         type: integer
       is_active:
-        description: 激活，是否可以登录
         type: boolean
       is_blocked:
-        description: 封禁，是否可以发言
         type: boolean
       last_login:
         type: string
@@ -468,14 +462,24 @@ definitions:
     type: object
   model.UserRole:
     enum:
+    - guest
     - user
-    - admin
+    - member
     - moderator
+    - reviewer
+    - admin
+    - super_admin
+    - bot
     type: string
     x-enum-varnames:
+    - RoleGuest
     - RoleUser
+    - RoleMember
+    - RoleModerator
+    - RoleReviewer
     - RoleAdmin
-    - ModeratorUser
+    - RoleSuperAdmin
+    - RoleBot
   response.PageData:
     properties:
       list: {}
@@ -663,10 +667,8 @@ definitions:
       id:
         type: integer
       is_active:
-        description: 激活，是否可以登录
         type: boolean
       is_blocked:
-        description: 封禁，是否可以发言
         type: boolean
       is_following:
         type: boolean
@@ -786,53 +788,9 @@ paths:
       - 管理接口
   /admin/users:
     get:
-      description: 管理员分页获取所有用户列表，支持关键词搜索
-      parameters:
-      - default: 1
-        description: 页码
-        in: query
-        name: page
-        type: integer
-      - default: 20
-        description: 每页数量
-        in: query
-        name: page_size
-        type: integer
-      - description: 搜索关键词（用户名、邮箱）
-        in: query
-        name: keyword
-        type: string
       produces:
       - application/json
-      responses:
-        "200":
-          description: 获取成功
-          schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  allOf:
-                  - $ref: '#/definitions/response.PageData'
-                  - properties:
-                      list:
-                        items:
-                          $ref: '#/definitions/model.User'
-                        type: array
-                    type: object
-              type: object
-        "401":
-          description: 未授权
-          schema:
-            $ref: '#/definitions/response.Response'
-        "403":
-          description: 无权限
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: 服务器内部错误
-          schema:
-            $ref: '#/definitions/response.Response'
+      responses: {}
       security:
       - ApiKeyAuth: []
       summary: 管理员获取用户列表
@@ -842,61 +800,42 @@ paths:
     put:
       consumes:
       - application/json
-      description: 管理员启用或禁用指定用户账号
       parameters:
       - description: 用户ID
         in: path
         name: id
         required: true
         type: integer
-      - description: 状态信息
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/handler.SetUserActiveRequest'
       produces:
       - application/json
-      responses:
-        "200":
-          description: 操作成功
-          schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  type: object
-              type: object
-        "400":
-          description: 无效的用户ID或请求参数错误
-          schema:
-            $ref: '#/definitions/response.Response'
-        "401":
-          description: 未授权
-          schema:
-            $ref: '#/definitions/response.Response'
-        "403":
-          description: 无权限
-          schema:
-            $ref: '#/definitions/response.Response'
-        "404":
-          description: 用户不存在
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: 服务器内部错误
-          schema:
-            $ref: '#/definitions/response.Response'
+      responses: {}
       security:
       - ApiKeyAuth: []
       summary: 管理员设置用户状态
+      tags:
+      - 管理接口
+  /admin/users/{id}/blocked:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 用户ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - ApiKeyAuth: []
+      summary: 管理员封禁/解封用户
       tags:
       - 管理接口
   /admin/users/{id}/role:
     put:
       consumes:
       - application/json
-      description: 管理员设置指定用户的角色（user/moderator/admin）
       parameters:
       - description: 用户ID
         in: path
@@ -913,28 +852,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: 操作成功
-          schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  type: object
-              type: object
-        "400":
-          description: 无效的用户ID或角色
-          schema:
-            $ref: '#/definitions/response.Response'
-        "401":
-          description: 未授权
-          schema:
-            $ref: '#/definitions/response.Response'
-        "403":
-          description: 无权限
-          schema:
-            $ref: '#/definitions/response.Response'
-        "404":
-          description: 用户不存在
+          description: OK
           schema:
             $ref: '#/definitions/response.Response'
       security:
@@ -973,7 +891,7 @@ paths:
           schema:
             $ref: '#/definitions/response.Response'
       security:
-      - BearerAuth: []
+      - ApiKeyAuth: []
       summary: 获取当前用户信息
       tags:
       - 验证管理
@@ -3375,7 +3293,6 @@ paths:
       - 专题管理
   /users/{id}:
     get:
-      description: 根据用户ID获取用户详细资料
       parameters:
       - description: 用户ID
         in: path
@@ -3386,7 +3303,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: 获取成功
+          description: OK
           schema:
             allOf:
             - $ref: '#/definitions/response.Response'
@@ -3394,87 +3311,35 @@ paths:
                 data:
                   $ref: '#/definitions/service.UserProfileResponse'
               type: object
-        "400":
-          description: 无效的用户ID
-          schema:
-            $ref: '#/definitions/response.Response'
-        "404":
-          description: 用户不存在
-          schema:
-            $ref: '#/definitions/response.Response'
       summary: 获取用户资料
       tags:
       - 用户管理
   /users/{id}/follow:
     delete:
-      description: 取消关注指定用户
       parameters:
-      - description: 要取消关注的用户ID
+      - description: 用户ID
         in: path
         name: id
         required: true
         type: integer
       produces:
       - application/json
-      responses:
-        "200":
-          description: 取消关注成功
-          schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  type: object
-              type: object
-        "400":
-          description: 无效的用户ID
-          schema:
-            $ref: '#/definitions/response.Response'
-        "401":
-          description: 未授权
-          schema:
-            $ref: '#/definitions/response.Response'
-        "404":
-          description: 未关注该用户
-          schema:
-            $ref: '#/definitions/response.Response'
+      responses: {}
       security:
       - ApiKeyAuth: []
       summary: 取消关注用户
       tags:
       - 用户管理
     post:
-      description: 关注指定用户
       parameters:
-      - description: 要关注的用户ID
+      - description: 用户ID
         in: path
         name: id
         required: true
         type: integer
       produces:
       - application/json
-      responses:
-        "200":
-          description: 关注成功
-          schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  type: object
-              type: object
-        "400":
-          description: 无效的用户ID或不能关注自己
-          schema:
-            $ref: '#/definitions/response.Response'
-        "401":
-          description: 未授权
-          schema:
-            $ref: '#/definitions/response.Response'
-        "409":
-          description: 已关注该用户
-          schema:
-            $ref: '#/definitions/response.Response'
+      responses: {}
       security:
       - ApiKeyAuth: []
       summary: 关注用户
@@ -3482,130 +3347,43 @@ paths:
       - 用户管理
   /users/{id}/followers:
     get:
-      description: 获取指定用户的粉丝列表
       parameters:
       - description: 用户ID
         in: path
         name: id
         required: true
         type: integer
-      - default: 1
-        description: 页码
-        in: query
-        name: page
-        type: integer
-      - default: 20
-        description: 每页数量
-        in: query
-        name: page_size
-        type: integer
       produces:
       - application/json
-      responses:
-        "200":
-          description: 获取成功
-          schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  allOf:
-                  - $ref: '#/definitions/response.PageData'
-                  - properties:
-                      list:
-                        items:
-                          $ref: '#/definitions/model.User'
-                        type: array
-                    type: object
-              type: object
-        "400":
-          description: 无效的用户ID
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: 服务器内部错误
-          schema:
-            $ref: '#/definitions/response.Response'
+      responses: {}
       summary: 获取粉丝列表
       tags:
       - 用户管理
   /users/{id}/following:
     get:
-      description: 获取指定用户关注的用户列表
       parameters:
       - description: 用户ID
         in: path
         name: id
         required: true
         type: integer
-      - default: 1
-        description: 页码
-        in: query
-        name: page
-        type: integer
-      - default: 20
-        description: 每页数量
-        in: query
-        name: page_size
-        type: integer
       produces:
       - application/json
-      responses:
-        "200":
-          description: 获取成功
-          schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  allOf:
-                  - $ref: '#/definitions/response.PageData'
-                  - properties:
-                      list:
-                        items:
-                          $ref: '#/definitions/model.User'
-                        type: array
-                    type: object
-              type: object
-        "400":
-          description: 无效的用户ID
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: 服务器内部错误
-          schema:
-            $ref: '#/definitions/response.Response'
+      responses: {}
       summary: 获取关注列表
       tags:
       - 用户管理
   /users/leaderboard:
     get:
-      description: 根据用户积分或活跃度获取排行榜
       parameters:
       - default: 20
-        description: 返回数量
+        description: 数量
         in: query
-        maximum: 100
         name: limit
         type: integer
       produces:
       - application/json
-      responses:
-        "200":
-          description: 获取成功
-          schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  items:
-                    $ref: '#/definitions/model.User'
-                  type: array
-              type: object
-        "500":
-          description: 服务器内部错误
-          schema:
-            $ref: '#/definitions/response.Response'
+      responses: {}
       summary: 获取用户排行榜
       tags:
       - 用户管理
@@ -3613,9 +3391,8 @@ paths:
     put:
       consumes:
       - application/json
-      description: 更新当前登录用户的个人资料
       parameters:
-      - description: 用户资料信息
+      - description: 资料
         in: body
         name: body
         required: true
@@ -3623,28 +3400,7 @@ paths:
           $ref: '#/definitions/service.UpdateProfileInput'
       produces:
       - application/json
-      responses:
-        "200":
-          description: 更新成功
-          schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/service.UserProfileResponse'
-              type: object
-        "400":
-          description: 请求参数错误
-          schema:
-            $ref: '#/definitions/response.Response'
-        "401":
-          description: 未授权
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: 服务器内部错误
-          schema:
-            $ref: '#/definitions/response.Response'
+      responses: {}
       security:
       - ApiKeyAuth: []
       summary: 更新用户资料

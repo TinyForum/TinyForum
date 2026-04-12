@@ -1,8 +1,10 @@
 package handler
 
 import (
+	"errors"
 	"strconv"
 
+	apperrors "tiny-forum/internal/errors"
 	"tiny-forum/internal/repository"
 	"tiny-forum/internal/service"
 	"tiny-forum/pkg/response"
@@ -298,9 +300,15 @@ func (h *PostHandler) AdminTogglePin(c *gin.Context) {
 		response.BadRequest(c, "无效的帖子ID")
 		return
 	}
+
 	if err := h.postSvc.TogglePin(uint(postID)); err != nil {
+		if errors.Is(err, apperrors.ErrPostNotFound) {
+			response.NotFound(c, err.Error())
+			return
+		}
 		response.InternalError(c, err.Error())
 		return
 	}
+
 	response.Success(c, gin.H{"message": "操作成功"})
 }

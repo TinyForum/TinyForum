@@ -2,8 +2,10 @@ package service
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
+	apperrors "tiny-forum/internal/errors"
 	"tiny-forum/internal/model"
 	"tiny-forum/internal/repository"
 	jwtpkg "tiny-forum/pkg/jwt"
@@ -13,14 +15,26 @@ import (
 )
 
 type UserService struct {
-	repo     *repository.UserRepository
-	jwtMgr   *jwtpkg.Manager
-	notifSvc *NotificationService
+	repo        *repository.UserRepository
+	jwtMgr      *jwtpkg.Manager
+	notifSvc    *NotificationService
+	roleChecker RoleChangeChecker
 }
 
-func NewUserService(repo *repository.UserRepository, jwtMgr *jwtpkg.Manager, notifSvc *NotificationService) *UserService {
-	return &UserService{repo: repo, jwtMgr: jwtMgr, notifSvc: notifSvc}
+func NewUserService(
+	repo *repository.UserRepository,
+	jwtMgr *jwtpkg.Manager,
+	notifSvc *NotificationService,
+) *UserService {
+	return &UserService{
+		repo:        repo,
+		jwtMgr:      jwtMgr,
+		notifSvc:    notifSvc,
+		roleChecker: RoleChangeChecker{},
+	}
 }
+
+// ── Auth ─────────────────────────────────────────────────────────────────────
 
 type RegisterInput struct {
 	Username string `json:"username" binding:"required,min=2,max=50"`
@@ -39,11 +53,9 @@ type AuthResult struct {
 }
 
 func (s *UserService) Register(input RegisterInput) (*AuthResult, error) {
-	// Check username
 	if _, err := s.repo.FindByUsername(input.Username); err == nil {
 		return nil, errors.New("用户名已被占用")
 	}
-	// Check email
 	if _, err := s.repo.FindByEmail(input.Email); err == nil {
 		return nil, errors.New("邮箱已被注册")
 	}
@@ -60,12 +72,10 @@ func (s *UserService) Register(input RegisterInput) (*AuthResult, error) {
 		Role:     model.RoleUser,
 		Avatar:   avatarURL(input.Username),
 	}
-
 	if err := s.repo.Create(user); err != nil {
 		return nil, err
 	}
 
-	// Send welcome notification
 	s.notifSvc.Create(user.ID, nil, model.NotifySystem, "欢迎加入 Tiny Forum！", nil, "")
 
 	token, err := s.jwtMgr.Generate(user.ID, user.Username, string(user.Role))
@@ -83,11 +93,9 @@ func (s *UserService) Login(input LoginInput) (*AuthResult, error) {
 		}
 		return nil, err
 	}
-
-	if !user.IsActive {
+	if user.IsBlocked {
 		return nil, errors.New("账户已被禁用")
 	}
-
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(input.Password)); err != nil {
 		return nil, errors.New("邮箱或密码错误")
 	}
@@ -102,6 +110,8 @@ func (s *UserService) Login(input LoginInput) (*AuthResult, error) {
 	}
 	return &AuthResult{Token: token, User: user}, nil
 }
+
+// ── Profile ──────────────────────────────────────────────────────────────────
 
 func (s *UserService) GetProfile(userID uint) (*model.User, error) {
 	return s.repo.FindByID(userID)
@@ -124,26 +134,6 @@ func (s *UserService) UpdateProfile(userID uint, input UpdateProfileInput) error
 		return nil
 	}
 	return s.repo.UpdateFields(userID, fields)
-}
-
-func (s *UserService) Follow(followerID, followingID uint) error {
-	if followerID == followingID {
-		return errors.New("不能关注自己")
-	}
-	if err := s.repo.Follow(followerID, followingID); err != nil {
-		return err
-	}
-	// Notification
-	following, _ := s.repo.FindByID(followingID)
-	if following != nil {
-		s.notifSvc.Create(followingID, &followerID, model.NotifyFollow,
-			following.Username+" 关注了你", nil, "")
-	}
-	return nil
-}
-
-func (s *UserService) Unfollow(followerID, followingID uint) error {
-	return s.repo.Unfollow(followerID, followingID)
 }
 
 type UserProfileResponse struct {
@@ -169,6 +159,39 @@ func (s *UserService) GetUserProfile(targetID, viewerID uint) (*UserProfileRespo
 	return resp, nil
 }
 
+// ── Follow ───────────────────────────────────────────────────────────────────
+
+func (s *UserService) Follow(followerID, followingID uint) error {
+	if followerID == followingID {
+		return errors.New("不能关注自己")
+	}
+	if err := s.repo.Follow(followerID, followingID); err != nil {
+		return err
+	}
+	following, _ := s.repo.FindByID(followingID)
+	if following != nil {
+		s.notifSvc.Create(followingID, &followerID, model.NotifyFollow,
+			following.Username+" 关注了你", nil, "")
+	}
+	return nil
+}
+
+func (s *UserService) Unfollow(followerID, followingID uint) error {
+	return s.repo.Unfollow(followerID, followingID)
+}
+
+// 获取关注者列表
+func (s *UserService) GetFollowers(userID uint, page, pageSize int) ([]model.User, int64, error) {
+	return s.repo.GetFollowers(userID, page, pageSize)
+}
+
+// 获取关注列表
+func (s *UserService) GetFollowing(userID uint, page, pageSize int) ([]model.User, int64, error) {
+	return s.repo.GetFollowing(userID, page, pageSize)
+}
+
+// ── Admin ────────────────────────────────────────────────────────────────────
+
 func (s *UserService) GetLeaderboard(limit int) ([]model.User, error) {
 	return s.repo.GetTopUsers(limit)
 }
@@ -181,30 +204,51 @@ func (s *UserService) SetActive(userID uint, active bool) error {
 	return s.repo.UpdateFields(userID, map[string]interface{}{"is_active": active})
 }
 
-func avatarURL(username string) string {
-	return "https://api.dicebear.com/8.x/lorelei/svg?seed=" + username
+func (s *UserService) SetBlocked(userID uint, blocked bool) error {
+	return s.repo.UpdateFields(userID, map[string]interface{}{"is_blocked": blocked})
 }
 
-// GetFollow 获取用户的关注列表
-func (s *UserService) GetFollowers(userID uint, page, pageSize int) ([]model.User, int64, error) {
-	return s.repo.GetFollowing(userID, page, pageSize)
-}
+// ── Role Management ──────────────────────────────────────────────────────────
 
-func (s *UserService) GetFollowing(userID uint, page, pageSize int) ([]model.User, int64, error) {
-	return s.repo.GetFollowing(userID, page, pageSize)
-}
-
-// SetRole 设置用户角色
-func (s *UserService) SetRole(userID uint, role string) error {
-	// 验证角色是否有效
-	switch model.UserRole(role) {
-	case model.RoleUser, model.ModeratorUser, model.RoleAdmin:
-		// 有效角色
-	default:
-		return errors.New("无效的角色类型")
+// SetRole 变更目标用户角色（含细粒度权限校验）。
+// operatorID 来自 JWT，确保操作者身份可信。
+func (s *UserService) SetRole(operatorID, targetID uint, newRole string) error {
+	// 1. 校验新角色字面值
+	targetRole := model.UserRole(newRole)
+	if !model.IsValidRole(targetRole) {
+		return fmt.Errorf("%w: %s", apperrors.ErrInvalidRole, newRole)
 	}
 
-	return s.repo.UpdateFields(userID, map[string]interface{}{
-		"role": role,
-	})
+	// 2. 加载操作者与目标用户
+	operator, err := s.repo.FindByID(operatorID)
+	if err != nil {
+		return fmt.Errorf("操作者不存在: %w", err)
+	}
+	target, err := s.repo.FindByID(targetID)
+	if err != nil {
+		return err // 保留 gorm.ErrRecordNotFound 供 handler 判断
+	}
+
+	// 3. 幂等：角色无变化直接返回
+	if target.Role == targetRole {
+		return nil
+	}
+
+	// 4. 细粒度权限校验（职责交由 RoleChangeChecker）
+	if err := s.roleChecker.Check(RoleChangeRequest{
+		Operator: operator,
+		Target:   target,
+		NewRole:  targetRole,
+	}); err != nil {
+		return err
+	}
+
+	// 5. 执行更新
+	return s.repo.UpdateFields(targetID, map[string]interface{}{"role": newRole})
+}
+
+// ── 内部工具 ─────────────────────────────────────────────────────────────────
+
+func avatarURL(username string) string {
+	return "https://api.dicebear.com/8.x/lorelei/svg?seed=" + username
 }

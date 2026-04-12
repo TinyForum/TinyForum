@@ -311,9 +311,11 @@ func InitApp(cfg *config.Config) (*App, error) {
 	{
 		adminGroup.GET("/users", userHandler.AdminList)
 		adminGroup.PUT("/users/:id/active", userHandler.AdminSetActive)
+		adminGroup.PUT("/users/:id/blocked", userHandler.AdminSetBlocked)
 		adminGroup.GET("/posts", postHandler.AdminList)
 		adminGroup.PUT("/posts/:id/pin", postHandler.AdminTogglePin)
 		// adminGroup.PUT("/posts/:id/pin-board", postHandler.AdminTogglePinInBoard)
+		adminGroup.PUT("/users/:id/role", userHandler.AdminSetRole)
 
 		// 板块管理
 		adminGroup.GET("/boards", boardHandler.List)

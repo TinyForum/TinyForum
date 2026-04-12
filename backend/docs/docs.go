@@ -184,7 +184,6 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "管理员分页获取所有用户列表，支持关键词搜索",
                 "produces": [
                     "application/json"
                 ],
@@ -192,81 +191,7 @@ const docTemplate = `{
                     "管理接口"
                 ],
                 "summary": "管理员获取用户列表",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "default": 1,
-                        "description": "页码",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "default": 20,
-                        "description": "每页数量",
-                        "name": "page_size",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "搜索关键词（用户名、邮箱）",
-                        "name": "keyword",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "获取成功",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "allOf": [
-                                                {
-                                                    "$ref": "#/definitions/response.PageData"
-                                                },
-                                                {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "list": {
-                                                            "type": "array",
-                                                            "items": {
-                                                                "$ref": "#/definitions/model.User"
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            ]
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "401": {
-                        "description": "未授权",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "403": {
-                        "description": "无权限",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "服务器内部错误",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
+                "responses": {}
             }
         },
         "/admin/users/{id}/active": {
@@ -276,7 +201,6 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "管理员启用或禁用指定用户账号",
                 "consumes": [
                     "application/json"
                 ],
@@ -294,67 +218,38 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
-                    },
-                    {
-                        "description": "状态信息",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/handler.SetUserActiveRequest"
-                        }
                     }
                 ],
-                "responses": {
-                    "200": {
-                        "description": "操作成功",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "无效的用户ID或请求参数错误",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "401": {
-                        "description": "未授权",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "403": {
-                        "description": "无权限",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "404": {
-                        "description": "用户不存在",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "服务器内部错误",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
+                "responses": {}
+            }
+        },
+        "/admin/users/{id}/blocked": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
                     }
-                }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "管理接口"
+                ],
+                "summary": "管理员封禁/解封用户",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "用户ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
             }
         },
         "/admin/users/{id}/role": {
@@ -364,7 +259,6 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "管理员设置指定用户的角色（user/moderator/admin）",
                 "consumes": [
                     "application/json"
                 ],
@@ -395,43 +289,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "操作成功",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "无效的用户ID或角色",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "401": {
-                        "description": "未授权",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "403": {
-                        "description": "无权限",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "404": {
-                        "description": "用户不存在",
+                        "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -476,7 +334,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
-                        "BearerAuth": []
+                        "ApiKeyAuth": []
                     }
                 ],
                 "produces": [
@@ -4492,7 +4350,6 @@ const docTemplate = `{
         },
         "/users/leaderboard": {
             "get": {
-                "description": "根据用户积分或活跃度获取排行榜",
                 "produces": [
                     "application/json"
                 ],
@@ -4502,43 +4359,14 @@ const docTemplate = `{
                 "summary": "获取用户排行榜",
                 "parameters": [
                     {
-                        "maximum": 100,
                         "type": "integer",
                         "default": 20,
-                        "description": "返回数量",
+                        "description": "数量",
                         "name": "limit",
                         "in": "query"
                     }
                 ],
-                "responses": {
-                    "200": {
-                        "description": "获取成功",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/definitions/model.User"
-                                            }
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "500": {
-                        "description": "服务器内部错误",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
+                "responses": {}
             }
         },
         "/users/profile": {
@@ -4548,7 +4376,6 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "更新当前登录用户的个人资料",
                 "consumes": [
                     "application/json"
                 ],
@@ -4561,7 +4388,7 @@ const docTemplate = `{
                 "summary": "更新用户资料",
                 "parameters": [
                     {
-                        "description": "用户资料信息",
+                        "description": "资料",
                         "name": "body",
                         "in": "body",
                         "required": true,
@@ -4570,49 +4397,11 @@ const docTemplate = `{
                         }
                     }
                 ],
-                "responses": {
-                    "200": {
-                        "description": "更新成功",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/service.UserProfileResponse"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "请求参数错误",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "401": {
-                        "description": "未授权",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "服务器内部错误",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
+                "responses": {}
             }
         },
         "/users/{id}": {
             "get": {
-                "description": "根据用户ID获取用户详细资料",
                 "produces": [
                     "application/json"
                 ],
@@ -4631,7 +4420,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "获取成功",
+                        "description": "OK",
                         "schema": {
                             "allOf": [
                                 {
@@ -4647,18 +4436,6 @@ const docTemplate = `{
                                 }
                             ]
                         }
-                    },
-                    "400": {
-                        "description": "无效的用户ID",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "404": {
-                        "description": "用户不存在",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
                     }
                 }
             }
@@ -4670,7 +4447,6 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "关注指定用户",
                 "produces": [
                     "application/json"
                 ],
@@ -4681,50 +4457,13 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "要关注的用户ID",
+                        "description": "用户ID",
                         "name": "id",
                         "in": "path",
                         "required": true
                     }
                 ],
-                "responses": {
-                    "200": {
-                        "description": "关注成功",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "无效的用户ID或不能关注自己",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "401": {
-                        "description": "未授权",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "409": {
-                        "description": "已关注该用户",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
+                "responses": {}
             },
             "delete": {
                 "security": [
@@ -4732,7 +4471,6 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "取消关注指定用户",
                 "produces": [
                     "application/json"
                 ],
@@ -4743,55 +4481,17 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "要取消关注的用户ID",
+                        "description": "用户ID",
                         "name": "id",
                         "in": "path",
                         "required": true
                     }
                 ],
-                "responses": {
-                    "200": {
-                        "description": "取消关注成功",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "无效的用户ID",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "401": {
-                        "description": "未授权",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "404": {
-                        "description": "未关注该用户",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
+                "responses": {}
             }
         },
         "/users/{id}/followers": {
             "get": {
-                "description": "获取指定用户的粉丝列表",
                 "produces": [
                     "application/json"
                 ],
@@ -4806,74 +4506,13 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "default": 1,
-                        "description": "页码",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "default": 20,
-                        "description": "每页数量",
-                        "name": "page_size",
-                        "in": "query"
                     }
                 ],
-                "responses": {
-                    "200": {
-                        "description": "获取成功",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "allOf": [
-                                                {
-                                                    "$ref": "#/definitions/response.PageData"
-                                                },
-                                                {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "list": {
-                                                            "type": "array",
-                                                            "items": {
-                                                                "$ref": "#/definitions/model.User"
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            ]
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "无效的用户ID",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "服务器内部错误",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
+                "responses": {}
             }
         },
         "/users/{id}/following": {
             "get": {
-                "description": "获取指定用户关注的用户列表",
                 "produces": [
                     "application/json"
                 ],
@@ -4888,69 +4527,9 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "default": 1,
-                        "description": "页码",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "default": 20,
-                        "description": "每页数量",
-                        "name": "page_size",
-                        "in": "query"
                     }
                 ],
-                "responses": {
-                    "200": {
-                        "description": "获取成功",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "allOf": [
-                                                {
-                                                    "$ref": "#/definitions/response.PageData"
-                                                },
-                                                {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "list": {
-                                                            "type": "array",
-                                                            "items": {
-                                                                "$ref": "#/definitions/model.User"
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            ]
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "无效的用户ID",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "服务器内部错误",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
+                "responses": {}
             }
         }
     },
@@ -5026,16 +4605,6 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.SetUserActiveRequest": {
-            "type": "object",
-            "properties": {
-                "active": {
-                    "description": "用户状态：true-启用，false-禁用",
-                    "type": "boolean",
-                    "example": true
-                }
-            }
-        },
         "handler.SetUserRoleRequest": {
             "type": "object",
             "required": [
@@ -5043,14 +4612,17 @@ const docTemplate = `{
             ],
             "properties": {
                 "role": {
-                    "description": "用户角色",
+                    "description": "角色：user / member / moderator / reviewer / bot / admin / super_admin",
                     "type": "string",
                     "enum": [
                         "user",
+                        "member",
                         "moderator",
-                        "admin"
-                    ],
-                    "example": "moderator"
+                        "reviewer",
+                        "bot",
+                        "admin",
+                        "super_admin"
+                    ]
                 }
             }
         },
@@ -5613,11 +5185,9 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "is_active": {
-                    "description": "激活，是否可以登录",
                     "type": "boolean"
                 },
                 "is_blocked": {
-                    "description": "封禁，是否可以发言",
                     "type": "boolean"
                 },
                 "last_login": {
@@ -5640,14 +5210,24 @@ const docTemplate = `{
         "model.UserRole": {
             "type": "string",
             "enum": [
+                "guest",
                 "user",
+                "member",
+                "moderator",
+                "reviewer",
                 "admin",
-                "moderator"
+                "super_admin",
+                "bot"
             ],
             "x-enum-varnames": [
+                "RoleGuest",
                 "RoleUser",
+                "RoleMember",
+                "RoleModerator",
+                "RoleReviewer",
                 "RoleAdmin",
-                "ModeratorUser"
+                "RoleSuperAdmin",
+                "RoleBot"
             ]
         },
         "response.PageData": {
@@ -5919,11 +5499,9 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "is_active": {
-                    "description": "激活，是否可以登录",
                     "type": "boolean"
                 },
                 "is_blocked": {
-                    "description": "封禁，是否可以发言",
                     "type": "boolean"
                 },
                 "is_following": {

@@ -71,7 +71,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 // Me godoc
 // @Summary 获取当前用户信息
 // @Tags 验证管理
-// @Security BearerAuth
+// @Security ApiKeyAuth
 // @Produce json
 // @Success 200 {object} response.Response
 // @Router /auth/me [get]

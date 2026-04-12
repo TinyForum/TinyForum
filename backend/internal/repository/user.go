@@ -130,3 +130,31 @@ func (r *UserRepository) GetFollowing(userID uint, page, pageSize int) ([]model.
 
 	return users, total, err
 }
+
+// GetFollowing 获取关注用户的列表
+// GetFollowers 获取用户的粉丝列表（谁关注了该用户）
+func (r *UserRepository) GetFollowers(userID uint, page, pageSize int) ([]model.User, int64, error) {
+	var users []model.User
+	var total int64
+
+	offset := (page - 1) * pageSize
+
+	// 获取粉丝总数
+	err := r.db.Model(&model.Follow{}).
+		Where("following_id = ?", userID).
+		Count(&total).Error
+	if err != nil {
+		return nil, 0, err
+	}
+
+	// 获取粉丝用户列表
+	err = r.db.Model(&model.Follow{}).
+		Select("users.*").
+		Joins("JOIN users ON follows.follower_id = users.id").
+		Where("follows.following_id = ?", userID).
+		Offset(offset).
+		Limit(pageSize).
+		Find(&users).Error
+
+	return users, total, err
+}

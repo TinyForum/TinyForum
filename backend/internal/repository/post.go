@@ -21,7 +21,10 @@ func (r *PostRepository) Create(post *model.Post) error {
 func (r *PostRepository) FindByID(id uint) (*model.Post, error) {
 	var post model.Post
 	err := r.db.Preload("Author").Preload("Tags").First(&post, id).Error
-	return &post, err
+	if err != nil {
+		return nil, err // 直接返回 nil 和错误
+	}
+	return &post, nil
 }
 
 func (r *PostRepository) Update(post *model.Post) error {
