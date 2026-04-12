@@ -2118,7 +2118,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/service.CreateQuestionInput"
+                            "$ref": "#/definitions/model.CreateQuestionInput"
                         }
                     }
                 ],
@@ -2134,7 +2134,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "type": "object"
+                                            "$ref": "#/definitions/model.QuestionResponse"
                                         }
                                     }
                                 }
@@ -2149,6 +2149,12 @@ const docTemplate = `{
                     },
                     "401": {
                         "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "积分不足",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -3620,14 +3626,14 @@ const docTemplate = `{
         },
         "/topics": {
             "get": {
-                "description": "分页获取所有专题列表",
+                "description": "分页获取所有话题列表",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "专题管理"
+                    "话题管理"
                 ],
-                "summary": "获取专题列表",
+                "summary": "获取话题列表",
                 "parameters": [
                     {
                         "type": "integer",
@@ -3692,7 +3698,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "创建一个新的专题（需要管理员权限）",
+                "description": "创建一个新的话题（需要管理员权限）",
                 "consumes": [
                     "application/json"
                 ],
@@ -3700,12 +3706,12 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "专题管理"
+                    "话题管理"
                 ],
-                "summary": "创建专题",
+                "summary": "创建话题",
                 "parameters": [
                     {
-                        "description": "专题信息",
+                        "description": "话题信息",
                         "name": "body",
                         "in": "body",
                         "required": true,
@@ -3756,14 +3762,14 @@ const docTemplate = `{
         },
         "/topics/creator/{creator_id}": {
             "get": {
-                "description": "获取指定用户创建的所有专题",
+                "description": "获取指定用户创建的所有话题",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "专题管理"
+                    "话题管理"
                 ],
-                "summary": "获取用户创建的专题",
+                "summary": "获取用户创建的话题",
                 "parameters": [
                     {
                         "type": "integer",
@@ -3838,18 +3844,18 @@ const docTemplate = `{
         },
         "/topics/{id}": {
             "get": {
-                "description": "根据ID获取专题详细信息",
+                "description": "根据ID获取话题详细信息",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "专题管理"
+                    "话题管理"
                 ],
-                "summary": "获取专题详情",
+                "summary": "获取话题详情",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "专题ID",
+                        "description": "话题ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -3875,13 +3881,13 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "无效的专题ID",
+                        "description": "无效的话题ID",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
                     },
                     "404": {
-                        "description": "专题不存在",
+                        "description": "话题不存在",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -3894,7 +3900,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "更新指定专题的信息（需要管理员权限）",
+                "description": "更新指定话题的信息（需要管理员权限）",
                 "consumes": [
                     "application/json"
                 ],
@@ -3902,19 +3908,19 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "专题管理"
+                    "话题管理"
                 ],
-                "summary": "更新专题",
+                "summary": "更新话题",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "专题ID",
+                        "description": "话题ID",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "专题信息",
+                        "description": "话题信息",
                         "name": "body",
                         "in": "body",
                         "required": true,
@@ -3943,7 +3949,7 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "请求参数错误或无效的专题ID",
+                        "description": "请求参数错误或无效的话题ID",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -3961,7 +3967,7 @@ const docTemplate = `{
                         }
                     },
                     "404": {
-                        "description": "专题不存在",
+                        "description": "话题不存在",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -3974,18 +3980,18 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "删除指定专题（需要管理员权限）",
+                "description": "删除指定话题（需要管理员权限）",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "专题管理"
+                    "话题管理"
                 ],
-                "summary": "删除专题",
+                "summary": "删除话题",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "专题ID",
+                        "description": "话题ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -4011,7 +4017,7 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "无效的专题ID",
+                        "description": "无效的话题ID",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -4029,7 +4035,7 @@ const docTemplate = `{
                         }
                     },
                     "404": {
-                        "description": "专题不存在",
+                        "description": "话题不存在",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -4044,18 +4050,18 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "关注指定专题，接收专题更新通知",
+                "description": "关注指定话题，接收话题更新通知",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "专题管理"
+                    "话题管理"
                 ],
-                "summary": "关注专题",
+                "summary": "关注话题",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "专题ID",
+                        "description": "话题ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -4081,7 +4087,7 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "无效的专题ID",
+                        "description": "无效的话题ID",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -4093,7 +4099,7 @@ const docTemplate = `{
                         }
                     },
                     "404": {
-                        "description": "专题不存在",
+                        "description": "话题不存在",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -4106,18 +4112,18 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "取消关注指定专题",
+                "description": "取消关注指定话题",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "专题管理"
+                    "话题管理"
                 ],
-                "summary": "取消关注专题",
+                "summary": "取消关注话题",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "专题ID",
+                        "description": "话题ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -4143,7 +4149,7 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "无效的专题ID",
+                        "description": "无效的话题ID",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -4155,7 +4161,7 @@ const docTemplate = `{
                         }
                     },
                     "404": {
-                        "description": "专题不存在或未关注",
+                        "description": "话题不存在或未关注",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -4170,18 +4176,18 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "检查当前用户是否已关注指定专题",
+                "description": "检查当前用户是否已关注指定话题",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "专题管理"
+                    "话题管理"
                 ],
-                "summary": "检查是否关注专题",
+                "summary": "检查是否关注话题",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "专题ID",
+                        "description": "话题ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -4207,7 +4213,7 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "无效的专题ID",
+                        "description": "无效的话题ID",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -4229,18 +4235,18 @@ const docTemplate = `{
         },
         "/topics/{id}/followers": {
             "get": {
-                "description": "分页获取关注指定专题的用户列表",
+                "description": "分页获取关注指定话题的用户列表",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "专题管理"
+                    "话题管理"
                 ],
-                "summary": "获取专题关注者列表",
+                "summary": "获取话题关注者列表",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "专题ID",
+                        "description": "话题ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -4295,7 +4301,7 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "无效的专题ID",
+                        "description": "无效的话题ID",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -4311,18 +4317,18 @@ const docTemplate = `{
         },
         "/topics/{id}/posts": {
             "get": {
-                "description": "分页获取指定专题下的所有帖子",
+                "description": "分页获取指定话题下的所有帖子",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "专题管理"
+                    "话题管理"
                 ],
-                "summary": "获取专题帖子列表",
+                "summary": "获取话题帖子列表",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "专题ID",
+                        "description": "话题ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -4377,7 +4383,7 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "无效的专题ID",
+                        "description": "无效的话题ID",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -4396,7 +4402,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "将指定帖子添加到专题中（需要管理员权限）",
+                "description": "将指定帖子添加到话题中（需要管理员权限）",
                 "consumes": [
                     "application/json"
                 ],
@@ -4404,13 +4410,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "专题管理"
+                    "话题管理"
                 ],
-                "summary": "添加帖子到专题",
+                "summary": "添加帖子到话题",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "专题ID",
+                        "description": "话题ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -4463,7 +4469,7 @@ const docTemplate = `{
                         }
                     },
                     "404": {
-                        "description": "专题或帖子不存在",
+                        "description": "话题或帖子不存在",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -4478,18 +4484,18 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "将指定帖子从专题中移除（需要管理员权限）",
+                "description": "将指定帖子从话题中移除（需要管理员权限）",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "专题管理"
+                    "话题管理"
                 ],
-                "summary": "从专题移除帖子",
+                "summary": "从话题移除帖子",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "专题ID",
+                        "description": "话题ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -4540,7 +4546,7 @@ const docTemplate = `{
                         }
                     },
                     "404": {
-                        "description": "专题或帖子不存在",
+                        "description": "话题或帖子不存在",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -5037,6 +5043,43 @@ const docTemplate = `{
                 }
             }
         },
+        "model.CreateQuestionInput": {
+            "type": "object",
+            "required": [
+                "content",
+                "title"
+            ],
+            "properties": {
+                "board_id": {
+                    "type": "integer"
+                },
+                "content": {
+                    "type": "string"
+                },
+                "cover": {
+                    "type": "string"
+                },
+                "reward_score": {
+                    "type": "integer",
+                    "maximum": 100,
+                    "minimum": 0
+                },
+                "summary": {
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "tag_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "title": {
+                    "type": "string",
+                    "maxLength": 100
+                }
+            }
+        },
         "model.Moderator": {
             "type": "object",
             "properties": {
@@ -5269,6 +5312,53 @@ const docTemplate = `{
                 },
                 "reward_score": {
                     "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.QuestionResponse": {
+            "type": "object",
+            "properties": {
+                "accepted_answer_id": {
+                    "type": "integer"
+                },
+                "answer_count": {
+                    "type": "integer"
+                },
+                "author_id": {
+                    "type": "integer"
+                },
+                "board_id": {
+                    "type": "integer"
+                },
+                "content": {
+                    "type": "string"
+                },
+                "cover": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "post_id": {
+                    "type": "integer"
+                },
+                "reward_score": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "summary": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
                 },
                 "updated_at": {
                     "type": "string"
@@ -5567,22 +5657,6 @@ const docTemplate = `{
                 },
                 "type": {
                     "type": "string"
-                }
-            }
-        },
-        "service.CreateQuestionInput": {
-            "type": "object",
-            "required": [
-                "post_id"
-            ],
-            "properties": {
-                "post_id": {
-                    "type": "integer"
-                },
-                "reward_score": {
-                    "type": "integer",
-                    "maximum": 100,
-                    "minimum": 0
                 }
             }
         },

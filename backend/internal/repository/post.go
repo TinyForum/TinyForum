@@ -192,3 +192,22 @@ func (r *PostRepository) TogglePinInBoard(postID uint, pin bool) error {
 	return r.db.Model(&model.Post{}).Where("id = ?", postID).
 		Update("pin_in_board", pin).Error
 }
+
+// CreateWithTx 使用事务创建帖子
+func (r *PostRepository) CreateWithTx(tx *gorm.DB, post *model.Post) error {
+	return tx.Create(post).Error
+}
+
+// AddTags 添加标签关联
+func (r *PostRepository) AddTags(tx *gorm.DB, post *model.Post, tagIDs []uint) error {
+	if len(tagIDs) == 0 {
+		return nil
+	}
+
+	var tags []model.Tag
+	if err := tx.Where("id IN ?", tagIDs).Find(&tags).Error; err != nil {
+		return err
+	}
+
+	return tx.Model(post).Association("Tags").Append(&tags)
+}

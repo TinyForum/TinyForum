@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"errors"
 	"tiny-forum/internal/model"
 
 	"gorm.io/gorm"
@@ -157,4 +158,22 @@ func (r *UserRepository) GetFollowers(userID uint, page, pageSize int) ([]model.
 		Find(&users).Error
 
 	return users, total, err
+}
+
+// DeductScore 扣减用户积分（使用事务）
+func (r *UserRepository) DeductScore(tx *gorm.DB, userID uint, score int) error {
+	if score <= 0 {
+		return nil
+	}
+
+	var user model.User
+	if err := tx.Where("id = ?", userID).First(&user).Error; err != nil {
+		return errors.New("用户不存在")
+	}
+
+	if user.Score < score {
+		return errors.New("积分不足")
+	}
+
+	return tx.Model(&user).Update("score", gorm.Expr("score - ?", score)).Error
 }

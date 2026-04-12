@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	apperrors "tiny-forum/internal/errors"
+	"tiny-forum/internal/model"
 	"tiny-forum/internal/service"
 	"tiny-forum/pkg/response"
 
@@ -61,23 +62,38 @@ func (h *QuestionHandler) GetQuestions(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param body body service.CreateQuestionInput true "问答信息"
-// @Success 200 {object} response.Response{data=object} "创建成功"
+// @Param body body model.CreateQuestionInput true "问答信息"
+// @Success 200 {object} response.Response{data=model.QuestionResponse} "创建成功"
 // @Failure 400 {object} response.Response "请求参数错误"
 // @Failure 401 {object} response.Response "未授权"
+// @Failure 403 {object} response.Response "积分不足"
 // @Router /posts/question [post]
 func (h *QuestionHandler) CreateQuestion(c *gin.Context) {
-	var input service.CreateQuestionInput
+	var input model.CreateQuestionInput
 	if err := c.ShouldBindJSON(&input); err != nil {
-		response.BadRequest(c, err.Error())
+		response.BadRequest(c, "参数错误: "+err.Error())
 		return
 	}
 
-	if err := h.questionSvc.CreateQuestion(input); err != nil {
-		response.BadRequest(c, err.Error())
+	// 从JWT token中获取用户ID
+	userID, exists := c.Get("user_id")
+	if !exists {
+		response.Unauthorized(c, "请先登录")
 		return
 	}
-	response.Success(c, gin.H{"message": "创建成功"})
+
+	question, err := h.questionSvc.CreateQuestion(userID.(uint), input)
+	if err != nil {
+		switch err.Error() {
+		case "积分不足":
+			c.JSON(http.StatusForbidden, gin.H{"message": err.Error()})
+		default:
+			response.BadRequest(c, err.Error())
+		}
+		return
+	}
+
+	response.Success(c, question)
 }
 
 // GetQuestionDetail 获取问答帖详情
