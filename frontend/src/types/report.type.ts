@@ -1,6 +1,8 @@
+import { User } from "./user.type";
+
 type ReportStatus = 'pending' | 'resolved' | 'rejected';
 
-interface Report extends BaseModel {
+export interface Report extends BaseModel {
   reporter_id: number;
   target_id: number;
   target_type: string; // post | comment | user

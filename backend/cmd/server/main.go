@@ -15,11 +15,12 @@ import (
 // @host            localhost:8080
 // @BasePath        /api/v1
 
-// @securityDefinitions.apikey BearerAuth
+// @securityDefinitions.apikey ApiKeyAuth
 // @in header
 // @name Authorization
 // @description Type "Bearer" followed by a space and the JWT token.
 
+// 主函数，程序的入口点
 func main() {
 	// Load config
 	cfg, err := config.Load("config/config.yaml")

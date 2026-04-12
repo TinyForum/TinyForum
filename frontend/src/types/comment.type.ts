@@ -1,5 +1,6 @@
 import { Like } from "./like.type";
 import { Post } from "./post.type";
+import { User } from "./user.type";
 
 export interface Comment extends BaseModel {
   content: string;
