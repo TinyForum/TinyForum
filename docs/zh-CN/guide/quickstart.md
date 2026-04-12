@@ -7,14 +7,7 @@ psql -U postgres -h localhost -d postgres -c "CREATE DATABASE tiny_forum;"
 ```
 
 
-## 积分规则
 
-| 行为 | 积分 |
-|------|------|
-| 注册 | 0 |
-| 发帖 | +10 |
-| 发表评论 | +3 |
-| 点赞他人 | +2 |
 
 ## 配置说明
 
