@@ -30,12 +30,12 @@ import Image from "next/image";
 import Avatar from "../user/Avatar";
 import { useTranslations } from "next-intl";
 import LanguageSwitcher from "../LanguageSwitcher";
-import SearchBar from "../feature/SearchBar";
-import MobileMenu from "../feature/MobileMenu";
-import UserDropdown from "../feature/UserDropdown";
-import NotificationBell from "../feature/NotificationBell";
-import NavLinks from "../feature/NavLinks";
-import QuickActions from "../feature/QuickActions";
+import SearchBar from "../nav/SearchBar";
+import MobileMenu from "../nav/MobileMenu";
+import UserDropdown from "../nav/UserDropdown";
+import NotificationBell from "../nav/NotificationBell";
+import NavLinks from "../nav/NavLinks";
+import QuickActions from "../nav/QuickActions";
 
 // 导航标签配置
 export const NAV_ITEMS = [
