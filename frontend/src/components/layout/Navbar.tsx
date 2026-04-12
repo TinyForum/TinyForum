@@ -140,7 +140,7 @@ export default function Navbar() {
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
                 <Image src="/assets/brand/logo.svg" width={32} height={32} alt="logo" className="brightness-0 invert" />
               </div>
-              <span className="hidden sm:block">{t("brand")}</span>
+              <span className="hidden sm:block text-sm">{t("brand")}</span>
             </Link>
           </div>
 

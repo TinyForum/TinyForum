@@ -224,3 +224,19 @@ export interface ExtendedComment extends Comment {
   is_accepted?: boolean;
   vote_count?: number;
 }
+
+// 添加版主申请类型
+export interface ModeratorApplication {
+  id: number;
+  user_id: number;
+  board_id: number;
+  reason: string;
+  status: 'pending' | 'approved' | 'rejected';
+  handled_by: number | null;
+  handle_note: string;
+  created_at: string;
+  updated_at: string;
+  user?: User;
+  board?: Board;
+  handler?: User;
+}

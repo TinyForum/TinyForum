@@ -12,6 +12,7 @@ import {
   Sparkles,
   MessageCircleQuestion,
   LayoutGrid,
+  ShieldCheckIcon,
 } from "lucide-react";
 import Avatar from "../user/Avatar";
 
@@ -117,6 +118,15 @@ export default function UserDropdown({ user, onLogout }: UserDropdownProps) {
           </Link>
         </li>
         
+        {user && (
+  <Link
+    href="/boards/applications"
+    className="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+  >
+    <ShieldCheckIcon className="w-5 h-5" />
+    <span>我的版主申请</span>
+  </Link>
+)}
         {user?.role === "admin" && (
           <>
             <div className="divider my-1"></div>
