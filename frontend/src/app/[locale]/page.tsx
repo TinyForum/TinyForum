@@ -13,7 +13,7 @@ import { PostType, SortBy } from "@/types";
 
 export default function HomePage() {
   const { isAuthenticated, user } = useAuthStore();
-  const [sortBy, setSortBy] = useState<SortBy>("");
+  const [sortBy, setSortBy] = useState<SortBy>("random");
   const [selectedTag, setSelectedTag] = useState<number | null>(null);
   const [selectedBoard, setSelectedBoard] = useState<number | null>(null);
   const [postType, setPostType] = useState<PostType>("all");

@@ -14,7 +14,7 @@ export interface User {
   is_following?: boolean;
 }
 
-export  type SortBy = 'latest'  | 'hot' | "most_like"| '';
+export  type SortBy = 'latest'  | 'hot' | "like"| 'random';
 export interface Tag {
   id: number;
   name: string;

@@ -25,10 +25,10 @@ export default function PostFilterBar({
   const t = useTranslations("post");
 
   const sortOptions: { value: SortBy; label: string; icon: React.ReactNode }[] = [
-    { value: "", label: t("latest_posts"), icon: <Clock className="w-4 h-4" /> },
-    { value: "hot", label: t("hot_posts"), icon: <Flame className="w-4 h-4" /> },
-    { value: "most_like", label: t("most_voted"), icon: <Award className="w-4 h-4" /> },
-    { value: "latest", label: t("most_voted"), icon: <Megaphone className="w-4 h-4" /> },
+    { value: "random", label: t("random"), icon: <Clock className="w-4 h-4" /> },
+    { value: "hot", label: t("hot"), icon: <Flame className="w-4 h-4" /> },
+    { value: "like", label: t("like"), icon: <Award className="w-4 h-4" /> },
+    { value: "latest", label: t("latest"), icon: <Megaphone className="w-4 h-4" /> },
   ];
 
   return (
