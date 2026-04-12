@@ -20,6 +20,7 @@ export default function PostFilterBar({
   isAuthenticated,
   onRefetch,
   isLoading = false,
+  
   totalCount,
 }: PostFilterBarProps) {
   const t = useTranslations("post");

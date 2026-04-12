@@ -204,6 +204,7 @@ export interface Topic {
   is_public: boolean;
   post_count: number;
   follower_count: number;
+  created_at: string;
 }
 
 export interface TopicPost {
@@ -224,4 +225,19 @@ export interface TopicFollow {
 export interface AuthResult {
   token: string;
   user: User;
+}
+
+
+// lib/api/types/index.ts 中添加
+export interface Announcement {
+  id: number;
+  title: string;
+  content: string;
+  type: "system" | "feature" | "maintenance" | "policy";
+  is_pinned: boolean;
+  view_count: number;
+  author_id: number;
+  author?: User;
+  created_at: string;
+  updated_at: string;
 }

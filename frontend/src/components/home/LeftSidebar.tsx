@@ -37,7 +37,7 @@ interface LeftSidebarProps {
   postType:PostType;
   onBoardChange: (boardId: number | null) => void;
   onTagChange: (tagId: number | null) => void;
-  onPostTypeChange: (type: "all" | "question" | "article") => void;
+  onPostTypeChange: (type:PostType) => void;
 }
 
 export default function LeftSidebar({
@@ -123,11 +123,11 @@ export default function LeftSidebar({
             onClick={() => {
               onBoardChange(null);
               onTagChange(null);
-              onPostTypeChange("all");
+              onPostTypeChange("post");
             }}
             className={cn(
               "w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors",
-              !selectedBoard && !selectedTag && postType === "all"
+              !selectedBoard && !selectedTag && postType === "post"
                 ? "bg-primary/10 text-primary font-medium"
                 : "hover:bg-muted text-muted-foreground hover:text-foreground"
             )}

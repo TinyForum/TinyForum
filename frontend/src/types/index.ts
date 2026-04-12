@@ -5,7 +5,7 @@ import { Topic } from './topic.type';
 import { User } from './user.type';
 
 
-// export  type SortBy = 'latest'  | 'hot' | "like"| 'random';
+export  type SortBy = 'latest'  | 'hot' | "like"| 'random';
 // export interface Tag {
 //   id: number;
 //   name: string;

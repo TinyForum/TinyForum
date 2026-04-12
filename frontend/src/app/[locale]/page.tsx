@@ -16,7 +16,7 @@ export default function HomePage() {
   const [sortBy, setSortBy] = useState<SortBy>("random");
   const [selectedTag, setSelectedTag] = useState<number | null>(null);
   const [selectedBoard, setSelectedBoard] = useState<number | null>(null);
-  const [postType, setPostType] = useState<PostType>("all");
+  const [postType, setPostType] = useState<PostType>("post");
   const [page, setPage] = useState(1);
   const t = useTranslations("post");
 
@@ -31,7 +31,7 @@ export default function HomePage() {
           sort_by: sortBy === "latest" ? "latest" : sortBy,
           tag_id: selectedTag ?? undefined,
           board_id: selectedBoard ?? undefined,
-          type: postType === "all" ? undefined : postType,
+          type: postType === "post" ? undefined : postType,
         })
         .then((r) => r.data.data),
   });
@@ -72,11 +72,11 @@ export default function HomePage() {
   // 时间线事件（已登录时）
   const { data: timelineEvents } = useQuery({
     queryKey: ["timeline-events"],
-    queryFn: () => timelineApi.getHomeTimeline({ page: 1, page_size: 5 }).then((r) => r.data.data.list),
+    queryFn: () => timelineApi.getFollowing({ page: 1, page_size: 5 }).then((r) => r.data.data.items),
     enabled: isAuthenticated,
   });
 
-  const posts = postsData?.list ?? [];
+  const posts = postsData?.items ?? [];
   const total = postsData?.total ?? 0;
   const totalPages = Math.ceil(total / 15);
 
@@ -97,7 +97,7 @@ export default function HomePage() {
     setPage(1);
   };
 
-  const handlePostTypeChange = (type: "all" | "question" | "article") => {
+  const handlePostTypeChange = (type: "post" | "question" | "article") => {
     setPostType(type);
     setPage(1);
   };

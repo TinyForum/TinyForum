@@ -35,6 +35,7 @@ export type {
   TopicPost,
   TopicFollow,
   AuthResult,
+  Announcement
 } from "./types";
 
 // ─── Modules ──────────────────────────────────────────────────────────────────
@@ -48,6 +49,8 @@ export { boardApi } from "./modules/boards";
 export { timelineApi } from "./modules/timeline";
 export { topicApi } from "./modules/topics";
 export { adminApi } from "./modules/admin";
+export { announcementApi } from "./modules/announcements";
+
 
 // ─── Payload types（按需 re-export） ──────────────────────────────────────────
 export type { RegisterPayload, LoginPayload } from "./modules/auth";
