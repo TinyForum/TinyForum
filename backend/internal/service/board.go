@@ -2,7 +2,10 @@ package service
 
 import (
 	"errors"
+	"fmt"
+	"regexp"
 	"time"
+	apperrors "tiny-forum/internal/errors"
 	"tiny-forum/internal/model"
 	"tiny-forum/internal/repository"
 )
@@ -42,30 +45,108 @@ type CreateBoardInput struct {
 }
 
 func (s *BoardService) Create(input CreateBoardInput) (*model.Board, error) {
-	// Check slug uniqueness
+	// 1. 验证 ParentID（关键修复）
+	if input.ParentID != nil && *input.ParentID != 0 {
+		// 检查父板块是否存在
+		parentBoard, err := s.boardRepo.FindByID(*input.ParentID)
+		if err != nil {
+			return nil, fmt.Errorf("父板块不存在: id=%d", *input.ParentID)
+		}
+		if parentBoard == nil || parentBoard.ID == 0 {
+			return nil, fmt.Errorf("父板块不存在: id=%d", *input.ParentID)
+		}
+	} else {
+		// 确保根板块的 ParentID 为 nil
+		input.ParentID = nil
+	}
+
+	// 2. 验证角色权限值
+	validRoles := map[model.UserRole]bool{
+		model.RoleGuest:     true,
+		model.RoleUser:      true,
+		model.RoleMember:    true,
+		model.RoleModerator: true,
+		model.RoleAdmin:     true,
+	}
+
+	if input.ViewRole != "" {
+		if !validRoles[model.UserRole(input.ViewRole)] {
+			return nil, errors.New("无效的查看角色")
+		}
+	}
+	if input.PostRole != "" {
+		if !validRoles[model.UserRole(input.PostRole)] {
+			return nil, errors.New("无效的发帖角色")
+		}
+	}
+	if input.ReplyRole != "" {
+		if !validRoles[model.UserRole(input.ReplyRole)] {
+			return nil, errors.New("无效的回复角色")
+		}
+	}
+
+	// 3. 检查 Slug 唯一性
 	existing, _ := s.boardRepo.FindBySlug(input.Slug)
 	if existing != nil && existing.ID != 0 {
 		return nil, errors.New("板块标识已存在")
 	}
 
+	// 4. 验证 Slug 格式
+	if err := validateSlug(input.Slug); err != nil {
+		return nil, err
+	}
+
+	// 5. 验证板块名称长度
+	if len(input.Name) == 0 || len(input.Name) > 50 {
+		return nil, errors.New("板块名称长度必须在1-50字符之间")
+	}
+
+	// 6. 创建板块对象
 	board := &model.Board{
 		Name:        input.Name,
 		Slug:        input.Slug,
 		Description: input.Description,
 		Icon:        input.Icon,
 		Cover:       input.Cover,
-		ParentID:    input.ParentID,
+		ParentID:    input.ParentID, // 现在已经是处理过的值
 		SortOrder:   input.SortOrder,
 		ViewRole:    model.UserRole(input.ViewRole),
 		PostRole:    model.UserRole(input.PostRole),
 		ReplyRole:   model.UserRole(input.ReplyRole),
 	}
 
-	if err := s.boardRepo.Create(board); err != nil {
-		return nil, err
+	// 7. 设置默认角色
+	if board.ViewRole == "" {
+		board.ViewRole = model.RoleUser
+	}
+	if board.PostRole == "" {
+		board.PostRole = model.RoleUser
+	}
+	if board.ReplyRole == "" {
+		board.ReplyRole = model.RoleUser
 	}
 
+	// 8. 创建板块
+	if err := s.boardRepo.Create(board); err != nil {
+		return nil, fmt.Errorf("创建板块失败: %w", err)
+	}
+
+	// 9. 返回完整的板块信息
 	return s.boardRepo.FindByID(board.ID)
+}
+
+// 辅助函数：验证 Slug 格式
+func validateSlug(slug string) error {
+	if len(slug) == 0 || len(slug) > 50 {
+		return errors.New("板块标识长度必须在1-50字符之间")
+	}
+
+	// 只允许小写字母、数字、横线和下划线
+	matched, _ := regexp.MatchString(`^[a-z0-9\-_]+$`, slug)
+	if !matched {
+		return errors.New("板块标识只能包含小写字母、数字、横线和下划线")
+	}
+	return nil
 }
 
 func (s *BoardService) Update(id uint, input CreateBoardInput) (*model.Board, error) {
@@ -100,11 +181,14 @@ func (s *BoardService) Update(id uint, input CreateBoardInput) (*model.Board, er
 }
 
 func (s *BoardService) Delete(id uint) error {
-	_, err := s.boardRepo.FindByID(id)
+	result, err := s.boardRepo.Delete(id)
 	if err != nil {
-		return errors.New("板块不存在")
+		return fmt.Errorf("删除板块失败: %w", err)
 	}
-	return s.boardRepo.Delete(id)
+	if result == 0 {
+		return apperrors.ErrBoardNotFound
+	}
+	return nil
 }
 
 func (s *BoardService) GetByID(id uint) (*model.Board, error) {

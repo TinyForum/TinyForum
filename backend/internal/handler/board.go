@@ -312,6 +312,7 @@ func (h *BoardHandler) RemoveModerator(c *gin.Context) {
 // @Description 获取指定板块的所有版主信息
 // @Tags 版主管理
 // @Produce json
+// @Security ApiKeyAuth
 // @Param id path int true "板块ID"
 // @Success 200 {object} response.Response{data=[]model.Moderator} "获取成功"
 // @Failure 400 {object} response.Response "无效的板块ID"

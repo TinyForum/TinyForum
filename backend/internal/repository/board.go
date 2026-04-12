@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"errors"
+	"fmt"
 	"time"
 	"tiny-forum/internal/model"
 
@@ -16,15 +18,34 @@ func NewBoardRepository(db *gorm.DB) *BoardRepository {
 }
 
 func (r *BoardRepository) Create(board *model.Board) error {
-	return r.db.Create(board).Error
+	// 确保 ParentID 的处理
+	if board.ParentID != nil && *board.ParentID == 0 {
+		board.ParentID = nil
+	}
+	// 使用事务创建
+	return r.db.Transaction(func(tx *gorm.DB) error {
+		// 再次验证父板块存在（防止并发问题）
+		if board.ParentID != nil && *board.ParentID != 0 {
+			var parent model.Board
+			if err := tx.First(&parent, *board.ParentID).Error; err != nil {
+				if errors.Is(err, gorm.ErrRecordNotFound) {
+					return fmt.Errorf("父板块不存在: id=%d", *board.ParentID)
+				}
+				return err
+			}
+		}
+
+		return tx.Create(board).Error
+	})
 }
 
 func (r *BoardRepository) Update(board *model.Board) error {
 	return r.db.Save(board).Error
 }
 
-func (r *BoardRepository) Delete(id uint) error {
-	return r.db.Delete(&model.Board{}, id).Error
+func (r *BoardRepository) Delete(id uint) (int64, error) {
+	result := r.db.Where("id = ?", id).Delete(&model.Board{})
+	return result.RowsAffected, result.Error
 }
 
 func (r *BoardRepository) FindByID(id uint) (*model.Board, error) {

@@ -961,6 +961,11 @@ const docTemplate = `{
         },
         "/boards/{id}/moderators": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "获取指定板块的所有版主信息",
                 "produces": [
                     "application/json"

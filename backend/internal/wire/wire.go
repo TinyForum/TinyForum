@@ -239,6 +239,7 @@ func InitApp(cfg *config.Config) (*App, error) {
 		boardGroup.GET("/tree", boardHandler.GetTree)
 		boardGroup.GET("/:id", middleware.OptionalAuth(jwtMgr), boardHandler.GetByID)
 		boardGroup.GET("/:id/posts", middleware.OptionalAuth(jwtMgr), boardHandler.GetPosts)
+		boardGroup.GET("/slug/:slug/", boardHandler.GetBySlug)
 
 		// 管理员接口
 		boardGroup.POST("", middleware.Auth(jwtMgr), middleware.AdminRequired(), boardHandler.Create)

@@ -9,7 +9,7 @@ type Board struct {
 	Description string   `gorm:"size:500" json:"description"`
 	Icon        string   `gorm:"size:100" json:"icon"`
 	Cover       string   `gorm:"size:500" json:"cover"`
-	ParentID    *uint    `gorm:"index" json:"parent_id"`
+	ParentID    *uint    `gorm:"index;default:null" json:"parent_id"`
 	SortOrder   int      `gorm:"default:0" json:"sort_order"`
 	ViewRole    UserRole `gorm:"type:varchar(20);default:'user'" json:"view_role"`
 	PostRole    UserRole `gorm:"type:varchar(20);default:'user'" json:"post_role"`
@@ -40,21 +40,6 @@ type BoardTree struct {
 	ThreadCount int         `json:"thread_count"`
 	TodayCount  int         `json:"today_count"`
 	Children    []BoardTree `json:"children,omitempty"`
-}
-
-type Moderator struct {
-	BaseModel
-	UserID             uint   `gorm:"not null;uniqueIndex:idx_user_board" json:"user_id"`
-	BoardID            uint   `gorm:"not null;uniqueIndex:idx_user_board" json:"board_id"`
-	Permissions        string `gorm:"type:json" json:"permissions"`
-	CanDeletePost      bool   `gorm:"default:false" json:"can_delete_post"`
-	CanPinPost         bool   `gorm:"default:false" json:"can_pin_post"`
-	CanEditAnyPost     bool   `gorm:"default:false" json:"can_edit_any_post"`
-	CanManageModerator bool   `gorm:"default:false" json:"can_manage_moderator"`
-	CanBanUser         bool   `gorm:"default:false" json:"can_ban_user"`
-
-	User  User  `gorm:"foreignKey:UserID" json:"user,omitempty"`
-	Board Board `gorm:"foreignKey:BoardID" json:"board,omitempty"`
 }
 
 type BoardBan struct {

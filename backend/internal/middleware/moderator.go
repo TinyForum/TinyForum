@@ -23,7 +23,7 @@ func ModeratorRequired(jwtMgr *jwt.Manager, boardRepo *repository.BoardRepositor
 
 		// 检查是否为管理员（管理员拥有所有版主权限）
 		userRole, exists := c.Get("user_role")
-		if exists && userRole == "admin" {
+		if exists && userRole == "admin" || exists && userRole == "super_admin" {
 			c.Next()
 			return
 		}

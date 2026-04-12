@@ -1238,6 +1238,8 @@ paths:
           description: 服务器内部错误
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
       summary: 获取板块版主列表
       tags:
       - 版主管理
