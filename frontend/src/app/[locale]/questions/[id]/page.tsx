@@ -39,7 +39,7 @@ function AnswerCard({
   currentUserId?: number;
 }) {
   const [userVote, setUserVote] = useState<string>('');
-  const [voteCount, setVoteCount] = useState((answer as any).vote_count || 0);
+  const [voteCount, setVoteCount] = useState<number>(0); // FIXME: 修复投票计数问题
   const [voting, setVoting] = useState(false);
 
   useEffect(() => {
