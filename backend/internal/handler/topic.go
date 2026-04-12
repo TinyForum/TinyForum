@@ -17,14 +17,14 @@ func NewTopicHandler(topicSvc *service.TopicService) *TopicHandler {
 	return &TopicHandler{topicSvc: topicSvc}
 }
 
-// Create 创建专题
-// @Summary 创建专题
-// @Description 创建一个新的专题（需要管理员权限）
-// @Tags 专题管理
+// Create 创建话题
+// @Summary 创建话题
+// @Description 创建一个新的话题（需要管理员权限）
+// @Tags 话题管理
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param body body service.CreateTopicInput true "专题信息"
+// @Param body body service.CreateTopicInput true "话题信息"
 // @Success 200 {object} response.Response{data=model.Topic} "创建成功"
 // @Failure 400 {object} response.Response "请求参数错误"
 // @Failure 401 {object} response.Response "未授权"
@@ -46,25 +46,25 @@ func (h *TopicHandler) Create(c *gin.Context) {
 	response.Success(c, topic)
 }
 
-// Update 更新专题
-// @Summary 更新专题
-// @Description 更新指定专题的信息（需要管理员权限）
-// @Tags 专题管理
+// Update 更新话题
+// @Summary 更新话题
+// @Description 更新指定话题的信息（需要管理员权限）
+// @Tags 话题管理
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param id path int true "专题ID"
-// @Param body body service.CreateTopicInput true "专题信息"
+// @Param id path int true "话题ID"
+// @Param body body service.CreateTopicInput true "话题信息"
 // @Success 200 {object} response.Response{data=model.Topic} "更新成功"
-// @Failure 400 {object} response.Response "请求参数错误或无效的专题ID"
+// @Failure 400 {object} response.Response "请求参数错误或无效的话题ID"
 // @Failure 401 {object} response.Response "未授权"
 // @Failure 403 {object} response.Response "无权限"
-// @Failure 404 {object} response.Response "专题不存在"
+// @Failure 404 {object} response.Response "话题不存在"
 // @Router /topics/{id} [put]
 func (h *TopicHandler) Update(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的专题ID")
+		response.BadRequest(c, "无效的话题ID")
 		return
 	}
 
@@ -82,23 +82,23 @@ func (h *TopicHandler) Update(c *gin.Context) {
 	response.Success(c, topic)
 }
 
-// Delete 删除专题
-// @Summary 删除专题
-// @Description 删除指定专题（需要管理员权限）
-// @Tags 专题管理
+// Delete 删除话题
+// @Summary 删除话题
+// @Description 删除指定话题（需要管理员权限）
+// @Tags 话题管理
 // @Produce json
 // @Security ApiKeyAuth
-// @Param id path int true "专题ID"
+// @Param id path int true "话题ID"
 // @Success 200 {object} response.Response{data=object} "删除成功"
-// @Failure 400 {object} response.Response "无效的专题ID"
+// @Failure 400 {object} response.Response "无效的话题ID"
 // @Failure 401 {object} response.Response "未授权"
 // @Failure 403 {object} response.Response "无权限"
-// @Failure 404 {object} response.Response "专题不存在"
+// @Failure 404 {object} response.Response "话题不存在"
 // @Router /topics/{id} [delete]
 func (h *TopicHandler) Delete(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的专题ID")
+		response.BadRequest(c, "无效的话题ID")
 		return
 	}
 
@@ -113,20 +113,20 @@ func (h *TopicHandler) Delete(c *gin.Context) {
 	response.Success(c, gin.H{"message": "删除成功"})
 }
 
-// GetByID 获取专题详情
-// @Summary 获取专题详情
-// @Description 根据ID获取专题详细信息
-// @Tags 专题管理
+// GetByID 获取话题详情
+// @Summary 获取话题详情
+// @Description 根据ID获取话题详细信息
+// @Tags 话题管理
 // @Produce json
-// @Param id path int true "专题ID"
+// @Param id path int true "话题ID"
 // @Success 200 {object} response.Response{data=model.Topic} "获取成功"
-// @Failure 400 {object} response.Response "无效的专题ID"
-// @Failure 404 {object} response.Response "专题不存在"
+// @Failure 400 {object} response.Response "无效的话题ID"
+// @Failure 404 {object} response.Response "话题不存在"
 // @Router /topics/{id} [get]
 func (h *TopicHandler) GetByID(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的专题ID")
+		response.BadRequest(c, "无效的话题ID")
 		return
 	}
 
@@ -138,10 +138,10 @@ func (h *TopicHandler) GetByID(c *gin.Context) {
 	response.Success(c, topic)
 }
 
-// List 获取专题列表
-// @Summary 获取专题列表
-// @Description 分页获取所有专题列表
-// @Tags 专题管理
+// List 获取话题列表
+// @Summary 获取话题列表
+// @Description 分页获取所有话题列表
+// @Tags 话题管理
 // @Produce json
 // @Param page query int false "页码" default(1)
 // @Param page_size query int false "每页数量" default(20)
@@ -160,10 +160,10 @@ func (h *TopicHandler) List(c *gin.Context) {
 	response.SuccessPage(c, topics, total, page, pageSize)
 }
 
-// GetByCreator 获取用户创建的专题
-// @Summary 获取用户创建的专题
-// @Description 获取指定用户创建的所有专题
-// @Tags 专题管理
+// GetByCreator 获取用户创建的话题
+// @Summary 获取用户创建的话题
+// @Description 获取指定用户创建的所有话题
+// @Tags 话题管理
 // @Produce json
 // @Param creator_id path int true "创建者用户ID"
 // @Param page query int false "页码" default(1)
@@ -190,25 +190,25 @@ func (h *TopicHandler) GetByCreator(c *gin.Context) {
 	response.SuccessPage(c, topics, total, page, pageSize)
 }
 
-// AddPost 添加帖子到专题
-// @Summary 添加帖子到专题
-// @Description 将指定帖子添加到专题中（需要管理员权限）
-// @Tags 专题管理
+// AddPost 添加帖子到话题
+// @Summary 添加帖子到话题
+// @Description 将指定帖子添加到话题中（需要管理员权限）
+// @Tags 话题管理
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param id path int true "专题ID"
+// @Param id path int true "话题ID"
 // @Param body body AddPostToTopicRequest true "帖子信息"
 // @Success 200 {object} response.Response{data=object} "添加成功"
 // @Failure 400 {object} response.Response "请求参数错误"
 // @Failure 401 {object} response.Response "未授权"
 // @Failure 403 {object} response.Response "无权限"
-// @Failure 404 {object} response.Response "专题或帖子不存在"
+// @Failure 404 {object} response.Response "话题或帖子不存在"
 // @Router /topics/{id}/posts [post]
 func (h *TopicHandler) AddPost(c *gin.Context) {
 	topicID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的专题ID")
+		response.BadRequest(c, "无效的话题ID")
 		return
 	}
 
@@ -235,24 +235,24 @@ func (h *TopicHandler) AddPost(c *gin.Context) {
 	response.Success(c, gin.H{"message": "添加帖子成功"})
 }
 
-// RemovePost 从专题移除帖子
-// @Summary 从专题移除帖子
-// @Description 将指定帖子从专题中移除（需要管理员权限）
-// @Tags 专题管理
+// RemovePost 从话题移除帖子
+// @Summary 从话题移除帖子
+// @Description 将指定帖子从话题中移除（需要管理员权限）
+// @Tags 话题管理
 // @Produce json
 // @Security ApiKeyAuth
-// @Param id path int true "专题ID"
+// @Param id path int true "话题ID"
 // @Param post_id path int true "帖子ID"
 // @Success 200 {object} response.Response{data=object} "移除成功"
 // @Failure 400 {object} response.Response "无效的ID"
 // @Failure 401 {object} response.Response "未授权"
 // @Failure 403 {object} response.Response "无权限"
-// @Failure 404 {object} response.Response "专题或帖子不存在"
+// @Failure 404 {object} response.Response "话题或帖子不存在"
 // @Router /topics/{id}/posts/{post_id} [delete]
 func (h *TopicHandler) RemovePost(c *gin.Context) {
 	topicID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的专题ID")
+		response.BadRequest(c, "无效的话题ID")
 		return
 	}
 
@@ -271,22 +271,22 @@ func (h *TopicHandler) RemovePost(c *gin.Context) {
 	response.Success(c, gin.H{"message": "移除帖子成功"})
 }
 
-// GetTopicPosts 获取专题帖子列表
-// @Summary 获取专题帖子列表
-// @Description 分页获取指定专题下的所有帖子
-// @Tags 专题管理
+// GetTopicPosts 获取话题帖子列表
+// @Summary 获取话题帖子列表
+// @Description 分页获取指定话题下的所有帖子
+// @Tags 话题管理
 // @Produce json
-// @Param id path int true "专题ID"
+// @Param id path int true "话题ID"
 // @Param page query int false "页码" default(1)
 // @Param page_size query int false "每页数量" default(20)
 // @Success 200 {object} response.Response{data=response.PageData{list=[]model.Post}} "获取成功"
-// @Failure 400 {object} response.Response "无效的专题ID"
+// @Failure 400 {object} response.Response "无效的话题ID"
 // @Failure 500 {object} response.Response "服务器内部错误"
 // @Router /topics/{id}/posts [get]
 func (h *TopicHandler) GetTopicPosts(c *gin.Context) {
 	topicID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的专题ID")
+		response.BadRequest(c, "无效的话题ID")
 		return
 	}
 
@@ -301,22 +301,22 @@ func (h *TopicHandler) GetTopicPosts(c *gin.Context) {
 	response.SuccessPage(c, posts, total, page, pageSize)
 }
 
-// Follow 关注专题
-// @Summary 关注专题
-// @Description 关注指定专题，接收专题更新通知
-// @Tags 专题管理
+// Follow 关注话题
+// @Summary 关注话题
+// @Description 关注指定话题，接收话题更新通知
+// @Tags 话题管理
 // @Produce json
 // @Security ApiKeyAuth
-// @Param id path int true "专题ID"
+// @Param id path int true "话题ID"
 // @Success 200 {object} response.Response{data=object} "关注成功"
-// @Failure 400 {object} response.Response "无效的专题ID"
+// @Failure 400 {object} response.Response "无效的话题ID"
 // @Failure 401 {object} response.Response "未授权"
-// @Failure 404 {object} response.Response "专题不存在"
+// @Failure 404 {object} response.Response "话题不存在"
 // @Router /topics/{id}/follow [post]
 func (h *TopicHandler) Follow(c *gin.Context) {
 	topicID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的专题ID")
+		response.BadRequest(c, "无效的话题ID")
 		return
 	}
 
@@ -329,22 +329,22 @@ func (h *TopicHandler) Follow(c *gin.Context) {
 	response.Success(c, gin.H{"message": "关注成功"})
 }
 
-// Unfollow 取消关注专题
-// @Summary 取消关注专题
-// @Description 取消关注指定专题
-// @Tags 专题管理
+// Unfollow 取消关注话题
+// @Summary 取消关注话题
+// @Description 取消关注指定话题
+// @Tags 话题管理
 // @Produce json
 // @Security ApiKeyAuth
-// @Param id path int true "专题ID"
+// @Param id path int true "话题ID"
 // @Success 200 {object} response.Response{data=object} "取消关注成功"
-// @Failure 400 {object} response.Response "无效的专题ID"
+// @Failure 400 {object} response.Response "无效的话题ID"
 // @Failure 401 {object} response.Response "未授权"
-// @Failure 404 {object} response.Response "专题不存在或未关注"
+// @Failure 404 {object} response.Response "话题不存在或未关注"
 // @Router /topics/{id}/follow [delete]
 func (h *TopicHandler) Unfollow(c *gin.Context) {
 	topicID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的专题ID")
+		response.BadRequest(c, "无效的话题ID")
 		return
 	}
 
@@ -357,22 +357,22 @@ func (h *TopicHandler) Unfollow(c *gin.Context) {
 	response.Success(c, gin.H{"message": "取消关注成功"})
 }
 
-// IsFollowing 检查是否关注专题
-// @Summary 检查是否关注专题
-// @Description 检查当前用户是否已关注指定专题
-// @Tags 专题管理
+// IsFollowing 检查是否关注话题
+// @Summary 检查是否关注话题
+// @Description 检查当前用户是否已关注指定话题
+// @Tags 话题管理
 // @Produce json
 // @Security ApiKeyAuth
-// @Param id path int true "专题ID"
+// @Param id path int true "话题ID"
 // @Success 200 {object} response.Response{data=object} "获取成功"
-// @Failure 400 {object} response.Response "无效的专题ID"
+// @Failure 400 {object} response.Response "无效的话题ID"
 // @Failure 401 {object} response.Response "未授权"
 // @Failure 500 {object} response.Response "服务器内部错误"
 // @Router /topics/{id}/follow/status [get]
 func (h *TopicHandler) IsFollowing(c *gin.Context) {
 	topicID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的专题ID")
+		response.BadRequest(c, "无效的话题ID")
 		return
 	}
 
@@ -386,22 +386,22 @@ func (h *TopicHandler) IsFollowing(c *gin.Context) {
 	response.Success(c, gin.H{"is_following": isFollowing})
 }
 
-// GetFollowers 获取专题关注者列表
-// @Summary 获取专题关注者列表
-// @Description 分页获取关注指定专题的用户列表
-// @Tags 专题管理
+// GetFollowers 获取话题关注者列表
+// @Summary 获取话题关注者列表
+// @Description 分页获取关注指定话题的用户列表
+// @Tags 话题管理
 // @Produce json
-// @Param id path int true "专题ID"
+// @Param id path int true "话题ID"
 // @Param page query int false "页码" default(1)
 // @Param page_size query int false "每页数量" default(20)
 // @Success 200 {object} response.Response{data=response.PageData{list=[]model.User}} "获取成功"
-// @Failure 400 {object} response.Response "无效的专题ID"
+// @Failure 400 {object} response.Response "无效的话题ID"
 // @Failure 500 {object} response.Response "服务器内部错误"
 // @Router /topics/{id}/followers [get]
 func (h *TopicHandler) GetFollowers(c *gin.Context) {
 	topicID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的专题ID")
+		response.BadRequest(c, "无效的话题ID")
 		return
 	}
 
@@ -416,7 +416,7 @@ func (h *TopicHandler) GetFollowers(c *gin.Context) {
 	response.SuccessPage(c, followers, total, page, pageSize)
 }
 
-// AddPostToTopicRequest 添加帖子到专题请求参数
+// AddPostToTopicRequest 添加帖子到话题请求参数
 type AddPostToTopicRequest struct {
 	PostID    uint `json:"post_id" binding:"required" example:"123"` // 帖子ID
 	SortOrder int  `json:"sort_order" example:"0"`                   // 排序顺序

@@ -140,7 +140,7 @@ func InitApp(cfg *config.Config) (*App, error) {
 	boardHandler := handler.NewBoardHandler(boardSvc)
 	timelineHandler := handler.NewTimelineHandler(timelineSvc)
 	topicHandler := handler.NewTopicHandler(topicSvc)
-	questionHandler := handler.NewQuestionHandler(questionSvc)
+	questionHandler := handler.NewQuestionHandler(questionSvc, commentSvc, postSvc)
 
 	// ========== Gin Engine ==========
 	gin.SetMode(cfg.Server.Mode)
@@ -193,11 +193,15 @@ func InitApp(cfg *config.Config) (*App, error) {
 		postGroup.DELETE("/:id/like", middleware.Auth(jwtMgr), postHandler.Unlike)
 
 		// 问答相关
-		// postGroup.GET("/questions", middleware.OptionalAuth(jwtMgr), postHandler.GetQuestions)
-		// postGroup.POST("/question", middleware.Auth(jwtMgr), postHandler.CreateQuestion)
-		// postGroup.GET("/question/:id", middleware.OptionalAuth(jwtMgr), postHandler.GetQuestionDetail)
-		// postGroup.POST("/question/:id/accept", middleware.Auth(jwtMgr), postHandler.AcceptAnswer)
-		// postGroup.POST("/question/:id/answer", middleware.Auth(jwtMgr), postHandler.CreateAnswer)
+		postGroup.GET("/questions", middleware.OptionalAuth(jwtMgr), questionHandler.GetQuestions)
+		postGroup.POST("/question", middleware.Auth(jwtMgr), questionHandler.CreateQuestion)
+		postGroup.GET("/question/:id", middleware.OptionalAuth(jwtMgr), questionHandler.GetQuestionDetail)
+		postGroup.POST("/questions/:post_id/answer/:comment_id/accept", middleware.Auth(jwtMgr), questionHandler.AcceptAnswer)
+		postGroup.POST("/question/:id/answer", middleware.Auth(jwtMgr), questionHandler.CreateAnswer)
+		postGroup.POST("/questions/answer/:comment_id/vote", middleware.OptionalAuth(jwtMgr), questionHandler.VoteAnswer)
+
+		postGroup.GET("/questions/:post_id/answers", middleware.Auth(jwtMgr), questionHandler.GetQuestionAnswers)
+
 	}
 
 	// ----- Comment routes (包含答案投票) -----
@@ -210,7 +214,7 @@ func InitApp(cfg *config.Config) (*App, error) {
 		// 答案投票
 		commentGroup.POST("/:id/vote", middleware.Auth(jwtMgr), commentHandler.VoteAnswer)
 		commentGroup.PUT("/:id/answer", middleware.Auth(jwtMgr), commentHandler.MarkAsAnswer)
-		commentGroup.GET("/post/:post_id/answers", commentHandler.GetAnswers)
+		// commentGroup.GET("/post/:post_id/answers", commentHandler.GetAnswers)
 	}
 
 	// ----- User routes -----

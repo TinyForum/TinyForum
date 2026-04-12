@@ -44,8 +44,14 @@ func (r *QuestionRepository) SetAcceptedAnswer(postID, commentID uint) error {
 }
 
 // AnswerVote methods
+
 func (r *QuestionRepository) CreateAnswerVote(vote *model.AnswerVote) error {
 	return r.db.Create(vote).Error
+}
+
+// Bug Fix #2: 新增 UpdateAnswerVote，用 Save 更新已存在的投票记录，避免触发唯一索引冲突
+func (r *QuestionRepository) UpdateAnswerVote(vote *model.AnswerVote) error {
+	return r.db.Save(vote).Error
 }
 
 func (r *QuestionRepository) DeleteAnswerVote(userID, commentID uint) error {
@@ -62,10 +68,8 @@ func (r *QuestionRepository) FindAnswerVote(userID, commentID uint) (*model.Answ
 
 func (r *QuestionRepository) GetAnswerVoteCount(commentID uint) (int, error) {
 	var upCount, downCount int64
-
 	r.db.Model(&model.AnswerVote{}).Where("comment_id = ? AND vote_type = ?", commentID, "up").Count(&upCount)
 	r.db.Model(&model.AnswerVote{}).Where("comment_id = ? AND vote_type = ?", commentID, "down").Count(&downCount)
-
 	return int(upCount - downCount), nil
 }
 

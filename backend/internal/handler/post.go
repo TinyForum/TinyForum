@@ -13,15 +13,12 @@ import (
 )
 
 type PostHandler struct {
-	postSvc     *service.PostService
-	questionSvc *service.QuestionService
-	commentSvc  *service.CommentService // 可选，用于创建回答
+	postSvc *service.PostService
 }
 
 func NewPostHandler(postSvc *service.PostService, questionSvc *service.QuestionService) *PostHandler {
 	return &PostHandler{
-		postSvc:     postSvc,
-		questionSvc: questionSvc,
+		postSvc: postSvc,
 	}
 }
 

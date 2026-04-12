@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"errors"
 	"tiny-forum/internal/model"
 
 	"gorm.io/gorm"
@@ -16,6 +17,18 @@ func NewCommentRepository(db *gorm.DB) *CommentRepository {
 
 func (r *CommentRepository) Create(comment *model.Comment) error {
 	return r.db.Create(comment).Error
+}
+
+func (r *CommentRepository) ValidateParentComment(parentID uint, postID uint) error {
+	var comment model.Comment
+	err := r.db.Where("id = ? AND post_id = ?", parentID, postID).First(&comment).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return errors.New("父评论不存在或不属于当前帖子")
+		}
+		return err
+	}
+	return nil
 }
 
 func (r *CommentRepository) FindByID(id uint) (*model.Comment, error) {

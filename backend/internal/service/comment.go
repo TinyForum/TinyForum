@@ -42,6 +42,12 @@ func (s *CommentService) Create(authorID uint, input CreateCommentInput) (*model
 		return nil, errors.New("帖子不存在")
 	}
 
+	// 验证父评论
+	if input.ParentID != nil && *input.ParentID != 0 {
+		if err := s.commentRepo.ValidateParentComment(*input.ParentID, input.PostID); err != nil {
+			return nil, err
+		}
+	}
 	comment := &model.Comment{
 		Content:  input.Content,
 		PostID:   input.PostID,

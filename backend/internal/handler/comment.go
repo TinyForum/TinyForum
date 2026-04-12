@@ -230,24 +230,24 @@ func (h *CommentHandler) MarkAsAnswer(c *gin.Context) {
 // @Success 200 {object} response.Response{data=response.PageData{list=[]model.Comment}} "获取成功"
 // @Failure 400 {object} response.Response "无效的帖子ID"
 // @Router /comments/post/{post_id}/answers [get]
-func (h *CommentHandler) GetAnswers(c *gin.Context) {
-	postID, err := strconv.ParseUint(c.Param("post_id"), 10, 64)
-	if err != nil {
-		response.BadRequest(c, "无效的帖子ID")
-		return
-	}
+// func (h *CommentHandler) GetAnswers(c *gin.Context) {
+// 	postID, err := strconv.ParseUint(c.Param("post_id"), 10, 64)
+// 	if err != nil {
+// 		response.BadRequest(c, "无效的帖子ID")
+// 		return
+// 	}
 
-	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
-	pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "20"))
-	sortBy := c.DefaultQuery("sort", "vote") // vote, newest, oldest
+// 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+// 	pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "20"))
+// 	sortBy := c.DefaultQuery("sort", "vote") // vote, newest, oldest
 
-	answers, total, err := h.commentSvc.GetAnswersByPostID(uint(postID), page, pageSize, sortBy)
-	if err != nil {
-		response.InternalError(c, err.Error())
-		return
-	}
-	response.SuccessPage(c, answers, total, page, pageSize)
-}
+// 	answers, total, err := h.commentSvc.GetAnswersByPostID(uint(postID), page, pageSize, sortBy)
+// 	if err != nil {
+// 		response.InternalError(c, err.Error())
+// 		return
+// 	}
+// 	response.SuccessPage(c, answers, total, page, pageSize)
+// }
 
 // AcceptAnswer 采纳答案（保留在PostHandler中，这里也提供一个便捷接口）
 // @Summary 采纳答案

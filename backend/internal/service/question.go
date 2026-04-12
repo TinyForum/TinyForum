@@ -2,6 +2,9 @@ package service
 
 import (
 	"errors"
+	"fmt"
+
+	apperrors "tiny-forum/internal/errors"
 	"tiny-forum/internal/model"
 	"tiny-forum/internal/repository"
 )
@@ -36,7 +39,6 @@ type CreateQuestionInput struct {
 }
 
 func (s *QuestionService) CreateQuestion(input CreateQuestionInput) error {
-	// Check if post exists and is question
 	post, err := s.postRepo.FindByID(input.PostID)
 	if err != nil {
 		return errors.New("帖子不存在")
@@ -45,7 +47,6 @@ func (s *QuestionService) CreateQuestion(input CreateQuestionInput) error {
 		return errors.New("帖子不是问答类型")
 	}
 
-	// Deduct reward score from author
 	if input.RewardScore > 0 {
 		if err := s.userRepo.AddScore(post.AuthorID, -input.RewardScore); err != nil {
 			return errors.New("积分不足")
@@ -60,52 +61,60 @@ func (s *QuestionService) CreateQuestion(input CreateQuestionInput) error {
 	return s.questionRepo.Create(question)
 }
 
+// GetQuestions 获取问答帖列表，支持只看未回答
+func (s *QuestionService) GetQuestions(page, pageSize int, unanswered bool) ([]model.Post, int64, error) {
+	if page < 1 {
+		page = 1
+	}
+	if pageSize < 1 || pageSize > 100 {
+		pageSize = 20
+	}
+	offset := (page - 1) * pageSize
+
+	if unanswered {
+		return s.postRepo.GetUnansweredQuestions(pageSize, offset)
+	}
+	return s.postRepo.GetQuestions(pageSize, offset)
+}
+
 func (s *QuestionService) AcceptAnswer(postID, commentID uint, userID uint) error {
-	// Check if user is post author
 	post, err := s.postRepo.FindByID(postID)
 	if err != nil {
-		return errors.New("帖子不存在")
+		return fmt.Errorf("%w: 帖子不存在", apperrors.ErrPostNotFound)
 	}
 	if post.AuthorID != userID {
-		return errors.New("只有发帖人可以采纳答案")
+		return fmt.Errorf("%w: 只有发帖人可以采纳答案", apperrors.ErrAcceptForbidden)
 	}
 
-	// Check if comment exists and is answer
 	comment, err := s.commentRepo.FindByID(commentID)
 	if err != nil {
-		return errors.New("回答不存在")
+		return fmt.Errorf("%w: 回答不存在", apperrors.ErrAnswerNotFound)
 	}
 	if !comment.IsAnswer {
 		return errors.New("该评论不是回答")
 	}
 
-	// Get question
 	question, err := s.questionRepo.FindByPostID(postID)
 	if err != nil {
-		return errors.New("问答信息不存在")
+		return fmt.Errorf("%w: 问答信息不存在", apperrors.ErrQuestionNotFound)
 	}
 
-	// If already has accepted answer, return error
 	if question.AcceptedAnswerID != nil {
 		return errors.New("已经采纳过答案了")
 	}
 
-	// Set accepted answer
 	if err := s.questionRepo.SetAcceptedAnswer(postID, commentID); err != nil {
 		return err
 	}
 
-	// Mark comment as accepted
 	if err := s.commentRepo.MarkAsAccepted(commentID); err != nil {
 		return err
 	}
 
-	// Reward the answer author
 	if question.RewardScore > 0 {
 		s.userRepo.AddScore(comment.AuthorID, question.RewardScore)
 	}
 
-	// Notify answer author
 	s.notifSvc.Create(comment.AuthorID, &userID, model.NotifySystem,
 		"你的回答被采纳为最佳答案", &postID, "post")
 
@@ -119,12 +128,11 @@ type VoteAnswerInput struct {
 
 type VoteAnswerResult struct {
 	VoteType  string `json:"vote_type"`  // up, down, or "" (取消)
-	VoteCount int    `json:"vote_count"` // 当前总票数
+	VoteCount int    `json:"vote_count"` // 当前净票数
 	Action    string `json:"action"`     // added, removed, updated
 }
 
 func (s *QuestionService) VoteAnswer(userID uint, input VoteAnswerInput) (*VoteAnswerResult, error) {
-	// Check if comment exists and is answer
 	comment, err := s.commentRepo.FindByID(input.CommentID)
 	if err != nil {
 		return nil, errors.New("回答不存在")
@@ -132,20 +140,16 @@ func (s *QuestionService) VoteAnswer(userID uint, input VoteAnswerInput) (*VoteA
 	if !comment.IsAnswer {
 		return nil, errors.New("只能对回答进行投票")
 	}
-
-	// 不能给自己的答案投票
 	if comment.AuthorID == userID {
 		return nil, errors.New("不能给自己的答案投票")
 	}
 
-	// Check if user already voted
 	existingVote, _ := s.questionRepo.FindAnswerVote(userID, input.CommentID)
 
 	var result VoteAnswerResult
 	var action string
 
 	if existingVote != nil && existingVote.ID != 0 {
-		// If same vote type, remove vote (toggle)
 		if existingVote.VoteType == input.VoteType {
 			if err := s.questionRepo.DeleteAnswerVote(userID, input.CommentID); err != nil {
 				return nil, err
@@ -153,16 +157,14 @@ func (s *QuestionService) VoteAnswer(userID uint, input VoteAnswerInput) (*VoteA
 			action = "removed"
 			result.VoteType = ""
 		} else {
-			// Update vote type
 			existingVote.VoteType = input.VoteType
-			if err := s.questionRepo.CreateAnswerVote(existingVote); err != nil {
+			if err := s.questionRepo.UpdateAnswerVote(existingVote); err != nil {
 				return nil, err
 			}
 			action = "updated"
 			result.VoteType = input.VoteType
 		}
 	} else {
-		// Create new vote
 		vote := &model.AnswerVote{
 			UserID:    userID,
 			CommentID: input.CommentID,
@@ -175,14 +177,12 @@ func (s *QuestionService) VoteAnswer(userID uint, input VoteAnswerInput) (*VoteA
 		result.VoteType = input.VoteType
 	}
 
-	// Update vote count
 	voteCount, _ := s.questionRepo.GetAnswerVoteCount(input.CommentID)
 	s.commentRepo.UpdateVoteCount(input.CommentID, voteCount)
 
 	result.VoteCount = voteCount
 	result.Action = action
 
-	// 发送通知（仅当添加或更新投票时）
 	if action != "removed" {
 		s.notifSvc.Create(comment.AuthorID, &userID, model.NotifyLike,
 			"有人给你的答案投票了", &input.CommentID, "comment")
@@ -195,7 +195,6 @@ func (s *QuestionService) VoteAnswer(userID uint, input VoteAnswerInput) (*VoteA
 func (s *QuestionService) GetAnswerVoteStatus(userID, commentID uint) (map[string]interface{}, error) {
 	vote, err := s.questionRepo.FindAnswerVote(userID, commentID)
 	if err != nil {
-		// 没有投票记录
 		return map[string]interface{}{
 			"has_voted":  false,
 			"vote_type":  "",
@@ -203,7 +202,6 @@ func (s *QuestionService) GetAnswerVoteStatus(userID, commentID uint) (map[strin
 		}, nil
 	}
 
-	// 获取当前票数
 	voteCount, _ := s.questionRepo.GetAnswerVoteCount(commentID)
 
 	return map[string]interface{}{

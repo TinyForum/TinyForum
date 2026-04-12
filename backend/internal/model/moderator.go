@@ -6,7 +6,7 @@ type Moderator struct {
 	BaseModel
 	UserID             uint            `gorm:"not null;uniqueIndex:idx_user_board" json:"user_id"`
 	BoardID            uint            `gorm:"not null;uniqueIndex:idx_user_board" json:"board_id"`
-	Permissions        json.RawMessage `gorm:"type:json" json:"permissions"`
+	Permissions        json.RawMessage `gorm:"type:json" json:"permissions" swaggertype:"object" swaggerio:"ignore"`
 	CanDeletePost      bool            `gorm:"default:false" json:"can_delete_post"`
 	CanPinPost         bool            `gorm:"default:false" json:"can_pin_post"`
 	CanEditAnyPost     bool            `gorm:"default:false" json:"can_edit_any_post"`

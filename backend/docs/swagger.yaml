@@ -51,6 +51,16 @@ definitions:
     - reason
     - user_id
     type: object
+  handler.CreateAnswerRequest:
+    properties:
+      content:
+        description: 回答内容
+        maxLength: 5000
+        minLength: 1
+        type: string
+    required:
+    - content
+    type: object
   handler.SetUserRoleRequest:
     properties:
       role:
@@ -70,7 +80,7 @@ definitions:
   handler.VoteAnswerRequest:
     properties:
       vote_type:
-        description: 投票类型：up-赞同，down-反对
+        description: up-赞同，down-反对
         enum:
         - up
         - down
@@ -224,7 +234,7 @@ definitions:
       id:
         type: integer
       permissions:
-        type: string
+        type: object
       updated_at:
         type: string
       user:
@@ -567,6 +577,17 @@ definitions:
     required:
     - content
     - title
+    type: object
+  service.CreateQuestionInput:
+    properties:
+      post_id:
+        type: integer
+      reward_score:
+        maximum: 100
+        minimum: 0
+        type: integer
+    required:
+    - post_id
     type: object
   service.CreateTagInput:
     properties:
@@ -1726,60 +1747,6 @@ paths:
       summary: 获取帖子的评论列表
       tags:
       - 评论管理
-  /comments/post/{post_id}/answers:
-    get:
-      description: 获取指定帖子的所有答案（仅限问答帖）
-      parameters:
-      - description: 帖子ID
-        in: path
-        name: post_id
-        required: true
-        type: integer
-      - default: 1
-        description: 页码
-        in: query
-        name: page
-        type: integer
-      - default: 20
-        description: 每页数量
-        in: query
-        name: page_size
-        type: integer
-      - default: vote
-        description: 排序方式
-        enum:
-        - vote
-        - newest
-        - oldest
-        in: query
-        name: sort
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 获取成功
-          schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  allOf:
-                  - $ref: '#/definitions/response.PageData'
-                  - properties:
-                      list:
-                        items:
-                          $ref: '#/definitions/model.Comment'
-                        type: array
-                    type: object
-              type: object
-        "400":
-          description: 无效的帖子ID
-          schema:
-            $ref: '#/definitions/response.Response'
-      summary: 获取帖子的答案列表
-      tags:
-      - 问答管理
   /notifications:
     get:
       description: 分页获取当前用户的通知列表
@@ -2190,7 +2157,178 @@ paths:
       summary: 点赞帖子
       tags:
       - 帖子管理
-  /questions/{post_id}/answer/{comment_id}/accept:
+  /posts/question:
+    post:
+      consumes:
+      - application/json
+      description: 创建一个新的问答类型帖子并设置悬赏积分
+      parameters:
+      - description: 问答信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/service.CreateQuestionInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 创建成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 创建问答帖
+      tags:
+      - 问答管理
+  /posts/question/{id}:
+    get:
+      description: 获取指定问答帖的详细信息，包括回答列表
+      parameters:
+      - description: 帖子ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - default: 1
+        description: 回答页码
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: 每页回答数
+        in: query
+        name: page_size
+        type: integer
+      - default: vote
+        description: 排序方式
+        enum:
+        - vote
+        - newest
+        - oldest
+        in: query
+        name: sort
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "400":
+          description: 无效的帖子ID或非问答帖
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: 帖子不存在
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 获取问答帖详情
+      tags:
+      - 问答管理
+  /posts/question/{id}/answer:
+    post:
+      consumes:
+      - application/json
+      description: 对指定问答帖提交一个回答
+      parameters:
+      - description: 帖子ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 回答内容
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.CreateAnswerRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 提交成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.Comment'
+              type: object
+        "400":
+          description: 请求参数错误或非问答帖
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: 帖子不存在
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 提交回答
+      tags:
+      - 问答管理
+  /posts/questions:
+    get:
+      description: 分页获取所有问答类型的帖子
+      parameters:
+      - default: 1
+        description: 页码
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: 每页数量
+        in: query
+        name: page_size
+        type: integer
+      - description: 只看未解决
+        in: query
+        name: unanswered
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.PageData'
+              type: object
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 获取问答帖列表
+      tags:
+      - 问答管理
+  /posts/questions/{post_id}/answer/{comment_id}/accept:
     post:
       description: 采纳某个回答作为问题的正确答案（仅问题作者可操作）
       parameters:
@@ -2237,9 +2375,9 @@ paths:
       summary: 采纳答案
       tags:
       - 问答管理
-  /questions/{post_id}/answers:
+  /posts/questions/{post_id}/answers:
     get:
-      description: 分页获取指定问题的所有回答，已采纳的回答会排在前面
+      description: 分页获取指定问题的所有回答，已采纳的回答排在最前
       parameters:
       - description: 问题帖子ID
         in: path
@@ -2276,10 +2414,12 @@ paths:
           description: 问题不存在
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
       summary: 获取问题的回答列表
       tags:
       - 问答管理
-  /questions/answer/{comment_id}/vote:
+  /posts/questions/answer/{comment_id}/vote:
     post:
       consumes:
       - application/json
