@@ -45,14 +45,19 @@ export default async function RootLayout({
   }
 
   return (
-    <html lang={locale} suppressHydrationWarning>
-      <body suppressHydrationWarning className={`${inter.variable} ${firaCode.variable} font-sans min-h-screen bg-base-200`}>
+  <html lang={locale} suppressHydrationWarning>
+      <body className={`${inter.variable} ${firaCode.variable} font-sans h-screen overflow-hidden bg-base-200`}>
         <NextIntlClientProvider locale={locale} messages={messages}>
           <Providers>
-            <Navbar />
-            <main className="container mx-auto px-4 py-6 max-w-6xl">
-              {children}
-            </main>
+            <div className="flex flex-col h-full">
+              <Navbar />
+              {/* 让 main 负责滚动 */}
+              <main className="flex-1 overflow-y-auto custom-scrollbar">
+                <div className="container mx-auto max-w-7xl px-4 py-6">
+                  {children}
+                </div>
+              </main>
+            </div>
           </Providers>
         </NextIntlClientProvider>
       </body>

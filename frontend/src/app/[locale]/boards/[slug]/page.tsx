@@ -1,11 +1,12 @@
+// src/app/[locale]/boards/[slug]/page.tsx
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { boardApi, postApi } from '@/lib/api';
+import { Board, boardApi, Post, postApi } from '@/lib/api';
 import { useAuthStore } from '@/store/auth';
-import type { Board, Post } from '@/types';
+// import type { Board, Post } from '@/types';
 import {
   ArrowLeftIcon,
   ChatBubbleLeftRightIcon,
@@ -254,8 +255,9 @@ export default function BoardDetailPage() {
     setLoadingBoard(true);
     setNotFound(false);
     try {
-      const res = await boardApi.getByName(slug);
-      setBoard(res.data.data);
+      const res = await boardApi.getBySlug(slug);
+      console.log(res.data.data.slug)
+    setBoard(res.data.data);
     } catch (error: any) {
       if (error.response?.status === 404) {
         setNotFound(true);

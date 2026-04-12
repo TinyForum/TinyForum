@@ -9,6 +9,7 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
   const postId = Number(id);
   
   return (
+    
     <div className="max-w-3xl mx-auto">
       <Suspense fallback={<PostDetailSkeleton />}>
         <PostDetailClient postId={postId} />

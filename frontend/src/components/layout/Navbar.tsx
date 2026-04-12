@@ -120,7 +120,7 @@ export default function Navbar() {
   return (
   <>
   <nav className="navbar bg-base-100/95 backdrop-blur-sm shadow-sm sticky top-0 z-50 border-b border-base-300 transition-all duration-200">
-    <div className="container mx-auto max-w-7xl px-4 w-full">
+    <div className="container mx-auto max-w-8xl px-4 w-full">
       {/* 左侧区域：Logo + 汉堡菜单 */}
       <div className="flex items-center gap-2 flex-shrink-0">
         {/* 移动端菜单按钮 */}
@@ -135,7 +135,7 @@ export default function Navbar() {
         {/* Logo */}
         <Link
           href="/"
-          className="flex items-center gap-2 text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent shrink-0"
+          className="mx-2 flex items-center gap-2 text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent shrink-0"
         >
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
             <Image src="/assets/brand/logo.svg" width={32} height={32} alt="logo" className="brightness-0 invert" />

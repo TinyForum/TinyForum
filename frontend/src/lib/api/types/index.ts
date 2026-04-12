@@ -13,7 +13,7 @@ export interface ApiResponse<T> {
 }
 
 export interface PageData<T> {
-  items: T[];
+  list: T[];
   total: number;
   page: number;
   page_size: number;

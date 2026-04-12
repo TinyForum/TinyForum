@@ -66,17 +66,17 @@ export default function HomePage() {
     queryKey: ["unread-count"],
     queryFn: () => notificationApi.unreadCount().then((r) => r.data.data.count),
     enabled: isAuthenticated,
-    refetchInterval: 30000, // 30秒刷新一次
+    refetchInterval: 30000,
   });
 
   // 时间线事件（已登录时）
   const { data: timelineEvents } = useQuery({
     queryKey: ["timeline-events"],
-    queryFn: () => timelineApi.getFollowing({ page: 1, page_size: 5 }).then((r) => r.data.data.items),
+    queryFn: () => timelineApi.getFollowing({ page: 1, page_size: 5 }).then((r) => r.data.data.list),
     enabled: isAuthenticated,
   });
 
-  const posts = postsData?.items ?? [];
+  const posts = postsData?.list ?? [];
   const total = postsData?.total ?? 0;
   const totalPages = Math.ceil(total / 15);
 
@@ -103,9 +103,11 @@ export default function HomePage() {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row gap-6">
-      {/* 左侧边栏 - 社区信息 */}
-      <div className="lg:w-64 xl:w-72 flex-none">
+   <div className="h-full">
+  <div className="container mx-auto max-w-7xl px-4 h-full">
+    <div className="flex gap-6 h-full">
+      {/* 左侧边栏 - 固定，内部滚动 */}
+      <div className="lg:w-64 xl:w-72 flex-none overflow-y-auto custom-scrollbar sticky top-6 max-h-[calc(100vh-6rem)]">
         <LeftSidebar
           boards={boards ?? []}
           tags={tags ?? []}
@@ -118,26 +120,32 @@ export default function HomePage() {
         />
       </div>
 
-      {/* 中间内容区域 */}
-      <div className="flex-1 min-w-0">
-        <PostFilterBar
-          sortBy={sortBy}
-          onSortChange={handleSortChange}
-          isAuthenticated={isAuthenticated}
-          onRefetch={refetch}
-        />
+      {/* 中间内容区域 - 使用 flex 列布局 */}
+      <div className="flex-1 min-w-0 flex flex-col h-full">
+        {/* PostFilterBar - 固定在顶部，不滚动 */}
+        <div className="flex-shrink-0 sticky top-0 bg-base-200 z-10 pb-4">
+          <PostFilterBar
+            sortBy={sortBy}
+            onSortChange={handleSortChange}
+            isAuthenticated={isAuthenticated}
+            onRefetch={refetch}
+          />
+        </div>
 
-        <PostList
-          posts={posts}
-          isLoading={isLoading}
-          totalPages={totalPages}
-          currentPage={page}
-          onPageChange={setPage}
-        />
+        {/* PostList - 可滚动区域 */}
+        <div className="flex-1 overflow-y-auto custom-scrollbar pb-6">
+          <PostList
+            posts={posts}
+            isLoading={isLoading}
+            totalPages={totalPages}
+            currentPage={page}
+            onPageChange={setPage}
+          />
+        </div>
       </div>
 
-      {/* 右侧边栏 - 个人信息 */}
-      <div className="lg:w-64 xl:w-72 flex-none">
+      {/* 右侧边栏 - 固定，内部滚动 */}
+      <div className="lg:w-64 xl:w-72 flex-none overflow-y-auto custom-scrollbar sticky top-6 max-h-[calc(100vh-6rem)]">
         <RightSidebar
           isAuthenticated={isAuthenticated}
           user={user}
@@ -148,5 +156,7 @@ export default function HomePage() {
         />
       </div>
     </div>
+  </div>
+</div>
   );
 }
