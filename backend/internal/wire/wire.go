@@ -23,7 +23,6 @@ import (
 	gormlogger "gorm.io/gorm/logger"
 )
 
-// App holds all application dependencies
 type App struct {
 	Engine *gin.Engine
 	DB     *gorm.DB
@@ -65,6 +64,19 @@ func InitDB(cfg *config.Config) (*gorm.DB, error) {
 		&model.Notification{},
 		&model.SignIn{},
 		&model.Report{},
+		// 新功能表
+		&model.Board{},
+		&model.Moderator{},
+		&model.BoardBan{},
+		&model.ModeratorLog{},
+		&model.Question{},
+		&model.AnswerVote{},
+		&model.TimelineEvent{},
+		&model.UserTimeline{},
+		&model.TimelineSubscription{},
+		&model.Topic{},
+		&model.TopicPost{},
+		&model.TopicFollow{},
 	); err != nil {
 		return nil, fmt.Errorf("auto migrate failed: %w", err)
 	}
@@ -83,29 +95,54 @@ func InitApp(cfg *config.Config) (*App, error) {
 	// JWT manager
 	jwtMgr := jwtpkg.NewManager(cfg.JWT.Secret, cfg.JWT.Expire)
 
-	// Repositories
+	// ========== Repositories ==========
+	// 原有
 	userRepo := repository.NewUserRepository(db)
 	postRepo := repository.NewPostRepository(db)
 	commentRepo := repository.NewCommentRepository(db)
 	tagRepo := repository.NewTagRepository(db)
 	notifRepo := repository.NewNotificationRepository(db)
 
-	// Services (build notification service first as dependency)
+	// 新功能
+	boardRepo := repository.NewBoardRepository(db)
+	timelineRepo := repository.NewTimelineRepository(db)
+	topicRepo := repository.NewTopicRepository(db)
+	questionRepo := repository.NewQuestionRepository(db)
+
+	// ========== Services ==========
+	// 基础服务
 	notifSvc := service.NewNotificationService(notifRepo)
 	userSvc := service.NewUserService(userRepo, jwtMgr, notifSvc)
-	postSvc := service.NewPostService(postRepo, tagRepo, userRepo, notifSvc)
-	commentSvc := service.NewCommentService(commentRepo, postRepo, userRepo, notifSvc)
 	tagSvc := service.NewTagService(tagRepo)
 
-	// Handlers
+	// 新功能服务（注意顺序：被依赖的先创建）
+	boardSvc := service.NewBoardService(boardRepo, userRepo, postRepo, notifSvc)
+	timelineSvc := service.NewTimelineService(timelineRepo, userRepo, postRepo, commentRepo)
+	topicSvc := service.NewTopicService(topicRepo, postRepo, userRepo, notifSvc)
+	questionSvc := service.NewQuestionService(questionRepo, postRepo, commentRepo, userRepo, notifSvc)
+
+	// 依赖其他服务的服务
+	postSvc := service.NewPostService(postRepo, tagRepo, userRepo, notifSvc)
+	commentSvc := service.NewCommentService(commentRepo, postRepo, userRepo, notifSvc)
+
+	// ========== Handlers ==========
+	// 原有
 	authHandler := handler.NewAuthHandler(userSvc)
 	userHandler := handler.NewUserHandler(userSvc)
-	postHandler := handler.NewPostHandler(postSvc)
-	commentHandler := handler.NewCommentHandler(commentSvc)
 	tagHandler := handler.NewTagHandler(tagSvc)
 	notifHandler := handler.NewNotificationHandler(notifSvc)
 
-	// Gin engine
+	// 更新构造函数（需要传入 questionSvc）
+	postHandler := handler.NewPostHandler(postSvc, questionSvc)
+	commentHandler := handler.NewCommentHandler(commentSvc, questionSvc)
+
+	// 新功能
+	boardHandler := handler.NewBoardHandler(boardSvc)
+	timelineHandler := handler.NewTimelineHandler(timelineSvc)
+	topicHandler := handler.NewTopicHandler(topicSvc)
+	questionHandler := handler.NewQuestionHandler(questionSvc)
+
+	// ========== Gin Engine ==========
 	gin.SetMode(cfg.Server.Mode)
 	engine := gin.New()
 	engine.Use(gin.Logger())
@@ -119,13 +156,14 @@ func InitApp(cfg *config.Config) (*App, error) {
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 	}))
-	// swagger
+
+	// Swagger
 	engine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	// Routes
+	// ========== Routes ==========
 	api := engine.Group("/api/v1")
 
-	// Auth routes (public)
+	// ----- Auth routes -----
 	authGroup := api.Group("/auth")
 	{
 		authGroup.POST("/register", authHandler.Register)
@@ -133,7 +171,7 @@ func InitApp(cfg *config.Config) (*App, error) {
 		authGroup.GET("/me", middleware.Auth(jwtMgr), authHandler.Me)
 	}
 
-	// Tag routes (list is public)
+	// ----- Tag routes -----
 	tagGroup := api.Group("/tags")
 	{
 		tagGroup.GET("", tagHandler.List)
@@ -142,9 +180,10 @@ func InitApp(cfg *config.Config) (*App, error) {
 		tagGroup.DELETE("/:id", middleware.Auth(jwtMgr), middleware.AdminRequired(), tagHandler.Delete)
 	}
 
-	// Post routes
+	// ----- Post routes (包含问答) -----
 	postGroup := api.Group("/posts")
 	{
+		// 普通帖子
 		postGroup.GET("", middleware.OptionalAuth(jwtMgr), postHandler.List)
 		postGroup.GET("/:id", middleware.OptionalAuth(jwtMgr), postHandler.GetByID)
 		postGroup.POST("", middleware.Auth(jwtMgr), postHandler.Create)
@@ -152,17 +191,29 @@ func InitApp(cfg *config.Config) (*App, error) {
 		postGroup.DELETE("/:id", middleware.Auth(jwtMgr), postHandler.Delete)
 		postGroup.POST("/:id/like", middleware.Auth(jwtMgr), postHandler.Like)
 		postGroup.DELETE("/:id/like", middleware.Auth(jwtMgr), postHandler.Unlike)
+
+		// 问答相关
+		// postGroup.GET("/questions", middleware.OptionalAuth(jwtMgr), postHandler.GetQuestions)
+		// postGroup.POST("/question", middleware.Auth(jwtMgr), postHandler.CreateQuestion)
+		// postGroup.GET("/question/:id", middleware.OptionalAuth(jwtMgr), postHandler.GetQuestionDetail)
+		// postGroup.POST("/question/:id/accept", middleware.Auth(jwtMgr), postHandler.AcceptAnswer)
+		// postGroup.POST("/question/:id/answer", middleware.Auth(jwtMgr), postHandler.CreateAnswer)
 	}
 
-	// Comment routes
+	// ----- Comment routes (包含答案投票) -----
 	commentGroup := api.Group("/comments")
 	{
 		commentGroup.GET("/post/:post_id", commentHandler.List)
 		commentGroup.POST("", middleware.Auth(jwtMgr), commentHandler.Create)
 		commentGroup.DELETE("/:id", middleware.Auth(jwtMgr), commentHandler.Delete)
+
+		// 答案投票
+		commentGroup.POST("/:id/vote", middleware.Auth(jwtMgr), commentHandler.VoteAnswer)
+		commentGroup.PUT("/:id/answer", middleware.Auth(jwtMgr), commentHandler.MarkAsAnswer)
+		commentGroup.GET("/post/:post_id/answers", commentHandler.GetAnswers)
 	}
 
-	// User routes
+	// ----- User routes -----
 	userGroup := api.Group("/users")
 	{
 		userGroup.GET("/leaderboard", userHandler.Leaderboard)
@@ -172,7 +223,7 @@ func InitApp(cfg *config.Config) (*App, error) {
 		userGroup.DELETE("/:id/follow", middleware.Auth(jwtMgr), userHandler.Unfollow)
 	}
 
-	// Notification routes
+	// ----- Notification routes -----
 	notifGroup := api.Group("/notifications", middleware.Auth(jwtMgr))
 	{
 		notifGroup.GET("", notifHandler.List)
@@ -180,13 +231,93 @@ func InitApp(cfg *config.Config) (*App, error) {
 		notifGroup.POST("/read-all", notifHandler.MarkAllRead)
 	}
 
-	// Admin routes
+	// ----- Board routes (板块) -----
+	boardGroup := api.Group("/boards")
+	{
+		// 公开接口
+		boardGroup.GET("", boardHandler.List)
+		boardGroup.GET("/tree", boardHandler.GetTree)
+		boardGroup.GET("/:id", middleware.OptionalAuth(jwtMgr), boardHandler.GetByID)
+		boardGroup.GET("/:id/posts", middleware.OptionalAuth(jwtMgr), boardHandler.GetPosts)
+
+		// 管理员接口
+		boardGroup.POST("", middleware.Auth(jwtMgr), middleware.AdminRequired(), boardHandler.Create)
+		boardGroup.PUT("/:id", middleware.Auth(jwtMgr), middleware.AdminRequired(), boardHandler.Update)
+		boardGroup.DELETE("/:id", middleware.Auth(jwtMgr), middleware.AdminRequired(), boardHandler.Delete)
+
+		// 版主管理（使用版主中间件）
+		modGroup := boardGroup.Group("/:id/moderators", middleware.Auth(jwtMgr))
+		{
+			// 查看版主列表（普通版主可看）
+			modGroup.GET("", middleware.ModeratorRequired(jwtMgr, boardRepo), boardHandler.GetModerators)
+
+			// 添加/移除版主（需要管理版主权限）
+			modGroup.POST("", middleware.CanManageModerator(jwtMgr, boardRepo), boardHandler.AddModerator)
+			modGroup.DELETE("/:user_id", middleware.CanManageModerator(jwtMgr, boardRepo), boardHandler.RemoveModerator)
+		}
+
+		// 禁言管理（需要禁言权限）
+		banGroup := boardGroup.Group("/:id/bans", middleware.Auth(jwtMgr))
+		{
+			banGroup.POST("", middleware.CanBanUser(jwtMgr, boardRepo), boardHandler.BanUser)
+			banGroup.DELETE("/:user_id", middleware.CanBanUser(jwtMgr, boardRepo), boardHandler.UnbanUser)
+		}
+
+		// 帖子管理（需要对应权限）
+		postManageGroup := boardGroup.Group("/:id/posts", middleware.Auth(jwtMgr))
+		{
+			// 删除帖子
+			postManageGroup.DELETE("/:post_id", middleware.CanDeletePost(jwtMgr, boardRepo), boardHandler.DeletePost)
+			// 置顶帖子
+			postManageGroup.PUT("/:post_id/pin", middleware.CanPinPost(jwtMgr, boardRepo), boardHandler.PinPost)
+		}
+	}
+
+	// ----- Timeline routes (时间线) -----
+	timelineGroup := api.Group("/timeline", middleware.Auth(jwtMgr))
+	{
+		timelineGroup.GET("", timelineHandler.GetHomeTimeline)
+		timelineGroup.GET("/following", timelineHandler.GetFollowingTimeline)
+		timelineGroup.POST("/subscribe/:user_id", timelineHandler.Subscribe)
+		timelineGroup.DELETE("/subscribe/:user_id", timelineHandler.Unsubscribe)
+		timelineGroup.GET("/subscriptions", timelineHandler.GetSubscriptions)
+	}
+
+	// ----- Topic routes (专题) -----
+	topicGroup := api.Group("/topics")
+	{
+		topicGroup.GET("", topicHandler.List)
+		topicGroup.GET("/:id", topicHandler.GetByID)
+		topicGroup.GET("/:id/posts", topicHandler.GetTopicPosts)
+		topicGroup.GET("/:id/followers", topicHandler.GetFollowers)
+
+		// 需要认证
+		topicGroup.POST("", middleware.Auth(jwtMgr), topicHandler.Create)
+		topicGroup.PUT("/:id", middleware.Auth(jwtMgr), topicHandler.Update)
+		topicGroup.DELETE("/:id", middleware.Auth(jwtMgr), topicHandler.Delete)
+		topicGroup.POST("/:id/posts", middleware.Auth(jwtMgr), topicHandler.AddPost)
+		topicGroup.DELETE("/:id/posts/:post_id", middleware.Auth(jwtMgr), topicHandler.RemovePost)
+		topicGroup.POST("/:id/follow", middleware.Auth(jwtMgr), topicHandler.Follow)
+		topicGroup.DELETE("/:id/follow", middleware.Auth(jwtMgr), topicHandler.Unfollow)
+	}
+	questionGroup := api.Group("/questions")
+	{
+		questionGroup.GET("/post/:post_id", middleware.OptionalAuth(jwtMgr), questionHandler.GetQuestionAnswers)
+		questionGroup.POST("/answer/:comment_id/accept", middleware.Auth(jwtMgr), questionHandler.AcceptAnswer)
+		questionGroup.POST("/answer/:comment_id/vote", middleware.Auth(jwtMgr), questionHandler.VoteAnswer)
+	}
+	// ----- Admin routes -----
 	adminGroup := api.Group("/admin", middleware.Auth(jwtMgr), middleware.AdminRequired())
 	{
 		adminGroup.GET("/users", userHandler.AdminList)
 		adminGroup.PUT("/users/:id/active", userHandler.AdminSetActive)
 		adminGroup.GET("/posts", postHandler.AdminList)
 		adminGroup.PUT("/posts/:id/pin", postHandler.AdminTogglePin)
+		// adminGroup.PUT("/posts/:id/pin-board", postHandler.AdminTogglePinInBoard)
+
+		// 板块管理
+		adminGroup.GET("/boards", boardHandler.List)
+		// adminGroup.PUT("/boards/:id/sort", boardHandler.UpdateSortOrder)
 	}
 
 	return &App{Engine: engine, DB: db, Cfg: cfg}, nil

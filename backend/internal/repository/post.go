@@ -120,3 +120,72 @@ func (r *PostRepository) AdminList(page, pageSize int, keyword string) ([]model.
 	err := query.Preload("Author").Order("created_at DESC").Offset(offset).Limit(pageSize).Find(&posts).Error
 	return posts, total, err
 }
+
+// 在现有 PostRepository 中添加以下方法
+
+func (r *PostRepository) GetByBoardID(boardID uint, limit, offset int) ([]model.Post, int64, error) {
+	var posts []model.Post
+	var total int64
+
+	query := r.db.Model(&model.Post{}).
+		Where("board_id = ? AND status = ?", boardID, model.PostStatusPublished)
+
+	query.Count(&total)
+
+	err := query.Offset(offset).Limit(limit).
+		Preload("Author").
+		Preload("Tags").
+		Preload("Board").
+		Order("pin_top DESC, pin_in_board DESC, created_at DESC").
+		Find(&posts).Error
+
+	return posts, total, err
+}
+
+func (r *PostRepository) GetQuestions(limit, offset int) ([]model.Post, int64, error) {
+	var posts []model.Post
+	var total int64
+
+	query := r.db.Model(&model.Post{}).
+		Where("is_question = ? AND status = ?", true, model.PostStatusPublished)
+
+	query.Count(&total)
+
+	err := query.Offset(offset).Limit(limit).
+		Preload("Author").
+		Preload("Tags").
+		Preload("Board").
+		Preload("Question").
+		Order("created_at DESC").
+		Find(&posts).Error
+
+	return posts, total, err
+}
+
+func (r *PostRepository) GetUnansweredQuestions(limit, offset int) ([]model.Post, int64, error) {
+	var posts []model.Post
+	var total int64
+
+	query := r.db.Table("posts").
+		Select("posts.*").
+		Joins("LEFT JOIN questions ON posts.id = questions.post_id").
+		Where("posts.is_question = ? AND posts.status = ? AND questions.accepted_answer_id IS NULL",
+			true, model.PostStatusPublished)
+
+	query.Count(&total)
+
+	err := query.Offset(offset).Limit(limit).
+		Preload("Author").
+		Preload("Tags").
+		Preload("Board").
+		Preload("Question").
+		Order("posts.created_at DESC").
+		Find(&posts).Error
+
+	return posts, total, err
+}
+
+func (r *PostRepository) TogglePinInBoard(postID uint, pin bool) error {
+	return r.db.Model(&model.Post{}).Where("id = ?", postID).
+		Update("pin_in_board", pin).Error
+}

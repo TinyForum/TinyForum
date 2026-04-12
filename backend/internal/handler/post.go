@@ -11,13 +11,31 @@ import (
 )
 
 type PostHandler struct {
-	postSvc *service.PostService
+	postSvc     *service.PostService
+	questionSvc *service.QuestionService
+	commentSvc  *service.CommentService // 可选，用于创建回答
 }
 
-func NewPostHandler(postSvc *service.PostService) *PostHandler {
-	return &PostHandler{postSvc: postSvc}
+func NewPostHandler(postSvc *service.PostService, questionSvc *service.QuestionService) *PostHandler {
+	return &PostHandler{
+		postSvc:     postSvc,
+		questionSvc: questionSvc,
+	}
 }
 
+// Create 创建帖子
+// @Summary 创建帖子
+// @Description 创建新的帖子（支持普通帖和问答帖）
+// @Tags 帖子管理
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param body body service.CreatePostInput true "帖子信息"
+// @Success 200 {object} response.Response{data=model.Post} "创建成功"
+// @Failure 400 {object} response.Response "请求参数错误"
+// @Failure 401 {object} response.Response "未授权"
+// @Failure 500 {object} response.Response "服务器内部错误"
+// @Router /posts [post]
 func (h *PostHandler) Create(c *gin.Context) {
 	authorID := c.GetUint("user_id")
 	var input service.CreatePostInput
@@ -33,6 +51,17 @@ func (h *PostHandler) Create(c *gin.Context) {
 	response.Success(c, post)
 }
 
+// GetByID 获取帖子详情
+// @Summary 获取帖子详情
+// @Description 根据ID获取帖子的详细信息，包括点赞状态
+// @Tags 帖子管理
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path int true "帖子ID"
+// @Success 200 {object} response.Response{data=object} "获取成功"
+// @Failure 400 {object} response.Response "无效的帖子ID"
+// @Failure 404 {object} response.Response "帖子不存在"
+// @Router /posts/{id} [get]
 func (h *PostHandler) GetByID(c *gin.Context) {
 	postID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
@@ -54,6 +83,21 @@ func (h *PostHandler) GetByID(c *gin.Context) {
 	response.Success(c, gin.H{"post": post, "liked": liked})
 }
 
+// List 获取帖子列表
+// @Summary 获取帖子列表
+// @Description 分页获取帖子列表，支持多种筛选和排序
+// @Tags 帖子管理
+// @Produce json
+// @Param page query int false "页码" default(1)
+// @Param page_size query int false "每页数量" default(20)
+// @Param keyword query string false "搜索关键词"
+// @Param sort_by query string false "排序方式" Enums(created_at, updated_at, like_count, comment_count) default(created_at)
+// @Param type query string false "帖子类型" Enums(post, question)
+// @Param author_id query int false "作者ID"
+// @Param tag_id query int false "标签ID"
+// @Success 200 {object} response.Response{data=response.PageData{list=[]model.Post}} "获取成功"
+// @Failure 500 {object} response.Response "服务器内部错误"
+// @Router /posts [get]
 func (h *PostHandler) List(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "20"))
@@ -89,6 +133,21 @@ func (h *PostHandler) List(c *gin.Context) {
 	response.SuccessPage(c, posts, total, page, pageSize)
 }
 
+// Update 更新帖子
+// @Summary 更新帖子
+// @Description 更新自己的帖子（管理员可以更新任何帖子）
+// @Tags 帖子管理
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path int true "帖子ID"
+// @Param body body service.UpdatePostInput true "帖子信息"
+// @Success 200 {object} response.Response{data=model.Post} "更新成功"
+// @Failure 400 {object} response.Response "请求参数错误"
+// @Failure 401 {object} response.Response "未授权"
+// @Failure 403 {object} response.Response "无权限"
+// @Failure 404 {object} response.Response "帖子不存在"
+// @Router /posts/{id} [put]
 func (h *PostHandler) Update(c *gin.Context) {
 	postID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
@@ -112,6 +171,19 @@ func (h *PostHandler) Update(c *gin.Context) {
 	response.Success(c, post)
 }
 
+// Delete 删除帖子
+// @Summary 删除帖子
+// @Description 删除自己的帖子（管理员可以删除任何帖子）
+// @Tags 帖子管理
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path int true "帖子ID"
+// @Success 200 {object} response.Response{data=object} "删除成功"
+// @Failure 400 {object} response.Response "无效的帖子ID"
+// @Failure 401 {object} response.Response "未授权"
+// @Failure 403 {object} response.Response "无权限"
+// @Failure 404 {object} response.Response "帖子不存在"
+// @Router /posts/{id} [delete]
 func (h *PostHandler) Delete(c *gin.Context) {
 	postID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
@@ -129,6 +201,18 @@ func (h *PostHandler) Delete(c *gin.Context) {
 	response.Success(c, gin.H{"message": "删除成功"})
 }
 
+// Like 点赞帖子
+// @Summary 点赞帖子
+// @Description 为指定帖子点赞
+// @Tags 帖子管理
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path int true "帖子ID"
+// @Success 200 {object} response.Response{data=object} "点赞成功"
+// @Failure 400 {object} response.Response "无效的帖子ID"
+// @Failure 401 {object} response.Response "未授权"
+// @Failure 500 {object} response.Response "服务器内部错误"
+// @Router /posts/{id}/like [post]
 func (h *PostHandler) Like(c *gin.Context) {
 	postID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
@@ -143,6 +227,18 @@ func (h *PostHandler) Like(c *gin.Context) {
 	response.Success(c, gin.H{"message": "点赞成功"})
 }
 
+// Unlike 取消点赞帖子
+// @Summary 取消点赞帖子
+// @Description 取消对指定帖子的点赞
+// @Tags 帖子管理
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path int true "帖子ID"
+// @Success 200 {object} response.Response{data=object} "取消点赞成功"
+// @Failure 400 {object} response.Response "无效的帖子ID"
+// @Failure 401 {object} response.Response "未授权"
+// @Failure 500 {object} response.Response "服务器内部错误"
+// @Router /posts/{id}/like [delete]
 func (h *PostHandler) Unlike(c *gin.Context) {
 	postID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
@@ -157,7 +253,20 @@ func (h *PostHandler) Unlike(c *gin.Context) {
 	response.Success(c, gin.H{"message": "已取消点赞"})
 }
 
-// Admin handlers
+// AdminList 管理员获取帖子列表
+// @Summary 管理员获取帖子列表
+// @Description 管理员分页获取所有帖子列表，支持关键词搜索
+// @Tags 管理接口
+// @Produce json
+// @Security ApiKeyAuth
+// @Param page query int false "页码" default(1)
+// @Param page_size query int false "每页数量" default(20)
+// @Param keyword query string false "搜索关键词"
+// @Success 200 {object} response.Response{data=response.PageData{list=[]model.Post}} "获取成功"
+// @Failure 401 {object} response.Response "未授权"
+// @Failure 403 {object} response.Response "无权限"
+// @Failure 500 {object} response.Response "服务器内部错误"
+// @Router /admin/posts [get]
 func (h *PostHandler) AdminList(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "20"))
@@ -170,6 +279,19 @@ func (h *PostHandler) AdminList(c *gin.Context) {
 	response.SuccessPage(c, posts, total, page, pageSize)
 }
 
+// AdminTogglePin 管理员切换帖子置顶状态
+// @Summary 切换帖子置顶状态
+// @Description 管理员切换指定帖子的置顶状态
+// @Tags 管理接口
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path int true "帖子ID"
+// @Success 200 {object} response.Response{data=object} "操作成功"
+// @Failure 400 {object} response.Response "无效的帖子ID"
+// @Failure 401 {object} response.Response "未授权"
+// @Failure 403 {object} response.Response "无权限"
+// @Failure 500 {object} response.Response "服务器内部错误"
+// @Router /admin/posts/{id}/pin [put]
 func (h *PostHandler) AdminTogglePin(c *gin.Context) {
 	postID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {

@@ -1,5 +1,491 @@
 basePath: /api/v1
 definitions:
+  handler.AddModeratorRequest:
+    properties:
+      can_ban_user:
+        example: true
+        type: boolean
+      can_delete_post:
+        example: true
+        type: boolean
+      can_edit_any_post:
+        example: false
+        type: boolean
+      can_manage_moderator:
+        example: false
+        type: boolean
+      can_pin_post:
+        example: true
+        type: boolean
+      user_id:
+        example: 1
+        type: integer
+    required:
+    - user_id
+    type: object
+  handler.AddPostToTopicRequest:
+    properties:
+      post_id:
+        description: 帖子ID
+        example: 123
+        type: integer
+      sort_order:
+        description: 排序顺序
+        example: 0
+        type: integer
+    required:
+    - post_id
+    type: object
+  handler.BanUserRequest:
+    properties:
+      expires_at:
+        example: "2024-12-31T23:59:59Z"
+        type: string
+      reason:
+        example: 发布违规内容
+        type: string
+      user_id:
+        example: 1
+        type: integer
+    required:
+    - reason
+    - user_id
+    type: object
+  handler.SetUserActiveRequest:
+    properties:
+      active:
+        description: 用户状态：true-启用，false-禁用
+        example: true
+        type: boolean
+    type: object
+  handler.SetUserRoleRequest:
+    properties:
+      role:
+        description: 用户角色
+        enum:
+        - user
+        - moderator
+        - admin
+        example: moderator
+        type: string
+    required:
+    - role
+    type: object
+  handler.VoteAnswerRequest:
+    properties:
+      vote_type:
+        description: 投票类型：up-赞同，down-反对
+        enum:
+        - up
+        - down
+        example: up
+        type: string
+    required:
+    - vote_type
+    type: object
+  model.ActionType:
+    enum:
+    - create_post
+    - create_comment
+    - like_post
+    - like_comment
+    - follow_user
+    - accept_answer
+    - sign_in
+    type: string
+    x-enum-varnames:
+    - ActionCreatePost
+    - ActionCreateComment
+    - ActionLikePost
+    - ActionLikeComment
+    - ActionFollowUser
+    - ActionAcceptAnswer
+    - ActionSignIn
+  model.Board:
+    properties:
+      cover:
+        type: string
+      created_at:
+        type: string
+      description:
+        type: string
+      icon:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      parent_id:
+        type: integer
+      post_count:
+        type: integer
+      post_role:
+        $ref: '#/definitions/model.UserRole'
+      reply_role:
+        $ref: '#/definitions/model.UserRole'
+      slug:
+        type: string
+      sort_order:
+        type: integer
+      thread_count:
+        type: integer
+      today_count:
+        type: integer
+      updated_at:
+        type: string
+      view_role:
+        $ref: '#/definitions/model.UserRole'
+    type: object
+  model.BoardTree:
+    properties:
+      children:
+        items:
+          $ref: '#/definitions/model.BoardTree'
+        type: array
+      cover:
+        type: string
+      description:
+        type: string
+      icon:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      parent_id:
+        type: integer
+      post_count:
+        type: integer
+      post_role:
+        $ref: '#/definitions/model.UserRole'
+      reply_role:
+        $ref: '#/definitions/model.UserRole'
+      slug:
+        type: string
+      sort_order:
+        type: integer
+      thread_count:
+        type: integer
+      today_count:
+        type: integer
+      view_role:
+        $ref: '#/definitions/model.UserRole'
+    type: object
+  model.Comment:
+    properties:
+      author:
+        $ref: '#/definitions/model.User'
+      author_id:
+        type: integer
+      content:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      is_accepted:
+        description: 新增
+        type: boolean
+      is_answer:
+        description: 新增
+        type: boolean
+      like_count:
+        type: integer
+      parent:
+        $ref: '#/definitions/model.Comment'
+      parent_id:
+        type: integer
+      post_id:
+        type: integer
+      replies:
+        items:
+          $ref: '#/definitions/model.Comment'
+        type: array
+      updated_at:
+        type: string
+      vote_count:
+        description: 新增
+        type: integer
+    type: object
+  model.Moderator:
+    properties:
+      board:
+        $ref: '#/definitions/model.Board'
+      board_id:
+        type: integer
+      can_ban_user:
+        type: boolean
+      can_delete_post:
+        type: boolean
+      can_edit_any_post:
+        type: boolean
+      can_manage_moderator:
+        type: boolean
+      can_pin_post:
+        type: boolean
+      created_at:
+        type: string
+      id:
+        type: integer
+      permissions:
+        type: string
+      updated_at:
+        type: string
+      user:
+        $ref: '#/definitions/model.User'
+      user_id:
+        type: integer
+    type: object
+  model.Notification:
+    properties:
+      content:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      is_read:
+        type: boolean
+      sender:
+        $ref: '#/definitions/model.User'
+      sender_id:
+        type: integer
+      target_id:
+        type: integer
+      target_type:
+        type: string
+      type:
+        $ref: '#/definitions/model.NotificationType'
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  model.NotificationType:
+    enum:
+    - comment
+    - like
+    - follow
+    - reply
+    - system
+    type: string
+    x-enum-varnames:
+    - NotifyComment
+    - NotifyLike
+    - NotifyFollow
+    - NotifyReply
+    - NotifySystem
+  model.Post:
+    properties:
+      author:
+        $ref: '#/definitions/model.User'
+      author_id:
+        type: integer
+      board:
+        allOf:
+        - $ref: '#/definitions/model.Board'
+        description: 新增
+      board_id:
+        description: 新增
+        type: integer
+      content:
+        type: string
+      cover:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      is_question:
+        description: 新增：标记是否为问答帖
+        type: boolean
+      like_count:
+        type: integer
+      pin_in_board:
+        description: 新增
+        type: boolean
+      pin_top:
+        type: boolean
+      question:
+        allOf:
+        - $ref: '#/definitions/model.Question'
+        description: 新增
+      status:
+        $ref: '#/definitions/model.PostStatus'
+      summary:
+        type: string
+      tags:
+        items:
+          $ref: '#/definitions/model.Tag'
+        type: array
+      title:
+        type: string
+      type:
+        $ref: '#/definitions/model.PostType'
+      updated_at:
+        type: string
+      view_count:
+        type: integer
+    type: object
+  model.PostStatus:
+    enum:
+    - draft
+    - published
+    - hidden
+    type: string
+    x-enum-varnames:
+    - PostStatusDraft
+    - PostStatusPublished
+    - PostStatusHidden
+  model.PostType:
+    enum:
+    - post
+    - article
+    - topic
+    type: string
+    x-enum-varnames:
+    - PostTypePost
+    - PostTypeArticle
+    - PostTypeTopic
+  model.Question:
+    properties:
+      accepted_answer:
+        $ref: '#/definitions/model.Comment'
+      accepted_answer_id:
+        type: integer
+      answer_count:
+        type: integer
+      created_at:
+        type: string
+      id:
+        type: integer
+      post:
+        $ref: '#/definitions/model.Post'
+      post_id:
+        type: integer
+      reward_score:
+        type: integer
+      updated_at:
+        type: string
+    type: object
+  model.Tag:
+    properties:
+      color:
+        type: string
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      post_count:
+        type: integer
+      updated_at:
+        type: string
+    type: object
+  model.TimelineEvent:
+    properties:
+      action:
+        $ref: '#/definitions/model.ActionType'
+      actor:
+        $ref: '#/definitions/model.User'
+      actor_id:
+        type: integer
+      created_at:
+        type: string
+      id:
+        type: integer
+      payload:
+        type: string
+      score:
+        type: integer
+      target_id:
+        type: integer
+      target_type:
+        type: string
+      updated_at:
+        type: string
+      user:
+        $ref: '#/definitions/model.User'
+      user_id:
+        type: integer
+    type: object
+  model.Topic:
+    properties:
+      cover:
+        type: string
+      created_at:
+        type: string
+      creator:
+        $ref: '#/definitions/model.User'
+      creator_id:
+        type: integer
+      description:
+        type: string
+      follower_count:
+        type: integer
+      id:
+        type: integer
+      is_public:
+        type: boolean
+      post_count:
+        type: integer
+      title:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  model.User:
+    properties:
+      avatar:
+        type: string
+      bio:
+        type: string
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      is_active:
+        description: 激活，是否可以登录
+        type: boolean
+      is_blocked:
+        description: 封禁，是否可以发言
+        type: boolean
+      last_login:
+        type: string
+      role:
+        $ref: '#/definitions/model.UserRole'
+      score:
+        type: integer
+      updated_at:
+        type: string
+      username:
+        type: string
+    type: object
+  model.UserRole:
+    enum:
+    - user
+    - admin
+    - moderator
+    type: string
+    x-enum-varnames:
+    - RoleUser
+    - RoleAdmin
+    - ModeratorUser
+  response.PageData:
+    properties:
+      list: {}
+      page:
+        type: integer
+      page_size:
+        type: integer
+      total:
+        type: integer
+    type: object
   response.Response:
     properties:
       code:
@@ -7,6 +493,106 @@ definitions:
       data: {}
       message:
         type: string
+    type: object
+  service.CreateBoardInput:
+    properties:
+      cover:
+        maxLength: 500
+        type: string
+      description:
+        maxLength: 500
+        type: string
+      icon:
+        maxLength: 100
+        type: string
+      name:
+        maxLength: 50
+        minLength: 2
+        type: string
+      parent_id:
+        type: integer
+      post_role:
+        type: string
+      reply_role:
+        type: string
+      slug:
+        maxLength: 50
+        minLength: 2
+        type: string
+      sort_order:
+        type: integer
+      view_role:
+        type: string
+    required:
+    - name
+    - slug
+    type: object
+  service.CreateCommentInput:
+    properties:
+      content:
+        maxLength: 2000
+        minLength: 1
+        type: string
+      parent_id:
+        type: integer
+      post_id:
+        type: integer
+    required:
+    - content
+    - post_id
+    type: object
+  service.CreatePostInput:
+    properties:
+      content:
+        minLength: 10
+        type: string
+      cover:
+        type: string
+      summary:
+        type: string
+      tag_ids:
+        items:
+          type: integer
+        type: array
+      title:
+        maxLength: 200
+        minLength: 2
+        type: string
+      type:
+        type: string
+    required:
+    - content
+    - title
+    type: object
+  service.CreateTagInput:
+    properties:
+      color:
+        type: string
+      description:
+        type: string
+      name:
+        maxLength: 50
+        minLength: 1
+        type: string
+    required:
+    - name
+    type: object
+  service.CreateTopicInput:
+    properties:
+      cover:
+        maxLength: 500
+        type: string
+      description:
+        maxLength: 500
+        type: string
+      is_public:
+        type: boolean
+      title:
+        maxLength: 100
+        minLength: 2
+        type: string
+    required:
+    - title
     type: object
   service.LoginInput:
     properties:
@@ -34,6 +620,67 @@ definitions:
     - password
     - username
     type: object
+  service.UpdatePostInput:
+    properties:
+      content:
+        minLength: 10
+        type: string
+      cover:
+        type: string
+      summary:
+        type: string
+      tag_ids:
+        items:
+          type: integer
+        type: array
+      title:
+        maxLength: 200
+        minLength: 2
+        type: string
+    type: object
+  service.UpdateProfileInput:
+    properties:
+      avatar:
+        type: string
+      bio:
+        maxLength: 500
+        type: string
+    type: object
+  service.UserProfileResponse:
+    properties:
+      avatar:
+        type: string
+      bio:
+        type: string
+      created_at:
+        type: string
+      email:
+        type: string
+      follower_count:
+        type: integer
+      following_count:
+        type: integer
+      id:
+        type: integer
+      is_active:
+        description: 激活，是否可以登录
+        type: boolean
+      is_blocked:
+        description: 封禁，是否可以发言
+        type: boolean
+      is_following:
+        type: boolean
+      last_login:
+        type: string
+      role:
+        $ref: '#/definitions/model.UserRole'
+      score:
+        type: integer
+      updated_at:
+        type: string
+      username:
+        type: string
+    type: object
 host: localhost:8080
 info:
   contact: {}
@@ -41,7 +688,261 @@ info:
   title: Tiny Forum API
   version: "1.0"
 paths:
-  /api/v1/auth/login:
+  /admin/posts:
+    get:
+      description: 管理员分页获取所有帖子列表，支持关键词搜索
+      parameters:
+      - default: 1
+        description: 页码
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: 每页数量
+        in: query
+        name: page_size
+        type: integer
+      - description: 搜索关键词
+        in: query
+        name: keyword
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.PageData'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/model.Post'
+                        type: array
+                    type: object
+              type: object
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "403":
+          description: 无权限
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 管理员获取帖子列表
+      tags:
+      - 管理接口
+  /admin/posts/{id}/pin:
+    put:
+      description: 管理员切换指定帖子的置顶状态
+      parameters:
+      - description: 帖子ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 操作成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "400":
+          description: 无效的帖子ID
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "403":
+          description: 无权限
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 切换帖子置顶状态
+      tags:
+      - 管理接口
+  /admin/users:
+    get:
+      description: 管理员分页获取所有用户列表，支持关键词搜索
+      parameters:
+      - default: 1
+        description: 页码
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: 每页数量
+        in: query
+        name: page_size
+        type: integer
+      - description: 搜索关键词（用户名、邮箱）
+        in: query
+        name: keyword
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.PageData'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/model.User'
+                        type: array
+                    type: object
+              type: object
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "403":
+          description: 无权限
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 管理员获取用户列表
+      tags:
+      - 管理接口
+  /admin/users/{id}/active:
+    put:
+      consumes:
+      - application/json
+      description: 管理员启用或禁用指定用户账号
+      parameters:
+      - description: 用户ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 状态信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.SetUserActiveRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 操作成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "400":
+          description: 无效的用户ID或请求参数错误
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "403":
+          description: 无权限
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: 用户不存在
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 管理员设置用户状态
+      tags:
+      - 管理接口
+  /admin/users/{id}/role:
+    put:
+      consumes:
+      - application/json
+      description: 管理员设置指定用户的角色（user/moderator/admin）
+      parameters:
+      - description: 用户ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 角色信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.SetUserRoleRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 操作成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "400":
+          description: 无效的用户ID或角色
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "403":
+          description: 无权限
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: 用户不存在
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 管理员设置用户角色
+      tags:
+      - 管理接口
+  /auth/login:
     post:
       consumes:
       - application/json
@@ -61,8 +962,8 @@ paths:
             $ref: '#/definitions/response.Response'
       summary: 用户登录
       tags:
-      - auth
-  /api/v1/auth/me:
+      - 验证管理
+  /auth/me:
     get:
       produces:
       - application/json
@@ -75,8 +976,8 @@ paths:
       - BearerAuth: []
       summary: 获取当前用户信息
       tags:
-      - auth
-  /api/v1/auth/register:
+      - 验证管理
+  /auth/register:
     post:
       consumes:
       - application/json
@@ -96,7 +997,2659 @@ paths:
             $ref: '#/definitions/response.Response'
       summary: 用户注册
       tags:
-      - auth
+      - 验证管理
+  /boards:
+    get:
+      description: 分页获取板块列表
+      parameters:
+      - default: 1
+        description: 页码
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: 每页数量
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.PageData'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/model.Board'
+                        type: array
+                    type: object
+              type: object
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 获取板块列表
+      tags:
+      - 板块管理
+    post:
+      consumes:
+      - application/json
+      description: 创建一个新的板块，需要管理员权限
+      parameters:
+      - description: 板块信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/service.CreateBoardInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 创建成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.Board'
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "403":
+          description: 无权限
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 创建板块（仅管理员）
+      tags:
+      - 板块管理
+  /boards/{id}:
+    delete:
+      description: 删除指定板块，需要管理员权限
+      parameters:
+      - description: 板块ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 删除成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "400":
+          description: 无效的板块ID
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "403":
+          description: 无权限
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: 板块不存在
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 删除板块（仅管理员）
+      tags:
+      - 板块管理
+    get:
+      description: 根据ID获取板块详细信息
+      parameters:
+      - description: 板块ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.Board'
+              type: object
+        "400":
+          description: 无效的板块ID
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: 板块不存在
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 获取板块详情
+      tags:
+      - 板块管理
+    put:
+      consumes:
+      - application/json
+      description: 更新指定板块的信息，需要管理员权限
+      parameters:
+      - description: 板块ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 板块信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/service.CreateBoardInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 更新成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.Board'
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "403":
+          description: 无权限
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: 板块不存在
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 更新板块（仅管理员）
+      tags:
+      - 板块管理
+  /boards/{id}/bans:
+    post:
+      consumes:
+      - application/json
+      description: 在指定板块禁言用户，需要版主权限
+      parameters:
+      - description: 板块ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 禁言信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.BanUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 禁言成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "403":
+          description: 无权限
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 禁言用户
+      tags:
+      - 禁言管理
+  /boards/{id}/bans/{user_id}:
+    delete:
+      description: 解除用户在指定板块的禁言，需要版主权限
+      parameters:
+      - description: 板块ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 用户ID
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 解除成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "400":
+          description: 无效的ID
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "403":
+          description: 无权限
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 解除禁言
+      tags:
+      - 禁言管理
+  /boards/{id}/moderators:
+    get:
+      description: 获取指定板块的所有版主信息
+      parameters:
+      - description: 板块ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/model.Moderator'
+                  type: array
+              type: object
+        "400":
+          description: 无效的板块ID
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 获取板块版主列表
+      tags:
+      - 版主管理
+    post:
+      consumes:
+      - application/json
+      description: 为指定板块添加版主，需要版主管理权限
+      parameters:
+      - description: 板块ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 版主信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.AddModeratorRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 添加成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "403":
+          description: 无权限
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 添加版主
+      tags:
+      - 版主管理
+  /boards/{id}/moderators/{user_id}:
+    delete:
+      description: 移除指定板块的版主，需要版主管理权限
+      parameters:
+      - description: 板块ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 用户ID
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 移除成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "400":
+          description: 无效的ID
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "403":
+          description: 无权限
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 移除版主
+      tags:
+      - 版主管理
+  /boards/{id}/posts:
+    get:
+      description: 分页获取指定板块下的所有帖子
+      parameters:
+      - description: 板块ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - default: 1
+        description: 页码
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: 每页数量
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.PageData'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/model.Post'
+                        type: array
+                    type: object
+              type: object
+        "400":
+          description: 无效的板块ID
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 获取板块下的帖子列表
+      tags:
+      - 板块管理
+  /boards/slug/{slug}:
+    get:
+      description: 根据板块标识符（slug）获取板块信息
+      parameters:
+      - description: 板块标识符
+        in: path
+        name: slug
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.Board'
+              type: object
+        "404":
+          description: 板块不存在
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 根据Slug获取板块
+      tags:
+      - 板块管理
+  /boards/tree:
+    get:
+      description: 获取所有板块的树形层级结构
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/model.BoardTree'
+                  type: array
+              type: object
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 获取板块树形结构
+      tags:
+      - 板块管理
+  /comments:
+    post:
+      consumes:
+      - application/json
+      description: 创建一条新的评论
+      parameters:
+      - description: 评论信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/service.CreateCommentInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 创建成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.Comment'
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 创建评论
+      tags:
+      - 评论管理
+  /comments/{id}:
+    delete:
+      description: 删除指定的评论（用户可以删除自己的评论，管理员可以删除任何评论）
+      parameters:
+      - description: 评论ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 删除成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "400":
+          description: 无效的评论ID或删除失败
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "403":
+          description: 无权限
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: 评论不存在
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 删除评论
+      tags:
+      - 评论管理
+  /comments/{id}/accept:
+    post:
+      consumes:
+      - application/json
+      description: 采纳某个回答作为最佳答案（仅帖子作者可操作）
+      parameters:
+      - description: 评论ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 帖子ID
+        in: query
+        name: post_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 采纳成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "403":
+          description: 无权限
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 采纳答案
+      tags:
+      - 问答管理
+  /comments/{id}/answer:
+    put:
+      consumes:
+      - application/json
+      description: 将评论标记为问题的答案（帖子作者或版主可操作）
+      parameters:
+      - description: 评论ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 是否标记为答案
+        in: body
+        name: body
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 操作成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "403":
+          description: 无权限
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 标记为答案
+      tags:
+      - 问答管理
+  /comments/{id}/vote:
+    get:
+      description: 获取当前用户对指定答案的投票状态
+      parameters:
+      - description: 评论ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "400":
+          description: 无效的评论ID
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 获取答案投票状态
+      tags:
+      - 问答管理
+    post:
+      consumes:
+      - application/json
+      description: 对问答帖的答案进行投票（赞成up/反对down），重复投票会取消
+      parameters:
+      - description: 评论ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 投票类型
+        in: body
+        name: body
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 投票成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "403":
+          description: 不能给自己的答案投票
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 对答案投票
+      tags:
+      - 问答管理
+  /comments/post/{post_id}:
+    get:
+      description: 分页获取指定帖子的所有评论
+      parameters:
+      - description: 帖子ID
+        in: path
+        name: post_id
+        required: true
+        type: integer
+      - default: 1
+        description: 页码
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: 每页数量
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.PageData'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/model.Comment'
+                        type: array
+                    type: object
+              type: object
+        "400":
+          description: 无效的帖子ID
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 获取帖子的评论列表
+      tags:
+      - 评论管理
+  /comments/post/{post_id}/answers:
+    get:
+      description: 获取指定帖子的所有答案（仅限问答帖）
+      parameters:
+      - description: 帖子ID
+        in: path
+        name: post_id
+        required: true
+        type: integer
+      - default: 1
+        description: 页码
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: 每页数量
+        in: query
+        name: page_size
+        type: integer
+      - default: vote
+        description: 排序方式
+        enum:
+        - vote
+        - newest
+        - oldest
+        in: query
+        name: sort
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.PageData'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/model.Comment'
+                        type: array
+                    type: object
+              type: object
+        "400":
+          description: 无效的帖子ID
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 获取帖子的答案列表
+      tags:
+      - 问答管理
+  /notifications:
+    get:
+      description: 分页获取当前用户的通知列表
+      parameters:
+      - default: 1
+        description: 页码
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: 每页数量
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.PageData'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/model.Notification'
+                        type: array
+                    type: object
+              type: object
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 获取通知列表
+      tags:
+      - 通知管理
+  /notifications/read-all:
+    post:
+      description: 将当前用户的所有未读通知标记为已读
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 标记成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 标记所有通知为已读
+      tags:
+      - 通知管理
+  /notifications/unread-count:
+    get:
+      description: 获取当前用户未读通知的总数
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 获取未读通知数量
+      tags:
+      - 通知管理
+  /posts:
+    get:
+      description: 分页获取帖子列表，支持多种筛选和排序
+      parameters:
+      - default: 1
+        description: 页码
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: 每页数量
+        in: query
+        name: page_size
+        type: integer
+      - description: 搜索关键词
+        in: query
+        name: keyword
+        type: string
+      - default: created_at
+        description: 排序方式
+        enum:
+        - created_at
+        - updated_at
+        - like_count
+        - comment_count
+        in: query
+        name: sort_by
+        type: string
+      - description: 帖子类型
+        enum:
+        - post
+        - question
+        in: query
+        name: type
+        type: string
+      - description: 作者ID
+        in: query
+        name: author_id
+        type: integer
+      - description: 标签ID
+        in: query
+        name: tag_id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.PageData'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/model.Post'
+                        type: array
+                    type: object
+              type: object
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 获取帖子列表
+      tags:
+      - 帖子管理
+    post:
+      consumes:
+      - application/json
+      description: 创建新的帖子（支持普通帖和问答帖）
+      parameters:
+      - description: 帖子信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/service.CreatePostInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 创建成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.Post'
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 创建帖子
+      tags:
+      - 帖子管理
+  /posts/{id}:
+    delete:
+      description: 删除自己的帖子（管理员可以删除任何帖子）
+      parameters:
+      - description: 帖子ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 删除成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "400":
+          description: 无效的帖子ID
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "403":
+          description: 无权限
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: 帖子不存在
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 删除帖子
+      tags:
+      - 帖子管理
+    get:
+      description: 根据ID获取帖子的详细信息，包括点赞状态
+      parameters:
+      - description: 帖子ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "400":
+          description: 无效的帖子ID
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: 帖子不存在
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 获取帖子详情
+      tags:
+      - 帖子管理
+    put:
+      consumes:
+      - application/json
+      description: 更新自己的帖子（管理员可以更新任何帖子）
+      parameters:
+      - description: 帖子ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 帖子信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/service.UpdatePostInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 更新成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.Post'
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "403":
+          description: 无权限
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: 帖子不存在
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 更新帖子
+      tags:
+      - 帖子管理
+  /posts/{id}/like:
+    delete:
+      description: 取消对指定帖子的点赞
+      parameters:
+      - description: 帖子ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 取消点赞成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "400":
+          description: 无效的帖子ID
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 取消点赞帖子
+      tags:
+      - 帖子管理
+    post:
+      description: 为指定帖子点赞
+      parameters:
+      - description: 帖子ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 点赞成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "400":
+          description: 无效的帖子ID
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 点赞帖子
+      tags:
+      - 帖子管理
+  /questions/{post_id}/answer/{comment_id}/accept:
+    post:
+      description: 采纳某个回答作为问题的正确答案（仅问题作者可操作）
+      parameters:
+      - description: 问题帖子ID
+        in: path
+        name: post_id
+        required: true
+        type: integer
+      - description: 回答评论ID
+        in: path
+        name: comment_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 采纳成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "400":
+          description: 无效的ID或操作失败
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "403":
+          description: 无权限（非问题作者）
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: 问题或回答不存在
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 采纳答案
+      tags:
+      - 问答管理
+  /questions/{post_id}/answers:
+    get:
+      description: 分页获取指定问题的所有回答，已采纳的回答会排在前面
+      parameters:
+      - description: 问题帖子ID
+        in: path
+        name: post_id
+        required: true
+        type: integer
+      - default: 1
+        description: 页码
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: 每页数量
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "400":
+          description: 无效的帖子ID
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: 问题不存在
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 获取问题的回答列表
+      tags:
+      - 问答管理
+  /questions/answer/{comment_id}/vote:
+    post:
+      consumes:
+      - application/json
+      description: 对问题的回答进行投票（赞同或反对）
+      parameters:
+      - description: 回答评论ID
+        in: path
+        name: comment_id
+        required: true
+        type: integer
+      - description: 投票信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.VoteAnswerRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 投票成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "400":
+          description: 无效的评论ID或投票类型
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: 回答不存在
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 投票回答
+      tags:
+      - 问答管理
+  /tags:
+    get:
+      description: 获取系统中所有的标签列表
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/model.Tag'
+                  type: array
+              type: object
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 获取所有标签
+      tags:
+      - 标签管理
+    post:
+      consumes:
+      - application/json
+      description: 创建一个新的标签，需要管理员权限
+      parameters:
+      - description: 标签信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/service.CreateTagInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 创建成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.Tag'
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "403":
+          description: 无权限
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 创建标签（仅管理员）
+      tags:
+      - 标签管理
+  /tags/{id}:
+    delete:
+      description: 删除指定标签，需要管理员权限
+      parameters:
+      - description: 标签ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 删除成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "400":
+          description: 无效的标签ID
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "403":
+          description: 无权限
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: 标签不存在
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 删除标签（仅管理员）
+      tags:
+      - 标签管理
+    put:
+      consumes:
+      - application/json
+      description: 更新指定标签的信息，需要管理员权限
+      parameters:
+      - description: 标签ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 标签信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/service.CreateTagInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 更新成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.Tag'
+              type: object
+        "400":
+          description: 请求参数错误或无效的标签ID
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "403":
+          description: 无权限
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: 标签不存在
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 更新标签（仅管理员）
+      tags:
+      - 标签管理
+  /timeline/following:
+    get:
+      description: 获取当前用户关注的人的内容时间线
+      parameters:
+      - default: 1
+        description: 页码
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: 每页数量
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.PageData'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/model.TimelineEvent'
+                        type: array
+                    type: object
+              type: object
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 获取关注时间线
+      tags:
+      - 时间线管理
+  /timeline/home:
+    get:
+      description: 获取当前用户首页的时间线（推荐内容）
+      parameters:
+      - default: 1
+        description: 页码
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: 每页数量
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.PageData'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/model.TimelineEvent'
+                        type: array
+                    type: object
+              type: object
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 获取首页时间线
+      tags:
+      - 时间线管理
+  /timeline/subscribe/{user_id}:
+    delete:
+      description: 取消关注指定用户
+      parameters:
+      - description: 要取消关注的用户ID
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 取消关注成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "400":
+          description: 无效的用户ID
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: 未关注该用户
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 取消关注用户
+      tags:
+      - 时间线管理
+    post:
+      description: 关注指定用户，接收其动态更新
+      parameters:
+      - description: 要关注的用户ID
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 关注成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "400":
+          description: 无效的用户ID或不能关注自己
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "409":
+          description: 已关注该用户
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 关注用户
+      tags:
+      - 时间线管理
+  /timeline/subscribe/{user_id}/status:
+    get:
+      description: 检查当前用户是否已关注指定用户
+      parameters:
+      - description: 要检查的用户ID
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "400":
+          description: 无效的用户ID
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 检查是否已关注
+      tags:
+      - 时间线管理
+  /timeline/subscriptions:
+    get:
+      description: 获取当前用户关注的所有用户列表
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/model.User'
+                  type: array
+              type: object
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 获取关注列表
+      tags:
+      - 时间线管理
+  /topics:
+    get:
+      description: 分页获取所有专题列表
+      parameters:
+      - default: 1
+        description: 页码
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: 每页数量
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.PageData'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/model.Topic'
+                        type: array
+                    type: object
+              type: object
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 获取专题列表
+      tags:
+      - 专题管理
+    post:
+      consumes:
+      - application/json
+      description: 创建一个新的专题（需要管理员权限）
+      parameters:
+      - description: 专题信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/service.CreateTopicInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 创建成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.Topic'
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "403":
+          description: 无权限
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 创建专题
+      tags:
+      - 专题管理
+  /topics/{id}:
+    delete:
+      description: 删除指定专题（需要管理员权限）
+      parameters:
+      - description: 专题ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 删除成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "400":
+          description: 无效的专题ID
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "403":
+          description: 无权限
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: 专题不存在
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 删除专题
+      tags:
+      - 专题管理
+    get:
+      description: 根据ID获取专题详细信息
+      parameters:
+      - description: 专题ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.Topic'
+              type: object
+        "400":
+          description: 无效的专题ID
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: 专题不存在
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 获取专题详情
+      tags:
+      - 专题管理
+    put:
+      consumes:
+      - application/json
+      description: 更新指定专题的信息（需要管理员权限）
+      parameters:
+      - description: 专题ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 专题信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/service.CreateTopicInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 更新成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.Topic'
+              type: object
+        "400":
+          description: 请求参数错误或无效的专题ID
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "403":
+          description: 无权限
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: 专题不存在
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 更新专题
+      tags:
+      - 专题管理
+  /topics/{id}/follow:
+    delete:
+      description: 取消关注指定专题
+      parameters:
+      - description: 专题ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 取消关注成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "400":
+          description: 无效的专题ID
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: 专题不存在或未关注
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 取消关注专题
+      tags:
+      - 专题管理
+    post:
+      description: 关注指定专题，接收专题更新通知
+      parameters:
+      - description: 专题ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 关注成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "400":
+          description: 无效的专题ID
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: 专题不存在
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 关注专题
+      tags:
+      - 专题管理
+  /topics/{id}/follow/status:
+    get:
+      description: 检查当前用户是否已关注指定专题
+      parameters:
+      - description: 专题ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "400":
+          description: 无效的专题ID
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 检查是否关注专题
+      tags:
+      - 专题管理
+  /topics/{id}/followers:
+    get:
+      description: 分页获取关注指定专题的用户列表
+      parameters:
+      - description: 专题ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - default: 1
+        description: 页码
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: 每页数量
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.PageData'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/model.User'
+                        type: array
+                    type: object
+              type: object
+        "400":
+          description: 无效的专题ID
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 获取专题关注者列表
+      tags:
+      - 专题管理
+  /topics/{id}/posts:
+    get:
+      description: 分页获取指定专题下的所有帖子
+      parameters:
+      - description: 专题ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - default: 1
+        description: 页码
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: 每页数量
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.PageData'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/model.Post'
+                        type: array
+                    type: object
+              type: object
+        "400":
+          description: 无效的专题ID
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 获取专题帖子列表
+      tags:
+      - 专题管理
+    post:
+      consumes:
+      - application/json
+      description: 将指定帖子添加到专题中（需要管理员权限）
+      parameters:
+      - description: 专题ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 帖子信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.AddPostToTopicRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 添加成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "403":
+          description: 无权限
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: 专题或帖子不存在
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 添加帖子到专题
+      tags:
+      - 专题管理
+  /topics/{id}/posts/{post_id}:
+    delete:
+      description: 将指定帖子从专题中移除（需要管理员权限）
+      parameters:
+      - description: 专题ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 帖子ID
+        in: path
+        name: post_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 移除成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "400":
+          description: 无效的ID
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "403":
+          description: 无权限
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: 专题或帖子不存在
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 从专题移除帖子
+      tags:
+      - 专题管理
+  /topics/creator/{creator_id}:
+    get:
+      description: 获取指定用户创建的所有专题
+      parameters:
+      - description: 创建者用户ID
+        in: path
+        name: creator_id
+        required: true
+        type: integer
+      - default: 1
+        description: 页码
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: 每页数量
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.PageData'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/model.Topic'
+                        type: array
+                    type: object
+              type: object
+        "400":
+          description: 无效的用户ID
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 获取用户创建的专题
+      tags:
+      - 专题管理
+  /users/{id}:
+    get:
+      description: 根据用户ID获取用户详细资料
+      parameters:
+      - description: 用户ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/service.UserProfileResponse'
+              type: object
+        "400":
+          description: 无效的用户ID
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: 用户不存在
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 获取用户资料
+      tags:
+      - 用户管理
+  /users/{id}/follow:
+    delete:
+      description: 取消关注指定用户
+      parameters:
+      - description: 要取消关注的用户ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 取消关注成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "400":
+          description: 无效的用户ID
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: 未关注该用户
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 取消关注用户
+      tags:
+      - 用户管理
+    post:
+      description: 关注指定用户
+      parameters:
+      - description: 要关注的用户ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 关注成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "400":
+          description: 无效的用户ID或不能关注自己
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "409":
+          description: 已关注该用户
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 关注用户
+      tags:
+      - 用户管理
+  /users/{id}/followers:
+    get:
+      description: 获取指定用户的粉丝列表
+      parameters:
+      - description: 用户ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - default: 1
+        description: 页码
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: 每页数量
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.PageData'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/model.User'
+                        type: array
+                    type: object
+              type: object
+        "400":
+          description: 无效的用户ID
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 获取粉丝列表
+      tags:
+      - 用户管理
+  /users/{id}/following:
+    get:
+      description: 获取指定用户关注的用户列表
+      parameters:
+      - description: 用户ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - default: 1
+        description: 页码
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: 每页数量
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.PageData'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/model.User'
+                        type: array
+                    type: object
+              type: object
+        "400":
+          description: 无效的用户ID
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 获取关注列表
+      tags:
+      - 用户管理
+  /users/leaderboard:
+    get:
+      description: 根据用户积分或活跃度获取排行榜
+      parameters:
+      - default: 20
+        description: 返回数量
+        in: query
+        maximum: 100
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/model.User'
+                  type: array
+              type: object
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 获取用户排行榜
+      tags:
+      - 用户管理
+  /users/profile:
+    put:
+      consumes:
+      - application/json
+      description: 更新当前登录用户的个人资料
+      parameters:
+      - description: 用户资料信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/service.UpdateProfileInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 更新成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/service.UserProfileResponse'
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 更新用户资料
+      tags:
+      - 用户管理
 securityDefinitions:
   BearerAuth:
     description: Type "Bearer" followed by a space and the JWT token.

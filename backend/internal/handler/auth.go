@@ -17,12 +17,12 @@ func NewAuthHandler(userSvc *service.UserService) *AuthHandler {
 
 // Register godoc
 // @Summary 用户注册
-// @Tags auth
+// @Tags 验证管理
 // @Accept json
 // @Produce json
 // @Param body body service.RegisterInput true "注册信息"
 // @Success 200 {object} response.Response
-// @Router /api/v1/auth/register [post]
+// @Router /auth/register [post]
 func (h *AuthHandler) Register(c *gin.Context) {
 	var input service.RegisterInput
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -39,12 +39,12 @@ func (h *AuthHandler) Register(c *gin.Context) {
 
 // Login godoc
 // @Summary 用户登录
-// @Tags auth
+// @Tags 验证管理
 // @Accept json
 // @Produce json
 // @Param body body service.LoginInput true "登录信息"
 // @Success 200 {object} response.Response
-// @Router /api/v1/auth/login [post]
+// @Router /auth/login [post]
 func (h *AuthHandler) Login(c *gin.Context) {
 	var input service.LoginInput
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -70,11 +70,11 @@ func (h *AuthHandler) Login(c *gin.Context) {
 
 // Me godoc
 // @Summary 获取当前用户信息
-// @Tags auth
+// @Tags 验证管理
 // @Security BearerAuth
 // @Produce json
 // @Success 200 {object} response.Response
-// @Router /api/v1/auth/me [get]
+// @Router /auth/me [get]
 func (h *AuthHandler) Me(c *gin.Context) {
 	userID := c.GetUint("user_id")
 	user, err := h.userSvc.GetProfile(userID)

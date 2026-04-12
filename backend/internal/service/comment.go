@@ -12,6 +12,7 @@ type CommentService struct {
 	postRepo    *repository.PostRepository
 	userRepo    *repository.UserRepository
 	notifSvc    *NotificationService
+	questionSvc *QuestionService // 添加问答服务依赖（可选）
 }
 
 func NewCommentService(
@@ -89,4 +90,93 @@ func (s *CommentService) List(postID uint, page, pageSize int) ([]model.Comment,
 
 func (s *CommentService) GetCommentCount(postID uint) (int64, error) {
 	return s.commentRepo.CountByPost(postID)
+}
+
+// ========== 新增的问答相关方法 ==========
+
+// CreateAnswer 创建回答（仅限问答帖）
+func (s *CommentService) CreateAnswer(authorID uint, input CreateCommentInput) (*model.Comment, error) {
+	// Validate post exists and is question
+	post, err := s.postRepo.FindByID(input.PostID)
+	if err != nil {
+		return nil, errors.New("帖子不存在")
+	}
+	if !post.IsQuestion {
+		return nil, errors.New("该帖子不是问答类型，请使用普通评论")
+	}
+
+	comment := &model.Comment{
+		Content:  input.Content,
+		PostID:   input.PostID,
+		AuthorID: authorID,
+		ParentID: input.ParentID,
+		IsAnswer: true, // 标记为答案
+	}
+
+	if err := s.commentRepo.Create(comment); err != nil {
+		return nil, err
+	}
+
+	// 回答奖励积分
+	_ = s.userRepo.AddScore(authorID, 2)
+
+	// Notify post author
+	if post.AuthorID != authorID {
+		s.notifSvc.Create(post.AuthorID, &authorID, model.NotifyComment,
+			"有人回答了你的问题《"+post.Title+"》", &input.PostID, "post")
+	}
+
+	return s.commentRepo.FindByID(comment.ID)
+}
+
+// MarkAsAnswer 标记/取消标记为答案
+func (s *CommentService) MarkAsAnswer(commentID, userID uint, isAdmin bool, isAnswer bool) error {
+	comment, err := s.commentRepo.FindByID(commentID)
+	if err != nil {
+		return errors.New("评论不存在")
+	}
+
+	// Get post to check permissions
+	post, err := s.postRepo.FindByID(comment.PostID)
+	if err != nil {
+		return errors.New("帖子不存在")
+	}
+
+	// Only post author or admin can mark as answer
+	if post.AuthorID != userID && !isAdmin {
+		return errors.New("无权限操作")
+	}
+
+	return s.commentRepo.MarkAsAnswer(commentID, isAnswer)
+}
+
+// GetAnswersByPostID 获取帖子的所有答案
+func (s *CommentService) GetAnswersByPostID(postID uint, page, pageSize int, sortBy string) ([]model.Comment, int64, error) {
+	if page < 1 {
+		page = 1
+	}
+	if pageSize < 1 || pageSize > 100 {
+		pageSize = 20
+	}
+	offset := (page - 1) * pageSize
+
+	switch sortBy {
+	case "newest":
+		return s.commentRepo.GetAnswersByPostIDOrderByNewest(postID, pageSize, offset)
+	case "oldest":
+		return s.commentRepo.GetAnswersByPostIDOrderByOldest(postID, pageSize, offset)
+	default: // vote
+		return s.commentRepo.GetAnswersByPostID(postID, pageSize, offset)
+	}
+}
+
+// GetAnswerVoteCount 获取答案的投票数
+func (s *CommentService) GetAnswerVoteCount(commentID uint) (int, error) {
+	// 这个会通过 repository 的 questionRepo 来实现
+	// 或者直接从 comment 的 vote_count 字段获取
+	comment, err := s.commentRepo.FindByID(commentID)
+	if err != nil {
+		return 0, err
+	}
+	return comment.VoteCount, nil
 }

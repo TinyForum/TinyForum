@@ -103,3 +103,30 @@ func (r *UserRepository) GetTopUsers(limit int) ([]model.User, error) {
 	err := r.db.Order("score DESC").Limit(limit).Find(&users).Error
 	return users, err
 }
+
+// GetFollowing 获取用户关注的列表
+func (r *UserRepository) GetFollowing(userID uint, page, pageSize int) ([]model.User, int64, error) {
+	var users []model.User
+	var total int64
+
+	offset := (page - 1) * pageSize
+
+	// 获取关注总数
+	err := r.db.Model(&model.Follow{}).
+		Where("follower_id = ?", userID).
+		Count(&total).Error
+	if err != nil {
+		return nil, 0, err
+	}
+
+	// 获取关注的用户列表
+	err = r.db.Model(&model.Follow{}).
+		Select("users.*").
+		Joins("JOIN users ON follows.following_id = users.id").
+		Where("follows.follower_id = ?", userID).
+		Offset(offset).
+		Limit(pageSize).
+		Find(&users).Error
+
+	return users, total, err
+}

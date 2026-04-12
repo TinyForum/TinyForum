@@ -184,3 +184,27 @@ func (s *UserService) SetActive(userID uint, active bool) error {
 func avatarURL(username string) string {
 	return "https://api.dicebear.com/8.x/lorelei/svg?seed=" + username
 }
+
+// GetFollow 获取用户的关注列表
+func (s *UserService) GetFollowers(userID uint, page, pageSize int) ([]model.User, int64, error) {
+	return s.repo.GetFollowing(userID, page, pageSize)
+}
+
+func (s *UserService) GetFollowing(userID uint, page, pageSize int) ([]model.User, int64, error) {
+	return s.repo.GetFollowing(userID, page, pageSize)
+}
+
+// SetRole 设置用户角色
+func (s *UserService) SetRole(userID uint, role string) error {
+	// 验证角色是否有效
+	switch model.UserRole(role) {
+	case model.RoleUser, model.ModeratorUser, model.RoleAdmin:
+		// 有效角色
+	default:
+		return errors.New("无效的角色类型")
+	}
+
+	return s.repo.UpdateFields(userID, map[string]interface{}{
+		"role": role,
+	})
+}
