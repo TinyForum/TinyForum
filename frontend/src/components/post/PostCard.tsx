@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { Post } from "@/types";
+// import { Post } from "@/types";
 import { timeAgo, truncate } from "@/lib/utils";
 import { Eye, Heart, MessageSquare, Pin, Tag } from "lucide-react";
 import Avatar from "../user/Avatar";
 import { useState } from "react";
+import { Post } from "@/lib/api";
 
 interface PostCardProps {
   post: Post;

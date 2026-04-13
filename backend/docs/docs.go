@@ -5649,10 +5649,14 @@ const docTemplate = `{
         "service.CreatePostInput": {
             "type": "object",
             "required": [
+                "board_id",
                 "content",
                 "title"
             ],
             "properties": {
+                "board_id": {
+                    "type": "integer"
+                },
                 "content": {
                     "type": "string",
                     "minLength": 10

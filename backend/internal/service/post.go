@@ -12,19 +12,21 @@ import (
 )
 
 type PostService struct {
-	postRepo *repository.PostRepository
-	tagRepo  *repository.TagRepository
-	userRepo *repository.UserRepository
-	notifSvc *NotificationService
+	postRepo  *repository.PostRepository
+	tagRepo   *repository.TagRepository
+	boardRepo *repository.BoardRepository
+	userRepo  *repository.UserRepository
+	notifSvc  *NotificationService
 }
 
 func NewPostService(
 	postRepo *repository.PostRepository,
 	tagRepo *repository.TagRepository,
 	userRepo *repository.UserRepository,
+	boardRepo *repository.BoardRepository,
 	notifSvc *NotificationService,
 ) *PostService {
-	return &PostService{postRepo: postRepo, tagRepo: tagRepo, userRepo: userRepo, notifSvc: notifSvc}
+	return &PostService{postRepo: postRepo, tagRepo: tagRepo, userRepo: userRepo, boardRepo: boardRepo, notifSvc: notifSvc}
 }
 
 type CreatePostInput struct {
@@ -33,6 +35,7 @@ type CreatePostInput struct {
 	Summary string `json:"summary"`
 	Cover   string `json:"cover"`
 	Type    string `json:"type"`
+	BoardID uint   `json:"board_id" binding:"required"`
 	TagIDs  []uint `json:"tag_ids"`
 }
 
@@ -40,6 +43,22 @@ func (s *PostService) Create(authorID uint, input CreatePostInput) (*model.Post,
 	postType := model.PostType(input.Type)
 	if postType == "" {
 		postType = model.PostTypePost
+	}
+	// 验证 board_id
+	if input.BoardID == 0 {
+		return nil, errors.New("board_id 不能为 0")
+	}
+
+	// 验证板块是否存在
+	board, err := s.boardRepo.FindByID(input.BoardID)
+	if err != nil {
+		return nil, errors.New("选择的板块不存在")
+	}
+
+	// 验证帖子类型
+	validTypes := map[string]bool{"post": true, "article": true, "topic": true}
+	if !validTypes[input.Type] {
+		input.Type = "post"
 	}
 
 	post := &model.Post{
@@ -50,6 +69,7 @@ func (s *PostService) Create(authorID uint, input CreatePostInput) (*model.Post,
 		Type:     postType,
 		Status:   model.PostStatusPublished,
 		AuthorID: authorID,
+		BoardID:  board.ID, // 使用从数据库查询到的板块 ID
 	}
 
 	// Attach tags

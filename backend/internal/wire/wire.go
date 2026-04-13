@@ -122,7 +122,7 @@ func InitApp(cfg *config.Config) (*App, error) {
 	questionSvc := service.NewQuestionService(questionRepo, postRepo, commentRepo, userRepo, notifSvc)
 
 	// 依赖其他服务的服务
-	postSvc := service.NewPostService(postRepo, tagRepo, userRepo, notifSvc)
+	postSvc := service.NewPostService(postRepo, tagRepo, userRepo, boardRepo, notifSvc)
 	commentSvc := service.NewCommentService(commentRepo, postRepo, userRepo, notifSvc)
 
 	// ========== Handlers ==========
