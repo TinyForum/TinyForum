@@ -150,11 +150,11 @@ func InitApp(cfg *config.Config) (*App, error) {
 
 	// CORS
 	engine.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:3000", "http://127.0.0.1:3000"},
-		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
-		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
-		ExposeHeaders:    []string{"Content-Length"},
-	
+		AllowOrigins:  []string{"http://localhost:3000", "http://127.0.0.1:3000"},
+		AllowMethods:  []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
+		AllowHeaders:  []string{"Origin", "Content-Type", "Authorization"},
+		ExposeHeaders: []string{"Content-Length"},
+
 		AllowCredentials: true,
 	}))
 
@@ -169,7 +169,7 @@ func InitApp(cfg *config.Config) (*App, error) {
 	{
 		authGroup.POST("/register", authHandler.Register)
 		authGroup.POST("/login", authHandler.Login)
-		 authGroup.POST("/logout",   authHandler.Logout)  // 新增
+		authGroup.POST("/logout", authHandler.Logout) // 新增
 		authGroup.GET("/me", middleware.Auth(jwtMgr), authHandler.Me)
 	}
 
@@ -243,9 +243,11 @@ func InitApp(cfg *config.Config) (*App, error) {
 		// 公开接口
 		boardGroup.GET("", boardHandler.List)
 		boardGroup.GET("/tree", boardHandler.GetTree)
+		// 通过 ID 获取板块
 		boardGroup.GET("/:id", middleware.OptionalAuth(jwtMgr), boardHandler.GetByID)
-		boardGroup.GET("/:id/posts", middleware.OptionalAuth(jwtMgr), boardHandler.GetPosts)
-		boardGroup.GET("/slug/:slug", boardHandler.GetBySlug)
+		// 通过 Slug 获取板块和帖子
+		boardGroup.GET("/slug/:slug/posts", middleware.OptionalAuth(jwtMgr), boardHandler.GetPostsBySlug)
+		boardGroup.GET("/slug/:slug", boardHandler.GetBoardBySlug)
 
 		// 管理员接口
 		boardGroup.POST("", middleware.Auth(jwtMgr), middleware.AdminRequired(), boardHandler.Create)

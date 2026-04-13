@@ -4,16 +4,39 @@
 import { postApi } from '@/lib/api';
 import { useState } from 'react';
 import { toast } from 'react-hot-toast';
+import { 
+  PaperAirplaneIcon, 
+  XMarkIcon,
+  InformationCircleIcon,
+  CheckCircleIcon,
+  ExclamationTriangleIcon,
+  SparklesIcon,
+} from '@heroicons/react/24/outline';
 
 interface AnswerFormProps {
   questionId: number;
+  questionAuthorId?: number;
+  rewardScore?: number;
+  hasAccepted?: boolean;
   onSuccess: () => void;
   onCancel?: () => void;
 }
 
-export function AnswerForm({ questionId, onSuccess, onCancel }: AnswerFormProps) {
+export function AnswerForm({ 
+  questionId, 
+  questionAuthorId,
+  rewardScore = 0,
+  hasAccepted = false,
+  onSuccess, 
+  onCancel 
+}: AnswerFormProps) {
   const [content, setContent] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
+
+  const contentLength = content.trim().length;
+  const isContentValid = contentLength >= 10;
+  const isContentTooLong = contentLength > 50000;
 
   const handleSubmit = async () => {
     if (!content.trim()) {
@@ -21,8 +44,13 @@ export function AnswerForm({ questionId, onSuccess, onCancel }: AnswerFormProps)
       return;
     }
 
-    if (content.trim().length < 10) {
-      toast.error('回答内容至少需要10个字符');
+    if (contentLength < 10) {
+      toast.error('回答内容至少需要 10 个字符');
+      return;
+    }
+
+    if (contentLength > 50000) {
+      toast.error('回答内容不能超过 50000 个字符');
       return;
     }
 
@@ -32,7 +60,14 @@ export function AnswerForm({ questionId, onSuccess, onCancel }: AnswerFormProps)
       
       if (response.data.code === 200 || response.data.code === 201 || response.data.code === 0) {
         setContent('');
+        setShowPreview(false);
         toast.success('回答发布成功');
+        
+        // 如果有悬赏，显示额外提示
+        if (rewardScore > 0 && questionAuthorId) {
+          toast.success(`💡 回答被采纳可获得 ${rewardScore} 积分悬赏`, { duration: 5000 });
+        }
+        
         onSuccess();
       } else {
         toast.error(response.data.message || '发布失败');
@@ -46,62 +81,178 @@ export function AnswerForm({ questionId, onSuccess, onCancel }: AnswerFormProps)
     }
   };
 
-  return (
-    <div className="bg-white rounded-lg shadow-sm p-6">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">
-        你的回答
-      </h3>
-      
-      <textarea
-        value={content}
-        onChange={(e) => setContent(e.target.value)}
-        rows={6}
-        placeholder={`写下你的回答...
-
-建议：
-1. 直接回答问题
-2. 提供代码示例
-3. 给出具体步骤
-4. 附上相关文档链接`}
-        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none resize-y"
-        disabled={submitting}
-      />
-      
-      <div className="flex justify-end gap-3 mt-4">
-        {onCancel && (
-          <button
-            type="button"
-            onClick={onCancel}
-            disabled={submitting}
-            className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50"
-          >
-            取消
-          </button>
-        )}
-        <button
-          onClick={handleSubmit}
-          disabled={submitting || !content.trim()}
-          className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {submitting ? (
-            <span className="flex items-center gap-2">
-              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              发布中...
-            </span>
-          ) : (
-            '发布回答'
-          )}
-        </button>
+  // 如果问题已有采纳答案，显示提示
+  if (hasAccepted) {
+    return (
+      <div className="card bg-base-100 shadow-md border border-base-200">
+        <div className="card-body p-6 text-center">
+          <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-success/10 flex items-center justify-center">
+            <CheckCircleIcon className="w-6 h-6 text-success" />
+          </div>
+          <h3 className="text-lg font-semibold text-base-content mb-2">
+            问题已解决
+          </h3>
+          <p className="text-sm text-base-content/60">
+            这个问题已经有采纳的回答了，你可以查看其他问题或发布新问题
+          </p>
+        </div>
       </div>
-      
-      {/* 提示信息 */}
-      <div className="mt-3 text-xs text-gray-400">
-        <p>💡 提示：</p>
-        <ul className="list-disc list-inside ml-2">
-          <li>支持 Markdown 格式</li>
-          <li>代码块请使用 ``` 包裹</li>
-          <li>优质回答有机会获得悬赏积分</li>
-        </ul>
+    );
+  }
+
+  return (
+    <div className="card bg-base-100 shadow-md border border-base-200 overflow-hidden">
+      {/* 悬赏提示 */}
+      {rewardScore > 0 && (
+        <div className="bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-2">
+          <div className="flex items-center gap-2">
+            <SparklesIcon className="w-4 h-4 text-white" />
+            <span className="text-sm font-medium text-white">
+              本问题悬赏 {rewardScore} 积分，优质回答有机会获得悬赏！
+            </span>
+          </div>
+        </div>
+      )}
+
+      <div className="card-body p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+              <PaperAirplaneIcon className="w-4 h-4 text-primary" />
+            </div>
+            <h3 className="text-lg font-semibold text-base-content">
+              你的回答
+            </h3>
+          </div>
+          
+          {/* 预览切换 */}
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => setShowPreview(!showPreview)}
+              className="btn btn-ghost btn-xs"
+              disabled={submitting}
+            >
+              {showPreview ? '编辑' : '预览'}
+            </button>
+          </div>
+        </div>
+
+        {/* 编辑器 / 预览 */}
+        {showPreview ? (
+          <div className="min-h-[200px] p-4 bg-base-200 rounded-lg prose prose-sm max-w-none">
+            {content ? (
+              <div dangerouslySetInnerHTML={{ __html: content.replace(/\n/g, '<br/>') }} />
+            ) : (
+              <p className="text-base-content/40 text-center">暂无内容</p>
+            )}
+          </div>
+        ) : (
+          <>
+            <textarea
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              rows={8}
+              placeholder={`写下你的回答...
+
+💡 优质回答小贴士：
+• 直接回答问题核心
+• 提供可运行的代码示例
+• 给出具体的操作步骤
+• 附上相关文档或参考资料
+• 使用 Markdown 格式化内容`}
+              className={`textarea w-full resize-y font-mono text-sm ${
+                !isContentValid && contentLength > 0 
+                  ? 'textarea-error' 
+                  : isContentTooLong 
+                    ? 'textarea-error' 
+                    : 'textarea-bordered'
+              } focus:textarea-primary`}
+              disabled={submitting}
+            />
+            
+            {/* 字数统计 */}
+            <div className="flex justify-between items-center mt-2">
+              <div className="flex items-center gap-2">
+                {contentLength > 0 && !isContentValid && (
+                  <span className="text-xs text-warning flex items-center gap-1">
+                    <ExclamationTriangleIcon className="w-3 h-3" />
+                    至少需要 10 个字符
+                  </span>
+                )}
+                {isContentValid && !isContentTooLong && (
+                  <span className="text-xs text-success flex items-center gap-1">
+                    <CheckCircleIcon className="w-3 h-3" />
+                    内容完整
+                  </span>
+                )}
+                {isContentTooLong && (
+                  <span className="text-xs text-error flex items-center gap-1">
+                    <ExclamationTriangleIcon className="w-3 h-3" />
+                    内容过长，请精简到 50000 字符以内
+                  </span>
+                )}
+              </div>
+              <span className={`text-xs ${
+                contentLength > 45000 
+                  ? 'text-error' 
+                  : contentLength > 0 
+                    ? 'text-base-content/60' 
+                    : 'text-base-content/40'
+              }`}>
+                {contentLength} / 50000
+              </span>
+            </div>
+          </>
+        )}
+        
+        {/* 按钮区域 */}
+        <div className="flex justify-end gap-3 mt-4">
+          {onCancel && (
+            <button
+              type="button"
+              onClick={onCancel}
+              disabled={submitting}
+              className="btn btn-ghost gap-2"
+            >
+              <XMarkIcon className="w-4 h-4" />
+              取消
+            </button>
+          )}
+          <button
+            onClick={handleSubmit}
+            disabled={submitting || !isContentValid || isContentTooLong}
+            className="btn btn-primary gap-2 min-w-[120px] shadow-md hover:shadow-lg transition-all"
+          >
+            {submitting ? (
+              <>
+                <span className="loading loading-spinner loading-sm"></span>
+                发布中...
+              </>
+            ) : (
+              <>
+                <PaperAirplaneIcon className="w-4 h-4" />
+                发布回答
+              </>
+            )}
+          </button>
+        </div>
+
+        {/* 提示信息 */}
+        <div className="mt-4 p-3 bg-base-200/50 rounded-lg">
+          <div className="flex items-start gap-2">
+            <InformationCircleIcon className="w-4 h-4 text-base-content/40 shrink-0 mt-0.5" />
+            <div className="text-xs text-base-content/60 space-y-1">
+              <p className="font-medium">💡 回答提示：</p>
+              <ul className="list-disc list-inside space-y-0.5 ml-2">
+                <li>支持 Markdown 格式，代码块请使用 ``` 包裹</li>
+                <li>优质回答有机会获得悬赏积分和采纳</li>
+                <li>尊重他人，友善发言</li>
+                <li>回答被采纳后，悬赏积分将自动发放</li>
+              </ul>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

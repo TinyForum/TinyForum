@@ -60,6 +60,47 @@ func (r *BoardRepository) FindBySlug(slug string) (*model.Board, error) {
 	return &board, err
 }
 
+func (r *BoardRepository) GetPostsBySlug(slug string, page, pageSize int) ([]*model.Post, int64, error) {
+	var posts []*model.Post
+	var total int64
+
+	// 参数验证
+	if slug == "" {
+		return nil, 0, fmt.Errorf("slug cannot be empty")
+	}
+	if page < 1 {
+		page = 1
+	}
+	if pageSize < 1 || pageSize > 100 {
+		pageSize = 20
+	}
+
+	// 构建查询
+	query := r.db.Model(&model.Post{}).
+		Joins("JOIN boards ON boards.id = posts.board_id").
+		Where("boards.slug = ?", slug).
+		Where("posts.deleted_at IS NULL")
+
+	// 获取总数
+	if err := query.Count(&total).Error; err != nil {
+		return nil, 0, fmt.Errorf("count posts failed: %w", err)
+	}
+
+	// 获取分页数据
+	offset := (page - 1) * pageSize
+	err := query.
+		Offset(offset).
+		Limit(pageSize).
+		Order("posts.created_at DESC").
+		Find(&posts).Error
+
+	if err != nil {
+		return nil, 0, fmt.Errorf("get posts failed: %w", err)
+	}
+
+	return posts, total, nil
+}
+
 func (r *BoardRepository) List(limit, offset int) ([]model.Board, int64, error) {
 	var boards []model.Board
 	var total int64

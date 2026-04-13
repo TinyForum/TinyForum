@@ -13,9 +13,9 @@ import {
   UserCircleIcon,
   EyeIcon,
   TagIcon,
+  SparklesIcon,
 } from '@heroicons/react/24/outline';
 import { useAuthStore } from '@/store/auth';
-// import type { Post } from '@/types';
 import { postApi } from '@/lib/api';
 import { Post } from '@/lib/api/types';
 
@@ -39,23 +39,27 @@ export default function QuestionsPage() {
 
   useEffect(() => {
     loadQuestions();
+
+  },[]);
+
+  useEffect(() => {
+    loadQuestions();
   }, [page, filter, sort, keyword]);
 
   const loadQuestions = async () => {
     setLoading(true);
     try {
-      // 使用 getQuestions API 获取问答列表
       const response = await postApi.getQuestions({
         page,
         page_size: pageSize,
         filter: filter === 'all' ? undefined : filter,
         keyword: keyword || undefined,
-        // 根据 sort 类型映射到对应的排序参数
-        // 注意：API 可能不支持直接传 sort，需要根据实际情况调整
       });
       
-      if (response.data.code === 200) {
-        setQuestions(response.data.data.items);
+      
+      if (response.status === 200) {
+      // console.log(response.data.data.list);
+        setQuestions(response.data.data.list);
         setTotal(response.data.data.total);
       }
     } catch (error) {
@@ -82,18 +86,14 @@ export default function QuestionsPage() {
     return date.toLocaleDateString();
   };
 
-  // 获取问题的回答数量
   const getAnswerCount = (question: Post) => {
-    // 根据实际 API 返回的数据结构调整
     return (question as any).answer_count || (question as any).answers_total || 0;
   };
 
-  // 获取问题的悬赏积分
   const getRewardScore = (question: Post) => {
     return (question as any).reward_score || 0;
   };
 
-  // 获取问题是否已解决
   const getIsAccepted = (question: Post) => {
     return !!(question as any).accepted_answer_id;
   };
@@ -101,190 +101,240 @@ export default function QuestionsPage() {
   const totalPages = Math.ceil(total / pageSize);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-5xl mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-6">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">问答社区</h1>
-            <p className="text-gray-500 mt-1">提问、回答、分享知识</p>
+    <div className="min-h-screen bg-gradient-to-br from-base-200 via-base-100 to-base-200">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Hero Section */}
+        <div className="text-center mb-10">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-red-500 to-red-600 shadow-lg mb-4">
+            <SparklesIcon className="w-8 h-8 text-white" />
           </div>
-          {isAuthenticated && (
-            <Link
-              href="/questions/ask"
-              className="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium shadow-sm"
-            >
-              <PlusIcon className="w-5 h-5" />
-              提问
-            </Link>
-          )}
+          <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-red-600 to-red-500 bg-clip-text text-transparent">
+            问答社区
+          </h1>
+          <p className="text-base-content/60 mt-2">
+            提问、回答、分享知识
+          </p>
         </div>
 
         {/* Search Bar */}
-        <form onSubmit={handleSearch} className="mb-6">
-          <div className="relative">
-            <input
-              type="text"
-              value={keyword}
-              onChange={(e) => setKeyword(e.target.value)}
-              placeholder="搜索问题..."
-              className="w-full px-4 py-3 pl-11 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
-            />
-            <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-            <button
-              type="submit"
-              className="absolute right-2 top-1/2 -translate-y-1/2 px-4 py-1.5 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
-            >
-              搜索
-            </button>
-          </div>
-        </form>
-
-        {/* Filters */}
-        <div className="bg-white rounded-lg shadow-sm mb-6">
-          <div className="flex items-center justify-between p-4 border-b">
-            <div className="flex gap-2">
-              {[
-                { value: 'all', label: '全部', icon: ChatBubbleLeftRightIcon },
-                { value: 'unanswered', label: '未回答', icon: FireIcon },
-                { value: 'answered', label: '已解决', icon: CheckBadgeIcon },
-              ].map((item) => {
-                const Icon = item.icon;
-                const isActive = filter === item.value;
-                return (
-                  <button
-                    key={item.value}
-                    onClick={() => {
-                      setFilter(item.value as FilterType);
-                      setPage(1);
-                    }}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-                      isActive
-                        ? 'bg-indigo-50 text-indigo-600 border border-indigo-200'
-                        : 'text-gray-600 hover:bg-gray-50'
-                    }`}
-                  >
-                    <Icon className="w-4 h-4" />
-                    {item.label}
-                  </button>
-                );
-              })}
-            </div>
-            <div className="flex items-center gap-2 text-sm">
-              <ArrowsRightLeftIcon className="w-4 h-4 text-gray-400" />
-              <select
-                value={sort}
-                onChange={(e) => setSort(e.target.value as SortType)}
-                className="border-none bg-transparent focus:outline-none text-gray-600 cursor-pointer"
+        <div className="mb-8">
+          <div className="card bg-base-100 shadow-md border border-base-200 p-2">
+            <form onSubmit={handleSearch} className="flex gap-2">
+              <div className="flex-1 relative">
+                <MagnifyingGlassIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-base-content/40" />
+                <input
+                  type="text"
+                  value={keyword}
+                  onChange={(e) => setKeyword(e.target.value)}
+                  placeholder="搜索问题..."
+                  className="w-full pl-11 pr-4 py-2.5 bg-transparent text-base-content placeholder-base-content/40 focus:outline-none"
+                />
+              </div>
+              <button
+                type="submit"
+                className="btn btn-primary min-w-[80px]"
               >
-                <option value="latest">最新</option>
-                <option value="hot">最热</option>
-                <option value="score">悬赏最高</option>
-              </select>
-            </div>
+                搜索
+              </button>
+            </form>
           </div>
+        </div>
 
-          {/* Questions List */}
-          <div className="divide-y">
-            {loading ? (
-              <div className="p-8 text-center text-gray-500">加载中...</div>
-            ) : questions.length === 0 ? (
-              <div className="p-8 text-center text-gray-500">
-                <ChatBubbleLeftRightIcon className="w-12 h-12 mx-auto text-gray-300 mb-3" />
-                <p>暂无问题</p>
+        {/* Main Content */}
+        <div className="card bg-base-100 shadow-md border border-base-200">
+          {/* Header with Filters */}
+          <div className="card-body p-0">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 border-b border-base-200">
+              <div className="flex flex-wrap gap-2">
+                {[
+                  { value: 'all', label: '全部', icon: ChatBubbleLeftRightIcon, color: 'text-blue-500' },
+                  { value: 'unanswered', label: '未回答', icon: FireIcon, color: 'text-orange-500' },
+                  { value: 'answered', label: '已解决', icon: CheckBadgeIcon, color: 'text-green-500' },
+                ].map((item) => {
+                  const Icon = item.icon;
+                  const isActive = filter === item.value;
+                  return (
+                    <button
+                      key={item.value}
+                      onClick={() => {
+                        setFilter(item.value as FilterType);
+                        setPage(1);
+                      }}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
+                        isActive
+                          ? 'bg-primary/10 text-primary border border-primary/20'
+                          : 'text-base-content/60 hover:text-base-content hover:bg-base-200/50'
+                      }`}
+                    >
+                      <Icon className={`w-4 h-4 ${isActive ? item.color : ''}`} />
+                      {item.label}
+                    </button>
+                  );
+                })}
+              </div>
+              
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 text-sm">
+                  <ArrowsRightLeftIcon className="w-4 h-4 text-base-content/40" />
+                  <select
+                    value={sort}
+                    onChange={(e) => setSort(e.target.value as SortType)}
+                    className="select select-bordered select-sm bg-transparent focus:outline-none"
+                  >
+                    <option value="latest">最新</option>
+                    <option value="hot">最热</option>
+                    <option value="score">悬赏最高</option>
+                  </select>
+                </div>
+                
                 {isAuthenticated && (
-                  <Link href="/questions/ask" className="text-indigo-600 hover:underline mt-2 inline-block">
-                    成为第一个提问者
+                  <Link
+                    href="/questions/ask"
+                    className="btn btn-primary btn-sm"
+                  >
+                    <PlusIcon className="w-4 h-4" />
+                    提问
                   </Link>
                 )}
               </div>
-            ) : (
-              questions.map((question) => (
-                <Link
-                  key={question.id}
-                  href={`/questions/${question.id}`}
-                  className="block p-5 hover:bg-gray-50 transition-colors"
-                >
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <h3 className="text-lg font-medium text-gray-900 hover:text-indigo-600 mb-2">
-                        {question.title}
-                      </h3>
-                      <p className="text-gray-500 text-sm line-clamp-2 mb-3">
-                        {question.summary || question.content?.replace(/<[^>]*>/g, '').slice(0, 150) || '暂无内容'}
-                      </p>
-                      <div className="flex items-center gap-4 text-sm text-gray-400">
-                        <span className="flex items-center gap-1">
-                          <UserCircleIcon className="w-4 h-4" />
-                          {question.author?.username || '匿名用户'}
-                        </span>
-                        <span>{formatTime(question.created_at)}</span>
-                        <span className="flex items-center gap-1">
-                          <ChatBubbleLeftRightIcon className="w-4 h-4" />
-                          {getAnswerCount(question)} 回答
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <EyeIcon className="w-4 h-4" />
-                          {question.view_count || 0} 浏览
-                        </span>
-                        {getRewardScore(question) > 0 && (
-                          <span className="text-orange-500 flex items-center gap-1">
-                            💰 {getRewardScore(question)} 积分
-                          </span>
-                        )}
-                      </div>
-                      {/* Tags */}
-                      {question.tags && question.tags.length > 0 && (
-                        <div className="flex flex-wrap gap-2 mt-3">
-                          {question.tags.slice(0, 3).map((tag) => (
-                            <span
-                              key={tag.id}
-                              className="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-md"
-                              style={{ borderLeft: `2px solid ${tag.color || '#6366f1'}` }}
-                            >
-                              <TagIcon className="w-3 h-3 inline mr-0.5" />
-                              {tag.name}
-                            </span>
-                          ))}
+            </div>
+
+            {/* Questions List */}
+            <div className="divide-y divide-base-200">
+              {loading ? (
+                <div className="space-y-3 p-4">
+                  {[1, 2, 3, 4, 5].map((i) => (
+                    <div key={i} className="card bg-base-100 border border-base-200">
+                      <div className="card-body p-5">
+                        <div className="h-5 bg-base-200 rounded w-3/4 mb-2 animate-pulse" />
+                        <div className="h-4 bg-base-200 rounded w-1/2 mb-3 animate-pulse" />
+                        <div className="flex gap-4">
+                          <div className="h-3 bg-base-200 rounded w-16 animate-pulse" />
+                          <div className="h-3 bg-base-200 rounded w-16 animate-pulse" />
                         </div>
-                      )}
+                      </div>
                     </div>
-                    {getIsAccepted(question) && (
-                      <div className="ml-4 text-center">
-                        <div className="px-3 py-1 bg-green-50 rounded-lg">
-                          <CheckBadgeIcon className="w-5 h-5 text-green-500 mx-auto" />
-                          <div className="text-xs text-green-600 mt-1">已解决</div>
+                  ))}
+                </div>
+              ) : questions.length === 0 ? (
+                <div className="text-center py-16">
+                  <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-red-50 dark:bg-red-900/20 flex items-center justify-center">
+                    <ChatBubbleLeftRightIcon className="w-10 h-10 text-red-400" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-base-content mb-2">暂无问题</h3>
+                  <p className="text-base-content/60 mb-4">还没有人提问，成为第一个提问者吧</p>
+                  {isAuthenticated && (
+                    <Link href="/questions/ask" className="btn btn-primary">
+                      <PlusIcon className="w-4 h-4" />
+                      我要提问
+                    </Link>
+                  )}
+                </div>
+              ) : (
+                questions.map((question, index) => (
+                  <Link
+                    key={question.id}
+                    href={`/questions/${question.id}`}
+                    className="block group hover:bg-base-200/50 transition-colors"
+                  >
+                    <div className="p-5">
+                      <div className="flex items-start gap-4">
+                        {/* 左侧统计信息 */}
+                        <div className="shrink-0 text-center min-w-[60px]">
+                          <div className="text-sm font-semibold text-base-content">
+                            {getAnswerCount(question)}
+                          </div>
+                          <div className="text-xs text-base-content/40">回答</div>
+                          <div className="text-sm font-semibold text-base-content mt-1">
+                            {question.view_count || 0}
+                          </div>
+                          <div className="text-xs text-base-content/40">浏览</div>
+                        </div>
+                        
+                        {/* 问题内容 */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between gap-4">
+                            <h3 className="text-base font-semibold text-base-content group-hover:text-primary transition-colors line-clamp-1">
+                              {question.title}
+                            </h3>
+                            {getIsAccepted(question) && (
+                              <span className="badge badge-success gap-1 shrink-0">
+                                <CheckBadgeIcon className="w-3 h-3" />
+                                已解决
+                              </span>
+                            )}
+                          </div>
+                          
+                          {getRewardScore(question) > 0 && (
+                            <div className="flex items-center gap-1 mt-1">
+                              <span className="badge badge-warning badge-sm gap-1">
+                                💰 {getRewardScore(question)} 积分悬赏
+                              </span>
+                            </div>
+                          )}
+                          
+                          <p className="text-sm text-base-content/60 line-clamp-2 mt-2">
+                            {question.summary || question.content?.replace(/<[^>]*>/g, '').slice(0, 150) || '暂无内容'}
+                          </p>
+                          
+                          <div className="flex flex-wrap items-center gap-4 mt-3 text-xs text-base-content/50">
+                            <span className="flex items-center gap-1">
+                              <UserCircleIcon className="w-3.5 h-3.5" />
+                              {question.author?.username || '匿名用户'}
+                            </span>
+                            <span>{formatTime(question.created_at)}</span>
+                            
+                            {/* Tags */}
+                            {question.tags && question.tags.length > 0 && (
+                              <div className="flex flex-wrap gap-1">
+                                {question.tags.slice(0, 3).map((tag) => (
+                                  <span
+                                    key={tag.id}
+                                    className="px-2 py-0.5 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-xs rounded-md inline-flex items-center gap-0.5"
+                                  >
+                                    <TagIcon className="w-3 h-3" />
+                                    {tag.name}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    )}
-                  </div>
-                </Link>
-              ))
+                    </div>
+                  </Link>
+                ))
+              )}
+            </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex justify-center gap-2 p-4 border-t border-base-200">
+                <div className="join">
+                  <button
+                    onClick={() => setPage(p => Math.max(1, p - 1))}
+                    disabled={page === 1}
+                    className="join-item btn btn-sm"
+                  >
+                    «
+                  </button>
+                  <button className="join-item btn btn-sm btn-active">
+                    {page}
+                  </button>
+                  <button
+                    onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                    disabled={page >= totalPages}
+                    className="join-item btn btn-sm"
+                  >
+                    »
+                  </button>
+                </div>
+                <span className="text-sm text-base-content/60 flex items-center">
+                  共 {total} 条
+                </span>
+              </div>
             )}
           </div>
-
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="flex justify-center gap-2 p-4 border-t">
-              <button
-                onClick={() => setPage(p => Math.max(1, p - 1))}
-                disabled={page === 1}
-                className="px-3 py-1 border rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
-              >
-                上一页
-              </button>
-              <span className="px-3 py-1 text-gray-600">
-                第 {page} / {totalPages} 页
-              </span>
-              <button
-                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                disabled={page >= totalPages}
-                className="px-3 py-1 border rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
-              >
-                下一页
-              </button>
-            </div>
-          )}
         </div>
       </div>
     </div>

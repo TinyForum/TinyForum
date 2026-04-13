@@ -2,46 +2,97 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { 
+  ArrowLeftIcon, 
+  PaperAirplaneIcon, 
+  CheckCircleIcon,
+  ExclamationTriangleIcon,
+} from '@heroicons/react/24/outline';
 
 interface FormActionsProps {
   loading: boolean;
   onCancel?: () => void;
+  isDirty?: boolean;
+  isValid?: boolean;
+  submitText?: string;
+  cancelText?: string;
 }
 
-export function FormActions({ loading, onCancel }: FormActionsProps) {
+export function FormActions({ 
+  loading, 
+  onCancel, 
+  isDirty = true, 
+  isValid = true,
+  submitText = '发布问题',
+  cancelText = '取消',
+}: FormActionsProps) {
   const router = useRouter();
 
   const handleCancel = () => {
     if (onCancel) {
       onCancel();
     } else {
+      // 如果有未保存的内容，提示确认
+      if (isDirty) {
+        const confirmed = confirm('有未保存的内容，确定要离开吗？');
+        if (!confirmed) return;
+      }
       router.back();
     }
   };
 
+  const isDisabled = loading || !isDirty || !isValid;
+
   return (
-    <div className="flex justify-end gap-3 pt-4 border-t">
-      <button
-        type="button"
-        onClick={handleCancel}
-        className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-      >
-        取消
-      </button>
-      <button
-        type="submit"
-        disabled={loading}
-        className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        {loading ? (
-          <span className="flex items-center gap-2">
-            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-            发布中...
-          </span>
-        ) : (
-          '发布问题'
-        )}
-      </button>
+    <div className="flex flex-col sm:flex-row justify-end gap-3 pt-6 border-t border-base-200">
+      {/* 提示信息 */}
+      {isDirty && !isValid && (
+        <div className="flex-1 flex items-center gap-2 text-sm text-warning">
+          <ExclamationTriangleIcon className="w-4 h-4" />
+          <span>请填写所有必填项后再发布</span>
+        </div>
+      )}
+
+      {/* {isDirty && isValid && !loading && (
+        <div className="flex-1 flex items-center gap-2 text-sm text-success">
+          <CheckCircleIcon className="w-4 h-4" />
+          <span>表单验证通过，可以发布了</span>
+        </div>
+      )} */}
+
+      <div className="flex gap-3">
+        {/* 取消按钮 */}
+        <button
+          type="button"
+          onClick={handleCancel}
+          className="btn btn-ghost gap-2"
+          disabled={loading}
+        >
+          <ArrowLeftIcon className="w-4 h-4" />
+          {cancelText}
+        </button>
+
+        {/* 提交按钮 */}
+        <button
+          type="submit"
+          disabled={isDisabled}
+          className={`btn btn-primary gap-2 min-w-[120px] ${
+            isDisabled ? 'opacity-50 cursor-not-allowed' : ''
+          }`}
+        >
+          {loading ? (
+            <>
+              <span className="loading loading-spinner loading-sm"></span>
+              发布中...
+            </>
+          ) : (
+            <>
+              <PaperAirplaneIcon className="w-4 h-4" />
+              {submitText}
+            </>
+          )}
+        </button>
+      </div>
     </div>
   );
 }

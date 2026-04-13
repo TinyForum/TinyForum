@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"strconv"
 	"time"
 
@@ -8,6 +9,7 @@ import (
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 type BoardHandler struct {
@@ -143,9 +145,9 @@ func (h *BoardHandler) GetByID(c *gin.Context) {
 // @Success 200 {object} response.Response{data=model.Board} "获取成功"
 // @Failure 404 {object} response.Response "板块不存在"
 // @Router /boards/slug/{slug} [get]
-func (h *BoardHandler) GetBySlug(c *gin.Context) {
+func (h *BoardHandler) GetBoardBySlug(c *gin.Context) {
 	slug := c.Param("slug")
-	board, err := h.boardSvc.GetBySlug(slug)
+	board, err := h.boardSvc.GetBoardBySlug(slug)
 	if err != nil {
 		response.NotFound(c, err.Error())
 		return
@@ -197,26 +199,30 @@ func (h *BoardHandler) GetTree(c *gin.Context) {
 // @Description 分页获取指定板块下的所有帖子
 // @Tags 板块管理
 // @Produce json
-// @Param id path int true "板块ID"
+// @Param slug path string true "板块ID"
 // @Param page query int false "页码" default(1)
 // @Param page_size query int false "每页数量" default(20)
 // @Success 200 {object} response.Response{data=response.PageData{list=[]model.Post}} "获取成功"
 // @Failure 400 {object} response.Response "无效的板块ID"
 // @Failure 500 {object} response.Response "服务器内部错误"
-// @Router /boards/{id}/posts [get]
-func (h *BoardHandler) GetPosts(c *gin.Context) {
-	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
-	if err != nil {
-		response.BadRequest(c, "无效的板块ID")
+// @Router /boards/slug/{slug}/posts [get]
+func (h *BoardHandler) GetPostsBySlug(c *gin.Context) {
+	slug := c.Param("slug")
+	if slug == "" {
+		response.BadRequest(c, "板块 slug 不能为空")
 		return
 	}
 
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "20"))
 
-	posts, total, err := h.boardSvc.GetPosts(uint(id), page, pageSize)
+	posts, total, err := h.boardSvc.GetPostsBySlug(slug, page, pageSize)
 	if err != nil {
-		response.InternalError(c, err.Error())
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			response.NotFound(c, "板块不存在")
+		} else {
+			response.InternalError(c, err.Error())
+		}
 		return
 	}
 	response.SuccessPage(c, posts, total, page, pageSize)

@@ -195,8 +195,13 @@ func (s *BoardService) GetByID(id uint) (*model.Board, error) {
 	return s.boardRepo.FindByID(id)
 }
 
-func (s *BoardService) GetBySlug(slug string) (*model.Board, error) {
+func (s *BoardService) GetBoardBySlug(slug string) (*model.Board, error) {
 	return s.boardRepo.FindBySlug(slug)
+}
+
+// 获取所有帖子
+func (s *BoardService) GetPostsBySlug(slug string, page, pageSize int) ([]*model.Post, int64, error) {
+	return s.boardRepo.GetPostsBySlug(slug, page, pageSize)
 }
 
 func (s *BoardService) List(page, pageSize int) ([]model.Board, int64, error) {

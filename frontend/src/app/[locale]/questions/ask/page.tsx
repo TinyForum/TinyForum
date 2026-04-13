@@ -1,10 +1,14 @@
-// app/questions/ask/page.tsx
+// app/[locale]/questions/ask/page.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeftIcon } from '@heroicons/react/24/outline';
+import { 
+  ArrowLeftIcon, 
+  SparklesIcon,
+  ExclamationTriangleIcon 
+} from '@heroicons/react/24/outline';
 import { useAuthStore } from '@/store/auth';
 import { useBoard } from '@/hooks/useBoard';
 import { useQuestionForm } from '@/hooks/useQuestionForm';
@@ -38,7 +42,6 @@ export default function AskQuestionPage() {
       const defaultBoard = getDefaultBoard();
       if (defaultBoard) {
         setSelectedBoardId(defaultBoard.id);
-        console.log('设置默认板块:', defaultBoard.id, defaultBoard.name);
       }
     }
   }, [boards, boardsLoading, getDefaultBoard, selectedBoardId]);
@@ -46,20 +49,20 @@ export default function AskQuestionPage() {
   // 检查登录状态
   useEffect(() => {
     if (typeof window !== 'undefined' && !isAuthenticated) {
-      router.push('/login?redirect=/questions/ask');
+      router.push('/auth/login?redirect=/questions/ask');
     }
   }, [isAuthenticated, router]);
 
   // 显示加载状态
   if (boardsLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 py-8">
-        <div className="max-w-4xl mx-auto px-4">
-          <div className="bg-white rounded-lg shadow-sm p-8">
-            <div className="flex items-center justify-center">
-              <div className="text-center">
-                <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                <p className="text-gray-600">加载中...</p>
+      <div className="min-h-screen bg-gradient-to-br from-base-200 via-base-100 to-base-200">
+        <div className="max-w-4xl mx-auto px-4 py-8">
+          <div className="card bg-base-100 shadow-md border border-base-200">
+            <div className="card-body p-8">
+              <div className="flex flex-col items-center justify-center py-12">
+                <span className="loading loading-spinner loading-lg text-primary mb-4"></span>
+                <p className="text-base-content/60">加载中...</p>
               </div>
             </div>
           </div>
@@ -71,18 +74,23 @@ export default function AskQuestionPage() {
   // 显示错误状态
   if (boardsError) {
     return (
-      <div className="min-h-screen bg-gray-50 py-8">
-        <div className="max-w-4xl mx-auto px-4">
-          <div className="bg-white rounded-lg shadow-sm p-8">
-            <div className="text-center">
-              <div className="text-red-500 text-lg mb-4">⚠️ 加载板块失败</div>
-              <p className="text-gray-600 mb-4">{boardsError}</p>
-              <button
-                onClick={() => window.location.reload()}
-                className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
-              >
-                重新加载
-              </button>
+      <div className="min-h-screen bg-gradient-to-br from-base-200 via-base-100 to-base-200">
+        <div className="max-w-4xl mx-auto px-4 py-8">
+          <div className="card bg-base-100 shadow-md border border-base-200">
+            <div className="card-body p-8">
+              <div className="text-center">
+                <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-red-100 dark:bg-red-900/20 flex items-center justify-center">
+                  <ExclamationTriangleIcon className="w-10 h-10 text-red-500" />
+                </div>
+                <h3 className="text-lg font-semibold text-base-content mb-2">加载板块失败</h3>
+                <p className="text-base-content/60 mb-4">{boardsError}</p>
+                <button
+                  onClick={() => window.location.reload()}
+                  className="btn btn-primary"
+                >
+                  重新加载
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -102,58 +110,88 @@ export default function AskQuestionPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4">
-        {/* 返回按钮 */}
-        <Link
-          href="/questions"
-          className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4"
-        >
-          <ArrowLeftIcon className="w-4 h-4" />
-          返回问答列表
-        </Link>
-
-        <div className="bg-white rounded-lg shadow-sm">
-          <div className="p-6 border-b">
-            <h1 className="text-2xl font-bold text-gray-900">提问</h1>
-            <p className="text-gray-500 mt-1">详细描述你的问题，获得更精准的回答</p>
+    <div className="min-h-screen bg-gradient-to-br from-base-200 via-base-100 to-base-200">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Hero Section */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-red-500 to-red-600 shadow-lg mb-4">
+            <SparklesIcon className="w-8 h-8 text-white" />
           </div>
+          <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-red-600 to-red-500 bg-clip-text text-transparent">
+            提问
+          </h1>
+          <p className="text-base-content/60 mt-2">
+            详细描述你的问题，获得更精准的回答
+          </p>
+        </div>
 
-          <form onSubmit={form.handleSubmit(onSubmit)} className="p-6 space-y-6">
-            {/* 板块选择 */}
-            <BoardSelector
-              boards={boards}
-              selectedBoardId={selectedBoardId}
-              onBoardChange={setSelectedBoardId}
-              loading={boardsLoading}
-            />
+        {/* 返回按钮 */}
+        <div className="mb-4">
+          <Link
+            href="/questions"
+            className="inline-flex items-center gap-2 text-base-content/60 hover:text-primary transition-colors"
+          >
+            <ArrowLeftIcon className="w-4 h-4" />
+            返回问答列表
+          </Link>
+        </div>
 
-            {/* 问题表单 */}
-            <QuestionForm
-              register={register}
-              errors={errors}
-              content={content}
-              setContent={setContent}
-            />
+        {/* 表单卡片 */}
+        <div className="card bg-base-100 shadow-md border border-base-200">
+          <div className="card-body p-0">
+            <div className="p-6 border-b border-base-200">
+              <h2 className="text-xl font-bold text-base-content">发布问题</h2>
+              <p className="text-sm text-base-content/60 mt-1">
+                请填写以下信息，让其他用户更好地帮助你
+              </p>
+            </div>
 
-            {/* 标签选择 */}
-            <TagSelector
-              tags={tags}
-              selectedTags={selectedTags}
-              onToggleTag={toggleTag}
-              loading={tagsLoading}
-            />
+            <form onSubmit={form.handleSubmit(onSubmit)} className="p-6 space-y-6">
+              {/* 板块选择 */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-base-content">
+                  选择板块 <span className="text-red-500">*</span>
+                </label>
+                <BoardSelector
+                  boards={boards}
+                  selectedBoardId={selectedBoardId}
+                  onBoardChange={setSelectedBoardId}
+                  loading={boardsLoading}
+                />
+              </div>
 
-            {/* 悬赏积分 */}
-            <RewardScoreInput
-              register={register}
-              rewardScore={rewardScore}
-              userScore={user?.score}
-            />
+              {/* 问题表单 */}
+              <QuestionForm
+                register={register}
+                errors={errors}
+                content={content}
+                setContent={setContent}
+              />
 
-            {/* 表单按钮 */}
-            <FormActions loading={loading} />
-          </form>
+              {/* 标签选择 */}
+              <TagSelector
+                tags={tags}
+                selectedTags={selectedTags}
+                onToggleTag={toggleTag}
+                loading={tagsLoading}
+              />
+
+              {/* 悬赏积分 */}
+              <RewardScoreInput
+                register={register}
+                rewardScore={rewardScore}
+                userScore={user?.score}
+              />
+
+              {/* 表单按钮 */}
+              <FormActions loading={loading} />
+            </form>
+          </div>
+        </div>
+
+        {/* 提示信息 */}
+        <div className="mt-6 text-center text-sm text-base-content/40">
+          <p>发布问题即表示你同意遵守社区规范</p>
         </div>
       </div>
     </div>

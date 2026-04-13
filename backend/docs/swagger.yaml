@@ -1410,15 +1410,43 @@ paths:
       summary: 移除版主
       tags:
       - 版主管理
-  /boards/{id}/posts:
+  /boards/slug/{slug}:
+    get:
+      description: 根据板块标识符（slug）获取板块信息
+      parameters:
+      - description: 板块标识符
+        in: path
+        name: slug
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.Board'
+              type: object
+        "404":
+          description: 板块不存在
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 根据Slug获取板块
+      tags:
+      - 板块管理
+  /boards/slug/{slug}/posts:
     get:
       description: 分页获取指定板块下的所有帖子
       parameters:
       - description: 板块ID
         in: path
-        name: id
+        name: slug
         required: true
-        type: integer
+        type: string
       - default: 1
         description: 页码
         in: query
@@ -1457,34 +1485,6 @@ paths:
           schema:
             $ref: '#/definitions/response.Response'
       summary: 获取板块下的帖子列表
-      tags:
-      - 板块管理
-  /boards/slug/{slug}:
-    get:
-      description: 根据板块标识符（slug）获取板块信息
-      parameters:
-      - description: 板块标识符
-        in: path
-        name: slug
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 获取成功
-          schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/model.Board'
-              type: object
-        "404":
-          description: 板块不存在
-          schema:
-            $ref: '#/definitions/response.Response'
-      summary: 根据Slug获取板块
       tags:
       - 板块管理
   /boards/tree:

@@ -63,11 +63,11 @@ export const boardApi = {
   getById: (id: number | string) =>
     apiClient.get<ApiResponse<Board>>(`/boards/${id}`),
 
-  getBySlug: (slug: string) =>
+  GetBySlug: (slug: string) =>
     apiClient.get<ApiResponse<Board>>(`/boards/slug/${slug}`),
 
-  getPosts: (id: number | string, params?: { page?: number; page_size?: number }) =>
-    apiClient.get<ApiResponse<PageData<Post>>>(`/boards/${id}/posts`, {
+  GetPostsBySlug: (slug: string, params?: { page?: number; page_size?: number }) =>
+    apiClient.get<ApiResponse<PageData<Post>>>(`/boards/slug/${slug}/posts`, {
       params,
     }),
 
