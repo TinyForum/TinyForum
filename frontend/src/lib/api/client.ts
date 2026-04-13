@@ -1,8 +1,9 @@
 // lib/api/client.ts
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from "axios";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "/api/v1";
+// const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "/api/v1";
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api/v1';
 function createClient(config?: AxiosRequestConfig): AxiosInstance {
   const instance = axios.create({
     baseURL: API_BASE_URL,

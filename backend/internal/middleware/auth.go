@@ -51,7 +51,7 @@ func Auth(jwtMgr *jwt.Manager) gin.HandlerFunc {
 func AdminRequired() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		role, _ := c.Get(ContextUserRole)
-		if role != "admin" {
+		 if role != "admin" && role != "super_admin" {
 			response.Forbidden(c, "需要管理员权限")
 			c.Abort()
 			return

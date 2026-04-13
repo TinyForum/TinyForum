@@ -10,6 +10,7 @@ const intlMiddleware = createMiddleware(routing);
 // 需要认证的路由
 const authRoutes = ['/admin' ,'/settings'];
 const adminRoutes = ['/admin'];
+const allowedRoles = ['admin', 'super_admin'];
 
 export async function middleware(request: NextRequest) {
   // 获取路径
@@ -38,6 +39,7 @@ export async function middleware(request: NextRequest) {
   }
 
   const token = request.cookies.get('tiny_forum_token')?.value;
+// console.log('[middleware] pathname:', pathnameWithoutLocale, '| token:', token ?? 'NOT FOUND');
   const isAuthRoute = authRoutes.some(route => pathnameWithoutLocale.startsWith(route));
   const isAdminRoute = adminRoutes.some(route => pathnameWithoutLocale.startsWith(route));
 
@@ -59,9 +61,9 @@ export async function middleware(request: NextRequest) {
       const { payload } = await jwtVerify(token, secret);
       const role = payload.role as string;
       
-      if (role !== 'admin') {
-        return NextResponse.redirect(new URL(`/${currentLocale}`, request.url));
-      }
+      if (!allowedRoles.includes(role)) {
+  return NextResponse.redirect(new URL(`/${currentLocale}`, request.url));
+}
     } catch (error) {
       console.error('JWT verification failed:', error);
       const response = NextResponse.redirect(new URL(`/${currentLocale}/auth/login`, request.url));

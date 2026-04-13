@@ -46,7 +46,7 @@ export default async function RootLayout({
 
   return (
   <html lang={locale} suppressHydrationWarning>
-      <body className={`${inter.variable} ${firaCode.variable} font-sans h-screen overflow-hidden bg-base-200`}>
+      <body suppressHydrationWarning className={`${inter.variable} ${firaCode.variable} font-sans h-screen overflow-hidden bg-base-200`}>
         <NextIntlClientProvider locale={locale} messages={messages}>
           <Providers>
             <div className="flex flex-col h-full">

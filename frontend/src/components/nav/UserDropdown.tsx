@@ -60,9 +60,9 @@ export default function UserDropdown({ user, onLogout }: UserDropdownProps) {
             </div>
           </div>
         </li>
-        
+
         <div className="divider my-1"></div>
-        
+
         {/* 个人统计 */}
         <li className="px-2 py-1">
           <div className="flex justify-between text-sm">
@@ -74,9 +74,9 @@ export default function UserDropdown({ user, onLogout }: UserDropdownProps) {
             <span className="font-bold">{user?.followers_count || 0}</span>
           </div>
         </li>
-        
+
         <div className="divider my-1"></div>
-        
+
         {/* 快速链接 */}
         <li>
           <Link href={`/users/${user?.id}`} className="gap-2">
@@ -102,9 +102,9 @@ export default function UserDropdown({ user, onLogout }: UserDropdownProps) {
             我的问答
           </Link>
         </li>
-        
+
         <div className="divider my-1"></div>
-        
+
         <li>
           <Link href="/settings" className="gap-2">
             <Settings className="w-4 h-4" />
@@ -117,17 +117,17 @@ export default function UserDropdown({ user, onLogout }: UserDropdownProps) {
             帮助中心
           </Link>
         </li>
-        
+
         {user && (
-  <Link
-    href="/boards/applications"
-    className="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
-  >
-    <ShieldCheckIcon className="w-5 h-5" />
-    <span>我的版主申请</span>
-  </Link>
-)}
-        {user?.role === "admin" && (
+          <Link
+            href="/boards/applications"
+            className="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+          >
+            <ShieldCheckIcon className="w-5 h-5" />
+            <span>我的版主申请</span>
+          </Link>
+        )}
+        {(user?.role === "admin" || user?.role === "super_admin") && (
           <>
             <div className="divider my-1"></div>
             <li>
@@ -138,9 +138,31 @@ export default function UserDropdown({ user, onLogout }: UserDropdownProps) {
             </li>
           </>
         )}
-        
+        {user?.role === "moderator"&& (
+          <>
+            <div className="divider my-1"></div>
+            <li>
+              <Link href="/admin" className="gap-2 text-primary">
+                <LayoutDashboard className="w-4 h-4" />
+                版主后台
+              </Link>
+            </li>
+          </>
+        )}
+         {user?.role === "reviewer"&& (
+          <>
+            <div className="divider my-1"></div>
+            <li>
+              <Link href="/admin" className="gap-2 text-primary">
+                <LayoutDashboard className="w-4 h-4" />
+                审核后台
+              </Link>
+            </li>
+          </>
+        )}
+
         <div className="divider my-1"></div>
-        
+
         <li>
           <button onClick={onLogout} className="text-error gap-2">
             <LogOut className="w-4 h-4" />

@@ -1,11 +1,10 @@
 "use client";
 
-import { Fragment, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { adminApi } from "@/lib/api";
 import { useAuthStore } from "@/store/auth";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import { formatDate } from "@/lib/utils";
 import {
   LayoutDashboard,
@@ -23,18 +22,15 @@ import { useTranslations } from "next-intl";
 
 export default function AdminPage() {
   const { user, isAuthenticated } = useAuthStore();
-  // const router = useRouter();
-  const queryClient = useQueryClient();
+  const router = useRouter();
   const [tab, setTab] = useState<"users" | "posts">("users");
   const [keyword, setKeyword] = useState("");
   const [page, setPage] = useState(1);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const t = useTranslations("admin");
 
-  // useEffect(() => {
-  //   if (!isAuthenticated || user?.role !== 'admin') {
-  //     router.push('/');
-  //   }
-  // }, [isAuthenticated, user, router]);
+  // ✅ 所有 Hooks 必须在条件返回之前调用
+  const queryClient = useQueryClient();
 
   const { data: usersData, isLoading: usersLoading } = useQuery({
     queryKey: ["admin-users", page, keyword],
@@ -42,7 +38,7 @@ export default function AdminPage() {
       adminApi
         .listUsers({ page, page_size: 20, keyword })
         .then((r) => r.data.data),
-    enabled: tab === "users" && user?.role === "admin",
+    enabled: tab === "users" && isAuthenticated && user?.role === "admin",
   });
 
   const { data: postsData, isLoading: postsLoading } = useQuery({
@@ -51,7 +47,7 @@ export default function AdminPage() {
       adminApi
         .listPosts({ page, page_size: 20, keyword })
         .then((r) => r.data.data),
-    enabled: tab === "posts" && user?.role === "admin",
+    enabled: tab === "posts" && isAuthenticated && user?.role === "admin",
   });
 
   const toggleActiveMutation = useMutation({
@@ -73,7 +69,37 @@ export default function AdminPage() {
     onError: () => toast.error(t("operation_failed")),
   });
 
-  if (!isAuthenticated || user?.role !== "admin") return null;
+  // ✅ 权限检查放在 useEffect 中，不影响 Hook 调用顺序
+  useEffect(() => {
+    // 模拟认证检查（如果 useAuthStore 已经有 loading 状态，可以直接使用）
+    const checkAuth = async () => {
+      // 如果 useAuthStore 有 isLoading 状态，这里可以移除 setTimeout
+      await new Promise(resolve => setTimeout(resolve, 100)); // 仅用于演示
+      setIsCheckingAuth(false);
+      
+      if (!isAuthenticated) {
+        router.push('/auth/login');
+      } else if (user?.role !== "admin" && user?.role !== "super_admin") {
+        router.push('/');
+      }
+    };
+    
+    checkAuth();
+  }, [isAuthenticated, user, router]);
+
+  // ✅ 在认证检查完成前显示加载状态（但 Hooks 已经调用过了）
+  if (isCheckingAuth) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <span className="loading loading-spinner loading-lg text-primary" />
+      </div>
+    );
+  }
+
+  // 如果不满足条件，返回 null（但 useEffect 已经处理了重定向）
+  if (!isAuthenticated || (user?.role !== "admin" && user?.role !== "super_admin")) {
+    return null;
+  }
 
   const handleTabChange = (t: "users" | "posts") => {
     setTab(t);
@@ -105,6 +131,7 @@ export default function AdminPage() {
         </button>
       </div>
 
+      {/* 其余 JSX 保持不变... */}
       {/* Search bar */}
       <div className="flex gap-3 mb-4">
         <div className="relative flex-1 max-w-md">
@@ -156,7 +183,7 @@ export default function AdminPage() {
                             <div className="w-8 h-8 rounded-full">
                               <Avatar
                                 username={u.username}
-                                avatarUrl={u.avatar} // 数据库中的头像
+                                avatarUrl={u.avatar}
                                 size="md"
                               />
                             </div>
@@ -187,11 +214,9 @@ export default function AdminPage() {
                           className={`badge badge-sm ${u.is_active ? "badge-success" : "badge-error"}`}
                         >
                           {u.is_active ? t("active") : t("banned")}
-                        
                         </span>
                       </td>
                       <td>
-                      
                         {u.id !== user?.id && (
                           <button
                             className={`btn btn-xs gap-1 ${u.is_active ? "btn-error btn-outline" : "btn-success btn-outline"}`}
@@ -200,7 +225,6 @@ export default function AdminPage() {
                                 id: u.id,
                                 active: !u.is_active,
                               })
-                              
                             }
                             disabled={toggleActiveMutation.isPending}
                           >
