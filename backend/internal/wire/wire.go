@@ -227,6 +227,8 @@ func InitApp(cfg *config.Config) (*App, error) {
 		userGroup.PUT("/profile", middleware.Auth(jwtMgr), userHandler.UpdateProfile)
 		userGroup.POST("/:id/follow", middleware.Auth(jwtMgr), userHandler.Follow)
 		userGroup.DELETE("/:id/follow", middleware.Auth(jwtMgr), userHandler.Unfollow)
+		userGroup.GET("/:id/followers", middleware.OptionalAuth(jwtMgr), userHandler.GetFollowers)
+		userGroup.GET("/:id/following", middleware.OptionalAuth(jwtMgr), userHandler.GetFollowing)
 	}
 
 	// ----- Notification routes -----

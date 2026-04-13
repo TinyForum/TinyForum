@@ -13,7 +13,8 @@ import {
   ChevronDown,
   ChevronRight,
   Tag,
-  Sparkles
+  Sparkles,
+  PenIcon
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
@@ -119,23 +120,25 @@ export default function LeftSidebar({
           </h3>
         </div>
         <div className="p-2 space-y-1">
+          {/* 所有 */}
           <button
             onClick={() => {
               onBoardChange(null);
               onTagChange(null);
-              onPostTypeChange("post");
+              onPostTypeChange("all");
             }}
             className={cn(
               "w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors",
-              !selectedBoard && !selectedTag && postType === "post"
+              !selectedBoard && !selectedTag && postType === "all"
                 ? "bg-primary/10 text-primary font-medium"
                 : "hover:bg-muted text-muted-foreground hover:text-foreground"
             )}
           >
             <TrendingUp className="w-4 h-4" />
-            {t("all_posts")}
+            {t("all")}
           </button>
           
+          {/* 问答 */}
           <button
             onClick={() => {
               onBoardChange(null);
@@ -154,6 +157,7 @@ export default function LeftSidebar({
             <span className="ml-auto text-xs text-muted-foreground">问答</span>
           </button>
           
+          {/* 文章 */}
           <button
             onClick={() => {
               onBoardChange(null);
@@ -170,6 +174,24 @@ export default function LeftSidebar({
             <FileText className="w-4 h-4" />
             {t("articles")}
             <span className="ml-auto text-xs text-muted-foreground">文章</span>
+          </button>
+          {/* 帖子 */}
+           <button
+            onClick={() => {
+              onBoardChange(null);
+              onTagChange(null);
+              onPostTypeChange("post");
+            }}
+            className={cn(
+              "w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors",
+              postType === "post"
+                ? "bg-primary/10 text-primary font-medium"
+                : "hover:bg-muted text-muted-foreground hover:text-foreground"
+            )}
+          >
+            <PenIcon className="w-4 h-4" />
+            {t("posts")}
+            <span className="ml-auto text-xs text-muted-foreground">帖子</span>
           </button>
         </div>
       </div>

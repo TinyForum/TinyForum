@@ -54,7 +54,15 @@ export interface User {
   is_blocked: boolean;
   last_login?: string;
   created_at: string;
-  updated_at: string;
+  updated_at: string;  
+
+}
+
+export interface Follow extends BaseModel {
+  follower_id: number;
+  following_id: number;
+  follower?: User;
+  following?: User;
 }
 
 export interface Tag {

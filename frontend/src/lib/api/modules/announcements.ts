@@ -1,6 +1,7 @@
 // lib/api/modules/announcements.ts
 import apiClient from "../client";
 import type { ApiResponse, PageData, Announcement } from "../types";
+// TODO: 添加公告模块的接口定义
 
 export interface CreateAnnouncementPayload {
   title: string;

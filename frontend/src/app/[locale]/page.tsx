@@ -31,7 +31,7 @@ export default function HomePage() {
           sort_by: sortBy === "latest" ? "latest" : sortBy,
           tag_id: selectedTag ?? undefined,
           board_id: selectedBoard ?? undefined,
-          type: postType === "post" ? undefined : postType,
+          type: postType === "all" ? undefined : postType,
         })
         .then((r) => r.data.data),
   });
@@ -97,7 +97,7 @@ export default function HomePage() {
     setPage(1);
   };
 
-  const handlePostTypeChange = (type: "post" | "question" | "article") => {
+  const handlePostTypeChange = (type: PostType) => {
     setPostType(type);
     setPage(1);
   };

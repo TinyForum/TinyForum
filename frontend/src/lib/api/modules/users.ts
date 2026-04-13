@@ -28,6 +28,10 @@ export const userApi = {
       params: { limit },
     }),
 
+  follwowers: (id: number, params?: { page?: number; page_size?: number }) =>
+    apiClient.get<ApiResponse<PageData<User>>>(`/users/${id}/followers`, { params }),
+  following: (id: number, params?: { page?: number; page_size?: number }) =>
+    apiClient.get<ApiResponse<PageData<User>>>(`/users/${id}/following`, { params }),
   // ── Admin ─────────────────────────────────────────────────────────────────────
   adminList: (params?: { page?: number; page_size?: number; keyword?: string }) =>
     apiClient.get<ApiResponse<PageData<User>>>("/admin/users", { params }),
