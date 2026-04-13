@@ -154,6 +154,7 @@ func InitApp(cfg *config.Config) (*App, error) {
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
+	
 		AllowCredentials: true,
 	}))
 
@@ -168,6 +169,7 @@ func InitApp(cfg *config.Config) (*App, error) {
 	{
 		authGroup.POST("/register", authHandler.Register)
 		authGroup.POST("/login", authHandler.Login)
+		 authGroup.POST("/logout",   authHandler.Logout)  // 新增
 		authGroup.GET("/me", middleware.Auth(jwtMgr), authHandler.Me)
 	}
 

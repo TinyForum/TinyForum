@@ -33,22 +33,21 @@ export default function LoginPage() {
     formState: { errors },
   } = useForm<LoginForm>({ resolver: zodResolver(loginSchema) });
 
-  const onSubmit = async (data: LoginForm) => {
-    setLoading(true);
-    try {
-      const res = await authApi.login(data);
-      const { token, user } = res.data.data;
-      setAuth(user, token);
-      
-      toast.success(t("welcome_back")+`，${user.username}！`);
-      router.push('/');
-    } catch (err) {
-      toast.error(getErrorMessage(err));
-    } finally {
-      setLoading(false);
-    }
-  };
-
+ // ✅ 只取 user，Cookie 由浏览器自动管理
+const onSubmit = async (data: LoginForm) => {
+  setLoading(true);
+  try {
+    const res = await authApi.login(data);
+    const { user } = res.data.data; // 不再解构 token
+    setAuth(user);
+    toast.success(t("welcome_back") + `，${user.username}！`);
+    router.push('/');
+  } catch (err) {
+    toast.error(getErrorMessage(err));
+  } finally {
+    setLoading(false);
+  }
+};
   return (
     <div className="min-h-[80vh] flex items-center justify-center">
       <div className="w-full max-w-md">

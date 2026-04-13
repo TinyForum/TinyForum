@@ -8,7 +8,7 @@ import { routing } from './i18n/routing';
 const intlMiddleware = createMiddleware(routing);
 
 // 需要认证的路由
-const authRoutes = ['/admin' ];
+const authRoutes = ['/admin' ,'/settings'];
 const adminRoutes = ['/admin'];
 
 export async function middleware(request: NextRequest) {
@@ -37,7 +37,7 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  const token = request.cookies.get('bbs_token')?.value;
+  const token = request.cookies.get('tiny_forum_token')?.value;
   const isAuthRoute = authRoutes.some(route => pathnameWithoutLocale.startsWith(route));
   const isAdminRoute = adminRoutes.some(route => pathnameWithoutLocale.startsWith(route));
 
@@ -65,7 +65,7 @@ export async function middleware(request: NextRequest) {
     } catch (error) {
       console.error('JWT verification failed:', error);
       const response = NextResponse.redirect(new URL(`/${currentLocale}/auth/login`, request.url));
-      response.cookies.delete('bbs_token');
+      response.cookies.delete('tiny_forum_token');
       return response;
     }
   }

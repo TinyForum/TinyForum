@@ -223,8 +223,7 @@ export interface TopicFollow {
 }
 
 export interface AuthResult {
-  token: string;
-  user: User;
+  user: User;  
 }
 
 

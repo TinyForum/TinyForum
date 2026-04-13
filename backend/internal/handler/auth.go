@@ -1,9 +1,9 @@
 package handler
 
 import (
+	"os"
 	"tiny-forum/internal/service"
 	"tiny-forum/pkg/response"
-
 	"github.com/gin-gonic/gin"
 )
 
@@ -51,21 +51,51 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		response.BadRequest(c, err.Error())
 		return
 	}
+
 	result, err := h.userSvc.Login(input)
 	if err != nil {
 		response.BadRequest(c, err.Error())
 		return
 	}
+
+	isProduction := os.Getenv("APP_ENV") == "production"
+
 	c.SetCookie(
-		"bbs_token",
+		"tiny_forum_token",
 		result.Token,
-		3600*24*7, // 7 days
+		3600*24*7,
 		"/",
 		"",
-		false,
-		true, // HttpOnly
+		isProduction, // 生产环境强制 HTTPS
+		true,         // HttpOnly，JS 无法读取
 	)
-	response.Success(c, result)
+
+	// 响应体只返回用户信息，不暴露 token
+	response.Success(c, gin.H{
+		"user": result.User,
+	})
+}
+
+// Logout godoc
+// @Summary 用户登出
+// @Tags 验证管理
+// @Produce json
+// @Success 200 {object} response.Response
+// @Router /auth/logout [post]
+func (h *AuthHandler) Logout(c *gin.Context) {
+	isProduction := os.Getenv("APP_ENV") == "production"
+
+	// MaxAge=-1 立即删除 Cookie
+	c.SetCookie(
+		"tiny_forum_token",
+		"",
+		-1,
+		"/",
+		"",
+		isProduction,
+		true,
+	)
+	response.Success(c, nil)
 }
 
 // Me godoc

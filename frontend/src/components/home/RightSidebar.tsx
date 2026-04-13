@@ -177,13 +177,13 @@ export default function RightSidebar({
           <User className="w-12 h-12 mx-auto text-muted-foreground mb-2" />
           <p className="text-sm text-muted-foreground mb-3">登录后查看更多功能</p>
           <Link
-            href="/login"
+            href="/auth/login"
             className="inline-block w-full bg-primary text-primary-foreground rounded-lg px-4 py-2 text-sm hover:bg-primary/90 transition-colors"
           >
             立即登录
           </Link>
           <Link
-            href="/register"
+            href="/auth/register"
             className="inline-block w-full mt-2 text-sm text-muted-foreground hover:text-primary transition-colors"
           >
             注册账号

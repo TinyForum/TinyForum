@@ -252,3 +252,15 @@ func (s *UserService) SetRole(operatorID, targetID uint, newRole string) error {
 func avatarURL(username string) string {
 	return "https://api.dicebear.com/8.x/lorelei/svg?seed=" + username
 }
+
+type LoginResult struct {
+	Token string    `json:"-"`  // json:"-" 防止意外序列化到响应
+	User  *UserInfo `json:"user"`
+}
+
+type UserInfo struct {
+	ID    uint   `json:"id"`
+	Name  string `json:"name"`
+	Email string `json:"email"`
+	Role  string `json:"role"`
+}

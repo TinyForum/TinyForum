@@ -948,6 +948,18 @@ paths:
       summary: 用户登录
       tags:
       - 验证管理
+  /auth/logout:
+    post:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 用户登出
+      tags:
+      - 验证管理
   /auth/me:
     get:
       produces:
