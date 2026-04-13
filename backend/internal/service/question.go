@@ -259,3 +259,8 @@ func (s *QuestionService) GetQuestionWithAnswers(postID uint, page, pageSize int
 	answers, total, err := s.commentRepo.GetAnswersByPostID(postID, pageSize, (page-1)*pageSize)
 	return question, answers, total, err
 }
+
+// GetQuestionSimple 获取问题精简列表
+func (s *QuestionService) GetAllQuestionSimple(pageSize, offset int, boardID *uint) ([]model.QuestionListResponse, int64, error) {
+	return s.questionRepo.FindSimple(pageSize, offset, boardID)
+}

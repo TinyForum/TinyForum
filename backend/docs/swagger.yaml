@@ -400,6 +400,27 @@ definitions:
       updated_at:
         type: string
     type: object
+  model.QuestionListResponse:
+    properties:
+      answer_count:
+        type: integer
+      author_id:
+        type: integer
+      board_id:
+        type: integer
+      created_at:
+        type: string
+      id:
+        type: integer
+      reward_score:
+        type: integer
+      summary:
+        type: string
+      title:
+        type: string
+      updated_at:
+        type: string
+    type: object
   model.QuestionResponse:
     properties:
       accepted_answer_id:
@@ -2528,6 +2549,50 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: 投票回答
+      tags:
+      - 问答管理
+  /questions/simple:
+    get:
+      description: 获取所有问题的精简信息，可选传递 board_id 获取指定板块的问题
+      parameters:
+      - description: 板块ID
+        in: query
+        name: board_id
+        type: integer
+      - default: 1
+        description: 页码
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: 每页数量
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.PageData'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/model.QuestionListResponse'
+                        type: array
+                    type: object
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 获取问题精简列表
       tags:
       - 问答管理
   /tags:

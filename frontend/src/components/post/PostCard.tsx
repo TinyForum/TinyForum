@@ -1,13 +1,13 @@
+// src/components/post/PostCard.tsx
 "use client";
 
 import Link from "next/link";
 import Image from "next/image";
-// import { Post } from "@/types";
+import { useQuery } from "@tanstack/react-query";
 import { timeAgo, truncate } from "@/lib/utils";
-import { Eye, Heart, MessageSquare, Pin, Tag } from "lucide-react";
+import { Eye, Heart, MessageSquare, Pin, Tag, HelpCircle } from "lucide-react";
 import Avatar from "../user/Avatar";
-import { useState } from "react";
-import { Post } from "@/lib/api";
+import { Post, userApi } from "@/lib/api";
 
 interface PostCardProps {
   post: Post;
@@ -15,19 +15,52 @@ interface PostCardProps {
 }
 
 export default function PostCard({ post, commentCount }: PostCardProps) {
-   const [userId,setUserId] = useState<number | null>(null);
-   const [postId,setPostId] = useState<number | null>(null);
   if (!post) return null;
- console.log('author id: ',post.author_id); 
-  if (!userId){
-    
-    console.log('setting user id: ',post.author_id, '\npost id:',post.id);
-    setUserId(post.author_id)
-    setPostId(post.id)
+  
+  // 判断是否为问答帖
+  const isQuestion = post.is_question === true;
+  
+  // 如果 post.author 不存在，单独获取用户信息
+  const { data: fetchedAuthor } = useQuery({
+    queryKey: ['user', post.author_id],
+    queryFn: () => userApi.getProfile(post.author_id).then(r => r.data.data),
+    enabled: !post.author && !!post.author_id,  // 只在没有 author 时获取
+  });
+  
+  // 使用已有的 author 或获取到的 author
+  const author = post.author || fetchedAuthor;
+  
+  // 从 post.question 获取问答相关信息
+  const rewardScore = post.question?.reward_score || 0;
+  const answerCount = post.question?.answer_count || 0;
+  const isAccepted = post.question?.accepted_answer_id != null;
+  
+  // 获取帖子类型显示文本
+  const getPostTypeLabel = () => {
+    if (isQuestion) return "问答";
+    switch (post.type) {
+      case "article":
+        return "文章";
+      case "topic":
+        return "话题";
+      default:
+        return "帖子";
+    }
+  };
 
-  }
+  // 获取帖子类型样式
+  const getPostTypeClass = () => {
+    if (isQuestion) return "badge-primary";
+    switch (post.type) {
+      case "article":
+        return "badge-secondary";
+      case "topic":
+        return "badge-accent";
+      default:
+        return "badge-ghost";
+    }
+  };
 
- 
   return (
     <div
       className={`card bg-base-100 shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border border-base-300 ${post.pin_top ? "border-l-4 border-l-primary" : ""}`}
@@ -36,12 +69,12 @@ export default function PostCard({ post, commentCount }: PostCardProps) {
         {/* Top row */}
         <div className="flex items-start gap-3">
           {/* Author avatar */}
-          <Link href={`/users/${userId}`} className="flex-none">
+          <Link href={`/users/${post.author_id}`} className="flex-none">
             <div className="avatar">
               <div className="w-10 h-10 rounded-full">
                 <Avatar
-                  username={post.author?.username}
-                  avatarUrl={post.author?.avatar} 
+                  username={author?.username || `用户${post.author_id}`}
+                  avatarUrl={author?.avatar}
                   size="md"
                 />
               </div>
@@ -49,28 +82,27 @@ export default function PostCard({ post, commentCount }: PostCardProps) {
           </Link>
 
           <div className="flex-1 min-w-0">
-            {/* Title */}
+            {/* Title and badges */}
             <div className="flex items-center gap-2 flex-wrap">
               {post.pin_top && (
                 <span className="badge badge-primary badge-sm gap-1">
                   <Pin className="w-3 h-3" /> 置顶
                 </span>
               )}
-              <span
-                className={`badge badge-sm ${
-                  post.type === "article"
-                    ? "badge-secondary"
-                    : post.type === "topic"
-                      ? "badge-accent"
-                      : "badge-ghost"
-                }`}
-              >
-                {post.type === "article"
-                  ? "文章"
-                  : post.type === "topic"
-                    ? "话题"
-                    : "帖子"}
+              <span className={`badge ${getPostTypeClass()} badge-sm gap-1`}>
+                {isQuestion && <HelpCircle className="w-3 h-3" />}
+                {getPostTypeLabel()}
               </span>
+              {isQuestion && rewardScore > 0 && (
+                <span className="badge badge-warning badge-sm gap-1">
+                  💰 {rewardScore} 积分悬赏
+                </span>
+              )}
+              {isQuestion && isAccepted && (
+                <span className="badge badge-success badge-sm gap-1">
+                  ✓ 已采纳
+                </span>
+              )}
             </div>
 
             <Link href={`/posts/${post.id}`} className="group">
@@ -79,7 +111,18 @@ export default function PostCard({ post, commentCount }: PostCardProps) {
               </h2>
             </Link>
 
-            {post.summary && (
+            {/* 问答帖子显示额外信息 */}
+            {isQuestion && answerCount > 0 && (
+              <div className="flex items-center gap-3 mt-1 text-xs text-base-content/50">
+                <span className="flex items-center gap-1">
+                  <MessageSquare className="w-3 h-3" />
+                  {answerCount} 个回答
+                </span>
+              </div>
+            )}
+
+            {/* 普通帖子显示摘要 */}
+            {post.summary && !isQuestion && (
               <p className="text-sm text-base-content/60 mt-1 line-clamp-2">
                 {truncate(post.summary, 120)}
               </p>
@@ -109,10 +152,10 @@ export default function PostCard({ post, commentCount }: PostCardProps) {
         <div className="flex items-center justify-between mt-3 flex-wrap gap-2">
           <div className="flex items-center gap-3 text-xs text-base-content/50">
             <Link
-              href={`/users/${post.author?.id}`}
+              href={`/users/${post.author_id}`}
               className="hover:text-primary transition-colors font-medium"
             >
-              {post.author?.username}
+              {author?.username || `用户${post.author_id}`}
             </Link>
             <span>{timeAgo(post.created_at)}</span>
             {post.tags && post.tags.length > 0 && (
@@ -146,6 +189,12 @@ export default function PostCard({ post, commentCount }: PostCardProps) {
             {commentCount !== undefined && (
               <span className="flex items-center gap-1">
                 <MessageSquare className="w-3.5 h-3.5" /> {commentCount}
+              </span>
+            )}
+            {/* 如果是问答帖，显示回答数 */}
+            {isQuestion && answerCount > 0 && commentCount === undefined && (
+              <span className="flex items-center gap-1">
+                <MessageSquare className="w-3.5 h-3.5" /> {answerCount}
               </span>
             )}
           </div>

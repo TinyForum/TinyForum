@@ -122,6 +122,7 @@ export const postApi = {
       `/posts/question/${id}`,
       { params }
     ),
+  
 
   /** 采纳答案（通过 post 路由） */
   acceptAnswer: (postId: number, commentId: number) =>

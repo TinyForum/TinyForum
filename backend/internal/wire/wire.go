@@ -164,7 +164,7 @@ func InitApp(cfg *config.Config) (*App, error) {
 	// ========== Routes ==========
 	api := engine.Group("/api/v1")
 
-	// ----- Auth routes -----
+	// ----- MARK: Auth routes
 	authGroup := api.Group("/auth")
 	{
 		authGroup.POST("/register", authHandler.Register)
@@ -173,7 +173,7 @@ func InitApp(cfg *config.Config) (*App, error) {
 		authGroup.GET("/me", middleware.Auth(jwtMgr), authHandler.Me)
 	}
 
-	// ----- Tag routes -----
+	// ----- MARK: Tag routes
 	tagGroup := api.Group("/tags")
 	{
 		tagGroup.GET("", tagHandler.List)
@@ -182,7 +182,7 @@ func InitApp(cfg *config.Config) (*App, error) {
 		tagGroup.DELETE("/:id", middleware.Auth(jwtMgr), middleware.AdminRequired(), tagHandler.Delete)
 	}
 
-	// ----- Post routes (包含问答) -----
+	// ----- MARK: Post routes
 	postGroup := api.Group("/posts")
 	{
 		// 普通帖子
@@ -206,7 +206,7 @@ func InitApp(cfg *config.Config) (*App, error) {
 
 	}
 
-	// ----- Comment routes (包含答案投票) -----
+	// ----- MARK: Comment routes
 	commentGroup := api.Group("/comments")
 	{
 		commentGroup.GET("/post/:post_id", commentHandler.List)
@@ -219,7 +219,7 @@ func InitApp(cfg *config.Config) (*App, error) {
 		// commentGroup.GET("/post/:post_id/answers", commentHandler.GetAnswers)
 	}
 
-	// ----- User routes -----
+	// ----- MARK: User routes
 	userGroup := api.Group("/users")
 	{
 		userGroup.GET("/leaderboard", userHandler.Leaderboard)
@@ -231,7 +231,7 @@ func InitApp(cfg *config.Config) (*App, error) {
 		userGroup.GET("/:id/following", middleware.OptionalAuth(jwtMgr), userHandler.GetFollowing)
 	}
 
-	// ----- Notification routes -----
+	// ----- MARK: Notification routes
 	notifGroup := api.Group("/notifications", middleware.Auth(jwtMgr))
 	{
 		notifGroup.GET("", notifHandler.List)
@@ -239,7 +239,7 @@ func InitApp(cfg *config.Config) (*App, error) {
 		notifGroup.POST("/read-all", notifHandler.MarkAllRead)
 	}
 
-	// ----- Board routes (板块) -----
+	// ----- MARK: Board routes
 	boardGroup := api.Group("/boards")
 	{
 		// 公开接口
@@ -284,7 +284,7 @@ func InitApp(cfg *config.Config) (*App, error) {
 		}
 	}
 
-	// ----- Timeline routes (时间线) -----
+	// ----- MARK: Timeline routes
 	timelineGroup := api.Group("/timeline", middleware.Auth(jwtMgr))
 	{
 		timelineGroup.GET("", timelineHandler.GetHomeTimeline)
@@ -294,7 +294,7 @@ func InitApp(cfg *config.Config) (*App, error) {
 		timelineGroup.GET("/subscriptions", timelineHandler.GetSubscriptions)
 	}
 
-	// ----- Topic routes (专题) -----
+	// ----- MARK: Topic routes
 	topicGroup := api.Group("/topics")
 	{
 		topicGroup.GET("", topicHandler.List)
@@ -311,13 +311,16 @@ func InitApp(cfg *config.Config) (*App, error) {
 		topicGroup.POST("/:id/follow", middleware.Auth(jwtMgr), topicHandler.Follow)
 		topicGroup.DELETE("/:id/follow", middleware.Auth(jwtMgr), topicHandler.Unfollow)
 	}
+	// ----- MARK: Question routes
 	questionGroup := api.Group("/questions")
 	{
 		questionGroup.GET("/post/:post_id", middleware.OptionalAuth(jwtMgr), questionHandler.GetQuestionAnswers)
 		questionGroup.POST("/answer/:comment_id/accept", middleware.Auth(jwtMgr), questionHandler.AcceptAnswer)
 		questionGroup.POST("/answer/:comment_id/vote", middleware.Auth(jwtMgr), questionHandler.VoteAnswer)
+		questionGroup.GET("/simple", questionHandler.GetQuestionSimple)
 	}
-	// ----- Admin routes -----
+
+	// ----- MARK: Admin routes -----
 	adminGroup := api.Group("/admin", middleware.Auth(jwtMgr), middleware.AdminRequired())
 	{
 		adminGroup.GET("/users", userHandler.AdminList)

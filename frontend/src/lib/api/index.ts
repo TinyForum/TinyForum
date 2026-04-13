@@ -50,6 +50,7 @@ export { timelineApi } from "./modules/timeline";
 export { topicApi } from "./modules/topics";
 export { adminApi } from "./modules/admin";
 export { announcementApi } from "./modules/announcements";
+export { questionApi } from "./modules/questions";
 
 
 // ─── Payload types（按需 re-export） ──────────────────────────────────────────

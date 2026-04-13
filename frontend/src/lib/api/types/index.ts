@@ -248,3 +248,16 @@ export interface Announcement {
   created_at: string;
   updated_at: string;
 }
+
+export interface QuestionSimple extends BaseModel {
+  title: string;
+  summary: string;
+  board_id: number;
+  author_id: number;
+  reward_score: number;
+  answer_count: number;
+  // 可选：关联的作者信息（如果需要）
+  author?: User;
+  // 可选：关联的板块信息（如果需要）
+  board?: Board;
+}

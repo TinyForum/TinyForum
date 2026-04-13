@@ -2,7 +2,15 @@
 
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { postApi, tagApi, userApi, boardApi, timelineApi, notificationApi } from "@/lib/api";
+import {
+  postApi,
+  tagApi,
+  userApi,
+  boardApi,
+  timelineApi,
+  notificationApi,
+  questionApi,
+} from "@/lib/api";
 import { useAuthStore } from "@/store/auth";
 import { useTranslations } from "next-intl";
 import PostFilterBar from "@/components/home/PostFilterBar";
@@ -16,24 +24,91 @@ export default function HomePage() {
   const [sortBy, setSortBy] = useState<SortBy>("random");
   const [selectedTag, setSelectedTag] = useState<number | null>(null);
   const [selectedBoard, setSelectedBoard] = useState<number | null>(null);
-  const [postType, setPostType] = useState<PostType>("post");
+  const [postType, setPostType] = useState<PostType>("all");
   const [page, setPage] = useState(1);
   const t = useTranslations("post");
 
-  // 帖子列表
-  const { data: postsData, isLoading, refetch } = useQuery({
+  // 帖子列表 - 根据 postType 选择不同的 API
+  const {
+    data: postsData,
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: ["posts", sortBy, selectedTag, selectedBoard, postType, page],
-    queryFn: () =>
-      postApi
-        .list({
+    queryFn: async () => {
+      // 如果是问答类型，使用专门的 questionApi.getSimple API
+      if (postType === "question") {
+        const params: any = {
           page,
           page_size: 15,
-          sort_by: sortBy === "latest" ? "latest" : sortBy,
-          tag_id: selectedTag ?? undefined,
-          board_id: selectedBoard ?? undefined,
-          type: postType === "all" ? undefined : postType,
-        })
-        .then((r) => r.data.data),
+        };
+        
+        // 问答支持的过滤参数
+        if (selectedBoard) {
+          params.board_id = selectedBoard;
+        }
+        
+        // 注意：问答 API 目前不支持标签过滤和排序
+        // 如果后端支持，可以添加：
+        // if (selectedTag) params.tag_id = selectedTag;
+        // if (sortBy === "latest") params.sort = "latest";
+        
+        const res = await questionApi.getSimple(params);
+        // 将 QuestionSimple 转换为 Post 格式以兼容 PostList 组件
+        const questionList = res.data.data.list;
+        const transformedPosts = questionList.map((q: any) => ({
+          id: q.id,
+          title: q.title,
+          summary: q.summary,
+          content: "",
+          type: "post",
+          is_question: true,
+          status: "published",
+          author_id: q.author_id,
+          view_count: 0,
+          like_count: 0,
+          pin_top: false,
+          board_id: q.board_id,
+          reward_score: q.reward_score,
+          created_at: q.created_at,
+          updated_at: q.updated_at,
+          question: {
+            answer_count: q.answer_count,
+            reward_score: q.reward_score,
+          },
+          author: q.author,
+          board: q.board,
+          tags: q.tags || [],
+        }));
+        
+        return {
+          list: transformedPosts,
+          total: res.data.data.total,
+          page: res.data.data.page,
+          page_size: res.data.data.page_size,
+        };
+      }
+      
+      // 普通帖子、文章使用 list API
+      const params: any = {
+        page,
+        page_size: 15,
+        sort_by: sortBy === "latest" ? "latest" : sortBy,
+      };
+      
+      if (selectedTag) {
+        params.tag_id = selectedTag;
+      }
+      if (selectedBoard) {
+        params.board_id = selectedBoard;
+      }
+      if (postType !== "all") {
+        params.type = postType;
+      }
+      
+      const res = await postApi.list(params);
+      return res.data.data;
+    },
   });
 
   // 标签列表
@@ -72,11 +147,15 @@ export default function HomePage() {
   // 时间线事件（已登录时）
   const { data: timelineEvents } = useQuery({
     queryKey: ["timeline-events"],
-    queryFn: () => timelineApi.getFollowing({ page: 1, page_size: 5 }).then((r) => r.data.data.list),
+    queryFn: () =>
+      timelineApi
+        .getFollowing({ page: 1, page_size: 5 })
+        .then((r) => r.data.data.list),
     enabled: isAuthenticated,
   });
 
   const posts = postsData?.list ?? [];
+  console.log(posts);
   const total = postsData?.total ?? 0;
   const totalPages = Math.ceil(total / 15);
 
@@ -103,60 +182,58 @@ export default function HomePage() {
   };
 
   return (
-   <div className="h-full">
-  <div className="container mx-auto max-w-7xl px-4 h-full">
-    <div className="flex gap-6 h-full">
-      {/* 左侧边栏 - 固定，内部滚动 */}
-      <div className="lg:w-64 xl:w-72 flex-none overflow-y-auto custom-scrollbar sticky top-6 max-h-[calc(100vh-6rem)]">
-        <LeftSidebar
-          boards={boards ?? []}
-          tags={tags ?? []}
-          selectedBoard={selectedBoard}
-          selectedTag={selectedTag}
-          postType={postType}
-          onBoardChange={handleBoardChange}
-          onTagChange={handleTagChange}
-          onPostTypeChange={handlePostTypeChange}
-        />
-      </div>
+    <div className="h-full">
+      <div className="container mx-auto max-w-7xl px-4 h-full">
+        <div className="flex gap-6 h-full">
+          {/* 左侧边栏 */}
+          <div className="lg:w-64 xl:w-72 flex-none overflow-y-auto custom-scrollbar sticky top-6 max-h-[calc(100vh-6rem)]">
+            <LeftSidebar
+              boards={boards ?? []}
+              tags={tags ?? []}
+              selectedBoard={selectedBoard}
+              selectedTag={selectedTag}
+              postType={postType}
+              onBoardChange={handleBoardChange}
+              onTagChange={handleTagChange}
+              onPostTypeChange={handlePostTypeChange}
+            />
+          </div>
 
-      {/* 中间内容区域 - 使用 flex 列布局 */}
-      <div className="flex-1 min-w-0 flex flex-col h-full">
-        {/* PostFilterBar - 固定在顶部，不滚动 */}
-        <div className="flex-shrink-0 sticky top-0 bg-base-200 z-10 pb-4">
-          <PostFilterBar
-            sortBy={sortBy}
-            onSortChange={handleSortChange}
-            isAuthenticated={isAuthenticated}
-            onRefetch={refetch}
-          />
+          {/* 中间内容区域 */}
+          <div className="flex-1 min-w-0 flex flex-col h-full">
+            <div className="flex-shrink-0 sticky top-0 bg-base-200 z-10 pb-4">
+              <PostFilterBar
+                sortBy={sortBy}
+                onSortChange={handleSortChange}
+                isAuthenticated={isAuthenticated}
+                onRefetch={refetch}
+              />
+            </div>
+
+            <div className="flex-1 overflow-y-auto custom-scrollbar pb-6">
+              <PostList
+                posts={posts}
+                isLoading={isLoading}
+                totalPages={totalPages}
+                currentPage={page}
+                onPageChange={setPage}
+              />
+            </div>
+          </div>
+
+          {/* 右侧边栏 */}
+          <div className="lg:w-64 xl:w-72 flex-none overflow-y-auto custom-scrollbar sticky top-6 max-h-[calc(100vh-6rem)]">
+            <RightSidebar
+              isAuthenticated={isAuthenticated}
+              user={user}
+              userProfile={userProfile}
+              leaderboard={leaderboard ?? []}
+              unreadCount={unreadCount ?? 0}
+              timelineEvents={timelineEvents ?? []}
+            />
+          </div>
         </div>
-
-        {/* PostList - 可滚动区域 */}
-        <div className="flex-1 overflow-y-auto custom-scrollbar pb-6">
-          <PostList
-            posts={posts}
-            isLoading={isLoading}
-            totalPages={totalPages}
-            currentPage={page}
-            onPageChange={setPage}
-          />
-        </div>
-      </div>
-
-      {/* 右侧边栏 - 固定，内部滚动 */}
-      <div className="lg:w-64 xl:w-72 flex-none overflow-y-auto custom-scrollbar sticky top-6 max-h-[calc(100vh-6rem)]">
-        <RightSidebar
-          isAuthenticated={isAuthenticated}
-          user={user}
-          userProfile={userProfile}
-          leaderboard={leaderboard ?? []}
-          unreadCount={unreadCount ?? 0}
-          timelineEvents={timelineEvents ?? []}
-        />
       </div>
     </div>
-  </div>
-</div>
   );
 }

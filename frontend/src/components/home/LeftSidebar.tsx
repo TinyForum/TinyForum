@@ -1,3 +1,4 @@
+// src/components/home/LeftSidebar.tsx
 "use client";
 
 import { useState } from "react";
@@ -35,10 +36,10 @@ interface LeftSidebarProps {
   tags: any[];
   selectedBoard: number | null;
   selectedTag: number | null;
-  postType:PostType;
+  postType: PostType;
   onBoardChange: (boardId: number | null) => void;
   onTagChange: (tagId: number | null) => void;
-  onPostTypeChange: (type:PostType) => void;
+  onPostTypeChange: (type: PostType) => void;
 }
 
 export default function LeftSidebar({
@@ -138,7 +139,7 @@ export default function LeftSidebar({
             {t("all")}
           </button>
           
-          {/* 问答 */}
+          {/* 问答 - 后端使用 is_question 字段 */}
           <button
             onClick={() => {
               onBoardChange(null);
@@ -175,8 +176,9 @@ export default function LeftSidebar({
             {t("articles")}
             <span className="ml-auto text-xs text-muted-foreground">文章</span>
           </button>
+          
           {/* 帖子 */}
-           <button
+          <button
             onClick={() => {
               onBoardChange(null);
               onTagChange(null);

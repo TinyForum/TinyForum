@@ -47,3 +47,13 @@ type QuestionResponse struct {
 	CreatedAt        time.Time `json:"created_at"`
 	UpdatedAt        time.Time `json:"updated_at"`
 }
+
+type QuestionListResponse struct {
+	BaseModel
+	Title       string `json:"title"`
+	Summary     string `json:"summary"`
+	BoardID     uint   `json:"board_id"`
+	AuthorID    uint   `json:"author_id"`
+	RewardScore int    `json:"reward_score"`
+	AnswerCount int    `json:"answer_count"`
+}

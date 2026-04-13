@@ -201,3 +201,46 @@ func (r *QuestionRepository) FindByID(id uint) (*model.Question, error) {
 	}
 	return &question, nil
 }
+
+// FindSimple 获取问题精简列表
+func (r *QuestionRepository) FindSimple(pageSize, offset int, boardID *uint) ([]model.QuestionListResponse, int64, error) {
+	var questions []model.QuestionListResponse
+	var total int64
+
+	// 构建查询
+	query := r.db.Table("questions").
+		Select(`
+			questions.id,
+			questions.created_at,
+			questions.updated_at,
+			questions.deleted_at,
+			posts.title,
+			posts.summary,
+			posts.board_id,
+			posts.author_id,
+			questions.reward_score,
+			questions.answer_count
+		`).
+		Joins("LEFT JOIN posts ON posts.id = questions.post_id").
+		Where("posts.deleted_at IS NULL").
+		Where("posts.status = ?", "published")
+
+	// 按板块过滤
+	if boardID != nil && *boardID > 0 {
+		query = query.Where("posts.board_id = ?", *boardID)
+	}
+
+	// 获取总数
+	if err := query.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	// 获取分页数据
+	err := query.
+		Order("questions.created_at DESC").
+		Offset(offset).
+		Limit(pageSize).
+		Find(&questions).Error
+
+	return questions, total, err
+}
