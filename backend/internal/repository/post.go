@@ -2,6 +2,7 @@ package repository
 
 import (
 	"tiny-forum/internal/model"
+	"tiny-forum/pkg/logger"
 
 	"gorm.io/gorm"
 )
@@ -145,12 +146,14 @@ func (r *PostRepository) GetByBoardID(boardID uint, limit, offset int) ([]model.
 	return posts, total, err
 }
 
+// 获取问题
 func (r *PostRepository) GetQuestions(limit, offset int) ([]model.Post, int64, error) {
+	logger.Info("[repository] GetQuestions")
 	var posts []model.Post
 	var total int64
 
 	query := r.db.Model(&model.Post{}).
-		Where("is_question = ? AND status = ?", true, model.PostStatusPublished)
+		Where("type = ? AND status = ?", "question", model.PostStatusPublished)
 
 	query.Count(&total)
 
@@ -172,8 +175,8 @@ func (r *PostRepository) GetUnansweredQuestions(limit, offset int) ([]model.Post
 	query := r.db.Table("posts").
 		Select("posts.*").
 		Joins("LEFT JOIN questions ON posts.id = questions.post_id").
-		Where("posts.is_question = ? AND posts.status = ? AND questions.accepted_answer_id IS NULL",
-			true, model.PostStatusPublished)
+		Where("posts.type = ? AND posts.status = ? AND questions.accepted_answer_id IS NULL",
+			"question", model.PostStatusPublished)
 
 	query.Count(&total)
 

@@ -16,8 +16,8 @@ import {
   SparklesIcon,
 } from '@heroicons/react/24/outline';
 import { useAuthStore } from '@/store/auth';
-import { postApi } from '@/lib/api';
-import { Post } from '@/lib/api/types';
+import { questionApi } from '@/lib/api';
+import { QuestionSimple } from '@/lib/api/types';
 
 type FilterType = 'all' | 'unanswered' | 'answered';
 type SortType = 'latest' | 'hot' | 'score';
@@ -27,20 +27,26 @@ export default function QuestionsPage() {
   const searchParams = useSearchParams();
   const { isAuthenticated } = useAuthStore();
 
-  const [questions, setQuestions] = useState<Post[]>([]);
+  const [questions, setQuestions] = useState<QuestionSimple[]>([]);
   const [loading, setLoading] = useState(true);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [filter, setFilter] = useState<FilterType>((searchParams.get('filter') as FilterType) || 'all');
-  const [sort, setSort] = useState<SortType>('latest');
+  const [sort, setSort] = useState<SortType>((searchParams.get('sort') as SortType) || 'latest');
   const [keyword, setKeyword] = useState(searchParams.get('keyword') || '');
 
   const pageSize = 15;
 
+  // 监听路由参数变化
   useEffect(() => {
-    loadQuestions();
-
-  },[]);
+    const newFilter = searchParams.get('filter') as FilterType;
+    const newSort = searchParams.get('sort') as SortType;
+    const newKeyword = searchParams.get('keyword') || '';
+    
+    if (newFilter) setFilter(newFilter);
+    if (newSort) setSort(newSort);
+    if (newKeyword) setKeyword(newKeyword);
+  }, [searchParams]);
 
   useEffect(() => {
     loadQuestions();
@@ -49,18 +55,40 @@ export default function QuestionsPage() {
   const loadQuestions = async () => {
     setLoading(true);
     try {
-      const response = await postApi.getQuestions({
+      // 构建请求参数
+      const params: any = {
         page,
         page_size: pageSize,
-        filter: filter === 'all' ? undefined : filter,
-        keyword: keyword || undefined,
-      });
+      };
       
+      // 添加筛选条件
+      if (filter !== 'all') {
+        params.filter = filter;
+      }
       
-      if (response.status === 200) {
-      // console.log(response.data.data.list);
+      // 添加排序
+      if (sort !== 'latest') {
+        params.sort = sort;
+      }
+      
+      // 添加关键词搜索
+      if (keyword) {
+        params.keyword = keyword;
+      }
+      
+      const response = await questionApi.getSimple(params);
+      console.log(response);
+      
+      if (response.status === 200 && response.data.code === 0) {
         setQuestions(response.data.data.list);
         setTotal(response.data.data.total);
+        
+        // 更新 URL 参数
+        const urlParams = new URLSearchParams();
+        if (filter !== 'all') urlParams.set('filter', filter);
+        if (sort !== 'latest') urlParams.set('sort', sort);
+        if (keyword) urlParams.set('keyword', keyword);
+        router.replace(`/questions?${urlParams.toString()}`, { scroll: false });
       }
     } catch (error) {
       console.error('Failed to load questions:', error);
@@ -75,27 +103,38 @@ export default function QuestionsPage() {
     loadQuestions();
   };
 
-  const formatTime = (time: string) => {
-    const date = new Date(time);
-    const now = new Date();
-    const diff = now.getTime() - date.getTime();
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    if (days === 0) return '今天';
-    if (days === 1) return '昨天';
-    if (days < 7) return `${days}天前`;
-    return date.toLocaleDateString();
+  const handleFilterChange = (newFilter: FilterType) => {
+    setFilter(newFilter);
+    setPage(1);
   };
 
-  const getAnswerCount = (question: Post) => {
-    return (question as any).answer_count || (question as any).answers_total || 0;
+  const handleSortChange = (newSort: SortType) => {
+    setSort(newSort);
+    setPage(1);
   };
 
-  const getRewardScore = (question: Post) => {
-    return (question as any).reward_score || 0;
+const formatTime = (time: string | Date) => {
+  // 如果是 Date 对象，直接使用；如果是字符串，转换为 Date
+  const date = time instanceof Date ? time : new Date(time);
+  const now = new Date();
+  const diff = now.getTime() - date.getTime();
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  
+  if (days === 0) return '今天';
+  if (days === 1) return '昨天';
+  if (days < 7) return `${days}天前`;
+  return date.toLocaleDateString();
+};
+  const getAnswerCount = (question: QuestionSimple) => {
+    return question.answer_count || 0;
   };
 
-  const getIsAccepted = (question: Post) => {
-    return !!(question as any).accepted_answer_id;
+  const getRewardScore = (question: QuestionSimple) => {
+    return question.reward_score || 0;
+  };
+
+  const getIsAccepted = (question: QuestionSimple) => {
+    return question.accepted_answer_id !== null && question.accepted_answer_id !== undefined;
   };
 
   const totalPages = Math.ceil(total / pageSize);
@@ -156,10 +195,7 @@ export default function QuestionsPage() {
                   return (
                     <button
                       key={item.value}
-                      onClick={() => {
-                        setFilter(item.value as FilterType);
-                        setPage(1);
-                      }}
+                      onClick={() => handleFilterChange(item.value as FilterType)}
                       className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
                         isActive
                           ? 'bg-primary/10 text-primary border border-primary/20'
@@ -178,7 +214,7 @@ export default function QuestionsPage() {
                   <ArrowsRightLeftIcon className="w-4 h-4 text-base-content/40" />
                   <select
                     value={sort}
-                    onChange={(e) => setSort(e.target.value as SortType)}
+                    onChange={(e) => handleSortChange(e.target.value as SortType)}
                     className="select select-bordered select-sm bg-transparent focus:outline-none"
                   >
                     <option value="latest">最新</option>
@@ -231,7 +267,7 @@ export default function QuestionsPage() {
                   )}
                 </div>
               ) : (
-                questions.map((question, index) => (
+                questions.map((question) => (
                   <Link
                     key={question.id}
                     href={`/questions/${question.id}`}
@@ -274,7 +310,7 @@ export default function QuestionsPage() {
                           )}
                           
                           <p className="text-sm text-base-content/60 line-clamp-2 mt-2">
-                            {question.summary || question.content?.replace(/<[^>]*>/g, '').slice(0, 150) || '暂无内容'}
+                            {question.summary || '暂无内容'}
                           </p>
                           
                           <div className="flex flex-wrap items-center gap-4 mt-3 text-xs text-base-content/50">
@@ -283,6 +319,8 @@ export default function QuestionsPage() {
                               {question.author?.username || '匿名用户'}
                             </span>
                             <span>{formatTime(question.created_at)}</span>
+
+                         
                             
                             {/* Tags */}
                             {question.tags && question.tags.length > 0 && (

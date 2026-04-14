@@ -29,7 +29,7 @@ func main() {
 	}
 
 	// Init logger
-	if err := logger.Init(cfg.Log.Level, cfg.Log.Filename); err != nil {
+	if err := logger.Init(cfg.ToLoggerConfig()); err != nil {
 		log.Fatalf("Failed to init logger: %v", err)
 	}
 

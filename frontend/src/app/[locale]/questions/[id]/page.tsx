@@ -9,9 +9,10 @@ import { useAuthStore } from '@/store/auth';
 import { useQuestionDetail } from '@/hooks/useQuestionDetail';
 import { AnswerCard } from '@/components/question/AnswerCard';
 import { toast } from 'react-hot-toast';
-import { postApi } from '@/lib/api';
+import {  questionApi } from '@/lib/api';
 import { AnswerForm } from '@/components/question/AnswerForm';
 import { QuestionHeader } from '@/components/question/QuestionHeader';
+import { answerApi } from '@/lib/api/modules/answer';
 
 export default function QuestionDetailPage() {
   const params = useParams();
@@ -42,7 +43,7 @@ export default function QuestionDetailPage() {
     }
 
     try {
-      const response = await postApi.acceptAnswer(questionId, answerId);
+      const response = await answerApi.acceptAnswer(answerId);
       if (response.data.code === 200) {
         toast.success('已采纳答案');
         refresh();
@@ -63,10 +64,10 @@ export default function QuestionDetailPage() {
 
     try {
       if (liked) {
-        await postApi.unlike(questionId);
+        await answerApi.removeVote(questionId);
         setLiked(false);
       } else {
-        await postApi.like(questionId);
+        await answerApi.voteAnswer(questionId,voteType);
         setLiked(true);
       }
       refresh();

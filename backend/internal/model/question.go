@@ -4,13 +4,13 @@ import "time"
 
 type Question struct {
 	BaseModel
-	PostID           uint  `gorm:"uniqueIndex;not null" json:"post_id"`
-	AcceptedAnswerID *uint `json:"accepted_answer_id"`
-	RewardScore      int   `gorm:"default:0" json:"reward_score"`
-	AnswerCount      int   `gorm:"default:0" json:"answer_count"`
-
-	Post           Post    `gorm:"foreignKey:PostID" json:"post,omitempty"`
-	AcceptedAnswer Comment `gorm:"foreignKey:AcceptedAnswerID" json:"accepted_answer,omitempty"`
+	PostID           uint    `gorm:"uniqueIndex;not null" json:"post_id"`
+	AcceptedAnswerID *uint   `json:"accepted_answer_id"`
+	RewardScore      int     `gorm:"default:0" json:"reward_score"`
+	AnswerCount      int     `gorm:"default:0" json:"answer_count"`
+	ViewCount        int     `gorm:"default:0" json:"view_count"`
+	Post             Post    `gorm:"foreignKey:PostID" json:"post,omitempty"`
+	AcceptedAnswer   Comment `gorm:"foreignKey:AcceptedAnswerID" json:"accepted_answer,omitempty"`
 }
 
 type AnswerVote struct {
@@ -56,4 +56,5 @@ type QuestionListResponse struct {
 	AuthorID    uint   `json:"author_id"`
 	RewardScore int    `json:"reward_score"`
 	AnswerCount int    `json:"answer_count"`
+	ViewCount   int    `gorm:"default:0" json:"view_count"`
 }

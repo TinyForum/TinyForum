@@ -77,18 +77,6 @@ definitions:
     required:
     - role
     type: object
-  handler.VoteAnswerRequest:
-    properties:
-      vote_type:
-        description: up-赞同，down-反对
-        enum:
-        - up
-        - down
-        example: up
-        type: string
-    required:
-    - vote_type
-    type: object
   model.ActionType:
     enum:
     - create_post
@@ -295,18 +283,398 @@ definitions:
     type: object
   model.NotificationType:
     enum:
+    - system
+    - announcement
+    - maintenance
+    - upgrade
+    - security
+    - verify
+    - bind
+    - unbind
     - comment
     - like
-    - follow
     - reply
-    - system
+    - mention
+    - share
+    - favorite
+    - reward
+    - report
+    - warning
+    - mute
+    - ban
+    - delete
+    - move
+    - lock
+    - unlock
+    - stick
+    - unstick
+    - promote
+    - demote
+    - assign_role
+    - post_approve
+    - post_reject
+    - post_schedule
+    - post_expire
+    - comment_approve
+    - comment_reject
+    - draft_saved
+    - question
+    - answer
+    - accept_answer
+    - accept_cancel
+    - question_update
+    - question_close
+    - question_reopen
+    - best_answer
+    - invite_answer
+    - subscribe_post
+    - subscribe_node
+    - subscribe_tag
+    - subscribe_user
+    - subscribe_comment
+    - subscribe_topic
+    - subscribe_digest
+    - follow
+    - unfollow
+    - follow_post
+    - follow_comment
+    - follow_like
+    - follow_favorite
+    - follow_share
+    - timeline_post
+    - timeline_comment
+    - timeline_like
+    - timeline_answer
+    - timeline_follow
+    - trending_post
+    - trending_comment
+    - recommend_post
+    - level_up
+    - badge
+    - achievement
+    - milestone
+    - points
+    - exp
+    - friend_request
+    - friend_accept
+    - friend_online
+    - private_message
+    - group_invite
+    - group_join
+    - credit
+    - debit
+    - gift
+    - vip_expire
+    - vip_renew
+    - payment_success
+    - payment_failed
+    - refund
+    - event
+    - event_remind
+    - event_end
+    - lottery
+    - coupon
+    - coupon_expire
+    - reminder
+    - digest
+    - birthday
+    - feedback
+    - survey
     type: string
+    x-enum-comments:
+      NotifyAcceptAnswer: 采纳了我的回答
+      NotifyAcceptCancel: 取消采纳
+      NotifyAchievement: 解锁成就
+      NotifyAnnouncement: 全局公告
+      NotifyAnswer: 回答了问题
+      NotifyAssignRole: 授予管理角色
+      NotifyBadge: 获得勋章
+      NotifyBan: 封禁通知
+      NotifyBestAnswer: 被选为最佳答案
+      NotifyBind: 绑定成功通知
+      NotifyBirthday: 生日祝福
+      NotifyComment: 评论我的帖子
+      NotifyCommentApprove: 评论审核通过
+      NotifyCommentReject: 评论审核拒绝
+      NotifyCoupon: 优惠券发放
+      NotifyCouponExpire: 优惠券即将过期
+      NotifyCredit: 积分到账
+      NotifyDebit: 积分扣除
+      NotifyDelete: 内容被删除通知
+      NotifyDemote: 取消加精
+      NotifyDigest: 每日/每周摘要
+      NotifyDraftSaved: 草稿保存成功
+      NotifyEvent: 活动通知
+      NotifyEventEnd: 活动结束
+      NotifyEventRemind: 活动开始提醒
+      NotifyExp: 经验值变动
+      NotifyFavorite: 收藏了我的内容
+      NotifyFeedback: 反馈回复
+      NotifyFollow: 关注了我
+      NotifyFollowComment: 关注的人评论
+      NotifyFollowFavorite: 关注的人收藏
+      NotifyFollowLike: 关注的人点赞
+      NotifyFollowPost: 关注的人发帖
+      NotifyFollowShare: 关注的人分享
+      NotifyFriendAccept: 好友申请通过
+      NotifyFriendOnline: 好友上线
+      NotifyFriendRequest: 好友申请
+      NotifyGift: 收到礼物
+      NotifyGroupInvite: 邀请加入群组
+      NotifyGroupJoin: 加入群组
+      NotifyInviteAnswer: 邀请我回答问题
+      NotifyLevelUp: 等级提升
+      NotifyLike: 点赞我的内容
+      NotifyLock: 帖子被锁定
+      NotifyLottery: 中奖通知
+      NotifyMaintenance: 系统维护通知
+      NotifyMention: '@提及我'
+      NotifyMilestone: 里程碑达成（如发帖100篇）
+      NotifyMove: 帖子被移动
+      NotifyMute: 禁言通知
+      NotifyPaymentFailed: 支付失败
+      NotifyPaymentSuccess: 支付成功
+      NotifyPoints: 积分变动
+      NotifyPostApprove: 帖子审核通过
+      NotifyPostExpire: 帖子到期
+      NotifyPostReject: 帖子审核拒绝
+      NotifyPostSchedule: 定时发布成功
+      NotifyPrivateMessage: 私信（通常独立，但可归入）
+      NotifyPromote: 内容被加精/推荐
+      NotifyQuestion: 新问题
+      NotifyQuestionClose: 问题被关闭
+      NotifyQuestionReopen: 问题被重开
+      NotifyQuestionUpdate: 问题被修改
+      NotifyRecommendPost: 推荐帖子给我
+      NotifyRefund: 退款通知
+      NotifyReminder: 通用提醒
+      NotifyReply: 回复我的评论
+      NotifyReport: 举报处理结果
+      NotifyReward: 打赏/赞赏
+      NotifySecurity: 安全提醒（异地登录等）
+      NotifyShare: 分享了内容
+      NotifyStick: 帖子被置顶
+      NotifySubscribeComment: 订阅的评论有新回复
+      NotifySubscribeDigest: 订阅的摘要/周刊
+      NotifySubscribeNode: 订阅的节点有新帖
+      NotifySubscribePost: 订阅的帖子有新回复
+      NotifySubscribeTag: 订阅的标签有新内容
+      NotifySubscribeTopic: 订阅的话题更新
+      NotifySubscribeUser: 订阅的用户有新动态
+      NotifySurvey: 问卷调查邀请
+      NotifySystem: 系统通知
+      NotifyTimelineAnswer: 关注的用户回答问题
+      NotifyTimelineComment: 关注的用户发表评论
+      NotifyTimelineFollow: 关注的用户关注了别人
+      NotifyTimelineLike: 关注的用户点赞
+      NotifyTimelinePost: 关注的用户发新帖
+      NotifyTrendingComment: 评论成为热门
+      NotifyTrendingPost: 帖子成为热门
+      NotifyUnbind: 解绑通知
+      NotifyUnfollow: 取消关注（极少用）
+      NotifyUnlock: 帖子被解锁
+      NotifyUnstick: 取消置顶
+      NotifyUpgrade: 版本升级通知
+      NotifyVerify: 验证通知（邮箱/手机）
+      NotifyVipExpire: VIP到期提醒
+      NotifyVipRenew: VIP续费成功
+      NotifyWarning: 违规警告
+    x-enum-descriptions:
+    - 系统通知
+    - 全局公告
+    - 系统维护通知
+    - 版本升级通知
+    - 安全提醒（异地登录等）
+    - 验证通知（邮箱/手机）
+    - 绑定成功通知
+    - 解绑通知
+    - 评论我的帖子
+    - 点赞我的内容
+    - 回复我的评论
+    - '@提及我'
+    - 分享了内容
+    - 收藏了我的内容
+    - 打赏/赞赏
+    - 举报处理结果
+    - 违规警告
+    - 禁言通知
+    - 封禁通知
+    - 内容被删除通知
+    - 帖子被移动
+    - 帖子被锁定
+    - 帖子被解锁
+    - 帖子被置顶
+    - 取消置顶
+    - 内容被加精/推荐
+    - 取消加精
+    - 授予管理角色
+    - 帖子审核通过
+    - 帖子审核拒绝
+    - 定时发布成功
+    - 帖子到期
+    - 评论审核通过
+    - 评论审核拒绝
+    - 草稿保存成功
+    - 新问题
+    - 回答了问题
+    - 采纳了我的回答
+    - 取消采纳
+    - 问题被修改
+    - 问题被关闭
+    - 问题被重开
+    - 被选为最佳答案
+    - 邀请我回答问题
+    - 订阅的帖子有新回复
+    - 订阅的节点有新帖
+    - 订阅的标签有新内容
+    - 订阅的用户有新动态
+    - 订阅的评论有新回复
+    - 订阅的话题更新
+    - 订阅的摘要/周刊
+    - 关注了我
+    - 取消关注（极少用）
+    - 关注的人发帖
+    - 关注的人评论
+    - 关注的人点赞
+    - 关注的人收藏
+    - 关注的人分享
+    - 关注的用户发新帖
+    - 关注的用户发表评论
+    - 关注的用户点赞
+    - 关注的用户回答问题
+    - 关注的用户关注了别人
+    - 帖子成为热门
+    - 评论成为热门
+    - 推荐帖子给我
+    - 等级提升
+    - 获得勋章
+    - 解锁成就
+    - 里程碑达成（如发帖100篇）
+    - 积分变动
+    - 经验值变动
+    - 好友申请
+    - 好友申请通过
+    - 好友上线
+    - 私信（通常独立，但可归入）
+    - 邀请加入群组
+    - 加入群组
+    - 积分到账
+    - 积分扣除
+    - 收到礼物
+    - VIP到期提醒
+    - VIP续费成功
+    - 支付成功
+    - 支付失败
+    - 退款通知
+    - 活动通知
+    - 活动开始提醒
+    - 活动结束
+    - 中奖通知
+    - 优惠券发放
+    - 优惠券即将过期
+    - 通用提醒
+    - 每日/每周摘要
+    - 生日祝福
+    - 反馈回复
+    - 问卷调查邀请
     x-enum-varnames:
+    - NotifySystem
+    - NotifyAnnouncement
+    - NotifyMaintenance
+    - NotifyUpgrade
+    - NotifySecurity
+    - NotifyVerify
+    - NotifyBind
+    - NotifyUnbind
     - NotifyComment
     - NotifyLike
-    - NotifyFollow
     - NotifyReply
-    - NotifySystem
+    - NotifyMention
+    - NotifyShare
+    - NotifyFavorite
+    - NotifyReward
+    - NotifyReport
+    - NotifyWarning
+    - NotifyMute
+    - NotifyBan
+    - NotifyDelete
+    - NotifyMove
+    - NotifyLock
+    - NotifyUnlock
+    - NotifyStick
+    - NotifyUnstick
+    - NotifyPromote
+    - NotifyDemote
+    - NotifyAssignRole
+    - NotifyPostApprove
+    - NotifyPostReject
+    - NotifyPostSchedule
+    - NotifyPostExpire
+    - NotifyCommentApprove
+    - NotifyCommentReject
+    - NotifyDraftSaved
+    - NotifyQuestion
+    - NotifyAnswer
+    - NotifyAcceptAnswer
+    - NotifyAcceptCancel
+    - NotifyQuestionUpdate
+    - NotifyQuestionClose
+    - NotifyQuestionReopen
+    - NotifyBestAnswer
+    - NotifyInviteAnswer
+    - NotifySubscribePost
+    - NotifySubscribeNode
+    - NotifySubscribeTag
+    - NotifySubscribeUser
+    - NotifySubscribeComment
+    - NotifySubscribeTopic
+    - NotifySubscribeDigest
+    - NotifyFollow
+    - NotifyUnfollow
+    - NotifyFollowPost
+    - NotifyFollowComment
+    - NotifyFollowLike
+    - NotifyFollowFavorite
+    - NotifyFollowShare
+    - NotifyTimelinePost
+    - NotifyTimelineComment
+    - NotifyTimelineLike
+    - NotifyTimelineAnswer
+    - NotifyTimelineFollow
+    - NotifyTrendingPost
+    - NotifyTrendingComment
+    - NotifyRecommendPost
+    - NotifyLevelUp
+    - NotifyBadge
+    - NotifyAchievement
+    - NotifyMilestone
+    - NotifyPoints
+    - NotifyExp
+    - NotifyFriendRequest
+    - NotifyFriendAccept
+    - NotifyFriendOnline
+    - NotifyPrivateMessage
+    - NotifyGroupInvite
+    - NotifyGroupJoin
+    - NotifyCredit
+    - NotifyDebit
+    - NotifyGift
+    - NotifyVipExpire
+    - NotifyVipRenew
+    - NotifyPaymentSuccess
+    - NotifyPaymentFailed
+    - NotifyRefund
+    - NotifyEvent
+    - NotifyEventRemind
+    - NotifyEventEnd
+    - NotifyLottery
+    - NotifyCoupon
+    - NotifyCouponExpire
+    - NotifyReminder
+    - NotifyDigest
+    - NotifyBirthday
+    - NotifyFeedback
+    - NotifySurvey
   model.Post:
     properties:
       author:
@@ -392,6 +760,8 @@ definitions:
         type: integer
       updated_at:
         type: string
+      view_count:
+        type: integer
     type: object
   model.QuestionListResponse:
     properties:
@@ -413,6 +783,8 @@ definitions:
         type: string
       updated_at:
         type: string
+      view_count:
+        type: integer
     type: object
   model.QuestionResponse:
     properties:
@@ -944,6 +1316,264 @@ paths:
       summary: 管理员设置用户角色
       tags:
       - 管理接口
+  /answers/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: 删除指定的回答（作者本人、问题作者、版主或管理员可操作）
+      parameters:
+      - description: 回答ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 删除成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "403":
+          description: 无权限
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: 回答不存在
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 删除回答
+      tags:
+      - 问答管理
+    get:
+      consumes:
+      - application/json
+      description: 根据ID获取回答的详细信息
+      parameters:
+      - description: 回答ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.Comment'
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: 回答不存在
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 获取回答详情
+      tags:
+      - 问答管理
+  /answers/{id}/unaccept:
+    post:
+      consumes:
+      - application/json
+      description: 取消将回答标记为问题的正确答案
+      parameters:
+      - description: 回答ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 取消成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "403":
+          description: 无权限
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: 回答或问题不存在
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 取消接受答案
+      tags:
+      - 回答管理
+  /answers/{post_id}/answers:
+    get:
+      description: 分页获取指定问题的所有回答，已采纳的回答排在最前
+      parameters:
+      - description: 问题帖子ID
+        in: path
+        name: post_id
+        required: true
+        type: integer
+      - default: 1
+        description: 页码
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: 每页数量
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "400":
+          description: 无效的帖子ID
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: 问题不存在
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 获取问题的回答列表
+      tags:
+      - 回答管理
+  /answers/{question_id}/accept/{answer_id}:
+    post:
+      description: 采纳某个回答作为问题的正确答案（仅问题作者可操作）
+      parameters:
+      - description: 问题帖子ID
+        in: path
+        name: question_id
+        required: true
+        type: integer
+      - description: 回答评论ID
+        in: path
+        name: answer_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 采纳成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "400":
+          description: 无效的ID或操作失败
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "403":
+          description: 无权限（非问题作者）
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: 问题或回答不存在
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 采纳答案
+      tags:
+      - 回答管理
+  /answers/{question_id}/answer:
+    post:
+      consumes:
+      - application/json
+      description: 对指定问答帖提交一个回答
+      parameters:
+      - description: 帖子ID
+        in: path
+        name: question_id
+        required: true
+        type: integer
+      - description: 回答内容
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.CreateAnswerRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 提交成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.Comment'
+              type: object
+        "400":
+          description: 请求参数错误或非问答帖
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: 帖子不存在
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 提交回答
+      tags:
+      - 回答管理
   /auth/login:
     post:
       consumes:
@@ -1652,52 +2282,6 @@ paths:
       summary: 采纳答案
       tags:
       - 问答管理
-  /comments/{id}/answer:
-    put:
-      consumes:
-      - application/json
-      description: 将评论标记为问题的答案（帖子作者或版主可操作）
-      parameters:
-      - description: 评论ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: 是否标记为答案
-        in: body
-        name: body
-        required: true
-        schema:
-          type: object
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 操作成功
-          schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  type: object
-              type: object
-        "400":
-          description: 请求参数错误
-          schema:
-            $ref: '#/definitions/response.Response'
-        "401":
-          description: 未授权
-          schema:
-            $ref: '#/definitions/response.Response'
-        "403":
-          description: 无权限
-          schema:
-            $ref: '#/definitions/response.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: 标记为答案
-      tags:
-      - 问答管理
   /comments/{id}/vote:
     get:
       description: 获取当前用户对指定答案的投票状态
@@ -2232,7 +2816,7 @@ paths:
       summary: 点赞帖子
       tags:
       - 帖子管理
-  /posts/question:
+  /questions/create:
     post:
       consumes:
       - application/json
@@ -2272,14 +2856,14 @@ paths:
       - ApiKeyAuth: []
       summary: 创建问答帖
       tags:
-      - 问答管理
-  /posts/question/{id}:
+      - 问题管理
+  /questions/detail/{question_id}:
     get:
       description: 获取指定问答帖的详细信息，包括回答列表
       parameters:
       - description: 帖子ID
         in: path
-        name: id
+        name: question_id
         required: true
         type: integer
       - default: 1
@@ -2323,54 +2907,8 @@ paths:
             $ref: '#/definitions/response.Response'
       summary: 获取问答帖详情
       tags:
-      - 问答管理
-  /posts/question/{id}/answer:
-    post:
-      consumes:
-      - application/json
-      description: 对指定问答帖提交一个回答
-      parameters:
-      - description: 帖子ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: 回答内容
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/handler.CreateAnswerRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 提交成功
-          schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/model.Comment'
-              type: object
-        "400":
-          description: 请求参数错误或非问答帖
-          schema:
-            $ref: '#/definitions/response.Response'
-        "401":
-          description: 未授权
-          schema:
-            $ref: '#/definitions/response.Response'
-        "404":
-          description: 帖子不存在
-          schema:
-            $ref: '#/definitions/response.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: 提交回答
-      tags:
-      - 问答管理
-  /posts/questions:
+      - 问题管理
+  /questions/list:
     get:
       description: 分页获取所有问答类型的帖子
       parameters:
@@ -2406,144 +2944,7 @@ paths:
             $ref: '#/definitions/response.Response'
       summary: 获取问答帖列表
       tags:
-      - 问答管理
-  /posts/questions/{post_id}/answer/{comment_id}/accept:
-    post:
-      description: 采纳某个回答作为问题的正确答案（仅问题作者可操作）
-      parameters:
-      - description: 问题帖子ID
-        in: path
-        name: post_id
-        required: true
-        type: integer
-      - description: 回答评论ID
-        in: path
-        name: comment_id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 采纳成功
-          schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  type: object
-              type: object
-        "400":
-          description: 无效的ID或操作失败
-          schema:
-            $ref: '#/definitions/response.Response'
-        "401":
-          description: 未授权
-          schema:
-            $ref: '#/definitions/response.Response'
-        "403":
-          description: 无权限（非问题作者）
-          schema:
-            $ref: '#/definitions/response.Response'
-        "404":
-          description: 问题或回答不存在
-          schema:
-            $ref: '#/definitions/response.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: 采纳答案
-      tags:
-      - 问答管理
-  /posts/questions/{post_id}/answers:
-    get:
-      description: 分页获取指定问题的所有回答，已采纳的回答排在最前
-      parameters:
-      - description: 问题帖子ID
-        in: path
-        name: post_id
-        required: true
-        type: integer
-      - default: 1
-        description: 页码
-        in: query
-        name: page
-        type: integer
-      - default: 20
-        description: 每页数量
-        in: query
-        name: page_size
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 获取成功
-          schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  type: object
-              type: object
-        "400":
-          description: 无效的帖子ID
-          schema:
-            $ref: '#/definitions/response.Response'
-        "404":
-          description: 问题不存在
-          schema:
-            $ref: '#/definitions/response.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: 获取问题的回答列表
-      tags:
-      - 问答管理
-  /posts/questions/answer/{comment_id}/vote:
-    post:
-      consumes:
-      - application/json
-      description: 对问题的回答进行投票（赞同或反对）
-      parameters:
-      - description: 回答评论ID
-        in: path
-        name: comment_id
-        required: true
-        type: integer
-      - description: 投票信息
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/handler.VoteAnswerRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 投票成功
-          schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  type: object
-              type: object
-        "400":
-          description: 无效的评论ID或投票类型
-          schema:
-            $ref: '#/definitions/response.Response'
-        "401":
-          description: 未授权
-          schema:
-            $ref: '#/definitions/response.Response'
-        "404":
-          description: 回答不存在
-          schema:
-            $ref: '#/definitions/response.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: 投票回答
-      tags:
-      - 问答管理
+      - 问题管理
   /questions/simple:
     get:
       description: 获取所有问题的精简信息，可选传递 board_id 获取指定板块的问题
@@ -2587,7 +2988,7 @@ paths:
             $ref: '#/definitions/response.Response'
       summary: 获取问题精简列表
       tags:
-      - 问答管理
+      - 问题管理
   /tags:
     get:
       description: 获取系统中所有的标签列表

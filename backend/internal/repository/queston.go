@@ -2,7 +2,9 @@ package repository
 
 import (
 	"errors"
+	"time"
 	"tiny-forum/internal/model"
+	"tiny-forum/pkg/logger"
 
 	"gorm.io/gorm"
 )
@@ -206,6 +208,7 @@ func (r *QuestionRepository) FindByID(id uint) (*model.Question, error) {
 func (r *QuestionRepository) FindSimple(pageSize, offset int, boardID *uint) ([]model.QuestionListResponse, int64, error) {
 	var questions []model.QuestionListResponse
 	var total int64
+	logger.Info("[Repository] FindSimple")
 
 	// 构建查询
 	query := r.db.Table("questions").
@@ -243,4 +246,117 @@ func (r *QuestionRepository) FindSimple(pageSize, offset int, boardID *uint) ([]
 		Find(&questions).Error
 
 	return questions, total, err
+}
+
+// FindSimpleQuestions 只查询问题基础数据，不加载关联
+func (r *QuestionRepository) FindSimpleQuestions(pageSize, offset int, boardID *uint, filter, sort, keyword string) ([]QuestionSimpleData, int64, error) {
+	var questions []QuestionSimpleData
+	var total int64
+	logger.Info("[Repository] FindSimpleQuestions")
+
+	// 构建查询
+	query := r.db.Table("questions").
+		Select(`
+			questions.id,
+			questions.post_id,
+			questions.reward_score,
+			questions.answer_count,
+			questions.accepted_answer_id,
+			questions.created_at,
+			questions.updated_at,
+			posts.title,
+			posts.summary,
+			posts.view_count,
+			posts.board_id,
+			posts.author_id
+		`).
+		Joins("LEFT JOIN posts ON posts.id = questions.post_id").
+		Where("posts.deleted_at IS NULL").
+		Where("posts.status = ?", "published")
+
+	// 按板块过滤
+	if boardID != nil && *boardID > 0 {
+		query = query.Where("posts.board_id = ?", *boardID)
+	}
+
+	// 关键词搜索
+	if keyword != "" {
+		query = query.Where("posts.title LIKE ? OR posts.summary LIKE ?",
+			"%"+keyword+"%", "%"+keyword+"%")
+	}
+
+	// 应用筛选
+	switch filter {
+	case "unanswered":
+		query = query.Where("questions.answer_count = 0")
+	case "answered":
+		query = query.Where("questions.accepted_answer_id IS NOT NULL")
+	}
+
+	// 获取总数
+	if err := query.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	// 应用排序
+	switch sort {
+	case "hot":
+		query = query.Order("posts.view_count DESC, questions.answer_count DESC, questions.created_at DESC")
+	case "score":
+		query = query.Order("questions.reward_score DESC, questions.created_at DESC")
+	default: // latest
+		query = query.Order("questions.created_at DESC")
+	}
+
+	// 获取分页数据
+	err := query.
+		Offset(offset).
+		Limit(pageSize).
+		Find(&questions).Error
+
+	return questions, total, err
+}
+
+// FindQuestionSimpleByID 根据ID查询单个问题基础数据
+func (r *QuestionRepository) FindQuestionSimpleByID(questionID uint) (*QuestionSimpleData, error) {
+	var question QuestionSimpleData
+	err := r.db.Table("questions").
+		Select(`
+			questions.id,
+			questions.post_id,
+			questions.reward_score,
+			questions.answer_count,
+			questions.accepted_answer_id,
+			questions.created_at,
+			questions.updated_at,
+			posts.title,
+			posts.summary,
+			posts.content,
+			posts.view_count,
+			posts.board_id,
+			posts.author_id
+		`).
+		Joins("LEFT JOIN posts ON posts.id = questions.post_id").
+		Where("questions.id = ?", questionID).
+		Where("posts.deleted_at IS NULL").
+		First(&question).Error
+	if err != nil {
+		return nil, err
+	}
+	return &question, nil
+}
+
+type QuestionSimpleData struct {
+	ID               uint      `gorm:"column:id"`
+	PostID           uint      `gorm:"column:post_id"`
+	Title            string    `gorm:"column:title"`
+	Summary          string    `gorm:"column:summary"`
+	ViewCount        int       `gorm:"column:view_count"`
+	BoardID          uint      `gorm:"column:board_id"`
+	AuthorID         uint      `gorm:"column:author_id"`
+	RewardScore      int       `gorm:"column:reward_score"`
+	AnswerCount      int       `gorm:"column:answer_count"`
+	AcceptedAnswerID *uint     `gorm:"column:accepted_answer_id"`
+	CreatedAt        time.Time `gorm:"column:created_at"`
+	UpdatedAt        time.Time `gorm:"column:updated_at"`
 }

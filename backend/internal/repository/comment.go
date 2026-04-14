@@ -31,6 +31,7 @@ func (r *CommentRepository) ValidateParentComment(parentID uint, postID uint) er
 	return nil
 }
 
+// 获取指定评论的子评论
 func (r *CommentRepository) FindByID(id uint) (*model.Comment, error) {
 	var comment model.Comment
 	err := r.db.Preload("Author").First(&comment, id).Error

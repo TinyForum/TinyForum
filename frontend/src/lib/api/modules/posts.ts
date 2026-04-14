@@ -51,39 +51,39 @@ export interface PostDetailResult {
 
 // ─── 问答 ─────────────────────────────────────────────────────────────────────
 
-export interface QuestionListParams {
-  page?: number;
-  page_size?: number;
-  filter?: "all" | "unanswered" | "answered";
-  keyword?: string;
-  tag_id?: number;
-  board_id?: number;
-}
+// export interface QuestionListParams {
+//   page?: number;
+//   page_size?: number;
+//   filter?: "all" | "unanswered" | "answered";
+//   keyword?: string;
+//   tag_id?: number;
+//   board_id?: number;
+// }
 
-export interface CreateQuestionPayload {
-  title: string;
-  content: string;
-  summary?: string;
-  cover?: string;
-  board_id?: number;
-  tag_ids?: number[];
-  reward_score?: number;
-}
+// export interface CreateQuestionPayload {
+//   title: string;
+//   content: string;
+//   summary?: string;
+//   cover?: string;
+//   board_id?: number;
+//   tag_ids?: number[];
+//   reward_score?: number;
+// }
 
-export interface QuestionDetailResult {
-  post: Post;
-  liked: boolean;
-  question: Question;
-  answers: Comment[];
-  total: number;
-  page: number;
-  page_size: number;
-}
+// export interface QuestionDetailResult {
+//   post: Post;
+//   liked: boolean;
+//   question: Question;
+//   answers: Comment[];
+//   total: number;
+//   page: number;
+//   page_size: number;
+// }
 
-export interface QuestionDetailParams {
-  answer_page?: number;
-  answer_page_size?: number;
-}
+// export interface QuestionDetailParams {
+//   answer_page?: number;
+//   answer_page_size?: number;
+// }
 
 // ─── API ──────────────────────────────────────────────────────────────────────
 
@@ -111,37 +111,37 @@ export const postApi = {
     apiClient.delete<ApiResponse<null>>(`/posts/${id}/like`),
 
   // ── 问答 ─────────────────────────────────────────────────────────────────────
-  getQuestions: (params?: QuestionListParams) =>
-    apiClient.get<ApiResponse<PageData<Post>>>("/posts/questions", { params }),
+  // getQuestions: (params?: QuestionListParams) =>
+  //   apiClient.get<ApiResponse<PageData<Post>>>("/posts/questions", { params }),
 
-  createQuestion: (data: CreateQuestionPayload) =>
-    apiClient.post<ApiResponse<Post>>("/posts/question", data),
+  // createQuestion: (data: CreateQuestionPayload) =>
+  //   apiClient.post<ApiResponse<Post>>("/posts/question", data),
 
-  getQuestionDetail: (id: number, params?: QuestionDetailParams) =>
-    apiClient.get<ApiResponse<QuestionDetailResult>>(
-      `/posts/question/${id}`,
-      { params }
-    ),
+  // getQuestionDetail: (id: number, params?: QuestionDetailParams) =>
+  //   apiClient.get<ApiResponse<QuestionDetailResult>>(
+  //     `/posts/question/${id}`,
+  //     { params }
+  //   ),
   
 
   /** 采纳答案（通过 post 路由） */
-  acceptAnswer: (postId: number, commentId: number) =>
-    apiClient.post<ApiResponse<null>>(
-      `/posts/questions/${postId}/answer/${commentId}/accept`
-    ),
+  // acceptAnswer: (postId: number, commentId: number) =>
+  //   apiClient.post<ApiResponse<null>>(
+  //     `/posts/questions/${postId}/answer/${commentId}/accept`
+  //   ),
 
-  createAnswer: (postId: number, data: { content: string }) =>
-    apiClient.post<ApiResponse<Comment>>(
-      `/posts/question/${postId}/answer`,
-      data
-    ),
+  // createAnswer: (postId: number, data: { content: string }) =>
+  //   apiClient.post<ApiResponse<Comment>>(
+  //     `/posts/question/${postId}/answer`,
+  //     data
+  //   ),
 
-  getQuestionAnswers: (
-    postId: number,
-    params?: { page?: number; page_size?: number }
-  ) =>
-    apiClient.get<ApiResponse<PageData<Comment>>>(
-      `/posts/questions/${postId}/answers`,
-      { params }
-    ),
+  // getQuestionAnswers: (
+  //   postId: number,
+  //   params?: { page?: number; page_size?: number }
+  // ) =>
+  //   apiClient.get<ApiResponse<PageData<Comment>>>(
+  //     `/posts/questions/${postId}/answers`,
+  //     { params }
+  //   ),
 };

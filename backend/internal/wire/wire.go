@@ -108,6 +108,7 @@ func InitApp(cfg *config.Config) (*App, error) {
 	timelineRepo := repository.NewTimelineRepository(db)
 	topicRepo := repository.NewTopicRepository(db)
 	questionRepo := repository.NewQuestionRepository(db)
+	voteRepo := repository.NewVoteRepository(db)
 
 	// ========== Services ==========
 	// 基础服务
@@ -119,11 +120,11 @@ func InitApp(cfg *config.Config) (*App, error) {
 	boardSvc := service.NewBoardService(boardRepo, userRepo, postRepo, notifSvc)
 	timelineSvc := service.NewTimelineService(timelineRepo, userRepo, postRepo, commentRepo)
 	topicSvc := service.NewTopicService(topicRepo, postRepo, userRepo, notifSvc)
-	questionSvc := service.NewQuestionService(questionRepo, postRepo, commentRepo, userRepo, notifSvc)
+	questionSvc := service.NewQuestionService(questionRepo, postRepo, commentRepo, userRepo, notifSvc, tagRepo)
 
 	// 依赖其他服务的服务
 	postSvc := service.NewPostService(postRepo, tagRepo, userRepo, boardRepo, notifSvc)
-	commentSvc := service.NewCommentService(commentRepo, postRepo, userRepo, notifSvc)
+	commentSvc := service.NewCommentService(commentRepo, postRepo, userRepo, notifSvc, voteRepo)
 
 	// ========== Handlers ==========
 	// 原有
@@ -141,6 +142,7 @@ func InitApp(cfg *config.Config) (*App, error) {
 	timelineHandler := handler.NewTimelineHandler(timelineSvc)
 	topicHandler := handler.NewTopicHandler(topicSvc)
 	questionHandler := handler.NewQuestionHandler(questionSvc, commentSvc, postSvc)
+	answerHandler := handler.NewAnswerHandler(questionSvc, commentSvc, postSvc)
 
 	// ========== Gin Engine ==========
 	gin.SetMode(cfg.Server.Mode)
@@ -194,16 +196,6 @@ func InitApp(cfg *config.Config) (*App, error) {
 		postGroup.POST("/:id/like", middleware.Auth(jwtMgr), postHandler.Like)
 		postGroup.DELETE("/:id/like", middleware.Auth(jwtMgr), postHandler.Unlike)
 
-		// 问答相关
-		postGroup.GET("/questions", middleware.OptionalAuth(jwtMgr), questionHandler.GetQuestions)
-		postGroup.POST("/question", middleware.Auth(jwtMgr), questionHandler.CreateQuestion)
-		postGroup.GET("/question/:id", middleware.OptionalAuth(jwtMgr), questionHandler.GetQuestionDetail)
-		postGroup.POST("/questions/:post_id/answer/:comment_id/accept", middleware.Auth(jwtMgr), questionHandler.AcceptAnswer)
-		postGroup.POST("/question/:id/answer", middleware.Auth(jwtMgr), questionHandler.CreateAnswer)
-		postGroup.POST("/questions/answer/:comment_id/vote", middleware.OptionalAuth(jwtMgr), questionHandler.VoteAnswer)
-
-		postGroup.GET("/questions/:post_id/answers", middleware.Auth(jwtMgr), questionHandler.GetQuestionAnswers)
-
 	}
 
 	// ----- MARK: Comment routes
@@ -213,9 +205,6 @@ func InitApp(cfg *config.Config) (*App, error) {
 		commentGroup.POST("", middleware.Auth(jwtMgr), commentHandler.Create)
 		commentGroup.DELETE("/:id", middleware.Auth(jwtMgr), commentHandler.Delete)
 
-		// 答案投票
-		commentGroup.POST("/:id/vote", middleware.Auth(jwtMgr), commentHandler.VoteAnswer)
-		commentGroup.PUT("/:id/answer", middleware.Auth(jwtMgr), commentHandler.MarkAsAnswer)
 		// commentGroup.GET("/post/:post_id/answers", commentHandler.GetAnswers)
 	}
 
@@ -311,13 +300,33 @@ func InitApp(cfg *config.Config) (*App, error) {
 		topicGroup.POST("/:id/follow", middleware.Auth(jwtMgr), topicHandler.Follow)
 		topicGroup.DELETE("/:id/follow", middleware.Auth(jwtMgr), topicHandler.Unfollow)
 	}
+
+	// ----- MARK: Answer routes
+	answerGroup := api.Group("/answers")
+	{
+		// 单个答案操作
+		answerGroup.GET("/:id", middleware.OptionalAuth(jwtMgr), answerHandler.GetAnswer) // 获取答案
+		// answerGroup.PUT("/:id", middleware.Auth(jwtMgr), answerHandler.UpdateAnswer)      // 更新答案
+		answerGroup.DELETE("/:id", middleware.Auth(jwtMgr), answerHandler.DeleteAnswer) // 删除答案
+
+		// 答案交互
+		answerGroup.POST("/:id/vote", middleware.OptionalAuth(jwtMgr), answerHandler.VoteAnswer) // 答案投票
+		answerGroup.DELETE("/:id/vote", middleware.Auth(jwtMgr), answerHandler.DeleteAnswer)     // 取消投票
+		answerGroup.POST("/:id/accept", middleware.Auth(jwtMgr), answerHandler.AcceptAnswer)     // 接受答案
+		answerGroup.POST("/:id/unaccept", middleware.Auth(jwtMgr), answerHandler.UnacceptAnswer) // 取消接受答案
+	}
+
 	// ----- MARK: Question routes
 	questionGroup := api.Group("/questions")
 	{
-		questionGroup.GET("/post/:post_id", middleware.OptionalAuth(jwtMgr), questionHandler.GetQuestionAnswers)
-		questionGroup.POST("/answer/:comment_id/accept", middleware.Auth(jwtMgr), questionHandler.AcceptAnswer)
-		questionGroup.POST("/answer/:comment_id/vote", middleware.Auth(jwtMgr), questionHandler.VoteAnswer)
 		questionGroup.GET("/simple", questionHandler.GetQuestionSimple)
+		questionGroup.GET("/list", middleware.OptionalAuth(jwtMgr), questionHandler.GetQuestionsList)
+		questionGroup.POST("/create", middleware.Auth(jwtMgr), questionHandler.CreateQuestion)
+		questionGroup.GET("/detail/:id", middleware.OptionalAuth(jwtMgr), questionHandler.GetQuestionDetail)
+
+		// 问题的答案
+		questionGroup.GET("/:id/answers", middleware.OptionalAuth(jwtMgr), answerHandler.GetQuestionAnswers)
+		questionGroup.POST("/:id/answers", middleware.Auth(jwtMgr), answerHandler.CreateAnswer)
 	}
 
 	// ----- MARK: Admin routes -----

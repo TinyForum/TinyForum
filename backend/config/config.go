@@ -2,6 +2,7 @@ package config
 
 import (
 	"time"
+	"tiny-forum/pkg/logger"
 
 	"github.com/spf13/viper"
 )
@@ -34,11 +35,14 @@ type JWTConfig struct {
 }
 
 type LogConfig struct {
-	Level      string `mapstructure:"level"`
-	Filename   string `mapstructure:"filename"`
-	MaxSize    int    `mapstructure:"max_size"`
-	MaxBackups int    `mapstructure:"max_backups"`
-	MaxAge     int    `mapstructure:"max_age"`
+	Level      string `mapstructure:"level" json:"level"`
+	Filename   string `mapstructure:"filename" json:"filename"`
+	MaxSize    int    `mapstructure:"max_size" json:"max_size"`
+	MaxBackups int    `mapstructure:"max_backups" json:"max_backups"`
+	MaxAge     int    `mapstructure:"max_age" json:"max_age"`
+	Compress   bool   `mapstructure:"compress" json:"compress"`
+	Console    bool   `mapstructure:"console" json:"console"`
+	JSONFormat bool   `mapstructure:"json_format" json:"json_format"`
 }
 
 func Load(path string) (*Config, error) {
@@ -54,4 +58,17 @@ func Load(path string) (*Config, error) {
 		return nil, err
 	}
 	return &cfg, nil
+}
+
+func (c *Config) ToLoggerConfig() logger.Config {
+	return logger.Config{
+		Level:      c.Log.Level,
+		Filename:   c.Log.Filename,
+		MaxSize:    c.Log.MaxSize,
+		MaxBackups: c.Log.MaxBackups,
+		MaxAge:     c.Log.MaxAge,
+		Compress:   c.Log.Compress,
+		Console:    c.Log.Console,
+		JSONFormat: c.Log.JSONFormat,
+	}
 }

@@ -2,7 +2,7 @@
 import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
-import { postApi, CreateQuestionPayload } from '@/lib/api';
+import { postApi, CreateQuestionPayload, questionApi } from '@/lib/api';
 import { useAuthStore } from '@/store/auth';
 import { toast } from 'react-hot-toast';
 
@@ -102,7 +102,7 @@ export function useQuestionForm({ onSuccess }: UseQuestionFormProps = {}) {
     setLoading(true);
 
     try {
-      const response = await postApi.createQuestion(requestData);
+      const response = await questionApi.create(requestData);
       console.log('响应:', response.data);
 
       const isSuccess = response.data.code === 200 || response.data.code === 0;

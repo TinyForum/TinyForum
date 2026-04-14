@@ -178,46 +178,6 @@ func (h *CommentHandler) GetAnswerVoteStatus(c *gin.Context) {
 	response.Success(c, status)
 }
 
-// MarkAsAnswer 标记/取消标记为答案（版主或作者）
-// @Summary 标记为答案
-// @Description 将评论标记为问题的答案（帖子作者或版主可操作）
-// @Tags 问答管理
-// @Accept json
-// @Produce json
-// @Security ApiKeyAuth
-// @Param id path int true "评论ID"
-// @Param body body object true "是否标记为答案" example({"is_answer":true})
-// @Success 200 {object} response.Response{data=object} "操作成功"
-// @Failure 400 {object} response.Response "请求参数错误"
-// @Failure 401 {object} response.Response "未授权"
-// @Failure 403 {object} response.Response "无权限"
-// @Router /comments/{id}/answer [put]
-func (h *CommentHandler) MarkAsAnswer(c *gin.Context) {
-	commentID, err := strconv.ParseUint(c.Param("id"), 10, 64)
-	if err != nil {
-		response.BadRequest(c, "无效的评论ID")
-		return
-	}
-
-	var input struct {
-		IsAnswer bool `json:"is_answer" binding:"required"`
-	}
-	if err := c.ShouldBindJSON(&input); err != nil {
-		response.BadRequest(c, err.Error())
-		return
-	}
-
-	userID := c.GetUint("user_id")
-	role, _ := c.Get("user_role")
-	isAdmin := role == "admin"
-
-	if err := h.commentSvc.MarkAsAnswer(uint(commentID), userID, isAdmin, input.IsAnswer); err != nil {
-		response.BadRequest(c, err.Error())
-		return
-	}
-	response.Success(c, gin.H{"message": "操作成功"})
-}
-
 // GetAnswers 获取帖子的所有答案
 // @Summary 获取帖子的答案列表
 // @Description 获取指定帖子的所有答案（仅限问答帖）

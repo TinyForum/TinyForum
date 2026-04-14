@@ -10,21 +10,23 @@ import {
   timelineApi,
   notificationApi,
   questionApi,
+  PostType,
 } from "@/lib/api";
 import { useAuthStore } from "@/store/auth";
 import { useTranslations } from "next-intl";
 import PostFilterBar from "@/components/home/PostFilterBar";
 import PostList from "@/components/home/PostList";
-import LeftSidebar from "@/components/home/LeftSidebar";
+import LeftSidebar, { FilterType } from "@/components/home/LeftSidebar";
 import RightSidebar from "@/components/home/RightSidebar";
-import { PostType, SortBy } from "@/types";
-
+// import { PostType, SortBy } from "@/types";
+export  type SortBy = 'latest'  | 'hot' | "like"| 'random';
+// export type FilterType = "all" | PostType;
 export default function HomePage() {
   const { isAuthenticated, user } = useAuthStore();
   const [sortBy, setSortBy] = useState<SortBy>("random");
   const [selectedTag, setSelectedTag] = useState<number | null>(null);
   const [selectedBoard, setSelectedBoard] = useState<number | null>(null);
-  const [postType, setPostType] = useState<PostType>("all");
+  const [filterType, setFilterType] = useState<FilterType>("all");
   const [page, setPage] = useState(1);
   const t = useTranslations("post");
 
@@ -34,10 +36,10 @@ export default function HomePage() {
     isLoading,
     refetch,
   } = useQuery({
-    queryKey: ["posts", sortBy, selectedTag, selectedBoard, postType, page],
+    queryKey: ["posts", sortBy, selectedTag, selectedBoard, filterType, page],
     queryFn: async () => {
       // 如果是问答类型，使用专门的 questionApi.getSimple API
-      if (postType === "question") {
+      if (filterType === "question") {
         const params: any = {
           page,
           page_size: 15,
@@ -61,8 +63,7 @@ export default function HomePage() {
           title: q.title,
           summary: q.summary,
           content: "",
-          type: "post",
-          is_question: true,
+          type: "question",
           status: "published",
           author_id: q.author_id,
           view_count: 0,
@@ -102,8 +103,8 @@ export default function HomePage() {
       if (selectedBoard) {
         params.board_id = selectedBoard;
       }
-      if (postType !== "all") {
-        params.type = postType;
+      if (filterType !== "all") {
+        params.type = filterType;
       }
       
       const res = await postApi.list(params);
@@ -176,8 +177,8 @@ export default function HomePage() {
     setPage(1);
   };
 
-  const handlePostTypeChange = (type: PostType) => {
-    setPostType(type);
+  const handlePostTypeChange = (type: FilterType) => {
+    setFilterType(type);
     setPage(1);
   };
 
@@ -192,7 +193,7 @@ export default function HomePage() {
               tags={tags ?? []}
               selectedBoard={selectedBoard}
               selectedTag={selectedTag}
-              postType={postType}
+              filterType={filterType}
               onBoardChange={handleBoardChange}
               onTagChange={handleTagChange}
               onPostTypeChange={handlePostTypeChange}

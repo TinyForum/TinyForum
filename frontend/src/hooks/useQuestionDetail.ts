@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { Post, Comment } from '@/lib/api/types';
 import { toast } from 'react-hot-toast';
-import { postApi } from '@/lib/api';
+import { postApi, questionApi } from '@/lib/api';
 
 interface UseQuestionDetailOptions {
   answerPage?: number;
@@ -26,12 +26,10 @@ export function useQuestionDetail(questionId: number, options: UseQuestionDetail
     setError(null);
     
     try {
-      const response = await postApi.getQuestionDetail(questionId, {
-        answer_page: answerPage,
-        answer_page_size: answerPageSize,
-      });
+      const response = await questionApi.getDetail(questionId);
       
-      if (response.data.code === 0 || response.data.code === 200) {
+      console.log(response);
+      if (response.data.code === 0 || response.data.code === 0) {
         const data = response.data.data;
         setQuestion(data.post);
         setAnswers(data.answers || []);

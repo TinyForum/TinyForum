@@ -163,21 +163,7 @@ export interface AnswerVoteResult {
   action: 'added' | 'removed' | 'updated';
 }
 
-// // 扩展 Post 类型
-// // export interface ExtendedPost extends Post {
-// //   board_id?: number;
-// //   board?: Board;
-// //   is_question?: boolean;
-// //   question?: Question;
-// //   pin_in_board?: boolean;
-// // }
 
-// // 扩展 Comment 类型
-// export interface ExtendedComment extends Comment {
-//   is_answer?: boolean;
-//   is_accepted?: boolean;
-//   vote_count?: number;
-// }
 
 // 添加版主申请类型
 export interface ModeratorApplication {

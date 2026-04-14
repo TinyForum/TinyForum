@@ -19,7 +19,10 @@ import {
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
-import { PostType } from "@/types";
+import { PostType } from "@/lib/api";
+// import { PostType } from "@/types";
+
+export type FilterType = "all" | PostType;
 
 interface Board {
   id: number;
@@ -36,10 +39,10 @@ interface LeftSidebarProps {
   tags: any[];
   selectedBoard: number | null;
   selectedTag: number | null;
-  postType: PostType;
+    filterType: FilterType;  
   onBoardChange: (boardId: number | null) => void;
   onTagChange: (tagId: number | null) => void;
-  onPostTypeChange: (type: PostType) => void;
+  onPostTypeChange: (type: FilterType) => void;
 }
 
 export default function LeftSidebar({
@@ -47,7 +50,7 @@ export default function LeftSidebar({
   tags,
   selectedBoard,
   selectedTag,
-  postType,
+  filterType,
   onBoardChange,
   onTagChange,
   onPostTypeChange,
@@ -130,7 +133,7 @@ export default function LeftSidebar({
             }}
             className={cn(
               "w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors",
-              !selectedBoard && !selectedTag && postType === "all"
+              !selectedBoard && !selectedTag && filterType === "all"
                 ? "bg-primary/10 text-primary font-medium"
                 : "hover:bg-muted text-muted-foreground hover:text-foreground"
             )}
@@ -139,7 +142,7 @@ export default function LeftSidebar({
             {t("all")}
           </button>
           
-          {/* 问答 - 后端使用 is_question 字段 */}
+          {/* 问答 */}
           <button
             onClick={() => {
               onBoardChange(null);
@@ -148,7 +151,7 @@ export default function LeftSidebar({
             }}
             className={cn(
               "w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors",
-              postType === "question"
+              filterType === "question"
                 ? "bg-primary/10 text-primary font-medium"
                 : "hover:bg-muted text-muted-foreground hover:text-foreground"
             )}
@@ -167,7 +170,7 @@ export default function LeftSidebar({
             }}
             className={cn(
               "w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors",
-              postType === "article"
+              filterType === "article"
                 ? "bg-primary/10 text-primary font-medium"
                 : "hover:bg-muted text-muted-foreground hover:text-foreground"
             )}
@@ -186,7 +189,7 @@ export default function LeftSidebar({
             }}
             className={cn(
               "w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors",
-              postType === "post"
+              filterType === "post"
                 ? "bg-primary/10 text-primary font-medium"
                 : "hover:bg-muted text-muted-foreground hover:text-foreground"
             )}

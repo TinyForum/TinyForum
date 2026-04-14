@@ -16,8 +16,11 @@ jwt:
   expire: 72h
 
 log:
-  level: info
-  filename: logs/app.log
-  max_size: 100
+  level: "debug"
+  filename:   "logs/app.log"
+  max_size:   100
   max_backups: 10
-  max_age: 30
+  max_age:     30
+  compress:   true
+  console:    true
+  json_format: false

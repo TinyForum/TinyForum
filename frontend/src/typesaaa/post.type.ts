@@ -21,7 +21,6 @@ export interface Post extends BaseModel {
   pin_top: boolean;
   board_id: number;
   pin_in_board: boolean;
-  // is_question: boolean;
 
   author?: User;
   tags?: Tag[];

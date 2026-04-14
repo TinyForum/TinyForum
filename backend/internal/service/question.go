@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 	"fmt"
+	"time"
 
 	apperrors "tiny-forum/internal/errors"
 	"tiny-forum/internal/model"
@@ -18,6 +19,7 @@ type QuestionService struct {
 	userRepo     *repository.UserRepository
 	notifSvc     *NotificationService
 	db           *gorm.DB
+	tagRepo      *repository.TagRepository
 }
 
 func NewQuestionService(
@@ -26,6 +28,7 @@ func NewQuestionService(
 	commentRepo *repository.CommentRepository,
 	userRepo *repository.UserRepository,
 	notifSvc *NotificationService,
+	tagRepo *repository.TagRepository,
 
 ) *QuestionService {
 	return &QuestionService{
@@ -34,6 +37,7 @@ func NewQuestionService(
 		commentRepo:  commentRepo,
 		userRepo:     userRepo,
 		notifSvc:     notifSvc,
+		tagRepo:      tagRepo,
 	}
 }
 
@@ -101,7 +105,7 @@ func (s *QuestionService) GetQuestionDetail(questionID uint) (*model.QuestionRes
 }
 
 // GetQuestions 获取问答帖列表，支持只看未回答
-func (s *QuestionService) GetQuestions(page, pageSize int, unanswered bool) ([]model.Post, int64, error) {
+func (s *QuestionService) GetQuestionsList(page, pageSize int, unanswered bool) ([]model.Post, int64, error) {
 	if page < 1 {
 		page = 1
 	}
@@ -260,7 +264,180 @@ func (s *QuestionService) GetQuestionWithAnswers(postID uint, page, pageSize int
 	return question, answers, total, err
 }
 
-// GetQuestionSimple 获取问题精简列表
-func (s *QuestionService) GetAllQuestionSimple(pageSize, offset int, boardID *uint) ([]model.QuestionListResponse, int64, error) {
-	return s.questionRepo.FindSimple(pageSize, offset, boardID)
+// internal/service/question_service.go
+
+// SimpleAuthor 精简的作者信息
+type SimpleAuthor struct {
+	ID     uint   `json:"id"`
+	Name   string `json:"name"`
+	Avatar string `json:"avatar"`
+}
+
+// SimpleTag 精简的标签信息
+type SimpleTag struct {
+	ID   uint   `json:"id"`
+	Name string `json:"name"`
+}
+
+// QuestionSimpleResponse 问题精简列表响应
+type QuestionSimpleResponse struct {
+	ID               uint          `json:"id"`
+	Title            string        `json:"title"`
+	Summary          string        `json:"summary"`
+	ViewCount        int           `json:"view_count"`
+	RewardScore      int           `json:"reward_score"`
+	AnswerCount      int           `json:"answer_count"`
+	AcceptedAnswerID *uint         `json:"accepted_answer_id"`
+	Author           *SimpleAuthor `json:"author"`
+	Tags             []SimpleTag   `json:"tags"`
+	CreatedAt        time.Time     `json:"created_at"`
+}
+
+// GetQuestionSimpleList 获取问题简单列表
+func (s *QuestionService) GetQuestionSimpleList(pageSize, offset int, boardID *uint, filter, sort, keyword string) ([]QuestionSimpleResponse, int64, error) {
+	// 1. 从 repository 获取基础数据
+	questions, total, err := s.questionRepo.FindSimpleQuestions(pageSize, offset, boardID, filter, sort, keyword)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	if len(questions) == 0 {
+		return []QuestionSimpleResponse{}, total, nil
+	}
+
+	// 2. 收集需要查询的 IDs（去重）
+	authorIDSet := make(map[uint]bool)
+	postIDSet := make(map[uint]bool)
+
+	for _, q := range questions {
+		if q.AuthorID > 0 {
+			authorIDSet[q.AuthorID] = true
+		}
+		if q.PostID > 0 {
+			postIDSet[q.PostID] = true
+		}
+	}
+
+	// 转换为切片
+	authorIDs := make([]uint, 0, len(authorIDSet))
+	for id := range authorIDSet {
+		authorIDs = append(authorIDs, id)
+	}
+
+	postIDs := make([]uint, 0, len(postIDSet))
+	for id := range postIDSet {
+		postIDs = append(postIDs, id)
+	}
+
+	// 3. 批量查询作者信息并转换为精简格式
+	authorMap := make(map[uint]*SimpleAuthor)
+	if len(authorIDs) > 0 {
+		authors, err := s.userRepo.FindByIDs(authorIDs)
+		if err == nil {
+			for i := range authors {
+				authorMap[authors[i].ID] = &SimpleAuthor{
+					ID:     authors[i].ID,
+					Name:   authors[i].Username,
+					Avatar: authors[i].Avatar,
+				}
+			}
+		}
+	}
+
+	// 4. 批量查询标签信息并转换为精简格式
+	tagMap := make(map[uint][]SimpleTag)
+	if len(postIDs) > 0 {
+		tagsMap, err := s.tagRepo.FindTagsByPostIDs(postIDs)
+		if err == nil {
+			for postID, tags := range tagsMap {
+				simpleTags := make([]SimpleTag, len(tags))
+				for i, tag := range tags {
+					simpleTags[i] = SimpleTag{
+						ID:   tag.ID,
+						Name: tag.Name,
+					}
+				}
+				tagMap[postID] = simpleTags
+			}
+		} else {
+			tagMap = make(map[uint][]SimpleTag)
+		}
+	}
+
+	// 5. 组装响应数据
+	result := make([]QuestionSimpleResponse, len(questions))
+	for i, q := range questions {
+		result[i] = QuestionSimpleResponse{
+			ID:               q.ID,
+			Title:            q.Title,
+			Summary:          q.Summary,
+			ViewCount:        q.ViewCount,
+			RewardScore:      q.RewardScore,
+			AnswerCount:      q.AnswerCount,
+			AcceptedAnswerID: q.AcceptedAnswerID,
+			CreatedAt:        q.CreatedAt,
+			Tags:             []SimpleTag{}, // 初始化为空数组
+		}
+
+		// 组装作者（精简版）
+		if author, ok := authorMap[q.AuthorID]; ok {
+			result[i].Author = author
+		}
+
+		// 组装标签（精简版）
+		if tags, ok := tagMap[q.PostID]; ok {
+			result[i].Tags = tags
+		}
+	}
+
+	return result, total, nil
+}
+
+// GetQuestionSimpleByID 获取单个问题详情
+func (s *QuestionService) GetQuestionSimpleByID(questionID uint) (*QuestionSimpleResponse, error) {
+	// 1. 获取基础数据
+	question, err := s.questionRepo.FindQuestionSimpleByID(questionID)
+	if err != nil {
+		return nil, err
+	}
+
+	// 2. 获取作者信息（精简版）
+	var simpleAuthor *SimpleAuthor
+	author, err := s.userRepo.FindByID(question.AuthorID)
+	if err == nil && author != nil {
+		simpleAuthor = &SimpleAuthor{
+			ID:     author.ID,
+			Name:   author.Username,
+			Avatar: author.Avatar,
+		}
+	}
+
+	// 3. 获取标签信息（精简版）
+	simpleTags := []SimpleTag{}
+	tags, err := s.tagRepo.FindTagsByPostID(question.PostID)
+	if err == nil {
+		simpleTags = make([]SimpleTag, len(tags))
+		for i, tag := range tags {
+			simpleTags[i] = SimpleTag{
+				ID:   tag.ID,
+				Name: tag.Name,
+			}
+		}
+	}
+
+	// 4. 组装响应
+	result := &QuestionSimpleResponse{
+		ID:               question.ID,
+		Title:            question.Title,
+		Summary:          question.Summary,
+		ViewCount:        question.ViewCount,
+		RewardScore:      question.RewardScore,
+		AnswerCount:      question.AnswerCount,
+		AcceptedAnswerID: question.AcceptedAnswerID,
+		Author:           simpleAuthor,
+		Tags:             simpleTags,
+		CreatedAt:        question.CreatedAt,
+	}
+
+	return result, nil
 }

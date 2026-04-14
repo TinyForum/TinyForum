@@ -89,7 +89,6 @@ export interface Post {
   board_id: number;
   board?: Board;
   pin_in_board: boolean;
-  // is_question: boolean;
   question?: Question;
   tags?: Tag[];
   created_at: string;
@@ -252,12 +251,17 @@ export interface Announcement {
 export interface QuestionSimple extends BaseModel {
   title: string;
   summary: string;
-  board_id: number;
-  author_id: number;
-  reward_score: number;
+  view_count: number;
   answer_count: number;
-  // 可选：关联的作者信息（如果需要）
-  author?: User;
-  // 可选：关联的板块信息（如果需要）
-  board?: Board;
+  reward_score: number;
+  accepted_answer_id: number | null;
+  author: {
+    id: number;
+    username: string;
+    avatar?: string;
+  };
+  tags: Array<{
+    id: number;
+    name: string;
+  }>;
 }
