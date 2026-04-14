@@ -12,7 +12,8 @@ import toast from 'react-hot-toast';
 import Link from 'next/link';
 import Avatar from '@/components/user/Avatar';
 import { useTranslations } from 'next-intl';
-import type { User } from '@/lib/api/types';
+import type { PostType, User } from '@/lib/api/types';
+// import { PostType } from '@/typesaaa';
 
 // 用户列表弹窗组件
 function UserListModal({ 
@@ -90,7 +91,7 @@ function UserListModal({
 export default function UserProfileClient({ userId }: { userId: number }) {
   const { user: currentUser, isAuthenticated } = useAuthStore();
   const queryClient = useQueryClient();
-  const [tab, setTab] = useState<'posts' | 'articles'>('posts');
+  const [tab, setTab] = useState<PostType>('post');
   const [showFollowers, setShowFollowers] = useState(false);
   const [showFollowing, setShowFollowing] = useState(false);
 
@@ -114,17 +115,18 @@ export default function UserProfileClient({ userId }: { userId: number }) {
     queryFn: () => userApi.following(userId, { page: 1, page_size: 1 }).then((r) => r.data.data),
   });
 
+
   // 获取用户的帖子/文章
   const { data: postsData } = useQuery({
-    queryKey: ['user-posts', userId, tab],
-    queryFn: () =>
-      postApi.list({
-        author_id: userId,
-        type: tab === 'articles' ? 'article' : 'post',
-        page: 1,
-        page_size: 20,
-      }).then((r) => r.data.data),
-  });
+  queryKey: ['user-posts', userId, tab],
+  queryFn: () =>
+    postApi.list({
+      author_id: userId,
+      type: ['article', 'post', 'question'].includes(tab) ? tab : 'topic',
+      page: 1,
+      page_size: 20,
+    }).then((r) => r.data.data),
+});
 
   // 获取粉丝详细列表（弹窗用）
   const { data: followersDetail, isLoading: followersLoading } = useQuery({
@@ -294,23 +296,35 @@ export default function UserProfileClient({ userId }: { userId: number }) {
       {/* Posts tabs */}
       <div className="tabs tabs-boxed bg-base-100 border border-base-300 mb-4 p-1">
         <button
-          className={`tab gap-2 ${tab === 'posts' ? 'tab-active' : ''}`}
-          onClick={() => setTab('posts')}
+          className={`tab gap-2 ${tab === 'post' ? 'tab-active' : ''}`}
+          onClick={() => setTab('post')}
         >
           <FileText className="w-4 h-4" /> {t("the_posts")}
         </button>
         <button
-          className={`tab gap-2 ${tab === 'articles' ? 'tab-active' : ''}`}
-          onClick={() => setTab('articles')}
+          className={`tab gap-2 ${tab === 'article' ? 'tab-active' : ''}`}
+          onClick={() => setTab('article')}
         >
           <FileText className="w-4 h-4" /> {t("the_articles")}
+        </button>
+         <button
+          className={`tab gap-2 ${tab === 'question' ? 'tab-active' : ''}`}
+          onClick={() => setTab('question')}
+        >
+          <FileText className="w-4 h-4" /> {t("the_question")}
+        </button>
+         <button
+          className={`tab gap-2 ${tab === 'topic' ? 'tab-active' : ''}`}
+          onClick={() => setTab('topic')}
+        >
+          <FileText className="w-4 h-4" /> {t("the_topic")}
         </button>
       </div>
 
       {posts.length === 0 ? (
         <div className="text-center py-16 text-base-content/40">
           <FileText className="w-12 h-12 mx-auto mb-3 opacity-30" />
-          <p>{tab === 'articles' ? t("no_articles") : t("no_posts")}</p>
+          <p>{tab === 'post' ? t("no_post") : t("no_article")}</p>
         </div>
       ) : (
         <div className="space-y-3">
