@@ -441,3 +441,7 @@ func (s *QuestionService) GetQuestionSimpleByID(questionID uint) (*QuestionSimpl
 
 	return result, nil
 }
+
+func (s *QuestionService) GetQuestionByID(questionID uint) (*model.Question, error) {
+	return s.questionRepo.FindByID(questionID)
+}

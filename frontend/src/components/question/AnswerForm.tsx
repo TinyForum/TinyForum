@@ -1,7 +1,7 @@
 // components/question/AnswerForm.tsx
 'use client';
 
-import { postApi } from '@/lib/api';
+import { postApi, questionApi } from '@/lib/api';
 import { useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { 
@@ -12,6 +12,7 @@ import {
   ExclamationTriangleIcon,
   SparklesIcon,
 } from '@heroicons/react/24/outline';
+import { answerApi } from '@/lib/api/modules/answer';
 
 interface AnswerFormProps {
   questionId: number;
@@ -56,7 +57,7 @@ export function AnswerForm({
 
     setSubmitting(true);
     try {
-      const response = await postApi.createAnswer(questionId, { content: content.trim() });
+      const response = await questionApi.createAnswer(questionId, { content: content.trim() });
       
       if (response.data.code === 200 || response.data.code === 201 || response.data.code === 0) {
         setContent('');

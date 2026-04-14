@@ -36,37 +36,54 @@ func NewAnswerHandler(
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param question_id path int true "帖子ID"
+// @Param id path int true "帖子ID"
 // @Param body body CreateAnswerRequest true "回答内容"
 // @Success 200 {object} response.Response{data=model.Comment} "提交成功"
 // @Failure 400 {object} response.Response "请求参数错误或非问答帖"
 // @Failure 401 {object} response.Response "未授权"
 // @Failure 404 {object} response.Response "帖子不存在"
-// @Router /answers/{question_id}/answer [post]
+// @Router /answers/{id}/answer [post]
 func (h *AnswerHandler) CreateAnswer(c *gin.Context) {
-	postID, err := strconv.ParseUint(c.Param("question_id"), 10, 64)
+	// 1. 获取问题ID（URL 参数）
+	questionID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		response.BadRequest(c, "无效的问题 ID")
 		return
 	}
 
+	// 2. 通过 questionID 查询 Question 记录，获取 postID
+	question, err := h.questionSvc.GetQuestionByID(uint(questionID))
+	if err != nil {
+		response.BadRequest(c, "问题不存在")
+		return
+	}
+
+	// 3. 获取 postID
+	postID := question.PostID
+
+	// 4. 绑定请求参数
 	var req CreateAnswerRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		response.BadRequest(c, err.Error())
 		return
 	}
 
+	// 5. 获取当前用户 ID
 	authorID := c.GetUint("user_id")
+
+	// 6. 构建输入
 	input := service.CreateCommentInput{
-		PostID:  uint(postID),
+		PostID:  postID,
 		Content: req.Content,
 	}
 
+	// 7. 创建回答
 	comment, err := h.commentSvc.CreateAnswer(authorID, input)
 	if err != nil {
 		response.BadRequest(c, err.Error())
 		return
 	}
+
 	response.Success(c, comment)
 }
 
