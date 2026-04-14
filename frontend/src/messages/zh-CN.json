@@ -66,6 +66,21 @@
   "refresh": "刷新",
   "export_data": "导出数据"
   },
+  "Sidebar":{
+    "all":"全部",
+  "navigation": "导航",
+    "all_posts": "全部帖子",
+    "questions": "问答",
+    "articles": "文章",
+    "announcements": "公告",
+    "boards": "板块分类",
+    "hot_tags": "热门标签",
+    "community_stats": "社区统计",
+    "violation_status": "违规情况",
+    "recent_updates": "最新动态",
+    "leaderboard": "积分榜",
+    "posts":"帖子"
+  },
   "site":{
     "brand": "天方论坛",
     "description": "一个完全开源的论坛项目，由 Nextjs 和 Gin 构建",
@@ -147,19 +162,7 @@
     "help": "帮助",
     "track": "追踪"
   },
-   "sidebar": {
-    "navigation": "导航",
-    "all_posts": "全部帖子",
-    "questions": "问答",
-    "articles": "文章",
-    "announcements": "公告",
-    "boards": "板块分类",
-    "hot_tags": "热门标签",
-    "community_stats": "社区统计",
-    "violation_status": "违规情况",
-    "recent_updates": "最新动态",
-    "leaderboard": "积分榜"
-  },
+
   "post": {
     "create": "发帖",
     "random": "随机",

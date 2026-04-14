@@ -60,7 +60,7 @@ export default function RightSidebar({
   unreadCount,
   timelineEvents,
 }: RightSidebarProps) {
-  const t = useTranslations("sidebar");
+  const t = useTranslations("Sidebar");
 
   const getEventIcon = (action: string) => {
     switch (action) {

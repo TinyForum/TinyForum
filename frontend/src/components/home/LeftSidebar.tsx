@@ -55,7 +55,7 @@ export default function LeftSidebar({
   onTagChange,
   onPostTypeChange,
 }: LeftSidebarProps) {
-  const t = useTranslations("sidebar");
+  const t = useTranslations("Sidebar");
   const [expandedBoards, setExpandedBoards] = useState<Set<number>>(new Set());
 
   const toggleBoard = (boardId: number) => {
