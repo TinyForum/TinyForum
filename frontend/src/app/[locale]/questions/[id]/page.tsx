@@ -9,7 +9,7 @@ import { useAuthStore } from '@/store/auth';
 import { useQuestionDetail } from '@/hooks/useQuestionDetail';
 import { AnswerCard } from '@/components/question/AnswerCard';
 import { toast } from 'react-hot-toast';
-import {  questionApi } from '@/lib/api';
+import {  postApi, questionApi } from '@/lib/api';
 import { AnswerForm } from '@/components/question/AnswerForm';
 import { QuestionHeader } from '@/components/question/QuestionHeader';
 import { answerApi } from '@/lib/api/modules/answer';
@@ -64,10 +64,12 @@ export default function QuestionDetailPage() {
 
     try {
       if (liked) {
-        await answerApi.removeVote(questionId);
+        await postApi.like(questionId);
+        console.log("喜欢")
         setLiked(false);
       } else {
-        await answerApi.voteAnswer(questionId,voteType);
+        await postApi.unlike(questionId);
+        console.log("不喜欢")
         setLiked(true);
       }
       refresh();

@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { commentApi } from '@/lib/api';
 import { toast } from 'react-hot-toast';
+import { answerApi } from '@/lib/api/modules/answer';
 
 export function useAnswerVote(answerId: number, currentUserId?: number) {
   const [userVote, setUserVote] = useState<string>('');
@@ -52,7 +53,7 @@ export function useAnswerVote(answerId: number, currentUserId?: number) {
     setVoteCount(prev => prev + delta);
     
     try {
-      await commentApi.voteAnswer(answerId, voteType);
+      await answerApi.voteAnswer(answerId, voteType);
       await loadVoteStatus(); // 重新获取最新状态
       toast.success(wasVoted ? '已取消投票' : '投票成功');
       return true;

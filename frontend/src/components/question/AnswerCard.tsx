@@ -92,32 +92,7 @@ export function AnswerCard({
     >
       <div className="card-body p-5">
         <div className="flex gap-4">
-          {/* 投票区域 */}
-          <div className="flex flex-col items-center gap-1">
-            <button
-              onClick={handleUpVote}
-              disabled={voteLoading}
-              className={`btn btn-sm btn-ghost p-1 min-h-0 h-auto ${
-                userVote === 'up' ? 'text-primary' : 'text-base-content/40'
-              } hover:text-primary transition-colors disabled:opacity-50`}
-            >
-              <ArrowUpIcon className="w-5 h-5" />
-            </button>
-            <span className={`text-sm font-semibold ${
-              voteCount > 0 ? 'text-primary' : voteCount < 0 ? 'text-error' : 'text-base-content/60'
-            }`}>
-              {voteCount}
-            </span>
-            <button
-              onClick={handleDownVote}
-              disabled={voteLoading}
-              className={`btn btn-sm btn-ghost p-1 min-h-0 h-auto ${
-                userVote === 'down' ? 'text-error' : 'text-base-content/40'
-              } hover:text-error transition-colors disabled:opacity-50`}
-            >
-              <ArrowDownIcon className="w-5 h-5" />
-            </button>
-          </div>
+        
 
           {/* 内容区域 */}
           <div className="flex-1 min-w-0">
@@ -229,6 +204,32 @@ export function AnswerCard({
                 评论
               </button>
             </div>
+          </div>
+            {/* 投票区域 */}
+          <div className="flex flex-col items-center gap-1">
+            <button
+              onClick={handleUpVote}
+              disabled={voteLoading}
+              className={`btn btn-sm btn-ghost p-1 min-h-0 h-auto ${
+                userVote === 'up' ? 'text-primary' : 'text-base-content/40'
+              } hover:text-primary transition-colors disabled:opacity-50`}
+            >
+              <ArrowUpIcon className="w-5 h-5" />
+            </button>
+            <span className={`text-sm font-semibold ${
+              voteCount > 0 ? 'text-primary' : voteCount < 0 ? 'text-error' : 'text-base-content/60'
+            }`}>
+              {voteCount}
+            </span>
+            <button
+              onClick={handleDownVote}
+              disabled={voteLoading}
+              className={`btn btn-sm btn-ghost p-1 min-h-0 h-auto ${
+                userVote === 'down' ? 'text-error' : 'text-base-content/40'
+              } hover:text-error transition-colors disabled:opacity-50`}
+            >
+              <ArrowDownIcon className="w-5 h-5" />
+            </button>
           </div>
         </div>
       </div>
