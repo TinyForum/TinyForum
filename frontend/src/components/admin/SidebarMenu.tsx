@@ -21,7 +21,7 @@ export function SidebarMenu({
     { id: "posts", label: t("post_management"), icon: FileText, color: "text-success" },
     { id: "qa", label: t("qa_management"), icon: HelpCircle, color: "text-secondary" },
     { id: "points", label: t("points_management"), icon: Award, color: "text-accent" },
-    { id: "statistics", label: t("statistics"), icon: BarChart3, color: "text-primary" },
+    { id: "system", label: t("system"), icon: BarChart3, color: "text-primary" },
     { id: "settings", label: t("settings"), icon: Settings, color: "text-base-content" },
   ];
 
