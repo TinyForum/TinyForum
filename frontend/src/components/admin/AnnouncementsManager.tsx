@@ -6,7 +6,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { format, isValid, parseISO } from "date-fns";
+import { format, formatISO, isValid, parse, parseISO } from "date-fns";
 import { zhCN } from "date-fns/locale";
 import toast from "react-hot-toast";
 import type { Announcement, AnnouncementType } from "@/lib/api/modules/announcements";
@@ -18,6 +18,7 @@ const announcementSchema = z.object({
   summary: z.string().max(500, "摘要不能超过500字").optional(),
   type: z.enum(["normal", "important", "emergency", "event"]),
   is_pinned: z.boolean().default(false),
+  status: z.enum(["draft", "published", "expired"]).default("draft"),
   is_global: z.boolean().default(true),
   published_at: z.string().nullable().optional(),
   expired_at: z.string().nullable().optional(),
@@ -100,6 +101,7 @@ export function AnnouncementsManager({ t }: { t: (key: string) => string }) {
     resolver: zodResolver(announcementSchema),
     defaultValues: {
       type: "normal",
+      status: "draft",
       is_pinned: false,
       is_global: announcementType === "global",
       published_at: null,
@@ -158,12 +160,18 @@ export function AnnouncementsManager({ t }: { t: (key: string) => string }) {
     setModalVisible(true);
   };
 
+const formatDateTimeLocal = (value: string | null | undefined): string | null => {
+  if (!value) return null;
+  const date = parse(value, "yyyy-MM-dd'T'HH:mm", new Date());
+  return formatISO(date);
+};
+
   // 提交表单
   const onSubmit = async (values: AnnouncementFormValues) => {
     const payload = {
       ...values,
-      published_at: values.published_at || null,
-      expired_at: values.expired_at || null,
+      published_at: formatDateTimeLocal(values.published_at),
+      expired_at: formatDateTimeLocal(values.expired_at),
     };
 
     let result;
@@ -342,114 +350,118 @@ export function AnnouncementsManager({ t }: { t: (key: string) => string }) {
         onClose={() => setModalVisible(false)}
         title={editingAnnouncement ? t("edit_announcement") : t("create_announcement")}
       >
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          {/* 标题 */}
-          <div>
-            <label className="label text-sm font-medium">{t("title")}</label>
-            <input
-              type="text"
-              className="input input-bordered w-full"
-              placeholder={t("title_placeholder")}
-              {...register("title")}
-            />
-            {errors.title && (
-              <p className="text-error text-xs mt-1">{errors.title.message}</p>
-            )}
-          </div>
+       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+  {/* 标题 */}
+  <div>
+    <label className="label text-sm font-medium">{t("title")}</label>
+    <input
+      type="text"
+      className="input input-bordered w-full"
+      placeholder={t("title_placeholder")}
+      {...register("title")}
+    />
+    {errors.title && <p className="text-error text-xs mt-1">{errors.title.message}</p>}
+  </div>
 
-          {/* 内容 */}
-          <div>
-            <label className="label text-sm font-medium">{t("content")}</label>
-            <textarea
-              className="textarea textarea-bordered w-full h-32"
-              placeholder={t("content_placeholder")}
-              {...register("content")}
-            />
-            {errors.content && (
-              <p className="text-error text-xs mt-1">{errors.content.message}</p>
-            )}
-          </div>
+  {/* 内容 */}
+  <div>
+    <label className="label text-sm font-medium">{t("content")}</label>
+    <textarea
+      className="textarea textarea-bordered w-full h-32"
+      placeholder={t("content_placeholder")}
+      {...register("content")}
+    />
+    {errors.content && <p className="text-error text-xs mt-1">{errors.content.message}</p>}
+  </div>
 
-          {/* 摘要 */}
-          <div>
-            <label className="label text-sm font-medium">{t("summary")}</label>
-            <textarea
-              className="textarea textarea-bordered w-full h-20"
-              placeholder={t("summary_placeholder")}
-              {...register("summary")}
-            />
-            {errors.summary && (
-              <p className="text-error text-xs mt-1">{errors.summary.message}</p>
-            )}
-          </div>
+  {/* 摘要 */}
+  <div>
+    <label className="label text-sm font-medium">{t("summary")}</label>
+    <textarea
+      className="textarea textarea-bordered w-full h-20"
+      placeholder={t("summary_placeholder")}
+      {...register("summary")}
+    />
+    {errors.summary && <p className="text-error text-xs mt-1">{errors.summary.message}</p>}
+  </div>
 
-          {/* 类型 */}
-          <div>
-            <label className="label text-sm font-medium">{t("type")}</label>
-            <select className="select select-bordered w-full" {...register("type")}>
-              <option value="normal">{t("normal")}</option>
-              <option value="important">{t("important")}</option>
-              <option value="emergency">{t("emergency")}</option>
-              <option value="event">{t("event")}</option>
-            </select>
-          </div>
+  {/* 第一行：类型和状态 */}
+  <div className="grid grid-cols-2 gap-4">
+    <div>
+      <label className="label text-sm font-medium">{t("type")}</label>
+      <select className="select select-bordered w-full" {...register("type")}>
+        <option value="normal">{t("normal")}</option>
+        <option value="important">{t("important")}</option>
+        <option value="emergency">{t("emergency")}</option>
+        <option value="event">{t("event")}</option>
+      </select>
+    </div>
+    <div>
+      <label className="label text-sm font-medium">{t("status")}</label>
+      <select className="select select-bordered w-full" {...register("status")}>
+        <option value="draft">{t("draft")}</option>
+        <option value="published">{t("published")}</option>
+        <option value="expired">{t("archived")}</option>
+      </select>
+    </div>
+  </div>
 
-          {/* 开关 */}
-          <div className="flex gap-4">
-            <label className="flex items-center gap-2">
-              <input type="checkbox" className="toggle toggle-sm" {...register("is_pinned")} />
-              <span className="text-sm">{t("pin")}</span>
-            </label>
-            <label className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                className="toggle toggle-sm"
-                {...register("is_global")}
-                disabled={announcementType === "global"}
-              />
-              <span className="text-sm">{t("global")}</span>
-            </label>
-          </div>
+  {/* 开关 */}
+  <div className="flex gap-4">
+    <label className="flex items-center gap-2">
+      <input type="checkbox" className="toggle toggle-sm" {...register("is_pinned")} />
+      <span className="text-sm">{t("pin")}</span>
+    </label>
+    <label className="flex items-center gap-2">
+      <input
+        type="checkbox"
+        className="toggle toggle-sm"
+        {...register("is_global")}
+        disabled={announcementType === "global"}
+      />
+      <span className="text-sm">{t("global")}</span>
+    </label>
+  </div>
 
-          {/* 时间 */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="label text-sm font-medium">{t("publish_time")}</label>
-              <input
-                type="datetime-local"
-                className="input input-bordered w-full"
-                {...register("published_at")}
-              />
-            </div>
-            <div>
-              <label className="label text-sm font-medium">{t("expire_time")}</label>
-              <input
-                type="datetime-local"
-                className="input input-bordered w-full"
-                {...register("expired_at")}
-              />
-              {errors.expired_at && (
-                <p className="text-error text-xs mt-1">{errors.expired_at.message}</p>
-              )}
-            </div>
-          </div>
+  {/* 时间 */}
+  <div className="grid grid-cols-2 gap-4">
+    <div>
+      <label className="label text-sm font-medium">{t("publish_time")}</label>
+      <input
+        type="datetime-local"
+        className="input input-bordered w-full"
+        {...register("published_at")}
+      />
+    </div>
+    <div>
+      <label className="label text-sm font-medium">{t("expire_time")}</label>
+      <input
+        type="datetime-local"
+        className="input input-bordered w-full"
+        {...register("expired_at")}
+      />
+      {errors.expired_at && (
+        <p className="text-error text-xs mt-1">{errors.expired_at.message}</p>
+      )}
+    </div>
+  </div>
 
-          {/* 按钮 */}
-          <div className="flex justify-end gap-2 pt-4">
-            <button type="button" className="btn btn-ghost" onClick={() => setModalVisible(false)}>
-              {t("cancel")}
-            </button>
-            <button type="submit" className="btn btn-primary" disabled={isFormSubmitting}>
-              {isFormSubmitting ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : editingAnnouncement ? (
-                t("update")
-              ) : (
-                t("create")
-              )}
-            </button>
-          </div>
-        </form>
+  {/* 按钮 */}
+  <div className="flex justify-end gap-2 pt-4">
+    <button type="button" className="btn btn-ghost" onClick={() => setModalVisible(false)}>
+      {t("cancel")}
+    </button>
+    <button type="submit" className="btn btn-primary" disabled={isFormSubmitting}>
+      {isFormSubmitting ? (
+        <Loader2 className="w-4 h-4 animate-spin" />
+      ) : editingAnnouncement ? (
+        t("update")
+      ) : (
+        t("create")
+      )}
+    </button>
+  </div>
+</form>
       </Modal>
     </div>
   );

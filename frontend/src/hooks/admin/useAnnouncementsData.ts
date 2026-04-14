@@ -170,6 +170,7 @@ export function useAnnouncementsData(
       try {
         const response = await announcementApi.create(params);
 
+        console.log("创建公告: ",response);
         if (response.data.code === 0) {
           toast.success("创建公告成功");
           await fetchAnnouncements();
@@ -382,60 +383,3 @@ export function useAnnouncementsData(
   };
 }
 
-// ============ 用于单个公告的 Hook ============
-interface UseAnnouncementOptions {
-  autoLoad?: boolean;
-}
-
-interface UseAnnouncementReturn {
-  announcement: Announcement | null;
-  loading: boolean;
-  fetch: (id: number) => Promise<Announcement | null>;
-  clear: () => void;
-}
-
-export function useAnnouncement(
-  id?: number,
-  options?: UseAnnouncementOptions
-): UseAnnouncementReturn {
-  const { autoLoad = true } = options || {};
-  const [announcement, setAnnouncement] = useState<Announcement | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
-
-  const fetch = useCallback(async (announcementId: number): Promise<Announcement | null> => {
-    setLoading(true);
-    try {
-      const response = await announcementApi.getById(announcementId);
-      if (response.data.code === 0) {
-        setAnnouncement(response.data.data);
-        return response.data.data;
-      } else {
-        toast.error(response.data.message || "获取公告详情失败");
-        return null;
-      }
-    } catch (error) {
-      console.error("获取公告详情失败:", error);
-      toast.error("获取公告详情失败，请稍后重试");
-      return null;
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  const clear = useCallback(() => {
-    setAnnouncement(null);
-  }, []);
-
-  useEffect(() => {
-    if (autoLoad && id) {
-      fetch(id);
-    }
-  }, [autoLoad, id, fetch]);
-
-  return {
-    announcement,
-    loading,
-    fetch,
-    clear,
-  };
-}

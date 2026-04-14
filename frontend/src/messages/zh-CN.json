@@ -24,10 +24,46 @@
     "settings_management":"设置管理",
     "announcements_management":"公告管理",
     "admin_panel": "管理面板",
-    "logout": "退出登录"
+    "logout": "退出登录",
+    "global_announcement": "全局公告",
+    "create_announcement": "创建公告",
+    "title": "标题",
+    "content": "内容",
+    "create": "创建",
+    "cancel": "取消",
+    "edit": "编辑",
+    "expire_time": "过期时间",
+    "pin": "置顶",
+    "event": "事件",
+    "emergency": "紧急",
+    "important": "重要",
+    "normal": "普通",
+    "type": "类型",
+    "summary_placeholder": "请输入公告摘要...",
+    "summary": "摘要",
+    "content_placeholder": "请输入公告内容...",
 
-
+  "title_placeholder": "请输入公告标题...",
+  "no_announcements": "暂无公告",
+  "board_announcement": "板块公告",
+  "publish_time": "发布时间",
+  "global": "全局",
+  "user_growth_trend": "用户增长趋势",
+  "post_trend": "帖子趋势",
+  "total_users": "总用户数",
+  "total_posts": "总帖子数",
+  "today_active": "今日活跃用户",
+  "total_points": "总积分",
+  "online_users": "在线用户",
+  "draft": "草稿",
+  "pulished": "已发布",
+  "archived": "已归档",
+  "status": "状态",
   
+
+
+  "refresh": "刷新",
+  "export_data": "导出数据"
   },
   "site":{
     "brand": "天方论坛",
