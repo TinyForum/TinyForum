@@ -22,7 +22,7 @@ type Post struct {
 	Content   string     `gorm:"not null;type:text" json:"content"`
 	Summary   string     `gorm:"size:500" json:"summary"`
 	Cover     string     `gorm:"size:500" json:"cover"`
-	Type      PostType   `gorm:"type:varchar(20);default:'post'" json:"type"`
+	Type      PostType   `gorm:"type:varchar(20);default:'post'" json:"type"` // essay 随笔, question 问答, article 文章
 	Status    PostStatus `gorm:"type:varchar(20);default:'published'" json:"status"`
 	AuthorID  uint       `gorm:"not null;index" json:"author_id"`
 	ViewCount int        `gorm:"default:0" json:"view_count"`
@@ -34,9 +34,8 @@ type Post struct {
 	Comments []Comment `gorm:"foreignKey:PostID" json:"-"`
 	Likes    []Like    `gorm:"foreignKey:PostID" json:"-"`
 
-	BoardID    uint      `gorm:"index" json:"board_id"`                       // 新增
-	PinInBoard bool      `gorm:"default:false" json:"pin_in_board"`           // 新增
-	IsQuestion bool      `gorm:"default:false" json:"is_question"`            // 新增：标记是否为问答帖
-	Board      Board     `gorm:"foreignKey:BoardID" json:"board,omitempty"`   // 新增
-	Question   *Question `gorm:"foreignKey:PostID" json:"question,omitempty"` // 新增
+	BoardID    uint      `gorm:"index" json:"board_id"`
+	PinInBoard bool      `gorm:"default:false" json:"pin_in_board"`
+	Board      Board     `gorm:"foreignKey:BoardID" json:"board,omitempty"`
+	Question   *Question `gorm:"foreignKey:PostID" json:"question,omitempty"`
 }

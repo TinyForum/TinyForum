@@ -144,8 +144,8 @@ func (h *QuestionHandler) GetQuestionDetail(c *gin.Context) {
 		response.NotFound(c, err.Error())
 		return
 	}
-	fmt.Printf("读取post: %v\n", post.IsQuestion)
-	if !post.IsQuestion {
+	fmt.Printf("读取 post: %v\n", post.Type)
+	if post.Type != "question" {
 		response.BadRequest(c, "该帖子不是问答类型")
 		return
 	}

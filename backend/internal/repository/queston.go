@@ -105,14 +105,14 @@ func (r *QuestionRepository) CreateWithTransaction(userID uint, input model.Crea
 
 	// 1. 创建帖子
 	post := &model.Post{
-		Title:      input.Title,
-		Content:    input.Content,
-		Summary:    input.Summary,
-		Cover:      input.Cover,
-		BoardID:    input.BoardID,
-		AuthorID:   userID,
-		IsQuestion: true,
-		Status:     "published",
+		Title:    input.Title,
+		Content:  input.Content,
+		Summary:  input.Summary,
+		Cover:    input.Cover,
+		BoardID:  input.BoardID,
+		AuthorID: userID,
+		Type:     "question",
+		Status:   "published",
 	}
 
 	if err := tx.Create(post).Error; err != nil {

@@ -5283,15 +5283,9 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "board": {
-                    "description": "新增",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/model.Board"
-                        }
-                    ]
+                    "$ref": "#/definitions/model.Board"
                 },
                 "board_id": {
-                    "description": "新增",
                     "type": "integer"
                 },
                 "content": {
@@ -5306,27 +5300,17 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "is_question": {
-                    "description": "新增：标记是否为问答帖",
-                    "type": "boolean"
-                },
                 "like_count": {
                     "type": "integer"
                 },
                 "pin_in_board": {
-                    "description": "新增",
                     "type": "boolean"
                 },
                 "pin_top": {
                     "type": "boolean"
                 },
                 "question": {
-                    "description": "新增",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/model.Question"
-                        }
-                    ]
+                    "$ref": "#/definitions/model.Question"
                 },
                 "status": {
                     "$ref": "#/definitions/model.PostStatus"
@@ -5344,7 +5328,12 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "type": {
-                    "$ref": "#/definitions/model.PostType"
+                    "description": "essay 随笔, question 问答, article 文章",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/model.PostType"
+                        }
+                    ]
                 },
                 "updated_at": {
                     "type": "string"

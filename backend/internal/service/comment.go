@@ -107,7 +107,7 @@ func (s *CommentService) CreateAnswer(authorID uint, input CreateCommentInput) (
 	if err != nil {
 		return nil, errors.New("帖子不存在")
 	}
-	if !post.IsQuestion {
+	if post.Type != "question" {
 		return nil, errors.New("该帖子不是问答类型，请使用普通评论")
 	}
 

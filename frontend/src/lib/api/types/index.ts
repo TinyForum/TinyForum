@@ -89,7 +89,7 @@ export interface Post {
   board_id: number;
   board?: Board;
   pin_in_board: boolean;
-  is_question: boolean;
+  // is_question: boolean;
   question?: Question;
   tags?: Tag[];
   created_at: string;

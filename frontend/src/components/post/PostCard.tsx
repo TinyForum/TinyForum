@@ -18,7 +18,7 @@ export default function PostCard({ post, commentCount }: PostCardProps) {
   if (!post) return null;
   
   // 判断是否为问答帖
-  const isQuestion = post.is_question === true;
+  const isQuestion = post.type === 'question';
   
   // 如果 post.author 不存在，单独获取用户信息
   const { data: fetchedAuthor } = useQuery({
@@ -37,8 +37,9 @@ export default function PostCard({ post, commentCount }: PostCardProps) {
   
   // 获取帖子类型显示文本
   const getPostTypeLabel = () => {
-    if (isQuestion) return "问答";
     switch (post.type) {
+      case "question":
+        return "问答";
       case "article":
         return "文章";
       case "topic":
@@ -46,12 +47,15 @@ export default function PostCard({ post, commentCount }: PostCardProps) {
       default:
         return "帖子";
     }
+
   };
 
   // 获取帖子类型样式
   const getPostTypeClass = () => {
-    if (isQuestion) return "badge-primary";
+
     switch (post.type) {
+      case "question":
+        return "badge-primary";
       case "article":
         return "badge-secondary";
       case "topic":
