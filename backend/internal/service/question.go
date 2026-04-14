@@ -13,8 +13,8 @@ import (
 )
 
 type QuestionService struct {
-	questionRepo *repository.QuestionRepository
-	postRepo     *repository.PostRepository
+	questionRepo repository.QuestionRepository
+	postRepo     repository.PostRepository
 	commentRepo  *repository.CommentRepository
 	userRepo     *repository.UserRepository
 	notifSvc     *NotificationService
@@ -23,8 +23,8 @@ type QuestionService struct {
 }
 
 func NewQuestionService(
-	questionRepo *repository.QuestionRepository,
-	postRepo *repository.PostRepository,
+	questionRepo repository.QuestionRepository,
+	postRepo repository.PostRepository,
 	commentRepo *repository.CommentRepository,
 	userRepo *repository.UserRepository,
 	notifSvc *NotificationService,

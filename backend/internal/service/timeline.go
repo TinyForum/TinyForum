@@ -9,14 +9,14 @@ import (
 type TimelineService struct {
 	timelineRepo *repository.TimelineRepository
 	userRepo     *repository.UserRepository
-	postRepo     *repository.PostRepository
+	postRepo     repository.PostRepository
 	commentRepo  *repository.CommentRepository
 }
 
 func NewTimelineService(
 	timelineRepo *repository.TimelineRepository,
 	userRepo *repository.UserRepository,
-	postRepo *repository.PostRepository,
+	postRepo repository.PostRepository,
 	commentRepo *repository.CommentRepository,
 ) *TimelineService {
 	return &TimelineService{

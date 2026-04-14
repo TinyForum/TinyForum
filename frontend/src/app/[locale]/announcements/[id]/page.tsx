@@ -1,271 +1,59 @@
-// app/[locale]/announcements/[id]/page.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useAuthStore } from '@/store/auth';
+import { announcementApi } from '@/lib/api';
 import { toast } from 'react-hot-toast';
 import {
-  ArrowLeftIcon,
+  MegaphoneIcon,
   CalendarIcon,
   EyeIcon,
-  UserCircleIcon,
-  MegaphoneIcon,
-  DocumentTextIcon,
-  ShareIcon,
-  FlagIcon,
-} from '@heroicons/react/24/outline';
-import { announcementApi } from '@/lib/api';
-import type { Announcement } from '@/lib/api/types';
+  PinIcon,
+  ArrowLeftIcon,
+  TagIcon,
+} from 'lucide-react';
+import type { Announcement } from '@/lib/api/modules/announcements';
 
-// 公告详情组件
-function AnnouncementDetail({ announcement }: { announcement: Announcement }) {
-  const [showShareMenu, setShowShareMenu] = useState(false);
-
-  const handleShare = async () => {
-    try {
-      await navigator.clipboard.writeText(window.location.href);
-      toast.success('链接已复制到剪贴板');
-      setShowShareMenu(false);
-    } catch (error) {
-      toast.error('复制失败');
-    }
-  };
-
-  const getAnnouncementTypeIcon = (type: string) => {
-    switch (type) {
-      case 'system':
-        return '🔧';
-      case 'feature':
-        return '✨';
-      case 'maintenance':
-        return '🔨';
-      case 'policy':
-        return '📋';
-      default:
-        return '📢';
-    }
-  };
-
-  const getAnnouncementTypeColor = (type: string) => {
-    switch (type) {
-      case 'system':
-        return 'bg-blue-100 text-blue-700';
-      case 'feature':
-        return 'bg-green-100 text-green-700';
-      case 'maintenance':
-        return 'bg-yellow-100 text-yellow-700';
-      case 'policy':
-        return 'bg-purple-100 text-purple-700';
-      default:
-        return 'bg-gray-100 text-gray-700';
-    }
-  };
-
-  const getAnnouncementTypeLabel = (type: string) => {
-    switch (type) {
-      case 'system':
-        return '系统公告';
-      case 'feature':
-        return '功能更新';
-      case 'maintenance':
-        return '维护通知';
-      case 'policy':
-        return '政策变更';
-      default:
-        return '公告';
-    }
-  };
-
-  return (
-    <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-      {/* 头部 */}
-      <div className="p-6 border-b">
-        <div className="flex items-center gap-3 mb-4 flex-wrap">
-          <MegaphoneIcon className="w-8 h-8 text-indigo-500" />
-          <div className={`px-3 py-1 rounded-full text-sm font-medium ${getAnnouncementTypeColor(announcement.type)}`}>
-            {getAnnouncementTypeIcon(announcement.type)} {getAnnouncementTypeLabel(announcement.type)}
-          </div>
-          {announcement.is_pinned && (
-            <div className="px-3 py-1 rounded-full text-sm font-medium bg-orange-100 text-orange-700">
-              📌 置顶
-            </div>
-          )}
-        </div>
-
-        <h1 className="text-2xl font-bold text-gray-900 mb-4">
-          {announcement.title}
-        </h1>
-
-        <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
-          <div className="flex items-center gap-1">
-            <UserCircleIcon className="w-4 h-4" />
-            <Link href={`/users/${announcement.author_id}`} className="hover:text-indigo-600">
-              {announcement.author?.username || `用户${announcement.author_id}`}
-            </Link>
-          </div>
-          <div className="flex items-center gap-1">
-            <CalendarIcon className="w-4 h-4" />
-            {new Date(announcement.created_at).toLocaleDateString('zh-CN', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit',
-            })}
-          </div>
-          <div className="flex items-center gap-1">
-            <EyeIcon className="w-4 h-4" />
-            {announcement.view_count || 0} 次阅读
-          </div>
-          <div className="flex items-center gap-1">
-            <DocumentTextIcon className="w-4 h-4" />
-            {announcement.content?.length || 0} 字
-          </div>
-        </div>
-      </div>
-
-      {/* 内容 */}
-      <div className="p-6">
-        <div
-          className="prose max-w-none"
-          dangerouslySetInnerHTML={{ __html: announcement.content }}
-        />
-      </div>
-
-      {/* 操作按钮 */}
-      <div className="px-6 pb-6 flex gap-2">
-        <div className="relative">
-          <button
-            onClick={() => setShowShareMenu(!showShareMenu)}
-            className="flex items-center gap-1 px-3 py-1 text-gray-500 hover:text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"
-          >
-            <ShareIcon className="w-4 h-4" />
-            分享
-          </button>
-          {showShareMenu && (
-            <>
-              <div
-                className="fixed inset-0 z-40"
-                onClick={() => setShowShareMenu(false)}
-              />
-              <div className="absolute top-full left-0 mt-1 bg-white rounded-lg shadow-lg border p-2 z-50 min-w-[120px]">
-                <button
-                  onClick={handleShare}
-                  className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md w-full"
-                >
-                  📋 复制链接
-                </button>
-              </div>
-            </>
-          )}
-        </div>
-        <button className="flex items-center gap-1 px-3 py-1 text-gray-500 hover:text-red-500 rounded-lg hover:bg-gray-100 transition-colors">
-          <FlagIcon className="w-4 h-4" />
-          举报
-        </button>
-      </div>
-    </div>
-  );
-}
-
-// 加载骨架屏
-function LoadingSkeleton() {
-  return (
-    <div className="bg-white rounded-lg shadow-sm overflow-hidden animate-pulse">
-      <div className="p-6 border-b">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-8 h-8 bg-gray-200 rounded-full" />
-          <div className="w-20 h-6 bg-gray-200 rounded-full" />
-        </div>
-        <div className="h-8 bg-gray-200 rounded w-3/4 mb-4" />
-        <div className="flex gap-4">
-          <div className="h-4 bg-gray-200 rounded w-24" />
-          <div className="h-4 bg-gray-200 rounded w-32" />
-          <div className="h-4 bg-gray-200 rounded w-20" />
-        </div>
-      </div>
-      <div className="p-6 space-y-3">
-        <div className="h-4 bg-gray-200 rounded w-full" />
-        <div className="h-4 bg-gray-200 rounded w-11/12" />
-        <div className="h-4 bg-gray-200 rounded w-10/12" />
-        <div className="h-4 bg-gray-200 rounded w-9/12" />
-      </div>
-    </div>
-  );
-}
-
-// 错误状态组件
-function ErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
-  return (
-    <div className="bg-white rounded-lg shadow-sm p-12 text-center">
-      <div className="text-6xl mb-4">⚠️</div>
-      <h3 className="text-lg font-medium text-gray-900 mb-2">加载失败</h3>
-      <p className="text-gray-500 mb-4">{message}</p>
-      <button
-        onClick={onRetry}
-        className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
-      >
-        重新加载
-      </button>
-    </div>
-  );
-}
-
-// 公告不存在状态
-function NotFoundState() {
-  return (
-    <div className="bg-white rounded-lg shadow-sm p-12 text-center">
-      <div className="text-6xl mb-4">📭</div>
-      <h3 className="text-lg font-medium text-gray-900 mb-2">公告不存在</h3>
-      <p className="text-gray-500 mb-4">该公告可能已被删除或不存在</p>
-      <Link
-        href="/announcements"
-        className="inline-block px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
-      >
-        返回公告列表
-      </Link>
-    </div>
-  );
-}
+// 公告类型配置
+const TYPE_CONFIG: Record<string, { color: string; label: string; bgColor: string }> = {
+  normal: { color: 'text-blue-700', label: '普通公告', bgColor: 'bg-blue-50' },
+  important: { color: 'text-orange-700', label: '重要公告', bgColor: 'bg-orange-50' },
+  emergency: { color: 'text-red-700', label: '紧急公告', bgColor: 'bg-red-50' },
+  event: { color: 'text-green-700', label: '活动公告', bgColor: 'bg-green-50' },
+};
 
 export default function AnnouncementDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const { isAuthenticated } = useAuthStore();
   const [announcement, setAnnouncement] = useState<Announcement | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  const id = Number(params.id);
-
-  // 加载公告详情
   const loadAnnouncement = async () => {
-    if (!id || isNaN(id)) {
-      setError('无效的公告ID');
-      setLoading(false);
+    const id = parseInt(params.id as string);
+    if (isNaN(id)) {
+      toast.error('无效的公告ID');
+      router.push('/announcements');
       return;
     }
 
     setLoading(true);
-    setError(null);
-    
     try {
       const response = await announcementApi.getById(id);
-      
-      if (response.data.code === 200 || response.data.code === 0) {
+      if (response.data.code === 0) {
         setAnnouncement(response.data.data);
-      } else if (response.data.code === 404) {
-        setAnnouncement(null);
       } else {
-        throw new Error(response.data.message || '加载失败');
+        toast.error(response.data.message || '公告不存在');
+        router.push('/announcements');
       }
     } catch (error: any) {
       console.error('Failed to load announcement:', error);
-      const errorMsg = error.response?.data?.message || error.message || '加载公告失败';
-      setError(errorMsg);
-      toast.error(errorMsg);
+      if (error.response?.status === 404) {
+        toast.error('公告不存在');
+        router.push('/announcements');
+      } else {
+        toast.error('加载失败，请稍后重试');
+      }
     } finally {
       setLoading(false);
     }
@@ -273,41 +61,116 @@ export default function AnnouncementDetailPage() {
 
   useEffect(() => {
     loadAnnouncement();
-  }, [id]);
+  }, [params.id]);
 
-  // 页面标题
-  useEffect(() => {
-    if (announcement) {
-      document.title = `${announcement.title} - 公告`;
-    } else if (!loading) {
-      document.title = '公告详情';
-    }
-  }, [announcement, loading]);
+  const formatDate = (dateStr: string | null) => {
+    if (!dateStr) return '待发布';
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('zh-CN', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  };
+
+  const typeConfig = announcement ? TYPE_CONFIG[announcement.type] || TYPE_CONFIG.normal : null;
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="max-w-3xl mx-auto px-4">
+          <div className="bg-white rounded-lg shadow-sm p-8 animate-pulse">
+            <div className="h-8 bg-gray-200 rounded w-3/4 mb-4" />
+            <div className="h-4 bg-gray-200 rounded w-1/2 mb-6" />
+            <div className="space-y-3">
+              <div className="h-4 bg-gray-200 rounded w-full" />
+              <div className="h-4 bg-gray-200 rounded w-full" />
+              <div className="h-4 bg-gray-200 rounded w-2/3" />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!announcement) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4">
+      <div className="max-w-3xl mx-auto px-4">
         {/* 返回按钮 */}
-        <div className="mb-4">
-          <Link
-            href="/announcements"
-            className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
-          >
-            <ArrowLeftIcon className="w-4 h-4" />
-            返回公告列表
-          </Link>
-        </div>
+        <Link
+          href="/announcements"
+          className="inline-flex items-center gap-2 text-gray-500 hover:text-gray-700 mb-4 transition-colors"
+        >
+          <ArrowLeftIcon className="w-4 h-4" />
+          返回公告列表
+        </Link>
 
-        {/* 内容区域 */}
-        {loading ? (
-          <LoadingSkeleton />
-        ) : error ? (
-          <ErrorState message={error} onRetry={loadAnnouncement} />
-        ) : !announcement ? (
-          <NotFoundState />
-        ) : (
-          <AnnouncementDetail announcement={announcement} />
-        )}
+        {/* 公告内容 */}
+        <article className="bg-white rounded-lg shadow-sm overflow-hidden">
+          {/* 头部 */}
+          <div className="p-6 border-b border-gray-100">
+            <div className="flex items-center gap-2 mb-4 flex-wrap">
+              {typeConfig && (
+                <span className={`text-xs px-2 py-0.5 rounded-full ${typeConfig.bgColor} ${typeConfig.color}`}>
+                  {typeConfig.label}
+                </span>
+              )}
+              {announcement.is_pinned && (
+                <span className="text-xs px-2 py-0.5 rounded-full bg-orange-100 text-orange-700 flex items-center gap-1">
+                  <PinIcon className="w-3 h-3" />
+                  置顶
+                </span>
+              )}
+              {announcement.board && (
+                <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 flex items-center gap-1">
+                  <TagIcon className="w-3 h-3" />
+                  {announcement.board.name}
+                </span>
+              )}
+            </div>
+            
+            <h1 className="text-2xl font-bold text-gray-900 mb-4">
+              {announcement.title}
+            </h1>
+            
+            <div className="flex items-center gap-4 text-sm text-gray-400">
+              <div className="flex items-center gap-1">
+                <CalendarIcon className="w-4 h-4" />
+                发布时间：{formatDate(announcement.published_at || announcement.created_at)}
+              </div>
+              <div className="flex items-center gap-1">
+                <EyeIcon className="w-4 h-4" />
+                浏览 {announcement.view_count || 0} 次
+              </div>
+            </div>
+          </div>
+
+          {/* 内容 */}
+          <div className="p-6">
+            <div 
+              className="prose prose-gray max-w-none"
+              dangerouslySetInnerHTML={{ __html: announcement.content }}
+            />
+          </div>
+
+          {/* 页脚 */}
+          <div className="p-6 bg-gray-50 border-t border-gray-100">
+            <div className="text-xs text-gray-400 text-center">
+              {announcement.created_by && (
+                <p>发布者 ID: {announcement.created_by}</p>
+              )}
+              {announcement.expired_at && new Date(announcement.expired_at) < new Date() && (
+                <p className="text-orange-500 mt-1">此公告已过期</p>
+              )}
+            </div>
+          </div>
+        </article>
       </div>
     </div>
   );

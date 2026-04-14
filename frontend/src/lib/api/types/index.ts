@@ -235,18 +235,18 @@ export interface AuthResult {
 
 
 // lib/api/types/index.ts 中添加
-export interface Announcement {
-  id: number;
-  title: string;
-  content: string;
-  type: "system" | "feature" | "maintenance" | "policy";
-  is_pinned: boolean;
-  view_count: number;
-  author_id: number;
-  author?: User;
-  created_at: string;
-  updated_at: string;
-}
+// export interface Announcement {
+//   id: number;
+//   title: string;
+//   content: string;
+//   type: "system" | "feature" | "maintenance" | "policy";
+//   is_pinned: boolean;
+//   view_count: number;
+//   author_id: number;
+//   author?: User;
+//   created_at: string;
+//   updated_at: string;
+// }
 
 export interface QuestionSimple extends BaseModel {
   title: string;

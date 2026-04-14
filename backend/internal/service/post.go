@@ -12,7 +12,7 @@ import (
 )
 
 type PostService struct {
-	postRepo  *repository.PostRepository
+	postRepo  repository.PostRepository
 	tagRepo   *repository.TagRepository
 	boardRepo *repository.BoardRepository
 	userRepo  *repository.UserRepository
@@ -20,7 +20,7 @@ type PostService struct {
 }
 
 func NewPostService(
-	postRepo *repository.PostRepository,
+	postRepo repository.PostRepository,
 	tagRepo *repository.TagRepository,
 	userRepo *repository.UserRepository,
 	boardRepo *repository.BoardRepository,

@@ -1,7 +1,9 @@
 package repository
 
 import (
+	"context"
 	"errors"
+	"fmt"
 	"tiny-forum/internal/model"
 
 	"gorm.io/gorm"
@@ -15,6 +17,7 @@ func NewUserRepository(db *gorm.DB) *UserRepository {
 	return &UserRepository{db: db}
 }
 
+// MARK: 用户管理
 func (r *UserRepository) Create(user *model.User) error {
 	return r.db.Create(user).Error
 }
@@ -45,6 +48,7 @@ func (r *UserRepository) UpdateFields(id uint, fields map[string]interface{}) er
 	return r.db.Model(&model.User{}).Where("id = ?", id).Updates(fields).Error
 }
 
+// 列出用户
 func (r *UserRepository) List(page, pageSize int, keyword string) ([]model.User, int64, error) {
 	var users []model.User
 	var total int64
@@ -60,6 +64,58 @@ func (r *UserRepository) List(page, pageSize int, keyword string) ([]model.User,
 	return users, total, err
 }
 
+// 积分排名
+func (r *UserRepository) GetTopUsers(limit int) ([]model.User, error) {
+	var users []model.User
+	err := r.db.Order("score DESC").Limit(limit).Find(&users).Error
+	return users, err
+}
+
+// 关注排名
+func (r *UserRepository) GetTopFollowers(limit int) ([]model.User, error) {
+	var users []model.User
+	err := r.db.Table("users").
+		Select("users.*, COUNT(follows.follower_id) as follower_count").
+		Joins("LEFT JOIN follows ON users.id = follows.following_id").
+		Group("users.id").Order("follower_count DESC").Limit(limit).Find(&users).Error
+	return users, err
+}
+
+// GetFollowing 获取用户关注的列表
+func (r *UserRepository) GetFollowing(userID uint, page, pageSize int) ([]model.User, int64, error) {
+	var users []model.User
+	var total int64
+
+	offset := (page - 1) * pageSize
+
+	// 获取关注总数
+	err := r.db.Model(&model.Follow{}).
+		Where("follower_id = ?", userID).
+		Count(&total).Error
+	if err != nil {
+		return nil, 0, err
+	}
+
+	// 获取关注的用户列表
+	err = r.db.Model(&model.Follow{}).
+		Select("users.*").
+		Joins("JOIN users ON follows.following_id = users.id").
+		Where("follows.follower_id = ?", userID).
+		Offset(offset).
+		Limit(pageSize).
+		Find(&users).Error
+
+	return users, total, err
+}
+
+// 用户查询自己的积分
+func (r *UserRepository) GetScoreById(userID uint) (int, error) {
+	var user model.User
+	err := r.db.Model(&model.User{}).Select("score").Where("id = ?", userID).First(&user).Error
+	return user.Score, err
+}
+
+// MARK: 互动相关操作
 // Follow/unfollow
 func (r *UserRepository) Follow(followerID, followingID uint) error {
 	follow := model.Follow{FollowerID: followerID, FollowingID: followingID}
@@ -92,47 +148,6 @@ func (r *UserRepository) GetFollowingCount(userID uint) int64 {
 	return count
 }
 
-// Score
-func (r *UserRepository) AddScore(userID uint, score int) error {
-	return r.db.Model(&model.User{}).Where("id = ?", userID).
-		UpdateColumn("score", gorm.Expr("score + ?", score)).Error
-}
-
-// Ranking
-func (r *UserRepository) GetTopUsers(limit int) ([]model.User, error) {
-	var users []model.User
-	err := r.db.Order("score DESC").Limit(limit).Find(&users).Error
-	return users, err
-}
-
-// GetFollowing 获取用户关注的列表
-func (r *UserRepository) GetFollowing(userID uint, page, pageSize int) ([]model.User, int64, error) {
-	var users []model.User
-	var total int64
-
-	offset := (page - 1) * pageSize
-
-	// 获取关注总数
-	err := r.db.Model(&model.Follow{}).
-		Where("follower_id = ?", userID).
-		Count(&total).Error
-	if err != nil {
-		return nil, 0, err
-	}
-
-	// 获取关注的用户列表
-	err = r.db.Model(&model.Follow{}).
-		Select("users.*").
-		Joins("JOIN users ON follows.following_id = users.id").
-		Where("follows.follower_id = ?", userID).
-		Offset(offset).
-		Limit(pageSize).
-		Find(&users).Error
-
-	return users, total, err
-}
-
-// GetFollowing 获取关注用户的列表
 // GetFollowers 获取用户的粉丝列表（谁关注了该用户）
 func (r *UserRepository) GetFollowers(userID uint, page, pageSize int) ([]model.User, int64, error) {
 	var users []model.User
@@ -160,6 +175,7 @@ func (r *UserRepository) GetFollowers(userID uint, page, pageSize int) ([]model.
 	return users, total, err
 }
 
+// MARK: 积分相关操作
 // DeductScore 扣减用户积分（使用事务）
 func (r *UserRepository) DeductScore(tx *gorm.DB, userID uint, score int) error {
 	if score <= 0 {
@@ -178,6 +194,44 @@ func (r *UserRepository) DeductScore(tx *gorm.DB, userID uint, score int) error 
 	return tx.Model(&user).Update("score", gorm.Expr("score - ?", score)).Error
 }
 
+func (r *UserRepository) AddScore(userID uint, score int) error {
+	return r.db.Model(&model.User{}).Where("id = ?", userID).
+		UpdateColumn("score", gorm.Expr("score + ?", score)).Error
+}
+
+// 设置用户积分
+func (r *UserRepository) SetScoreById(id uint, score int) error {
+	// 1. 验证ID有效性
+	if id == 0 {
+		return errors.New("无效的用户ID")
+	}
+
+	// 2. 验证积分范围（根据业务需求调整）
+	if score < 0 {
+		return errors.New("积分不能为负数")
+	}
+	if score > 999999 {
+		return errors.New("积分超出最大限制")
+	}
+
+	// 3. 执行更新操作
+	result := r.db.Model(&model.User{}).
+		Where("id = ?", id).
+		Update("score", score)
+
+	// 4. 检查更新结果
+	if result.Error != nil {
+		return fmt.Errorf("更新积分失败: %w", result.Error)
+	}
+
+	// 5. 检查是否更新了记录
+	if result.RowsAffected == 0 {
+		return errors.New("用户不存在")
+	}
+
+	return nil
+}
+
 // internal/repository/user_repository.go
 
 // FindByIDs 批量查询用户
@@ -187,5 +241,42 @@ func (r *UserRepository) FindByIDs(ids []uint) ([]model.User, error) {
 	}
 	var users []model.User
 	err := r.db.Where("id IN ?", ids).Find(&users).Error
+	return users, err
+}
+
+// internal/repository/user_repository.go
+
+// Count 获取用户总数
+func (r *UserRepository) Count(ctx context.Context) (int64, error) {
+	var count int64
+	err := r.db.Model(&model.User{}).Count(&count).Error
+	return count, err
+}
+
+// CountByDateRange 根据日期范围统计用户数
+func (r *UserRepository) CountByDateRange(ctx context.Context, startDate, endDate string) (int64, error) {
+	var count int64
+	err := r.db.Model(&model.User{}).
+		Where("created_at BETWEEN ? AND ?", startDate, endDate).
+		Count(&count).Error
+	return count, err
+}
+
+// CountActiveByDateRange 统计活跃用户数
+func (r *UserRepository) CountActiveByDateRange(ctx context.Context, startDate, endDate string) (int64, error) {
+	var count int64
+	err := r.db.Model(&model.User{}).
+		Where("last_login BETWEEN ? AND ?", startDate, endDate).
+		Count(&count).Error
+	return count, err
+}
+
+// GetActiveUsersByDateRange 获取活跃用户列表
+func (r *UserRepository) GetActiveUsersByDateRange(ctx context.Context, startDate, endDate string, limit int) ([]*model.User, error) {
+	var users []*model.User
+	err := r.db.Where("last_login BETWEEN ? AND ?", startDate, endDate).
+		Order("last_login DESC").
+		Limit(limit).
+		Find(&users).Error
 	return users, err
 }

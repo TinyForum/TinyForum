@@ -1,4 +1,34 @@
 {
+  "Admin":{
+    "dashboard": "仪表盘",
+    "dashboard_description": "管理后台仪表盘",
+    "announcements":"公告",
+    "announcements_description": "管理论坛公告",
+    "users": "用户",
+    "users_description": "管理论坛用户",
+    "posts": "帖子",
+    "posts_description": "管理论坛帖子",
+    "qa": "问答",
+    "qa_description": "管理论坛问答",
+    "points": "积分",
+    "points_description": "管理论坛积分",
+    "statistics": "统计",
+    "statistics_description": "论坛统计信息",
+    "settings":"设置",
+    "settings_description": "管理论坛设置",
+    "user_management":"用户管理",
+    "post_management":"帖子管理",
+    "qa_management":"问答管理",
+    "points_management":"积分管理",
+    "statistics_management":"统计管理",
+    "settings_management":"设置管理",
+    "announcements_management":"公告管理",
+    "admin_panel": "管理面板",
+    "logout": "退出登录"
+
+
+  
+  },
   "site":{
     "brand": "天方论坛",
     "description": "一个完全开源的论坛项目，由 Nextjs 和 Gin 构建",

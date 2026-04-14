@@ -2,8 +2,8 @@ package model
 
 import "time"
 
-// SystemInfo 系统基础统计信息
-type SystemInfo struct {
+// StatsInfo 系统基础统计信息
+type StatsInfo struct {
 	TotalUser    int64 `json:"total_user"`    // 总用户数
 	TotalArticle int64 `json:"total_article"` // 总文章数
 	TotalComment int64 `json:"total_comment"` // 总评论数
@@ -11,8 +11,8 @@ type SystemInfo struct {
 	TotalTag     int64 `json:"total_tag"`     // 总标签数
 }
 
-// SystemTodayInfo 今日统计信息
-type SystemTodayInfo struct {
+// StatsTodayInfo 今日统计信息
+type StatsTodayInfo struct {
 	NewUser    int64 `json:"new_user"`    // 今日新增用户
 	NewArticle int64 `json:"new_article"` // 今日新增文章
 	NewComment int64 `json:"new_comment"` // 今日新增评论
@@ -21,19 +21,19 @@ type SystemTodayInfo struct {
 	ActiveUser int64 `json:"active_user"` // 今日活跃用户数
 }
 
-// SystemInfoResp 统计信息响应（聚合根）
-type SystemInfoResp struct {
-	BaseInfo       *SystemInfo           `json:"base_info"`                  // 基础统计信息
-	TodayInfo      *SystemTodayInfo      `json:"today_info"`                 // 今日统计信息
-	IllegalInfo    *SystemIllegalInfo    `json:"illegal_info,omitempty"`     // 今日违规信息
-	ActiveUserInfo *SystemActiveUserInfo `json:"active_user_info,omitempty"` // 今日活跃用户信息
-	HotArticles    []*HotArticleItem     `json:"hot_articles,omitempty"`     // 今日热门文章列表
-	HotBoards      []*HotBoardItem       `json:"hot_boards,omitempty"`       // 今日热门板块列表
-	StatTime       time.Time             `json:"stat_time"`                  // 统计时间
+// StatsInfoResp 统计信息响应（聚合根）
+type StatsInfoResp struct {
+	BaseInfo       *StatsInfo           `json:"base_info"`                  // 基础统计信息
+	TodayInfo      *StatsTodayInfo      `json:"today_info"`                 // 今日统计信息
+	IllegalInfo    *StatsIllegalInfo    `json:"illegal_info,omitempty"`     // 今日违规信息
+	ActiveUserInfo *StatsActiveUserInfo `json:"active_user_info,omitempty"` // 今日活跃用户信息
+	HotArticles    []*HotArticleItem    `json:"hot_articles,omitempty"`     // 今日热门文章列表
+	HotBoards      []*HotBoardItem      `json:"hot_boards,omitempty"`       // 今日热门板块列表
+	StatTime       time.Time            `json:"stat_time"`                  // 统计时间
 }
 
-// SystemIllegalInfo 违规统计信息
-type SystemIllegalInfo struct {
+// StatsIllegalInfo 违规统计信息
+type StatsIllegalInfo struct {
 	Total      int64 `json:"total"`       // 今日违规总数
 	UserCount  int64 `json:"user_count"`  // 今日违规用户数
 	ArticleCnt int64 `json:"article_cnt"` // 今日违规文章数
@@ -41,8 +41,8 @@ type SystemIllegalInfo struct {
 	BoardCnt   int64 `json:"board_cnt"`   // 今日违规板块数
 }
 
-// SystemActiveUserInfo 活跃用户信息
-type SystemActiveUserInfo struct {
+// StatsActiveUserInfo 活跃用户信息
+type StatsActiveUserInfo struct {
 	Total int64               `json:"total"` // 今日活跃用户总数
 	List  []*ActiveUserDetail `json:"list"`  // 今日活跃用户列表（最多N条）
 }
@@ -51,7 +51,6 @@ type SystemActiveUserInfo struct {
 type ActiveUserDetail struct {
 	UserID       int64     `json:"user_id"`        // 用户ID
 	Username     string    `json:"username"`       // 用户名
-	Nickname     string    `json:"nickname"`       // 昵称
 	Avatar       string    `json:"avatar"`         // 头像
 	ArticleCount int       `json:"article_count"`  // 今日发文数
 	CommentCount int       `json:"comment_count"`  // 今日评论数
@@ -84,8 +83,32 @@ type HotBoardItem struct {
 }
 
 // ViolatorItem 违规用户项（可选扩展）
-type ViolatorItem struct {
+type StatsViolatorItem struct {
 	UserID       int64  `json:"user_id"`       // 用户ID
 	Username     string `json:"username"`      // 用户名
 	ViolationCnt int64  `json:"violation_cnt"` // 违规次数
+}
+
+type StatsDayResponse struct {
+	Day   string `json:"day"`
+	Type  string `json:"type"`
+	Count int64  `json:"count"`
+}
+type StatsTotalResponse struct {
+	Type  string `json:"type"`
+	Count int64  `json:"count"`
+}
+
+type StatsTrendResponse struct {
+	StartDate string       `json:"start_date"` // 开始日期
+	EndDate   string       `json:"end_date"`   // 结束日期
+	Interval  string       `json:"interval"`   // 统计粒度 (day/week/month)
+	Type      string       `json:"type"`       // 统计类型
+	Trend     []*TrendData `json:"trend"`      // 趋势数据
+}
+
+// TrendData 趋势数据
+type TrendData struct {
+	Date  string `json:"date"`
+	Count int64  `json:"count"`
 }

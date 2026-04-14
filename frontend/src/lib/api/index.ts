@@ -35,7 +35,6 @@ export type {
   TopicPost,
   TopicFollow,
   AuthResult,
-  Announcement
 } from "./types";
 
 // ─── Modules ──────────────────────────────────────────────────────────────────
@@ -59,10 +58,6 @@ export type {
   PostListParams,
   CreatePostPayload,
   UpdatePostPayload,
-  QuestionListParams,
-  CreateQuestionPayload,
-  QuestionDetailParams,
-  QuestionDetailResult,
   PostDetailResult,
 } from "./modules/posts";
 export type {

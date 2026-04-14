@@ -64,7 +64,6 @@ func InitDB(cfg *config.Config) (*gorm.DB, error) {
 		&model.Notification{},
 		&model.SignIn{},
 		&model.Report{},
-		// 新功能表
 		&model.Board{},
 		&model.Moderator{},
 		&model.BoardBan{},
@@ -77,6 +76,7 @@ func InitDB(cfg *config.Config) (*gorm.DB, error) {
 		&model.Topic{},
 		&model.TopicPost{},
 		&model.TopicFollow{},
+		&model.Announcement{},
 	); err != nil {
 		return nil, fmt.Errorf("auto migrate failed: %w", err)
 	}
@@ -96,53 +96,47 @@ func InitApp(cfg *config.Config) (*App, error) {
 	jwtMgr := jwtpkg.NewManager(cfg.JWT.Secret, cfg.JWT.Expire)
 
 	// ========== Repositories ==========
-	// 原有
 	userRepo := repository.NewUserRepository(db)
 	postRepo := repository.NewPostRepository(db)
 	commentRepo := repository.NewCommentRepository(db)
 	tagRepo := repository.NewTagRepository(db)
 	notifRepo := repository.NewNotificationRepository(db)
-
-	// 新功能
 	boardRepo := repository.NewBoardRepository(db)
 	timelineRepo := repository.NewTimelineRepository(db)
 	topicRepo := repository.NewTopicRepository(db)
 	questionRepo := repository.NewQuestionRepository(db)
 	voteRepo := repository.NewVoteRepository(db)
+	announcementRepo := repository.NewAnnouncementRepository(db)
+	statsRepo := repository.NewStatsRepository(db)
 
 	// ========== Services ==========
 	// 基础服务
 	notifSvc := service.NewNotificationService(notifRepo)
 	userSvc := service.NewUserService(userRepo, jwtMgr, notifSvc)
 	tagSvc := service.NewTagService(tagRepo)
-
-	// 新功能服务（注意顺序：被依赖的先创建）
 	boardSvc := service.NewBoardService(boardRepo, userRepo, postRepo, notifSvc)
 	timelineSvc := service.NewTimelineService(timelineRepo, userRepo, postRepo, commentRepo)
 	topicSvc := service.NewTopicService(topicRepo, postRepo, userRepo, notifSvc)
 	questionSvc := service.NewQuestionService(questionRepo, postRepo, commentRepo, userRepo, notifSvc, tagRepo)
-
-	// 依赖其他服务的服务
 	postSvc := service.NewPostService(postRepo, tagRepo, userRepo, boardRepo, notifSvc)
 	commentSvc := service.NewCommentService(commentRepo, postRepo, userRepo, notifSvc, voteRepo)
+	announcementSvc := service.NewAnnouncementService(announcementRepo)
+	statsSvc := service.NewStatsService(statsRepo, postRepo, tagRepo, boardRepo, userRepo, timelineRepo, notifRepo, topicRepo, commentRepo, announcementRepo, questionRepo)
 
 	// ========== Handlers ==========
-	// 原有
 	authHandler := handler.NewAuthHandler(userSvc)
 	userHandler := handler.NewUserHandler(userSvc)
 	tagHandler := handler.NewTagHandler(tagSvc)
 	notifHandler := handler.NewNotificationHandler(notifSvc)
-
-	// 更新构造函数（需要传入 questionSvc）
 	postHandler := handler.NewPostHandler(postSvc, questionSvc)
 	commentHandler := handler.NewCommentHandler(commentSvc, questionSvc)
-
-	// 新功能
 	boardHandler := handler.NewBoardHandler(boardSvc)
 	timelineHandler := handler.NewTimelineHandler(timelineSvc)
 	topicHandler := handler.NewTopicHandler(topicSvc)
 	questionHandler := handler.NewQuestionHandler(questionSvc, commentSvc, postSvc)
 	answerHandler := handler.NewAnswerHandler(questionSvc, commentSvc, postSvc)
+	announcementHandler := handler.NewAnnouncementHandler(announcementSvc)
+	statsHandler := handler.NewStatsHandler(statsSvc)
 
 	// ========== Gin Engine ==========
 	gin.SetMode(cfg.Server.Mode)
@@ -218,6 +212,8 @@ func InitApp(cfg *config.Config) (*App, error) {
 		userGroup.DELETE("/:id/follow", middleware.Auth(jwtMgr), userHandler.Unfollow)
 		userGroup.GET("/:id/followers", middleware.OptionalAuth(jwtMgr), userHandler.GetFollowers)
 		userGroup.GET("/:id/following", middleware.OptionalAuth(jwtMgr), userHandler.GetFollowing)
+		userGroup.GET("/:id/Score", middleware.OptionalAuth(jwtMgr), userHandler.GetScore)
+
 	}
 
 	// ----- MARK: Notification routes
@@ -329,6 +325,26 @@ func InitApp(cfg *config.Config) (*App, error) {
 		questionGroup.POST("/:id/answers", middleware.Auth(jwtMgr), answerHandler.CreateAnswer)
 	}
 
+	// ========== MARK: Announcement routes ==========
+	announcementGroup := api.Group("/announcements")
+	{
+		// 公开接口（所有用户可访问）
+		announcementGroup.GET("", announcementHandler.List)
+		announcementGroup.GET("/pinned", announcementHandler.GetPinned)
+		announcementGroup.GET("/:id", announcementHandler.GetByID)
+	}
+
+	// 公告管理接口（需要管理员权限）
+	announcementAdminGroup := api.Group("/admin/announcements", middleware.Auth(jwtMgr), middleware.AdminRequired())
+	{
+		announcementAdminGroup.POST("", announcementHandler.Create)
+		announcementAdminGroup.PUT("/:id", announcementHandler.Update)
+		announcementAdminGroup.DELETE("/:id", announcementHandler.Delete)
+		announcementAdminGroup.POST("/:id/publish", announcementHandler.Publish)
+		announcementAdminGroup.POST("/:id/archive", announcementHandler.Archive)
+		announcementAdminGroup.PUT("/:id/pin", announcementHandler.Pin)
+	}
+
 	// ----- MARK: Admin routes -----
 	adminGroup := api.Group("/admin", middleware.Auth(jwtMgr), middleware.AdminRequired())
 	{
@@ -337,11 +353,13 @@ func InitApp(cfg *config.Config) (*App, error) {
 		adminGroup.PUT("/users/:id/blocked", userHandler.AdminSetBlocked)
 		adminGroup.GET("/posts", postHandler.AdminList)
 		adminGroup.PUT("/posts/:id/pin", postHandler.AdminTogglePin)
-		// adminGroup.PUT("/posts/:id/pin-board", postHandler.AdminTogglePinInBoard)
 		adminGroup.PUT("/users/:id/role", userHandler.AdminSetRole)
-
-		// 板块管理
 		adminGroup.GET("/boards", boardHandler.List)
+		// 平台统计
+		adminGroup.GET("/statistics/day", statsHandler.GetStatsDay)     // 获取日数据
+		adminGroup.GET("/statistics/total", statsHandler.GetStatsTotal) // 获取所有统计指标
+		adminGroup.GET("/statistics/trend", statsHandler.GetStatsTrend) // 获取趋势指标
+
 		// adminGroup.PUT("/boards/:id/sort", boardHandler.UpdateSortOrder)
 	}
 

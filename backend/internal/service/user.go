@@ -190,6 +190,11 @@ func (s *UserService) GetFollowing(userID uint, page, pageSize int) ([]model.Use
 	return s.repo.GetFollowing(userID, page, pageSize)
 }
 
+// 查询积分
+func (s *UserService) GetScoreById(userID uint) (int, error) {
+	return s.repo.GetScoreById(userID)
+}
+
 // ── Admin ────────────────────────────────────────────────────────────────────
 
 func (s *UserService) GetLeaderboard(limit int) ([]model.User, error) {
@@ -206,6 +211,32 @@ func (s *UserService) SetActive(userID uint, active bool) error {
 
 func (s *UserService) SetBlocked(userID uint, blocked bool) error {
 	return s.repo.UpdateFields(userID, map[string]interface{}{"is_blocked": blocked})
+}
+
+func (s *UserService) SetScoreById(userID uint, score int) error {
+	// 1. 参数验证
+	if userID == 0 {
+		return errors.New("用户ID不能为空")
+	}
+
+	err := s.repo.SetScoreById(userID, score)
+	if err != nil {
+		return fmt.Errorf("设置积分失败: %w", err)
+	}
+
+	// 4. 可选：触发积分变更事件（如发送通知、更新缓存等）
+	go s.onScoreChanged(userID, score)
+
+	return nil
+}
+
+// 积分变更后的回调处理
+func (s *UserService) onScoreChanged(userID uint, newScore int) {
+	// 可以在这里添加：
+	// - 发送系统通知
+	// - 更新Redis缓存
+	// - 检查是否触发等级变更
+	// - 记录日志到消息队列等
 }
 
 // ── Role Management ──────────────────────────────────────────────────────────
@@ -254,7 +285,7 @@ func avatarURL(username string) string {
 }
 
 type LoginResult struct {
-	Token string    `json:"-"`  // json:"-" 防止意外序列化到响应
+	Token string    `json:"-"` // json:"-" 防止意外序列化到响应
 	User  *UserInfo `json:"user"`
 }
 

@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"errors"
 	"tiny-forum/internal/model"
 
@@ -150,4 +151,22 @@ func (r *CommentRepository) GetAnswersByPostIDOrderByOldest(postID uint, limit, 
 		Find(&comments).Error
 
 	return comments, total, err
+}
+
+// internal/repository/comment_repository.go
+
+// Count 获取评论总数
+func (r *CommentRepository) Count(ctx context.Context) (int64, error) {
+	var count int64
+	err := r.db.Model(&model.Comment{}).Count(&count).Error
+	return count, err
+}
+
+// CountByDateRange 根据日期范围统计评论数
+func (r *CommentRepository) CountByDateRange(ctx context.Context, startDate, endDate string) (int64, error) {
+	var count int64
+	err := r.db.Model(&model.Comment{}).
+		Where("created_at BETWEEN ? AND ?", startDate, endDate).
+		Count(&count).Error
+	return count, err
 }

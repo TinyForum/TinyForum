@@ -10,14 +10,14 @@ import (
 
 type TopicService struct {
 	topicRepo *repository.TopicRepository
-	postRepo  *repository.PostRepository
+	postRepo  repository.PostRepository
 	userRepo  *repository.UserRepository
 	notifSvc  *NotificationService
 }
 
 func NewTopicService(
 	topicRepo *repository.TopicRepository,
-	postRepo *repository.PostRepository,
+	postRepo repository.PostRepository,
 	userRepo *repository.UserRepository,
 	notifSvc *NotificationService,
 ) *TopicService {

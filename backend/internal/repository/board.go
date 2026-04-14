@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"time"
@@ -216,4 +217,47 @@ func (r *BoardRepository) GetModeratorLogs(boardID uint, limit, offset int) ([]m
 		Order("created_at DESC").
 		Find(&logs).Error
 	return logs, total, err
+}
+
+// internal/repository/board_repository.go
+
+// Count 获取版块总数
+func (r *BoardRepository) Count(ctx context.Context) (int64, error) {
+	var count int64
+	err := r.db.Model(&model.Board{}).Count(&count).Error
+	return count, err
+}
+
+// CountByDateRange 根据日期范围统计版块数
+func (r *BoardRepository) CountByDateRange(ctx context.Context, startDate, endDate string) (int64, error) {
+	var count int64
+	err := r.db.Model(&model.Board{}).
+		Where("created_at BETWEEN ? AND ?", startDate, endDate).
+		Count(&count).Error
+	return count, err
+}
+
+// GetHotBoardsByDateRange 获取热门版块
+func (r *BoardRepository) GetHotBoardsByDateRange(ctx context.Context, startDate, endDate string, limit int) ([]*model.HotBoardItem, error) {
+	var boards []*model.HotBoardItem
+
+	// 根据实际表结构编写查询
+	err := r.db.Table("boards").
+		Select(`
+            boards.id,
+            boards.name,
+            boards.icon,
+            COUNT(DISTINCT posts.id) as article_count,
+            COUNT(DISTINCT comments.id) as comment_count,
+            COUNT(DISTINCT posts.author_id) as active_user,
+            (COUNT(DISTINCT posts.id) * 10 + COUNT(DISTINCT comments.id) * 2 + COUNT(DISTINCT posts.author_id) * 5) as score
+        `).
+		Joins("LEFT JOIN posts ON posts.board_id = boards.id AND posts.created_at BETWEEN ? AND ?", startDate, endDate).
+		Joins("LEFT JOIN comments ON comments.post_id = posts.id AND comments.created_at BETWEEN ? AND ?", startDate, endDate).
+		Group("boards.id").
+		Order("score DESC").
+		Limit(limit).
+		Scan(&boards).Error
+
+	return boards, err
 }

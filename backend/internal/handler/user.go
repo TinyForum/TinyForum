@@ -3,6 +3,7 @@ package handler
 import (
 	"errors"
 	"strconv"
+	"time"
 
 	apperrors "tiny-forum/internal/errors"
 	"tiny-forum/internal/service"
@@ -176,6 +177,71 @@ func (h *UserHandler) GetFollowing(c *gin.Context) {
 	response.SuccessPage(c, following, total, page, pageSize)
 }
 
+// GetScore 查询用户积分（用户查自己，管理员可查任意用户）
+// @Summary 查询积分
+// @Tags 用户管理
+// @Produce json
+// @Security ApiKeyAuth
+// @Router /users/score [get]
+func (h *UserHandler) GetScore(c *gin.Context) {
+	// 获取当前登录用户信息
+	viewerID, exists := c.Get("user_id")
+	if !exists {
+		response.Unauthorized(c, "未授权访问")
+		return
+	}
+
+	viewerUint, ok := viewerID.(uint)
+	if !ok {
+		response.BadRequest(c, "无效的用户身份信息")
+		return
+	}
+
+	// 获取用户角色
+	viewerRole, _ := c.Get("role")
+	viewerRoleStr, _ := viewerRole.(string)
+
+	// 获取要查询的用户ID
+	var targetID uint
+	idParam := c.Param("id")
+
+	if idParam != "" {
+		// 有指定用户ID
+		userID, err := strconv.ParseUint(idParam, 10, 64)
+		if err != nil {
+			response.BadRequest(c, "无效的用户ID")
+			return
+		}
+		targetID = uint(userID)
+
+		// 权限检查：普通用户只能查自己，管理员可以查所有
+		if viewerUint != targetID && viewerRoleStr != "admin" && viewerRoleStr != "super_admin" {
+			response.Forbidden(c, "权限不足，只能查询自己的积分")
+			return
+		}
+	} else {
+		// 没有指定用户ID，默认查询自己的
+		targetID = viewerUint
+	}
+
+	// 查询积分
+	score, err := h.userSvc.GetScoreById(targetID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			response.NotFound(c, "用户不存在")
+			return
+		}
+		response.InternalError(c, "查询积分失败: "+err.Error())
+		return
+	}
+
+	// 返回成功响应
+	response.Success(c, gin.H{
+		"score":   score,
+		"user_id": targetID,
+	})
+}
+
 // ── 管理接口 ─────────────────────────────────────────────────────────────────
 
 // AdminList 管理员获取用户列表
@@ -310,6 +376,96 @@ func (h *UserHandler) handleRoleError(c *gin.Context, err error) {
 	default:
 		response.InternalError(c, "设置角色失败: "+err.Error())
 	}
+}
+
+// AdminSetScore 管理员设置用户积分（支持直接设置或增减）
+func (h *UserHandler) AdminSetScore(c *gin.Context) {
+	// 1. 验证管理员权限
+	viewerRole, exists := c.Get("role")
+	if !exists {
+		response.Unauthorized(c, "未授权访问")
+		return
+	}
+
+	roleStr, ok := viewerRole.(string)
+	if !ok || (roleStr != "admin" && roleStr != "super_admin") {
+		response.Forbidden(c, "权限不足，仅管理员可操作")
+		return
+	}
+
+	// 2. 解析目标用户ID
+	targetID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		response.BadRequest(c, "无效的用户ID")
+		return
+	}
+
+	// 3. 解析请求体（支持多种操作模式）
+	var body struct {
+		Operation string `json:"operation" binding:"required,oneof=set add subtract"` // set, add, subtract
+		Score     int    `json:"score" binding:"required"`
+		Reason    string `json:"reason" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&body); err != nil {
+		response.BadRequest(c, "请求参数错误: "+err.Error())
+		return
+	}
+
+	// 5. 获取当前积分
+	currentScore, err := h.userSvc.GetScoreById(uint(targetID))
+	if err != nil {
+		response.InternalError(c, "查询当前积分失败")
+		return
+	}
+
+	// 6. 计算新积分
+	var newScore int
+	switch body.Operation {
+	case "set":
+		newScore = body.Score
+	case "add":
+		newScore = currentScore + body.Score
+	case "subtract":
+		newScore = currentScore - body.Score
+	}
+
+	// 7. 验证积分范围（防止负数或过大）
+	if newScore < 0 {
+		response.BadRequest(c, "积分不能为负数")
+		return
+	}
+	if newScore > 999999 {
+		response.BadRequest(c, "积分超出最大限制")
+		return
+	}
+
+	// 8. 获取操作人信息
+	viewerID, _ := c.Get("user_id")
+	viewerUint, _ := viewerID.(uint)
+
+	// 9. 设置新积分
+	err = h.userSvc.SetScoreById(uint(targetID), newScore)
+	if err != nil {
+		response.InternalError(c, "设置积分失败: "+err.Error())
+		return
+	}
+
+	// 10. 返回成功响应
+	response.Success(c, gin.H{
+		"user_id":     targetID,
+		"old_score":   currentScore,
+		"new_score":   newScore,
+		"change":      newScore - currentScore,
+		"operation":   body.Operation,
+		"operator_id": viewerUint,
+		"reason":      body.Reason,
+		"timestamp":   time.Now().Unix(),
+	})
+}
+
+func (h *UserHandler) AdminGetUserScore(c *gin.Context) {
+
 }
 
 // ── 请求体结构 ────────────────────────────────────────────────────────────────

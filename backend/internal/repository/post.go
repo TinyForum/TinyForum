@@ -1,25 +1,52 @@
 package repository
 
 import (
+	"context"
 	"tiny-forum/internal/model"
 	"tiny-forum/pkg/logger"
 
 	"gorm.io/gorm"
 )
 
-type PostRepository struct {
+type PostRepository interface {
+	Create(post *model.Post) error
+	FindByID(id uint) (*model.Post, error)
+	Update(post *model.Post) error
+	Delete(id uint) error
+	List(page, pageSize int, opts PostListOptions) ([]model.Post, int64, error)
+
+	IncrViewCount(id uint) error
+	IncrLikeCount(id uint, delta int) error
+	AddLike(userID, postID uint) error
+	RemoveLike(userID, postID uint) error
+	IsLiked(userID, postID uint) bool
+
+	AdminList(page, pageSize int, keyword string) ([]model.Post, int64, error)
+	GetByBoardID(boardID uint, limit, offset int) ([]model.Post, int64, error)
+	GetQuestions(limit, offset int) ([]model.Post, int64, error)
+	GetUnansweredQuestions(limit, offset int) ([]model.Post, int64, error)
+	TogglePinInBoard(postID uint, pin bool) error
+
+	CreateWithTx(tx *gorm.DB, post *model.Post) error
+	AddTags(tx *gorm.DB, post *model.Post, tagIDs []uint) error
+	Count(ctx context.Context) (int64, error)
+	CountByDateRange(ctx context.Context, startDate, endDate string) (int64, error)
+	GetHotArticlesByDateRange(ctx context.Context, startDate, endDate string, limit int) ([]*model.HotArticleItem, error)
+}
+
+type postRepository struct {
 	db *gorm.DB
 }
 
-func NewPostRepository(db *gorm.DB) *PostRepository {
-	return &PostRepository{db: db}
+func NewPostRepository(db *gorm.DB) PostRepository {
+	return &postRepository{db: db}
 }
 
-func (r *PostRepository) Create(post *model.Post) error {
+func (r *postRepository) Create(post *model.Post) error {
 	return r.db.Create(post).Error
 }
 
-func (r *PostRepository) FindByID(id uint) (*model.Post, error) {
+func (r *postRepository) FindByID(id uint) (*model.Post, error) {
 	var post model.Post
 	err := r.db.Preload("Author").Preload("Tags").First(&post, id).Error
 	if err != nil {
@@ -28,15 +55,15 @@ func (r *PostRepository) FindByID(id uint) (*model.Post, error) {
 	return &post, nil
 }
 
-func (r *PostRepository) Update(post *model.Post) error {
+func (r *postRepository) Update(post *model.Post) error {
 	return r.db.Save(post).Error
 }
 
-func (r *PostRepository) Delete(id uint) error {
+func (r *postRepository) Delete(id uint) error {
 	return r.db.Delete(&model.Post{}, id).Error
 }
 
-func (r *PostRepository) List(page, pageSize int, opts PostListOptions) ([]model.Post, int64, error) {
+func (r *postRepository) List(page, pageSize int, opts PostListOptions) ([]model.Post, int64, error) {
 	var posts []model.Post
 	var total int64
 
@@ -81,36 +108,39 @@ type PostListOptions struct {
 	SortBy   string // "" = latest, "hot" = popular
 }
 
-func (r *PostRepository) IncrViewCount(id uint) error {
+func (r *postRepository) IncrViewCount(id uint) error {
 	return r.db.Model(&model.Post{}).Where("id = ?", id).
 		UpdateColumn("view_count", gorm.Expr("view_count + 1")).Error
 }
 
-func (r *PostRepository) IncrLikeCount(id uint, delta int) error {
+func (r *postRepository) IncrLikeCount(id uint, delta int) error {
 	return r.db.Model(&model.Post{}).Where("id = ?", id).
 		UpdateColumn("like_count", gorm.Expr("like_count + ?", delta)).Error
 }
 
 // Like
-func (r *PostRepository) AddLike(userID, postID uint) error {
+func (r *postRepository) AddLike(userID, postID uint) error {
 	like := &model.Like{UserID: userID, PostID: &postID}
 	return r.db.Where("user_id = ? AND post_id = ?", userID, postID).
 		FirstOrCreate(like).Error
 }
 
-func (r *PostRepository) RemoveLike(userID, postID uint) error {
+// RemoveLike 是一个用于移除用户对帖子的点赞的方法
+// 它接收两个参数：用户ID(userID)和帖子ID(postID)，都是无符号整数类型
+// 该方法会删除数据库中对应的点赞记录，并返回可能的错误
+func (r *postRepository) RemoveLike(userID, postID uint) error {
 	return r.db.Where("user_id = ? AND post_id = ?", userID, postID).
 		Delete(&model.Like{}).Error
 }
 
-func (r *PostRepository) IsLiked(userID, postID uint) bool {
+func (r *postRepository) IsLiked(userID, postID uint) bool {
 	var count int64
 	r.db.Model(&model.Like{}).Where("user_id = ? AND post_id = ?", userID, postID).Count(&count)
 	return count > 0
 }
 
 // Admin: all posts including draft/hidden
-func (r *PostRepository) AdminList(page, pageSize int, keyword string) ([]model.Post, int64, error) {
+func (r *postRepository) AdminList(page, pageSize int, keyword string) ([]model.Post, int64, error) {
 	var posts []model.Post
 	var total int64
 	query := r.db.Model(&model.Post{})
@@ -127,7 +157,7 @@ func (r *PostRepository) AdminList(page, pageSize int, keyword string) ([]model.
 
 // 在现有 PostRepository 中添加以下方法
 
-func (r *PostRepository) GetByBoardID(boardID uint, limit, offset int) ([]model.Post, int64, error) {
+func (r *postRepository) GetByBoardID(boardID uint, limit, offset int) ([]model.Post, int64, error) {
 	var posts []model.Post
 	var total int64
 
@@ -147,7 +177,7 @@ func (r *PostRepository) GetByBoardID(boardID uint, limit, offset int) ([]model.
 }
 
 // 获取问题
-func (r *PostRepository) GetQuestions(limit, offset int) ([]model.Post, int64, error) {
+func (r *postRepository) GetQuestions(limit, offset int) ([]model.Post, int64, error) {
 	logger.Info("[repository] GetQuestions")
 	var posts []model.Post
 	var total int64
@@ -168,7 +198,7 @@ func (r *PostRepository) GetQuestions(limit, offset int) ([]model.Post, int64, e
 	return posts, total, err
 }
 
-func (r *PostRepository) GetUnansweredQuestions(limit, offset int) ([]model.Post, int64, error) {
+func (r *postRepository) GetUnansweredQuestions(limit, offset int) ([]model.Post, int64, error) {
 	var posts []model.Post
 	var total int64
 
@@ -191,18 +221,18 @@ func (r *PostRepository) GetUnansweredQuestions(limit, offset int) ([]model.Post
 	return posts, total, err
 }
 
-func (r *PostRepository) TogglePinInBoard(postID uint, pin bool) error {
+func (r *postRepository) TogglePinInBoard(postID uint, pin bool) error {
 	return r.db.Model(&model.Post{}).Where("id = ?", postID).
 		Update("pin_in_board", pin).Error
 }
 
 // CreateWithTx 使用事务创建帖子
-func (r *PostRepository) CreateWithTx(tx *gorm.DB, post *model.Post) error {
+func (r *postRepository) CreateWithTx(tx *gorm.DB, post *model.Post) error {
 	return tx.Create(post).Error
 }
 
 // AddTags 添加标签关联
-func (r *PostRepository) AddTags(tx *gorm.DB, post *model.Post, tagIDs []uint) error {
+func (r *postRepository) AddTags(tx *gorm.DB, post *model.Post, tagIDs []uint) error {
 	if len(tagIDs) == 0 {
 		return nil
 	}
@@ -213,4 +243,52 @@ func (r *PostRepository) AddTags(tx *gorm.DB, post *model.Post, tagIDs []uint) e
 	}
 
 	return tx.Model(post).Association("Tags").Append(&tags)
+}
+
+// internal/repository/post_repository.go
+
+// Count 获取帖子总数
+func (r *postRepository) Count(ctx context.Context) (int64, error) {
+	var count int64
+	err := r.db.Model(&model.Post{}).Count(&count).Error
+	return count, err
+}
+
+// CountByDateRange 根据日期范围统计帖子数
+func (r *postRepository) CountByDateRange(ctx context.Context, startDate, endDate string) (int64, error) {
+	var count int64
+	err := r.db.Model(&model.Post{}).
+		Where("created_at BETWEEN ? AND ?", startDate, endDate).
+		Count(&count).Error
+	return count, err
+}
+
+// internal/repository/post_repository.go
+
+// 实现方法
+func (r *postRepository) GetHotArticlesByDateRange(ctx context.Context, startDate, endDate string, limit int) ([]*model.HotArticleItem, error) {
+	var articles []*model.HotArticleItem
+
+	query := `
+		SELECT 
+			p.id,
+			p.title,
+			p.board_id,
+			b.name as board_name,
+			p.author_id,
+			u.username as author_name,
+			p.view_count,
+			p.comment_count,
+			p.like_count,
+			(p.view_count + p.comment_count * 10 + p.like_count * 5) as score
+		FROM posts p
+		LEFT JOIN boards b ON p.board_id = b.id
+		LEFT JOIN users u ON p.author_id = u.id
+		WHERE p.created_at BETWEEN ? AND ?
+		ORDER BY score DESC
+		LIMIT ?
+	`
+
+	err := r.db.WithContext(ctx).Raw(query, startDate, endDate, limit).Scan(&articles).Error
+	return articles, err
 }

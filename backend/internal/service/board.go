@@ -13,14 +13,14 @@ import (
 type BoardService struct {
 	boardRepo *repository.BoardRepository
 	userRepo  *repository.UserRepository
-	postRepo  *repository.PostRepository
+	postRepo  repository.PostRepository
 	notifSvc  *NotificationService
 }
 
 func NewBoardService(
 	boardRepo *repository.BoardRepository,
 	userRepo *repository.UserRepository,
-	postRepo *repository.PostRepository,
+	postRepo repository.PostRepository,
 	notifSvc *NotificationService,
 ) *BoardService {
 	return &BoardService{

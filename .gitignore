@@ -35,3 +35,7 @@ go.work.sum
 .DS_Store
 Thumbs.db
 
+
+# node
+node_modules/
+.next/
