@@ -5,4 +5,7 @@
   * [安装](/zh-CN/guide/installation)
 * **开发**
   * [API](/zh-CN/dev/api)
+  * [数据库设计](/zh-CN/dev/database/)
+    * [介绍](/zh-CN/dev/database/intro)
+   
   * [swagger](/zh-CN/dev/swagger)
