@@ -222,6 +222,197 @@ const docTemplate = `{
                 }
             }
         },
+        "/admin/boards/applications": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "管理员分页查询版主申请列表，可按板块和状态筛选",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "版主管理"
+                ],
+                "summary": "获取版主申请列表",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "板块ID",
+                        "name": "board_id",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "pending",
+                            "approved",
+                            "rejected"
+                        ],
+                        "type": "string",
+                        "description": "申请状态",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 20,
+                        "description": "每页数量",
+                        "name": "page_size",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "获取成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/response.PageData"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "list": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "object"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "无效的板块ID",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "无权限（需要管理员权限）",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/boards/applications/{application_id}/review": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "管理员审批用户的版主申请，通过时可设置版主权限，拒绝时需填写原因",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "版主管理"
+                ],
+                "summary": "审批版主申请",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "申请ID",
+                        "name": "application_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "审批信息",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.ReviewApplicationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "审批完成",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "请求参数错误或申请ID无效",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "无权限（需要管理员权限）",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "申请不存在",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/admin/posts": {
             "get": {
                 "security": [
@@ -1281,6 +1472,73 @@ const docTemplate = `{
                 }
             }
         },
+        "/answers/{id}/status": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "获取指定回答的投票统计信息（赞同数、反对数、总票数）以及当前用户的投票状态",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "回答管理"
+                ],
+                "summary": "获取回答投票状态",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "回答ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "获取成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handler.VoteStatusResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "无效的回答ID",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/answers/{id}/unaccept": {
             "post": {
                 "security": [
@@ -1347,6 +1605,125 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "回答或问题不存在",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/answers/{id}/vote": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "用户可以对指定回答进行“赞同”（up）或“反对”（down）投票。如果用户再次点击相同的投票类型，则会取消之前的投票。需要用户已登录认证。",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "回答管理"
+                ],
+                "summary": "投票回答（支持赞同/反对）",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "回答ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "投票类型",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "返回操作结果、当前赞同票数及当前用户的投票状态",
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    "400": {
+                        "description": "请求参数错误（如无效ID、缺失或非法的投票类型）",
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "取消用户对指定回答的投票",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "回答管理"
+                ],
+                "summary": "取消回答的投票",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "回答ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "取消投票成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "message": {
+                                                    "type": "string"
+                                                },
+                                                "user_vote": {
+                                                    "type": "integer"
+                                                },
+                                                "vote_count": {
+                                                    "type": "integer"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "无效的回答ID或尚未投票",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -1686,7 +2063,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "创建一个新的板块，需要管理员权限",
+                "description": "管理员创建一个新的论坛板块，需要管理员权限",
                 "consumes": [
                     "application/json"
                 ],
@@ -1696,7 +2073,7 @@ const docTemplate = `{
                 "tags": [
                     "板块管理"
                 ],
-                "summary": "创建板块（仅管理员）",
+                "summary": "创建新板块",
                 "parameters": [
                     {
                         "description": "板块信息",
@@ -1748,6 +2125,134 @@ const docTemplate = `{
                 }
             }
         },
+        "/boards/apply/{application_id}": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "用户撤销自己提交的版主申请，只能撤销状态为 pending 的申请",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "版主管理"
+                ],
+                "summary": "撤销版主申请",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "申请ID",
+                        "name": "application_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "撤销成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "无效的申请ID",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "无权限（只能撤销自己的申请）",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "申请不存在",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/boards/moderators/apply": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "用户查看自己提交的版主申请的状态",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "版主管理"
+                ],
+                "summary": "查看版主申请状态",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "板块ID",
+                        "name": "board_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "申请状态",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/service.ApplicationStatusDetail"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "无效的请求参数",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/boards/slug/{slug}": {
             "get": {
                 "description": "根据板块标识符（slug）获取板块信息",
@@ -1757,7 +2262,7 @@ const docTemplate = `{
                 "tags": [
                     "板块管理"
                 ],
-                "summary": "根据Slug获取板块",
+                "summary": "根据板块标识符获取板块",
                 "parameters": [
                     {
                         "type": "string",
@@ -1808,7 +2313,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "板块ID",
+                        "description": "板块标识符",
                         "name": "slug",
                         "in": "path",
                         "required": true
@@ -1863,7 +2368,13 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "无效的板块ID",
+                        "description": "板块 slug 不能为空",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "板块不存在",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -1976,7 +2487,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "更新指定板块的信息，需要管理员权限",
+                "description": "管理员更新指定板块的信息，需要管理员权限",
                 "consumes": [
                     "application/json"
                 ],
@@ -1986,10 +2497,12 @@ const docTemplate = `{
                 "tags": [
                     "板块管理"
                 ],
-                "summary": "更新板块（仅管理员）",
+                "summary": "更新板块信息",
                 "parameters": [
                     {
+                        "minimum": 1,
                         "type": "integer",
+                        "example": 1,
                         "description": "板块ID",
                         "name": "id",
                         "in": "path",
@@ -2025,7 +2538,7 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "请求参数错误",
+                        "description": "请求参数错误或板块ID无效",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -2126,7 +2639,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "在指定板块禁言用户，需要版主权限",
+                "description": "在指定板块禁言用户，需要版主或管理员权限",
                 "consumes": [
                     "application/json"
                 ],
@@ -2151,7 +2664,36 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.BanUserRequest"
+                            "type": "object"
+                        }
+                    },
+                    {
+                        "example": 10086,
+                        "description": "用户ID",
+                        "name": "body.user_id",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "example": "\"发布违规内容\"",
+                        "description": "禁言原因",
+                        "name": "body.reason",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "example": "\"2024-12-31T23:59:59Z\"",
+                        "description": "过期时间（RFC3339格式，空表示永久）",
+                        "name": "body.expires_at",
+                        "in": "body",
+                        "schema": {
+                            "type": "string"
                         }
                     }
                 ],
@@ -2175,7 +2717,7 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "请求参数错误",
+                        "description": "请求参数错误或板块ID无效",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -2187,7 +2729,13 @@ const docTemplate = `{
                         }
                     },
                     "403": {
-                        "description": "无权限",
+                        "description": "无权限（需要版主或管理员权限）",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "板块不存在",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -2202,7 +2750,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "解除用户在指定板块的禁言，需要版主权限",
+                "description": "解除用户在指定板块的禁言，需要版主或管理员权限",
                 "produces": [
                     "application/json"
                 ],
@@ -2228,7 +2776,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "解除成功",
+                        "description": "解除禁言成功",
                         "schema": {
                             "allOf": [
                                 {
@@ -2246,7 +2794,7 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "无效的ID",
+                        "description": "无效的板块ID或用户ID",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -2258,7 +2806,13 @@ const docTemplate = `{
                         }
                     },
                     "403": {
-                        "description": "无权限",
+                        "description": "无权限（需要版主或管理员权限）",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "禁言记录不存在",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -2268,11 +2822,6 @@ const docTemplate = `{
         },
         "/boards/{id}/moderators": {
             "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "获取指定板块的所有版主信息",
                 "produces": [
                     "application/json"
@@ -2332,7 +2881,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "为指定板块添加版主，需要版主管理权限",
+                "description": "管理员或有 manage_moderator 权限的版主可直接任命版主并设置权限",
                 "consumes": [
                     "application/json"
                 ],
@@ -2342,7 +2891,7 @@ const docTemplate = `{
                 "tags": [
                     "版主管理"
                 ],
-                "summary": "添加版主",
+                "summary": "任命版主",
                 "parameters": [
                     {
                         "type": "integer",
@@ -2357,13 +2906,68 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.AddModeratorRequest"
+                            "type": "object"
+                        }
+                    },
+                    {
+                        "example": 10086,
+                        "description": "用户ID",
+                        "name": "body.user_id",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "example": true,
+                        "description": "删除帖子权限",
+                        "name": "body.can_delete_post",
+                        "in": "body",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "example": true,
+                        "description": "置顶帖子权限",
+                        "name": "body.can_pin_post",
+                        "in": "body",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "example": false,
+                        "description": "编辑任意帖子权限",
+                        "name": "body.can_edit_any_post",
+                        "in": "body",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "example": false,
+                        "description": "管理版主权限",
+                        "name": "body.can_manage_moderator",
+                        "in": "body",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "example": true,
+                        "description": "禁言用户权限",
+                        "name": "body.can_ban_user",
+                        "in": "body",
+                        "schema": {
+                            "type": "boolean"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "添加成功",
+                        "description": "添加版主成功",
                         "schema": {
                             "allOf": [
                                 {
@@ -2381,7 +2985,7 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "请求参数错误",
+                        "description": "请求参数错误或板块ID无效",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -2393,7 +2997,89 @@ const docTemplate = `{
                         }
                     },
                     "403": {
-                        "description": "无权限",
+                        "description": "无权限（需要管理员或 manage_moderator 权限）",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "板块不存在",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/boards/{id}/moderators/apply": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "用户申请成为指定板块的版主，需要登录认证",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "版主管理"
+                ],
+                "summary": "申请成为版主",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "板块ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "申请信息",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.ApplyModeratorInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "申请提交成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "请求参数错误或板块ID无效",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "无权限或已申请",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -2408,7 +3094,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "移除指定板块的版主，需要版主管理权限",
+                "description": "管理员或有 manage_moderator 权限的版主可移除指定板块的版主",
                 "produces": [
                     "application/json"
                 ],
@@ -2434,7 +3120,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "移除成功",
+                        "description": "移除版主成功",
                         "schema": {
                             "allOf": [
                                 {
@@ -2452,7 +3138,7 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "无效的ID",
+                        "description": "无效的板块ID或用户ID",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -2464,7 +3150,323 @@ const docTemplate = `{
                         }
                     },
                     "403": {
-                        "description": "无权限",
+                        "description": "无权限（需要管理员或 manage_moderator 权限）",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "版主不存在",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/boards/{id}/moderators/{user_id}/permissions": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "管理员更新指定版主的权限配置",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "版主管理"
+                ],
+                "summary": "更新版主权限",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "板块ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "用户ID",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "权限配置",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    {
+                        "example": true,
+                        "description": "删除帖子权限",
+                        "name": "body.can_delete_post",
+                        "in": "body",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "example": true,
+                        "description": "置顶帖子权限",
+                        "name": "body.can_pin_post",
+                        "in": "body",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "example": false,
+                        "description": "编辑任意帖子权限",
+                        "name": "body.can_edit_any_post",
+                        "in": "body",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "example": false,
+                        "description": "管理版主权限",
+                        "name": "body.can_manage_moderator",
+                        "in": "body",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "example": true,
+                        "description": "禁言用户权限",
+                        "name": "body.can_ban_user",
+                        "in": "body",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "权限更新成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "请求参数错误或板块ID/用户ID无效",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "无权限（需要管理员权限）",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "版主不存在",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/boards/{id}/posts/{post_id}": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "版主或管理员删除指定板块下的帖子",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "帖子管理"
+                ],
+                "summary": "删除帖子（版主）",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "板块ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "帖子ID",
+                        "name": "post_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "删除成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "无效的板块ID或帖子ID",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "无权限（需要版主或管理员权限）",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "帖子不存在",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/boards/{id}/posts/{post_id}/pin": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "版主或管理员置顶或取消置顶指定板块下的帖子",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "帖子管理"
+                ],
+                "summary": "置顶/取消置顶帖子",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "板块ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "帖子ID",
+                        "name": "post_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "置顶选项",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    {
+                        "example": true,
+                        "description": "是否置顶",
+                        "name": "body.pin_in_board",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "操作成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "无效的板块ID或帖子ID",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "无权限（需要版主或管理员权限）",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "帖子不存在",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -5680,38 +6682,6 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "handler.AddModeratorRequest": {
-            "type": "object",
-            "required": [
-                "user_id"
-            ],
-            "properties": {
-                "can_ban_user": {
-                    "type": "boolean",
-                    "example": true
-                },
-                "can_delete_post": {
-                    "type": "boolean",
-                    "example": true
-                },
-                "can_edit_any_post": {
-                    "type": "boolean",
-                    "example": false
-                },
-                "can_manage_moderator": {
-                    "type": "boolean",
-                    "example": false
-                },
-                "can_pin_post": {
-                    "type": "boolean",
-                    "example": true
-                },
-                "user_id": {
-                    "type": "integer",
-                    "example": 1
-                }
-            }
-        },
         "handler.AddPostToTopicRequest": {
             "type": "object",
             "required": [
@@ -5732,20 +6702,33 @@ const docTemplate = `{
         },
         "handler.AdminSetScoreRequest": {
             "type": "object",
+            "required": [
+                "operation",
+                "reason",
+                "score"
+            ],
             "properties": {
                 "operation": {
                     "description": "操作类型：set（设置）、add（增加）、subtract（扣除）\nrequired: true\nenum: set,add,subtract",
                     "type": "string",
+                    "enum": [
+                        "set",
+                        "add",
+                        "subtract"
+                    ],
                     "example": "add"
                 },
                 "reason": {
                     "description": "操作原因（用于日志审计）\nrequired: true\nmaxLength: 200",
                     "type": "string",
+                    "maxLength": 200,
                     "example": "用户活动奖励"
                 },
                 "score": {
                     "description": "积分数量（set 时为目标积分，add/subtract 时为变化量）\nrequired: true\nminimum: 0\nmaximum: 999999",
                     "type": "integer",
+                    "maximum": 999999,
+                    "minimum": 0,
                     "example": 50
                 }
             }
@@ -5795,27 +6778,6 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.BanUserRequest": {
-            "type": "object",
-            "required": [
-                "reason",
-                "user_id"
-            ],
-            "properties": {
-                "expires_at": {
-                    "type": "string",
-                    "example": "2024-12-31T23:59:59Z"
-                },
-                "reason": {
-                    "type": "string",
-                    "example": "发布违规内容"
-                },
-                "user_id": {
-                    "type": "integer",
-                    "example": 1
-                }
-            }
-        },
         "handler.CreateAnswerRequest": {
             "type": "object",
             "required": [
@@ -5827,6 +6789,36 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 5000,
                     "minLength": 1
+                }
+            }
+        },
+        "handler.ReviewApplicationRequest": {
+            "type": "object",
+            "required": [
+                "approve"
+            ],
+            "properties": {
+                "approve": {
+                    "type": "boolean"
+                },
+                "can_ban_user": {
+                    "type": "boolean"
+                },
+                "can_delete_post": {
+                    "type": "boolean"
+                },
+                "can_edit_any_post": {
+                    "type": "boolean"
+                },
+                "can_manage_moderator": {
+                    "type": "boolean"
+                },
+                "can_pin_post": {
+                    "type": "boolean"
+                },
+                "review_note": {
+                    "type": "string",
+                    "maxLength": 500
                 }
             }
         },
@@ -5848,6 +6840,20 @@ const docTemplate = `{
                         "admin",
                         "super_admin"
                     ]
+                }
+            }
+        },
+        "handler.VoteStatusResponse": {
+            "type": "object",
+            "properties": {
+                "down_count": {
+                    "type": "integer"
+                },
+                "up_count": {
+                    "type": "integer"
+                },
+                "user_vote": {
+                    "type": "integer"
                 }
             }
         },
@@ -6028,6 +7034,33 @@ const docTemplate = `{
                 "AnnouncementTypeEmergency",
                 "AnnouncementTypeEvent"
             ]
+        },
+        "model.ApplyModeratorInput": {
+            "type": "object",
+            "required": [
+                "reason"
+            ],
+            "properties": {
+                "reason": {
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "req_ban_user": {
+                    "type": "boolean"
+                },
+                "req_delete_post": {
+                    "type": "boolean"
+                },
+                "req_edit_any_post": {
+                    "type": "boolean"
+                },
+                "req_manage_moderator": {
+                    "type": "boolean"
+                },
+                "req_pin_post": {
+                    "type": "boolean"
+                }
+            }
         },
         "model.Board": {
             "type": "object",
@@ -6311,21 +7344,6 @@ const docTemplate = `{
                 },
                 "board_id": {
                     "type": "integer"
-                },
-                "can_ban_user": {
-                    "type": "boolean"
-                },
-                "can_delete_post": {
-                    "type": "boolean"
-                },
-                "can_edit_any_post": {
-                    "type": "boolean"
-                },
-                "can_manage_moderator": {
-                    "type": "boolean"
-                },
-                "can_pin_post": {
-                    "type": "boolean"
                 },
                 "created_at": {
                     "type": "string"
@@ -7378,6 +8396,55 @@ const docTemplate = `{
                 },
                 "data": {},
                 "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "service.ApplicationStatusDetail": {
+            "type": "object",
+            "properties": {
+                "application_id": {
+                    "type": "integer"
+                },
+                "can_apply": {
+                    "description": "是否可以申请（没有申请或申请已拒绝/已撤销时可为true）",
+                    "type": "boolean"
+                },
+                "can_cancel": {
+                    "description": "可执行的操作",
+                    "type": "boolean"
+                },
+                "can_resubmit": {
+                    "description": "是否可以重新申请",
+                    "type": "boolean"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "has_application": {
+                    "type": "boolean"
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "requested_perms": {
+                    "description": "申请的权限",
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "boolean"
+                    }
+                },
+                "review_note": {
+                    "type": "string"
+                },
+                "reviewed_at": {
+                    "type": "string"
+                },
+                "reviewer_id": {
+                    "type": "integer"
+                },
+                "status": {
+                    "description": "pending, approved, rejected, canceled",
                     "type": "string"
                 }
             }

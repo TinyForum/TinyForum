@@ -77,6 +77,9 @@ func InitDB(cfg *config.Config) (*gorm.DB, error) {
 		&model.TopicPost{},
 		&model.TopicFollow{},
 		&model.Announcement{},
+		&model.ModeratorApplication{},
+		&model.Moderator{},
+		&model.Vote{},
 	); err != nil {
 		return nil, fmt.Errorf("auto migrate failed: %w", err)
 	}
@@ -225,48 +228,90 @@ func InitApp(cfg *config.Config) (*App, error) {
 	}
 
 	// ----- MARK: Board routes
+	// ----- MARK: Board routes -----
+	// 说明：以下为 wire.go 中 Board 路由段的完整替换内容。
+	// 其余路由（auth / tag / post / user 等）保持不变。
+
 	boardGroup := api.Group("/boards")
 	{
-		// 公开接口
+		// ── 公开接口 ──────────────────────────────────────────────────────────
 		boardGroup.GET("", boardHandler.List)
 		boardGroup.GET("/tree", boardHandler.GetTree)
-		// 通过 ID 获取板块
 		boardGroup.GET("/:id", middleware.OptionalAuth(jwtMgr), boardHandler.GetByID)
-		// 通过 Slug 获取板块和帖子
-		boardGroup.GET("/slug/:slug/posts", middleware.OptionalAuth(jwtMgr), boardHandler.GetPostsBySlug)
 		boardGroup.GET("/slug/:slug", boardHandler.GetBoardBySlug)
+		boardGroup.GET("/slug/:slug/posts", middleware.OptionalAuth(jwtMgr), boardHandler.GetPostsBySlug)
 
-		// 管理员接口
+		// ── 用户：申请 / 撤销版主申请 ────────────────────────────────────────
+		// POST /boards/:id/moderators/apply   提交申请
+		boardGroup.POST("/:id/moderators/apply",
+			middleware.Auth(jwtMgr),
+			boardHandler.ApplyModerator)
+		// 查看申请状态
+		boardGroup.GET("/moderators/apply",
+			middleware.Auth(jwtMgr),
+			boardHandler.GetUserApplications)
+
+		// 撤销申请（操作自己的申请）
+		boardGroup.DELETE("/applications/:application_id",
+			middleware.Auth(jwtMgr),
+			boardHandler.CancelApplication)
+
+		// ── 管理员：板块 CRUD ──────────────────────────────────────────────
 		boardGroup.POST("", middleware.Auth(jwtMgr), middleware.AdminRequired(), boardHandler.Create)
 		boardGroup.PUT("/:id", middleware.Auth(jwtMgr), middleware.AdminRequired(), boardHandler.Update)
 		boardGroup.DELETE("/:id", middleware.Auth(jwtMgr), middleware.AdminRequired(), boardHandler.Delete)
 
-		// 版主管理（使用版主中间件）
+		// ── 版主管理（需要 manage_moderator 权限 或 管理员身份）───────────────
 		modGroup := boardGroup.Group("/:id/moderators", middleware.Auth(jwtMgr))
 		{
-			// 查看版主列表（普通版主可看）
-			modGroup.GET("", middleware.ModeratorRequired(jwtMgr, boardRepo), boardHandler.GetModerators)
+			// 查看版主列表（普通版主即可）
+			modGroup.GET("",
+				middleware.ModeratorRequired(jwtMgr, boardRepo),
+				boardHandler.GetModerators)
 
-			// 添加/移除版主（需要管理版主权限）
-			modGroup.POST("", middleware.CanManageModerator(jwtMgr, boardRepo), boardHandler.AddModerator)
-			modGroup.DELETE("/:user_id", middleware.CanManageModerator(jwtMgr, boardRepo), boardHandler.RemoveModerator)
+			// 直接任命版主
+			modGroup.POST("",
+				middleware.CanManageModerator(jwtMgr, boardRepo),
+				boardHandler.AddModerator)
+
+			// 移除版主
+			modGroup.DELETE("/:user_id",
+				middleware.CanManageModerator(jwtMgr, boardRepo),
+				boardHandler.RemoveModerator)
+
+			// 升级 / 降级版主权限（仅管理员）
+			modGroup.PUT("/:user_id/permissions",
+				middleware.AdminRequired(),
+				boardHandler.UpdateModeratorPermissions)
 		}
 
-		// 禁言管理（需要禁言权限）
+		// ── 禁言管理（需要 ban_user 权限）────────────────────────────────────
 		banGroup := boardGroup.Group("/:id/bans", middleware.Auth(jwtMgr))
 		{
 			banGroup.POST("", middleware.CanBanUser(jwtMgr, boardRepo), boardHandler.BanUser)
 			banGroup.DELETE("/:user_id", middleware.CanBanUser(jwtMgr, boardRepo), boardHandler.UnbanUser)
 		}
 
-		// 帖子管理（需要对应权限）
+		// ── 帖子管理（版主）──────────────────────────────────────────────────
 		postManageGroup := boardGroup.Group("/:id/posts", middleware.Auth(jwtMgr))
 		{
-			// 删除帖子
-			postManageGroup.DELETE("/:post_id", middleware.CanDeletePost(jwtMgr, boardRepo), boardHandler.DeletePost)
-			// 置顶帖子
-			postManageGroup.PUT("/:post_id/pin", middleware.CanPinPost(jwtMgr, boardRepo), boardHandler.PinPost)
+			postManageGroup.DELETE("/:post_id",
+				middleware.CanDeletePost(jwtMgr, boardRepo),
+				boardHandler.DeletePost)
+			postManageGroup.PUT("/:post_id/pin",
+				middleware.CanPinPost(jwtMgr, boardRepo),
+				boardHandler.PinPost)
 		}
+	}
+
+	// ── 管理员：版主申请审批（挂在 /admin 下，已有 AdminRequired 中间件）──────
+	// 建议放在 adminGroup 之内，与其他 admin 路由统一鉴权：
+	adminBoardGroup := api.Group("/admin/boards", middleware.Auth(jwtMgr), middleware.AdminRequired())
+	{
+		// GET  /admin/boards/applications?board_id=&status=pending&page=1&page_size=20
+		adminBoardGroup.GET("/applications", boardHandler.ListApplications)
+		// POST /admin/boards/applications/:application_id/review
+		adminBoardGroup.POST("/applications/:application_id/review", boardHandler.ReviewApplication)
 	}
 
 	// ----- MARK: Timeline routes
@@ -306,10 +351,11 @@ func InitApp(cfg *config.Config) (*App, error) {
 		answerGroup.DELETE("/:id", middleware.Auth(jwtMgr), answerHandler.DeleteAnswer) // 删除答案
 
 		// 答案交互
-		answerGroup.POST("/:id/vote", middleware.OptionalAuth(jwtMgr), answerHandler.VoteAnswer) // 答案投票
-		answerGroup.DELETE("/:id/vote", middleware.Auth(jwtMgr), answerHandler.DeleteAnswer)     // 取消投票
-		answerGroup.POST("/:id/accept", middleware.Auth(jwtMgr), answerHandler.AcceptAnswer)     // 接受答案
-		answerGroup.POST("/:id/unaccept", middleware.Auth(jwtMgr), answerHandler.UnacceptAnswer) // 取消接受答案
+		answerGroup.GET("/:id/status", middleware.OptionalAuth(jwtMgr), answerHandler.GetVoteStatus) // 获取答案投票状态
+		answerGroup.POST("/:id/vote", middleware.OptionalAuth(jwtMgr), answerHandler.VoteAnswer)     // 答案投票
+		answerGroup.DELETE("/:id/vote", middleware.Auth(jwtMgr), answerHandler.RemoveVote)           // 取消投票
+		answerGroup.POST("/:id/accept", middleware.Auth(jwtMgr), answerHandler.AcceptAnswer)         // 接受答案
+		answerGroup.POST("/:id/unaccept", middleware.Auth(jwtMgr), answerHandler.UnacceptAnswer)     // 取消接受答案
 	}
 
 	// ----- MARK: Question routes

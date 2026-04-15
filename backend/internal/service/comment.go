@@ -262,7 +262,7 @@ func (s *CommentService) DeleteAnswer(commentID, userID uint, isAdmin bool) erro
 // }
 
 // VoteAnswer 投票回答
-func (s *CommentService) VoteAnswer(answerID uint, userID uint, voteType string) (*model.Comment, error) {
+func (s *CommentService) VoteAnswer(answerID uint, userID uint, voteType int) (*model.Comment, error) {
 	// 1. 查找回答
 	comment, err := s.commentRepo.FindByID(answerID)
 	if err != nil {
@@ -280,15 +280,6 @@ func (s *CommentService) VoteAnswer(answerID uint, userID uint, voteType string)
 	}
 
 	// 4. 转换投票类型
-	var value int
-	switch voteType {
-	case "up":
-		value = 1
-	case "down":
-		value = -1
-	default:
-		return nil, errors.New("无效的投票类型")
-	}
 
 	// 5. 获取用户当前投票状态
 	currentVote, err := s.voteRepo.GetUserVote(answerID, userID)
@@ -297,19 +288,19 @@ func (s *CommentService) VoteAnswer(answerID uint, userID uint, voteType string)
 	}
 
 	// 6. 处理投票逻辑
-	if currentVote == value {
+	if currentVote == voteType {
 		// 相同投票：取消投票（toggle）
 		if err := s.voteRepo.RemoveVote(answerID, userID); err != nil {
 			return nil, err
 		}
 	} else if currentVote == 0 {
 		// 未投票：创建新投票
-		if err := s.voteRepo.CreateOrUpdateVote(answerID, userID, value); err != nil {
+		if err := s.voteRepo.CreateOrUpdateVote(answerID, userID, voteType); err != nil {
 			return nil, err
 		}
 	} else {
 		// 改变投票：更新现有投票
-		if err := s.voteRepo.CreateOrUpdateVote(answerID, userID, value); err != nil {
+		if err := s.voteRepo.CreateOrUpdateVote(answerID, userID, voteType); err != nil {
 			return nil, err
 		}
 	}

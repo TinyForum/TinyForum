@@ -109,21 +109,8 @@ func SpecificModeratorPermission(jwtMgr *jwt.Manager, boardRepo *repository.Boar
 		}
 
 		// 检查特定权限
-		hasPermission := false
-		switch permission {
-		case "delete_post":
-			hasPermission = moderator.CanDeletePost
-		case "pin_post":
-			hasPermission = moderator.CanPinPost
-		case "edit_any_post":
-			hasPermission = moderator.CanEditAnyPost
-		case "manage_moderator":
-			hasPermission = moderator.CanManageModerator
-		case "ban_user":
-			hasPermission = moderator.CanBanUser
-		default:
-			hasPermission = false
-		}
+		// hasPermission := false
+		hasPermission := moderator.HasPermission(permission)
 
 		if !hasPermission {
 			response.Forbidden(c, "没有权限执行此操作")

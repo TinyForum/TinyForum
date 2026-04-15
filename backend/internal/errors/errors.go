@@ -29,4 +29,7 @@ var (
 	ErrInvalidUserID   = errors.New("无效的用户ID")
 	// 积分
 	ErrFailedToQueryScore = errors.New("查询积分失败")
+
+	// 内部未知错误
+	ErrUnknown = errors.New("未知错误")
 )

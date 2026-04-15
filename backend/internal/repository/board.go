@@ -21,13 +21,10 @@ func NewBoardRepository(db *gorm.DB) *BoardRepository {
 }
 
 func (r *BoardRepository) Create(board *model.Board) error {
-	// 确保 ParentID 的处理
 	if board.ParentID != nil && *board.ParentID == 0 {
 		board.ParentID = nil
 	}
-	// 使用事务创建
 	return r.db.Transaction(func(tx *gorm.DB) error {
-		// 再次验证父板块存在（防止并发问题）
 		if board.ParentID != nil && *board.ParentID != 0 {
 			var parent model.Board
 			if err := tx.First(&parent, *board.ParentID).Error; err != nil {
@@ -37,7 +34,6 @@ func (r *BoardRepository) Create(board *model.Board) error {
 				return err
 			}
 		}
-
 		return tx.Create(board).Error
 	})
 }
@@ -67,7 +63,6 @@ func (r *BoardRepository) GetPostsBySlug(slug string, page, pageSize int) ([]*mo
 	var posts []*model.Post
 	var total int64
 
-	// 参数验证
 	if slug == "" {
 		return nil, 0, fmt.Errorf("slug cannot be empty")
 	}
@@ -78,29 +73,24 @@ func (r *BoardRepository) GetPostsBySlug(slug string, page, pageSize int) ([]*mo
 		pageSize = 20
 	}
 
-	// 构建查询
 	query := r.db.Model(&model.Post{}).
 		Joins("JOIN boards ON boards.id = posts.board_id").
 		Where("boards.slug = ?", slug).
 		Where("posts.deleted_at IS NULL")
 
-	// 获取总数
 	if err := query.Count(&total).Error; err != nil {
 		return nil, 0, fmt.Errorf("count posts failed: %w", err)
 	}
 
-	// 获取分页数据
 	offset := (page - 1) * pageSize
 	err := query.
 		Offset(offset).
 		Limit(pageSize).
 		Order("posts.created_at DESC").
 		Find(&posts).Error
-
 	if err != nil {
 		return nil, 0, fmt.Errorf("get posts failed: %w", err)
 	}
-
 	return posts, total, nil
 }
 
@@ -110,7 +100,6 @@ func (r *BoardRepository) List(limit, offset int) ([]model.Board, int64, error) 
 
 	query := r.db.Model(&model.Board{})
 	query.Count(&total)
-
 	err := query.Offset(offset).Limit(limit).Order("sort_order ASC, id ASC").Find(&boards).Error
 	return boards, total, err
 }
@@ -141,24 +130,37 @@ func (r *BoardRepository) IncrementTodayCount(boardID uint) error {
 		UpdateColumn("today_count", gorm.Expr("today_count + 1")).Error
 }
 
-// Moderator methods
+// ── Moderator ────────────────────────────────────────────────────────────────
+
+// AddModerator 写入新版主记录（含权限 JSON）。
 func (r *BoardRepository) AddModerator(mod *model.Moderator) error {
 	return r.db.Create(mod).Error
 }
 
+// UpdateModerator 保存版主记录（用于权限更新）。
+func (r *BoardRepository) UpdateModerator(mod *model.Moderator) error {
+	return r.db.Save(mod).Error
+}
+
+// RemoveModerator 按 userID + boardID 软删除版主记录。
 func (r *BoardRepository) RemoveModerator(userID, boardID uint) error {
 	return r.db.Where("user_id = ? AND board_id = ?", userID, boardID).
 		Delete(&model.Moderator{}).Error
 }
 
+// FindModeratorByUserAndBoard 查询版主记录（含 User 预加载）。
 func (r *BoardRepository) FindModeratorByUserAndBoard(userID, boardID uint) (*model.Moderator, error) {
 	var mod model.Moderator
 	err := r.db.Where("user_id = ? AND board_id = ?", userID, boardID).
 		Preload("User").
 		First(&mod).Error
-	return &mod, err
+	if err != nil {
+		return nil, err
+	}
+	return &mod, nil
 }
 
+// GetModerators 获取板块全部版主（含 User 预加载）。
 func (r *BoardRepository) GetModerators(boardID uint) ([]model.Moderator, error) {
 	var mods []model.Moderator
 	err := r.db.Where("board_id = ?", boardID).
@@ -168,6 +170,7 @@ func (r *BoardRepository) GetModerators(boardID uint) ([]model.Moderator, error)
 	return mods, err
 }
 
+// IsModerator 检查用户是否已是版主。
 func (r *BoardRepository) IsModerator(userID, boardID uint) (bool, error) {
 	var count int64
 	err := r.db.Model(&model.Moderator{}).
@@ -176,7 +179,8 @@ func (r *BoardRepository) IsModerator(userID, boardID uint) (bool, error) {
 	return count > 0, err
 }
 
-// Ban methods
+// ── Ban ──────────────────────────────────────────────────────────────────────
+
 func (r *BoardRepository) BanUser(ban *model.BoardBan) error {
 	return r.db.Create(ban).Error
 }
@@ -197,12 +201,12 @@ func (r *BoardRepository) IsBanned(userID, boardID uint) (bool, error) {
 
 func (r *BoardRepository) GetBan(userID, boardID uint) (*model.BoardBan, error) {
 	var ban model.BoardBan
-	err := r.db.Where("user_id = ? AND board_id = ?", userID, boardID).
-		First(&ban).Error
+	err := r.db.Where("user_id = ? AND board_id = ?", userID, boardID).First(&ban).Error
 	return &ban, err
 }
 
-// ModeratorLog methods
+// ── ModeratorLog ─────────────────────────────────────────────────────────────
+
 func (r *BoardRepository) CreateModeratorLog(log *model.ModeratorLog) error {
 	return r.db.Create(log).Error
 }
@@ -213,7 +217,6 @@ func (r *BoardRepository) GetModeratorLogs(boardID uint, limit, offset int) ([]m
 
 	query := r.db.Model(&model.ModeratorLog{}).Where("board_id = ?", boardID)
 	query.Count(&total)
-
 	err := query.Offset(offset).Limit(limit).
 		Preload("Moderator").
 		Order("created_at DESC").
@@ -221,14 +224,122 @@ func (r *BoardRepository) GetModeratorLogs(boardID uint, limit, offset int) ([]m
 	return logs, total, err
 }
 
-// Count 返回板块总数
+// ── ModeratorApplication ─────────────────────────────────────────────────────
+
+// CreateApplication 创建版主申请。
+func (r *BoardRepository) CreateApplication(app *model.ModeratorApplication) error {
+	return r.db.Create(app).Error
+}
+
+// FindPendingApplication 查找用户在某板块的待审核申请（用于去重）。
+func (r *BoardRepository) FindPendingApplication(userID, boardID uint) (*model.ModeratorApplication, error) {
+	var app model.ModeratorApplication
+	err := r.db.Where("user_id = ? AND board_id = ? AND status = ?",
+		userID, boardID, model.ApplicationPending).First(&app).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil
+	}
+	return &app, err
+}
+
+// GetApplicationByID 按 ID 获取申请（含关联预加载）。
+func (r *BoardRepository) GetApplicationByID(id uint) (*model.ModeratorApplication, error) {
+	var app model.ModeratorApplication
+	err := r.db.Preload("User").Preload("Board").Preload("Reviewer").
+		First(&app, id).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil
+	}
+	return &app, err
+}
+
+// GetApplicationsByUserID 根据用户ID获取申请记录（分页）
+func (r *BoardRepository) GetApplicationsByUserID(userID uint, page, pageSize int) ([]model.ModeratorApplication, int64, error) {
+	var applications []model.ModeratorApplication
+	var total int64
+
+	query := r.db.Model(&model.ModeratorApplication{}).Where("user_id = ?", userID)
+
+	// 获取总数
+	if err := query.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	// 分页查询，按创建时间倒序
+	offset := (page - 1) * pageSize
+	err := query.Preload("Board").Preload("Reviewer").
+		Order("created_at DESC").
+		Offset(offset).Limit(pageSize).
+		Find(&applications).Error
+
+	return applications, total, err
+}
+
+func (r *BoardRepository) GetLatestApplicationByUserAndBoard(userID, boardID uint) (*model.ModeratorApplication, error) {
+	var app model.ModeratorApplication
+	err := r.db.Where("user_id = ? AND board_id = ?", userID, boardID).
+		Order("created_at DESC").
+		First(&app).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &app, nil
+}
+
+// UpdateApplication 保存申请（用于状态流转：审批/撤销）。
+func (r *BoardRepository) UpdateApplication(app *model.ModeratorApplication) error {
+	return r.db.Save(app).Error
+}
+
+// ListApplications 分页列出申请，可按板块和状态过滤。
+// boardID == nil 则不过滤板块；status == "" 则不过滤状态。
+func (r *BoardRepository) ListApplications(
+	boardID *uint,
+	status model.ApplicationStatus,
+	page, pageSize int,
+) ([]model.ModeratorApplication, int64, error) {
+	var apps []model.ModeratorApplication
+	var total int64
+
+	query := r.db.Model(&model.ModeratorApplication{})
+	if boardID != nil {
+		query = query.Where("board_id = ?", *boardID)
+	}
+	if status != "" {
+		query = query.Where("status = ?", status)
+	}
+
+	if err := query.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	offset := (page - 1) * pageSize
+	err := query.
+		Preload("User").Preload("Board").Preload("Reviewer").
+		Order("created_at DESC").
+		Offset(offset).Limit(pageSize).
+		Find(&apps).Error
+	return apps, total, err
+}
+
+// CancelUserApplications 撤销用户在某板块所有 pending 申请（当用户被直接任命为版主时调用）。
+func (r *BoardRepository) CancelUserApplications(userID, boardID uint) error {
+	return r.db.Model(&model.ModeratorApplication{}).
+		Where("user_id = ? AND board_id = ? AND status = ?", userID, boardID, model.ApplicationPending).
+		Update("status", model.ApplicationCanceled).Error
+}
+
+// ── Stats helpers ─────────────────────────────────────────────────────────────
+
 func (r *BoardRepository) Count(ctx context.Context) (int64, error) {
 	var count int64
 	err := r.db.WithContext(ctx).Model(&model.Board{}).Count(&count).Error
 	return count, err
 }
 
-// CountByDateRange 统计指定时间段内新增板块数
 func (r *BoardRepository) CountByDateRange(ctx context.Context, startDate, endDate time.Time) (int64, error) {
 	var count int64
 	err := r.db.WithContext(ctx).
@@ -238,7 +349,6 @@ func (r *BoardRepository) CountByDateRange(ctx context.Context, startDate, endDa
 	return count, err
 }
 
-// GetHotBoardsByDateRange 委托给 StatsRepository 执行复合查询
 func (r *BoardRepository) GetHotBoardsByDateRange(
 	ctx context.Context,
 	startDate, endDate time.Time,
