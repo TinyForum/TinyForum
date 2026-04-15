@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/auth';
-import { moderatorApi, ModeratorApplication } from '@/lib/api/modules/moderator';
+import { moderatorApi } from '@/lib/api/modules/moderator';
 import {
   ShieldCheckIcon,
   CheckCircleIcon,
@@ -16,43 +16,81 @@ import {
   ExclamationTriangleIcon,
 } from '@heroicons/react/24/outline';
 
-type AppStatus = ModeratorApplication['status'];
+// 申请状态类型
+type ApplicationStatus = 'pending' | 'approved' | 'rejected' | 'canceled';
 
-interface ExtendedModeratorApplication extends ModeratorApplication {
-  board?: {
-    id: number;
-    name: string;
-    slug: string;
+// 申请状态详情（来自 getApplicationStatus API）
+interface ApplicationStatusDetail {
+  has_application: boolean;
+  application_id?: number;
+  status?: ApplicationStatus;
+  reason?: string;
+  created_at?: string;
+  review_note?: string;
+  reviewer_id?: number;
+  reviewed_at?: string | null;
+  can_cancel: boolean;
+  can_resubmit: boolean;
+  requested_perms?: {
+    delete_post: boolean;
+    pin_post: boolean;
+    edit_any_post: boolean;
+    manage_moderator: boolean;
+    ban_user: boolean;
   };
-  handler?: {
-    id: number;
-    username: string;
+  can_apply: boolean;
+}
+
+// 扩展的申请卡片数据
+interface ExtendedApplication {
+  id: number;
+  board_id: number;
+  board_name: string;
+  board_slug: string;
+  reason: string;
+  status: ApplicationStatus;
+  review_note?: string;
+  reviewer_id?: number;
+  created_at: string;
+  reviewed_at?: string | null;
+  requested_perms?: {
+    delete_post: boolean;
+    pin_post: boolean;
+    edit_any_post: boolean;
+    manage_moderator: boolean;
+    ban_user: boolean;
   };
 }
 
-const STATUS_MAP: Record<AppStatus, { 
-  icon: React.ElementType; 
-  label: string; 
+const STATUS_MAP: Record<ApplicationStatus, {
+  icon: React.ElementType;
+  label: string;
   cls: string;
   borderCls: string;
 }> = {
-  pending: { 
-    icon: ClockIcon, 
-    label: '审核中', 
+  pending: {
+    icon: ClockIcon,
+    label: '审核中',
     cls: 'text-yellow-600 bg-yellow-100 dark:bg-yellow-900/30 dark:text-yellow-400',
     borderCls: 'border-yellow-200 dark:border-yellow-800'
   },
-  approved: { 
-    icon: CheckCircleIcon, 
-    label: '已通过', 
+  approved: {
+    icon: CheckCircleIcon,
+    label: '已通过',
     cls: 'text-green-600 bg-green-100 dark:bg-green-900/30 dark:text-green-400',
     borderCls: 'border-green-200 dark:border-green-800'
   },
-  rejected: { 
-    icon: XCircleIcon, 
-    label: '已拒绝', 
+  rejected: {
+    icon: XCircleIcon,
+    label: '已拒绝',
     cls: 'text-red-600 bg-red-100 dark:bg-red-900/30 dark:text-red-400',
     borderCls: 'border-red-200 dark:border-red-800'
+  },
+  canceled: {
+    icon: XCircleIcon,
+    label: '已撤销',
+    cls: 'text-gray-600 bg-gray-100 dark:bg-gray-900/30 dark:text-gray-400',
+    borderCls: 'border-gray-200 dark:border-gray-700'
   },
 };
 
@@ -64,7 +102,7 @@ const formatDate = (dateString: string, locale = 'zh-CN'): string => {
   }
 };
 
-function StatusBadge({ status }: { status: AppStatus }) {
+function StatusBadge({ status }: { status: ApplicationStatus }) {
   const { icon: Icon, label, cls } = STATUS_MAP[status];
   return (
     <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium transition-colors ${cls}`}>
@@ -74,10 +112,10 @@ function StatusBadge({ status }: { status: AppStatus }) {
   );
 }
 
-function ApplicationCard({ app }: { app: ExtendedModeratorApplication }) {
-  const boardSlug = app.board?.slug || `board-${app.board_id}`;
+function ApplicationCard({ app, onCancel }: { app: ExtendedApplication; onCancel?: (id: number) => void }) {
   const isHandled = app.status !== 'pending';
   const hasReviewNote = !!app.review_note;
+  const canCancel = app.status === 'pending';
 
   return (
     <div className={`bg-white dark:bg-gray-800 rounded-xl border ${STATUS_MAP[app.status].borderCls} hover:shadow-lg transition-all duration-200 p-5`}>
@@ -85,10 +123,10 @@ function ApplicationCard({ app }: { app: ExtendedModeratorApplication }) {
       <div className="flex items-start justify-between gap-4 mb-4">
         <div className="flex-1 min-w-0">
           <Link
-            href={`/boards/${boardSlug}`}
+            href={`/boards/${app.board_slug}`}
             className="font-semibold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors inline-flex items-center gap-1"
           >
-            {app.board?.name || `板块 #${app.board_id}`}
+            {app.board_name}
           </Link>
           <p className="text-xs text-gray-400 mt-1">
             <time dateTime={app.created_at}>
@@ -115,6 +153,30 @@ function ApplicationCard({ app }: { app: ExtendedModeratorApplication }) {
         </p>
       </div>
 
+      {/* Requested Permissions */}
+      {app.requested_perms && (
+        <div className="mb-3">
+          <p className="text-xs font-medium text-gray-400 mb-2">申请权限</p>
+          <div className="flex flex-wrap gap-2">
+            {app.requested_perms.delete_post && (
+              <span className="text-xs px-2 py-1 rounded bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400">删除帖子</span>
+            )}
+            {app.requested_perms.pin_post && (
+              <span className="text-xs px-2 py-1 rounded bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400">置顶帖子</span>
+            )}
+            {app.requested_perms.edit_any_post && (
+              <span className="text-xs px-2 py-1 rounded bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400">编辑任意帖子</span>
+            )}
+            {app.requested_perms.manage_moderator && (
+              <span className="text-xs px-2 py-1 rounded bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400">管理版主</span>
+            )}
+            {app.requested_perms.ban_user && (
+              <span className="text-xs px-2 py-1 rounded bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400">禁言用户</span>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Review note */}
       {hasReviewNote && (
         <div className={`rounded-lg px-4 py-3 text-sm ${
@@ -126,9 +188,9 @@ function ApplicationCard({ app }: { app: ExtendedModeratorApplication }) {
             {app.status === 'approved' ? '通过说明' : '拒绝理由'}
           </p>
           <p className="whitespace-pre-wrap break-words">{app.review_note}</p>
-          {app.reviewed_by && (
+          {app.reviewer_id && (
             <p className="text-xs opacity-70 mt-2">
-              处理人ID：{app.reviewed_by}
+              处理人ID：{app.reviewer_id}
             </p>
           )}
         </div>
@@ -136,13 +198,29 @@ function ApplicationCard({ app }: { app: ExtendedModeratorApplication }) {
 
       {/* Action buttons */}
       <div className="flex justify-end gap-3 mt-3">
-        {app.status === 'approved' && app.board && (
+        {canCancel && onCancel && (
+          <button
+            onClick={() => onCancel(app.id)}
+            className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-red-600 transition-colors"
+          >
+            撤销申请
+          </button>
+        )}
+        {app.status === 'approved' && (
           <Link
-            href={`/boards/${boardSlug}`}
+            href={`/boards/${app.board_slug}`}
             className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors group"
           >
             进入板块
             <ArrowTopRightOnSquareIcon className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+          </Link>
+        )}
+        {app.status === 'rejected' && (
+          <Link
+            href={`/boards/${app.board_slug}/apply-moderator`}
+            className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors"
+          >
+            重新申请
           </Link>
         )}
       </div>
@@ -194,51 +272,93 @@ function ErrorState({ onRetry }: { onRetry: () => void }) {
   );
 }
 
+// 模拟板块数据（实际应从 API 获取）
+const getBoardInfo = (boardId: number) => {
+  // TODO: 替换为实际的板块信息获取逻辑
+  const boardMap: Record<number, { name: string; slug: string }> = {
+    1: { name: '技术交流', slug: 'tech' },
+    2: { name: '生活闲聊', slug: 'life' },
+  };
+  return boardMap[boardId] || { name: `板块 #${boardId}`, slug: `board-${boardId}` };
+};
+
 export default function MyApplicationsPage() {
   const { isAuthenticated, user } = useAuthStore();
   const router = useRouter();
-  const [applications, setApplications] = useState<ExtendedModeratorApplication[]>([]);
+  const [applications, setApplications] = useState<ExtendedApplication[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
+  const [cancelLoading, setCancelLoading] = useState<number | null>(null);
 
-  const PAGE_SIZE = 20;
+  const PAGE_SIZE = 10;
 
   // 重定向未认证用户
   useEffect(() => {
     if (!isAuthenticated) {
-      router.push('/auth/login?redirect=/boards/applications');
+      router.push('/auth/login?redirect=/boards/my-applications');
     }
   }, [isAuthenticated, router]);
 
-  const loadApplications = useCallback(async () => {
-    if (!isAuthenticated) return;
+  // 加载用户的所有申请（通过遍历板块？或者使用专门的用户申请接口）
+  // 注意：这里需要根据实际后端 API 调整
+const loadApplications = useCallback(async () => {
+  if (!isAuthenticated) return;
+  
+  setLoading(true);
+  setError(null);
+  
+  try {
+    const res = await moderatorApi.getMyApplications({ page, page_size: PAGE_SIZE });
     
-    setLoading(true);
-    setError(null);
-    
-    try {
-      const res = await moderatorApi.listApplications({ page, page_size: PAGE_SIZE });
-      
-      if (res?.data?.data) {
-        // 过滤当前用户的申请
-        const userApplications = (res.data.data.list || []).filter(
-          app => app.user_id === user?.id
-        );
-        setApplications(userApplications);
-        setTotal(res.data.data.total || 0);
-      } else {
-        throw new Error('响应数据格式错误');
-      }
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : '加载申请记录失败';
-      setError(errorMessage);
-      console.error('Failed to load applications:', err);
-    } finally {
-      setLoading(false);
+    if (res?.data?.data) {
+      // 转换为 ExtendedApplication 格式
+      const apps: ExtendedApplication[] = (res.data.data.list || []).map(app => ({
+        id: app.id,
+        board_id: app.board_id,
+        board_name: app.board?.name || `板块 #${app.board_id}`,
+        board_slug: app.board?.slug || `board-${app.board_id}`,
+        reason: app.reason,
+        status: app.status,
+        review_note: app.review_note,
+        reviewer_id: app.reviewed_by,
+        created_at: app.created_at,
+        reviewed_at: app.reviewed_at,
+        requested_perms: {
+          delete_post: app.req_delete_post,
+          pin_post: app.req_pin_post,
+          edit_any_post: app.req_edit_any_post,
+          manage_moderator: app.req_manage_moderator,
+          ban_user: app.req_ban_user,
+        },
+      }));
+      setApplications(apps);
+      setTotal(res.data.data.total);
     }
-  }, [page, isAuthenticated, user?.id]);
+  } catch (err) {
+    setError('加载申请记录失败');
+  } finally {
+    setLoading(false);
+  }
+}, [page, isAuthenticated]);
+
+  // 撤销申请
+  const handleCancel = useCallback(async (applicationId: number) => {
+    if (!confirm('确定要撤销这个申请吗？')) return;
+    
+    setCancelLoading(applicationId);
+    try {
+      await moderatorApi.cancelApplication(applicationId);
+      // 刷新列表
+      await loadApplications();
+    } catch (err) {
+      console.error('撤销失败:', err);
+      alert('撤销失败，请重试');
+    } finally {
+      setCancelLoading(null);
+    }
+  }, [loadApplications]);
 
   useEffect(() => {
     loadApplications();
@@ -286,7 +406,11 @@ export default function MyApplicationsPage() {
         <>
           <div className="space-y-4">
             {applications.map((app) => (
-              <ApplicationCard key={app.id} app={app} />
+              <ApplicationCard 
+                key={app.id} 
+                app={app} 
+                onCancel={handleCancel}
+              />
             ))}
           </div>
 

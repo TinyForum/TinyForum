@@ -50,12 +50,23 @@ export interface ModeratorApplication {
   board_id: number;
   board_name: string;
   reason: string;
-  status: "pending" | "approved" | "rejected";
+  status: "pending" | "approved" | "rejected" | "canceled";
   review_note: string;
   reviewed_by?: number;
   reviewed_at?: string;
   created_at: string;
   updated_at: string;
+  // 添加缺失的字段
+  board?: {
+    id: number;
+    name: string;
+    slug: string;
+  };
+  req_delete_post: boolean;
+  req_pin_post: boolean;
+  req_edit_any_post: boolean;
+  req_manage_moderator: boolean;
+  req_ban_user: boolean;
 }
 
 export interface Moderator {
@@ -92,6 +103,31 @@ export interface BanRecord {
   created_at: string;
 }
 
+// 申请状态
+type ApplicationStatus = 'pending' | 'approved' | 'rejected' | 'canceled';
+
+// 申请状态详情
+interface ApplicationStatusDetailResponse {
+  has_application: boolean;
+  application_id?: number;
+  status?: ApplicationStatus;
+  reason?: string;
+  created_at?: string;
+  review_note?: string;
+  reviewer_id?: number;
+  reviewed_at?: string | null;
+  can_cancel: boolean;
+  can_resubmit: boolean;
+  requested_perms?: {
+    delete_post: boolean;
+    pin_post: boolean;
+    edit_any_post: boolean;
+    manage_moderator: boolean;
+    ban_user: boolean;
+  };
+  can_apply: boolean;
+}
+
 export const moderatorApi = {
   // ── 版主申请 ──────────────────────────────────────────────────────────────
 
@@ -102,7 +138,14 @@ export const moderatorApi = {
    */
   applyModerator: (boardId: number, data: ApplyModeratorForm) =>
     apiClient.post<ApiResponse<{ message: string }>>(`/boards/${boardId}/moderators/apply`, data),
-
+/**
+ * 查看申请状态 (传递申请 ID)
+ */
+getMyApplications: (params?: { page?: number; page_size?: number }) =>
+  apiClient.get<ApiResponse<{ list: ModeratorApplication[]; total: number; page: number; page_size: number }>>(
+    "/boards/moderators/apply",
+    { params }
+  ),
   /**
    * 撤销版主申请
    * @param applicationId 申请ID
