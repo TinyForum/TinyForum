@@ -1,30 +1,33 @@
-
+// hooks/admin/useAdminAuth.ts
 import { useEffect, useState } from "react";
 import { useAuthStore } from "@/store/auth";
 import { useRouter } from "next/navigation";
 
 export function useAdminAuth() {
-  const { user, isAuthenticated } = useAuthStore();
+  const { user, isAuthenticated, isHydrated } = useAuthStore();
   const router = useRouter();
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
   useEffect(() => {
-    const checkAuth = async () => {
-      await new Promise(resolve => setTimeout(resolve, 100));
-      setIsCheckingAuth(false);
-      
-      if (!isAuthenticated) {
-        router.push('/auth/login');
-      } else if (user?.role !== "admin" && user?.role !== "super_admin") {
-        router.push('/');
-      }
-    };
+    // 等待 store hydration 完成
+    if (!isHydrated) return;
     
-    checkAuth();
-  }, [isAuthenticated, user, router]);
+    // hydration 完成，停止检查状态
+    setIsCheckingAuth(false);
+    
+    // 注意：middleware 已经处理了认证重定向
+    // 这里不需要再重定向，避免冲突
+    // 只需要返回权限状态即可
+    
+  }, [isHydrated, router]);
 
   const isAdmin = isAuthenticated && 
     (user?.role === "admin" || user?.role === "super_admin");
 
-  return { isCheckingAuth, isAdmin, user };
+  return { 
+    isCheckingAuth, 
+    isAdmin, 
+    user,
+    isAuthenticated 
+  };
 }

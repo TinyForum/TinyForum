@@ -7,7 +7,7 @@ import { useUsersData } from "@/hooks/admin/useUsersData";
 import { usePostsData } from "@/hooks/admin/usePostsData";
 import { useAnnouncementsData } from "@/hooks/admin/useAnnouncementsData";
 import { useQAData } from "@/hooks/admin/useQAData";
-import { usePointsData } from "@/hooks/admin/usePointsData";
+import { useScoreData } from "@/hooks/admin/useScoreData";
 import { useStatsData } from "@/hooks/admin/useStatsData";
 import { AnnouncementsManager } from "@/components/admin/AnnouncementsManager";
 import { AdminSearchBar } from "@/components/admin/AdminSearchBar";
@@ -16,7 +16,7 @@ import { PointsManager } from "@/components/admin/PointsManager";
 import { PostsTable } from "@/components/admin/PostsTable";
 import { SidebarMenu } from "@/components/admin/SidebarMenu";
 import { Dashboard } from "@/components/admin/Dashboard";
-import { UsersTable } from "@/hooks/admin/UsersTable";
+import { UsersTable } from "@/components/admin/UsersTable"; // 修复：正确的导入路径
 import { Statistics } from "@/components/admin/Statistics";
 
 // ==================== 主组件 ====================
@@ -44,7 +44,10 @@ export default function AdminPage() {
     activeMenu === "announcements" && isAdmin,
   );
   const qaData = useQAData(page, keyword, activeMenu === "qa" && isAdmin);
-  const pointsData = usePointsData(activeMenu === "points" && isAdmin);
+  
+  // 修复：useScoreData 期望可选的 userId 参数，不是布尔值
+  const pointsData = useScoreData(activeMenu === "points" && isAdmin ? undefined : undefined);
+  
   const statsData = useStatsData(activeMenu === "statistics" && isAdmin);
 
   // 加载状态
@@ -66,6 +69,7 @@ export default function AdminPage() {
       // MARK: 统计
       case "dashboard":
         return <Dashboard t={t} />;
+      
       // MARK: 公告
       case "announcements":
         return <AnnouncementsManager t={t} />;
@@ -98,6 +102,7 @@ export default function AdminPage() {
             />
           </div>
         );
+      
       // MARK: 帖子
       case "posts":
         return (
@@ -144,7 +149,8 @@ export default function AdminPage() {
             <div className="card bg-base-100 border border-base-300">
               <div className="card-body">
                 <p className="text-center text-base-content/50">
-                  {t("qa_management_coming")}
+                  {/* {t("qa_management_coming")} */}
+                  TODO
                 </p>
               </div>
             </div>
@@ -155,12 +161,15 @@ export default function AdminPage() {
             />
           </div>
         );
+      
       // MARK: 积分
       case "points":
         return <PointsManager t={t} />;
+      
       // MARK: 统计
       case "statistics":
         return <Statistics t={t} />;
+      
       // MARK: 设置
       case "settings":
         return (

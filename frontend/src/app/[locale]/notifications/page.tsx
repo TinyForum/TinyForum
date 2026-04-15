@@ -2,14 +2,14 @@
 
 import { useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { notificationApi } from '@/lib/api';
+import { Notification, notificationApi } from '@/lib/api';
 import { useAuthStore } from '@/store/auth';
 import { useRouter } from 'next/navigation';
 import { timeAgo } from '@/lib/utils';
 import Image from 'next/image';
 import { Bell, CheckCheck, Heart, MessageSquare, UserPlus, Info } from 'lucide-react';
 import toast from 'react-hot-toast';
-import type { Notification } from '@/types';
+// import type { Notification } from '@/types';
 import Avatar from '@/components/user/Avatar';
 import { useTranslations } from 'next-intl';
 

@@ -36,6 +36,66 @@ definitions:
     required:
     - post_id
     type: object
+  handler.AdminSetScoreRequest:
+    properties:
+      operation:
+        description: |-
+          操作类型：set（设置）、add（增加）、subtract（扣除）
+          required: true
+          enum: set,add,subtract
+        example: add
+        type: string
+      reason:
+        description: |-
+          操作原因（用于日志审计）
+          required: true
+          maxLength: 200
+        example: 用户活动奖励
+        type: string
+      score:
+        description: |-
+          积分数量（set 时为目标积分，add/subtract 时为变化量）
+          required: true
+          minimum: 0
+          maximum: 999999
+        example: 50
+        type: integer
+    type: object
+  handler.AdminSetScoreResponse:
+    properties:
+      change:
+        description: 积分变化量（可为负数）
+        example: 50
+        type: integer
+      new_score:
+        description: 操作后积分
+        example: 200
+        type: integer
+      old_score:
+        description: 操作前积分
+        example: 150
+        type: integer
+      operation:
+        description: 执行的操作类型
+        example: add
+        type: string
+      operator_id:
+        description: 操作管理员ID
+        example: 1
+        type: integer
+      reason:
+        description: 操作原因
+        example: 用户活动奖励
+        type: string
+      timestamp:
+        description: Unix时间戳（秒）
+        example: 1700000000
+        type: integer
+      user_id:
+        description: 被操作用户ID
+        example: 10086
+        type: integer
+    type: object
   handler.BanUserRequest:
     properties:
       expires_at:
@@ -95,6 +155,27 @@ definitions:
     - ActionFollowUser
     - ActionAcceptAnswer
     - ActionSignIn
+  model.ActiveUserDetail:
+    properties:
+      article_count:
+        description: 今日发文数
+        type: integer
+      avatar:
+        description: 头像
+        type: string
+      comment_count:
+        description: 今日评论数
+        type: integer
+      last_active_at:
+        description: 最后活跃时间
+        type: string
+      user_id:
+        description: 用户ID
+        type: integer
+      username:
+        description: 用户名
+        type: string
+    type: object
   model.Announcement:
     properties:
       board_id:
@@ -319,6 +400,63 @@ definitions:
     required:
     - content
     - title
+    type: object
+  model.HotArticleItem:
+    properties:
+      author_id:
+        description: 作者ID
+        type: integer
+      author_name:
+        description: 作者昵称
+        type: string
+      board_id:
+        description: 板块ID
+        type: integer
+      board_name:
+        description: 板块名称
+        type: string
+      comment_count:
+        description: 评论数
+        type: integer
+      id:
+        description: 文章ID
+        type: integer
+      like_count:
+        description: 点赞数
+        type: integer
+      score:
+        description: 综合热度分
+        type: integer
+      title:
+        description: 文章标题
+        type: string
+      view_count:
+        description: 浏览量
+        type: integer
+    type: object
+  model.HotBoardItem:
+    properties:
+      active_user:
+        description: 今日活跃用户数
+        type: integer
+      article_count:
+        description: 今日发文数
+        type: integer
+      comment_count:
+        description: 今日评论数
+        type: integer
+      icon:
+        description: 板块图标
+        type: string
+      id:
+        description: 板块ID
+        type: integer
+      name:
+        description: 板块名称
+        type: string
+      score:
+        description: 综合热度分
+        type: integer
     type: object
   model.Moderator:
     properties:
@@ -910,6 +1048,85 @@ definitions:
       updated_at:
         type: string
     type: object
+  model.StatsActiveUserInfo:
+    properties:
+      list:
+        description: 今日活跃用户列表（最多N条）
+        items:
+          $ref: '#/definitions/model.ActiveUserDetail'
+        type: array
+      total:
+        description: 今日活跃用户总数
+        type: integer
+    type: object
+  model.StatsIllegalInfo:
+    properties:
+      article_cnt:
+        description: 今日违规文章数
+        type: integer
+      board_cnt:
+        description: 今日违规板块数
+        type: integer
+      comment_cnt:
+        description: 今日违规评论数
+        type: integer
+      total:
+        description: 今日违规总数
+        type: integer
+      user_count:
+        description: 今日违规用户数
+        type: integer
+    type: object
+  model.StatsInfo:
+    properties:
+      total_article:
+        description: 总文章数
+        type: integer
+      total_board:
+        description: 总板块数
+        type: integer
+      total_comment:
+        description: 总评论数
+        type: integer
+      total_tag:
+        description: 总标签数
+        type: integer
+      total_user:
+        description: 总用户数
+        type: integer
+    type: object
+  model.StatsInfoResp:
+    properties:
+      active_user_info:
+        allOf:
+        - $ref: '#/definitions/model.StatsActiveUserInfo'
+        description: 今日活跃用户信息
+      base_info:
+        allOf:
+        - $ref: '#/definitions/model.StatsInfo'
+        description: 基础统计信息
+      hot_articles:
+        description: 今日热门文章列表
+        items:
+          $ref: '#/definitions/model.HotArticleItem'
+        type: array
+      hot_boards:
+        description: 今日热门板块列表
+        items:
+          $ref: '#/definitions/model.HotBoardItem'
+        type: array
+      illegal_info:
+        allOf:
+        - $ref: '#/definitions/model.StatsIllegalInfo'
+        description: 今日违规信息
+      stat_time:
+        description: 统计时间
+        type: string
+      today_info:
+        allOf:
+        - $ref: '#/definitions/model.StatsTodayInfo'
+        description: 今日统计信息
+    type: object
   model.StatsTodayInfo:
     properties:
       active_user:
@@ -931,14 +1148,25 @@ definitions:
         description: 今日新增用户
         type: integer
     type: object
-  model.StatsTotalResponse:
-    properties:
-      count:
-        type: integer
-      type:
-        type: string
-    type: object
   model.StatsTrendResponse:
+    properties:
+      end_date:
+        description: 结束日期
+        type: string
+      interval:
+        description: 统计粒度 (day/week/month)
+        type: string
+      start_date:
+        description: 开始日期
+        type: string
+      trend:
+        description: 趋势数据
+        items:
+          $ref: '#/definitions/model.TrendData'
+        type: array
+      type:
+        description: 统计类型
+        type: string
     type: object
   model.Tag:
     properties:
@@ -1007,6 +1235,13 @@ definitions:
       title:
         type: string
       updated_at:
+        type: string
+    type: object
+  model.TrendData:
+    properties:
+      count:
+        type: integer
+      date:
         type: string
     type: object
   model.User:
@@ -1090,6 +1325,8 @@ definitions:
         type: boolean
       published_at:
         type: string
+      status:
+        $ref: '#/definitions/model.AnnouncementStatus'
       summary:
         type: string
       title:
@@ -1584,7 +1821,6 @@ paths:
         - users
         - posts
         - comments
-        - likes
         - all
         in: query
         name: type
@@ -1593,7 +1829,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: 获取成功
+          description: OK
           schema:
             allOf:
             - $ref: '#/definitions/response.Response'
@@ -1602,15 +1838,11 @@ paths:
                   $ref: '#/definitions/model.StatsTodayInfo'
               type: object
         "400":
-          description: 请求参数错误
-          schema:
-            $ref: '#/definitions/response.Response'
-        "401":
-          description: 未授权
+          description: Bad Request
           schema:
             $ref: '#/definitions/response.Response'
         "500":
-          description: 服务器内部错误
+          description: Internal Server Error
           schema:
             $ref: '#/definitions/response.Response'
       security:
@@ -1622,15 +1854,13 @@ paths:
     get:
       consumes:
       - application/json
-      description: 获取指定时间范围内的总计统计数据（支持用户、帖子、评论等类型）
+      description: 获取指定时间范围内的汇总统计数据
       parameters:
-      - default: 30天前
-        description: '开始日期 (格式: 2006-01-02)'
+      - description: '开始日期 (格式: 2006-01-02，默认30天前)'
         in: query
         name: start_date
         type: string
-      - default: 今天
-        description: '结束日期 (格式: 2006-01-02)'
+      - description: '结束日期 (格式: 2006-01-02，默认今天)'
         in: query
         name: end_date
         type: string
@@ -1640,7 +1870,6 @@ paths:
         - users
         - posts
         - comments
-        - likes
         - all
         in: query
         name: type
@@ -1649,24 +1878,20 @@ paths:
       - application/json
       responses:
         "200":
-          description: 获取成功
+          description: OK
           schema:
             allOf:
             - $ref: '#/definitions/response.Response'
             - properties:
                 data:
-                  $ref: '#/definitions/model.StatsTotalResponse'
+                  $ref: '#/definitions/model.StatsInfoResp'
               type: object
         "400":
-          description: 请求参数错误
-          schema:
-            $ref: '#/definitions/response.Response'
-        "401":
-          description: 未授权
+          description: Bad Request
           schema:
             $ref: '#/definitions/response.Response'
         "500":
-          description: 服务器内部错误
+          description: Internal Server Error
           schema:
             $ref: '#/definitions/response.Response'
       security:
@@ -1680,13 +1905,11 @@ paths:
       - application/json
       description: 获取指定时间范围内的趋势数据（按天、周、月统计）
       parameters:
-      - default: 7天前
-        description: '开始日期 (格式: 2006-01-02)'
+      - description: '开始日期 (格式: 2006-01-02，默认7天前)'
         in: query
         name: start_date
         type: string
-      - default: 今天
-        description: '结束日期 (格式: 2006-01-02)'
+      - description: '结束日期 (格式: 2006-01-02，默认今天)'
         in: query
         name: end_date
         type: string
@@ -1695,7 +1918,6 @@ paths:
         - users
         - posts
         - comments
-        - likes
         in: query
         name: type
         required: true
@@ -1713,7 +1935,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: 获取成功
+          description: OK
           schema:
             allOf:
             - $ref: '#/definitions/response.Response'
@@ -1722,15 +1944,11 @@ paths:
                   $ref: '#/definitions/model.StatsTrendResponse'
               type: object
         "400":
-          description: 请求参数错误
-          schema:
-            $ref: '#/definitions/response.Response'
-        "401":
-          description: 未授权
+          description: Bad Request
           schema:
             $ref: '#/definitions/response.Response'
         "500":
-          description: 服务器内部错误
+          description: Internal Server Error
           schema:
             $ref: '#/definitions/response.Response'
       security:
@@ -1810,6 +2028,105 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: 管理员设置用户角色
+      tags:
+      - 管理接口
+  /admin/users/{id}/score:
+    put:
+      consumes:
+      - application/json
+      description: |-
+        管理员可以通过此接口对指定用户的积分进行设置、增加或扣除操作。支持三种操作模式：<br>
+        - **set**：将用户积分设置为指定值<br>
+        - **add**：在现有积分基础上增加指定分数<br>
+        - **subtract**：从现有积分中扣除指定分数<br>
+        积分范围限制为 0 ~ 999999，且操作后积分不能为负数或超出上限。
+      parameters:
+      - description: 用户ID
+        example: 10086
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 积分操作信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.AdminSetScoreRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 操作成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/handler.AdminSetScoreResponse'
+              type: object
+        "400":
+          description: 请求参数错误（如积分范围非法、操作类型错误等）
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权（缺少或无效的认证令牌）
+          schema:
+            $ref: '#/definitions/response.Response'
+        "403":
+          description: 禁止访问（当前管理员无权限操作该用户）
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误（如数据库操作失败）
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 管理员设置用户积分
+      tags:
+      - 管理接口
+  /admin/users/score:
+    get:
+      consumes:
+      - application/json
+      description: 获取指定用户积分，不传id则获取所有用户积分列表
+      parameters:
+      - description: 用户ID
+        in: query
+        name: id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 获取用户积分
       tags:
       - 管理接口
   /announcements:

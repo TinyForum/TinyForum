@@ -53,8 +53,8 @@ export function PostsTable({
             <th>{t("author")}</th>
             <th>{t("type")}</th>
             <th>{t("status")}</th>
-            <th>{t("viewsLikes")}</th>
-            <th>{t("publishTime")}</th>
+            <th>{t("views_likes")}</th>
+            <th>{t("publish_time")}</th>
             <th>{t("actions")}</th>
           </tr>
         </thead>

@@ -348,7 +348,7 @@ func (h *UserHandler) AdminSetRole(c *gin.Context) {
 	}
 
 	if err := h.userSvc.SetRole(operatorID.(uint), uint(targetID), body.Role); err != nil {
-		h.handleRoleError(c, err)
+		handleRoleError(c, err)
 		return
 	}
 
@@ -360,8 +360,178 @@ func (h *UserHandler) AdminSetRole(c *gin.Context) {
 	})
 }
 
+// AdminSetScore 管理员设置用户积分
+// @Summary 管理员设置用户积分
+// @Description 管理员可以通过此接口对指定用户的积分进行设置、增加或扣除操作。支持三种操作模式：<br>
+// @Description - **set**：将用户积分设置为指定值<br>
+// @Description - **add**：在现有积分基础上增加指定分数<br>
+// @Description - **subtract**：从现有积分中扣除指定分数<br>
+// @Description 积分范围限制为 0 ~ 999999，且操作后积分不能为负数或超出上限。
+// @Tags 管理接口
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path int true "用户ID" example(10086)
+// @Param body body AdminSetScoreRequest true "积分操作信息"
+// @Success 200 {object} response.Response{data=AdminSetScoreResponse} "操作成功"
+// @Failure 400 {object} response.Response "请求参数错误（如积分范围非法、操作类型错误等）"
+// @Failure 401 {object} response.Response "未授权（缺少或无效的认证令牌）"
+// @Failure 403 {object} response.Response "禁止访问（当前管理员无权限操作该用户）"
+// @Failure 500 {object} response.Response "服务器内部错误（如数据库操作失败）"
+// @Router /admin/users/{id}/score [put]
+func (h *UserHandler) AdminSetScore(c *gin.Context) {
+	// 1. 解析目标用户ID
+	targetID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		response.BadRequest(c, apperrors.ErrInvalidUserID.Error())
+		return
+	}
+
+	// 2. 解析请求体（使用已定义的结构体）
+	var req AdminSetScoreRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.BadRequest(c, "请求参数错误: "+err.Error())
+		return
+	}
+
+	// 3. 获取当前积分
+	currentScore, err := h.userSvc.GetScoreById(uint(targetID))
+	if err != nil {
+		response.InternalError(c, "查询当前积分失败")
+		return
+	}
+
+	// 4. 计算新积分
+	var newScore int
+	switch req.Operation {
+	case "set":
+		newScore = req.Score
+	case "add":
+		newScore = currentScore + req.Score
+	case "subtract":
+		newScore = currentScore - req.Score
+	}
+
+	// 5. 验证积分范围（防止负数或过大）
+	if newScore < 0 {
+		response.BadRequest(c, "积分不能为负数")
+		return
+	}
+	if newScore > 999999 {
+		response.BadRequest(c, "积分超出最大限制")
+		return
+	}
+
+	// 6. 获取操作人信息
+	viewerID, _ := c.Get("user_id")
+	viewerUint, _ := viewerID.(uint)
+
+	// 7. 设置新积分
+	err = h.userSvc.SetScoreById(uint(targetID), newScore)
+	if err != nil {
+		response.InternalError(c, "设置积分失败: "+err.Error())
+		return
+	}
+
+	// 8. 返回成功响应
+	response.Success(c, AdminSetScoreResponse{
+		UserID:     targetID,
+		OldScore:   currentScore,
+		NewScore:   newScore,
+		Change:     newScore - currentScore,
+		Operation:  req.Operation,
+		OperatorID: viewerUint,
+		Reason:     req.Reason,
+		Timestamp:  time.Now().Unix(),
+	})
+}
+
+// AdminSetScoreRequest 管理员设置积分请求参数
+// swagger:model
+type AdminSetScoreRequest struct {
+	// 操作类型：set（设置）、add（增加）、subtract（扣除）
+	// required: true
+	// enum: set,add,subtract
+	Operation string `json:"operation" binding:"required,oneof=set add subtract" example:"add"`
+
+	// 积分数量（set 时为目标积分，add/subtract 时为变化量）
+	// required: true
+	// minimum: 0
+	// maximum: 999999
+	Score int `json:"score" binding:"required,gte=0,lte=999999" example:"50"`
+
+	// 操作原因（用于日志审计）
+	// required: true
+	// maxLength: 200
+	Reason string `json:"reason" binding:"required,max=200" example:"用户活动奖励"`
+}
+
+// AdminSetScoreResponse 管理员设置积分响应数据
+// swagger:model
+type AdminSetScoreResponse struct {
+	UserID     uint64 `json:"user_id" example:"10086"`        // 被操作用户ID
+	OldScore   int    `json:"old_score" example:"150"`        // 操作前积分
+	NewScore   int    `json:"new_score" example:"200"`        // 操作后积分
+	Change     int    `json:"change" example:"50"`            // 积分变化量（可为负数）
+	Operation  string `json:"operation" example:"add"`        // 执行的操作类型
+	OperatorID uint   `json:"operator_id" example:"1"`        // 操作管理员ID
+	Reason     string `json:"reason" example:"用户活动奖励"`        // 操作原因
+	Timestamp  int64  `json:"timestamp" example:"1700000000"` // Unix时间戳（秒）
+}
+
+// AdminGetUserScore 获取用户积分
+// @Summary 获取用户积分
+// @Description 获取指定用户积分，不传id则获取所有用户积分列表
+// @Tags 管理接口
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id query int false "用户ID"
+// @Success 200 {object} response.Response{data=object}
+// @Failure 400 {object} response.Response
+// @Failure 401 {object} response.Response
+// @Failure 403 {object} response.Response
+// @Failure 500 {object} response.Response
+// @Router /admin/users/score [get]
+func (h *UserHandler) AdminGetUserScore(c *gin.Context) {
+	// 1. 获取用户ID参数
+	targetID := c.Query("id")
+	if targetID == "" {
+		// 如果没有id参数，返回所有用户积分列表
+		users, err := h.userSvc.GetAllUsersWithScore()
+		if err != nil {
+			response.InternalError(c, "查询用户积分失败")
+			return
+		}
+		response.Success(c, users)
+		return
+	}
+
+	// 2. 解析用户ID
+	id, err := strconv.ParseUint(targetID, 10, 64)
+	if err != nil {
+		response.BadRequest(c, apperrors.ErrInvalidUserID.Error())
+		return
+	}
+
+	// 3. 获取用户积分
+	score, err := h.userSvc.GetScoreById(uint(id))
+	if err != nil {
+		response.InternalError(c, apperrors.ErrFailedToQueryScore.Error())
+		return
+	}
+
+	// 4. 返回结果
+	response.Success(c, gin.H{
+		"user_id": id, // 建议加上 user_id，方便前端
+		"score":   score,
+	})
+}
+
+// 内部方法
+
 // handleRoleError 统一处理角色变更错误，集中映射到 HTTP 响应
-func (h *UserHandler) handleRoleError(c *gin.Context, err error) {
+func handleRoleError(c *gin.Context, err error) {
 	switch {
 	case errors.Is(err, gorm.ErrRecordNotFound):
 		response.NotFound(c, "用户不存在")
@@ -376,96 +546,6 @@ func (h *UserHandler) handleRoleError(c *gin.Context, err error) {
 	default:
 		response.InternalError(c, "设置角色失败: "+err.Error())
 	}
-}
-
-// AdminSetScore 管理员设置用户积分（支持直接设置或增减）
-func (h *UserHandler) AdminSetScore(c *gin.Context) {
-	// 1. 验证管理员权限
-	viewerRole, exists := c.Get("role")
-	if !exists {
-		response.Unauthorized(c, "未授权访问")
-		return
-	}
-
-	roleStr, ok := viewerRole.(string)
-	if !ok || (roleStr != "admin" && roleStr != "super_admin") {
-		response.Forbidden(c, "权限不足，仅管理员可操作")
-		return
-	}
-
-	// 2. 解析目标用户ID
-	targetID, err := strconv.ParseUint(c.Param("id"), 10, 64)
-	if err != nil {
-		response.BadRequest(c, "无效的用户ID")
-		return
-	}
-
-	// 3. 解析请求体（支持多种操作模式）
-	var body struct {
-		Operation string `json:"operation" binding:"required,oneof=set add subtract"` // set, add, subtract
-		Score     int    `json:"score" binding:"required"`
-		Reason    string `json:"reason" binding:"required"`
-	}
-
-	if err := c.ShouldBindJSON(&body); err != nil {
-		response.BadRequest(c, "请求参数错误: "+err.Error())
-		return
-	}
-
-	// 5. 获取当前积分
-	currentScore, err := h.userSvc.GetScoreById(uint(targetID))
-	if err != nil {
-		response.InternalError(c, "查询当前积分失败")
-		return
-	}
-
-	// 6. 计算新积分
-	var newScore int
-	switch body.Operation {
-	case "set":
-		newScore = body.Score
-	case "add":
-		newScore = currentScore + body.Score
-	case "subtract":
-		newScore = currentScore - body.Score
-	}
-
-	// 7. 验证积分范围（防止负数或过大）
-	if newScore < 0 {
-		response.BadRequest(c, "积分不能为负数")
-		return
-	}
-	if newScore > 999999 {
-		response.BadRequest(c, "积分超出最大限制")
-		return
-	}
-
-	// 8. 获取操作人信息
-	viewerID, _ := c.Get("user_id")
-	viewerUint, _ := viewerID.(uint)
-
-	// 9. 设置新积分
-	err = h.userSvc.SetScoreById(uint(targetID), newScore)
-	if err != nil {
-		response.InternalError(c, "设置积分失败: "+err.Error())
-		return
-	}
-
-	// 10. 返回成功响应
-	response.Success(c, gin.H{
-		"user_id":     targetID,
-		"old_score":   currentScore,
-		"new_score":   newScore,
-		"change":      newScore - currentScore,
-		"operation":   body.Operation,
-		"operator_id": viewerUint,
-		"reason":      body.Reason,
-		"timestamp":   time.Now().Unix(),
-	})
-}
-
-func (h *UserHandler) AdminGetUserScore(c *gin.Context) {
-
 }
 
 // ── 请求体结构 ────────────────────────────────────────────────────────────────

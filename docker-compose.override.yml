@@ -1,0 +1,26 @@
+version: '3.9'
+
+# 开发环境配置（热重载、调试等）
+services:
+  backend:
+    environment:
+      - APP_ENV=development
+      - LOG_LEVEL=debug
+    volumes:
+      # 挂载源码实现热重载
+      - ./backend:/app
+      - /app/tmp
+    command: air -c .air.toml  # 使用 Air 实现热重载
+
+  frontend:
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    command: pnpm dev
+
+  postgres:
+    ports:
+      - "5433:5432"  # 避免端口冲突

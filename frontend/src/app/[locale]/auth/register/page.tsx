@@ -47,8 +47,8 @@ export default function RegisterPage() {
         email: data.email,
         password: data.password,
       });
-      const { token, user } = res.data.data;
-      setAuth(user, token);
+      const { user } = res.data.data;
+      setAuth(user);
       toast.success(t("registration_successful"));
       router.push('/');
     } catch (err) {

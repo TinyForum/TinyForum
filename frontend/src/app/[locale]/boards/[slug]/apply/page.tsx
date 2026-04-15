@@ -3,9 +3,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { boardApi } from '@/lib/api';
+import { Board, boardApi, ModeratorApplication } from '@/lib/api';
 import { useAuthStore } from '@/store/auth';
-import type { Board, ModeratorApplication } from '@/types';
+// import type { Board, ModeratorApplication } from '@/types';
 import {
   ShieldCheckIcon,
   CheckCircleIcon,
@@ -57,7 +57,7 @@ export default function ApplyModeratorPage() {
   const loadBoard = useCallback(async () => {
     setLoadingBoard(true);
     try {
-      const res = await boardApi.getByName(slug);
+      const res = await boardApi.getBySlug(slug);
       setBoard(res.data.data);
     } catch {
       router.push('/boards');
@@ -94,7 +94,7 @@ export default function ApplyModeratorPage() {
     setError('');
     setSubmitting(true);
     try {
-      await boardApi.applyForModerator(board.id, { reason: trimmed });
+      await boardApi.applyForModerator(board.id,trimmed );
       router.push(`/boards/${slug}?applied=1`);
     } catch (err: any) {
       setError(err.response?.data?.message || '提交失败，请稍后重试');
@@ -153,9 +153,9 @@ export default function ApplyModeratorPage() {
                       状态：<StatusBadge status={existing.status} />
                     </div>
                   </div>
-                  {existing.status === 'rejected' && existing.handle_note && (
+                  {existing.status === 'rejected' && existing.reason && (
                     <div className="mt-2 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded-lg px-3 py-2">
-                      拒绝理由：{existing.handle_note}
+                      拒绝理由：{existing.reason}
                     </div>
                   )}
                   {existing.status === 'approved' && (

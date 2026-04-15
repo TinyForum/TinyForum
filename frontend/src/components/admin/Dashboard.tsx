@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import * as echarts from "echarts";
 import { useStatsData } from "@/hooks/admin/useStatsData";
 import { Activity, Award, Database, FileText, Users } from "lucide-react";
+import { CommunityStats } from "../home/CommunityStats";
 
 export function Dashboard({ t }: { t: (key: string) => string }) {
   const { stats, charts, exportData, isLoading } = useStatsData(true);
@@ -144,7 +145,7 @@ export function Dashboard({ t }: { t: (key: string) => string }) {
           </div>
         </div>
       </div>
-
+  <CommunityStats />
       {/* 操作栏 */}
       <div className="flex justify-end gap-2">
         <button

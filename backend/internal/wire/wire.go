@@ -363,6 +363,9 @@ func InitApp(cfg *config.Config) (*App, error) {
 		adminGroup.GET("/statistics/day", statsHandler.GetStatsDay)     // 获取日数据
 		adminGroup.GET("/statistics/total", statsHandler.GetStatsTotal) // 获取所有统计指标
 		adminGroup.GET("/statistics/trend", statsHandler.GetStatsTrend) // 获取趋势指标
+		// 积分
+		adminGroup.GET("/users/score", userHandler.AdminGetUserScore) // 获取用户积分
+		adminGroup.PUT("/users/:id/score", userHandler.AdminSetScore) // 设置用户积分
 
 		// adminGroup.PUT("/boards/:id/sort", boardHandler.UpdateSortOrder)
 	}

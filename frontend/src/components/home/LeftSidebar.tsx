@@ -286,7 +286,7 @@ export default function LeftSidebar({
       )}
 
       {/* 社区统计 */}
-    <CommunityStats />
+  
     </aside>
   );
 }

@@ -409,7 +409,6 @@
                             "users",
                             "posts",
                             "comments",
-                            "likes",
                             "all"
                         ],
                         "type": "string",
@@ -421,7 +420,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "获取成功",
+                        "description": "OK",
                         "schema": {
                             "allOf": [
                                 {
@@ -439,19 +438,13 @@
                         }
                     },
                     "400": {
-                        "description": "请求参数错误",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "401": {
-                        "description": "未授权",
+                        "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
                     },
                     "500": {
-                        "description": "服务器内部错误",
+                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -466,7 +459,7 @@
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "获取指定时间范围内的总计统计数据（支持用户、帖子、评论等类型）",
+                "description": "获取指定时间范围内的汇总统计数据",
                 "consumes": [
                     "application/json"
                 ],
@@ -480,15 +473,13 @@
                 "parameters": [
                     {
                         "type": "string",
-                        "default": "30天前",
-                        "description": "开始日期 (格式: 2006-01-02)",
+                        "description": "开始日期 (格式: 2006-01-02，默认30天前)",
                         "name": "start_date",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "default": "今天",
-                        "description": "结束日期 (格式: 2006-01-02)",
+                        "description": "结束日期 (格式: 2006-01-02，默认今天)",
                         "name": "end_date",
                         "in": "query"
                     },
@@ -497,7 +488,6 @@
                             "users",
                             "posts",
                             "comments",
-                            "likes",
                             "all"
                         ],
                         "type": "string",
@@ -509,7 +499,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "获取成功",
+                        "description": "OK",
                         "schema": {
                             "allOf": [
                                 {
@@ -519,7 +509,7 @@
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/model.StatsTotalResponse"
+                                            "$ref": "#/definitions/model.StatsInfoResp"
                                         }
                                     }
                                 }
@@ -527,19 +517,13 @@
                         }
                     },
                     "400": {
-                        "description": "请求参数错误",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "401": {
-                        "description": "未授权",
+                        "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
                     },
                     "500": {
-                        "description": "服务器内部错误",
+                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -568,15 +552,13 @@
                 "parameters": [
                     {
                         "type": "string",
-                        "default": "7天前",
-                        "description": "开始日期 (格式: 2006-01-02)",
+                        "description": "开始日期 (格式: 2006-01-02，默认7天前)",
                         "name": "start_date",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "default": "今天",
-                        "description": "结束日期 (格式: 2006-01-02)",
+                        "description": "结束日期 (格式: 2006-01-02，默认今天)",
                         "name": "end_date",
                         "in": "query"
                     },
@@ -584,8 +566,7 @@
                         "enum": [
                             "users",
                             "posts",
-                            "comments",
-                            "likes"
+                            "comments"
                         ],
                         "type": "string",
                         "description": "统计类型",
@@ -608,7 +589,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "获取成功",
+                        "description": "OK",
                         "schema": {
                             "allOf": [
                                 {
@@ -626,19 +607,13 @@
                         }
                     },
                     "400": {
-                        "description": "请求参数错误",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "401": {
-                        "description": "未授权",
+                        "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
                     },
                     "500": {
-                        "description": "服务器内部错误",
+                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -661,6 +636,78 @@
                 ],
                 "summary": "管理员获取用户列表",
                 "responses": {}
+            }
+        },
+        "/admin/users/score": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "获取指定用户积分，不传id则获取所有用户积分列表",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "管理接口"
+                ],
+                "summary": "获取用户积分",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "用户ID",
+                        "name": "id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
             }
         },
         "/admin/users/{id}/active": {
@@ -759,6 +806,89 @@
                 "responses": {
                     "200": {
                         "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/users/{id}/score": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "管理员可以通过此接口对指定用户的积分进行设置、增加或扣除操作。支持三种操作模式：\u003cbr\u003e\n- **set**：将用户积分设置为指定值\u003cbr\u003e\n- **add**：在现有积分基础上增加指定分数\u003cbr\u003e\n- **subtract**：从现有积分中扣除指定分数\u003cbr\u003e\n积分范围限制为 0 ~ 999999，且操作后积分不能为负数或超出上限。",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "管理接口"
+                ],
+                "summary": "管理员设置用户积分",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "example": 10086,
+                        "description": "用户ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "积分操作信息",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.AdminSetScoreRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "操作成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handler.AdminSetScoreResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "请求参数错误（如积分范围非法、操作类型错误等）",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权（缺少或无效的认证令牌）",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "禁止访问（当前管理员无权限操作该用户）",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误（如数据库操作失败）",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -5594,6 +5724,71 @@
                 }
             }
         },
+        "handler.AdminSetScoreRequest": {
+            "type": "object",
+            "properties": {
+                "operation": {
+                    "description": "操作类型：set（设置）、add（增加）、subtract（扣除）\nrequired: true\nenum: set,add,subtract",
+                    "type": "string",
+                    "example": "add"
+                },
+                "reason": {
+                    "description": "操作原因（用于日志审计）\nrequired: true\nmaxLength: 200",
+                    "type": "string",
+                    "example": "用户活动奖励"
+                },
+                "score": {
+                    "description": "积分数量（set 时为目标积分，add/subtract 时为变化量）\nrequired: true\nminimum: 0\nmaximum: 999999",
+                    "type": "integer",
+                    "example": 50
+                }
+            }
+        },
+        "handler.AdminSetScoreResponse": {
+            "type": "object",
+            "properties": {
+                "change": {
+                    "description": "积分变化量（可为负数）",
+                    "type": "integer",
+                    "example": 50
+                },
+                "new_score": {
+                    "description": "操作后积分",
+                    "type": "integer",
+                    "example": 200
+                },
+                "old_score": {
+                    "description": "操作前积分",
+                    "type": "integer",
+                    "example": 150
+                },
+                "operation": {
+                    "description": "执行的操作类型",
+                    "type": "string",
+                    "example": "add"
+                },
+                "operator_id": {
+                    "description": "操作管理员ID",
+                    "type": "integer",
+                    "example": 1
+                },
+                "reason": {
+                    "description": "操作原因",
+                    "type": "string",
+                    "example": "用户活动奖励"
+                },
+                "timestamp": {
+                    "description": "Unix时间戳（秒）",
+                    "type": "integer",
+                    "example": 1700000000
+                },
+                "user_id": {
+                    "description": "被操作用户ID",
+                    "type": "integer",
+                    "example": 10086
+                }
+            }
+        },
         "handler.BanUserRequest": {
             "type": "object",
             "required": [
@@ -5670,6 +5865,35 @@
                 "ActionAcceptAnswer",
                 "ActionSignIn"
             ]
+        },
+        "model.ActiveUserDetail": {
+            "type": "object",
+            "properties": {
+                "article_count": {
+                    "description": "今日发文数",
+                    "type": "integer"
+                },
+                "avatar": {
+                    "description": "头像",
+                    "type": "string"
+                },
+                "comment_count": {
+                    "description": "今日评论数",
+                    "type": "integer"
+                },
+                "last_active_at": {
+                    "description": "最后活跃时间",
+                    "type": "string"
+                },
+                "user_id": {
+                    "description": "用户ID",
+                    "type": "integer"
+                },
+                "username": {
+                    "description": "用户名",
+                    "type": "string"
+                }
+            }
         },
         "model.Announcement": {
             "type": "object",
@@ -5992,6 +6216,84 @@
                 "title": {
                     "type": "string",
                     "maxLength": 100
+                }
+            }
+        },
+        "model.HotArticleItem": {
+            "type": "object",
+            "properties": {
+                "author_id": {
+                    "description": "作者ID",
+                    "type": "integer"
+                },
+                "author_name": {
+                    "description": "作者昵称",
+                    "type": "string"
+                },
+                "board_id": {
+                    "description": "板块ID",
+                    "type": "integer"
+                },
+                "board_name": {
+                    "description": "板块名称",
+                    "type": "string"
+                },
+                "comment_count": {
+                    "description": "评论数",
+                    "type": "integer"
+                },
+                "id": {
+                    "description": "文章ID",
+                    "type": "integer"
+                },
+                "like_count": {
+                    "description": "点赞数",
+                    "type": "integer"
+                },
+                "score": {
+                    "description": "综合热度分",
+                    "type": "integer"
+                },
+                "title": {
+                    "description": "文章标题",
+                    "type": "string"
+                },
+                "view_count": {
+                    "description": "浏览量",
+                    "type": "integer"
+                }
+            }
+        },
+        "model.HotBoardItem": {
+            "type": "object",
+            "properties": {
+                "active_user": {
+                    "description": "今日活跃用户数",
+                    "type": "integer"
+                },
+                "article_count": {
+                    "description": "今日发文数",
+                    "type": "integer"
+                },
+                "comment_count": {
+                    "description": "今日评论数",
+                    "type": "integer"
+                },
+                "icon": {
+                    "description": "板块图标",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "板块ID",
+                    "type": "integer"
+                },
+                "name": {
+                    "description": "板块名称",
+                    "type": "string"
+                },
+                "score": {
+                    "description": "综合热度分",
+                    "type": "integer"
                 }
             }
         },
@@ -6689,6 +6991,127 @@
                 }
             }
         },
+        "model.StatsActiveUserInfo": {
+            "type": "object",
+            "properties": {
+                "list": {
+                    "description": "今日活跃用户列表（最多N条）",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.ActiveUserDetail"
+                    }
+                },
+                "total": {
+                    "description": "今日活跃用户总数",
+                    "type": "integer"
+                }
+            }
+        },
+        "model.StatsIllegalInfo": {
+            "type": "object",
+            "properties": {
+                "article_cnt": {
+                    "description": "今日违规文章数",
+                    "type": "integer"
+                },
+                "board_cnt": {
+                    "description": "今日违规板块数",
+                    "type": "integer"
+                },
+                "comment_cnt": {
+                    "description": "今日违规评论数",
+                    "type": "integer"
+                },
+                "total": {
+                    "description": "今日违规总数",
+                    "type": "integer"
+                },
+                "user_count": {
+                    "description": "今日违规用户数",
+                    "type": "integer"
+                }
+            }
+        },
+        "model.StatsInfo": {
+            "type": "object",
+            "properties": {
+                "total_article": {
+                    "description": "总文章数",
+                    "type": "integer"
+                },
+                "total_board": {
+                    "description": "总板块数",
+                    "type": "integer"
+                },
+                "total_comment": {
+                    "description": "总评论数",
+                    "type": "integer"
+                },
+                "total_tag": {
+                    "description": "总标签数",
+                    "type": "integer"
+                },
+                "total_user": {
+                    "description": "总用户数",
+                    "type": "integer"
+                }
+            }
+        },
+        "model.StatsInfoResp": {
+            "type": "object",
+            "properties": {
+                "active_user_info": {
+                    "description": "今日活跃用户信息",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/model.StatsActiveUserInfo"
+                        }
+                    ]
+                },
+                "base_info": {
+                    "description": "基础统计信息",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/model.StatsInfo"
+                        }
+                    ]
+                },
+                "hot_articles": {
+                    "description": "今日热门文章列表",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.HotArticleItem"
+                    }
+                },
+                "hot_boards": {
+                    "description": "今日热门板块列表",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.HotBoardItem"
+                    }
+                },
+                "illegal_info": {
+                    "description": "今日违规信息",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/model.StatsIllegalInfo"
+                        }
+                    ]
+                },
+                "stat_time": {
+                    "description": "统计时间",
+                    "type": "string"
+                },
+                "today_info": {
+                    "description": "今日统计信息",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/model.StatsTodayInfo"
+                        }
+                    ]
+                }
+            }
+        },
         "model.StatsTodayInfo": {
             "type": "object",
             "properties": {
@@ -6718,19 +7141,33 @@
                 }
             }
         },
-        "model.StatsTotalResponse": {
+        "model.StatsTrendResponse": {
             "type": "object",
             "properties": {
-                "count": {
-                    "type": "integer"
+                "end_date": {
+                    "description": "结束日期",
+                    "type": "string"
+                },
+                "interval": {
+                    "description": "统计粒度 (day/week/month)",
+                    "type": "string"
+                },
+                "start_date": {
+                    "description": "开始日期",
+                    "type": "string"
+                },
+                "trend": {
+                    "description": "趋势数据",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.TrendData"
+                    }
                 },
                 "type": {
+                    "description": "统计类型",
                     "type": "string"
                 }
             }
-        },
-        "model.StatsTrendResponse": {
-            "type": "object"
         },
         "model.Tag": {
             "type": "object",
@@ -6833,6 +7270,17 @@
                     "type": "string"
                 },
                 "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.TrendData": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "date": {
                     "type": "string"
                 }
             }
@@ -6956,6 +7404,9 @@
                 },
                 "published_at": {
                     "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/model.AnnouncementStatus"
                 },
                 "summary": {
                     "type": "string"

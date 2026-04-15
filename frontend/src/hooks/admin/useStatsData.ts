@@ -93,7 +93,7 @@ export function useStatsData(enabled: boolean = true) {
     const fetchOnlineCount = async () => {
       // const res = await statsApi.online();
       // setOnlineNow(res.data.count);
-      setOnlineNow(Math.floor(Math.random() * 200) + 50);
+      setOnlineNow(0);
     };
     
     fetchOnlineCount();

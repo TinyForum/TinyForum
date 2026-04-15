@@ -234,8 +234,8 @@ export default function Timeline() {
         : await timelineApi.getFollowing({ page, page_size: pageSize });
 
       if (response.data.code === 200) {
-        const { items, total: totalCount } = response.data.data;
-        setEvents(items || []);
+        const { list, total: totalCount } = response.data.data;
+        setEvents(list || []);
         setTotal(totalCount || 0);
       } else {
         toast.error(response.data.message || '加载失败');

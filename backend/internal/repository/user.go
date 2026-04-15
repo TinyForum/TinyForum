@@ -18,17 +18,24 @@ func NewUserRepository(db *gorm.DB) *UserRepository {
 	return &UserRepository{db: db}
 }
 
-// MARK: 用户管理
+// MARK: Info
 func (r *UserRepository) Create(user *model.User) error {
 	return r.db.Create(user).Error
 }
 
+// 获取用户的完整信息
 func (r *UserRepository) FindByID(id uint) (*model.User, error) {
 	var user model.User
 	err := r.db.First(&user, id).Error
 	return &user, err
 }
 
+// 获取用户的基本信息（id 名称、头像）
+func (r *UserRepository) GetUserBasicInfo(id uint) (*model.User, error) {
+	var user model.User
+	err := r.db.Select("id, username, avatar").First(&user, id).Error
+	return &user, err
+}
 func (r *UserRepository) FindByEmail(email string) (*model.User, error) {
 	var user model.User
 	err := r.db.Where("email = ?", email).First(&user).Error
@@ -116,7 +123,21 @@ func (r *UserRepository) GetScoreById(userID uint) (int, error) {
 	return user.Score, err
 }
 
-// MARK: 互动相关操作
+// GetAllUsersScore 获取所有用户的总积分
+func (r *UserRepository) GetUsersScoreTotal() (int, error) {
+	var totalScore int64
+	err := r.db.Model(&model.User{}).Select("COALESCE(SUM(score), 0)").Scan(&totalScore).Error
+	return int(totalScore), err
+}
+
+// GetUsersScore 获取每个用户的积分
+func (r *UserRepository) GetEveryoneUsersScore() ([]model.User, error) {
+	var users []model.User
+	err := r.db.Model(&model.User{}).Select("id, score").Find(&users).Error
+	return users, err
+}
+
+// MARK: Follow
 // Follow/unfollow
 func (r *UserRepository) Follow(followerID, followingID uint) error {
 	follow := model.Follow{FollowerID: followerID, FollowingID: followingID}
@@ -176,8 +197,9 @@ func (r *UserRepository) GetFollowers(userID uint, page, pageSize int) ([]model.
 	return users, total, err
 }
 
-// MARK: 积分相关操作
-// DeductScore 扣减用户积分（使用事务）
+// MARK: Score
+//
+//	扣减用户积分（使用事务）
 func (r *UserRepository) DeductScore(tx *gorm.DB, userID uint, score int) error {
 	if score <= 0 {
 		return nil
@@ -195,6 +217,7 @@ func (r *UserRepository) DeductScore(tx *gorm.DB, userID uint, score int) error 
 	return tx.Model(&user).Update("score", gorm.Expr("score - ?", score)).Error
 }
 
+// 增加用户积分
 func (r *UserRepository) AddScore(userID uint, score int) error {
 	return r.db.Model(&model.User{}).Where("id = ?", userID).
 		UpdateColumn("score", gorm.Expr("score + ?", score)).Error

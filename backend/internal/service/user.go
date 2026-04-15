@@ -195,6 +195,38 @@ func (s *UserService) GetScoreById(userID uint) (int, error) {
 	return s.repo.GetScoreById(userID)
 }
 
+type UserScoreResponse struct {
+	ID       uint   `json:"id"`
+	Username string `json:"username"`
+	Avatar   string `json:"avatar_url"`
+	Score    int    `json:"score"`
+}
+
+func (s *UserService) GetAllUsersWithScore() ([]UserScoreResponse, error) {
+	users, err := s.repo.GetEveryoneUsersScore()
+	if err != nil {
+		return nil, err
+	}
+
+	var result []UserScoreResponse
+	for _, user := range users {
+		// 获取用户基本信息（包含用户名和头像）
+		basicInfo, err := s.repo.GetUserBasicInfo(user.ID)
+		if err != nil {
+			continue
+		}
+
+		result = append(result, UserScoreResponse{
+			ID:       user.ID,
+			Username: basicInfo.Username,
+			Avatar:   basicInfo.Avatar,
+			Score:    user.Score,
+		})
+	}
+
+	return result, nil
+}
+
 // ── Admin ────────────────────────────────────────────────────────────────────
 
 func (s *UserService) GetLeaderboard(limit int) ([]model.User, error) {

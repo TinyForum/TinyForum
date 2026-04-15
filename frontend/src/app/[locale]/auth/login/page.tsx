@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -22,10 +22,21 @@ type LoginForm = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
   const router = useRouter();
-  const { setAuth } = useAuthStore();
+  const searchParams = useSearchParams();
+  const { setAuth, user, isAuthenticated, isHydrated } = useAuthStore();
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const t = useTranslations('auth');
+
+  // ✅ 获取重定向地址，默认为首页
+  const redirectTo = searchParams.get('redirect') || '/';
+  
+  // ✅ 等待 hydration 完成后再检查登录状态
+  useEffect(() => {
+    if (isHydrated && isAuthenticated && user) {
+      router.replace(redirectTo);
+    }
+  }, [isHydrated, isAuthenticated, user, router, redirectTo]);
 
   const {
     register,
@@ -33,21 +44,39 @@ export default function LoginPage() {
     formState: { errors },
   } = useForm<LoginForm>({ resolver: zodResolver(loginSchema) });
 
- // ✅ 只取 user，Cookie 由浏览器自动管理
-const onSubmit = async (data: LoginForm) => {
-  setLoading(true);
-  try {
-    const res = await authApi.login(data);
-    const { user } = res.data.data; // 不再解构 token
-    setAuth(user);
-    toast.success(t("welcome_back") + `，${user.username}！`);
-    router.push('/');
-  } catch (err) {
-    toast.error(getErrorMessage(err));
-  } finally {
-    setLoading(false);
+  const onSubmit = async (data: LoginForm) => {
+    setLoading(true);
+    try {
+      const res = await authApi.login(data);
+      const { user } = res.data.data;
+      setAuth(user);
+      toast.success(t("welcome_back") + `，${user.username}！`);
+      router.push(redirectTo);
+    } catch (err) {
+      toast.error(getErrorMessage(err));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ✅ 等待 hydration 完成，避免闪烁
+  if (!isHydrated) {
+    return (
+      <div className="min-h-[80vh] flex items-center justify-center">
+        <div className="loading loading-spinner loading-lg text-primary" />
+      </div>
+    );
   }
-};
+
+  // ✅ 已登录用户不显示登录表单
+  if (isAuthenticated && user) {
+    return (
+      <div className="min-h-[80vh] flex items-center justify-center">
+        <div className="loading loading-spinner loading-lg text-primary" />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-[80vh] flex items-center justify-center">
       <div className="w-full max-w-md">

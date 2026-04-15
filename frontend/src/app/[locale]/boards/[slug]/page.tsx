@@ -43,7 +43,7 @@ export default function BoardDetailPage() {
     setLoadingBoard(true);
     setNotFound(false);
     try {
-      const res = await boardApi.GetBySlug(slug);
+      const res = await boardApi.getBySlug(slug);
 
       console.log("data: ",res.data.data.slug)
     setBoard(res.data.data);
@@ -63,7 +63,7 @@ export default function BoardDetailPage() {
     if (!board) return;
     setLoadingPosts(true);
     try {
-      const res = await boardApi.GetPostsBySlug(slug, { page, page_size: PAGE_SIZE });
+      const res = await boardApi.getPostsBySlug(slug, { page, page_size: PAGE_SIZE });
       setPosts(res.data.data.list);
       setTotal(res.data.data.total);
     } catch (error) {

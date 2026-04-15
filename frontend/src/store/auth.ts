@@ -7,9 +7,11 @@ import { authApi } from '@/lib/api';
 interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
+  isHydrated: boolean; // 添加 hydration 状态
   setAuth: (user: User) => void;
   logout: () => Promise<void>;
   updateUser: (user: Partial<User>) => void;
+  setHydrated: (state: boolean) => void; // 添加 setter
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -17,6 +19,7 @@ export const useAuthStore = create<AuthState>()(
     (set) => ({
       user: null,
       isAuthenticated: false,
+      isHydrated: false, // 初始为 false
 
       setAuth: (user) => {
         set({ user, isAuthenticated: true });
@@ -31,6 +34,8 @@ export const useAuthStore = create<AuthState>()(
         set((state) => ({
           user: state.user ? { ...state.user, ...partial } : null,
         })),
+        
+      setHydrated: (state) => set({ isHydrated: state }),
     }),
     {
       name: 'tiny-auth',
@@ -38,6 +43,10 @@ export const useAuthStore = create<AuthState>()(
         user: state.user,
         isAuthenticated: state.isAuthenticated,
       }),
+      onRehydrateStorage: () => (state) => {
+        // hydration 完成后调用
+        state?.setHydrated(true);
+      },
     }
   )
 );
