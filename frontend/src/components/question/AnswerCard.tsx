@@ -1,23 +1,25 @@
-// components/question/AnswerCard.tsx (修改投票相关部分)
-'use client';
+// components/question/AnswerCard.tsx
+"use client";
 
-import Link from 'next/link';
-import { ArrowUpIcon, ArrowDownIcon } from 'lucide-react';
-import { 
-  UserCircleIcon, 
-  CalendarIcon, 
+import Link from "next/link";
+import { ArrowUpIcon, ArrowDownIcon } from "lucide-react";
+import {
+  UserCircleIcon,
+  CalendarIcon,
   CheckBadgeIcon,
   ChatBubbleLeftRightIcon,
   ShareIcon,
   FlagIcon,
   TrophyIcon,
-} from '@heroicons/react/24/outline';
-import { useAnswerVote } from '@/hooks/useAnswerVote';
-import type { Comment } from '@/lib/api/types';
-import { formatDistanceToNow } from 'date-fns';
-import { zhCN } from 'date-fns/locale';
-import { toast } from 'react-hot-toast';
-import { useEffect } from 'react';
+} from "@heroicons/react/24/outline";
+import { useAnswerVote } from "@/hooks/useAnswerVote";
+import type { Comment } from "@/lib/api/types";
+import { formatDistanceToNow } from "date-fns";
+import { zhCN } from "date-fns/locale";
+import { toast } from "react-hot-toast";
+import { useEffect, useState } from "react";
+import CommentSection from "../post/CommentSection";
+// import CommentSection from '../CommentSection'; // 导入评论组件
 
 interface AnswerCardProps {
   answer: Comment;
@@ -30,82 +32,107 @@ interface AnswerCardProps {
   answerNumber?: number;
 }
 
-export function AnswerCard({ 
-  answer, 
-  isAccepted, 
-  canAccept, 
+export function AnswerCard({
+  answer,
+  isAccepted,
+  canAccept,
   onAccept,
   currentUserId,
   rewardScore = 0,
   answerNumber,
 }: AnswerCardProps) {
-  const { 
-    userVote,      // 'up' | 'down' | ''
-    voteCount,     // 总投票数
-    loading,       // 加载状态
-    handleVote,    // 投票/取消投票函数
+  const [showComments, setShowComments] = useState(false); // 控制评论区域显示
+
+  const {
+    userVote, // 'up' | 'down' | ''
+    voteCount, // 总投票数
+    loading, // 加载状态
+    handleVote, // 投票/取消投票函数
   } = useAnswerVote(answer.id, currentUserId);
 
   // 调试：打印投票状态变化
   useEffect(() => {
-    console.log(`Answer ${answer.id} - Vote Status:`, { userVote, voteCount, loading });
+    console.log(`Answer ${answer.id} - Vote Status:`, {
+      userVote,
+      voteCount,
+      loading,
+    });
   }, [answer.id, userVote, voteCount, loading]);
 
   const handleUpVote = async () => {
     if (loading) return;
-    await handleVote('up');
+    await handleVote("up");
   };
 
   const handleDownVote = async () => {
     if (loading) return;
-    await handleVote('down');
+    await handleVote("down");
   };
-  
-  const timeAgo = formatDistanceToNow(new Date(answer.created_at), { 
-    addSuffix: true, 
-    locale: zhCN 
+
+  const timeAgo = formatDistanceToNow(new Date(answer.created_at), {
+    addSuffix: true,
+    locale: zhCN,
   });
 
   const handleShare = () => {
-    navigator.clipboard.writeText(`${window.location.origin}/answers/${answer.id}`);
-    toast.success('链接已复制到剪贴板');
+    navigator.clipboard.writeText(
+      `${window.location.origin}/answers/${answer.id}`,
+    );
+    toast.success("链接已复制到剪贴板");
   };
 
   const handleReport = () => {
-    toast((t) => (
-      <div className="flex flex-col gap-2">
-        <p className="text-sm">确认举报这个回答？</p>
-        <div className="flex gap-2 justify-end">
-          <button 
-            className="btn btn-xs btn-ghost" 
-            onClick={() => toast.dismiss(t.id)}
-          >
-            取消
-          </button>
-          <button 
-            className="btn btn-xs btn-error" 
-            onClick={() => {
-              toast.dismiss(t.id);
-              toast.success('举报已提交，我们会尽快处理');
-            }}
-          >
-            确认举报
-          </button>
+    toast(
+      (t) => (
+        <div className="flex flex-col gap-2">
+          <p className="text-sm">确认举报这个回答？</p>
+          <div className="flex gap-2 justify-end">
+            <button
+              className="btn btn-xs btn-ghost"
+              onClick={() => toast.dismiss(t.id)}
+            >
+              取消
+            </button>
+            <button
+              className="btn btn-xs btn-error"
+              onClick={() => {
+                toast.dismiss(t.id);
+                toast.success("举报已提交，我们会尽快处理");
+              }}
+            >
+              确认举报
+            </button>
+          </div>
         </div>
-      </div>
-    ), { duration: 5000 });
+      ),
+      { duration: 5000 },
+    );
   };
 
+  // 切换评论区域显示
+  const toggleComments = () => {
+    setShowComments(!showComments);
+    if (!showComments) {
+      // 延迟滚动，确保评论区域已渲染
+      setTimeout(() => {
+        const commentSection = document.getElementById(`comments-${answer.id}`);
+        commentSection?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
+    }
+  };
 
-   useEffect(() => {
-    console.log(`Answer ${answer.id} - voteCount: ${voteCount}, userVote: ${userVote}`);
+  useEffect(() => {
+    console.log(
+      `Answer ${answer.id} - voteCount: ${voteCount}, userVote: ${userVote}`,
+    );
   }, [answer.id, voteCount, userVote]);
+
   return (
-    <div 
+    <div
       className={`card bg-base-100 shadow-md border transition-all duration-300 ${
-        isAccepted 
-          ? 'border-success shadow-lg bg-gradient-to-r from-success/5 to-transparent' 
-          : 'border-base-200 hover:shadow-lg'
+        isAccepted
+          ? "border-success shadow-lg bg-gradient-to-r from-success/5 to-transparent"
+          : "border-base-200 hover:shadow-lg"
       }`}
       id={`answer-${answer.id}`}
     >
@@ -117,22 +144,28 @@ export function AnswerCard({
               onClick={handleUpVote}
               disabled={loading}
               className={`btn btn-sm btn-ghost p-1 min-h-0 h-auto ${
-                userVote === 'up' ? 'text-primary' : 'text-base-content/40'
+                userVote === "up" ? "text-primary" : "text-base-content/40"
               } hover:text-primary transition-colors disabled:opacity-50`}
               aria-label="赞同"
             >
               <ArrowUpIcon className="w-5 h-5" />
             </button>
-            <span className={`text-sm font-semibold ${
-  voteCount > 0 ? 'text-primary' : voteCount < 0 ? 'text-error' : 'text-base-content/60'
-}`}>
-  {voteCount}
-</span>
+            <span
+              className={`text-sm font-semibold ${
+                voteCount > 0
+                  ? "text-primary"
+                  : voteCount < 0
+                    ? "text-error"
+                    : "text-base-content/60"
+              }`}
+            >
+              {voteCount}
+            </span>
             <button
               onClick={handleDownVote}
               disabled={loading}
               className={`btn btn-sm btn-ghost p-1 min-h-0 h-auto ${
-                userVote === 'down' ? 'text-error' : 'text-base-content/40'
+                userVote === "down" ? "text-error" : "text-base-content/40"
               } hover:text-error transition-colors disabled:opacity-50`}
               aria-label="反对"
             >
@@ -150,24 +183,24 @@ export function AnswerCard({
                     #{answerNumber}
                   </span>
                 )}
-                
+
                 {/* 作者信息 */}
                 <div className="flex items-center gap-2">
                   <div className="avatar placeholder">
                     <div className="w-6 h-6 rounded-full bg-primary/10 text-primary">
                       <span className="text-xs">
-                        {answer.author?.username?.[0]?.toUpperCase() || 'U'}
+                        {answer.author?.username?.[0]?.toUpperCase() || "U"}
                       </span>
                     </div>
                   </div>
-                  <Link 
-                    href={`/users/${answer.author_id}`} 
+                  <Link
+                    href={`/users/${answer.author_id}`}
                     className="font-medium hover:text-primary transition-colors"
                   >
                     {answer.author?.username || `用户${answer.author_id}`}
                   </Link>
                 </div>
-                
+
                 {/* 时间 */}
                 <div className="flex items-center gap-1 text-base-content/60">
                   <CalendarIcon className="w-3.5 h-3.5" />
@@ -211,7 +244,7 @@ export function AnswerCard({
                   采纳为答案
                 </button>
               )}
-              
+
               {/* 分享按钮 */}
               <button
                 onClick={handleShare}
@@ -220,7 +253,7 @@ export function AnswerCard({
                 <ShareIcon className="w-3.5 h-3.5" />
                 分享
               </button>
-              
+
               {/* 举报按钮 */}
               <button
                 onClick={handleReport}
@@ -230,18 +263,29 @@ export function AnswerCard({
                 举报
               </button>
 
-              {/* 评论按钮 */}
+              {/* 评论按钮 - 添加显示/隐藏评论区域功能 */}
               <button
+                onClick={toggleComments}
                 className="btn btn-xs btn-ghost gap-1"
-                onClick={() => {
-                  const commentSection = document.getElementById(`comments-${answer.id}`);
-                  commentSection?.scrollIntoView({ behavior: 'smooth' });
-                }}
               >
                 <ChatBubbleLeftRightIcon className="w-3.5 h-3.5" />
-                评论
+                {/* 评论 {answer.replies?.length > 0 && `(${answer.comment_count})`} */}
+                评论{" "}
+                {answer.replies &&
+                  answer.replies.length > 0 &&
+                  `(${answer.replies.length})`}
               </button>
             </div>
+
+            {/* 评论区域 - 可展开/收起 */}
+            {showComments && (
+              <div
+                className="mt-4 pt-4 border-t border-base-200"
+                id={`comments-${answer.id}`}
+              >
+                <CommentSection postId={answer.id} />
+              </div>
+            )}
           </div>
         </div>
       </div>
