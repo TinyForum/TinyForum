@@ -20,6 +20,7 @@ import {
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { PostType } from "@/lib/api";
+import { useAnnouncements } from "@/hooks/useAnnouncements";
 // import { PostType } from "@/types";
 
 export type FilterType = "all" | PostType;
@@ -57,6 +58,8 @@ export default function LeftSidebar({
 }: LeftSidebarProps) {
   const t = useTranslations("Sidebar");
   const [expandedBoards, setExpandedBoards] = useState<Set<number>>(new Set());
+    const { announcementsList, isLoading } = useAnnouncements();
+     const displayAnnouncements = announcementsList.slice(0, 3);
 
   const toggleBoard = (boardId: number) => {
     const newExpanded = new Set(expandedBoards);
@@ -202,40 +205,39 @@ export default function LeftSidebar({
       </div>
 
       {/* 公告栏 */}
-      <div className="rounded-lg border bg-card">
-        <div className="p-3 border-b">
-          <h3 className="font-semibold flex items-center gap-2">
-            <Megaphone className="w-4 h-4" />
-            {t("announcements")}
-          </h3>
-        </div>
-        <div className="p-3 space-y-2">
-          <Link 
-            href="/announcements/1" 
-            className="block text-sm hover:text-primary transition-colors"
-          >
-            • 社区新功能上线通知
-          </Link>
-          <Link 
-            href="/announcements/2" 
-            className="block text-sm hover:text-primary transition-colors"
-          >
-            • 积分规则调整公告
-          </Link>
-          <Link 
-            href="/announcements/3" 
-            className="block text-sm hover:text-primary transition-colors"
-          >
-            • 版主招募中
-          </Link>
-          <Link 
-            href="/announcements" 
-            className="block text-xs text-muted-foreground hover:text-primary mt-2"
-          >
-            查看全部 →
-          </Link>
-        </div>
+     <div className="rounded-lg border bg-card">
+      <div className="p-3 border-b">
+        <h3 className="font-semibold flex items-center gap-2">
+          <Megaphone className="w-4 h-4" />
+          {t("announcements")}
+        </h3>
       </div>
+      <div className="p-3 space-y-2">
+        {isLoading ? (
+          <div className="text-sm text-muted-foreground">加载中...</div>
+        ) : displayAnnouncements.length === 0 ? (
+          <div className="text-sm text-muted-foreground">暂无公告</div>
+        ) : (
+          <>
+            {displayAnnouncements.map((announcement) => (
+              <Link
+                key={announcement.id}
+                href={`/announcements/${announcement.id}`}
+                className="block text-sm hover:text-primary transition-colors"
+              >
+                • {announcement.title}
+              </Link>
+            ))}
+            <Link
+              href="/announcements"
+              className="block text-xs text-muted-foreground hover:text-primary mt-2"
+            >
+              查看全部 →
+            </Link>
+          </>
+        )}
+      </div>
+    </div>
 
       {/* 板块列表 */}
       {boards && boards.length > 0 && (

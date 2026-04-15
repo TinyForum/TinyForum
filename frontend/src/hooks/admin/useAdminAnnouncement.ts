@@ -13,7 +13,7 @@ import toast from "react-hot-toast";
 
 
 // ============ 用于单个公告的 Hook ============
-interface UseAnnouncementOptions {
+interface UseAdminAnnouncementOptions {
   autoLoad?: boolean;
 }
 
@@ -24,9 +24,9 @@ interface UseAnnouncementReturn {
   clear: () => void;
 }
 
-export function useAnnouncement(
+export function useAdminAnnouncement(
   id?: number,
-  options?: UseAnnouncementOptions
+  options?: UseAdminAnnouncementOptions
 ): UseAnnouncementReturn {
   const { autoLoad = true } = options || {};
   const [announcement, setAnnouncement] = useState<Announcement | null>(null);
