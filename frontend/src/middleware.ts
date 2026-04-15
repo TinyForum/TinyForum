@@ -36,18 +36,6 @@ export async function middleware(request: NextRequest) {
   }
 
   const token = request.cookies.get('tiny_forum_token')?.value;
-  
-  // ✅ 添加详细调试日志
-  console.log('========== Middleware Debug ==========');
-  console.log('1. Full pathname:', pathname);
-  console.log('2. Current locale:', currentLocale);
-  console.log('3. Path without locale:', pathnameWithoutLocale);
-  console.log('4. Token exists:', !!token);
-  console.log('5. Token value (first 20 chars):', token?.substring(0, 20));
-  console.log('6. All cookies:', request.cookies.getAll().map(c => c.name));
-  console.log('7. Is auth route:', authRoutes.some(route => pathnameWithoutLocale.startsWith(route)));
-  console.log('8. Is admin route:', adminRoutes.some(route => pathnameWithoutLocale.startsWith(route)));
-  
   const isAuthRoute = authRoutes.some(route => pathnameWithoutLocale.startsWith(route));
   const isAdminRoute = adminRoutes.some(route => pathnameWithoutLocale.startsWith(route));
 
@@ -97,10 +85,6 @@ export async function middleware(request: NextRequest) {
     console.log('17. i18n middleware returned response');
     return intlResponse;
   }
-
-  console.log('18. ✅ Proceeding to next');
-  console.log('=====================================\n');
-  
   return NextResponse.next();
 }
 

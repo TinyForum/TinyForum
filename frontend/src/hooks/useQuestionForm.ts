@@ -2,9 +2,10 @@
 import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
-import { postApi, CreateQuestionPayload, questionApi } from '@/lib/api';
+import { postApi, questionApi } from '@/lib/api';
 import { useAuthStore } from '@/store/auth';
 import { toast } from 'react-hot-toast';
+import { CreateQuestionPayload } from '@/lib/api/modules/questions';
 
 export interface AskFormData {
   title: string;

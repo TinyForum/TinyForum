@@ -19,11 +19,13 @@ import { ApplyModeratorForm, moderatorApi, ModeratorApplication } from '@/lib/ap
 type AppStatus = ModeratorApplication['status'];
 
 function StatusBadge({ status }: { status: AppStatus }) {
-  const map: Record<AppStatus, { icon: React.ReactNode; label: string; cls: string }> = {
+   const map: Record<AppStatus, { icon: React.ReactNode; label: string; cls: string }> = {
     pending:  { icon: <ClockIcon className="w-4 h-4" />,        label: '审核中', cls: 'text-yellow-600 bg-yellow-100 dark:bg-yellow-900/30 dark:text-yellow-400' },
     approved: { icon: <CheckCircleIcon className="w-4 h-4" />, label: '已通过', cls: 'text-green-600 bg-green-100 dark:bg-green-900/30 dark:text-green-400' },
     rejected: { icon: <XCircleIcon className="w-4 h-4" />,     label: '已拒绝', cls: 'text-red-600 bg-red-100 dark:bg-red-900/30 dark:text-red-400' },
+    canceled: { icon: <XCircleIcon className="w-4 h-4" />,     label: '已取消', cls: 'text-gray-600 bg-gray-100 dark:bg-gray-700/30 dark:text-gray-400' },
   };
+
   const { icon, label, cls } = map[status];
   return (
     <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium ${cls}`}>

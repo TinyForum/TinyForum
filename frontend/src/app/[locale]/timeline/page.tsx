@@ -20,13 +20,13 @@ import type { TimelineEvent, Subscription, User, Post, Comment } from '@/lib/api
 
 // 时间线事件类型图标映射
 const eventTypeConfig: Record<string, { icon: string; label: string; color: string }> = {
-  create_post: { icon: '📝', label: '发布了新帖子', color: 'text-blue-500' },
-  create_answer: { icon: '💬', label: '回答了问题', color: 'text-green-500' },
-  like_post: { icon: '❤️', label: '点赞了帖子', color: 'text-red-500' },
-  like_answer: { icon: '❤️', label: '点赞了回答', color: 'text-red-500' },
-  follow_user: { icon: '➕', label: '关注了', color: 'text-purple-500' },
-  accept_answer: { icon: '✓', label: '采纳了答案', color: 'text-yellow-500' },
-  reward_question: { icon: '💰', label: '获得了悬赏', color: 'text-orange-500' },
+  create_post: { icon: '📝', label: '发布了新帖子', color: 'text-primary' },
+  create_answer: { icon: '💬', label: '回答了问题', color: 'text-secondary' },
+  like_post: { icon: '❤️', label: '点赞了帖子', color: 'text-error' },
+  like_answer: { icon: '❤️', label: '点赞了回答', color: 'text-error' },
+  follow_user: { icon: '➕', label: '关注了', color: 'text-accent' },
+  accept_answer: { icon: '✓', label: '采纳了答案', color: 'text-warning' },
+  reward_question: { icon: '💰', label: '获得了悬赏', color: 'text-warning' },
 };
 
 // 解析事件负载
@@ -52,7 +52,7 @@ function parsePayload(payload: string): EventPayload {
 function TimelineEventCard({ event, currentUserId }: { event: TimelineEvent; currentUserId?: number }) {
   const [liked, setLiked] = useState(false);
   const payload = parsePayload(event.payload);
-  const config = eventTypeConfig[event.action] || { icon: '📄', label: event.action, color: 'text-gray-500' };
+  const config = eventTypeConfig[event.action] || { icon: '📄', label: event.action, color: 'text-base-content/60' };
 
   const handleLike = async () => {
     toast.success('功能开发中');
@@ -73,108 +73,110 @@ function TimelineEventCard({ event, currentUserId }: { event: TimelineEvent; cur
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
-      <div className="flex gap-4">
-        {/* 用户头像 */}
-        <Link href={`/users/${event.actor_id}`} className="flex-shrink-0">
-          {event.actor?.avatar ? (
-            <img
-              src={event.actor.avatar}
-              alt={event.actor.username}
-              className="w-12 h-12 rounded-full object-cover"
-            />
-          ) : (
-            <UserCircleIcon className="w-12 h-12 text-gray-400" />
-          )}
-        </Link>
+    <div className="card bg-base-100 shadow-sm hover:shadow-md transition-shadow">
+      <div className="card-body p-6">
+        <div className="flex gap-4">
+          {/* 用户头像 */}
+          <Link href={`/users/${event.actor_id}`} className="flex-shrink-0">
+            {event.actor?.avatar ? (
+              <img
+                src={event.actor.avatar}
+                alt={event.actor.username}
+                className="w-12 h-12 rounded-full object-cover"
+              />
+            ) : (
+              <UserCircleIcon className="w-12 h-12 text-base-content/40" />
+            )}
+          </Link>
 
-        <div className="flex-1">
-          {/* 事件头部 */}
-          <div className="flex items-center gap-2 mb-2 flex-wrap">
-            <Link
-              href={`/users/${event.actor_id}`}
-              className="font-semibold text-gray-900 hover:text-indigo-600"
-            >
-              {event.actor?.username || `用户${event.actor_id}`}
-            </Link>
-            <span className="text-gray-500">{config.label}</span>
-            <span className="text-xl">{config.icon}</span>
-          </div>
-
-          {/* 事件内容 */}
-          {payload.title && (
-            <div className="mb-3">
-              <Link href={getTargetUrl()} className="block">
-                <div className="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors">
-                  <h4 className="font-medium text-gray-900 mb-2">
-                    {payload.title}
-                  </h4>
-                  {payload.summary && (
-                    <p className="text-gray-600 text-sm line-clamp-2">
-                      {payload.summary}
-                    </p>
-                  )}
-                  {payload.content && !payload.summary && (
-                    <p className="text-gray-600 text-sm line-clamp-2">
-                      {payload.content}
-                    </p>
-                  )}
-                </div>
+          <div className="flex-1">
+            {/* 事件头部 */}
+            <div className="flex items-center gap-2 mb-2 flex-wrap">
+              <Link
+                href={`/users/${event.actor_id}`}
+                className="font-semibold text-base-content hover:text-primary transition-colors"
+              >
+                {event.actor?.username || `用户${event.actor_id}`}
               </Link>
+              <span className="text-base-content/60">{config.label}</span>
+              <span className="text-xl">{config.icon}</span>
             </div>
-          )}
 
-          {/* 事件元信息 */}
-          <div className="flex items-center gap-4 text-sm text-gray-400">
-            <div className="flex items-center gap-1">
-              <CalendarIcon className="w-4 h-4" />
-              {new Date(event.created_at).toLocaleDateString()}
-            </div>
-            
-            {event.target_type === 'post' && (
-              <>
-                <div className="flex items-center gap-1">
-                  <EyeIcon className="w-4 h-4" />
-                  {payload.view_count || 0}
-                </div>
-                <div className="flex items-center gap-1">
-                  <ChatBubbleLeftRightIcon className="w-4 h-4" />
-                  {payload.comment_count || 0}
-                </div>
-              </>
+            {/* 事件内容 */}
+            {payload.title && (
+              <div className="mb-3">
+                <Link href={getTargetUrl()} className="block">
+                  <div className="bg-base-200 rounded-lg p-4 hover:bg-base-300 transition-colors">
+                    <h4 className="font-medium text-base-content mb-2">
+                      {payload.title}
+                    </h4>
+                    {payload.summary && (
+                      <p className="text-base-content/70 text-sm line-clamp-2">
+                        {payload.summary}
+                      </p>
+                    )}
+                    {payload.content && !payload.summary && (
+                      <p className="text-base-content/70 text-sm line-clamp-2">
+                        {payload.content}
+                      </p>
+                    )}
+                  </div>
+                </Link>
+              </div>
             )}
 
-            {event.target_type === 'comment' && (
+            {/* 事件元信息 */}
+            <div className="flex items-center gap-4 text-sm text-base-content/40">
               <div className="flex items-center gap-1">
-                <div className="w-2 h-2 bg-green-500 rounded-full" />
-                回答
+                <CalendarIcon className="w-4 h-4" />
+                {new Date(event.created_at).toLocaleDateString()}
+              </div>
+              
+              {event.target_type === 'post' && (
+                <>
+                  <div className="flex items-center gap-1">
+                    <EyeIcon className="w-4 h-4" />
+                    {payload.view_count || 0}
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <ChatBubbleLeftRightIcon className="w-4 h-4" />
+                    {payload.comment_count || 0}
+                  </div>
+                </>
+              )}
+
+              {event.target_type === 'comment' && (
+                <div className="flex items-center gap-1">
+                  <div className="w-2 h-2 bg-success rounded-full" />
+                  回答
+                </div>
+              )}
+            </div>
+
+            {/* 操作按钮 */}
+            {event.target_type === 'post' && (
+              <div className="flex items-center gap-4 mt-3 pt-3 border-t border-base-200">
+                <button
+                  onClick={handleLike}
+                  className="flex items-center gap-1 text-base-content/60 hover:text-error transition-colors"
+                >
+                  {liked ? (
+                    <HeartSolidIcon className="w-5 h-5 text-error" />
+                  ) : (
+                    <HeartIcon className="w-5 h-5" />
+                  )}
+                  <span className="text-sm">{payload.like_count || 0}</span>
+                </button>
+                <Link
+                  href={getTargetUrl()}
+                  className="flex items-center gap-1 text-base-content/60 hover:text-primary transition-colors"
+                >
+                  <ChatBubbleLeftRightIcon className="w-5 h-5" />
+                  <span className="text-sm">查看详情</span>
+                </Link>
               </div>
             )}
           </div>
-
-          {/* 操作按钮 */}
-          {event.target_type === 'post' && (
-            <div className="flex items-center gap-4 mt-3 pt-3 border-t">
-              <button
-                onClick={handleLike}
-                className="flex items-center gap-1 text-gray-500 hover:text-red-500 transition-colors"
-              >
-                {liked ? (
-                  <HeartSolidIcon className="w-5 h-5 text-red-500" />
-                ) : (
-                  <HeartIcon className="w-5 h-5" />
-                )}
-                <span className="text-sm">{payload.like_count || 0}</span>
-              </button>
-              <Link
-                href={getTargetUrl()}
-                className="flex items-center gap-1 text-gray-500 hover:text-indigo-600 transition-colors"
-              >
-                <ChatBubbleLeftRightIcon className="w-5 h-5" />
-                <span className="text-sm">查看详情</span>
-              </Link>
-            </div>
-          )}
         </div>
       </div>
     </div>
@@ -191,21 +193,21 @@ interface SubscribedUser {
 
 function SubscribeCard({ user, onUnsubscribe }: { user: SubscribedUser; onUnsubscribe: (userId: number) => void }) {
   return (
-    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+    <div className="flex items-center justify-between p-3 bg-base-200 rounded-lg">
       <Link href={`/users/${user.id}`} className="flex items-center gap-3 flex-1">
         {user.avatar ? (
           <img src={user.avatar} alt={user.username} className="w-10 h-10 rounded-full object-cover" />
         ) : (
-          <UserCircleIcon className="w-10 h-10 text-gray-400" />
+          <UserCircleIcon className="w-10 h-10 text-base-content/40" />
         )}
         <div>
-          <div className="font-medium text-gray-900">{user.username}</div>
-          <div className="text-sm text-gray-500">{user.bio || '这个人很懒，什么都没写'}</div>
+          <div className="font-medium text-base-content">{user.username}</div>
+          <div className="text-sm text-base-content/60">{user.bio || '这个人很懒，什么都没写'}</div>
         </div>
       </Link>
       <button
         onClick={() => onUnsubscribe(user.id)}
-        className="px-3 py-1 text-sm text-red-600 hover:bg-red-50 rounded-md transition-colors"
+        className="px-3 py-1 text-sm text-error hover:bg-error/10 rounded-md transition-colors"
       >
         取消关注
       </button>
@@ -301,17 +303,19 @@ export default function Timeline() {
   }));
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-base-200 py-8">
       <div className="max-w-3xl mx-auto px-4">
         {/* 头部 */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">时间线</h1>
-          <p className="text-gray-500">关注你感兴趣的人和内容</p>
+        <div className="card bg-base-100 shadow-sm mb-6">
+          <div className="card-body p-6">
+            <h1 className="text-2xl font-bold text-base-content mb-2">时间线</h1>
+            <p className="text-base-content/60">关注你感兴趣的人和内容</p>
+          </div>
         </div>
 
         {/* Tab 切换 */}
-        <div className="bg-white rounded-lg shadow-sm mb-6">
-          <div className="flex border-b">
+        <div className="card bg-base-100 shadow-sm mb-6">
+          <div className="flex border-b border-base-200">
             <button
               onClick={() => {
                 setActiveTab('home');
@@ -319,8 +323,8 @@ export default function Timeline() {
               }}
               className={`flex-1 py-3 text-center font-medium transition-colors ${
                 activeTab === 'home'
-                  ? 'text-indigo-600 border-b-2 border-indigo-600'
-                  : 'text-gray-500 hover:text-gray-700'
+                  ? 'text-primary border-b-2 border-primary'
+                  : 'text-base-content/60 hover:text-base-content'
               }`}
             >
               推荐
@@ -332,8 +336,8 @@ export default function Timeline() {
               }}
               className={`flex-1 py-3 text-center font-medium transition-colors ${
                 activeTab === 'following'
-                  ? 'text-indigo-600 border-b-2 border-indigo-600'
-                  : 'text-gray-500 hover:text-gray-700'
+                  ? 'text-primary border-b-2 border-primary'
+                  : 'text-base-content/60 hover:text-base-content'
               }`}
             >
               关注
@@ -345,7 +349,7 @@ export default function Timeline() {
         <div className="mb-6">
           <button
             onClick={() => setShowSubscriptions(!showSubscriptions)}
-            className="flex items-center gap-2 text-gray-600 hover:text-indigo-600 transition-colors"
+            className="flex items-center gap-2 text-base-content/70 hover:text-primary transition-colors"
           >
             <span className="font-medium">我关注的人 ({subscriptions.length})</span>
             <svg
@@ -361,9 +365,9 @@ export default function Timeline() {
           {showSubscriptions && (
             <div className="mt-3 space-y-2">
               {subscriptions.length === 0 ? (
-                <div className="bg-white rounded-lg p-6 text-center text-gray-500">
-                  <p>还没有关注任何人</p>
-                  <Link href="/explore" className="text-indigo-600 hover:underline mt-2 inline-block">
+                <div className="card bg-base-100 p-6 text-center">
+                  <p className="text-base-content/60">还没有关注任何人</p>
+                  <Link href="/explore" className="text-primary hover:underline mt-2 inline-block">
                     发现更多用户 →
                   </Link>
                 </div>
@@ -388,22 +392,22 @@ export default function Timeline() {
         {loading ? (
           <div className="space-y-4">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-white rounded-lg shadow-sm p-6 animate-pulse">
+              <div key={i} className="card bg-base-100 shadow-sm p-6 animate-pulse">
                 <div className="flex gap-4">
-                  <div className="w-12 h-12 bg-gray-200 rounded-full" />
+                  <div className="w-12 h-12 bg-base-300 rounded-full" />
                   <div className="flex-1">
-                    <div className="h-4 bg-gray-200 rounded w-1/4 mb-2" />
-                    <div className="h-3 bg-gray-200 rounded w-3/4" />
+                    <div className="h-4 bg-base-300 rounded w-1/4 mb-2" />
+                    <div className="h-3 bg-base-300 rounded w-3/4" />
                   </div>
                 </div>
               </div>
             ))}
           </div>
         ) : events.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-sm p-12 text-center">
+          <div className="card bg-base-100 shadow-sm p-12 text-center">
             <div className="text-6xl mb-4">📭</div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">暂无动态</h3>
-            <p className="text-gray-500 mb-4">
+            <h3 className="text-lg font-medium text-base-content mb-2">暂无动态</h3>
+            <p className="text-base-content/60 mb-4">
               {activeTab === 'home' 
                 ? '还没有任何动态，去探索更多内容吧！'
                 : '关注用户后，他们的动态会显示在这里'}
@@ -411,7 +415,7 @@ export default function Timeline() {
             {activeTab === 'following' && (
               <Link
                 href="/explore"
-                className="inline-block px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                className="btn btn-primary"
               >
                 发现用户
               </Link>
@@ -435,17 +439,17 @@ export default function Timeline() {
                 <button
                   onClick={() => setPage(p => Math.max(1, p - 1))}
                   disabled={page === 1}
-                  className="px-3 py-1 border rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
+                  className="px-3 py-1 border border-base-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-base-200 transition-colors text-base-content"
                 >
                   上一页
                 </button>
-                <span className="px-3 py-1 text-gray-600">
+                <span className="px-3 py-1 text-base-content/70">
                   第 {page} / {totalPages} 页
                 </span>
                 <button
                   onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                   disabled={page >= totalPages}
-                  className="px-3 py-1 border rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
+                  className="px-3 py-1 border border-base-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-base-200 transition-colors text-base-content"
                 >
                   下一页
                 </button>
