@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"time"
 	"tiny-forum/internal/model"
 
 	"gorm.io/gorm"
@@ -102,7 +103,7 @@ func (r *TagRepository) Count(ctx context.Context) (int64, error) {
 }
 
 // CountByDateRange 根据日期范围统计标签数
-func (r *TagRepository) CountByDateRange(ctx context.Context, startDate, endDate string) (int64, error) {
+func (r *TagRepository) CountByDateRange(ctx context.Context, startDate, endDate time.Time) (int64, error) {
 	var count int64
 	err := r.db.Model(&model.Tag{}).
 		Where("created_at BETWEEN ? AND ?", startDate, endDate).

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 	"tiny-forum/internal/model"
 
 	"gorm.io/gorm"
@@ -232,8 +233,6 @@ func (r *UserRepository) SetScoreById(id uint, score int) error {
 	return nil
 }
 
-// internal/repository/user_repository.go
-
 // FindByIDs 批量查询用户
 func (r *UserRepository) FindByIDs(ids []uint) ([]model.User, error) {
 	if len(ids) == 0 {
@@ -244,39 +243,76 @@ func (r *UserRepository) FindByIDs(ids []uint) ([]model.User, error) {
 	return users, err
 }
 
-// internal/repository/user_repository.go
-
-// Count 获取用户总数
+// Count 返回用户总数
 func (r *UserRepository) Count(ctx context.Context) (int64, error) {
 	var count int64
-	err := r.db.Model(&model.User{}).Count(&count).Error
+	err := r.db.WithContext(ctx).Model(&model.User{}).Count(&count).Error
 	return count, err
 }
 
-// CountByDateRange 根据日期范围统计用户数
-func (r *UserRepository) CountByDateRange(ctx context.Context, startDate, endDate string) (int64, error) {
+// CountByDateRange 统计指定时间段内新增用户数
+func (r *UserRepository) CountByDateRange(ctx context.Context, startDate, endDate time.Time) (int64, error) {
 	var count int64
-	err := r.db.Model(&model.User{}).
+	err := r.db.WithContext(ctx).
+		Model(&model.User{}).
 		Where("created_at BETWEEN ? AND ?", startDate, endDate).
 		Count(&count).Error
 	return count, err
 }
 
-// CountActiveByDateRange 统计活跃用户数
-func (r *UserRepository) CountActiveByDateRange(ctx context.Context, startDate, endDate string) (int64, error) {
+// CountActiveByDateRange 统计指定时间段内活跃用户数（有发帖或评论行为）
+func (r *UserRepository) CountActiveByDateRange(ctx context.Context, startDate, endDate time.Time) (int64, error) {
 	var count int64
-	err := r.db.Model(&model.User{}).
-		Where("last_login BETWEEN ? AND ?", startDate, endDate).
+
+	// 活跃用户 = 该时间段内有发帖或发评论的去重用户数
+	err := r.db.WithContext(ctx).
+		Table("users u").
+		Where(`u.deleted_at IS NULL AND EXISTS (
+			SELECT 1 FROM posts p
+			WHERE p.author_id = u.id AND p.deleted_at IS NULL
+			  AND p.created_at BETWEEN ? AND ?
+		) OR EXISTS (
+			SELECT 1 FROM comments c
+			WHERE c.author_id = u.id AND c.deleted_at IS NULL
+			  AND c.created_at BETWEEN ? AND ?
+		)`, startDate, endDate, startDate, endDate).
 		Count(&count).Error
+
 	return count, err
 }
 
-// GetActiveUsersByDateRange 获取活跃用户列表
-func (r *UserRepository) GetActiveUsersByDateRange(ctx context.Context, startDate, endDate string, limit int) ([]*model.User, error) {
-	var users []*model.User
-	err := r.db.Where("last_login BETWEEN ? AND ?", startDate, endDate).
-		Order("last_login DESC").
+// ActiveUserRow 活跃用户查询结果行
+type ActiveUserRow struct {
+	ID       uint
+	Username string
+	Avatar   string
+}
+
+// GetActiveUsersByDateRange 获取指定时间段内活跃用户列表
+func (r *UserRepository) GetActiveUsersByDateRange(
+	ctx context.Context,
+	startDate, endDate time.Time,
+	limit int,
+) ([]*ActiveUserRow, error) {
+	var rows []*ActiveUserRow
+
+	err := r.db.WithContext(ctx).
+		Table("users u").
+		Select("u.id, u.username, u.avatar").
+		Where(`u.deleted_at IS NULL AND (
+			EXISTS (
+				SELECT 1 FROM posts p
+				WHERE p.author_id = u.id AND p.deleted_at IS NULL
+				  AND p.created_at BETWEEN ? AND ?
+			) OR EXISTS (
+				SELECT 1 FROM comments c
+				WHERE c.author_id = u.id AND c.deleted_at IS NULL
+				  AND c.created_at BETWEEN ? AND ?
+			)
+		)`, startDate, endDate, startDate, endDate).
+		Order("u.score DESC").
 		Limit(limit).
-		Find(&users).Error
-	return users, err
+		Scan(&rows).Error
+
+	return rows, err
 }

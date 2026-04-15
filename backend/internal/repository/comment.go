@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"errors"
+	"time"
 	"tiny-forum/internal/model"
 
 	"gorm.io/gorm"
@@ -153,19 +154,18 @@ func (r *CommentRepository) GetAnswersByPostIDOrderByOldest(postID uint, limit, 
 	return comments, total, err
 }
 
-// internal/repository/comment_repository.go
-
-// Count 获取评论总数
+// Count 返回评论总数
 func (r *CommentRepository) Count(ctx context.Context) (int64, error) {
 	var count int64
-	err := r.db.Model(&model.Comment{}).Count(&count).Error
+	err := r.db.WithContext(ctx).Model(&model.Comment{}).Count(&count).Error
 	return count, err
 }
 
-// CountByDateRange 根据日期范围统计评论数
-func (r *CommentRepository) CountByDateRange(ctx context.Context, startDate, endDate string) (int64, error) {
+// CountByDateRange 统计指定时间段内新增评论数
+func (r *CommentRepository) CountByDateRange(ctx context.Context, startDate, endDate time.Time) (int64, error) {
 	var count int64
-	err := r.db.Model(&model.Comment{}).
+	err := r.db.WithContext(ctx).
+		Model(&model.Comment{}).
 		Where("created_at BETWEEN ? AND ?", startDate, endDate).
 		Count(&count).Error
 	return count, err

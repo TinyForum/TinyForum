@@ -21,6 +21,7 @@ import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { PostType } from "@/lib/api";
 import { useAnnouncements } from "@/hooks/useAnnouncements";
+import { CommunityStats } from "./CommunityStats";
 // import { PostType } from "@/types";
 
 export type FilterType = "all" | PostType;
@@ -143,6 +144,8 @@ export default function LeftSidebar({
           >
             <TrendingUp className="w-4 h-4" />
             {t("all")}
+          
+           <span className="ml-auto text-xs text-muted-foreground">TODO count</span>
           </button>
           
           {/* 问答 */}
@@ -161,7 +164,7 @@ export default function LeftSidebar({
           >
             <HelpCircle className="w-4 h-4" />
             {t("questions")}
-            <span className="ml-auto text-xs text-muted-foreground">问答</span>
+           <span className="ml-auto text-xs text-muted-foreground">TODO count</span>
           </button>
           
           {/* 文章 */}
@@ -180,7 +183,7 @@ export default function LeftSidebar({
           >
             <FileText className="w-4 h-4" />
             {t("articles")}
-            <span className="ml-auto text-xs text-muted-foreground">文章</span>
+            <span className="ml-auto text-xs text-muted-foreground">TODO count</span>
           </button>
           
           {/* 帖子 */}
@@ -199,7 +202,7 @@ export default function LeftSidebar({
           >
             <PenIcon className="w-4 h-4" />
             {t("posts")}
-            <span className="ml-auto text-xs text-muted-foreground">帖子</span>
+            <span className="ml-auto text-xs text-muted-foreground">TODO count</span>
           </button>
         </div>
       </div>
@@ -214,9 +217,9 @@ export default function LeftSidebar({
       </div>
       <div className="p-3 space-y-2">
         {isLoading ? (
-          <div className="text-sm text-muted-foreground">加载中...</div>
+          <div className="text-sm text-muted-foreground">{t("loading")}</div>
         ) : displayAnnouncements.length === 0 ? (
-          <div className="text-sm text-muted-foreground">暂无公告</div>
+          <div className="text-sm text-muted-foreground">{t("no_announcements")}</div>
         ) : (
           <>
             {displayAnnouncements.map((announcement) => (
@@ -232,7 +235,7 @@ export default function LeftSidebar({
               href="/announcements"
               className="block text-xs text-muted-foreground hover:text-primary mt-2"
             >
-              查看全部 →
+              {t("view_all_announcements")} →
             </Link>
           </>
         )}
@@ -283,32 +286,7 @@ export default function LeftSidebar({
       )}
 
       {/* 社区统计 */}
-      <div className="rounded-lg border bg-card">
-        <div className="p-3 border-b">
-          <h3 className="font-semibold flex items-center gap-2">
-            <Sparkles className="w-4 h-4" />
-            {t("community_stats")}
-          </h3>
-        </div>
-        <div className="p-3 space-y-2 text-sm">
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">今日发帖</span>
-            <span className="font-medium">128</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">昨日活跃</span>
-            <span className="font-medium">1,234</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">总用户数</span>
-            <span className="font-medium">5,678</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">总帖子数</span>
-            <span className="font-medium">12,345</span>
-          </div>
-        </div>
-      </div>
+    <CommunityStats />
     </aside>
   );
 }

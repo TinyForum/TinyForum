@@ -1,8 +1,8 @@
 {
-  "Admin":{
+  "Admin": {
     "dashboard": "仪表盘",
     "dashboard_description": "管理后台仪表盘",
-    "announcements":"公告",
+    "announcements": "公告",
     "announcements_description": "管理论坛公告",
     "users": "用户",
     "users_description": "管理论坛用户",
@@ -15,15 +15,15 @@
     "statistics": "统计",
     "system": "系统",
     "statistics_description": "论坛统计信息",
-    "settings":"设置",
+    "settings": "设置",
     "settings_description": "管理论坛设置",
-    "user_management":"用户管理",
-    "post_management":"帖子管理",
-    "qa_management":"问答管理",
-    "points_management":"积分管理",
-    "statistics_management":"统计管理",
-    "settings_management":"设置管理",
-    "announcements_management":"公告管理",
+    "user_management": "用户管理",
+    "post_management": "帖子管理",
+    "qa_management": "问答管理",
+    "points_management": "积分管理",
+    "statistics_management": "统计管理",
+    "settings_management": "设置管理",
+    "announcements_management": "公告管理",
     "admin_panel": "管理面板",
     "logout": "退出登录",
     "global_announcement": "全局公告",
@@ -44,31 +44,29 @@
     "summary": "摘要",
     "content_placeholder": "请输入公告内容...",
 
-  "title_placeholder": "请输入公告标题...",
-  "no_announcements": "暂无公告",
-  "board_announcement": "板块公告",
-  "publish_time": "发布时间",
-  "global": "全局",
-  "user_growth_trend": "用户增长趋势",
-  "post_trend": "帖子趋势",
-  "total_users": "总用户数",
-  "total_posts": "总帖子数",
-  "today_active": "今日活跃用户",
-  "total_points": "总积分",
-  "online_users": "在线用户",
-  "draft": "草稿",
-  "pulished": "已发布",
-  "archived": "已归档",
-  "status": "状态",
-  
+    "title_placeholder": "请输入公告标题...",
+    "no_announcements": "暂无公告",
+    "board_announcement": "板块公告",
+    "publish_time": "发布时间",
+    "global": "全局",
+    "user_growth_trend": "用户增长趋势",
+    "post_trend": "帖子趋势",
+    "total_users": "总用户数",
+    "total_posts": "总帖子数",
+    "today_active": "今日活跃用户",
+    "total_points": "总积分",
+    "online_users": "在线用户",
+    "draft": "草稿",
+    "pulished": "已发布",
+    "archived": "已归档",
+    "status": "状态",
 
-
-  "refresh": "刷新",
-  "export_data": "导出数据"
+    "refresh": "刷新",
+    "export_data": "导出数据"
   },
-  "Sidebar":{
-    "all":"全部",
-  "navigation": "导航",
+  "Sidebar": {
+    "all": "全部",
+    "navigation": "导航",
     "all_posts": "全部帖子",
     "questions": "问答",
     "articles": "文章",
@@ -79,11 +77,30 @@
     "violation_status": "违规情况",
     "recent_updates": "最新动态",
     "leaderboard": "积分榜",
-    "posts":"帖子"
+    "posts": "帖子",
+    "no_logged_in": "登录后查看更多功能",
+    "no_bio": "这个人很懒，什么都没写",
+    "violation_count": "违规次数",
+    "mute_status": "禁言状态",
+    "normal": "正常",
+    "warning_level": "警告等级",
+    "none": "无",
+    "view_details": "查看详情",
+    "score": "积分",
+    "registered_at": "注册时间",
+    "notifications": "通知",
+    "profile": "个人主页",
+    "settings": "设置",
+    "today_posts": "今日发帖",
+    "yesterday_active": "昨日活跃",
+    "total_users": "总用户数",
+    "total_posts": "总帖子数",
+    "view_the_full_rankings": "查看完整排行榜",
+    "no_announcements":"暂无公告"
   },
-  "Nav":{
+  "Nav": {
     "boards": "板块",
-     "brand": "天方论坛",
+    "brand": "天方论坛",
     "create_post": "发帖",
     "search": "搜索",
     "profile": "个人主页",
@@ -101,13 +118,13 @@
     "topics": "主题",
     "timeline": "时间线"
   },
-  "site":{
+  "site": {
     "brand": "天方论坛",
     "description": "一个完全开源的论坛项目，由 Nextjs 和 Gin 构建",
     "repo": "https://github.com/caoyang2002/TinyForum",
     "license": "MIT"
   },
-  "Comment":{
+  "Comment": {
     "deleted": "评论已删除",
     "delete_failed": "删除失败",
     "reply": "回复",
@@ -126,7 +143,7 @@
     "to_comment": "后发表评论",
     "no_comments": "暂无评论，快来发表第一条评论吧！"
   },
-  "posts":{
+  "posts": {
     "title": "帖子",
     "search": "搜索",
     "all_posts": "所有帖子",
@@ -136,7 +153,7 @@
     "publish_success": "发布成功",
     "publish_new_post": "发布新帖子",
     "post_type": "帖子类型",
-    "post":"帖子",
+    "post": "帖子",
     "post_desc": "普通讨论",
     "article": "文章",
     "article_desc": "论述文章",
@@ -154,11 +171,8 @@
     "post_content_placeholder": "开始写作...",
     "cancel": "取消",
     "publish_post": "发布帖子"
-
-
-    
   },
-  "Settings":{
+  "Settings": {
     "title": "设置",
     "avatar_image_url": "头像图片 URL",
     "avatar_image_url_tip": "留空则使用默认头像，支持外部图片链接",
@@ -167,16 +181,15 @@
     "save": "保存"
   },
 
-
   "post": {
     "create": "发帖",
     "random": "随机",
     "latest": "最新",
     "hot": "热门",
-  "refresh": "刷新",
+    "refresh": "刷新",
     "latest_posts": "最新",
     "hot_posts": "热门",
-     "read":"阅读",
+    "read": "阅读",
     "no_posts": "暂无帖子",
     "post_your_first_post": "快来发布你的第一条帖子吧！",
     "hot_tags": "热门标签",

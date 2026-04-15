@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"time"
 	"tiny-forum/internal/model"
 	"tiny-forum/pkg/logger"
 
@@ -30,16 +31,22 @@ type PostRepository interface {
 	CreateWithTx(tx *gorm.DB, post *model.Post) error
 	AddTags(tx *gorm.DB, post *model.Post, tagIDs []uint) error
 	Count(ctx context.Context) (int64, error)
-	CountByDateRange(ctx context.Context, startDate, endDate string) (int64, error)
-	GetHotArticlesByDateRange(ctx context.Context, startDate, endDate string, limit int) ([]*model.HotArticleItem, error)
+	CountByDateRange(ctx context.Context, startDate, endDate time.Time) (int64, error)
+	GetHotArticlesByDateRange(
+		ctx context.Context,
+		startDate, endDate time.Time,
+		limit int,
+	) ([]*HotArticleRow, error)
 }
 
 type postRepository struct {
-	db *gorm.DB
+	db    *gorm.DB
+	stats *StatsRepository
 }
 
 func NewPostRepository(db *gorm.DB) PostRepository {
-	return &postRepository{db: db}
+	return &postRepository{db: db,
+		stats: NewStatsRepository(db)}
 }
 
 func (r *postRepository) Create(post *model.Post) error {
@@ -245,50 +252,28 @@ func (r *postRepository) AddTags(tx *gorm.DB, post *model.Post, tagIDs []uint) e
 	return tx.Model(post).Association("Tags").Append(&tags)
 }
 
-// internal/repository/post_repository.go
-
-// Count 获取帖子总数
+// Count 返回帖子总数
 func (r *postRepository) Count(ctx context.Context) (int64, error) {
 	var count int64
-	err := r.db.Model(&model.Post{}).Count(&count).Error
+	err := r.db.WithContext(ctx).Model(&model.Post{}).Count(&count).Error
 	return count, err
 }
 
-// CountByDateRange 根据日期范围统计帖子数
-func (r *postRepository) CountByDateRange(ctx context.Context, startDate, endDate string) (int64, error) {
+// CountByDateRange 统计指定时间段内新增帖子数
+func (r *postRepository) CountByDateRange(ctx context.Context, startDate, endDate time.Time) (int64, error) {
 	var count int64
-	err := r.db.Model(&model.Post{}).
+	err := r.db.WithContext(ctx).
+		Model(&model.Post{}).
 		Where("created_at BETWEEN ? AND ?", startDate, endDate).
 		Count(&count).Error
 	return count, err
 }
 
-// internal/repository/post_repository.go
-
-// 实现方法
-func (r *postRepository) GetHotArticlesByDateRange(ctx context.Context, startDate, endDate string, limit int) ([]*model.HotArticleItem, error) {
-	var articles []*model.HotArticleItem
-
-	query := `
-		SELECT 
-			p.id,
-			p.title,
-			p.board_id,
-			b.name as board_name,
-			p.author_id,
-			u.username as author_name,
-			p.view_count,
-			p.comment_count,
-			p.like_count,
-			(p.view_count + p.comment_count * 10 + p.like_count * 5) as score
-		FROM posts p
-		LEFT JOIN boards b ON p.board_id = b.id
-		LEFT JOIN users u ON p.author_id = u.id
-		WHERE p.created_at BETWEEN ? AND ?
-		ORDER BY score DESC
-		LIMIT ?
-	`
-
-	err := r.db.WithContext(ctx).Raw(query, startDate, endDate, limit).Scan(&articles).Error
-	return articles, err
+// GetHotArticlesByDateRange 委托给 StatsRepository 执行复合查询
+func (r *postRepository) GetHotArticlesByDateRange(
+	ctx context.Context,
+	startDate, endDate time.Time,
+	limit int,
+) ([]*HotArticleRow, error) {
+	return r.stats.GetHotArticlesByDateRange(ctx, startDate, endDate, limit)
 }

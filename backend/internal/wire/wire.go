@@ -121,7 +121,7 @@ func InitApp(cfg *config.Config) (*App, error) {
 	postSvc := service.NewPostService(postRepo, tagRepo, userRepo, boardRepo, notifSvc)
 	commentSvc := service.NewCommentService(commentRepo, postRepo, userRepo, notifSvc, voteRepo)
 	announcementSvc := service.NewAnnouncementService(announcementRepo)
-	statsSvc := service.NewStatsService(statsRepo, postRepo, tagRepo, boardRepo, userRepo, timelineRepo, notifRepo, topicRepo, commentRepo, announcementRepo, questionRepo)
+	statsSvc := service.NewStatsService(statsRepo, postRepo, tagRepo, boardRepo, userRepo, commentRepo)
 
 	// ========== Handlers ==========
 	authHandler := handler.NewAuthHandler(userSvc)
@@ -343,6 +343,10 @@ func InitApp(cfg *config.Config) (*App, error) {
 		announcementAdminGroup.POST("/:id/publish", announcementHandler.Publish)
 		announcementAdminGroup.POST("/:id/archive", announcementHandler.Archive)
 		announcementAdminGroup.PUT("/:id/pin", announcementHandler.Pin)
+	}
+	statsGrop := api.Group("/statistics")
+	{
+		statsGrop.GET("", statsHandler.GetStatsTotal)
 	}
 
 	// ----- MARK: Admin routes -----

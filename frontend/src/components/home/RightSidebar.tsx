@@ -80,23 +80,23 @@ export default function RightSidebar({
     }
   };
 
-  const getEventText = (event: TimelineEvent) => {
-    const actor = event.actor?.username || "用户";
+const getEventText = (event: TimelineEvent) => {
+    const actor = event.actor?.username || t("user");
     switch (event.action) {
       case "create_post":
-        return `${actor} 发布了新帖子`;
+        return `${actor} ${t("posted_a_new_thread")}`;
       case "create_comment":
-        return `${actor} 发表了评论`;
+        return `${actor} ${t("commented")}`;
       case "like_post":
-        return `${actor} 赞了一个帖子`;
+        return `${actor} ${t("liked_a_post")}`;
       case "like_comment":
-        return `${actor} 赞了一条评论`;
+        return `${actor} ${t("liked_a_comment")}`;
       case "follow_user":
-        return `${actor} 关注了你`;
+        return `${actor} ${t("followed_you")}`;
       case "accept_answer":
-        return `${actor} 采纳了你的回答`;
+        return `${actor} ${t("accepted_your_answer")}`;
       default:
-        return `${actor} 有了新动态`;
+        return `${actor} ${t("has_a_new_activity")}`;
     }
   };
 
@@ -120,21 +120,22 @@ export default function RightSidebar({
             </div>
             <h3 className="font-semibold">{userProfile.username}</h3>
             <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-              {userProfile.bio || "这个人很懒，什么都没写"}
+              {userProfile.bio || t("no_bio")}
             </p>
           </div>
           <div className="p-3 space-y-2">
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground flex items-center gap-1">
                 <Award className="w-4 h-4" />
-                积分
+                {t("score")}
               </span>
               <span className="font-medium text-primary">{userProfile.score}</span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground flex items-center gap-1">
                 <Clock className="w-4 h-4" />
-                注册时间
+         
+                {t("registered_at")}
               </span>
               <span className="text-xs">
                 {new Date(userProfile.created_at).toLocaleDateString()}
@@ -148,7 +149,8 @@ export default function RightSidebar({
             >
               <span className="flex items-center gap-2 text-sm">
                 <Bell className="w-4 h-4" />
-                通知
+                {t("notifications")}
+             
               </span>
               {unreadCount > 0 && (
                 <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
@@ -161,32 +163,32 @@ export default function RightSidebar({
               className="flex items-center gap-2 p-2 rounded-lg hover:bg-muted transition-colors text-sm"
             >
               <User className="w-4 h-4" />
-              个人主页
+              {t("profile")}
             </Link>
             <Link
               href="/settings"
               className="flex items-center gap-2 p-2 rounded-lg hover:bg-muted transition-colors text-sm"
             >
               <Activity className="w-4 h-4" />
-              设置
+              {t("settings")}
             </Link>
           </div>
         </div>
       ) : (
         <div className="rounded-lg border bg-card p-4 text-center">
           <User className="w-12 h-12 mx-auto text-muted-foreground mb-2" />
-          <p className="text-sm text-muted-foreground mb-3">登录后查看更多功能</p>
+          <p className="text-sm text-muted-foreground mb-3">{t("not_logged_in")}</p>
           <Link
             href="/auth/login"
             className="inline-block w-full bg-primary text-primary-foreground rounded-lg px-4 py-2 text-sm hover:bg-primary/90 transition-colors"
           >
-            立即登录
+            {t("login")}
           </Link>
           <Link
             href="/auth/register"
             className="inline-block w-full mt-2 text-sm text-muted-foreground hover:text-primary transition-colors"
           >
-            注册账号
+            {t("register")}
           </Link>
         </div>
       )}
@@ -200,26 +202,26 @@ export default function RightSidebar({
               {t("violation_status")}
             </h3>
           </div>
-          <div className="p-3 space-y-2 text-sm">
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">违规次数</span>
-              <span className="font-medium text-green-600">0</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">禁言状态</span>
-              <span className="font-medium text-green-600">正常</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">警告等级</span>
-              <span className="font-medium text-green-600">无</span>
-            </div>
-            <Link
-              href="/violations"
-              className="block text-xs text-center text-muted-foreground hover:text-primary mt-2"
-            >
-              查看详情 →
-            </Link>
-          </div>
+         <div className="p-3 space-y-2 text-sm">
+  <div className="flex justify-between">
+    <span className="text-muted-foreground">{t("violation_count")}</span>
+    <span className="font-medium text-green-600">0</span>
+  </div>
+  <div className="flex justify-between">
+    <span className="text-muted-foreground">{t("mute_status")}</span>
+    <span className="font-medium text-green-600">{t("normal")}</span>
+  </div>
+  <div className="flex justify-between">
+    <span className="text-muted-foreground">{t("warning_level")}</span>
+    <span className="font-medium text-green-600">{t("none")}</span>
+  </div>
+  <Link
+    href="/violations"
+    className="block text-xs text-center text-muted-foreground hover:text-primary mt-2"
+  >
+    {t("view_details")} →
+  </Link>
+</div>
         </div>
       )}
 
@@ -301,7 +303,7 @@ export default function RightSidebar({
               href="/leaderboard"
               className="block text-xs text-center text-muted-foreground hover:text-primary"
             >
-              完整排行榜 →
+              {t("view_the_full_rankings")} →
             </Link>
           </div>
         </div>
