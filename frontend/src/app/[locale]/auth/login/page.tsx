@@ -12,6 +12,8 @@ import toast from 'react-hot-toast';
 import { Mail, Lock, Eye, EyeOff, LogIn } from 'lucide-react';
 import { getErrorMessage } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
+import { useLocale } from 'next-intl';
+
 
 const loginSchema = z.object({
   email: z.string().email('请输入有效的邮箱'),
@@ -30,11 +32,11 @@ export default function LoginPage() {
 
   // ✅ 获取重定向地址，默认为首页
   const redirectTo = searchParams.get('redirect') || '/';
-  
+ const locale = useLocale(); 
   // ✅ 等待 hydration 完成后再检查登录状态
   useEffect(() => {
     if (isHydrated && isAuthenticated && user) {
-      router.replace(redirectTo);
+     router.replace(`/${locale}${redirectTo === '/' ? '' : redirectTo}` || `/${locale}`);
     }
   }, [isHydrated, isAuthenticated, user, router, redirectTo]);
 

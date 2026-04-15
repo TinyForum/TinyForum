@@ -4,6 +4,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { authApi } from '@/lib/api';
 
+
 interface AuthState {
   user: User | null;
   isAuthenticated: boolean;

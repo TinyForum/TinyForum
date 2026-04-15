@@ -43,7 +43,7 @@ export function Leaderboard({ leaderboard }: LeaderboardProps) {
         {leaderboard.slice(0, 5).map((user, index) => (
           <Link
             key={user.id}
-            href={`/profile/${user.id}`}
+            href={`/users/${user.id}`}
             className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted transition-colors"
           >
             <div className="flex-shrink-0 w-6 text-center">

@@ -94,30 +94,30 @@ export const boardApi = {
     ),
 
   // ── 申请版主 ──────────────────────────────────────────────────────────────────
-  applyForModerator: (boardId: number, reason: string) =>
-    apiClient.post<ApiResponse<null>>(
-      `/boards/${boardId}/moderator-apply`,
-      { reason }
-    ),
+  // applyForModerator: (boardId: number, reason: string) =>
+  //   apiClient.post<ApiResponse<null>>(
+  //     `/boards/${boardId}/moderator-apply`,
+  //     { reason }
+  //   ),
 
-  checkApplicationStatus: (boardId: number) =>
-    apiClient.get<
-      ApiResponse<{
-        has_applied: boolean;
-        application?: ModeratorApplication;
-      }>
-    >(`/boards/${boardId}/application-status`),
+  // checkApplicationStatus: (boardId: number) =>
+  //   apiClient.get<
+  //     ApiResponse<{
+  //       has_applied: boolean;
+  //       application?: ModeratorApplication;
+  //     }>
+  //   >(`/boards/${boardId}/application-status`),
 
-  getMyApplications: (params?: { page?: number; page_size?: number }) =>
-    apiClient.get<ApiResponse<PageData<ModeratorApplication>>>(
-      "/boards/my-applications",
-      { params }
-    ),
+  // getMyApplications: (params?: { page?: number; page_size?: number }) =>
+  //   apiClient.get<ApiResponse<PageData<ModeratorApplication>>>(
+  //     "/boards/my-applications",
+  //     { params }
+  //   ),
 
-  checkModeratorStatus: (boardId: number) =>
-    apiClient.get<
-      ApiResponse<{ is_moderator: boolean; moderator?: Moderator }>
-    >(`/boards/${boardId}/moderator-status`),
+  // checkModeratorStatus: (boardId: number) =>
+  //   apiClient.get<
+  //     ApiResponse<{ is_moderator: boolean; moderator?: Moderator }>
+  //   >(`/boards/${boardId}/moderator-status`),
 
   // ── 禁言管理 ──────────────────────────────────────────────────────────────────
   banUser: (boardId: number, data: BanUserPayload) =>

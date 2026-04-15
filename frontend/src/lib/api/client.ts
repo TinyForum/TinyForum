@@ -21,12 +21,15 @@ function createClient(config?: AxiosRequestConfig): AxiosInstance {
     (res) => res,
     (err: AxiosError) => {
       if (err.response?.status === 401 && typeof window !== "undefined") {
-        // 不要直接跳转，避免在登录页也触发重定向循环
-        const isLoginPage = window.location.pathname.includes('/auth/login');
-        if (!isLoginPage) {
-          window.location.href = "/auth/login";
-        }
-      }
+  const pathname = window.location.pathname;
+  const isLoginPage = pathname.includes('/auth/login');
+  if (!isLoginPage) {
+    // 提取当前 locale 前缀，保持跳转一致
+    const localeMatch = pathname.match(/^\/(zh-CN|en|ja)/);
+    const locale = localeMatch ? localeMatch[1] : 'zh-CN';
+    window.location.href = `/${locale}/auth/login`;
+  }
+}
       return Promise.reject(err);
     }
   );

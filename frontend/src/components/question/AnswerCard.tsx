@@ -1,4 +1,4 @@
-// components/question/AnswerCard.tsx
+// components/question/AnswerCard.tsx (修改投票相关部分)
 'use client';
 
 import Link from 'next/link';
@@ -17,6 +17,7 @@ import type { Comment } from '@/lib/api/types';
 import { formatDistanceToNow } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
 import { toast } from 'react-hot-toast';
+import { useEffect } from 'react';
 
 interface AnswerCardProps {
   answer: Comment;
@@ -38,13 +39,27 @@ export function AnswerCard({
   rewardScore = 0,
   answerNumber,
 }: AnswerCardProps) {
-  const { userVote, voteCount, loading: voteLoading, handleVote } = useAnswerVote(
-    answer.id,
-    currentUserId
-  );
+  const { 
+    userVote,      // 'up' | 'down' | ''
+    voteCount,     // 总投票数
+    loading,       // 加载状态
+    handleVote,    // 投票/取消投票函数
+  } = useAnswerVote(answer.id, currentUserId);
 
-  const handleUpVote = () => handleVote('up');
-  const handleDownVote = () => handleVote('down');
+  // 调试：打印投票状态变化
+  useEffect(() => {
+    console.log(`Answer ${answer.id} - Vote Status:`, { userVote, voteCount, loading });
+  }, [answer.id, userVote, voteCount, loading]);
+
+  const handleUpVote = async () => {
+    if (loading) return;
+    await handleVote('up');
+  };
+
+  const handleDownVote = async () => {
+    if (loading) return;
+    await handleVote('down');
+  };
   
   const timeAgo = formatDistanceToNow(new Date(answer.created_at), { 
     addSuffix: true, 
@@ -81,6 +96,10 @@ export function AnswerCard({
     ), { duration: 5000 });
   };
 
+
+   useEffect(() => {
+    console.log(`Answer ${answer.id} - voteCount: ${voteCount}, userVote: ${userVote}`);
+  }, [answer.id, voteCount, userVote]);
   return (
     <div 
       className={`card bg-base-100 shadow-md border transition-all duration-300 ${
@@ -92,9 +111,35 @@ export function AnswerCard({
     >
       <div className="card-body p-5">
         <div className="flex gap-4">
-        
+          {/* 投票区域 */}
+          <div className="flex flex-col items-center gap-1">
+            <button
+              onClick={handleUpVote}
+              disabled={loading}
+              className={`btn btn-sm btn-ghost p-1 min-h-0 h-auto ${
+                userVote === 'up' ? 'text-primary' : 'text-base-content/40'
+              } hover:text-primary transition-colors disabled:opacity-50`}
+              aria-label="赞同"
+            >
+              <ArrowUpIcon className="w-5 h-5" />
+            </button>
+            <span className={`text-sm font-semibold ${
+  voteCount > 0 ? 'text-primary' : voteCount < 0 ? 'text-error' : 'text-base-content/60'
+}`}>
+  {voteCount}
+</span>
+            <button
+              onClick={handleDownVote}
+              disabled={loading}
+              className={`btn btn-sm btn-ghost p-1 min-h-0 h-auto ${
+                userVote === 'down' ? 'text-error' : 'text-base-content/40'
+              } hover:text-error transition-colors disabled:opacity-50`}
+              aria-label="反对"
+            >
+              <ArrowDownIcon className="w-5 h-5" />
+            </button>
+          </div>
 
-          {/* 内容区域 */}
           <div className="flex-1 min-w-0">
             {/* 头部信息 */}
             <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
@@ -128,13 +173,6 @@ export function AnswerCard({
                   <CalendarIcon className="w-3.5 h-3.5" />
                   <span>{timeAgo}</span>
                 </div>
-
-                {/* 作者标识 */}
-                {/* {isAuthor && (
-                  <div className="badge badge-primary badge-outline badge-xs">
-                    作者
-                  </div>
-                )} */}
               </div>
 
               {/* 状态标签 */}
@@ -204,32 +242,6 @@ export function AnswerCard({
                 评论
               </button>
             </div>
-          </div>
-            {/* 投票区域 */}
-          <div className="flex flex-col items-center gap-1">
-            <button
-              onClick={handleUpVote}
-              disabled={voteLoading}
-              className={`btn btn-sm btn-ghost p-1 min-h-0 h-auto ${
-                userVote === 'up' ? 'text-primary' : 'text-base-content/40'
-              } hover:text-primary transition-colors disabled:opacity-50`}
-            >
-              <ArrowUpIcon className="w-5 h-5" />
-            </button>
-            <span className={`text-sm font-semibold ${
-              voteCount > 0 ? 'text-primary' : voteCount < 0 ? 'text-error' : 'text-base-content/60'
-            }`}>
-              {voteCount}
-            </span>
-            <button
-              onClick={handleDownVote}
-              disabled={voteLoading}
-              className={`btn btn-sm btn-ghost p-1 min-h-0 h-auto ${
-                userVote === 'down' ? 'text-error' : 'text-base-content/40'
-              } hover:text-error transition-colors disabled:opacity-50`}
-            >
-              <ArrowDownIcon className="w-5 h-5" />
-            </button>
           </div>
         </div>
       </div>

@@ -17,8 +17,8 @@ interface ProfileContentProps {
 const TAB_CONFIG = [
   { key: 'post' as PostType, label: 'the_posts', icon: FileText },
   { key: 'article' as PostType, label: 'the_articles', icon: BookOpen },
-  { key: 'question' as PostType, label: 'the_question', icon: MessageSquare },
-  { key: 'topic' as PostType, label: 'the_topic', icon: Hash },
+  { key: 'question' as PostType, label: 'the_questions', icon: MessageSquare },
+  { key: 'topic' as PostType, label: 'the_topics', icon: Hash },
 ];
 
 export function ProfileContent({ userId, isAuthenticated }: ProfileContentProps) {
@@ -74,9 +74,9 @@ export function ProfileContent({ userId, isAuthenticated }: ProfileContentProps)
         <div className="text-center py-16 bg-base-100 rounded-xl border border-base-200">
           {currentTabConfig && <currentTabConfig.icon className="w-12 h-12 mx-auto mb-3 opacity-30" />}
           <p className="text-base-content/40">
-            {tab === 'post' ? t("no_post") : 
-             tab === 'article' ? t("no_article") :
-             tab === 'question' ? t("no_question") : t("no_topic")}
+            {tab === 'post' ? t("no_posts") : 
+             tab === 'article' ? t("no_articles") :
+             tab === 'question' ? t("no_questions") : t("no_topics")}
           </p>
         </div>
       ) : (

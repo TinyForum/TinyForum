@@ -11,7 +11,11 @@ export interface VoteAnswerPayload {
   vote_type: 'up' | 'down';
 }
 
-
+export interface VoteStatusResponse{
+    down_count: number;
+  up_count: number;
+  user_vote: number;  // 1: 赞同, -1: 反对, 0: 未投票
+}
 export const answerApi = {
   // 获取单个答案
   getAnswer: (id: number) =>
@@ -38,4 +42,6 @@ export const answerApi = {
   // 取消接受答案
   unacceptAnswer: (id: number) =>
     apiClient.post<ApiResponse<null>>(`/answers/${id}/unaccept`),
+  getVoteStatus: (id: number) => 
+    apiClient.get<ApiResponse<VoteStatusResponse>>(`/answers/${id}/status`),
 };

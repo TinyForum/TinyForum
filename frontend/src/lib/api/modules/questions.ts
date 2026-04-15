@@ -1,6 +1,6 @@
 // src/lib/api/modules/questions.ts
 import apiClient from "../client";
-import type { ApiResponse, PageData, QuestionSimple, Question, Post, Comment } from "../types";
+import type { ApiResponse, PageData, QuestionSimple, Question, Post, Comment, QuestionResponse } from "../types";
 import { AnswerListParams } from "./answer";
 
 export interface QuestionListParams {
@@ -24,7 +24,7 @@ export const questionApi = {
   
   // 获取问题详情
   getDetail: (id: number) =>
-    apiClient.get<ApiResponse<Question>>(`/questions/detail/${id}`),
+    apiClient.get<ApiResponse<QuestionResponse>>(`/questions/detail/${id}`),
   
   // 创建问题
   create: (data: CreateQuestionPayload) =>

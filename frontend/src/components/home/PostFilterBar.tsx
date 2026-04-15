@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { Flame, Clock, PenSquare, TrendingUp, Award, RefreshCw, Megaphone } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { SortBy } from "@/types";
+import { SortBy } from "@/type/posts.types";
+// import { SortBy } from "@/types";
 
 interface PostFilterBarProps {
   sortBy: SortBy;

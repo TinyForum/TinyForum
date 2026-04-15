@@ -77,7 +77,7 @@ export function UserProfileCard({ userProfile, unreadCount }: UserProfileCardPro
           )}
         </Link>
         <Link
-          href={`/profile/${userProfile.id}`}
+          href={`/users/${userProfile.id}`}
           className="flex items-center gap-2 p-2 rounded-lg hover:bg-muted transition-colors text-sm"
         >
           <User className="w-4 h-4" />

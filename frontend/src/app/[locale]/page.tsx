@@ -18,8 +18,9 @@ import PostFilterBar from "@/components/home/PostFilterBar";
 import PostList from "@/components/home/PostList";
 import LeftSidebar, { FilterType } from "@/components/home/LeftSidebar";
 import RightSidebar from "@/components/home/RightSidebar";
+import { SortBy } from "@/type/posts.types";
 // import { PostType, SortBy } from "@/types";
-export  type SortBy = 'latest'  | 'hot' | "like"| 'random';
+
 // export type FilterType = "all" | PostType;
 export default function HomePage() {
   const { isAuthenticated, user } = useAuthStore();

@@ -33,18 +33,18 @@ export const commentApi = {
     apiClient.delete<ApiResponse<null>>(`/comments/${id}`),
 
   // ── 答案相关 ──────────────────────────────────────────────────────────────────
-  voteAnswer: (id: number, voteType: VoteType) =>
-    apiClient.post<ApiResponse<AnswerVoteResult>>(
-      `/comments/${id}/vote`,
-      { vote_type: voteType }
-    ),
+  // voteAnswer: (id: number, voteType: VoteType) =>
+  //   apiClient.post<ApiResponse<AnswerVoteResult>>(
+  //     `/comments/${id}/vote`,
+  //     { vote_type: voteType }
+  //   ),
 
-  getVoteStatus: (id: number) =>
-    apiClient.get<ApiResponse<VoteStatusResult>>(`/comments/${id}/vote`),
+  // getVoteStatus: (id: number) =>
+  //   apiClient.get<ApiResponse<VoteStatusResult>>(`/comments/${id}/vote`),
 
-  markAsAnswer: (id: number, isAnswer: boolean) =>
-    apiClient.put<ApiResponse<null>>(
-      `/comments/${id}/answer`,
-      { is_answer: isAnswer }
-    ),
+  // markAsAnswer: (id: number, isAnswer: boolean) =>
+  //   apiClient.put<ApiResponse<null>>(
+  //     `/comments/${id}/answer`,
+  //     { is_answer: isAnswer }
+    // ),
 };

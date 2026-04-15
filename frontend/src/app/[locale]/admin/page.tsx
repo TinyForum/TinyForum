@@ -18,6 +18,7 @@ import { SidebarMenu } from "@/components/admin/SidebarMenu";
 import { Dashboard } from "@/components/admin/Dashboard";
 import { UsersTable } from "@/components/admin/UsersTable"; // 修复：正确的导入路径
 import { Statistics } from "@/components/admin/Statistics";
+import { ModeratorsTable } from "@/components/admin/ModeratorsTable";
 
 // ==================== 主组件 ====================
 export default function AdminPage() {
@@ -102,7 +103,10 @@ export default function AdminPage() {
             />
           </div>
         );
-      
+      case "moderators_management":
+        return (
+         <ModeratorsTable/>
+        );
       // MARK: 帖子
       case "posts":
         return (
@@ -130,6 +134,7 @@ export default function AdminPage() {
             />
           </div>
         );
+
 
       // MARK: QA
       case "qa":

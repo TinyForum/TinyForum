@@ -121,6 +121,19 @@ export interface Question {
   answer_count: number;
 }
 
+export interface QuestionResponse {
+  id: number;
+  post_id: number;
+  accepted_answer_id?: number;
+  accepted_answer?: Comment;
+  reward_score: number;
+  answer_count: number;
+  post: Post;
+  answers: Comment[];
+  total: number;
+}
+
+
 export interface AnswerVoteResult {
   vote_count: number;
   user_vote?: VoteType;

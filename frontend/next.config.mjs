@@ -11,6 +11,17 @@ const nextConfig = {
       { protocol: 'http', hostname: 'localhost' },
     ],
   },
+  async rewrites() {
+    // 生产环境由 Nginx 处理，不需要 Next.js 转发
+    if (process.env.NODE_ENV === 'production') return [];
+    
+    return [
+      {
+        source: '/api/v1/:path*',
+        destination: `${process.env.BACKEND_URL || 'http://localhost:8080'}/api/v1/:path*`,
+      },
+    ];
+  },
 };
 
 export default withNextIntl(nextConfig);

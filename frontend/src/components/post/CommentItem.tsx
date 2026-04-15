@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Comment } from "@/types";
+import { Comment } from "@/lib/api/types";
 import { timeAgo } from "@/lib/utils";
 import { CornerDownRight, Trash2 } from "lucide-react";
 import { useAuthStore } from "@/store/auth";
@@ -76,7 +76,12 @@ export default function CommentItem({
           {isAuthenticated && onReply && (
             <button
               className="text-xs text-base-content/50 hover:text-primary transition-colors flex items-center gap-1"
-              onClick={() => onReply(comment.id, comment.author?.username)}
+             onClick={() => {
+  if (comment.author?.username) {
+    onReply(comment.id, comment.author.username);
+  }
+}}
+
             >
               <CornerDownRight className="w-3 h-3" /> {t("reply")}
             </button>

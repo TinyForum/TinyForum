@@ -3,9 +3,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Board, boardApi, ModeratorApplication } from '@/lib/api';
+import { Board, boardApi } from '@/lib/api';
 import { useAuthStore } from '@/store/auth';
-// import type { Board, ModeratorApplication } from '@/types';
 import {
   ShieldCheckIcon,
   CheckCircleIcon,
@@ -15,6 +14,7 @@ import {
   ExclamationTriangleIcon,
   PencilSquareIcon,
 } from '@heroicons/react/24/outline';
+import { ApplyModeratorForm, moderatorApi, ModeratorApplication } from '@/lib/api/modules/moderator';
 
 type AppStatus = ModeratorApplication['status'];
 
@@ -43,6 +43,11 @@ export default function ApplyModeratorPage() {
   const [existing, setExisting]               = useState<ModeratorApplication | null>(null);
   const [checkingStatus, setCheckingStatus]   = useState(true);
   const [reason, setReason]                   = useState('');
+  const [reqDeletePost, setReqDeletePost]     = useState(false);
+  const [reqPinPost, setReqPinPost]           = useState(false);
+  const [reqEditAnyPost, setReqEditAnyPost]   = useState(false);
+  const [reqManageModerator, setReqManageModerator] = useState(false);
+  const [reqBanUser, setReqBanUser]           = useState(false);
   const [submitting, setSubmitting]           = useState(false);
   const [error, setError]                     = useState('');
   const [reapply, setReapply]                 = useState(false);
@@ -70,16 +75,19 @@ export default function ApplyModeratorPage() {
   const checkStatus = useCallback(async (boardId: number) => {
     setCheckingStatus(true);
     try {
-      const res = await boardApi.checkApplicationStatus(boardId);
-      if (res.data.data.has_applied && res.data.data.application) {
-        setExisting(res.data.data.application);
+      const res = await moderatorApi.listApplications({ board_id: boardId, page: 1, page_size: 100 });
+      const applications = res.data.data?.list || [];
+      // 查找当前用户的申请
+      const userApplication = applications.find(app => app.user_id === user?.id);
+      if (userApplication) {
+        setExisting(userApplication);
       }
     } catch {
       // ignore
     } finally {
       setCheckingStatus(false);
     }
-  }, []);
+  }, [user?.id]);
 
   useEffect(() => { if (isAuthenticated) loadBoard(); }, [loadBoard, isAuthenticated]);
   useEffect(() => { if (board) checkStatus(board.id); }, [board, checkStatus]);
@@ -93,8 +101,18 @@ export default function ApplyModeratorPage() {
 
     setError('');
     setSubmitting(true);
+    
+    const formData: ApplyModeratorForm = {
+      reason: trimmed,
+      req_delete_post: reqDeletePost,
+      req_pin_post: reqPinPost,
+      req_edit_any_post: reqEditAnyPost,
+      req_manage_moderator: reqManageModerator,
+      req_ban_user: reqBanUser,
+    };
+    
     try {
-      await boardApi.applyForModerator(board.id,trimmed );
+      await moderatorApi.applyModerator(board.id, formData);
       router.push(`/boards/${slug}?applied=1`);
     } catch (err: any) {
       setError(err.response?.data?.message || '提交失败，请稍后重试');
@@ -153,9 +171,9 @@ export default function ApplyModeratorPage() {
                       状态：<StatusBadge status={existing.status} />
                     </div>
                   </div>
-                  {existing.status === 'rejected' && existing.reason && (
+                  {existing.status === 'rejected' && existing.review_note && (
                     <div className="mt-2 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded-lg px-3 py-2">
-                      拒绝理由：{existing.reason}
+                      拒绝理由：{existing.review_note}
                     </div>
                   )}
                   {existing.status === 'approved' && (
@@ -163,7 +181,7 @@ export default function ApplyModeratorPage() {
                   )}
                   {existing.status === 'rejected' && (
                     <button
-                      onClick={() => { setReapply(true); setReason(''); setError(''); }}
+                      onClick={() => { setReapply(true); setReason(''); setError(''); setReqDeletePost(false); setReqPinPost(false); setReqEditAnyPost(false); setReqManageModerator(false); setReqBanUser(false); }}
                       className="mt-2 inline-flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors"
                     >
                       <PencilSquareIcon className="w-4 h-4" />
@@ -203,6 +221,36 @@ export default function ApplyModeratorPage() {
                     </li>
                   ))}
                 </ul>
+              </div>
+
+              {/* 期望权限（可选） */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  期望权限（可选）
+                </label>
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                    <input type="checkbox" checked={reqDeletePost} onChange={(e) => setReqDeletePost(e.target.checked)} className="rounded" />
+                    删除帖子权限
+                  </label>
+                  <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                    <input type="checkbox" checked={reqPinPost} onChange={(e) => setReqPinPost(e.target.checked)} className="rounded" />
+                    置顶帖子权限
+                  </label>
+                  <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                    <input type="checkbox" checked={reqEditAnyPost} onChange={(e) => setReqEditAnyPost(e.target.checked)} className="rounded" />
+                    编辑任意帖子权限
+                  </label>
+                  <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                    <input type="checkbox" checked={reqManageModerator} onChange={(e) => setReqManageModerator(e.target.checked)} className="rounded" />
+                    管理版主权限
+                  </label>
+                  <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                    <input type="checkbox" checked={reqBanUser} onChange={(e) => setReqBanUser(e.target.checked)} className="rounded" />
+                    禁言用户权限
+                  </label>
+                </div>
+                <p className="text-xs text-gray-400 mt-2">注：最终权限由管理员审批决定</p>
               </div>
 
               {/* Reason textarea */}

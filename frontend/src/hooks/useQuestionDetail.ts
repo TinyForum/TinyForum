@@ -34,7 +34,6 @@ export function useQuestionDetail(questionId: number, options: UseQuestionDetail
         setQuestion(data.post);
         setAnswers(data.answers || []);
         setAnswersTotal(data.total || 0);
-        setLiked(data.liked || false);
         setLoading(false);
       } else {
         throw new Error(response.data.message || '加载失败');

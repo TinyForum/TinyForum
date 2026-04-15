@@ -3,8 +3,8 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { boardApi, ModeratorApplication } from '@/lib/api';
 import { useAuthStore } from '@/store/auth';
+import { moderatorApi, ModeratorApplication } from '@/lib/api/modules/moderator';
 import {
   ShieldCheckIcon,
   CheckCircleIcon,
@@ -28,9 +28,6 @@ interface ExtendedModeratorApplication extends ModeratorApplication {
     id: number;
     username: string;
   };
-  handle_note?: string;
-  updated_at?: string;
-  handled_by?: number;
 }
 
 const STATUS_MAP: Record<AppStatus, { 
@@ -79,8 +76,8 @@ function StatusBadge({ status }: { status: AppStatus }) {
 
 function ApplicationCard({ app }: { app: ExtendedModeratorApplication }) {
   const boardSlug = app.board?.slug || `board-${app.board_id}`;
-  const isHandled = app.handled_by && app.updated_at !== app.created_at;
-  const hasHandleNote = !!app.handle_note;
+  const isHandled = app.status !== 'pending';
+  const hasReviewNote = !!app.review_note;
 
   return (
     <div className={`bg-white dark:bg-gray-800 rounded-xl border ${STATUS_MAP[app.status].borderCls} hover:shadow-lg transition-all duration-200 p-5`}>
@@ -97,11 +94,11 @@ function ApplicationCard({ app }: { app: ExtendedModeratorApplication }) {
             <time dateTime={app.created_at}>
               提交于 {formatDate(app.created_at)}
             </time>
-            {isHandled && (
+            {isHandled && app.reviewed_at && (
               <>
                 {' · '}
-                <time dateTime={app.updated_at!}>
-                  处理于 {formatDate(app.updated_at!)}
+                <time dateTime={app.reviewed_at}>
+                  处理于 {formatDate(app.reviewed_at)}
                 </time>
               </>
             )}
@@ -118,8 +115,8 @@ function ApplicationCard({ app }: { app: ExtendedModeratorApplication }) {
         </p>
       </div>
 
-      {/* Handle note */}
-      {hasHandleNote && (
+      {/* Review note */}
+      {hasReviewNote && (
         <div className={`rounded-lg px-4 py-3 text-sm ${
           app.status === 'approved'
             ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 border-l-4 border-green-500'
@@ -128,10 +125,10 @@ function ApplicationCard({ app }: { app: ExtendedModeratorApplication }) {
           <p className="font-medium mb-1">
             {app.status === 'approved' ? '通过说明' : '拒绝理由'}
           </p>
-          <p className="whitespace-pre-wrap break-words">{app.handle_note}</p>
-          {app.handler && (
+          <p className="whitespace-pre-wrap break-words">{app.review_note}</p>
+          {app.reviewed_by && (
             <p className="text-xs opacity-70 mt-2">
-              处理人：{app.handler.username}
+              处理人ID：{app.reviewed_by}
             </p>
           )}
         </div>
@@ -198,7 +195,7 @@ function ErrorState({ onRetry }: { onRetry: () => void }) {
 }
 
 export default function MyApplicationsPage() {
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, user } = useAuthStore();
   const router = useRouter();
   const [applications, setApplications] = useState<ExtendedModeratorApplication[]>([]);
   const [loading, setLoading] = useState(true);
@@ -222,10 +219,14 @@ export default function MyApplicationsPage() {
     setError(null);
     
     try {
-      const res = await boardApi.getMyApplications({ page, page_size: PAGE_SIZE });
+      const res = await moderatorApi.listApplications({ page, page_size: PAGE_SIZE });
       
       if (res?.data?.data) {
-        setApplications(res.data.data.list || []);
+        // 过滤当前用户的申请
+        const userApplications = (res.data.data.list || []).filter(
+          app => app.user_id === user?.id
+        );
+        setApplications(userApplications);
         setTotal(res.data.data.total || 0);
       } else {
         throw new Error('响应数据格式错误');
@@ -237,7 +238,7 @@ export default function MyApplicationsPage() {
     } finally {
       setLoading(false);
     }
-  }, [page, isAuthenticated]);
+  }, [page, isAuthenticated, user?.id]);
 
   useEffect(() => {
     loadApplications();
@@ -269,7 +270,7 @@ export default function MyApplicationsPage() {
             我的版主申请
           </h1>
           <p className="text-sm text-gray-400">
-            共 {total} 条申请记录
+            共 {applications.length} 条申请记录
           </p>
         </div>
       </div>

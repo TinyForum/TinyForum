@@ -1,4 +1,4 @@
-import { Award, BarChart3, ChevronLeft, ChevronRight, FileText, HelpCircle, LayoutDashboard, LogOut, Megaphone, Settings, Shield, Users } from "lucide-react";
+import { Award, BarChart3, ChevronLeft, ChevronRight, FileText, HelpCircle, LayoutDashboard, LogOut, Megaphone, Settings, Shield, User2Icon, Users } from "lucide-react";
 
 // ==================== 业务面板菜单组件 ====================
 export function SidebarMenu({ 
@@ -18,6 +18,7 @@ export function SidebarMenu({
     { id: "dashboard", label: t("dashboard"), icon: LayoutDashboard, color: "text-primary" },
     { id: "announcements", label: t("announcements"), icon: Megaphone, color: "text-warning" },
     { id: "users", label: t("user_management"), icon: Users, color: "text-info" },
+    { id: "moderators_management", label: t("moderators_management"), icon: User2Icon, color: "text-info" },
     { id: "posts", label: t("post_management"), icon: FileText, color: "text-success" },
     { id: "qa", label: t("qa_management"), icon: HelpCircle, color: "text-secondary" },
     { id: "points", label: t("points_management"), icon: Award, color: "text-accent" },
