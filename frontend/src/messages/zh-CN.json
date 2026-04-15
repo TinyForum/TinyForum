@@ -81,6 +81,26 @@
     "leaderboard": "积分榜",
     "posts":"帖子"
   },
+  "Nav":{
+    "boards": "板块",
+     "brand": "天方论坛",
+    "create_post": "发帖",
+    "search": "搜索",
+    "profile": "个人主页",
+    "leaderboard": "积分排行",
+    "admin": "管理后台",
+    "logout": "退出登陆",
+    "login": "登录",
+    "register": "注册",
+    "home": "首页",
+    "explore": "探索",
+    "settings": "设置",
+    "help": "帮助",
+    "track": "追踪",
+    "questions": "问答",
+    "topics": "主题",
+    "timeline": "时间线"
+  },
   "site":{
     "brand": "天方论坛",
     "description": "一个完全开源的论坛项目，由 Nextjs 和 Gin 构建",
@@ -146,22 +166,7 @@
     "about_me_placeholder": "介绍一下自己吧...",
     "save": "保存"
   },
-  "nav": {
-    "brand": "天方论坛",
-    "create_post": "发帖",
-    "search": "搜索",
-    "profile": "个人主页",
-    "leaderboard": "积分排行",
-    "admin": "管理后台",
-    "logout": "退出登陆",
-    "login": "登录",
-    "register": "注册",
-    "home": "首页",
-    "explore": "探索",
-    "settings": "设置",
-    "help": "帮助",
-    "track": "追踪"
-  },
+
 
   "post": {
     "create": "发帖",

@@ -6,6 +6,7 @@ import { LucideIcon } from "lucide-react";
 
 interface NavItem {
   key: string;
+  name: string;
   href: string;
   icon: LucideIcon;
   requiresAuth: boolean;
@@ -42,7 +43,7 @@ export default function NavLinks({ items }: NavLinksProps) {
             }`}
           >
             <Icon className={`w-4 h-4 ${active ? "animate-pulse" : ""}`} />
-            <span>{item.key.charAt(0).toUpperCase() + item.key.slice(1)}</span>
+            <span>{item.name.charAt(0).toUpperCase() + item.name.slice(1)}</span>
             {active && (
               <span className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-primary rounded-full" />
             )}

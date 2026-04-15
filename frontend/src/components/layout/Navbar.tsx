@@ -38,15 +38,6 @@ import NavLinks from "../nav/NavLinks";
 import QuickActions from "../nav/QuickActions";
 
 // 导航标签配置
-export const NAV_ITEMS = [
-  { key: "home", href: "/", icon: Home, requiresAuth: false },
-  { key: "explore", href: "/explore", icon: Compass, requiresAuth: false },
-  { key: "boards", href: "/boards", icon: LayoutGrid, requiresAuth: false },
-  { key: "questions", href: "/questions", icon: MessageCircleQuestion, requiresAuth: false },
-  { key: "topics", href: "/topics", icon: Bookmark, requiresAuth: false },
-  { key: "timeline", href: "/timeline", icon: Sparkles, requiresAuth: true },
-  { key: "leaderboard", href: "/leaderboard", icon: Trophy, requiresAuth: false },
-] as const;
 
 export default function Navbar() {
   const { user, isAuthenticated, logout } = useAuthStore();
@@ -55,7 +46,7 @@ export default function Navbar() {
   const [searchQuery, setSearchQuery] = useState("");
   const searchInputRef = useRef<HTMLInputElement>(null);
 
-  const t = useTranslations("nav");
+  const t = useTranslations("Nav");
 
   // 获取未读通知数
   const { data: unreadData } = useQuery({
@@ -83,6 +74,16 @@ export default function Navbar() {
       setSearchQuery("");
     }
   };
+
+  const NAV_ITEMS = [
+  { key: "home", name:t("home"),href: "/", icon: Home, requiresAuth: false },
+  { key: "explore",name:t("explore"), href: "/explore", icon: Compass, requiresAuth: false },
+  { key: "boards", name:t("boards"), href: "/boards", icon: LayoutGrid, requiresAuth: false },
+  { key: "questions", name:t("questions"),href: "/questions", icon: MessageCircleQuestion, requiresAuth: false },
+  { key: "topics", name:t("topics"),href: "/topics", icon: Bookmark, requiresAuth: false },
+  { key: "timeline", name:t("timeline"),href: "/timeline", icon: Sparkles, requiresAuth: true },
+  { key: "leaderboard", name:t("leaderboard"), href: "/leaderboard", icon: Trophy, requiresAuth: false },
+] as const;
 
   const handleLogout = () => {
     logout();
@@ -119,8 +120,8 @@ export default function Navbar() {
 
   return (
   <>
-  <nav className="navbar bg-base-100/95 backdrop-blur-sm shadow-sm sticky top-0 z-50 border-b border-base-300 transition-all duration-200">
-    <div className="container mx-auto max-w-8xl px-4 w-full">
+<nav className="navbar bg-base-100/95 backdrop-blur-sm shadow-sm sticky top-0 z-50 border-b border-base-300 transition-all duration-200">
+        <div className="container mx-auto max-w-none px-4 w-full">
       {/* 左侧区域：Logo + 汉堡菜单 */}
       <div className="flex items-center gap-2 flex-shrink-0">
         {/* 移动端菜单按钮 */}
