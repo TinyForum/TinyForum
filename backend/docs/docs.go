@@ -1047,15 +1047,6 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
-                    },
-                    {
-                        "description": "密码生成方式",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/handler.AdminResetUserPasswordRequest"
-                        }
                     }
                 ],
                 "responses": {
@@ -6873,22 +6864,6 @@ const docTemplate = `{
                     "description": "排序顺序",
                     "type": "integer",
                     "example": 0
-                }
-            }
-        },
-        "handler.AdminResetUserPasswordRequest": {
-            "type": "object",
-            "required": [
-                "password_type"
-            ],
-            "properties": {
-                "password_type": {
-                    "description": "密码生成方式：random-随机生成",
-                    "type": "string",
-                    "enum": [
-                        "random"
-                    ],
-                    "example": "random"
                 }
             }
         },

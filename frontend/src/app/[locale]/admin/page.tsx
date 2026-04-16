@@ -78,7 +78,7 @@ export default function AdminPage() {
   // 处理重置密码
   const handleResetPassword = async (userId: number, username: string) => {
     // 需要确认 usersData 中是否有 resetPassword 方法
-    await usersData.resetPassword?.(userId, username);
+    await usersData.resetPassword?.(userId);
   };
 
   // 加载状态

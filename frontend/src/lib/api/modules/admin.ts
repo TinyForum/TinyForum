@@ -7,8 +7,8 @@ import type { ApiResponse, PageData, User, Post, Board } from "../types";
 
 // MARK: 请求/响应体定义
 // 重置密码
-export interface ResetPasswordRequest {
-	new_password: string ;
+export interface AdminResetPasswordRequest {
+id: number ;
 }
 
 export interface ResetPasswordResponse {
@@ -51,7 +51,7 @@ export const adminApi = {
   // 删除用户(软删除)
   deleteUser: (id: number) => apiClient.delete<ApiResponse<null>>(`/admin/users/${id}`),
   // 重置用户密码
-  resetUserPassword: (id: number,parmars: ResetPasswordRequest) => apiClient.post<ApiResponse<ResetPasswordResponse>>(`/admin/users/${id}/reset-password`),
+  resetUserPassword: (id: number) => apiClient.post<ApiResponse<ResetPasswordResponse>>(`/admin/users/${id}/reset-password`),
 
   // ── 帖子管理 ──────────────────────────────────────────────────────────────────
   // 列出所有帖子

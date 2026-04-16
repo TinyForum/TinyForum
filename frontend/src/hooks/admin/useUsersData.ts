@@ -6,6 +6,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { adminApi } from "@/lib/api";
 import toast from "react-hot-toast";
+// import { ResetPasswordRequest } from "@/lib/api/modules/admin";
 
 // 用户数据管理 Hook（扩展版）
 export function useUsersData(page: number, keyword: string, enabled: boolean) {
@@ -66,22 +67,28 @@ export function useUsersData(page: number, keyword: string, enabled: boolean) {
     onError: () => toast.error(t("delete_failed")),
   });
 
-  // 重置密码
+// 重置密码（只需要传用户 ID）
   const resetPasswordMutation = useMutation({
-    mutationFn: ({ id }: { id: number }) =>
-      adminApi.resetUserPassword(id),
-    onSuccess: (data, variables) => {
-      const newPassword = data.data.data?.password;
-      if (newPassword) {
-        toast.success(t("password_reset_success", { password: newPassword }), {
-          duration: 5000,
-        });
-      } else {
-        toast.success(t("operation_successful"));
-      }
+    mutationFn: (id: number) => adminApi.resetUserPassword(id),
+    onSuccess: (_, userId) => {
+      toast.success(t("password_reset_and_notified"), {
+        duration: 5000,
+      });
       queryClient.invalidateQueries({ queryKey: ["admin-users"] });
     },
-    onError: () => toast.error(t("operation_failed")),
+    onError: (error: any) => {
+      // 根据错误码显示不同的错误信息
+      const errorCode = error?.response?.data?.code;
+      if (errorCode === 20011) {
+        toast.error(t("cannot_modify_self"));
+      } else if (errorCode === 20012) {
+        toast.error(t("cannot_modify_super_admin"));
+      } else if (errorCode === 40001) {
+        toast.error(t("insufficient_permission"));
+      } else {
+        toast.error(t("operation_failed"));
+      }
+    },
   });
 
   // 包装函数
@@ -101,8 +108,8 @@ export function useUsersData(page: number, keyword: string, enabled: boolean) {
     deleteUserMutation.mutate({ id });
   };
 
-  const handleResetPassword = (id: number, username: string) => {
-    resetPasswordMutation.mutate({ id });
+  const handleResetPassword = (id:number) => {
+    resetPasswordMutation.mutate( id );
   };
 
   return {

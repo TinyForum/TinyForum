@@ -486,11 +486,6 @@ func (h *UserHandler) AdminDeleteUser(c *gin.Context) {
 
 // handler/user_handler.go
 
-// AdminResetUserPasswordRequest 重置密码请求体
-type AdminResetUserPasswordRequest struct {
-	PasswordType string `json:"password_type" binding:"required,oneof=random" example:"random"` // 密码生成方式：random-随机生成
-}
-
 // AdminResetUserPasswordResponse 重置密码响应体
 type AdminResetUserPasswordResponse struct {
 	Message    string `json:"message" example:"临时密码已生成并发送给用户"`
@@ -511,7 +506,6 @@ type AdminResetUserPasswordResponse struct {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path int true "目标用户ID" example:"123"
-// @Param body body AdminResetUserPasswordRequest true "密码生成方式"
 // @Success 200 {object} response.Response{data=AdminResetUserPasswordResponse} "操作成功"
 // @Failure 400 {object} response.Response{data=[]response.ValidationError} "参数错误"
 // @Failure 401 {object} response.Response "未授权"
@@ -539,14 +533,7 @@ func (h *UserHandler) AdminResetUserPassword(c *gin.Context) {
 		return
 	}
 
-	// 3. 绑定请求体
-	var body AdminResetUserPasswordRequest
-	if err := c.ShouldBindJSON(&body); err != nil {
-		response.InvalidParams(c, response.ParseValidationError(err))
-		return
-	}
-
-	// 4. 调用 Service 重置密码（返回生成的临时密码）
+	// 3. 调用 Service 重置密码（返回生成的临时密码）
 	tempPassword, err := h.userSvc.ResetUserPasswordWithTemp(operatorUint, uint(targetID))
 	if err != nil {
 		response.Error(c, err)

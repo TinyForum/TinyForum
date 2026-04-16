@@ -13,17 +13,6 @@ definitions:
     required:
     - post_id
     type: object
-  handler.AdminResetUserPasswordRequest:
-    properties:
-      password_type:
-        description: 密码生成方式：random-随机生成
-        enum:
-        - random
-        example: random
-        type: string
-    required:
-    - password_type
-    type: object
   handler.AdminResetUserPasswordResponse:
     properties:
       message:
@@ -2297,12 +2286,6 @@ paths:
         name: id
         required: true
         type: integer
-      - description: 密码生成方式
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/handler.AdminResetUserPasswordRequest'
       produces:
       - application/json
       responses:
