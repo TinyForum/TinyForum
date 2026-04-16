@@ -128,6 +128,64 @@ interface ApplicationStatusDetailResponse {
   can_apply: boolean;
 }
 
+
+export interface ModeratorBoard {
+  id: number;
+  name: string;
+  slug: string;
+  description?: string;
+  icon?: string;
+  post_count?: number;
+  permissions?: {
+    can_delete_post: boolean;
+    can_pin_post: boolean;
+    can_edit_any_post: boolean;
+    can_manage_moderator: boolean;
+    can_ban_user: boolean;
+  };
+}
+
+export interface ModeratorPost {
+  id: number;
+  title: string;
+  content: string;
+  author_id: number;
+  author_name: string;
+  author_avatar?: string;
+  board_id: number;
+  is_pinned: boolean;
+  view_count: number;
+  like_count: number;
+  comment_count: number;
+  status: "pending" | "published" | "deleted";
+  created_at: string;
+}
+
+export interface ModeratorReport {
+  id: number;
+  target_type: "post" | "comment";
+  target_id: number;
+  target_title?: string;
+  target_content?: string;
+  reporter_id: number;
+  reporter_name: string;
+  reason: string;
+  status: "pending" | "resolved" | "dismissed";
+  created_at: string;
+}
+
+export interface BannedUser {
+  id: number;
+  user_id: number;
+  username: string;
+  avatar?: string;
+  board_id: number;
+  reason: string;
+  expires_at?: string;
+  is_active: boolean;
+  created_at: string;
+}
+// MARK: API
 export const moderatorApi = {
   // ── 版主申请 ──────────────────────────────────────────────────────────────
 
@@ -246,4 +304,30 @@ getMyApplications: (params?: { page?: number; page_size?: number }) =>
    */
   pinPost: (boardId: number, postId: number, pinInBoard: boolean) =>
     apiClient.put<ApiResponse<{ message: string }>>(`/boards/${boardId}/posts/${postId}/pin`, { pin_in_board: pinInBoard }),
+// 获取当前用户管理的板块
+  getMyModeratorBoards: () =>
+    apiClient.get<ApiResponse<{ boards: ModeratorBoard[]; primary_board: ModeratorBoard }>>(
+      "/moderator/my-boards"
+    ),
+
+  // 获取板块帖子（版主视角）
+  getBoardPosts: (boardId: number, params?: { page?: number; page_size?: number; keyword?: string; status?: string }) =>
+    apiClient.get<ApiResponse<{ list: ModeratorPost[]; total: number }>>(
+      `/moderator/boards/${boardId}/posts`,
+      { params }
+    ),
+
+  // 获取板块举报
+  getBoardReports: (boardId: number, params?: { page?: number; page_size?: number; status?: string }) =>
+    apiClient.get<ApiResponse<{ list: ModeratorReport[]; total: number }>>(
+      `/moderator/boards/${boardId}/reports`,
+      { params }
+    ),
+
+  // 获取板块禁言用户
+  getBoardBannedUsers: (boardId: number, params?: { page?: number; page_size?: number }) =>
+    apiClient.get<ApiResponse<{ list: BannedUser[]; total: number }>>(
+      `/moderator/boards/${boardId}/bans`,
+      { params }
+    ),
 };

@@ -1,7 +1,40 @@
 {
+  "Auth": {
+    "create_account": "创建账号",
+    "join_the_forum": "加入论坛，开始交流",
+    "username": "用户名",
+    "username_placeholder": "请输入用户名",
+    "email": "邮箱",
+    "password": "密码",
+    "password_placeholder": "至少 6 个字符",
+    "confirm_password": "确认密码",
+    "confirm_password_placeholder": "再次输入密码",
+    "register": "注册",
+    "registering": "注册中...",
+    "registration_successful": "注册成功",
+    "registration_failed": "注册失败，请重试",
+    "already_have_an_account": "已有账号？",
+    "to_login": "去登录"
+  },
   "Common": {
     "change_role": "更改角色",
-
+    
+    "profile": "个人主页",
+    "my_timeline": "我的时间线",
+    "my_topics": "我的专题",
+    "my_questions": "我的问答",
+    "my_moderator_applications": "我的版主申请",
+    "admin_dashboard": "管理后台",
+    "moderator_dashboard": "版主后台",
+    "reviewer_dashboard": "审核后台",
+    "score": "积分",
+    "followers": "关注者",
+    "settings": "设置",
+    "help_center": "帮助中心",
+    "logout": "退出登录",
+    "logging_out": "退出中...",
+    "logout_success": "已退出登录",
+    "logout_failed": "退出失败，请重试",
     "role": {
       "super_admin": "超级管理员",
       "admin": "管理员",
@@ -30,7 +63,7 @@
       "guest": "访客",
       "bot": "机器人"
     },
-    "roles":"角色",
+    "roles": "角色",
     "activated": "已激活",
     "inactivate": "未激活",
     "blocked": "已封禁",

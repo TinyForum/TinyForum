@@ -1,6 +1,7 @@
 // store/register.ts
 import { create } from 'zustand';
 import { authApi } from '@/lib/api';
+import { useAuthStore } from './auth';
 
 interface RegisterState {
   // 表单数据
@@ -16,6 +17,7 @@ interface RegisterState {
   
   // 状态
   isLoading: boolean;
+  serverError: string | null;
   
   // Actions
   setUsername: (username: string) => void;
@@ -23,7 +25,8 @@ interface RegisterState {
   setPassword: (password: string) => void;
   setConfirmPassword: (confirmPassword: string) => void;
   setAgreeToTerms: (agree: boolean) => void;
-  setErrors: (errors: Record<string, string>) => void;
+  setServerError: (error: string | null) => void;
+  clearErrors: () => void;
   resetForm: () => void;
   
   // 验证
@@ -43,6 +46,7 @@ export const useRegisterStore = create<RegisterState>()((set, get) => ({
   errors: {},
   isValid: false,
   isLoading: false,
+  serverError: null,
 
   // Setters
   setUsername: (username) => {
@@ -70,8 +74,10 @@ export const useRegisterStore = create<RegisterState>()((set, get) => ({
     get().validateForm();
   },
   
-  setErrors: (errors) => set({ errors }),
+  setServerError: (serverError) => set({ serverError }),
   
+  clearErrors: () => set({ errors: {}, serverError: null }),
+
   resetForm: () => set({
     username: '',
     email: '',
@@ -80,6 +86,7 @@ export const useRegisterStore = create<RegisterState>()((set, get) => ({
     agreeToTerms: false,
     errors: {},
     isValid: false,
+    serverError: null,
   }),
 
   // 表单验证
@@ -90,12 +97,12 @@ export const useRegisterStore = create<RegisterState>()((set, get) => ({
     // 用户名验证
     if (!username) {
       errors.username = '请输入用户名';
-    } else if (username.length < 3) {
-      errors.username = '用户名至少 3 个字符';
-    } else if (username.length > 20) {
-      errors.username = '用户名最多 20 个字符';
-    } else if (!/^[a-zA-Z0-9_]+$/.test(username)) {
-      errors.username = '用户名只能包含字母、数字和下划线';
+    } else if (username.length < 2) {
+      errors.username = '用户名至少 2 个字符';
+    } else if (username.length > 50) {
+      errors.username = '用户名最多 50 个字符';
+    } else if (!/^[a-zA-Z0-9_\u4e00-\u9fa5]+$/.test(username)) {
+      errors.username = '用户名只能包含字母、数字、下划线和中文';
     }
 
     // 邮箱验证
@@ -119,10 +126,10 @@ export const useRegisterStore = create<RegisterState>()((set, get) => ({
       errors.confirmPassword = '两次输入的密码不一致';
     }
 
-    // 协议验证
-    if (!agreeToTerms) {
-      errors.agreeToTerms = '请阅读并同意用户协议';
-    }
+    // 协议验证（可选）
+    // if (!agreeToTerms) {
+    //   errors.agreeToTerms = '请阅读并同意用户协议';
+    // }
 
     const isValid = Object.keys(errors).length === 0;
     set({ errors, isValid });
@@ -138,19 +145,24 @@ export const useRegisterStore = create<RegisterState>()((set, get) => ({
       return { success: false, message: '请检查表单填写' };
     }
 
-    set({ isLoading: true });
+    set({ isLoading: true, serverError: null });
 
     try {
-      await authApi.register({ username, email, password });
+      const res = await authApi.register({ username, email, password });
+      const { user } = res.data.data;
+
+      // 更新全局认证状态
+      useAuthStore.getState().setAuth(user);
       
+      // 清空表单
       resetForm();
       
       return { 
         success: true, 
-        message: '注册成功，请登录' 
+        message: '注册成功' 
       };
     } catch (error: any) {
-      const errorMessage = error?.response?.data?.message || '注册失败，请重试';
+      let errorMessage = '注册失败，请重试';
       
       // 处理特定字段错误
       if (error?.response?.data?.errors) {
@@ -159,8 +171,12 @@ export const useRegisterStore = create<RegisterState>()((set, get) => ({
           fieldErrors[err.field] = err.message;
         });
         set({ errors: fieldErrors });
+        errorMessage = '请检查表单填写';
+      } else if (error?.response?.data?.message) {
+        errorMessage = error.response.data.message;
       }
       
+      set({ serverError: errorMessage });
       return { success: false, message: errorMessage };
     } finally {
       set({ isLoading: false });

@@ -19,6 +19,7 @@ import { Dashboard } from "@/components/admin/Dashboard";
 import { UsersTable } from "@/components/admin/UsersTable"; 
 import { Statistics } from "@/components/admin/Statistics";
 import { ModeratorsTable } from "@/components/admin/ModeratorsTable";
+import { AdminTasks } from "@/components/admin/AdminTasks";
 
 // ==================== 主组件 ====================
 export default function AdminPage() {
@@ -100,7 +101,9 @@ export default function AdminPage() {
       // MARK: 统计
       case "dashboard":
         return <Dashboard t={t} />;
-      
+      case "tasks":
+        return <AdminTasks/>
+        
       // MARK: 公告
       case "announcements":
         return <AnnouncementsManager t={t} />;

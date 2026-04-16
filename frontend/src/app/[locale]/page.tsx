@@ -157,7 +157,6 @@ export default function HomePage() {
   });
 
   const posts = postsData?.list ?? [];
-  console.log(posts);
   const total = postsData?.total ?? 0;
   const totalPages = Math.ceil(total / 15);
 

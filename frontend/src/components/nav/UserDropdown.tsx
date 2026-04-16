@@ -3,8 +3,9 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
 import {
-  User,
+  User as UserIcon,
   Settings,
   HelpCircle,
   LogOut,
@@ -22,25 +23,76 @@ import { useAuthStore } from "@/store/auth";
 import { useLogoutStore } from "@/store/logout";
 import toast from "react-hot-toast";
 import { useTranslations } from "next-intl";
+import { useUserProfile } from "@/hooks/useUserProfile";
+import { User } from "@/lib/api";
 
 interface UserDropdownProps {
-  user: any;
+  user: User;
+  isOpen?: boolean;
+  onOpenChange?: (isOpen: boolean) => void;
 }
 
-export default function UserDropdown({ user }: UserDropdownProps) {
+export default function UserDropdown({ 
+  user, 
+  isOpen: controlledIsOpen, 
+  onOpenChange 
+}: UserDropdownProps) {
   const router = useRouter();
-  const t = useTranslations("common");
+  const t = useTranslations("Common");
   const { logout, isLoading } = useLogoutStore();
-  const { user: currentUser } = useAuthStore();
+  
+  // 内部状态（非受控模式）
+  const [internalIsOpen, setInternalIsOpen] = useState(false);
+  
+  // 判断是否为受控组件
+  const isControlled = controlledIsOpen !== undefined;
+  const isOpen = isControlled ? controlledIsOpen : internalIsOpen;
+  
+  // 更新打开状态
+  const setIsOpen = (newIsOpen: boolean) => {
+    if (isControlled) {
+      onOpenChange?.(newIsOpen);
+    } else {
+      setInternalIsOpen(newIsOpen);
+    }
+  };
+  
+  // 处理点击外部关闭
+  useEffect(() => {
+    if (!isOpen) return;
+    
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      const dropdown = document.querySelector('.user-dropdown-container');
+      if (dropdown && !dropdown.contains(target)) {
+        setIsOpen(false);
+      }
+    };
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isOpen]);
 
-  // 使用 Store 中的最新用户数据
-  const displayUser = currentUser || user;
+  // 处理 ESC 键关闭
+  useEffect(() => {
+    if (!isOpen) return;
+    
+    const handleEsc = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsOpen(false);
+      }
+    };
+    
+    document.addEventListener('keydown', handleEsc);
+    return () => document.removeEventListener('keydown', handleEsc);
+  }, [isOpen]);
 
   // 处理登出
   const handleLogout = async () => {
     try {
       await logout();
       toast.success(t("logout_success"));
+      setIsOpen(false);
       router.push("/");
       router.refresh();
     } catch (error) {
@@ -48,10 +100,15 @@ export default function UserDropdown({ user }: UserDropdownProps) {
     }
   };
 
+  // 处理菜单项点击
+  const handleMenuClick = () => {
+    setIsOpen(false);
+  };
+
   // 获取后台入口配置
   const getDashboardConfig = () => {
     const role = displayUser?.role;
-    
+
     if (role === "admin" || role === "super_admin") {
       return {
         icon: <Crown className="w-4 h-4" />,
@@ -60,7 +117,7 @@ export default function UserDropdown({ user }: UserDropdownProps) {
         className: "text-primary",
       };
     }
-    
+
     if (role === "moderator") {
       return {
         icon: <Hammer className="w-4 h-4" />,
@@ -69,7 +126,7 @@ export default function UserDropdown({ user }: UserDropdownProps) {
         className: "text-secondary",
       };
     }
-    
+
     if (role === "reviewer") {
       return {
         icon: <Eye className="w-4 h-4" />,
@@ -78,25 +135,27 @@ export default function UserDropdown({ user }: UserDropdownProps) {
         className: "text-accent",
       };
     }
-    
+
     return null;
   };
 
+  const displayUser = user;
   const dashboardConfig = getDashboardConfig();
 
   // 是否有管理权限
-  const hasManagementAccess = 
-    displayUser?.role === "admin" || 
-    displayUser?.role === "super_admin" || 
-    displayUser?.role === "moderator" || 
+  const hasManagementAccess =
+    displayUser?.role === "admin" ||
+    displayUser?.role === "super_admin" ||
+    displayUser?.role === "moderator" ||
     displayUser?.role === "reviewer";
 
   return (
-    <div className="dropdown dropdown-end">
+    <div className="dropdown dropdown-end user-dropdown-container">
       <div
         tabIndex={0}
         role="button"
         className="btn btn-ghost btn-circle avatar hover:ring-2 hover:ring-primary/20 transition-all"
+        onClick={() => setIsOpen(!isOpen)}
       >
         <div className="w-9 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
           <Avatar
@@ -106,153 +165,143 @@ export default function UserDropdown({ user }: UserDropdownProps) {
           />
         </div>
       </div>
-      
-      <ul
-        tabIndex={0}
-        className="dropdown-content menu bg-base-100 rounded-box z-10 w-64 p-2 shadow-xl border border-base-200 mt-2"
-      >
-        {/* 用户信息 */}
-        <li className="menu-title">
-          <div className="flex items-center gap-2">
-            <div className="avatar placeholder">
-              <div className="w-10 rounded-full bg-primary/10">
-                {displayUser?.avatar ? (
-                  <Avatar 
-                    username={displayUser?.username} 
-                    avatarUrl={displayUser?.avatar} 
-                    size="sm" 
+
+      {isOpen && (
+        <ul
+          className="dropdown-content menu bg-base-100 rounded-box z-10 w-64 p-2 shadow-xl border border-base-200 mt-2"
+        >
+          {/* 用户信息 */}
+          <li className="menu-title">
+            <div className="flex items-center gap-2">
+              <div className="avatar placeholder">
+                <div className="w-10 rounded-full bg-primary/10">
+                  <Avatar
+                    username={displayUser?.username}
+                    avatarUrl={displayUser?.avatar}
+                    size="md"
                   />
-                ) : (
-                  <span className="text-primary font-medium">
-                    {displayUser?.username?.[0]?.toUpperCase()}
+                </div>
+              </div>
+              <div className="flex-1 min-w-0">
+                <span className="text-base-content font-medium block truncate">
+                  {displayUser?.username}
+                </span>
+                <span className="text-xs text-base-content/50 truncate block">
+                  {displayUser?.email}
+                </span>
+                {/* 角色标签 */}
+                {displayUser?.role && displayUser?.role !== "user" && (
+                  <span
+                    className={`badge badge-xs mt-1 ${
+                      displayUser?.role === "super_admin"
+                        ? "badge-error"
+                        : displayUser?.role === "admin"
+                          ? "badge-warning"
+                          : displayUser?.role === "moderator"
+                            ? "badge-secondary"
+                            : displayUser?.role === "reviewer"
+                              ? "badge-accent"
+                              : "badge-ghost"
+                    }`}
+                  >
+                    {t(`role.${displayUser?.role}`)}
                   </span>
                 )}
               </div>
             </div>
-            <div className="flex-1 min-w-0">
-              <span className="text-base-content font-medium block truncate">
-                {displayUser?.username}
-              </span>
-              <span className="text-xs text-base-content/50 truncate block">
-                {displayUser?.email}
-              </span>
-              {/* 角色标签 */}
-              {displayUser?.role && displayUser?.role !== "user" && (
-                <span className={`badge badge-xs mt-1 ${
-                  displayUser?.role === "super_admin" ? "badge-error" :
-                  displayUser?.role === "admin" ? "badge-warning" :
-                  displayUser?.role === "moderator" ? "badge-secondary" :
-                  displayUser?.role === "reviewer" ? "badge-accent" :
-                  "badge-ghost"
-                }`}>
-                  {t(`role.${displayUser?.role}`)}
-                </span>
-              )}
-            </div>
-          </div>
-        </li>
+          </li>
 
-        <div className="divider my-1"></div>
+          <div className="divider my-1"></div>
 
-        {/* 个人统计 */}
-        <li className="px-2 py-1">
-          <div className="flex justify-between text-sm">
-            <span className="text-base-content/60">{t("score")}</span>
-            <span className="font-bold text-primary">{displayUser?.score || 0}</span>
-          </div>
-          <div className="flex justify-between text-sm mt-1">
-            <span className="text-base-content/60">{t("followers")}</span>
-            <span className="font-bold">{displayUser?.followers_count || 0}</span>
-          </div>
-        </li>
-
-        <div className="divider my-1"></div>
-
-        {/* 快速链接 */}
-        <li>
-          <Link href={`/users/${displayUser?.id}`} className="gap-2">
-            <User className="w-4 h-4" />
-            {t("profile")}
-          </Link>
-        </li>
-        <li>
-          <Link href="/timeline" className="gap-2">
-            <Sparkles className="w-4 h-4" />
-            {t("my_timeline")}
-          </Link>
-        </li>
-        <li>
-          <Link href="/topics/my" className="gap-2">
-            <Bookmark className="w-4 h-4" />
-            {t("my_topics")}
-          </Link>
-        </li>
-        <li>
-          <Link href="/questions/my" className="gap-2">
-            <MessageCircleQuestion className="w-4 h-4" />
-            {t("my_questions")}
-          </Link>
-        </li>
-
-        <div className="divider my-1"></div>
-
-        {/* 版主申请入口 */}
-        {displayUser && (
-          <li>
-            <Link href="/boards/applications" className="gap-2">
-              <ShieldCheckIcon className="w-4 h-4" />
-              {t("my_moderator_applications")}
+          {/* 快速链接 */}
+          <li onClick={handleMenuClick}>
+            <Link href={`/users/${displayUser?.id}`} className="gap-2">
+              <UserIcon className="w-4 h-4" />
+              {t("profile")}
             </Link>
           </li>
-        )}
+          <li onClick={handleMenuClick}>
+            <Link href="/timeline" className="gap-2">
+              <Sparkles className="w-4 h-4" />
+              {t("my_timeline")}
+            </Link>
+          </li>
+          <li onClick={handleMenuClick}>
+            <Link href="/topics/my" className="gap-2">
+              <Bookmark className="w-4 h-4" />
+              {t("my_topics")}
+            </Link>
+          </li>
+          <li onClick={handleMenuClick}>
+            <Link href="/questions/my" className="gap-2">
+              <MessageCircleQuestion className="w-4 h-4" />
+              {t("my_questions")}
+            </Link>
+          </li>
 
-        {/* 管理后台入口 */}
-        {hasManagementAccess && dashboardConfig && (
-          <>
-            <div className="divider my-1"></div>
-            <li>
-              <Link href={dashboardConfig.path} className={`gap-2 ${dashboardConfig.className}`}>
-                {dashboardConfig.icon}
-                {dashboardConfig.label}
+          <div className="divider my-1"></div>
+
+          {/* 版主申请入口 */}
+          {displayUser && (
+            <li onClick={handleMenuClick}>
+              <Link href="/boards/applications" className="gap-2">
+                <ShieldCheckIcon className="w-4 h-4" />
+                {t("my_moderator_applications")}
               </Link>
             </li>
-          </>
-        )}
+          )}
 
-        <div className="divider my-1"></div>
+          {/* 管理后台入口 */}
+          {hasManagementAccess && dashboardConfig && (
+            <>
+              <div className="divider my-1"></div>
+              <li onClick={handleMenuClick}>
+                <Link
+                  href={dashboardConfig.path}
+                  className={`gap-2 ${dashboardConfig.className}`}
+                >
+                  {dashboardConfig.icon}
+                  {dashboardConfig.label}
+                </Link>
+              </li>
+            </>
+          )}
 
-        {/* 设置和帮助 */}
-        <li>
-          <Link href="/settings" className="gap-2">
-            <Settings className="w-4 h-4" />
-            {t("settings")}
-          </Link>
-        </li>
-        <li>
-          <Link href="/help" className="gap-2">
-            <HelpCircle className="w-4 h-4" />
-            {t("help_center")}
-          </Link>
-        </li>
+          <div className="divider my-1"></div>
 
-        <div className="divider my-1"></div>
+          {/* 设置和帮助 */}
+          <li onClick={handleMenuClick}>
+            <Link href="/settings" className="gap-2">
+              <Settings className="w-4 h-4" />
+              {t("settings")}
+            </Link>
+          </li>
+          <li onClick={handleMenuClick}>
+            <Link href="/help" className="gap-2">
+              <HelpCircle className="w-4 h-4" />
+              {t("help_center")}
+            </Link>
+          </li>
 
-        {/* 登出按钮 */}
-        <li>
-          <button 
-            onClick={handleLogout} 
-            className="text-error gap-2"
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <span className="loading loading-spinner loading-xs" />
-            ) : (
-              <LogOut className="w-4 h-4" />
-            )}
-            {isLoading ? t("logging_out") : t("logout")}
-          </button>
-        </li>
-      </ul>
+          <div className="divider my-1"></div>
+
+          {/* 登出按钮 */}
+          <li>
+            <button
+              onClick={handleLogout}
+              className="text-error gap-2"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <span className="loading loading-spinner loading-xs" />
+              ) : (
+                <LogOut className="w-4 h-4" />
+              )}
+              {isLoading ? t("logging_out") : t("logout")}
+            </button>
+          </li>
+        </ul>
+      )}
     </div>
   );
 }
