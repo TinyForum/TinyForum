@@ -1,30 +1,61 @@
 {
+  "Common": {
+    "change_role": "更改角色",
+
+    "role": {
+      "super_admin": "超级管理员",
+      "admin": "管理员",
+      "moderator": "版主",
+      "reviewer": "审核员",
+      "member": "会员",
+      "user": "用户",
+      "guest": "访客",
+      "bot": "机器人"
+    },
+    "select_role": "选择角色",
+    "back": "返回",
+    "reset_password_notice": "系统将生成随机临时密码并通过站内通知发送给用户，有效期 30 分钟。"
+  },
   "Admin": {
+    "confirm_reset": "确认重置",
+    "change_role": "更改角色",
+    "back": "返回",
+    "role": {
+      "super_admin": "超级管理员",
+      "admin": "管理员",
+      "moderator": "版主",
+      "reviewer": "审核员",
+      "member": "会员",
+      "user": "用户",
+      "guest": "访客",
+      "bot": "机器人"
+    },
+    "roles":"角色",
     "activated": "已激活",
     "inactivate": "未激活",
     "blocked": "已封禁",
     "unblock": "解封",
     "operation_successful": "操作成功",
-"last_login": "最后登录",
-"set_as_admin": "设为管理员",
-"account_settings": "账户设置",
-"reset_password": "重置密码",
-"send_email": "发送邮件",
-"danger_zone": "危险区域",
-"delete_user": "删除用户",
-"close": "关闭",
-"reset_password_confirm": "您确定要重置该用户的密码吗？",
-"reset_password_notice": "重置密码后，新密码将通过邮件发送给用户。请确保用户能够接收邮件。",
-"confirm_reset_password": "确认重置密码",
-"remove_admin": "移除管理员",
-"never_logged_in": "从未登陆",
-"delete_failed": "删除失败",
-"send_email_to": "发送邮件给",
+    "last_login": "最后登录",
+    "set_as_admin": "设为管理员",
+    "account_settings": "账户设置",
+    "reset_password": "重置密码",
+    "send_email": "发送邮件",
+    "danger_zone": "危险区域",
+    "delete_user": "删除用户",
+    "close": "关闭",
+    "reset_password_confirm": "您确定要重置该用户的密码吗？",
+    "reset_password_notice": "重置密码后，新密码将通过邮件发送给用户。请确保用户能够接收邮件。",
+    "confirm_reset_password": "确认重置密码",
+    "remove_admin": "移除管理员",
+    "never_logged_in": "从未登陆",
+    "delete_failed": "删除失败",
+    "send_email_to": "发送邮件给",
 
-"current_user": "当前用户",
-"confirm_delete": "确认删除",
-"delete_user_confirm": "您确定要删除该用户吗？",
-"delete_warning": "删除用户将删除该用户的所有数据，包括帖子、评论等。请谨慎操作。",
+    "current_user": "当前用户",
+    "confirm_delete": "确认删除",
+    "delete_user_confirm": "您确定要删除该用户吗？",
+    "delete_warning": "删除用户将删除该用户的所有数据，包括帖子、评论等。请谨慎操作。",
 
     "no_data": "暂无数据",
     "operation_failed": "操作失败",
@@ -116,7 +147,7 @@
     "user": "用户",
     "post": "帖子",
     "email": "邮箱",
-    "role": "角色",
+
     "score": "积分",
     "registered_at": "注册时间",
     "oprations": "操作",
@@ -336,7 +367,6 @@
     "edit_profile": "编辑资料",
     "the_posts": "帖子",
     "the_articles": "文章"
-  
   },
 
   "auth": {

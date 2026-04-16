@@ -217,7 +217,7 @@ func InitApp(cfg *config.Config) (*App, error) {
 		userGroup.GET("/:id/followers", middleware.OptionalAuth(jwtMgr), userHandler.GetFollowers)
 		userGroup.GET("/:id/following", middleware.OptionalAuth(jwtMgr), userHandler.GetFollowing)
 		userGroup.GET("/:id/Score", middleware.OptionalAuth(jwtMgr), userHandler.GetScore)
-
+		userGroup.GET("/me/role", middleware.OptionalAuth(jwtMgr), userHandler.GetCurrentUserRole)
 	}
 
 	// ----- MARK: Notification routes

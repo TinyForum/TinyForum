@@ -204,6 +204,16 @@ func (s *UserService) GetScoreById(userID uint) (int, error) {
 	return s.repo.GetScoreById(userID)
 }
 
+// GetUserRoleById 获取用户角色
+func (s *UserService) GetUserRoleById(userID uint) (string, error) {
+	return s.repo.GetUserRoleById(userID)
+}
+
+// GetUserBasicInfo 获取用户基本信息
+func (s *UserService) GetUserBasicInfo(userID uint) (*model.User, error) {
+	return s.repo.GetUserBasicInfoById(userID)
+}
+
 type UserScoreResponse struct {
 	ID       uint   `json:"id"`
 	Username string `json:"username"`

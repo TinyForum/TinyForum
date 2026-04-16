@@ -1,5 +1,7 @@
 // components/admin/UsersTable.tsx
 import Avatar from "@/components/user/Avatar";
+import { RoleBadge } from "@/components/common/RoleBadge";
+import { UserRoleType } from "@/type/roles.types";
 import { 
   Ban,
   CheckCircle,
@@ -76,7 +78,7 @@ export function UsersTable({
           <tr>
             <th>{t("user")}</th>
             <th>{t("email")}</th>
-            <th>{t("role")}</th>
+            <th>{t("roles")}</th>
             <th>{t("score")}</th>
             <th>{t("registration_at")}</th>
             <th>{t("last_login")}</th>
@@ -104,9 +106,12 @@ export function UsersTable({
                 </td>
                 <td className="text-sm text-base-content/60">{user.email}</td>
                 <td>
-                  <span className={`badge badge-sm ${user.role === "admin" ? "badge-warning" : "badge-ghost"}`}>
-                    {user.role === "admin" ? t("administrator") : t("user")}
-                  </span>
+                  {/* 使用 RoleBadge 组件替换原来的 badge */}
+                  <RoleBadge 
+                    role={user.role as UserRoleType} 
+                    showIcon 
+                    size="sm" 
+                  />
                 </td>
                 <td className="text-sm font-medium text-warning">{user.score}</td>
                 <td className="text-xs text-base-content/50">{formatDate(user.created_at)}</td>

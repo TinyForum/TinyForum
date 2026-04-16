@@ -406,6 +406,35 @@ func (r *UserRepository) UpdateRole(ctx context.Context, userID uint, role strin
 	return nil
 }
 
+// GetUserRoleById 获取用户角色
+func (r *UserRepository) GetUserRoleById(userID uint) (string, error) {
+	var role string
+	err := r.db.Model(&model.User{}).
+		Select("role").
+		Where("id = ?", userID).
+		Scan(&role).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return "", err
+		}
+		return "", fmt.Errorf("查询用户角色失败: %w", err)
+	}
+	return role, nil
+}
+
+// GetUserBasicInfoById 获取用户基本信息（ID、用户名、角色）
+func (r *UserRepository) GetUserBasicInfoById(userID uint) (*model.User, error) {
+	var user model.User
+	err := r.db.Model(&model.User{}).
+		Select("id, username, role").
+		Where("id = ?", userID).
+		First(&user).Error
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
+
 // BatchUpdateBlocked 批量更新封禁状态
 func (r *UserRepository) BatchUpdateBlocked(ctx context.Context, userIDs []uint, isBlocked bool) (int64, error) {
 	if len(userIDs) == 0 {

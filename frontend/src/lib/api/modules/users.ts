@@ -11,9 +11,12 @@ export interface UpdateProfilePayload {
 }
 
 export const userApi = {
+  // 获取用户信息
   getProfile: (id: number) =>
     apiClient.get<ApiResponse<User>>(`/users/${id}`),
+  getCurrentRole: () =>apiClient.get<ApiResponse<string>>("/users/current/role"),
 
+  // 更新用户信息
   updateProfile: (data: UpdateProfilePayload) =>
     apiClient.put<ApiResponse<User>>("/users/profile", data),
 

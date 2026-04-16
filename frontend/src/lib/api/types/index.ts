@@ -4,6 +4,7 @@
  * 从这里统一 re-export，业务层只需 import from '@/api/types'
  */
 
+import { UserRoleType } from "@/type/roles.types";
 // ─── 通用包装 ─────────────────────────────────────────────────────────────────
 
 export interface ApiResponse<T> {
@@ -23,15 +24,15 @@ export interface PageData<T> {
 
 export type PostType = "post" | "article" | "topic" | "question";
 export type PostStatus = "draft" | "published" | "hidden";
-export type UserRole =
-  | "guest"
-  | "user"
-  | "member"
-  | "moderator"
-  | "reviewer"
-  | "admin"
-  | "super_admin"
-  | "bot";
+// export type UserRole =
+//   | "guest"
+//   | "user"
+//   | "member"
+//   | "moderator"
+//   | "reviewer"
+//   | "admin"
+//   | "super_admin"
+//   | "bot";
 export type VoteType = "up" | "down";
 export type NotificationType =
   | "comment"
@@ -48,7 +49,7 @@ export interface User {
   email: string;
   avatar: string;
   bio: string;
-  role: UserRole;
+  role: UserRoleType;
   score: number;
   is_active: boolean;
   is_blocked: boolean;
@@ -163,9 +164,9 @@ export interface Board {
   parent?: Board;
   children?: Board[];
   sort_order: number;
-  view_role: UserRole;
-  post_role: UserRole;
-  reply_role: UserRole;
+  view_role: UserRoleType;
+  post_role: UserRoleType;
+  reply_role: UserRoleType;
   post_count: number;
   thread_count: number;
   today_count: number;

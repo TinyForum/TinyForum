@@ -106,6 +106,13 @@ definitions:
     required:
     - content
     type: object
+  handler.GetCurrentUserRoleResponse:
+    properties:
+      role:
+        type: string
+      user_id:
+        type: integer
+    type: object
   handler.ReviewApplicationRequest:
     properties:
       approve:
@@ -5816,6 +5823,36 @@ paths:
       summary: 获取用户排行榜
       tags:
       - 用户管理
+  /users/me/role:
+    get:
+      consumes:
+      - application/json
+      description: 从数据库查询当前登录用户的角色信息
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 操作成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/handler.GetCurrentUserRoleResponse'
+              type: object
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: 用户不存在
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 获取当前用户角色
+      tags:
+      - 用户接口
   /users/profile:
     put:
       consumes:
