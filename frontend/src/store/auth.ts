@@ -4,15 +4,15 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { authApi } from '@/lib/api';
 
-
 interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
-  isHydrated: boolean; // 添加 hydration 状态
+  isHydrated: boolean;
+  
   setAuth: (user: User) => void;
   logout: () => Promise<void>;
   updateUser: (user: Partial<User>) => void;
-  setHydrated: (state: boolean) => void; // 添加 setter
+  setHydrated: (state: boolean) => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -20,7 +20,7 @@ export const useAuthStore = create<AuthState>()(
     (set) => ({
       user: null,
       isAuthenticated: false,
-      isHydrated: false, // 初始为 false
+      isHydrated: false,
 
       setAuth: (user) => {
         set({ user, isAuthenticated: true });
@@ -35,7 +35,7 @@ export const useAuthStore = create<AuthState>()(
         set((state) => ({
           user: state.user ? { ...state.user, ...partial } : null,
         })),
-        
+
       setHydrated: (state) => set({ isHydrated: state }),
     }),
     {
@@ -45,7 +45,6 @@ export const useAuthStore = create<AuthState>()(
         isAuthenticated: state.isAuthenticated,
       }),
       onRehydrateStorage: () => (state) => {
-        // hydration 完成后调用
         state?.setHydrated(true);
       },
     }

@@ -1,3 +1,4 @@
+// app/[locale]/auth/login/page.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -6,14 +7,11 @@ import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { authApi } from '@/lib/api';
 import { useAuthStore } from '@/store/auth';
+import { useLoginStore } from '@/store/login';
 import toast from 'react-hot-toast';
 import { Mail, Lock, Eye, EyeOff, LogIn } from 'lucide-react';
-import { getErrorMessage } from '@/lib/utils';
-import { useTranslations } from 'next-intl';
-import { useLocale } from 'next-intl';
-
+import { useTranslations, useLocale } from 'next-intl';
 
 const loginSchema = z.object({
   email: z.string().email('请输入有效的邮箱'),
@@ -25,43 +23,76 @@ type LoginForm = z.infer<typeof loginSchema>;
 export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { setAuth, user, isAuthenticated, isHydrated } = useAuthStore();
-  const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const locale = useLocale();
   const t = useTranslations('auth');
+  
+  // 使用 Store
+  const { user, isAuthenticated, isHydrated } = useAuthStore();
+  const { 
+    email, 
+    password, 
+    rememberMe,
+    isLoading, 
+    error,
+    setEmail, 
+    setPassword, 
+    setRememberMe,
+    setError,
+    login 
+  } = useLoginStore();
+  
+  const [showPassword, setShowPassword] = useState(false);
 
-  // ✅ 获取重定向地址，默认为首页
+  // 获取重定向地址
   const redirectTo = searchParams.get('redirect') || '/';
- const locale = useLocale(); 
-  // ✅ 等待 hydration 完成后再检查登录状态
+
+  // 等待 hydration 完成后检查登录状态
   useEffect(() => {
     if (isHydrated && isAuthenticated && user) {
-     router.replace(`/${locale}${redirectTo === '/' ? '' : redirectTo}` || `/${locale}`);
+      const destination = redirectTo === '/' ? `/${locale}` : redirectTo;
+      router.replace(destination);
     }
-  }, [isHydrated, isAuthenticated, user, router, redirectTo]);
+  }, [isHydrated, isAuthenticated, user, router, redirectTo, locale]);
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<LoginForm>({ resolver: zodResolver(loginSchema) });
+    setValue,
+  } = useForm<LoginForm>({ 
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: email || '',
+      password: password || '',
+    }
+  });
+
+  // 同步表单值到 Store
+  useEffect(() => {
+    setValue('email', email);
+    setValue('password', password);
+  }, [email, password, setValue]);
 
   const onSubmit = async (data: LoginForm) => {
-    setLoading(true);
-    try {
-      const res = await authApi.login(data);
-      const { user } = res.data.data;
-      setAuth(user);
-      toast.success(t("welcome_back") + `，${user.username}！`);
-      router.push(redirectTo);
-    } catch (err) {
-      toast.error(getErrorMessage(err));
-    } finally {
-      setLoading(false);
+    // 更新 Store 中的表单值
+    setEmail(data.email);
+    setPassword(data.password);
+    
+    const result = await login();
+    
+    if (result.success) {
+      const user = useAuthStore.getState().user;
+      toast.success(`${t("welcome_back")}，${user?.username || ''}！`);
+      
+      const destination = redirectTo === '/' ? `/${locale}` : redirectTo;
+      router.push(destination);
+    } else {
+      // 错误已经在 Store 中设置，这里只需要显示 toast
+      toast.error(error || t("login_failed"));
     }
   };
 
-  // ✅ 等待 hydration 完成，避免闪烁
+  // 等待 hydration 完成
   if (!isHydrated) {
     return (
       <div className="min-h-[80vh] flex items-center justify-center">
@@ -70,7 +101,7 @@ export default function LoginPage() {
     );
   }
 
-  // ✅ 已登录用户不显示登录表单
+  // 已登录用户不显示登录表单
   if (isAuthenticated && user) {
     return (
       <div className="min-h-[80vh] flex items-center justify-center">
@@ -80,7 +111,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center">
+    <div className="min-h-[80vh] flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         <div className="card bg-base-100 shadow-xl border border-base-300">
           <div className="card-body p-8">
@@ -107,6 +138,11 @@ export default function LoginPage() {
                     placeholder="your@email.com"
                     className={`input input-bordered w-full pl-10 focus:outline-none focus:border-primary ${errors.email ? 'input-error' : ''}`}
                     autoComplete="email"
+                    onChange={(e) => {
+                      register('email').onChange(e);
+                      setEmail(e.target.value);
+                      setError(null); // 清除错误
+                    }}
                   />
                 </div>
                 {errors.email && (
@@ -129,6 +165,11 @@ export default function LoginPage() {
                     placeholder="••••••••"
                     className={`input input-bordered w-full pl-10 pr-10 focus:outline-none focus:border-primary ${errors.password ? 'input-error' : ''}`}
                     autoComplete="current-password"
+                    onChange={(e) => {
+                      register('password').onChange(e);
+                      setPassword(e.target.value);
+                      setError(null); // 清除错误
+                    }}
                   />
                   <button
                     type="button"
@@ -145,21 +186,48 @@ export default function LoginPage() {
                 )}
               </div>
 
+              {/* Remember Me & Forgot Password */}
+              <div className="flex items-center justify-between">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                    className="checkbox checkbox-sm checkbox-primary"
+                  />
+                  <span className="text-sm">{t("remember_me")}</span>
+                </label>
+                <Link 
+                  href="/auth/forgot-password" 
+                  className="text-sm text-primary hover:underline"
+                >
+                  {t("forgot_password")}
+                </Link>
+              </div>
+
+              {/* Store Error Display */}
+              {error && (
+                <div className="alert alert-error py-2">
+                  <span className="text-sm">{error}</span>
+                </div>
+              )}
+
+              {/* Submit Button */}
               <button
                 type="submit"
                 className="btn btn-primary w-full gap-2 mt-2"
-                disabled={loading}
+                disabled={isLoading}
               >
-                {loading ? (
+                {isLoading ? (
                   <span className="loading loading-spinner loading-sm" />
                 ) : (
                   <LogIn className="w-4 h-4" />
                 )}
-                {t("login")}
+                {isLoading ? t("logging_in") : t("login")}
               </button>
             </form>
 
-            <div className="divider text-base-content/30 text-xs">{t("Dont_have_an_account")}</div>
+            <div className="divider text-base-content/30 text-xs">{t("dont_have_account")}</div>
             <Link href="/auth/register" className="btn btn-ghost btn-sm w-full">
               {t("sign_up_for_free")}
             </Link>

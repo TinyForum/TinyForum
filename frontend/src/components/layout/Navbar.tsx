@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useAuthStore } from "@/store/auth";
+import { useAuthStore } from "@/store";
 import { notificationApi, timelineApi } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -185,7 +185,7 @@ export default function Navbar() {
             )}
 
             {/* 用户下拉菜单 */}
-            <UserDropdown user={user} onLogout={handleLogout} />
+            <UserDropdown user={user} />
           </>
         ) : (
           <div className="flex gap-1 flex-shrink-0">
