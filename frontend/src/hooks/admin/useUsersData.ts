@@ -1,5 +1,4 @@
-
-
+// hooks/admin/useUsersData.ts
 import { useEffect, useState } from "react";
 import { useAuthStore } from "@/store/auth";
 import { useRouter } from "next/navigation";
@@ -7,11 +6,13 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { adminApi } from "@/lib/api";
 import toast from "react-hot-toast";
-// 用户数据管理 Hook
+
+// 用户数据管理 Hook（扩展版）
 export function useUsersData(page: number, keyword: string, enabled: boolean) {
   const queryClient = useQueryClient();
-  const t = useTranslations("admin");
+  const t = useTranslations("Admin");
 
+  // 获取用户列表
   const { data, isLoading } = useQuery({
     queryKey: ["admin-users", page, keyword],
     queryFn: () =>
@@ -21,6 +22,7 @@ export function useUsersData(page: number, keyword: string, enabled: boolean) {
     enabled,
   });
 
+  // 切换激活状态
   const toggleActiveMutation = useMutation({
     mutationFn: ({ id, active }: { id: number; active: boolean }) =>
       adminApi.setUserActive(id, active),
@@ -31,16 +33,96 @@ export function useUsersData(page: number, keyword: string, enabled: boolean) {
     onError: () => toast.error(t("operation_failed")),
   });
 
-  // ✅ 修复：创建一个包装函数，接收两个单独的参数
+  // 切换封禁状态
+  const toggleBlockMutation = useMutation({
+    mutationFn: ({ id, blocked }: { id: number; blocked: boolean }) =>
+      adminApi.setUserBlocked(id, blocked),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+      toast.success(t("operation_successful"));
+    },
+    onError: () => toast.error(t("operation_failed")),
+  });
+
+  // 切换角色
+  const toggleRoleMutation = useMutation({
+    mutationFn: ({ id, role }: { id: number; role: string }) =>
+      adminApi.setUserRole(id, role),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+      toast.success(t("operation_successful"));
+    },
+    onError: () => toast.error(t("operation_failed")),
+  });
+
+  // 删除用户
+  const deleteUserMutation = useMutation({
+    mutationFn: ({ id }: { id: number }) =>
+      adminApi.deleteUser(id),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+      toast.success(t("user_deleted_successfully"));
+    },
+    onError: () => toast.error(t("delete_failed")),
+  });
+
+  // 重置密码
+  const resetPasswordMutation = useMutation({
+    mutationFn: ({ id }: { id: number }) =>
+      adminApi.resetUserPassword(id),
+    onSuccess: (data, variables) => {
+      const newPassword = data.data.data?.password;
+      if (newPassword) {
+        toast.success(t("password_reset_success", { password: newPassword }), {
+          duration: 5000,
+        });
+      } else {
+        toast.success(t("operation_successful"));
+      }
+      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+    },
+    onError: () => toast.error(t("operation_failed")),
+  });
+
+  // 包装函数
   const handleToggleActive = (id: number, active: boolean) => {
     toggleActiveMutation.mutate({ id, active });
+  };
+
+  const handleToggleBlock = (id: number, blocked: boolean) => {
+    toggleBlockMutation.mutate({ id, blocked });
+  };
+
+  const handleToggleRole = (id: number, role: string) => {
+    toggleRoleMutation.mutate({ id, role });
+  };
+
+  const handleDeleteUser = (id: number, username: string) => {
+    deleteUserMutation.mutate({ id });
+  };
+
+  const handleResetPassword = (id: number, username: string) => {
+    resetPasswordMutation.mutate({ id });
   };
 
   return {
     users: data?.list ?? [],
     total: data?.total ?? 0,
     isLoading,
+    // 激活/停用
     toggleActive: handleToggleActive,
-    isToggling: toggleActiveMutation.isPending,
+    isTogglingActive: toggleActiveMutation.isPending,
+    // 封禁/解封
+    toggleBlock: handleToggleBlock,
+    isTogglingBlock: toggleBlockMutation.isPending,
+    // 角色管理
+    toggleRole: handleToggleRole,
+    isUpdatingRole: toggleRoleMutation.isPending,
+    // 删除用户
+    deleteUser: handleDeleteUser,
+    isDeleting: deleteUserMutation.isPending,
+    // 重置密码
+    resetPassword: handleResetPassword,
+    isResettingPassword: resetPasswordMutation.isPending,
   };
 }

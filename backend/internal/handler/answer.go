@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	apperrors "tiny-forum/internal/errors"
 	"tiny-forum/internal/service"
+	apperrors "tiny-forum/pkg/errors"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"

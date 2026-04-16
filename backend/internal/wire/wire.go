@@ -99,7 +99,8 @@ func InitApp(cfg *config.Config) (*App, error) {
 	jwtMgr := jwtpkg.NewManager(cfg.JWT.Secret, cfg.JWT.Expire)
 
 	// ========== Repositories ==========
-	userRepo := repository.NewUserRepository(db)
+	tokenRepo := repository.NewTokenRepository(db)
+	userRepo := repository.NewUserRepository(db, tokenRepo)
 	postRepo := repository.NewPostRepository(db)
 	commentRepo := repository.NewCommentRepository(db)
 	tagRepo := repository.NewTagRepository(db)
@@ -128,7 +129,7 @@ func InitApp(cfg *config.Config) (*App, error) {
 
 	// ========== Handlers ==========
 	authHandler := handler.NewAuthHandler(userSvc)
-	userHandler := handler.NewUserHandler(userSvc)
+	userHandler := handler.NewUserHandler(userSvc, notifSvc)
 	tagHandler := handler.NewTagHandler(tagSvc)
 	notifHandler := handler.NewNotificationHandler(notifSvc)
 	postHandler := handler.NewPostHandler(postSvc, questionSvc)
@@ -228,10 +229,6 @@ func InitApp(cfg *config.Config) (*App, error) {
 	}
 
 	// ----- MARK: Board routes
-	// ----- MARK: Board routes -----
-	// 说明：以下为 wire.go 中 Board 路由段的完整替换内容。
-	// 其余路由（auth / tag / post / user 等）保持不变。
-
 	boardGroup := api.Group("/boards")
 	{
 		// ── 公开接口 ──────────────────────────────────────────────────────────
@@ -399,8 +396,11 @@ func InitApp(cfg *config.Config) (*App, error) {
 	adminGroup := api.Group("/admin", middleware.Auth(jwtMgr), middleware.AdminRequired())
 	{
 		adminGroup.GET("/users", userHandler.AdminList)
-		adminGroup.PUT("/users/:id/active", userHandler.AdminSetActive)
-		adminGroup.PUT("/users/:id/blocked", userHandler.AdminSetBlocked)
+		adminGroup.PUT("/users/:id/active", userHandler.AdminSetActive)                  // 激活用户
+		adminGroup.PUT("/users/:id/blocked", userHandler.AdminSetBlocked)                // 封禁用户
+		adminGroup.DELETE("/users/:id/", userHandler.AdminDeleteUser)                    // 删除用户
+		adminGroup.POST("/users/:id/reset-password", userHandler.AdminResetUserPassword) // 重置密码
+
 		adminGroup.GET("/posts", postHandler.AdminList)
 		adminGroup.PUT("/posts/:id/pin", postHandler.AdminTogglePin)
 		adminGroup.PUT("/users/:id/role", userHandler.AdminSetRole)

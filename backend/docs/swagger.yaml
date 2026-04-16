@@ -13,6 +13,29 @@ definitions:
     required:
     - post_id
     type: object
+  handler.AdminResetUserPasswordRequest:
+    properties:
+      password_type:
+        description: 密码生成方式：random-随机生成
+        enum:
+        - random
+        example: random
+        type: string
+    required:
+    - password_type
+    type: object
+  handler.AdminResetUserPasswordResponse:
+    properties:
+      message:
+        example: 临时密码已生成并发送给用户
+        type: string
+      operator_id:
+        example: 1
+        type: integer
+      user_id:
+        example: 123
+        type: integer
+    type: object
   handler.AdminSetScoreRequest:
     properties:
       operation:
@@ -271,6 +294,28 @@ definitions:
     - AnnouncementTypeImportant
     - AnnouncementTypeEmergency
     - AnnouncementTypeEvent
+  model.ApplicationStatus:
+    enum:
+    - pending
+    - approved
+    - rejected
+    - canceled
+    type: string
+    x-enum-comments:
+      ApplicationApproved: 已通过
+      ApplicationCanceled: 用户撤销
+      ApplicationPending: 待审核
+      ApplicationRejected: 已拒绝
+    x-enum-descriptions:
+    - 待审核
+    - 已通过
+    - 已拒绝
+    - 用户撤销
+    x-enum-varnames:
+    - ApplicationPending
+    - ApplicationApproved
+    - ApplicationRejected
+    - ApplicationCanceled
   model.ApplyModeratorInput:
     properties:
       reason:
@@ -490,6 +535,46 @@ definitions:
         type: integer
       permissions:
         type: object
+      updated_at:
+        type: string
+      user:
+        $ref: '#/definitions/model.User'
+      user_id:
+        type: integer
+    type: object
+  model.ModeratorApplication:
+    properties:
+      board:
+        $ref: '#/definitions/model.Board'
+      board_id:
+        type: integer
+      created_at:
+        type: string
+      id:
+        type: integer
+      reason:
+        type: string
+      req_ban_user:
+        type: boolean
+      req_delete_post:
+        description: 申请时希望获得的初始权限（审批人可在通过时调整）
+        type: boolean
+      req_edit_any_post:
+        type: boolean
+      req_manage_moderator:
+        type: boolean
+      req_pin_post:
+        type: boolean
+      review_note:
+        description: 审批备注
+        type: string
+      reviewer:
+        $ref: '#/definitions/model.User'
+      reviewer_id:
+        description: 审批人（管理员）
+        type: integer
+      status:
+        $ref: '#/definitions/model.ApplicationStatus'
       updated_at:
         type: string
       user:
@@ -1257,28 +1342,37 @@ definitions:
   model.User:
     properties:
       avatar:
+        description: 用户的头像，目前为链接（暂不支持图片上传）
         type: string
       bio:
         type: string
       created_at:
         type: string
       email:
+        description: 邮箱
         type: string
       id:
         type: integer
       is_active:
+        description: 低优先级，用户主动行为，例如验证邮箱后可以处于激活状态非处罚性质
         type: boolean
       is_blocked:
+        description: 优先级高于 IsActive，被动行为，一旦味 true 完全无法登录，处罚性质
         type: boolean
       last_login:
+        description: 最后登陆时间
         type: string
       role:
-        $ref: '#/definitions/model.UserRole'
+        allOf:
+        - $ref: '#/definitions/model.UserRole'
+        description: 用户的角色，默认为普通用户
       score:
+        description: 用户的积分
         type: integer
       updated_at:
         type: string
       username:
+        description: 用户名
         type: string
     type: object
   model.UserRole:
@@ -1318,39 +1412,18 @@ definitions:
       data: {}
       message:
         type: string
+      request_id:
+        description: 链路追踪ID（可选，需配合中间件）
+        type: string
+      timestamp:
+        description: 响应时间戳，便于排查
+        type: integer
     type: object
-  service.ApplicationStatusDetail:
+  response.ValidationError:
     properties:
-      application_id:
-        type: integer
-      can_apply:
-        description: 是否可以申请（没有申请或申请已拒绝/已撤销时可为true）
-        type: boolean
-      can_cancel:
-        description: 可执行的操作
-        type: boolean
-      can_resubmit:
-        description: 是否可以重新申请
-        type: boolean
-      created_at:
+      field:
         type: string
-      has_application:
-        type: boolean
-      reason:
-        type: string
-      requested_perms:
-        additionalProperties:
-          type: boolean
-        description: 申请的权限
-        type: object
-      review_note:
-        type: string
-      reviewed_at:
-        type: string
-      reviewer_id:
-        type: integer
-      status:
-        description: pending, approved, rejected, canceled
+      message:
         type: string
     type: object
   service.CreateAnnouncementRequest:
@@ -1584,12 +1657,14 @@ definitions:
   service.UserProfileResponse:
     properties:
       avatar:
+        description: 用户的头像，目前为链接（暂不支持图片上传）
         type: string
       bio:
         type: string
       created_at:
         type: string
       email:
+        description: 邮箱
         type: string
       follower_count:
         type: integer
@@ -1598,20 +1673,27 @@ definitions:
       id:
         type: integer
       is_active:
+        description: 低优先级，用户主动行为，例如验证邮箱后可以处于激活状态非处罚性质
         type: boolean
       is_blocked:
+        description: 优先级高于 IsActive，被动行为，一旦味 true 完全无法登录，处罚性质
         type: boolean
       is_following:
         type: boolean
       last_login:
+        description: 最后登陆时间
         type: string
       role:
-        $ref: '#/definitions/model.UserRole'
+        allOf:
+        - $ref: '#/definitions/model.UserRole'
+        description: 用户的角色，默认为普通用户
       score:
+        description: 用户的积分
         type: integer
       updated_at:
         type: string
       username:
+        description: 用户名
         type: string
     type: object
 host: localhost:8080
@@ -2126,6 +2208,24 @@ paths:
       summary: 管理员获取用户列表
       tags:
       - 管理接口
+  /admin/users/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 目标用户ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - ApiKeyAuth: []
+      summary: 管理员删除用户
+      tags:
+      - 管理接口
   /admin/users/{id}/active:
     put:
       consumes:
@@ -2136,6 +2236,15 @@ paths:
         name: id
         required: true
         type: integer
+      - description: 状态
+        in: body
+        name: body
+        required: true
+        schema:
+          properties:
+            is_active:
+              type: boolean
+          type: object
       produces:
       - application/json
       responses: {}
@@ -2154,12 +2263,88 @@ paths:
         name: id
         required: true
         type: integer
+      - description: 封禁状态
+        in: body
+        name: body
+        required: true
+        schema:
+          properties:
+            is_blocked:
+              type: boolean
+          type: object
       produces:
       - application/json
       responses: {}
       security:
       - ApiKeyAuth: []
       summary: 管理员封禁/解封用户
+      tags:
+      - 管理接口
+  /admin/users/{id}/reset-password:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        管理员为指定用户生成随机临时密码，并通过站内通知发送给用户。
+        临时密码有效期为 30 分钟，用户登录后需尽快修改密码。
+
+        **权限要求**：
+        - 超级管理员：可重置任何用户
+        - 普通管理员：只能重置普通用户，不能重置管理员和超级管理员
+      parameters:
+      - description: 目标用户ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 密码生成方式
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.AdminResetUserPasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 操作成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/handler.AdminResetUserPasswordResponse'
+              type: object
+        "400":
+          description: 参数错误
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/response.ValidationError'
+                  type: array
+              type: object
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "403":
+          description: 权限不足
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: 用户不存在
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 管理员重置用户密码（生成临时密码并通知用户）
       tags:
       - 管理接口
   /admin/users/{id}/role:
@@ -3606,38 +3791,46 @@ paths:
       summary: 撤销版主申请
       tags:
       - 版主管理
-  /boards/moderators/apply:
+  /boards/moderators/applications:
     get:
-      description: 用户查看自己提交的版主申请的状态
+      description: 获取当前用户提交的所有版主申请记录
       parameters:
-      - description: 板块ID
+      - default: 1
+        description: 页码
         in: query
-        name: board_id
-        required: true
+        name: page
+        type: integer
+      - default: 20
+        description: 每页数量
+        in: query
+        name: page_size
         type: integer
       produces:
       - application/json
       responses:
         "200":
-          description: 申请状态
+          description: 申请列表
           schema:
             allOf:
             - $ref: '#/definitions/response.Response'
             - properties:
                 data:
-                  $ref: '#/definitions/service.ApplicationStatusDetail'
+                  allOf:
+                  - $ref: '#/definitions/response.PageData'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/model.ModeratorApplication'
+                        type: array
+                    type: object
               type: object
-        "400":
-          description: 无效的请求参数
-          schema:
-            $ref: '#/definitions/response.Response'
         "401":
           description: 未授权
           schema:
             $ref: '#/definitions/response.Response'
       security:
       - ApiKeyAuth: []
-      summary: 查看版主申请状态
+      summary: 获取我的申请记录
       tags:
       - 版主管理
   /boards/slug/{slug}:

@@ -16,7 +16,7 @@ import { PointsManager } from "@/components/admin/PointsManager";
 import { PostsTable } from "@/components/admin/PostsTable";
 import { SidebarMenu } from "@/components/admin/SidebarMenu";
 import { Dashboard } from "@/components/admin/Dashboard";
-import { UsersTable } from "@/components/admin/UsersTable"; // 修复：正确的导入路径
+import { UsersTable } from "@/components/admin/UsersTable"; 
 import { Statistics } from "@/components/admin/Statistics";
 import { ModeratorsTable } from "@/components/admin/ModeratorsTable";
 
@@ -50,6 +50,36 @@ export default function AdminPage() {
   const pointsData = useScoreData(activeMenu === "points" && isAdmin ? undefined : undefined);
   
   const statsData = useStatsData(activeMenu === "statistics" && isAdmin);
+
+  // 处理用户激活/停用
+  const handleToggleActive = async (userId: number, active: boolean) => {
+    await usersData.toggleActive(userId, active);
+  };
+
+  // 处理用户封禁/解封
+  const handleToggleBlock = async (userId: number, blocked: boolean) => {
+    // 需要确认 usersData 中是否有 toggleBlock 方法
+    // 如果没有，需要添加这个功能到 useUsersData hook 中
+    await usersData.toggleBlock?.(userId, blocked);
+  };
+
+  // 处理用户角色变更
+  const handleToggleRole = async (userId: number, role: string) => {
+    // 需要确认 usersData 中是否有 toggleRole 方法
+    await usersData.toggleRole?.(userId, role);
+  };
+
+  // 处理删除用户
+  const handleDeleteUser = async (userId: number, username: string) => {
+    // 需要确认 usersData 中是否有 deleteUser 方法
+    await usersData.deleteUser?.(userId, username);
+  };
+
+  // 处理重置密码
+  const handleResetPassword = async (userId: number, username: string) => {
+    // 需要确认 usersData 中是否有 resetPassword 方法
+    await usersData.resetPassword?.(userId, username);
+  };
 
   // 加载状态
   if (isCheckingAuth) {
@@ -92,8 +122,15 @@ export default function AdminPage() {
             <UsersTable
               users={usersData.users}
               currentUserId={user?.id}
-              onToggleActive={usersData.toggleActive}
-              isToggling={usersData.isToggling}
+              onToggleActive={handleToggleActive}
+              onToggleBlock={handleToggleBlock}
+              onToggleRole={handleToggleRole}
+              onDeleteUser={handleDeleteUser}
+              onResetPassword={handleResetPassword}
+              isTogglingActive={usersData.isTogglingActive || false}
+              isTogglingBlock={usersData.isTogglingBlock || false}
+              isDeleting={usersData.isDeleting || false}
+              isUpdatingRole={usersData.isUpdatingRole || false}
               t={t}
             />
             <Pagination
@@ -103,10 +140,12 @@ export default function AdminPage() {
             />
           </div>
         );
+      
       case "moderators_management":
         return (
-         <ModeratorsTable/>
+          <ModeratorsTable />
         );
+      
       // MARK: 帖子
       case "posts":
         return (
@@ -134,7 +173,6 @@ export default function AdminPage() {
             />
           </div>
         );
-
 
       // MARK: QA
       case "qa":

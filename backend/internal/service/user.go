@@ -1,13 +1,15 @@
 package service
 
 import (
+	"context"
+	"crypto/rand"
 	"errors"
 	"fmt"
+	"math/big"
 	"time"
-
-	apperrors "tiny-forum/internal/errors"
 	"tiny-forum/internal/model"
 	"tiny-forum/internal/repository"
+	apperrors "tiny-forum/pkg/errors"
 	jwtpkg "tiny-forum/pkg/jwt"
 
 	"golang.org/x/crypto/bcrypt"
@@ -146,16 +148,23 @@ type UserProfileResponse struct {
 func (s *UserService) GetUserProfile(targetID, viewerID uint) (*UserProfileResponse, error) {
 	user, err := s.repo.FindByID(targetID)
 	if err != nil {
-		return nil, err
+		// 转换数据库错误为业务错误
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, apperrors.Wrapf(apperrors.ErrUserNotFound, "ID: %d", targetID)
+		}
+		return nil, fmt.Errorf("查询用户失败: %w", err)
 	}
+
 	resp := &UserProfileResponse{
 		User:           user,
 		FollowerCount:  s.repo.GetFollowerCount(targetID),
 		FollowingCount: s.repo.GetFollowingCount(targetID),
 	}
+
 	if viewerID > 0 {
 		resp.IsFollowing = s.repo.IsFollowing(viewerID, targetID)
 	}
+
 	return resp, nil
 }
 
@@ -237,14 +246,96 @@ func (s *UserService) List(page, pageSize int, keyword string) ([]model.User, in
 	return s.repo.List(page, pageSize, keyword)
 }
 
-func (s *UserService) SetActive(userID uint, active bool) error {
-	return s.repo.UpdateFields(userID, map[string]interface{}{"is_active": active})
-}
+// MARK: Status
+// SetBlocked 设置用户封禁状态
+// func (s *UserService) SetBlocked(ctx context.Context, targetID uint, operatorID uint, isBlocked bool) error {
+// 	// 1. 查询目标用户
+// 	targetUser, err := s.repo.FindByID(targetID)
+// 	if err != nil {
+// 		if errors.Is(err, gorm.ErrRecordNotFound) {
+// 			return apperrors.Wrapf(apperrors.ErrUserNotFound, "ID: %d", targetID)
+// 		}
+// 		return fmt.Errorf("查询目标用户失败: %w", err)
+// 	}
 
-func (s *UserService) SetBlocked(userID uint, blocked bool) error {
-	return s.repo.UpdateFields(userID, map[string]interface{}{"is_blocked": blocked})
-}
+// 	// 2. 查询操作者信息
+// 	operator, err := s.repo.FindByID(operatorID)
+// 	if err != nil {
+// 		if errors.Is(err, gorm.ErrRecordNotFound) {
+// 			return apperrors.Wrapf(apperrors.ErrUserNotFound, "ID: %d", operatorID)
+// 		}
+// 		return fmt.Errorf("查询操作者信息失败: %w", err)
+// 	}
 
+// 	// 3. 安全检查：不能封禁自己
+// 	if targetID == operatorID {
+// 		return apperrors.ErrCannotModifySelf
+// 	}
+
+// 	// 4. 安全检查：不能封禁超级管理员
+// 	if targetUser.Role == model.RoleSuperAdmin {
+// 		return apperrors.ErrCannotChangeOwnerRole
+// 	}
+
+// 	// 5. 安全检查：普通管理员不能封禁其他管理员
+// 	if operator.Role != model.RoleSuperAdmin && targetUser.Role == model.RoleAdmin {
+// 		return apperrors.ErrInsufficientPermission
+// 	}
+
+// 	// 6. 幂等性检查
+// 	if targetUser.IsBlocked == isBlocked {
+// 		return nil
+// 	}
+
+// 	// 7. 更新封禁状态
+// 	if err := s.repo.UpdateBlocked(ctx, targetID, isBlocked); err != nil {
+// 		if errors.Is(err, gorm.ErrRecordNotFound) {
+// 			return apperrors.Wrapf(apperrors.ErrUserNotFound, "ID: %d", targetID)
+// 		}
+// 		return fmt.Errorf("更新用户封禁状态失败: %w", err)
+// 	}
+
+// 	return nil
+// }
+
+// SetActive 设置用户激活状态
+// func (s *UserService) SetActive(ctx context.Context, targetID uint, operatorID uint, isActive bool) error {
+// 	// 1. 查询目标用户
+// 	targetUser, err := s.repo.FindByID(targetID)
+// 	if err != nil {
+// 		if errors.Is(err, gorm.ErrRecordNotFound) {
+// 			return apperrors.Wrapf(apperrors.ErrUserNotFound, "ID: %d", targetID)
+// 		}
+// 		return fmt.Errorf("查询目标用户失败: %w", err)
+// 	}
+
+// 	// 2. 安全检查：不能禁用自己
+// 	if targetID == operatorID {
+// 		return apperrors.ErrCannotModifySelf
+// 	}
+
+// 	// 3. 安全检查：不能禁用超级管理员
+// 	if targetUser.Role == model.RoleSuperAdmin && !isActive {
+// 		return apperrors.ErrCannotChangeOwnerRole
+// 	}
+
+// 	// 4. 幂等性检查
+// 	if targetUser.IsActive == isActive {
+// 		return nil
+// 	}
+
+// 	// 5. 更新激活状态
+// 	if err := s.repo.UpdateActive(ctx, targetID, isActive); err != nil {
+// 		if errors.Is(err, gorm.ErrRecordNotFound) {
+// 			return apperrors.Wrapf(apperrors.ErrUserNotFound, "ID: %d", targetID)
+// 		}
+// 		return fmt.Errorf("更新用户激活状态失败: %w", err)
+// 	}
+
+// 	return nil
+// }
+
+// MARK: Scoer
 func (s *UserService) SetScoreById(userID uint, score int) error {
 	// 1. 参数验证
 	if userID == 0 {
@@ -308,6 +399,327 @@ func (s *UserService) SetRole(operatorID, targetID uint, newRole string) error {
 
 	// 5. 执行更新
 	return s.repo.UpdateFields(targetID, map[string]interface{}{"role": newRole})
+}
+
+// DeleteUser 管理员删除用户
+func (s *UserService) DeleteUser(operatorID uint, targetID uint) error {
+	ctx := context.Background()
+
+	// 1. 查询目标用户
+	targetUser, err := s.repo.FindByID(targetID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return apperrors.Wrapf(apperrors.ErrUserNotFound, "ID: %d", targetID)
+		}
+		return fmt.Errorf("查询目标用户失败: %w", err)
+	}
+
+	// 2. 查询操作者
+	operator, err := s.repo.FindByID(operatorID)
+	if err != nil {
+		return fmt.Errorf("查询操作者信息失败: %w", err)
+	}
+
+	// 3. 安全检查：不能删除自己
+	if targetID == operatorID {
+		return apperrors.Wrap(apperrors.ErrCannotModifySelf, "不能删除自己的账号")
+	}
+
+	// 4. 安全检查：不能删除超级管理员
+	if targetUser.Role == model.RoleSuperAdmin {
+		return apperrors.Wrap(apperrors.ErrCannotChangeOwnerRole, "不能删除超级管理员")
+	}
+
+	// 5. 安全检查：普通管理员不能删除其他管理员
+	if operator.Role != model.RoleSuperAdmin && targetUser.Role == model.RoleAdmin {
+		return apperrors.Wrap(apperrors.ErrInsufficientPermission, "只有超级管理员才能删除其他管理员")
+	}
+
+	// 6. 执行软删除（会自动清理 Token，因为 SoftDelete 内部调用了 tokenRepo.DeleteByUserID）
+	if err := s.repo.SoftDelete(ctx, targetID); err != nil {
+		return fmt.Errorf("删除用户失败: %w", err)
+	}
+
+	// 7. 记录审计日志（可选）
+	s.logAudit(ctx, operatorID, targetID, "delete_user",
+		fmt.Sprintf("管理员 %d 删除了用户 %d (%s)", operatorID, targetID, targetUser.Username))
+
+	return nil
+}
+
+const (
+	tempPasswordLength = 12
+	tempPasswordTTL    = 30 * time.Minute
+)
+
+// 管理员重置用户密码（生成临时密码）
+func (s *UserService) ResetUserPasswordWithTemp(operatorID uint, targetID uint) (string, error) {
+	ctx := context.Background()
+
+	// 1. 查询目标用户
+	targetUser, err := s.repo.FindByID(targetID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return "", apperrors.Wrapf(apperrors.ErrUserNotFound, "ID: %d", targetID)
+		}
+		return "", fmt.Errorf("查询目标用户失败: %w", err)
+	}
+
+	// 2. 查询操作者
+	operator, err := s.repo.FindByID(operatorID)
+	if err != nil {
+		return "", fmt.Errorf("查询操作者信息失败: %w", err)
+	}
+
+	// 3. 安全检查：不能重置超级管理员的密码（除非自己是超管）
+	if targetUser.Role == model.RoleSuperAdmin && operator.Role != model.RoleSuperAdmin {
+		return "", apperrors.Wrap(apperrors.ErrInsufficientPermission, "只有超级管理员才能重置其他超级管理员的密码")
+	}
+
+	// 4. 普通管理员不能重置其他管理员的密码
+	if operator.Role != model.RoleSuperAdmin && targetUser.Role == model.RoleAdmin {
+		return "", apperrors.Wrap(apperrors.ErrInsufficientPermission, "只有超级管理员才能重置其他管理员的密码")
+	}
+
+	// 5. 生成随机临时密码
+	tempPassword, err := generateSecurePassword(tempPasswordLength)
+	if err != nil {
+		return "", fmt.Errorf("生成临时密码失败: %w", err)
+	}
+
+	// 6. 加密密码
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(tempPassword), bcrypt.DefaultCost)
+	if err != nil {
+		return "", fmt.Errorf("密码加密失败: %w", err)
+	}
+
+	// 7. 更新密码（UpdatePassword 内部会自动清理 Token）
+	if err := s.repo.UpdatePassword(ctx, targetID, string(hashedPassword)); err != nil {
+		return "", fmt.Errorf("更新密码失败: %w", err)
+	}
+
+	// 8. 记录密码重置标记（可选，用于判断是否需要强制修改密码）
+	expiresAt := time.Now().Add(tempPasswordTTL)
+	if err := s.repo.SetTempPasswordFlag(ctx, targetID, true, expiresAt); err != nil {
+		// 记录日志但不中断流程
+		// log.Printf("设置临时密码标记失败: %v", err)
+	}
+
+	// 9. 记录审计日志
+	s.logAudit(ctx, operatorID, targetID, "reset_password_temp",
+		fmt.Sprintf("管理员 %d 为用户 %d (%s) 生成了临时密码", operatorID, targetID, targetUser.Username))
+
+	return tempPassword, nil
+}
+
+// generateSecurePassword 生成安全随机密码
+func generateSecurePassword(length int) (string, error) {
+	const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*"
+
+	result := make([]byte, length)
+	for i := 0; i < length; i++ {
+		n, err := rand.Int(rand.Reader, big.NewInt(int64(len(chars))))
+		if err != nil {
+			return "", err
+		}
+		result[i] = chars[n.Int64()]
+	}
+
+	return string(result), nil
+}
+
+// ResetUserPassword 管理员重置用户密码（指定密码）
+func (s *UserService) ResetUserPassword(operatorID uint, targetID uint, newPassword string) error {
+	ctx := context.Background()
+
+	// 1. 查询目标用户
+	targetUser, err := s.repo.FindByID(targetID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return apperrors.Wrapf(apperrors.ErrUserNotFound, "ID: %d", targetID)
+		}
+		return fmt.Errorf("查询目标用户失败: %w", err)
+	}
+
+	// 2. 查询操作者
+	operator, err := s.repo.FindByID(operatorID)
+	if err != nil {
+		return fmt.Errorf("查询操作者信息失败: %w", err)
+	}
+
+	// 3. 安全检查：不能重置超级管理员的密码（除非自己是超管）
+	if targetUser.Role == model.RoleSuperAdmin && operator.Role != model.RoleSuperAdmin {
+		return apperrors.Wrap(apperrors.ErrInsufficientPermission, "只有超级管理员才能重置其他超级管理员的密码")
+	}
+
+	// 4. 普通管理员不能重置其他管理员的密码
+	if operator.Role != model.RoleSuperAdmin && targetUser.Role == model.RoleAdmin {
+		return apperrors.Wrap(apperrors.ErrInsufficientPermission, "只有超级管理员才能重置其他管理员的密码")
+	}
+
+	// 5. 验证新密码强度（可选但推荐）
+	if err := s.validatePasswordStrength(newPassword); err != nil {
+		return err
+	}
+
+	// 6. 加密新密码
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
+	if err != nil {
+		return fmt.Errorf("密码加密失败: %w", err)
+	}
+
+	// 7. 更新密码（UpdatePassword 内部会自动清理 Token）
+	if err := s.repo.UpdatePassword(ctx, targetID, string(hashedPassword)); err != nil {
+		return fmt.Errorf("更新密码失败: %w", err)
+	}
+
+	// 8. 记录审计日志
+	s.logAudit(ctx, operatorID, targetID, "reset_password",
+		fmt.Sprintf("管理员 %d 重置了用户 %d (%s) 的密码", operatorID, targetID, targetUser.Username))
+
+	return nil
+}
+
+// SetBlocked 管理员封禁/解封用户
+func (s *UserService) SetBlocked(targetID uint, operatorID uint, isBlocked bool) error {
+	ctx := context.Background()
+
+	// 1. 查询目标用户
+	targetUser, err := s.repo.FindByID(targetID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return apperrors.Wrapf(apperrors.ErrUserNotFound, "ID: %d", targetID)
+		}
+		return fmt.Errorf("查询目标用户失败: %w", err)
+	}
+
+	// 2. 查询操作者
+	operator, err := s.repo.FindByID(operatorID)
+	if err != nil {
+		return fmt.Errorf("查询操作者信息失败: %w", err)
+	}
+
+	// 3. 安全检查：不能封禁自己
+	if targetID == operatorID {
+		return apperrors.Wrap(apperrors.ErrCannotModifySelf, "不能封禁自己的账号")
+	}
+
+	// 4. 安全检查：不能封禁超级管理员
+	if targetUser.Role == model.RoleSuperAdmin {
+		return apperrors.Wrap(apperrors.ErrCannotChangeOwnerRole, "不能封禁超级管理员")
+	}
+
+	// 5. 安全检查：普通管理员不能封禁其他管理员
+	if operator.Role != model.RoleSuperAdmin && targetUser.Role == model.RoleAdmin {
+		return apperrors.Wrap(apperrors.ErrInsufficientPermission, "只有超级管理员才能封禁其他管理员")
+	}
+
+	// 6. 幂等性检查
+	if targetUser.IsBlocked == isBlocked {
+		return nil
+	}
+
+	// 7. 更新封禁状态（UpdateBlocked 内部会在封禁时自动清理 Token）
+	if err := s.repo.UpdateBlocked(ctx, targetID, isBlocked); err != nil {
+		return fmt.Errorf("更新用户封禁状态失败: %w", err)
+	}
+
+	// 8. 记录审计日志
+	action := "unblock_user"
+	if isBlocked {
+		action = "block_user"
+	}
+	s.logAudit(ctx, operatorID, targetID, action,
+		fmt.Sprintf("管理员 %d %s用户 %d (%s)", operatorID, map[bool]string{true: "封禁", false: "解封"}[isBlocked], targetID, targetUser.Username))
+
+	return nil
+}
+
+// SetActive 管理员设置用户激活状态
+func (s *UserService) SetActive(targetID uint, operatorID uint, isActive bool) error {
+	ctx := context.Background()
+
+	// 1. 查询目标用户
+	targetUser, err := s.repo.FindByID(targetID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return apperrors.Wrapf(apperrors.ErrUserNotFound, "ID: %d", targetID)
+		}
+		return fmt.Errorf("查询目标用户失败: %w", err)
+	}
+
+	// 2. 安全检查：不能停用自己的账号
+	if targetID == operatorID && !isActive {
+		return apperrors.Wrap(apperrors.ErrCannotModifySelf, "不能停用自己的账号")
+	}
+
+	// 3. 安全检查：不能停用超级管理员
+	if targetUser.Role == model.RoleSuperAdmin && !isActive {
+		return apperrors.Wrap(apperrors.ErrCannotChangeOwnerRole, "不能停用超级管理员")
+	}
+
+	// 4. 幂等性检查
+	if targetUser.IsActive == isActive {
+		return nil
+	}
+
+	// 5. 更新激活状态
+	if err := s.repo.UpdateActive(ctx, targetID, isActive); err != nil {
+		return fmt.Errorf("更新用户激活状态失败: %w", err)
+	}
+
+	// 6. 如果停用账号，清理 Token
+	if !isActive {
+		_ = s.repo.InvalidateUserTokens(ctx, targetID)
+	}
+
+	// 7. 记录审计日志
+	action := "activate_user"
+	if !isActive {
+		action = "deactivate_user"
+	}
+	s.logAudit(ctx, operatorID, targetID, action,
+		fmt.Sprintf("管理员 %d %s用户 %d (%s)", operatorID, map[bool]string{true: "激活", false: "停用"}[isActive], targetID, targetUser.Username))
+
+	return nil
+}
+
+// ========== 辅助方法 ==========
+
+// validatePasswordStrength 验证密码强度
+func (s *UserService) validatePasswordStrength(password string) error {
+	if len(password) < 6 {
+		return apperrors.Wrap(apperrors.ErrInvalidPassword, "密码长度至少6位")
+	}
+	if len(password) > 32 {
+		return apperrors.Wrap(apperrors.ErrInvalidPassword, "密码长度不能超过32位")
+	}
+	// 可选：检查是否包含数字、字母等
+	// hasDigit := regexp.MustCompile(`[0-9]`).MatchString(password)
+	// hasLetter := regexp.MustCompile(`[a-zA-Z]`).MatchString(password)
+	// if !hasDigit || !hasLetter {
+	//     return apperrors.Wrap(apperrors.ErrInvalidPassword, "密码必须包含数字和字母")
+	// }
+	return nil
+}
+
+// logAudit 记录审计日志
+func (s *UserService) logAudit(ctx context.Context, operatorID, targetID uint, action, detail string) {
+	// 如果有日志库，使用日志库记录
+	// s.logger.Info("audit_log",
+	//     "operator_id", operatorID,
+	//     "target_id", targetID,
+	//     "action", action,
+	//     "detail", detail,
+	// )
+
+	// 或者存入数据库审计表
+	// s.auditRepo.Create(ctx, &model.AuditLog{
+	//     OperatorID: operatorID,
+	//     TargetID:   targetID,
+	//     Action:     action,
+	//     Detail:     detail,
+	// })
 }
 
 // ── 内部工具 ─────────────────────────────────────────────────────────────────

@@ -2,11 +2,13 @@ package handler
 
 import (
 	"errors"
+	"fmt"
 	"strconv"
 	"time"
 
-	apperrors "tiny-forum/internal/errors"
+	"tiny-forum/internal/model"
 	"tiny-forum/internal/service"
+	apperrors "tiny-forum/pkg/errors"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -14,11 +16,12 @@ import (
 )
 
 type UserHandler struct {
-	userSvc *service.UserService
+	userSvc  *service.UserService
+	notifSvc *service.NotificationService
 }
 
-func NewUserHandler(userSvc *service.UserService) *UserHandler {
-	return &UserHandler{userSvc: userSvc}
+func NewUserHandler(userSvc *service.UserService, notifSvc *service.NotificationService) *UserHandler {
+	return &UserHandler{userSvc: userSvc, notifSvc: notifSvc}
 }
 
 // ── 公开接口 ─────────────────────────────────────────────────────────────────
@@ -31,22 +34,39 @@ func NewUserHandler(userSvc *service.UserService) *UserHandler {
 // @Success 200 {object} response.Response{data=service.UserProfileResponse}
 // @Router /users/{id} [get]
 func (h *UserHandler) GetProfile(c *gin.Context) {
+	// 1. 参数解析
 	targetID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的用户ID")
+		response.InvalidParams(c, []response.ValidationError{
+			{Field: "id", Message: "无效的用户ID格式"},
+		})
 		return
 	}
-	viewerUint, _ := c.Get("user_id")
-	var viewerID uint
-	if v, ok := viewerUint.(uint); ok {
-		viewerID = v
-	}
+
+	// 2. 获取当前登录用户（可选，未登录时为 0）
+	viewerID := getViewerID(c)
+
+	// 3. 调用服务层
 	profile, err := h.userSvc.GetUserProfile(uint(targetID), viewerID)
 	if err != nil {
-		response.NotFound(c, "用户不存在")
+		// 根据错误类型自动返回正确的状态码和错误信息
+		// 如果是用户不存在 -> 404 + Code 20001
+		// 如果是数据库错误 -> 500 + Code 50000
+		response.Error(c, err)
 		return
 	}
+
 	response.Success(c, profile)
+}
+
+// 辅助函数：从 context 获取当前登录用户 ID
+func getViewerID(c *gin.Context) uint {
+	if v, exists := c.Get("user_id"); exists {
+		if id, ok := v.(uint); ok {
+			return id
+		}
+	}
+	return 0
 }
 
 // UpdateProfile 更新个人资料
@@ -262,32 +282,65 @@ func (h *UserHandler) AdminList(c *gin.Context) {
 	response.SuccessPage(c, users, total, page, pageSize)
 }
 
-// AdminSetActive 设置用户启用状态
 // @Summary 管理员设置用户状态
 // @Tags 管理接口
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path int true "用户ID"
+// @Param body body object{is_active=bool} true "状态"
 // @Router /admin/users/{id}/active [put]
 func (h *UserHandler) AdminSetActive(c *gin.Context) {
+	// 1. 解析目标用户ID
 	targetID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的用户ID")
+		response.InvalidParams(c, []response.ValidationError{
+			{Field: "id", Message: "无效的用户ID格式"},
+		})
 		return
 	}
+
+	// 2. 获取当前操作用户ID（中间件已设置）
+	currentUserID, exists := c.Get("user_id")
+	if !exists {
+		response.Unauthorized(c, "未登录")
+		return
+	}
+	currentID, ok := currentUserID.(uint)
+	if !ok {
+		response.InternalError(c, "用户身份解析失败")
+		return
+	}
+
+	// 3. 管理员不能修改自己的激活状态（防止误操作把自己禁用）
+	if currentID == uint(targetID) {
+		response.Forbidden(c, "不能修改自己的激活状态")
+		return
+	}
+
+	// 4. 绑定请求体
 	var body struct {
 		IsActive bool `json:"is_active"`
 	}
 	if err := c.ShouldBindJSON(&body); err != nil {
-		response.BadRequest(c, err.Error())
+		response.InvalidParams(c, []response.ValidationError{
+			{Field: "is_active", Message: "is_active 字段必须为布尔值"},
+		})
 		return
 	}
-	if err := h.userSvc.SetActive(uint(targetID), body.IsActive); err != nil {
-		response.InternalError(c, err.Error())
+
+	// 5. 调用 Service 层
+	if err := h.userSvc.SetActive(uint(targetID), currentID, body.IsActive); err != nil {
+		// 自动根据 err 类型返回合适的响应
+		response.Error(c, err)
 		return
 	}
-	response.Success(c, gin.H{"message": "操作成功"})
+
+	// 6. 成功响应（建议返回更新后的用户状态，而不是简单的 message）
+	response.Success(c, gin.H{
+		"user_id":   targetID,
+		"is_active": body.IsActive,
+	})
 }
 
 // AdminSetBlocked 设置用户封禁状态
@@ -297,25 +350,55 @@ func (h *UserHandler) AdminSetActive(c *gin.Context) {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path int true "用户ID"
+// @Param body body object{is_blocked=bool} true "封禁状态"
 // @Router /admin/users/{id}/blocked [put]
 func (h *UserHandler) AdminSetBlocked(c *gin.Context) {
+	// 1. 解析目标用户ID
 	targetID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的用户ID")
+		response.InvalidParams(c, response.SimpleValidationError("id", "无效的用户ID格式"))
 		return
 	}
+
+	// 2. 获取当前操作用户ID
+	currentUserID, exists := c.Get("user_id")
+	if !exists {
+		response.Unauthorized(c, "未登录")
+		return
+	}
+	currentID, ok := currentUserID.(uint)
+	if !ok {
+		response.InternalError(c, "用户身份解析失败")
+		return
+	}
+
+	// 3. 绑定请求体
 	var body struct {
 		IsBlocked bool `json:"is_blocked"`
 	}
+
 	if err := c.ShouldBindJSON(&body); err != nil {
-		response.BadRequest(c, err.Error())
+		// 打印真实错误用于调试
+		fmt.Printf("❌ Bind error: %v\n", err)
+
+		response.InvalidParams(c, response.SimpleValidationError("is_blocked", "is_blocked 字段必须为布尔值"))
 		return
 	}
-	if err := h.userSvc.SetBlocked(uint(targetID), body.IsBlocked); err != nil {
-		response.InternalError(c, err.Error())
+
+	// 调试日志放在绑定之后
+	fmt.Printf("✅ Parsed body: is_blocked=%v\n", body.IsBlocked)
+
+	// 4. 调用 Service 层
+	if err := h.userSvc.SetBlocked(uint(targetID), currentID, body.IsBlocked); err != nil {
+		response.Error(c, err)
 		return
 	}
-	response.Success(c, gin.H{"message": "操作成功"})
+
+	// 5. 成功响应
+	response.Success(c, gin.H{
+		"user_id":    targetID,
+		"is_blocked": body.IsBlocked,
+	})
 }
 
 // AdminSetRole 设置用户角色
@@ -329,7 +412,7 @@ func (h *UserHandler) AdminSetBlocked(c *gin.Context) {
 // @Success 200 {object} response.Response
 // @Router /admin/users/{id}/role [put]
 func (h *UserHandler) AdminSetRole(c *gin.Context) {
-	operatorID, exists := c.Get("user_id")
+	operatorID, exists := c.Get("id")
 	if !exists {
 		response.Unauthorized(c, "未授权操作")
 		return
@@ -358,6 +441,138 @@ func (h *UserHandler) AdminSetRole(c *gin.Context) {
 		"new_role":    body.Role,
 		"operator_id": operatorID,
 	})
+}
+
+// AdminDeleteUser 管理员删除用户
+// @Summary 管理员删除用户
+// @Tags 管理接口
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path int true "目标用户ID"
+// @Router /admin/users/{id} [delete]
+func (h *UserHandler) AdminDeleteUser(c *gin.Context) {
+	// 1. 获取操作者ID
+	operatorID, exists := c.Get("user_id")
+	if !exists {
+		response.Unauthorized(c, "未授权操作")
+		return
+	}
+	operatorUint, ok := operatorID.(uint)
+	if !ok {
+		response.InternalError(c, "用户身份解析失败")
+		return
+	}
+
+	// 2. 解析目标用户ID
+	targetID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		response.InvalidParams(c, response.SimpleValidationError("id", "无效的用户ID格式"))
+		return
+	}
+
+	// 3. 调用 Service 删除用户
+	if err := h.userSvc.DeleteUser(operatorUint, uint(targetID)); err != nil {
+		response.Error(c, err)
+		return
+	}
+
+	response.Success(c, gin.H{
+		"message":     "删除用户成功",
+		"user_id":     targetID,
+		"operator_id": operatorUint,
+	})
+}
+
+// handler/user_handler.go
+
+// AdminResetUserPasswordRequest 重置密码请求体
+type AdminResetUserPasswordRequest struct {
+	PasswordType string `json:"password_type" binding:"required,oneof=random" example:"random"` // 密码生成方式：random-随机生成
+}
+
+// AdminResetUserPasswordResponse 重置密码响应体
+type AdminResetUserPasswordResponse struct {
+	Message    string `json:"message" example:"临时密码已生成并发送给用户"`
+	UserID     uint   `json:"user_id" example:"123"`
+	OperatorID uint   `json:"operator_id" example:"1"`
+}
+
+// AdminResetUserPassword 管理员重置用户密码
+// @Summary 管理员重置用户密码（生成临时密码并通知用户）
+// @Description 管理员为指定用户生成随机临时密码，并通过站内通知发送给用户。
+// @Description 临时密码有效期为 30 分钟，用户登录后需尽快修改密码。
+// @Description
+// @Description **权限要求**：
+// @Description - 超级管理员：可重置任何用户
+// @Description - 普通管理员：只能重置普通用户，不能重置管理员和超级管理员
+// @Tags 管理接口
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path int true "目标用户ID" example:"123"
+// @Param body body AdminResetUserPasswordRequest true "密码生成方式"
+// @Success 200 {object} response.Response{data=AdminResetUserPasswordResponse} "操作成功"
+// @Failure 400 {object} response.Response{data=[]response.ValidationError} "参数错误"
+// @Failure 401 {object} response.Response "未授权"
+// @Failure 403 {object} response.Response "权限不足"
+// @Failure 404 {object} response.Response "用户不存在"
+// @Failure 500 {object} response.Response "服务器内部错误"
+// @Router /admin/users/{id}/reset-password [post]
+func (h *UserHandler) AdminResetUserPassword(c *gin.Context) {
+	// 1. 获取操作者ID
+	operatorID, exists := c.Get("user_id")
+	if !exists {
+		response.Unauthorized(c, "未授权操作")
+		return
+	}
+	operatorUint, ok := operatorID.(uint)
+	if !ok {
+		response.InternalError(c, "用户身份解析失败")
+		return
+	}
+
+	// 2. 解析目标用户ID
+	targetID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		response.InvalidParams(c, response.SimpleValidationError("id", "无效的用户ID格式"))
+		return
+	}
+
+	// 3. 绑定请求体
+	var body AdminResetUserPasswordRequest
+	if err := c.ShouldBindJSON(&body); err != nil {
+		response.InvalidParams(c, response.ParseValidationError(err))
+		return
+	}
+
+	// 4. 调用 Service 重置密码（返回生成的临时密码）
+	tempPassword, err := h.userSvc.ResetUserPasswordWithTemp(operatorUint, uint(targetID))
+	if err != nil {
+		response.Error(c, err)
+		return
+	}
+
+	// 5. 发送通知给用户
+	h.sendTempPasswordNotification(uint(targetID), operatorUint, tempPassword)
+
+	// 6. 使用结构体返回（不返回密码，只返回成功状态）
+	response.Success(c, AdminResetUserPasswordResponse{
+		Message:    "临时密码已生成并发送给用户",
+		UserID:     uint(targetID),
+		OperatorID: operatorUint,
+	})
+}
+
+// sendTempPasswordNotification 发送临时密码通知
+func (h *UserHandler) sendTempPasswordNotification(targetID, operatorID uint, tempPassword string) {
+	message := fmt.Sprintf(
+		"管理员已重置您的密码。临时密码为：%s，有效期 30 分钟，请尽快登录并修改密码，以防被盗。",
+		tempPassword,
+	)
+
+	// 发送系统通知
+	h.notifSvc.Create(targetID, &operatorID, model.NotifySystem, message, nil, "")
 }
 
 // AdminSetScore 管理员设置用户积分

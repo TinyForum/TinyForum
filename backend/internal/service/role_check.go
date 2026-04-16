@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"tiny-forum/internal/model"
 
-	apperrors "tiny-forum/internal/errors"
+	apperrors "tiny-forum/pkg/errors"
 )
 
 // RoleChangeRequest 封装一次角色变更的上下文

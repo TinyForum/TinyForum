@@ -907,6 +907,35 @@ const docTemplate = `{
                 }
             }
         },
+        "/admin/users/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "管理接口"
+                ],
+                "summary": "管理员删除用户",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "目标用户ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
         "/admin/users/{id}/active": {
             "put": {
                 "security": [
@@ -931,6 +960,20 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "description": "状态",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "is_active": {
+                                    "type": "boolean"
+                                }
+                            }
+                        }
                     }
                 ],
                 "responses": {}
@@ -960,9 +1003,126 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "description": "封禁状态",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "is_blocked": {
+                                    "type": "boolean"
+                                }
+                            }
+                        }
                     }
                 ],
                 "responses": {}
+            }
+        },
+        "/admin/users/{id}/reset-password": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "管理员为指定用户生成随机临时密码，并通过站内通知发送给用户。\n临时密码有效期为 30 分钟，用户登录后需尽快修改密码。\n\n**权限要求**：\n- 超级管理员：可重置任何用户\n- 普通管理员：只能重置普通用户，不能重置管理员和超级管理员",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "管理接口"
+                ],
+                "summary": "管理员重置用户密码（生成临时密码并通知用户）",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "目标用户ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "密码生成方式",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.AdminResetUserPasswordRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "操作成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handler.AdminResetUserPasswordResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/response.ValidationError"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "权限不足",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "用户不存在",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
             }
         },
         "/admin/users/{id}/role": {
@@ -2195,33 +2355,40 @@ const docTemplate = `{
                 }
             }
         },
-        "/boards/moderators/apply": {
+        "/boards/moderators/applications": {
             "get": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "用户查看自己提交的版主申请的状态",
+                "description": "获取当前用户提交的所有版主申请记录",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "版主管理"
                 ],
-                "summary": "查看版主申请状态",
+                "summary": "获取我的申请记录",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "板块ID",
-                        "name": "board_id",
-                        "in": "query",
-                        "required": true
+                        "default": 1,
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 20,
+                        "description": "每页数量",
+                        "name": "page_size",
+                        "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "申请状态",
+                        "description": "申请列表",
                         "schema": {
                             "allOf": [
                                 {
@@ -2231,17 +2398,26 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/service.ApplicationStatusDetail"
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/response.PageData"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "list": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "$ref": "#/definitions/model.ModeratorApplication"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ]
                                         }
                                     }
                                 }
                             ]
-                        }
-                    },
-                    "400": {
-                        "description": "无效的请求参数",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "401": {
@@ -6700,6 +6876,39 @@ const docTemplate = `{
                 }
             }
         },
+        "handler.AdminResetUserPasswordRequest": {
+            "type": "object",
+            "required": [
+                "password_type"
+            ],
+            "properties": {
+                "password_type": {
+                    "description": "密码生成方式：random-随机生成",
+                    "type": "string",
+                    "enum": [
+                        "random"
+                    ],
+                    "example": "random"
+                }
+            }
+        },
+        "handler.AdminResetUserPasswordResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "临时密码已生成并发送给用户"
+                },
+                "operator_id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "user_id": {
+                    "type": "integer",
+                    "example": 123
+                }
+            }
+        },
         "handler.AdminSetScoreRequest": {
             "type": "object",
             "required": [
@@ -7035,6 +7244,33 @@ const docTemplate = `{
                 "AnnouncementTypeEvent"
             ]
         },
+        "model.ApplicationStatus": {
+            "type": "string",
+            "enum": [
+                "pending",
+                "approved",
+                "rejected",
+                "canceled"
+            ],
+            "x-enum-comments": {
+                "ApplicationApproved": "已通过",
+                "ApplicationCanceled": "用户撤销",
+                "ApplicationPending": "待审核",
+                "ApplicationRejected": "已拒绝"
+            },
+            "x-enum-descriptions": [
+                "待审核",
+                "已通过",
+                "已拒绝",
+                "用户撤销"
+            ],
+            "x-enum-varnames": [
+                "ApplicationPending",
+                "ApplicationApproved",
+                "ApplicationRejected",
+                "ApplicationCanceled"
+            ]
+        },
         "model.ApplyModeratorInput": {
             "type": "object",
             "required": [
@@ -7353,6 +7589,65 @@ const docTemplate = `{
                 },
                 "permissions": {
                     "type": "object"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/model.User"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "model.ModeratorApplication": {
+            "type": "object",
+            "properties": {
+                "board": {
+                    "$ref": "#/definitions/model.Board"
+                },
+                "board_id": {
+                    "type": "integer"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "req_ban_user": {
+                    "type": "boolean"
+                },
+                "req_delete_post": {
+                    "description": "申请时希望获得的初始权限（审批人可在通过时调整）",
+                    "type": "boolean"
+                },
+                "req_edit_any_post": {
+                    "type": "boolean"
+                },
+                "req_manage_moderator": {
+                    "type": "boolean"
+                },
+                "req_pin_post": {
+                    "type": "boolean"
+                },
+                "review_note": {
+                    "description": "审批备注",
+                    "type": "string"
+                },
+                "reviewer": {
+                    "$ref": "#/definitions/model.User"
+                },
+                "reviewer_id": {
+                    "description": "审批人（管理员）",
+                    "type": "integer"
+                },
+                "status": {
+                    "$ref": "#/definitions/model.ApplicationStatus"
                 },
                 "updated_at": {
                     "type": "string"
@@ -8313,6 +8608,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "avatar": {
+                    "description": "用户的头像，目前为链接（暂不支持图片上传）",
                     "type": "string"
                 },
                 "bio": {
@@ -8322,30 +8618,41 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "email": {
+                    "description": "邮箱",
                     "type": "string"
                 },
                 "id": {
                     "type": "integer"
                 },
                 "is_active": {
+                    "description": "低优先级，用户主动行为，例如验证邮箱后可以处于激活状态非处罚性质",
                     "type": "boolean"
                 },
                 "is_blocked": {
+                    "description": "优先级高于 IsActive，被动行为，一旦味 true 完全无法登录，处罚性质",
                     "type": "boolean"
                 },
                 "last_login": {
+                    "description": "最后登陆时间",
                     "type": "string"
                 },
                 "role": {
-                    "$ref": "#/definitions/model.UserRole"
+                    "description": "用户的角色，默认为普通用户",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/model.UserRole"
+                        }
+                    ]
                 },
                 "score": {
+                    "description": "用户的积分",
                     "type": "integer"
                 },
                 "updated_at": {
                     "type": "string"
                 },
                 "username": {
+                    "description": "用户名",
                     "type": "string"
                 }
             }
@@ -8397,54 +8704,24 @@ const docTemplate = `{
                 "data": {},
                 "message": {
                     "type": "string"
+                },
+                "request_id": {
+                    "description": "链路追踪ID（可选，需配合中间件）",
+                    "type": "string"
+                },
+                "timestamp": {
+                    "description": "响应时间戳，便于排查",
+                    "type": "integer"
                 }
             }
         },
-        "service.ApplicationStatusDetail": {
+        "response.ValidationError": {
             "type": "object",
             "properties": {
-                "application_id": {
-                    "type": "integer"
-                },
-                "can_apply": {
-                    "description": "是否可以申请（没有申请或申请已拒绝/已撤销时可为true）",
-                    "type": "boolean"
-                },
-                "can_cancel": {
-                    "description": "可执行的操作",
-                    "type": "boolean"
-                },
-                "can_resubmit": {
-                    "description": "是否可以重新申请",
-                    "type": "boolean"
-                },
-                "created_at": {
+                "field": {
                     "type": "string"
                 },
-                "has_application": {
-                    "type": "boolean"
-                },
-                "reason": {
-                    "type": "string"
-                },
-                "requested_perms": {
-                    "description": "申请的权限",
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "boolean"
-                    }
-                },
-                "review_note": {
-                    "type": "string"
-                },
-                "reviewed_at": {
-                    "type": "string"
-                },
-                "reviewer_id": {
-                    "type": "integer"
-                },
-                "status": {
-                    "description": "pending, approved, rejected, canceled",
+                "message": {
                     "type": "string"
                 }
             }
@@ -8784,6 +9061,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "avatar": {
+                    "description": "用户的头像，目前为链接（暂不支持图片上传）",
                     "type": "string"
                 },
                 "bio": {
@@ -8793,6 +9071,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "email": {
+                    "description": "邮箱",
                     "type": "string"
                 },
                 "follower_count": {
@@ -8805,27 +9084,37 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "is_active": {
+                    "description": "低优先级，用户主动行为，例如验证邮箱后可以处于激活状态非处罚性质",
                     "type": "boolean"
                 },
                 "is_blocked": {
+                    "description": "优先级高于 IsActive，被动行为，一旦味 true 完全无法登录，处罚性质",
                     "type": "boolean"
                 },
                 "is_following": {
                     "type": "boolean"
                 },
                 "last_login": {
+                    "description": "最后登陆时间",
                     "type": "string"
                 },
                 "role": {
-                    "$ref": "#/definitions/model.UserRole"
+                    "description": "用户的角色，默认为普通用户",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/model.UserRole"
+                        }
+                    ]
                 },
                 "score": {
+                    "description": "用户的积分",
                     "type": "integer"
                 },
                 "updated_at": {
                     "type": "string"
                 },
                 "username": {
+                    "description": "用户名",
                     "type": "string"
                 }
             }

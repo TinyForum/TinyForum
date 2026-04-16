@@ -11,43 +11,48 @@ import (
 )
 
 type UserRepository struct {
-	db *gorm.DB
+	db        *gorm.DB
+	tokenRepo *TokenRepository // 新增
 }
 
-func NewUserRepository(db *gorm.DB) *UserRepository {
-	return &UserRepository{db: db}
+func NewUserRepository(db *gorm.DB, tokenRepo *TokenRepository) *UserRepository {
+	return &UserRepository{db: db, tokenRepo: tokenRepo}
 }
 
-// MARK: Info
+// MARK: 用户信息
 func (r *UserRepository) Create(user *model.User) error {
 	return r.db.Create(user).Error
 }
 
-// 获取用户的完整信息
+// MARK: - dfd
 func (r *UserRepository) FindByID(id uint) (*model.User, error) {
 	var user model.User
 	err := r.db.First(&user, id).Error
 	return &user, err
 }
 
-// 获取用户的基本信息（id 名称、头像）
+// MARK: - 获取用户的基本信息
 func (r *UserRepository) GetUserBasicInfo(id uint) (*model.User, error) {
 	var user model.User
 	err := r.db.Select("id, username, avatar").First(&user, id).Error
 	return &user, err
 }
+
+// MARK: - 获取用户的基本信息
 func (r *UserRepository) FindByEmail(email string) (*model.User, error) {
 	var user model.User
 	err := r.db.Where("email = ?", email).First(&user).Error
 	return &user, err
 }
 
+// MARK: - 获取用户的基本信息
 func (r *UserRepository) FindByUsername(username string) (*model.User, error) {
 	var user model.User
 	err := r.db.Where("username = ?", username).First(&user).Error
 	return &user, err
 }
 
+// MARK: - 更新
 func (r *UserRepository) Update(user *model.User) error {
 	return r.db.Save(user).Error
 }
@@ -72,6 +77,7 @@ func (r *UserRepository) List(page, pageSize int, keyword string) ([]model.User,
 	return users, total, err
 }
 
+// MARK: Score
 // 积分排名
 func (r *UserRepository) GetTopUsers(limit int) ([]model.User, error) {
 	var users []model.User
@@ -338,4 +344,196 @@ func (r *UserRepository) GetActiveUsersByDateRange(
 		Scan(&rows).Error
 
 	return rows, err
+}
+
+// MARK: Blocked 封禁用户
+// UpdateBlocked 更新用户封禁状态
+func (r *UserRepository) UpdateBlocked(ctx context.Context, userID uint, isBlocked bool) error {
+	result := r.db.WithContext(ctx).
+		Model(&model.User{}).
+		Where("id = ?", userID).
+		Update("is_blocked", isBlocked)
+
+	if result.Error != nil {
+		return fmt.Errorf("更新用户封禁状态失败: %w", result.Error)
+	}
+
+	if result.RowsAffected == 0 {
+		return errors.New("用户不存在")
+	}
+
+	// 如果是封禁操作，清理用户的所有 Token
+	if isBlocked {
+		_ = r.tokenRepo.DeleteByUserID(ctx, userID)
+	}
+
+	return nil
+}
+
+// UpdateActive 更新用户激活状态（如果你有 is_active 字段）
+func (r *UserRepository) UpdateActive(ctx context.Context, userID uint, isActive bool) error {
+	result := r.db.WithContext(ctx).
+		Model(&model.User{}).
+		Where("id = ?", userID).
+		Update("is_active", isActive)
+
+	if result.Error != nil {
+		return fmt.Errorf("更新用户激活状态失败: %w", result.Error)
+	}
+
+	if result.RowsAffected == 0 {
+		return errors.New("用户不存在")
+	}
+
+	return nil
+}
+
+// UpdateRole 更新用户角色
+func (r *UserRepository) UpdateRole(ctx context.Context, userID uint, role string) error {
+	result := r.db.WithContext(ctx).
+		Model(&model.User{}).
+		Where("id = ?", userID).
+		Update("role", role)
+
+	if result.Error != nil {
+		return fmt.Errorf("更新用户角色失败: %w", result.Error)
+	}
+
+	if result.RowsAffected == 0 {
+		return errors.New("用户不存在")
+	}
+
+	return nil
+}
+
+// BatchUpdateBlocked 批量更新封禁状态
+func (r *UserRepository) BatchUpdateBlocked(ctx context.Context, userIDs []uint, isBlocked bool) (int64, error) {
+	if len(userIDs) == 0 {
+		return 0, nil
+	}
+
+	result := r.db.WithContext(ctx).
+		Model(&model.User{}).
+		Where("id IN ?", userIDs).
+		Update("is_blocked", isBlocked)
+
+	return result.RowsAffected, result.Error
+}
+
+// MARK: - 管理员操作相关方法
+
+// SoftDelete 软删除用户
+func (r *UserRepository) SoftDelete(ctx context.Context, userID uint) error {
+	// 1. 先清理用户的所有 Token
+	_ = r.tokenRepo.DeleteByUserID(ctx, userID)
+
+	// 2. 软删除用户
+	result := r.db.WithContext(ctx).
+		Model(&model.User{}).
+		Where("id = ?", userID).
+		Update("deleted_at", time.Now())
+
+	if result.Error != nil {
+		return fmt.Errorf("软删除用户失败: %w", result.Error)
+	}
+
+	if result.RowsAffected == 0 {
+		return errors.New("用户不存在或已被删除")
+	}
+
+	return nil
+}
+
+// HardDelete 硬删除用户（慎用，仅用于测试或数据清理）
+func (r *UserRepository) HardDelete(ctx context.Context, userID uint) error {
+	result := r.db.WithContext(ctx).
+		Unscoped().
+		Delete(&model.User{}, userID)
+
+	if result.Error != nil {
+		return fmt.Errorf("硬删除用户失败: %w", result.Error)
+	}
+
+	if result.RowsAffected == 0 {
+		return errors.New("用户不存在")
+	}
+
+	return nil
+}
+
+// UpdatePassword 更新用户密码
+func (r *UserRepository) UpdatePassword(ctx context.Context, userID uint, hashedPassword string) error {
+	// 1. 更新密码
+	result := r.db.WithContext(ctx).
+		Model(&model.User{}).
+		Where("id = ?", userID).
+		Update("password", hashedPassword)
+
+	if result.Error != nil {
+		return fmt.Errorf("更新密码失败: %w", result.Error)
+	}
+
+	if result.RowsAffected == 0 {
+		return errors.New("用户不存在")
+	}
+
+	// 2. 清理用户的所有 Token（强制重新登录）
+	_ = r.tokenRepo.DeleteByUserID(ctx, userID)
+
+	return nil
+}
+
+// InvalidateUserTokens 使用户的所有 Token 失效
+func (r *UserRepository) InvalidateUserTokens(ctx context.Context, userID uint) error {
+	return r.tokenRepo.DeleteByUserID(ctx, userID)
+}
+
+// RestoreDeleted 恢复已删除的用户
+func (r *UserRepository) RestoreDeleted(ctx context.Context, userID uint) error {
+	result := r.db.WithContext(ctx).
+		Model(&model.User{}).
+		Where("id = ?", userID).
+		Update("deleted_at", nil)
+
+	if result.Error != nil {
+		return fmt.Errorf("恢复用户失败: %w", result.Error)
+	}
+
+	if result.RowsAffected == 0 {
+		return errors.New("用户不存在或未被删除")
+	}
+
+	return nil
+}
+
+// SetTempPasswordFlag 设置临时密码标记
+func (r *UserRepository) SetTempPasswordFlag(ctx context.Context, userID uint, isTemp bool, expireAt time.Time) error {
+	updates := map[string]interface{}{
+		"is_temp_password":     isTemp,
+		"temp_password_expire": expireAt,
+	}
+
+	result := r.db.WithContext(ctx).
+		Model(&model.User{}).
+		Where("id = ?", userID).
+		Updates(updates)
+
+	if result.Error != nil {
+		return fmt.Errorf("设置临时密码标记失败: %w", result.Error)
+	}
+
+	return nil
+}
+
+// ClearTempPasswordFlag 清除临时密码标记
+func (r *UserRepository) ClearTempPasswordFlag(ctx context.Context, userID uint) error {
+	result := r.db.WithContext(ctx).
+		Model(&model.User{}).
+		Where("id = ?", userID).
+		Updates(map[string]interface{}{
+			"is_temp_password":     false,
+			"temp_password_expire": nil,
+		})
+
+	return result.Error
 }

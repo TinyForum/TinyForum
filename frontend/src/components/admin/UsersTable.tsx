@@ -1,29 +1,77 @@
+// components/admin/UsersTable.tsx
 import Avatar from "@/components/user/Avatar";
-// import { User } from "@/type/admin.types";
-import { ShieldOff, ShieldCheck } from "lucide-react";
+import { 
+  Ban,
+  CheckCircle,
+  XCircle
+} from "lucide-react";
 import { formatDate } from "@/lib/utils";
 import { User } from "@/lib/api";
+import { UserActionMenu } from "./UserActionMenu";
+
 // 用户表格组件
 export function UsersTable({
   users,
   currentUserId,
   onToggleActive,
-  isToggling,
+  onToggleBlock,
+  onToggleRole,
+  onDeleteUser,
+  onResetPassword,
+  isTogglingActive,
+  isTogglingBlock,
+  isDeleting,
+  isUpdatingRole,
   t
 }: {
   users: User[];
   currentUserId?: number;
   onToggleActive: (id: number, active: boolean) => void;
-  isToggling: boolean;
-  t: (key: string) => string;
+  onToggleBlock: (id: number, blocked: boolean) => void;
+  onToggleRole?: (id: number, role: string) => void;
+  onDeleteUser?: (id: number, username: string) => void;
+  onResetPassword?: (id: number, username: string) => void;
+  isTogglingActive: boolean;
+  isTogglingBlock: boolean;
+  isDeleting?: boolean;
+  isUpdatingRole?: boolean;
+  t: (key: string, params?: any) => string;
 }) {
   if (users.length === 0) {
     return <div className="text-center py-8 text-base-content/60">{t("no_data")}</div>;
   }
 
+  // 获取用户状态显示
+  const getUserStatusBadges = (user: User) => {
+    const badges = [];
+    
+    // IsBlocked 优先级最高，如果被封禁，只显示封禁状态
+    if (user.is_blocked) {
+      badges.push(
+        <span key="blocked" className="badge badge-sm badge-error gap-1">
+          <Ban className="w-3 h-3" /> {t("blocked")}
+        </span>
+      );
+    } else {
+      // 未封禁时显示激活状态
+      badges.push(
+        <span key="active" className={`badge badge-sm ${user.is_active ? "badge-success" : "badge-warning"} gap-1`}>
+          {user.is_active ? (
+            <CheckCircle className="w-3 h-3" />
+          ) : (
+            <XCircle className="w-3 h-3" />
+          )}
+          {user.is_active ? t("activated") : t("inactive")}
+        </span>
+      );
+    }
+    
+    return badges;
+  };
+
   return (
     <div className="overflow-x-auto">
-      <table className="table table-zebra">
+      <table className="table table-zebra" style={{ overflow: 'visible' }}>
         <thead>
           <tr>
             <th>{t("user")}</th>
@@ -31,57 +79,64 @@ export function UsersTable({
             <th>{t("role")}</th>
             <th>{t("score")}</th>
             <th>{t("registration_at")}</th>
+            <th>{t("last_login")}</th>
             <th>{t("status")}</th>
             <th>{t("operation")}</th>
           </tr>
         </thead>
         <tbody>
-          {users.map((u) => (
-            <tr key={u.id}>
-              <td>
-                <div className="flex items-center gap-2">
-                  <div className="avatar">
-                    <div className="w-8 h-8 rounded-full">
-                      <Avatar username={u.username} avatarUrl={u.avatar} size="md" />
+          {users.map((user) => {
+            const isBlocked = user.is_blocked;
+            
+            return (
+              <tr key={user.id} className={isBlocked ? "bg-base-200/50 opacity-75" : ""} style={{ overflow: 'visible' }}>
+                <td>
+                  <div className="flex items-center gap-2">
+                    <div className="avatar">
+                      <div className="w-8 h-8 rounded-full">
+                        <Avatar username={user.username} avatarUrl={user.avatar} size="md" />
+                      </div>
                     </div>
+                    <span className={`font-medium text-sm ${isBlocked ? "line-through text-base-content/50" : ""}`}>
+                      {user.username}
+                    </span>
                   </div>
-                  <span className="font-medium text-sm">{u.username}</span>
-                </div>
-              </td>
-              <td className="text-sm text-base-content/60">{u.email}</td>
-              <td>
-                <span className={`badge badge-sm ${u.role === "admin" ? "badge-warning" : "badge-ghost"}`}>
-                  {u.role === "admin" ? t("administrator") : t("user")}
-                </span>
-              </td>
-              <td className="text-sm font-medium text-warning">{u.score}</td>
-              <td className="text-xs text-base-content/50">{formatDate(u.created_at)}</td>
-              <td>
-                <span className={`badge badge-sm ${u.is_active ? "badge-success" : "badge-error"}`}>
-                  {u.is_active ? t("active") : t("banned")}
-                </span>
-              </td>
-              <td>
-                {u.id !== currentUserId && (
-                  <button
-                    className={`btn btn-xs gap-1 ${u.is_active ? "btn-error btn-outline" : "btn-success btn-outline"}`}
-                    onClick={() => onToggleActive(u.id, !u.is_active)}
-                    disabled={isToggling}
-                  >
-                    {u.is_active ? (
-                      <>
-                        <ShieldOff className="w-3 h-3" /> {t("ban")}
-                      </>
-                    ) : (
-                      <>
-                        <ShieldCheck className="w-3 h-3" /> {t("unban")}
-                      </>
-                    )}
-                  </button>
-                )}
-              </td>
-            </tr>
-          ))}
+                </td>
+                <td className="text-sm text-base-content/60">{user.email}</td>
+                <td>
+                  <span className={`badge badge-sm ${user.role === "admin" ? "badge-warning" : "badge-ghost"}`}>
+                    {user.role === "admin" ? t("administrator") : t("user")}
+                  </span>
+                </td>
+                <td className="text-sm font-medium text-warning">{user.score}</td>
+                <td className="text-xs text-base-content/50">{formatDate(user.created_at)}</td>
+                <td className="text-xs text-base-content/50">
+                  {user.last_login ? formatDate(user.last_login) : t("never_logged_in")}
+                </td>
+                <td>
+                  <div className="flex gap-1 flex-wrap">
+                    {getUserStatusBadges(user)}
+                  </div>
+                </td>
+                <td>
+                  <UserActionMenu
+                    user={user}
+                    isCurrentUser={user.id === currentUserId}
+                    onToggleActive={onToggleActive}
+                    onToggleBlock={onToggleBlock}
+                    onToggleRole={onToggleRole}
+                    onDeleteUser={onDeleteUser}
+                    onResetPassword={onResetPassword}
+                    isTogglingActive={isTogglingActive}
+                    isTogglingBlock={isTogglingBlock}
+                    isDeleting={isDeleting}
+                    isUpdatingRole={isUpdatingRole}
+                    t={t}
+                  />
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>

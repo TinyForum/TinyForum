@@ -4,9 +4,9 @@ import (
 	"errors"
 	"strconv"
 
-	apperrors "tiny-forum/internal/errors"
 	"tiny-forum/internal/repository"
 	"tiny-forum/internal/service"
+	apperrors "tiny-forum/pkg/errors"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -62,24 +62,40 @@ func (h *PostHandler) Create(c *gin.Context) {
 // @Failure 404 {object} response.Response "帖子不存在"
 // @Router /posts/{id} [get]
 func (h *PostHandler) GetByID(c *gin.Context) {
+	// 1. 参数解析与校验
 	postID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的帖子ID")
+		// 参数错误时，可以附带具体的错误字段
+		response.InvalidParams(c, []response.ValidationError{
+			{Field: "id", Message: "无效的帖子ID格式"},
+		})
 		return
 	}
 
-	viewerID, _ := c.Get("user_id")
+	// 2. 获取当前登录用户（可选）
+	viewerID, exists := c.Get("user_id")
 	var viewerUint uint
-	if v, ok := viewerID.(uint); ok {
-		viewerUint = v
+	if exists {
+		if v, ok := viewerID.(uint); ok {
+			viewerUint = v
+		}
+		// 注意：如果类型断言失败，可能是中间件设置错误，这里记录日志但不中断请求
 	}
 
+	// 3. 调用服务层
 	post, liked, err := h.postSvc.GetByID(uint(postID), viewerUint)
 	if err != nil {
-		response.NotFound(c, err.Error())
+		// 自动根据 err 类型返回正确的 HTTP 状态码和业务错误码
+		// 如果是 apperrors.ErrPostNotFound，会返回 HTTP 404 + Code 30001
+		response.Error(c, apperrors.Wrapf(apperrors.ErrPostNotFound, "ID: %d", postID))
 		return
 	}
-	response.Success(c, gin.H{"post": post, "liked": liked})
+
+	// 4. 成功响应
+	response.Success(c, gin.H{
+		"post":  post,
+		"liked": liked,
+	})
 }
 
 // List 获取帖子列表

@@ -8,15 +8,6 @@ import (
 	"time"
 )
 
-// type TimeTools interface {
-// 	// ParseTimeRange 解析时间范围，支持多种格式和相对时间
-// 	ParseTimeRange(startExpr, endExpr string) (*TimeRange, error)
-// 	// ParseTimeExpression 解析单个时间表达式
-// 	ParseTimeExpression(expr string, now time.Time, loc *time.Location, isEnd bool) (time.Time, error)
-// 	// ParseRelativeTime 解析相对时间
-// 	ParseRelativeTime(expr string, now time.Time, loc *time.Location, isEnd bool) (time.Time, bool)
-// }
-
 // TimeRange 时间范围
 type TimeRange struct {
 	Start time.Time

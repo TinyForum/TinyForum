@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"time"
 
-	apperrors "tiny-forum/internal/errors"
 	"tiny-forum/internal/model"
 	"tiny-forum/internal/repository"
+	apperrors "tiny-forum/pkg/errors"
 
 	"gorm.io/gorm"
 )

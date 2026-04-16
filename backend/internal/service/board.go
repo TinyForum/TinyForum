@@ -7,9 +7,9 @@ import (
 	"regexp"
 	"time"
 
-	apperrors "tiny-forum/internal/errors"
 	"tiny-forum/internal/model"
 	"tiny-forum/internal/repository"
+	apperrors "tiny-forum/pkg/errors"
 )
 
 // ── BoardService ──────────────────────────────────────────────────────────────
