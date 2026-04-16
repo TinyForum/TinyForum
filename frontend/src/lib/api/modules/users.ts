@@ -2,6 +2,7 @@
  * api/modules/users.ts
  */
 
+import { UserRoleType } from "@/type/roles.types";
 import apiClient from "../client";
 import type { ApiResponse, PageData, User } from "../types";
 
@@ -10,11 +11,17 @@ export interface UpdateProfilePayload {
   avatar?: string;
 }
 
+export interface RoleResponse {
+  user_id:number;
+  role: UserRoleType;
+}
+
 export const userApi = {
   // 获取用户信息
   getProfile: (id: number) =>
     apiClient.get<ApiResponse<User>>(`/users/${id}`),
-  getCurrentRole: () =>apiClient.get<ApiResponse<string>>("/users/current/role"),
+  // 获取当前用户的角色
+  getMeRole: () =>apiClient.get<ApiResponse<RoleResponse>>("/users/me/role"),
 
   // 更新用户信息
   updateProfile: (data: UpdateProfilePayload) =>
