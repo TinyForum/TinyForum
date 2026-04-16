@@ -1,6 +1,6 @@
 // hooks/useModerator.ts
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { moderatorApi, ApplyModeratorForm, AddModeratorRequest, UpdatePermissionsRequest, ReviewApplicationRequest, BanUserRequest } from "@/lib/api/modules/moderator";
+import { moderatorApi, ApplyModeratorForm, AddModeratorRequest, UpdatePermissionsRequest, ReviewApplicationRequest, BanUserRequest, ModeratorBoard } from "@/lib/api/modules/moderator";
 import toast from "react-hot-toast";
 import { useTranslations } from "next-intl";
 import { useAuthStore } from "@/store";
@@ -138,16 +138,17 @@ export function useModeratorPermissions(boardId: number) {
   };
 }
 
-// hooks/useModerator.ts 追加以下代码
-
-// ========== 获取当前用户管理的板块 ==========
 export function useMyModeratorBoards() {
-  const { user } = useAuthStore();
+  const { user, isHydrated } = useAuthStore();
   
-  return useQuery({
+  return useQuery<ModeratorBoard[]>({
     queryKey: ["moderator", "my-boards", user?.id],
-    queryFn: () => moderatorApi.getMyModeratorBoards().then((r) => r.data.data),
-    enabled: !!user?.id && (user?.role === "moderator" || user?.role === "admin" || user?.role === "super_admin"),
+    queryFn: async () => {
+      const response = await moderatorApi.getMyModeratorBoards();
+      // 确保 data 是数组，如果不是则返回空数组
+      const data = response.data?.data;
+      return Array.isArray(data) ? data : [];
+    },
+    enabled: !!user?.id && isHydrated,
   });
 }
-

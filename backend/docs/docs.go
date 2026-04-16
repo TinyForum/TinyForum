@@ -2420,6 +2420,58 @@ const docTemplate = `{
                 }
             }
         },
+        "/boards/moderators/managed": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "获取当前登录用户作为版主管理的所有板块，包含权限信息",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "版主管理"
+                ],
+                "summary": "获取我管理的板块",
+                "responses": {
+                    "200": {
+                        "description": "获取成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/service.ModeratorBoardWithPerms"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/boards/slug/{slug}": {
             "get": {
                 "description": "根据板块标识符（slug）获取板块信息",
@@ -7698,6 +7750,26 @@ const docTemplate = `{
                 }
             }
         },
+        "model.ModeratorPermissions": {
+            "type": "object",
+            "properties": {
+                "can_ban_user": {
+                    "type": "boolean"
+                },
+                "can_delete_post": {
+                    "type": "boolean"
+                },
+                "can_edit_any_post": {
+                    "type": "boolean"
+                },
+                "can_manage_moderator": {
+                    "type": "boolean"
+                },
+                "can_pin_post": {
+                    "type": "boolean"
+                }
+            }
+        },
         "model.Notification": {
             "type": "object",
             "properties": {
@@ -8997,6 +9069,62 @@ const docTemplate = `{
                 },
                 "password": {
                     "type": "string"
+                }
+            }
+        },
+        "service.ModeratorBoardWithPerms": {
+            "type": "object",
+            "properties": {
+                "cover": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "icon": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "parent_id": {
+                    "type": "integer"
+                },
+                "permissions": {
+                    "$ref": "#/definitions/model.ModeratorPermissions"
+                },
+                "post_count": {
+                    "type": "integer"
+                },
+                "post_role": {
+                    "$ref": "#/definitions/model.UserRole"
+                },
+                "reply_role": {
+                    "$ref": "#/definitions/model.UserRole"
+                },
+                "slug": {
+                    "type": "string"
+                },
+                "sort_order": {
+                    "type": "integer"
+                },
+                "thread_count": {
+                    "type": "integer"
+                },
+                "today_count": {
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "view_role": {
+                    "$ref": "#/definitions/model.UserRole"
                 }
             }
         },

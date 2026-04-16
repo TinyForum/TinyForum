@@ -325,6 +325,8 @@ func (h *BoardHandler) GetUserApplications(c *gin.Context) {
 	})
 }
 
+// 用户获取欧自己管理的板块
+
 // ReviewApplicationRequest 审批请求
 type ReviewApplicationRequest struct {
 	Approve            bool   `json:"approve" binding:"required"`
@@ -787,4 +789,30 @@ func (h *BoardHandler) PinPost(c *gin.Context) {
 	response.Success(c, gin.H{"message": "操作成功"})
 }
 
-// ── Swagger 请求体类型声明 ────────────────────────────────────────────────────
+// handler/board_handler.go
+
+// GetUserModeratorBoards 获取当前用户管理的板块列表（含权限）
+// @Summary 获取我管理的板块
+// @Description 获取当前登录用户作为版主管理的所有板块，包含权限信息
+// @Tags 版主管理
+// @Produce json
+// @Security ApiKeyAuth
+// @Success 200 {object} response.Response{data=[]service.ModeratorBoardWithPerms} "获取成功"
+// @Failure 401 {object} response.Response "未授权"
+// @Failure 500 {object} response.Response "服务器内部错误"
+// @Router /boards/moderators/managed [get]
+func (h *BoardHandler) GetUserModeratorBoards(c *gin.Context) {
+	userID := c.GetUint("user_id")
+	if userID == 0 {
+		response.Unauthorized(c, "未登录")
+		return
+	}
+
+	boards, err := h.boardSvc.GetModeratorBoardsWithPermissions(userID)
+	if err != nil {
+		response.InternalError(c, err.Error())
+		return
+	}
+
+	response.Success(c, boards)
+}

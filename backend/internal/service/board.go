@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"regexp"
@@ -675,4 +676,47 @@ func (s *BoardService) writeLogWithValues(
 		NewValue:    newValue,
 	}
 	_ = s.boardRepo.CreateModeratorLog(log)
+}
+
+// ModeratorBoardWithPerms 返回给前端的板块数据（含权限）
+type ModeratorBoardWithPerms struct {
+	model.Board
+	Permissions model.ModeratorPermissions `json:"permissions"`
+}
+
+// GetModeratorBoardsWithPermissions 获取用户管理的板块及权限
+func (s *BoardService) GetModeratorBoardsWithPermissions(userID uint) ([]ModeratorBoardWithPerms, error) {
+	// 从 repository 获取原始数据
+	repoResults, err := s.boardRepo.GetModeratorBoardsWithPermissions(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	// 转换数据格式，解析 JSON 权限字符串
+	results := make([]ModeratorBoardWithPerms, len(repoResults))
+	for i, repo := range repoResults {
+		var perms model.ModeratorPermissions
+
+		// 解析 JSON 字符串为权限结构
+		if repo.Permissions != "" {
+			if err := json.Unmarshal([]byte(repo.Permissions), &perms); err != nil {
+				// 解析失败时记录日志，使用默认权限
+				fmt.Printf("解析权限失败: %v, permissions: %s\n", err, repo.Permissions)
+				perms = model.ModeratorPermissions{
+					CanDeletePost:      false,
+					CanPinPost:         false,
+					CanEditAnyPost:     false,
+					CanManageModerator: false,
+					CanBanUser:         false,
+				}
+			}
+		}
+
+		results[i] = ModeratorBoardWithPerms{
+			Board:       repo.Board,
+			Permissions: perms,
+		}
+	}
+
+	return results, nil
 }

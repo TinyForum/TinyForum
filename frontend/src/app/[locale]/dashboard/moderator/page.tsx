@@ -1,7 +1,7 @@
 // app/[locale]/dashboard/moderator/page.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import {
   useModeratorPermissions,
@@ -10,7 +10,7 @@ import {
   useDeletePost,
   usePinPost,
   useMyModeratorBoards,
-} from "@/hooks/moderators/useModerator.ts";
+} from "@/hooks/moderators/useModerator";
 import { useModeratorAuth } from "@/hooks/moderators/useModeratorAuth";
 import { useModeratorBannedUsers } from "@/hooks/moderators/useModeratorBannedUsers";
 import { useModeratorPosts } from "@/hooks/moderators/useModeratorPosts";
@@ -23,6 +23,7 @@ import { ModeratorDashboard } from "@/components/moderator/ModeratorDashboard";
 import { ModeratorSidebar } from "@/components/moderator/ModeratorSidebar";
 import { PendingPostsTable } from "@/components/moderator/PendingPostsTable";
 import SearchBar from "@/components/nav/SearchBar";
+import { ModeratorBoard } from "@/lib/api/modules/moderator";
 
 export default function ModeratorPage() {
   const t = useTranslations("Moderator");
@@ -32,15 +33,15 @@ export default function ModeratorPage() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [keyword, setKeyword] = useState("");
   const [page, setPage] = useState(1);
+  const [selectedBoardId, setSelectedBoardId] = useState<number | null>(null);
 
-  //
   // 获取当前用户管理的板块
   const { data: boardsData, isLoading: boardsLoading } = useMyModeratorBoards();
-  const boards = boardsData?.boards || [];
-  const primaryBoard = boardsData?.primary_board || boards[0] || null;
-
-  // 当前操作的板块ID
-  const currentBoardId = primaryBoard?.id || null;
+  const boards: ModeratorBoard[] = boardsData || [];  // 明确类型为数组
+  
+  // 选择第一个板块作为默认板块
+  const currentBoardId = selectedBoardId || (boards.length > 0 ? boards[0]?.id : null);
+  const currentBoard = boards.find((b: ModeratorBoard) => b.id === currentBoardId);
 
   // 当前板块的版主权限
   const permissions = useModeratorPermissions(currentBoardId || 0);
@@ -157,18 +158,16 @@ export default function ModeratorPage() {
       case "dashboard":
         return (
           <ModeratorDashboard
-            board={primaryBoard}
+            board={currentBoard}
             permissions={permissions}
             stats={{
-              postCount: postsData.total,
-              reportCount: reportsData.total,
-              bannedCount: bannedUsersData.total,
+              postCount: postsData.total || 0,
+              reportCount: reportsData.total || 0,
+              bannedCount: bannedUsersData.total || 0,
             }}
             t={t}
           />
         );
-
-      // app/[locale]/dashboard/moderator/page.tsx 中修正 SearchBar 部分
 
       case "posts":
         return (
@@ -182,7 +181,7 @@ export default function ModeratorPage() {
               placeholder={t("search_posts")}
             />
             <PendingPostsTable
-              posts={postsData.posts}
+              posts={postsData.posts || []}
               onDelete={
                 permissions.canDeletePost ? handleDeletePost : undefined
               }
@@ -194,16 +193,18 @@ export default function ModeratorPage() {
             />
             <Pagination
               currentPage={page}
-              total={postsData.total}
+              total={postsData.total || 0}
+              pageSize={20}
               onPageChange={setPage}
             />
           </div>
         );
+        
       case "reports":
         return (
           <div className="space-y-4">
             <ReportedContentTable
-              reports={reportsData.reports}
+              reports={reportsData.reports || []}
               onDeletePost={
                 permissions.canDeletePost ? handleDeletePost : undefined
               }
@@ -215,7 +216,8 @@ export default function ModeratorPage() {
             />
             <Pagination
               currentPage={page}
-              total={reportsData.total}
+              total={reportsData.total || 0}
+              pageSize={20}
               onPageChange={setPage}
             />
           </div>
@@ -235,14 +237,15 @@ export default function ModeratorPage() {
               </div>
             )}
             <BannedUsersTable
-              users={bannedUsersData.users}
+              users={bannedUsersData.users || []}
               onUnban={permissions.canBanUser ? handleUnbanUser : undefined}
               isUnbanning={isUnbanning}
               t={t}
             />
             <Pagination
               currentPage={page}
-              total={bannedUsersData.total}
+              total={bannedUsersData.total || 0}
+              pageSize={20}
               onPageChange={setPage}
             />
           </div>
@@ -256,15 +259,17 @@ export default function ModeratorPage() {
   return (
     <div className="flex h-screen bg-base-100">
       {/* 左侧菜单 */}
-      <ModeratorSidebar
-        activeMenu={activeMenu}
-        onMenuChange={setActiveMenu}
-        collapsed={sidebarCollapsed}
-        onCollapsedChange={setSidebarCollapsed}
-        boardName={primaryBoard?.name}
-        permissions={permissions}
-        t={t}
-      />
+<ModeratorSidebar
+  activeMenu={activeMenu}
+  onMenuChange={setActiveMenu}
+  collapsed={sidebarCollapsed}
+  onCollapsedChange={setSidebarCollapsed}
+  boards={boards}  // 传递板块列表
+  currentBoardId={currentBoardId}  // 当前选中的板块ID
+  onBoardChange={setSelectedBoardId}  // 切换板块的回调
+  permissions={permissions}
+  t={t}
+/>
 
       {/* 右侧内容区域 */}
       <div className="flex-1 overflow-y-auto">
@@ -274,7 +279,7 @@ export default function ModeratorPage() {
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-2xl font-bold">
-                  {primaryBoard?.name} - {t(activeMenu)}
+                  {currentBoard?.name || t("moderator_panel")} - {t(activeMenu)}
                 </h1>
                 <p className="text-sm text-base-content/60 mt-1">
                   {t(`${activeMenu}_description`)}

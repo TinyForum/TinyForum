@@ -232,26 +232,30 @@ func InitApp(cfg *config.Config) (*App, error) {
 	boardGroup := api.Group("/boards")
 	{
 		// ── 公开接口 ──────────────────────────────────────────────────────────
-		boardGroup.GET("", boardHandler.List)
-		boardGroup.GET("/tree", boardHandler.GetTree)
-		boardGroup.GET("/:id", middleware.OptionalAuth(jwtMgr), boardHandler.GetByID)
-		boardGroup.GET("/slug/:slug", boardHandler.GetBoardBySlug)
-		boardGroup.GET("/slug/:slug/posts", middleware.OptionalAuth(jwtMgr), boardHandler.GetPostsBySlug)
+		boardGroup.GET("", boardHandler.List)                                                             // 获取板块列表
+		boardGroup.GET("/tree", boardHandler.GetTree)                                                     // 获取板块树
+		boardGroup.GET("/:id", middleware.OptionalAuth(jwtMgr), boardHandler.GetByID)                     // 获取板块信息
+		boardGroup.GET("/slug/:slug", boardHandler.GetBoardBySlug)                                        // 获取板块信息
+		boardGroup.GET("/slug/:slug/posts", middleware.OptionalAuth(jwtMgr), boardHandler.GetPostsBySlug) // 获取板块帖子
 
 		// ── 用户：申请 / 撤销版主申请 ────────────────────────────────────────
 		// POST /boards/:id/moderators/apply   提交申请
 		boardGroup.POST("/:id/moderators/apply-moderator",
 			middleware.Auth(jwtMgr),
-			boardHandler.ApplyModerator)
+			boardHandler.ApplyModerator) // 提交申请
 		// 查看申请状态
 		boardGroup.GET("/moderators/apply",
 			middleware.Auth(jwtMgr),
-			boardHandler.GetUserApplications)
+			boardHandler.GetUserApplications) // 查看申请状态
+		// 用户获取自己管理的板块
+		boardGroup.GET("/moderators/managed",
+			middleware.Auth(jwtMgr),
+			boardHandler.GetUserModeratorBoards) // 查看申请状态
 
 		// 撤销申请（操作自己的申请）
 		boardGroup.DELETE("/applications/:application_id",
 			middleware.Auth(jwtMgr),
-			boardHandler.CancelApplication)
+			boardHandler.CancelApplication) // 撤销申请
 
 		// ── 管理员：板块 CRUD ──────────────────────────────────────────────
 		boardGroup.POST("", middleware.Auth(jwtMgr), middleware.AdminRequired(), boardHandler.Create)

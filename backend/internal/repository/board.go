@@ -356,3 +356,50 @@ func (r *BoardRepository) GetHotBoardsByDateRange(
 ) ([]*HotBoardRow, error) {
 	return r.stats.GetHotBoardsByDateRange(ctx, startDate, endDate, limit)
 }
+
+// repository/board_repository.go
+
+// ModeratorBoardInfo 临时结构体，用于接收带权限的板块数据
+type ModeratorBoardInfo struct {
+	model.Board
+	Permissions string `gorm:"column:permissions" json:"permissions"`
+}
+
+// GetModeratorBoardsWithPermissions 获取用户管理的板块及权限
+func (r *BoardRepository) GetModeratorBoardsWithPermissions(userID uint) ([]ModeratorBoardInfo, error) {
+	var results []ModeratorBoardInfo
+
+	// 使用原始 SQL 查询，直接从 moderators 表获取 permissions 字段
+	err := r.db.Raw(`
+        SELECT 
+            b.id,
+            b.name,
+            b.slug,
+            b.description,
+            b.icon,
+            b.cover,
+            b.parent_id,
+            b.sort_order,
+            b.view_role,
+            b.post_role,
+            b.reply_role,
+            b.post_count,
+            b.thread_count,
+            b.today_count,
+            b.created_at,
+            b.updated_at,
+            b.deleted_at,
+            m.permissions
+        FROM boards b
+        INNER JOIN moderators m ON m.board_id = b.id
+        WHERE m.user_id = ? 
+        AND b.deleted_at IS NULL
+        ORDER BY b.sort_order ASC, b.id ASC
+    `, userID).Scan(&results).Error
+
+	if err != nil {
+		return nil, fmt.Errorf("获取管理的板块失败: %w", err)
+	}
+
+	return results, nil
+}

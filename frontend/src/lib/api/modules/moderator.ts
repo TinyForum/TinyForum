@@ -129,14 +129,22 @@ interface ApplicationStatusDetailResponse {
 }
 
 
+// types/moderator.ts
 export interface ModeratorBoard {
   id: number;
   name: string;
   slug: string;
   description?: string;
   icon?: string;
+  cover?: string;
+  parent_id?: number | null;
+  sort_order?: number;
   post_count?: number;
-  permissions?: {
+  thread_count?: number;
+  today_count?: number;
+  created_at: string;
+  updated_at: string;
+  permissions: {
     can_delete_post: boolean;
     can_pin_post: boolean;
     can_edit_any_post: boolean;
@@ -306,8 +314,8 @@ getMyApplications: (params?: { page?: number; page_size?: number }) =>
     apiClient.put<ApiResponse<{ message: string }>>(`/boards/${boardId}/posts/${postId}/pin`, { pin_in_board: pinInBoard }),
 // 获取当前用户管理的板块
   getMyModeratorBoards: () =>
-    apiClient.get<ApiResponse<{ boards: ModeratorBoard[]; primary_board: ModeratorBoard }>>(
-      "/moderator/my-boards"
+    apiClient.get<ApiResponse<ModeratorBoard>>(
+      "/boards/moderators/managed"
     ),
 
   // 获取板块帖子（版主视角）
