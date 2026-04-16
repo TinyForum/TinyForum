@@ -3,8 +3,8 @@ import { useMemo, useState } from 'react';
 
 interface AvatarProps {
   username?: string;
-  avatarUrl?: string | null;
-  size?: 'sm' | 'md' | 'lg' | number;
+  avatarUrl?: string 
+  size?: 'sm' | 'md' | 'lg' | number | 'full';
   className?: string;
   onError?: () => void;
   shape?: 'circle' | 'rounded' | 'square';
@@ -18,7 +18,7 @@ interface AvatarProps {
 export default function Avatar({ 
   username, 
   avatarUrl,
-  size = 'md',
+  size = 'full',
   className = '',
   onError,
   shape = 'circle',
@@ -30,11 +30,17 @@ export default function Avatar({
 }: AvatarProps) {
   const [hasError, setHasError] = useState(false);
 
-  // 计算尺寸
-  const sizeInPx = useMemo(() => {
-    if (typeof size === 'number') return size;
+  // 计算尺寸样式
+  const sizeStyle = useMemo(() => {
+    if (size === 'full') {
+      return { width: '100%', height: '100%' };
+    }
+    if (typeof size === 'number') {
+      return { width: size, height: size };
+    }
     const sizes = { sm: 32, md: 40, lg: 56 };
-    return sizes[size];
+    const pxSize = sizes[size];
+    return { width: pxSize, height: pxSize };
   }, [size]);
 
   // 获取形状样式
@@ -49,6 +55,7 @@ export default function Avatar({
       };
       return roundedSizes[roundedSize as keyof typeof roundedSizes] || 'rounded-full';
     }
+    if (shape === 'square') return '';
     return '';
   };
 
@@ -70,34 +77,35 @@ export default function Avatar({
   const shapeStyle = getShapeStyles();
   const ringStyle = getRingStyles();
 
-  // 获取用户首字母（用于占位符）
-  const getInitial = () => {
-    if (username && username.length > 0) {
-      console.log(username?"用户名不为空":"用户名为空");
-      return username.charAt(0).toUpperCase();
-    }
-    return '?';
-  };
+  // 如果没有头像或加载失败，显示占位符
+  if (!avatarUrl || hasError) {
+    return (
+      <div className={`avatar ${className}`}>
+        <div 
+          className={`overflow-hidden bg-base-200 flex items-center justify-center ${shapeStyle} ${ringStyle}`}
+          style={sizeStyle}
+        >
+          <span className="text-sm font-medium">
+            {username?.charAt(0)?.toUpperCase() || '?'}
+          </span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={`avatar ${className}`}>
       <div 
         className={`overflow-hidden bg-base-200 flex items-center justify-center ${shapeStyle} ${ringStyle}`}
-        style={{ width: sizeInPx, height: sizeInPx }}
+        style={sizeStyle}
       >
-        {avatarUrl && !hasError ? (
-          <img
-            src={avatarUrl}
-            alt={username || '用户头像'}
-            className="w-full h-full object-cover"
-            onError={handleError}
-            loading="lazy"
-          />
-        ) : (
-          <span className="text-sm font-medium">
-            {getInitial()}
-          </span>
-        )}
+        <img
+          src={avatarUrl}
+          alt={username || '用户头像'}
+          className="w-full h-full object-cover"
+          onError={handleError}
+          loading="lazy"
+        />
       </div>
     </div>
   );
