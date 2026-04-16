@@ -3178,7 +3178,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/boards/{id}/moderators/apply": {
+        "/boards/{id}/moderators/appapply-moderatorly": {
             "post": {
                 "security": [
                     {
@@ -6682,7 +6682,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "用户接口"
+                    "用户管理"
                 ],
                 "summary": "获取当前用户角色",
                 "responses": {

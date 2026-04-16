@@ -240,7 +240,7 @@ func (h *BoardHandler) GetPostsBySlug(c *gin.Context) {
 // @Failure 400 {object} response.Response "请求参数错误或板块ID无效"
 // @Failure 401 {object} response.Response "未授权"
 // @Failure 403 {object} response.Response "无权限或已申请"
-// @Router /boards/{id}/moderators/apply [post]
+// @Router /boards/{id}/moderators/appapply-moderatorly [post]
 func (h *BoardHandler) ApplyModerator(c *gin.Context) {
 	boardID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {

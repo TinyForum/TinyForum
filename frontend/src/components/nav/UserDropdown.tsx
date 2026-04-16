@@ -107,7 +107,8 @@ export default function UserDropdown({
 
   // 获取后台入口配置
   const getDashboardConfig = () => {
-    const role = displayUser?.role;
+    console.log("user role: ", user.role, "user role: ", user.role)
+    const role = user?.role;
 
     if (role === "admin" || role === "super_admin") {
       return {
@@ -139,16 +140,17 @@ export default function UserDropdown({
     return null;
   };
 
-  const displayUser = user;
+
   const dashboardConfig = getDashboardConfig();
+  console.log("dashboardConfig: ", dashboardConfig)
 
   // 是否有管理权限
   const hasManagementAccess =
-    displayUser?.role === "admin" ||
-    displayUser?.role === "super_admin" ||
-    displayUser?.role === "moderator" ||
-    displayUser?.role === "reviewer";
-
+    user.role === "admin" ||
+    user.role === "super_admin" ||
+    user.role === "moderator" ||
+    user.role === "reviewer";
+console.log("hasManagementAccess: ", hasManagementAccess)
   return (
     <div className="dropdown dropdown-end user-dropdown-container">
       <div
@@ -159,8 +161,8 @@ export default function UserDropdown({
       >
         <div className="w-9 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
           <Avatar
-            username={displayUser?.username}
-            avatarUrl={displayUser?.avatar}
+            username={user.username}
+            avatarUrl={user.avatar}
             size="md"
           />
         </div>
@@ -176,35 +178,35 @@ export default function UserDropdown({
               <div className="avatar placeholder">
                 <div className="w-10 rounded-full bg-primary/10">
                   <Avatar
-                    username={displayUser?.username}
-                    avatarUrl={displayUser?.avatar}
+                    username={user?.username}
+                    avatarUrl={user?.avatar}
                     size="md"
                   />
                 </div>
               </div>
               <div className="flex-1 min-w-0">
                 <span className="text-base-content font-medium block truncate">
-                  {displayUser?.username}
+                  {user?.username}
                 </span>
                 <span className="text-xs text-base-content/50 truncate block">
-                  {displayUser?.email}
+                  {user?.email}
                 </span>
                 {/* 角色标签 */}
-                {displayUser?.role && displayUser?.role !== "user" && (
+                {user.role !== "user" && (
                   <span
                     className={`badge badge-xs mt-1 ${
-                      displayUser?.role === "super_admin"
+                      user?.role === "super_admin"
                         ? "badge-error"
-                        : displayUser?.role === "admin"
+                        : user?.role === "admin"
                           ? "badge-warning"
-                          : displayUser?.role === "moderator"
+                          : user?.role === "moderator"
                             ? "badge-secondary"
-                            : displayUser?.role === "reviewer"
+                            : user?.role === "reviewer"
                               ? "badge-accent"
                               : "badge-ghost"
                     }`}
                   >
-                    {t(`role.${displayUser?.role}`)}
+                    {t(`${user.role}`)}
                   </span>
                 )}
               </div>
@@ -215,25 +217,25 @@ export default function UserDropdown({
 
           {/* 快速链接 */}
           <li onClick={handleMenuClick}>
-            <Link href={`/users/${displayUser?.id}`} className="gap-2">
+            <Link href={`/users/${user.id}`} className="gap-2">
               <UserIcon className="w-4 h-4" />
               {t("profile")}
             </Link>
           </li>
           <li onClick={handleMenuClick}>
-            <Link href="/timeline" className="gap-2">
+            <Link href="/timeline/me" className="gap-2">
               <Sparkles className="w-4 h-4" />
               {t("my_timeline")}
             </Link>
           </li>
           <li onClick={handleMenuClick}>
-            <Link href="/topics/my" className="gap-2">
+            <Link href="/topics/me" className="gap-2">
               <Bookmark className="w-4 h-4" />
               {t("my_topics")}
             </Link>
           </li>
           <li onClick={handleMenuClick}>
-            <Link href="/questions/my" className="gap-2">
+            <Link href="/questions/me" className="gap-2">
               <MessageCircleQuestion className="w-4 h-4" />
               {t("my_questions")}
             </Link>
@@ -242,7 +244,8 @@ export default function UserDropdown({
           <div className="divider my-1"></div>
 
           {/* 版主申请入口 */}
-          {displayUser && (
+          {/* TODO: 返回用户是否已经申请 */}
+          {user.role  && (
             <li onClick={handleMenuClick}>
               <Link href="/boards/applications" className="gap-2">
                 <ShieldCheckIcon className="w-4 h-4" />

@@ -240,7 +240,7 @@ func InitApp(cfg *config.Config) (*App, error) {
 
 		// ── 用户：申请 / 撤销版主申请 ────────────────────────────────────────
 		// POST /boards/:id/moderators/apply   提交申请
-		boardGroup.POST("/:id/moderators/apply",
+		boardGroup.POST("/:id/moderators/apply-moderator",
 			middleware.Auth(jwtMgr),
 			boardHandler.ApplyModerator)
 		// 查看申请状态

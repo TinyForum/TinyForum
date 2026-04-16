@@ -3584,7 +3584,7 @@ paths:
       summary: 更新版主权限
       tags:
       - 版主管理
-  /boards/{id}/moderators/apply:
+  /boards/{id}/moderators/appapply-moderatorly:
     post:
       consumes:
       - application/json
@@ -5852,7 +5852,7 @@ paths:
       - ApiKeyAuth: []
       summary: 获取当前用户角色
       tags:
-      - 用户接口
+      - 用户管理
   /users/profile:
     put:
       consumes:

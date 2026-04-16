@@ -101,6 +101,7 @@ export default function AdminPage() {
       // MARK: 统计
       case "dashboard":
         return <Dashboard t={t} />;
+        // MARK: 统计
       case "tasks":
         return <AdminTasks/>
         
