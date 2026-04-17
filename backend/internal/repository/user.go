@@ -57,6 +57,7 @@ func (r *UserRepository) Update(user *model.User) error {
 	return r.db.Save(user).Error
 }
 
+// 更新字段
 func (r *UserRepository) UpdateFields(id uint, fields map[string]interface{}) error {
 	return r.db.Model(&model.User{}).Where("id = ?", id).Updates(fields).Error
 }

@@ -2,6 +2,7 @@ package wire
 
 import (
 	"fmt"
+	"time"
 
 	"tiny-forum/config"
 	"tiny-forum/internal/handler"
@@ -83,6 +84,15 @@ func InitDB(cfg *config.Config) (*gorm.DB, error) {
 	); err != nil {
 		return nil, fmt.Errorf("auto migrate failed: %w", err)
 	}
+	sqlDB, err := db.DB()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get sql.DB: %w", err)
+	}
+	// 核心配置：避免打爆 PostgreSQL
+	sqlDB.SetMaxOpenConns(80)                 // 最大打开连接数（PG 默认 max_connections=100）
+	sqlDB.SetMaxIdleConns(20)                 // 空闲连接池大小
+	sqlDB.SetConnMaxLifetime(5 * time.Minute) // 连接最大生命周期
+	sqlDB.SetConnMaxIdleTime(2 * time.Minute) // 空闲连接超时
 
 	logger.Info("Database connected and migrated successfully")
 	return db, nil
@@ -209,15 +219,16 @@ func InitApp(cfg *config.Config) (*App, error) {
 	// ----- MARK: User routes
 	userGroup := api.Group("/users")
 	{
-		userGroup.GET("/leaderboard", userHandler.Leaderboard)
-		userGroup.GET("/:id", middleware.OptionalAuth(jwtMgr), userHandler.GetProfile)
-		userGroup.PUT("/profile", middleware.Auth(jwtMgr), userHandler.UpdateProfile)
-		userGroup.POST("/:id/follow", middleware.Auth(jwtMgr), userHandler.Follow)
-		userGroup.DELETE("/:id/follow", middleware.Auth(jwtMgr), userHandler.Unfollow)
-		userGroup.GET("/:id/followers", middleware.OptionalAuth(jwtMgr), userHandler.GetFollowers)
-		userGroup.GET("/:id/following", middleware.OptionalAuth(jwtMgr), userHandler.GetFollowing)
-		userGroup.GET("/:id/Score", middleware.OptionalAuth(jwtMgr), userHandler.GetScore)
-		userGroup.GET("/me/role", middleware.OptionalAuth(jwtMgr), userHandler.GetCurrentUserRole)
+		userGroup.GET("/leaderboard", userHandler.Leaderboard)                                     // 获取排行榜
+		userGroup.GET("/:id", middleware.OptionalAuth(jwtMgr), userHandler.GetProfile)             // 获取用户信息
+		userGroup.PUT("/profile", middleware.Auth(jwtMgr), userHandler.UpdateProfile)              // 更新用户信息
+		userGroup.PATCH("/password", middleware.Auth(jwtMgr), userHandler.ChangePassword)          // 更新用户密码
+		userGroup.POST("/:id/follow", middleware.Auth(jwtMgr), userHandler.Follow)                 // 关注用户
+		userGroup.DELETE("/:id/follow", middleware.Auth(jwtMgr), userHandler.Unfollow)             // 取消关注用户
+		userGroup.GET("/:id/followers", middleware.OptionalAuth(jwtMgr), userHandler.GetFollowers) // 获取用户的粉丝
+		userGroup.GET("/:id/following", middleware.OptionalAuth(jwtMgr), userHandler.GetFollowing) // 获取用户的关注列表
+		userGroup.GET("/:id/Score", middleware.OptionalAuth(jwtMgr), userHandler.GetScore)         // 获取用户的积分
+		userGroup.GET("/me/role", middleware.OptionalAuth(jwtMgr), userHandler.GetCurrentUserRole) // 获取当前用户的角色
 	}
 
 	// ----- MARK: Notification routes

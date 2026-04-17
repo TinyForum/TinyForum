@@ -6771,6 +6771,37 @@ const docTemplate = `{
                 }
             }
         },
+        "/users/password": {
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户管理"
+                ],
+                "summary": "修改密码",
+                "parameters": [
+                    {
+                        "description": "密码",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.ChangePasswordInput"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
         "/users/profile": {
             "put": {
                 "security": [
@@ -6795,7 +6826,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/service.UpdateProfileInput"
+                            "$ref": "#/definitions/model.UpdateProfileInput"
                         }
                     }
                 ],
@@ -7491,6 +7522,21 @@ const docTemplate = `{
                 },
                 "view_role": {
                     "$ref": "#/definitions/model.UserRole"
+                }
+            }
+        },
+        "model.ChangePasswordInput": {
+            "type": "object",
+            "required": [
+                "new_password",
+                "old_password"
+            ],
+            "properties": {
+                "new_password": {
+                    "type": "string"
+                },
+                "old_password": {
+                    "type": "string"
                 }
             }
         },
@@ -8714,6 +8760,26 @@ const docTemplate = `{
                 }
             }
         },
+        "model.UpdateProfileInput": {
+            "type": "object",
+            "properties": {
+                "avatar": {
+                    "type": "string"
+                },
+                "bio": {
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "email": {
+                    "description": "邮箱",
+                    "type": "string"
+                },
+                "username": {
+                    "description": "用户名",
+                    "type": "string"
+                }
+            }
+        },
         "model.User": {
             "type": "object",
             "properties": {
@@ -8722,6 +8788,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "bio": {
+                    "description": "用户的简介",
                     "type": "string"
                 },
                 "created_at": {
@@ -8734,8 +8801,12 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
+                "invited_by_id": {
+                    "description": "邀请人ID",
+                    "type": "integer"
+                },
                 "is_active": {
-                    "description": "低优先级，用户主动行为，例如验证邮箱后可以处于激活状态非处罚性质",
+                    "description": "低优先级，用户主动行为，例如验证邮箱后可以处于激活状态，非处罚性质",
                     "type": "boolean"
                 },
                 "is_blocked": {
@@ -9211,18 +9282,6 @@ const docTemplate = `{
                 }
             }
         },
-        "service.UpdateProfileInput": {
-            "type": "object",
-            "properties": {
-                "avatar": {
-                    "type": "string"
-                },
-                "bio": {
-                    "type": "string",
-                    "maxLength": 500
-                }
-            }
-        },
         "service.UserProfileResponse": {
             "type": "object",
             "properties": {
@@ -9231,6 +9290,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "bio": {
+                    "description": "用户的简介",
                     "type": "string"
                 },
                 "created_at": {
@@ -9249,8 +9309,12 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
+                "invited_by_id": {
+                    "description": "邀请人ID",
+                    "type": "integer"
+                },
                 "is_active": {
-                    "description": "低优先级，用户主动行为，例如验证邮箱后可以处于激活状态非处罚性质",
+                    "description": "低优先级，用户主动行为，例如验证邮箱后可以处于激活状态，非处罚性质",
                     "type": "boolean"
                 },
                 "is_blocked": {

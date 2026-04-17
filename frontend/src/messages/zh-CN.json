@@ -109,6 +109,10 @@
     "logout": "退出登录"
   },
   "Auth": {
+    "remember_me": "记住我",
+    "login_failed": "登录失败，请重试",
+    "forgot_password": "忘记密码？",
+    "dont_have_account": "没有账号？",
     "create_account": "创建账号",
     "join_the_forum": "加入论坛，开始交流",
     "username": "用户名",
@@ -125,11 +129,13 @@
     "already_have_an_account": "已有账号？",
     "to_login": "去登录",
     "login": "登录",
+    "logging_in": "登录中...",
     "welcome_back": "欢迎回来",
     "login_to_your_account": "登录你的账户",
     "Dont_have_an_account": "没有账号？",
     "sign_up_for_free": "免费注册"
   },
+  
   "Common": {
     "change_role": "更改角色",
 
@@ -165,6 +171,7 @@
     "reset_password_notice": "系统将生成随机临时密码并通过站内通知发送给用户，有效期 30 分钟。"
   },
   "Admin": {
+    "password_reset_and_notified": "密码已重置并通过站内通知发送给用户",
     "tasks": "任务",
     "confirm_reset": "确认重置",
     "change_role": "更改角色",
@@ -233,6 +240,7 @@
     "qa_description": "管理论坛问答",
     "points": "积分",
     "points_description": "管理论坛积分",
+    "tasks_description": "管理论坛任务",
     "statistics": "统计",
     "system": "系统",
     "statistics_description": "论坛统计信息",

@@ -27,7 +27,7 @@ export default function CommentItem({
   const { user, isAuthenticated } = useAuthStore();
   const queryClient = useQueryClient();
   const [showReplies, setShowReplies] = useState(true);
-  const t = useTranslations("comment");
+  const t = useTranslations("Comment");
 
   const deleteMutation = useMutation({
     mutationFn: () => commentApi.delete(comment.id),

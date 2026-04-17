@@ -400,6 +400,16 @@ definitions:
       view_role:
         $ref: '#/definitions/model.UserRole'
     type: object
+  model.ChangePasswordInput:
+    properties:
+      new_password:
+        type: string
+      old_password:
+        type: string
+    required:
+    - new_password
+    - old_password
+    type: object
   model.Comment:
     properties:
       author:
@@ -1348,12 +1358,27 @@ definitions:
       date:
         type: string
     type: object
+  model.UpdateProfileInput:
+    properties:
+      avatar:
+        type: string
+      bio:
+        maxLength: 500
+        type: string
+      email:
+        description: 邮箱
+        type: string
+      username:
+        description: 用户名
+        type: string
+    type: object
   model.User:
     properties:
       avatar:
         description: 用户的头像，目前为链接（暂不支持图片上传）
         type: string
       bio:
+        description: 用户的简介
         type: string
       created_at:
         type: string
@@ -1362,8 +1387,11 @@ definitions:
         type: string
       id:
         type: integer
+      invited_by_id:
+        description: 邀请人ID
+        type: integer
       is_active:
-        description: 低优先级，用户主动行为，例如验证邮箱后可以处于激活状态非处罚性质
+        description: 低优先级，用户主动行为，例如验证邮箱后可以处于激活状态，非处罚性质
         type: boolean
       is_blocked:
         description: 优先级高于 IsActive，被动行为，一旦味 true 完全无法登录，处罚性质
@@ -1692,20 +1720,13 @@ definitions:
         minLength: 2
         type: string
     type: object
-  service.UpdateProfileInput:
-    properties:
-      avatar:
-        type: string
-      bio:
-        maxLength: 500
-        type: string
-    type: object
   service.UserProfileResponse:
     properties:
       avatar:
         description: 用户的头像，目前为链接（暂不支持图片上传）
         type: string
       bio:
+        description: 用户的简介
         type: string
       created_at:
         type: string
@@ -1718,8 +1739,11 @@ definitions:
         type: integer
       id:
         type: integer
+      invited_by_id:
+        description: 邀请人ID
+        type: integer
       is_active:
-        description: 低优先级，用户主动行为，例如验证邮箱后可以处于激活状态非处罚性质
+        description: 低优先级，用户主动行为，例如验证邮箱后可以处于激活状态，非处罚性质
         type: boolean
       is_blocked:
         description: 优先级高于 IsActive，被动行为，一旦味 true 完全无法登录，处罚性质
@@ -5933,6 +5957,25 @@ paths:
       summary: 获取当前用户角色
       tags:
       - 用户管理
+  /users/password:
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: 密码
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.ChangePasswordInput'
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - ApiKeyAuth: []
+      summary: 修改密码
+      tags:
+      - 用户管理
   /users/profile:
     put:
       consumes:
@@ -5943,7 +5986,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/service.UpdateProfileInput'
+          $ref: '#/definitions/model.UpdateProfileInput'
       produces:
       - application/json
       responses: {}

@@ -75,11 +75,11 @@ func getViewerID(c *gin.Context) uint {
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param body body service.UpdateProfileInput true "资料"
+// @Param body body model.UpdateProfileInput true "资料"
 // @Router /users/profile [put]
 func (h *UserHandler) UpdateProfile(c *gin.Context) {
 	userID := c.GetUint("user_id")
-	var input service.UpdateProfileInput
+	var input model.UpdateProfileInput
 	if err := c.ShouldBindJSON(&input); err != nil {
 		response.BadRequest(c, err.Error())
 		return
@@ -90,6 +90,53 @@ func (h *UserHandler) UpdateProfile(c *gin.Context) {
 	}
 	user, _ := h.userSvc.GetProfile(userID)
 	response.Success(c, user)
+}
+
+// ChangePassword 修改密码
+// @Summary 修改密码
+// @Tags 用户管理
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param body body model.ChangePasswordInput true "密码"
+// @Router /users/password [patch]
+func (h *UserHandler) ChangePassword(c *gin.Context) {
+	// 获取当前用户ID
+	userID, exists := c.Get("user_id")
+	if !exists {
+		response.Unauthorized(c, "未登录")
+		return
+	}
+
+	var input model.ChangePasswordInput
+	if err := c.ShouldBindJSON(&input); err != nil {
+		response.BadRequest(c, "请求参数错误: "+err.Error())
+		return
+	}
+	// 验证输入
+	if input.OldPassword == "" {
+		response.BadRequest(c, "请输入当前密码")
+		return
+	}
+
+	if input.NewPassword == "" {
+		response.BadRequest(c, "请输入新密码")
+		return
+	}
+
+	// 调用服务
+	message, err := h.userSvc.ChangePassword(userID.(uint), input.OldPassword, input.NewPassword)
+
+	if err != nil {
+		// 使用 response.AppError 处理错误（这个方法已经存在）
+		response.AppError(c, err)
+		return
+	}
+
+	// 成功响应
+	response.Success(c, gin.H{
+		"message": message,
+	})
 }
 
 // Follow 关注用户

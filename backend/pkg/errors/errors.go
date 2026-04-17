@@ -40,6 +40,8 @@ const (
 
 	// 积分模块 500xx
 	CodeFailedToQueryScore = 50001
+	// 密码
+
 )
 
 // ========== 结构化错误类型 ==========
@@ -100,6 +102,12 @@ var (
 	ErrCannotBlockSelf       = &AppError{Code: CodeCannotModifySelf, Message: "不能封禁自己的账号"}
 	ErrCannotBlockSuperAdmin = &AppError{Code: CodeCannotChangeOwner, Message: "不能封禁超级管理员"}
 	ErrCannotBlockAdmin      = &AppError{Code: CodeInsufficientPermission, Message: "只有超级管理员才能封禁其他管理员"}
+
+	// 密码相关
+	ErrPasswordNotMatch  = &AppError{Code: CodeUnauthorized, Message: "密码不匹配"}
+	ErrPasswordTooShort  = &AppError{Code: CodeInvalidPassword, Message: "密码长度至少为6位"}
+	ErrPasswordTooLong   = &AppError{Code: CodeInvalidPassword, Message: "密码长度不能超过32位"}
+	ErrPasswordSameAsOld = &AppError{Code: CodeInvalidPassword, Message: "新密码不能与旧密码相同"}
 )
 
 // ========== 辅助函数：追加上下文信息 ==========

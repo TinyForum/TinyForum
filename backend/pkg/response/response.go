@@ -15,6 +15,9 @@ const (
 	CodeForbidden    = 40300
 	CodeNotFound     = 40400
 	CodeInternal     = 50000
+	// 密码相关
+	CodePasswordIncorrect    = 50001
+	CodePasswordIncorrectMsg = 50002
 )
 
 // Response 优化后的响应结构

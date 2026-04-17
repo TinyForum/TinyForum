@@ -15,6 +15,7 @@ export function useAnnouncements() {
     setError(null);
     try {
       const response = await announcementApi.list();
+      console.log("公告：",response.data.data.list);
       setAnnouncementsList(response.data.data.list || []);
     } catch (err) {
       setError(err instanceof Error ? err.message : "获取公告失败");

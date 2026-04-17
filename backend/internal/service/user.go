@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"math/big"
+	"regexp"
 	"time"
 	"tiny-forum/internal/model"
 	"tiny-forum/internal/repository"
@@ -119,12 +120,7 @@ func (s *UserService) GetProfile(userID uint) (*model.User, error) {
 	return s.repo.FindByID(userID)
 }
 
-type UpdateProfileInput struct {
-	Bio    string `json:"bio" binding:"max=500"`
-	Avatar string `json:"avatar"`
-}
-
-func (s *UserService) UpdateProfile(userID uint, input UpdateProfileInput) error {
+func (s *UserService) UpdateProfile(userID uint, input model.UpdateProfileInput) error {
 	fields := map[string]interface{}{}
 	if input.Bio != "" {
 		fields["bio"] = input.Bio
@@ -132,10 +128,97 @@ func (s *UserService) UpdateProfile(userID uint, input UpdateProfileInput) error
 	if input.Avatar != "" {
 		fields["avatar"] = input.Avatar
 	}
+	if input.Email != "" {
+		fields["email"] = input.Email
+	}
 	if len(fields) == 0 {
 		return nil
 	}
 	return s.repo.UpdateFields(userID, fields)
+}
+
+func (s *UserService) ChangePassword(userID uint, oldPassword, newPassword string) (string, error) {
+	ctx := context.Background()
+
+	// 1. 查询用户
+	targetUser, err := s.repo.FindByID(userID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return "", apperrors.Wrapf(apperrors.ErrUserNotFound, "ID: %d", userID)
+		}
+		return "", fmt.Errorf("查询目标用户失败: %w", err)
+	}
+
+	// 2. 验证旧密码 - 这里失败会返回 20005
+	if err := bcrypt.CompareHashAndPassword([]byte(targetUser.Password), []byte(oldPassword)); err != nil {
+		// 添加日志以便调试
+		fmt.Printf("密码验证失败 - UserID: %d, Error: %v\n", userID, err)
+		return "", apperrors.ErrInvalidPassword // 错误码 20005
+	}
+
+	// 3. 验证新旧密码不能相同
+	if oldPassword == newPassword {
+		return "", apperrors.ErrPasswordSameAsOld
+	}
+
+	// 4. 验证新密码长度（不强制强度）
+	if len(newPassword) < 6 {
+		return "", apperrors.ErrPasswordTooShort
+	}
+
+	// 5. 检查密码强度（仅用于提示）
+	strength := s.checkPasswordStrength(newPassword)
+
+	// 6. 加密新密码
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
+	if err != nil {
+		return "", fmt.Errorf("密码加密失败: %w", err)
+	}
+
+	// 7. 更新密码
+	if err := s.repo.UpdatePassword(ctx, userID, string(hashedPassword)); err != nil {
+		return "", fmt.Errorf("更新密码失败: %w", err)
+	}
+
+	// 8. 返回结果
+	if strength == "weak" {
+		return "密码修改成功，但密码强度较弱，建议使用更复杂的密码", nil
+	}
+
+	return "密码修改成功", nil
+}
+
+// checkPasswordStrength 检查密码强度（仅用于建议）
+func (s *UserService) checkPasswordStrength(password string) string {
+	hasUpper := regexp.MustCompile(`[A-Z]`).MatchString(password)
+	hasLower := regexp.MustCompile(`[a-z]`).MatchString(password)
+	hasNumber := regexp.MustCompile(`[0-9]`).MatchString(password)
+	hasSpecial := regexp.MustCompile(`[^A-Za-z0-9]`).MatchString(password)
+
+	score := 0
+	if len(password) >= 8 {
+		score++
+	}
+	if len(password) >= 12 {
+		score++
+	}
+	if hasUpper && hasLower {
+		score++
+	}
+	if hasNumber {
+		score++
+	}
+	if hasSpecial {
+		score++
+	}
+
+	if score <= 2 {
+		return "weak"
+	}
+	if score <= 4 {
+		return "medium"
+	}
+	return "strong"
 }
 
 type UserProfileResponse struct {
@@ -705,11 +788,11 @@ func (s *UserService) validatePasswordStrength(password string) error {
 		return apperrors.Wrap(apperrors.ErrInvalidPassword, "密码长度不能超过32位")
 	}
 	// 可选：检查是否包含数字、字母等
-	// hasDigit := regexp.MustCompile(`[0-9]`).MatchString(password)
-	// hasLetter := regexp.MustCompile(`[a-zA-Z]`).MatchString(password)
-	// if !hasDigit || !hasLetter {
-	//     return apperrors.Wrap(apperrors.ErrInvalidPassword, "密码必须包含数字和字母")
-	// }
+	hasDigit := regexp.MustCompile(`[0-9]`).MatchString(password)
+	hasLetter := regexp.MustCompile(`[a-zA-Z]`).MatchString(password)
+	if !hasDigit || !hasLetter {
+		return apperrors.Wrap(apperrors.ErrInvalidPassword, "密码必须包含数字和字母")
+	}
 	return nil
 }
 

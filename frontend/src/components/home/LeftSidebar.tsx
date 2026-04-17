@@ -3,11 +3,11 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { 
-  LayoutDashboard, 
-  Hash, 
-  MessageSquare, 
-  FileText, 
+import {
+  LayoutDashboard,
+  Hash,
+  MessageSquare,
+  FileText,
   TrendingUp,
   HelpCircle,
   Megaphone,
@@ -15,7 +15,7 @@ import {
   ChevronRight,
   Tag,
   Sparkles,
-  PenIcon
+  PenIcon,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
@@ -41,7 +41,7 @@ interface LeftSidebarProps {
   tags: any[];
   selectedBoard: number | null;
   selectedTag: number | null;
-    filterType: FilterType;  
+  filterType: FilterType;
   onBoardChange: (boardId: number | null) => void;
   onTagChange: (tagId: number | null) => void;
   onPostTypeChange: (type: FilterType) => void;
@@ -59,8 +59,8 @@ export default function LeftSidebar({
 }: LeftSidebarProps) {
   const t = useTranslations("Sidebar");
   const [expandedBoards, setExpandedBoards] = useState<Set<number>>(new Set());
-    const { announcementsList, isLoading } = useAnnouncements();
-     const displayAnnouncements = announcementsList.slice(0, 3);
+  const { announcementsList, isLoading } = useAnnouncements();
+  const displayAnnouncements = announcementsList.slice(0, 3);
 
   const toggleBoard = (boardId: number) => {
     const newExpanded = new Set(expandedBoards);
@@ -86,7 +86,7 @@ export default function LeftSidebar({
             "w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors",
             selectedBoard === board.id
               ? "bg-primary/10 text-primary font-medium"
-              : "hover:bg-muted text-muted-foreground hover:text-foreground"
+              : "hover:bg-muted text-muted-foreground hover:text-foreground",
           )}
         >
           <div className="flex items-center gap-2 flex-1 min-w-0">
@@ -105,7 +105,9 @@ export default function LeftSidebar({
             <span className="truncate">{board.name}</span>
           </div>
           {board.post_count > 0 && (
-            <span className="text-xs text-muted-foreground">{board.post_count}</span>
+            <span className="text-xs text-muted-foreground">
+              {board.post_count}
+            </span>
           )}
         </button>
         {board.children && expandedBoards.has(board.id) && (
@@ -139,15 +141,17 @@ export default function LeftSidebar({
               "w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors",
               !selectedBoard && !selectedTag && filterType === "all"
                 ? "bg-primary/10 text-primary font-medium"
-                : "hover:bg-muted text-muted-foreground hover:text-foreground"
+                : "hover:bg-muted text-muted-foreground hover:text-foreground",
             )}
           >
             <TrendingUp className="w-4 h-4" />
             {t("all")}
-          
-           <span className="ml-auto text-xs text-muted-foreground">TODO count</span>
+
+            <span className="ml-auto text-xs text-muted-foreground">
+              TODO count
+            </span>
           </button>
-          
+
           {/* 问答 */}
           <button
             onClick={() => {
@@ -159,14 +163,16 @@ export default function LeftSidebar({
               "w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors",
               filterType === "question"
                 ? "bg-primary/10 text-primary font-medium"
-                : "hover:bg-muted text-muted-foreground hover:text-foreground"
+                : "hover:bg-muted text-muted-foreground hover:text-foreground",
             )}
           >
             <HelpCircle className="w-4 h-4" />
             {t("questions")}
-           <span className="ml-auto text-xs text-muted-foreground">TODO count</span>
+            <span className="ml-auto text-xs text-muted-foreground">
+              TODO count
+            </span>
           </button>
-          
+
           {/* 文章 */}
           <button
             onClick={() => {
@@ -178,14 +184,16 @@ export default function LeftSidebar({
               "w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors",
               filterType === "article"
                 ? "bg-primary/10 text-primary font-medium"
-                : "hover:bg-muted text-muted-foreground hover:text-foreground"
+                : "hover:bg-muted text-muted-foreground hover:text-foreground",
             )}
           >
             <FileText className="w-4 h-4" />
             {t("articles")}
-            <span className="ml-auto text-xs text-muted-foreground">TODO count</span>
+            <span className="ml-auto text-xs text-muted-foreground">
+              TODO count
+            </span>
           </button>
-          
+
           {/* 帖子 */}
           <button
             onClick={() => {
@@ -197,50 +205,54 @@ export default function LeftSidebar({
               "w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors",
               filterType === "post"
                 ? "bg-primary/10 text-primary font-medium"
-                : "hover:bg-muted text-muted-foreground hover:text-foreground"
+                : "hover:bg-muted text-muted-foreground hover:text-foreground",
             )}
           >
             <PenIcon className="w-4 h-4" />
             {t("posts")}
-            <span className="ml-auto text-xs text-muted-foreground">TODO count</span>
+            <span className="ml-auto text-xs text-muted-foreground">
+              TODO count
+            </span>
           </button>
         </div>
       </div>
 
       {/* 公告栏 */}
-     <div className="rounded-lg border bg-card">
-      <div className="p-3 border-b">
-        <h3 className="font-semibold flex items-center gap-2">
-          <Megaphone className="w-4 h-4" />
-          {t("announcements")}
-        </h3>
-      </div>
-      <div className="p-3 space-y-2">
-        {isLoading ? (
-          <div className="text-sm text-muted-foreground">{t("loading")}</div>
-        ) : displayAnnouncements.length === 0 ? (
-          <div className="text-sm text-muted-foreground">{t("no_announcements")}</div>
-        ) : (
-          <>
-            {displayAnnouncements.map((announcement) => (
+      <div className="rounded-lg border bg-card">
+        <div className="p-3 border-b">
+          <h3 className="font-semibold flex items-center gap-2">
+            <Megaphone className="w-4 h-4" />
+            {t("announcements")}
+          </h3>
+        </div>
+        <div className="p-3 space-y-2">
+          {isLoading ? (
+            <div className="text-sm text-muted-foreground">{t("loading")}</div>
+          ) : displayAnnouncements.length === 0 ? (
+            <div className="text-sm text-muted-foreground">
+              {t("no_announcements")}
+            </div>
+          ) : (
+            <>
+              {displayAnnouncements.map((announcement) => (
+                <Link
+                  key={announcement.id}
+                  href={`/announcements/${announcement.id}`}
+                  className="block text-sm hover:text-primary transition-colors"
+                >
+                  • {announcement.title}
+                </Link>
+              ))}
               <Link
-                key={announcement.id}
-                href={`/announcements/${announcement.id}`}
-                className="block text-sm hover:text-primary transition-colors"
+                href="/announcements"
+                className="block text-xs text-muted-foreground hover:text-primary mt-2"
               >
-                • {announcement.title}
+                {t("view_all_announcements")} →
               </Link>
-            ))}
-            <Link
-              href="/announcements"
-              className="block text-xs text-muted-foreground hover:text-primary mt-2"
-            >
-              {t("view_all_announcements")} →
-            </Link>
-          </>
-        )}
+            </>
+          )}
+        </div>
       </div>
-    </div>
 
       {/* 板块列表 */}
       {boards && boards.length > 0 && (
@@ -275,7 +287,7 @@ export default function LeftSidebar({
                   "px-2 py-1 rounded-md text-xs transition-colors",
                   selectedTag === tag.id
                     ? "bg-primary text-primary-foreground"
-                    : "bg-muted hover:bg-muted/80 text-muted-foreground"
+                    : "bg-muted hover:bg-muted/80 text-muted-foreground",
                 )}
               >
                 {tag.name}
@@ -286,7 +298,6 @@ export default function LeftSidebar({
       )}
 
       {/* 社区统计 */}
-  
     </aside>
   );
 }

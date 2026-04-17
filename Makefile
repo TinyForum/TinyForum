@@ -2,6 +2,7 @@
 .PHONY: start stop restart status logs stop-all start-all
 .PHONY: start-backend stop-backend start-frontend stop-frontend
 .PHONY: start-docs stop-docs
+.PHONY: bench bench-wrk bench-oha bench-k6 bench-all bench-ci bench-compare install-tools
 
 # PID 文件存储目录
 PID_DIR := .pids
@@ -10,10 +11,22 @@ FRONTEND_PID_FILE := $(PID_DIR)/frontend.pid
 DOCS_PID_FILE := $(PID_DIR)/docs.pid
 
 # 日志目录
-LOG_DIR := logs
+LOG_DIR := applogs
 BACKEND_LOG := $(LOG_DIR)/backend.log
 FRONTEND_LOG := $(LOG_DIR)/frontend.log
 DOCS_LOG := $(LOG_DIR)/docs.log
+
+# 压测配置
+BASE_URL      := http://localhost:8080
+API_PREFIX    := /api/v1
+TEST_DURATION := 30s
+CONCURRENCY   := 100
+REQUESTS      := 10000
+
+# 检测可用的压测工具
+WHICH_WRK     := $(shell command -v wrk 2>/dev/null)
+WHICH_OHA     := $(shell command -v oha 2>/dev/null)
+WHICH_K6      := $(shell command -v k6 2>/dev/null)
 
 init-config:
 	@echo "🚀 Initializing project..."
@@ -519,3 +532,157 @@ docker-dev:
 docker-tools:
 	@echo "🔧 Starting tools services..."
 	@$(DOCKER_COMPOSE) --env-file $(ENV_FILE) --profile tools up -d
+
+
+
+# 主入口：智能选择工具
+bench:
+	@if [ -n "$(WHICH_OHA)" ]; then \
+		$(MAKE) bench-oha; \
+	elif [ -n "$(WHICH_WRK)" ]; then \
+		$(MAKE) bench-wrk; \
+	else \
+		echo "❌ 未找到压测工具，运行 'make install-tools' 安装"; \
+		exit 1; \
+	fi
+
+# 安装压测工具（macOS/Linux）
+install-tools:
+	@echo "📦 安装压测工具..."
+	@if [ "$$(uname)" = "Darwin" ]; then \
+		brew install oha wrk k6 2>/dev/null || true; \
+	else \
+		echo "Linux 请手动安装: cargo install oha | 编译 wrk | 安装 k6"; \
+	fi
+	@echo "✅ 安装完成"
+
+# --- oha 测试（推荐，实时可视化）---
+
+bench-oha: bench-oha-light bench-oha-medium bench-oha-heavy
+
+bench-oha-light:
+	@echo "🚀 oha 轻量测试 (100并发, 1万请求)"
+	oha -n $(REQUESTS) -c 100 $(BASE_URL)$(API_PREFIX)/posts
+
+bench-oha-medium:
+	@echo "🚀 oha 中等压力 (500并发, 2万请求)"
+	oha -n 20000 -c 500 $(BASE_URL)$(API_PREFIX)/posts
+
+bench-oha-heavy:
+	@echo "🚀 oha 高压力 (1000并发, 5万请求)"
+	oha -n 50000 -c 1000 $(BASE_URL)$(API_PREFIX)/posts
+
+# --- wrk 测试（极限压力）---
+
+bench-wrk: bench-wrk-light bench-wrk-medium bench-wrk-heavy
+
+bench-wrk-light:
+	@echo "🔥 wrk 轻量测试 (12线程, 100连接, 30秒)"
+	wrk -t12 -c100 -d$(TEST_DURATION) $(BASE_URL)$(API_PREFIX)/posts
+
+bench-wrk-medium:
+	@echo "🔥 wrk 中等压力 (12线程, 400连接, 30秒)"
+	wrk -t12 -c400 -d$(TEST_DURATION) $(BASE_URL)$(API_PREFIX)/posts
+
+bench-wrk-heavy:
+	@echo "🔥 wrk 极限压力 (12线程, 1000连接, 30秒)"
+	wrk -t12 -c1000 -d$(TEST_DURATION) $(BASE_URL)$(API_PREFIX)/posts
+
+# --- k6 测试（场景化，CI友好）---
+
+bench-k6:
+	@if [ -z "$(WHICH_K6)" ]; then \
+		echo "❌ k6 未安装"; \
+		exit 1; \
+	fi
+	@mkdir -p $(LOG_DIR)
+	k6 run \
+		-e BASE_URL=$(BASE_URL) \
+		-e API_PREFIX=$(API_PREFIX) \
+		--out json=$(LOG_DIR)/k6-result.json \
+		scripts/bench.js
+
+# --- 全工具对比测试 ---
+
+bench-all: bench-check-tools
+	@echo "=========================================="
+	@echo "   全工具性能对比测试"
+	@echo "=========================================="
+	@mkdir -p $(LOG_DIR)
+	@echo ""
+	@if [ -n "$(WHICH_OHA)" ]; then \
+		echo ">>> oha 1000并发测试" | tee $(LOG_DIR)/bench-oha.log; \
+		oha -n 50000 -c 1000 $(BASE_URL)$(API_PREFIX)/posts 2>&1 | tee -a $(LOG_DIR)/bench-oha.log; \
+	fi
+	@echo ""
+	@if [ -n "$(WHICH_WRK)" ]; then \
+		echo ">>> wrk 1000连接测试" | tee $(LOG_DIR)/bench-wrk.log; \
+		wrk -t12 -c1000 -d30s $(BASE_URL)$(API_PREFIX)/posts 2>&1 | tee -a $(LOG_DIR)/bench-wrk.log; \
+	fi
+	@echo ""
+	@echo "✅ 测试结果保存至 $(LOG_DIR)/bench-*.log"
+
+# --- CI/CD 自动化测试（非交互式）---
+
+bench-ci:
+	@echo "🤖 CI 模式压测 (快速验证)"
+	@mkdir -p $(LOG_DIR)
+	@if [ -n "$(WHICH_OHA)" ]; then \
+		oha -n 5000 -c 50 --no-tui $(BASE_URL)$(API_PREFIX)/posts > $(LOG_DIR)/bench-ci.log 2>&1; \
+		echo "✅ CI 测试完成，结果: $(LOG_DIR)/bench-ci.log"; \
+	else \
+		echo "⚠️  oha 未安装，跳过 CI 测试"; \
+	fi
+
+# --- 对比测试（优化前后）---
+
+bench-compare:
+	@echo "📊 优化前后对比测试"
+	@mkdir -p $(LOG_DIR)
+	@echo "第1轮测试 (当前性能)..." 
+	-oha -n 10000 -c 100 $(BASE_URL)$(API_PREFIX)/posts > $(LOG_DIR)/before.log 2>&1
+	@echo "请应用优化后按回车继续..."; read dummy
+	@echo "第2轮测试 (优化后)..."
+	-oha -n 10000 -c 100 $(BASE_URL)$(API_PREFIX)/posts > $(LOG_DIR)/after.log 2>&1
+	@echo ""
+	@echo "=== 对比结果 ==="
+	@grep "Requests/sec" $(LOG_DIR)/before.log $(LOG_DIR)/after.log || true
+	@grep "Success rate" $(LOG_DIR)/before.log $(LOG_DIR)/after.log || true
+
+# --- 辅助命令 ---
+
+bench-check-tools:
+	@echo "检查压测工具..."
+	@[ -n "$(WHICH_OHA)" ] && echo "✅ oha: $(WHICH_OHA)" || echo "❌ oha 未安装"
+	@[ -n "$(WHICH_WRK)" ] && echo "✅ wrk: $(WHICH_WRK)" || echo "❌ wrk 未安装"
+	@[ -n "$(WHICH_K6)" ] && echo "✅ k6:  $(WHICH_K6)" || echo "❌ k6 未安装"
+
+bench-help:
+	@echo "=========================================="
+	@echo "   性能测试命令"
+	@echo "=========================================="
+	@echo ""
+	@echo "快速开始:"
+	@echo "  make bench              智能选择工具运行压测"
+	@echo "  make install-tools      安装 oha, wrk, k6"
+	@echo ""
+	@echo "分级压测 (oha):"
+	@echo "  make bench-oha-light    100并发, 1万请求"
+	@echo "  make bench-oha-medium   500并发, 2万请求"  
+	@echo "  make bench-oha-heavy    1000并发, 5万请求"
+	@echo ""
+	@echo "极限压测 (wrk):"
+	@echo "  make bench-wrk-light    12线程, 100连接"
+	@echo "  make bench-wrk-medium   12线程, 400连接"
+	@echo "  make bench-wrk-heavy    12线程, 1000连接"
+	@echo ""
+	@echo "场景测试:"
+	@echo "  make bench-k6           渐进加压场景测试"
+	@echo "  make bench-all          全工具对比测试"
+	@echo ""
+	@echo "CI/CD:"
+	@echo "  make bench-ci           非交互式快速测试"
+	@echo "  make bench-compare      优化前后对比"
+	@echo ""
+	@echo "配置变量:"
+	@echo "  make bench BASE_URL=http://localhost:3000 API_PREFIX=/api"
