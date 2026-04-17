@@ -18,6 +18,19 @@ import (
 	timelineHandler "tiny-forum/internal/handler/timelines"
 	topicHandler "tiny-forum/internal/handler/topic"
 	userHandler "tiny-forum/internal/handler/user"
+	announcementRepo "tiny-forum/internal/repository/announcement"
+	boardRepo "tiny-forum/internal/repository/board"
+	commentRepo "tiny-forum/internal/repository/comment"
+	notificationRepo "tiny-forum/internal/repository/notification"
+	postRepo "tiny-forum/internal/repository/post"
+	questionRepo "tiny-forum/internal/repository/question"
+	statsRepo "tiny-forum/internal/repository/stats"
+	tagRepo "tiny-forum/internal/repository/tag"
+	timelineRepo "tiny-forum/internal/repository/timeline"
+	tokenRepo "tiny-forum/internal/repository/token"
+	topicRepo "tiny-forum/internal/repository/topic"
+	userRepo "tiny-forum/internal/repository/user"
+	voteRepo "tiny-forum/internal/repository/vote"
 
 	announcementService "tiny-forum/internal/service/announcement"
 	boardService "tiny-forum/internal/service/board"
@@ -33,7 +46,6 @@ import (
 
 	"tiny-forum/internal/middleware"
 	"tiny-forum/internal/model"
-	"tiny-forum/internal/repository"
 	jwtpkg "tiny-forum/pkg/jwt"
 	"tiny-forum/pkg/logger"
 
@@ -133,19 +145,19 @@ func InitApp(cfg *config.Config) (*App, error) {
 	jwtMgr := jwtpkg.NewManager(cfg.JWT.Secret, cfg.JWT.Expire)
 
 	// ========== Repositories ==========
-	tokenRepo := repository.NewTokenRepository(db)
-	userRepo := repository.NewUserRepository(db, tokenRepo)
-	postRepo := repository.NewPostRepository(db)
-	commentRepo := repository.NewCommentRepository(db)
-	tagRepo := repository.NewTagRepository(db)
-	notifRepo := repository.NewNotificationRepository(db)
-	boardRepo := repository.NewBoardRepository(db)
-	timelineRepo := repository.NewTimelineRepository(db)
-	topicRepo := repository.NewTopicRepository(db)
-	questionRepo := repository.NewQuestionRepository(db)
-	voteRepo := repository.NewVoteRepository(db)
-	announcementRepo := repository.NewAnnouncementRepository(db)
-	statsRepo := repository.NewStatsRepository(db)
+	tokenRepo := tokenRepo.NewTokenRepository(db)
+	userRepo := userRepo.NewUserRepository(db, tokenRepo)
+	postRepo := postRepo.NewPostRepository(db)
+	commentRepo := commentRepo.NewCommentRepository(db)
+	tagRepo := tagRepo.NewTagRepository(db)
+	notifRepo := notificationRepo.NewNotificationRepository(db)
+	boardRepo := boardRepo.NewBoardRepository(db)
+	timelineRepo := timelineRepo.NewTimelineRepository(db)
+	topicRepo := topicRepo.NewTopicRepository(db)
+	questionRepo := questionRepo.NewQuestionRepository(db)
+	voteRepo := voteRepo.NewVoteRepository(db)
+	announcementRepo := announcementRepo.NewAnnouncementRepository(db)
+	statsRepo := statsRepo.NewStatsRepository(db)
 
 	// ========== Services ==========
 	// 基础服务

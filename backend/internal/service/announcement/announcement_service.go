@@ -3,9 +3,8 @@ package announcement
 import (
 	"context"
 	"time"
-
 	"tiny-forum/internal/model"
-	"tiny-forum/internal/repository"
+	announcementRepo "tiny-forum/internal/repository/announcement"
 	apperrors "tiny-forum/pkg/errors"
 )
 
@@ -22,10 +21,10 @@ type AnnouncementService interface {
 }
 
 type announcementService struct {
-	repo repository.AnnouncementRepository
+	repo announcementRepo.AnnouncementRepository
 }
 
-func NewAnnouncementService(repo repository.AnnouncementRepository) AnnouncementService {
+func NewAnnouncementService(repo announcementRepo.AnnouncementRepository) AnnouncementService {
 	return &announcementService{repo: repo}
 }
 

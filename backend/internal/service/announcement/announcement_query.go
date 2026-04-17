@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"tiny-forum/internal/model"
-	"tiny-forum/internal/repository"
+	announcementRepo "tiny-forum/internal/repository/announcement"
 	apperrors "tiny-forum/pkg/errors"
 
 	"gorm.io/gorm"
@@ -29,7 +29,8 @@ func (s *announcementService) List(ctx context.Context, req *ListAnnouncementReq
 	if req.PageSize <= 0 {
 		req.PageSize = 20
 	}
-	repoReq := &repository.AnnouncementListRequest{
+	repoReq := &announcementRepo.AnnouncementListRequest{
+
 		Page:      req.Page,
 		PageSize:  req.PageSize,
 		BoardID:   req.BoardID,

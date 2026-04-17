@@ -1,0 +1,95 @@
+package question
+
+import (
+	"errors"
+	"tiny-forum/internal/model"
+
+	"gorm.io/gorm"
+)
+
+// CreateWithTransaction 使用事务创建问答（包括帖子、标签、积分扣减）
+func (r *questionRepository) CreateWithTransaction(userID uint, input model.CreateQuestionInput) (*model.QuestionResponse, error) {
+	tx := r.db.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	// 1. 创建帖子
+	post := &model.Post{
+		Title:    input.Title,
+		Content:  input.Content,
+		Summary:  input.Summary,
+		Cover:    input.Cover,
+		BoardID:  input.BoardID,
+		AuthorID: userID,
+		Type:     "question",
+		Status:   "published",
+	}
+	if err := tx.Create(post).Error; err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	// 2. 关联标签
+	if len(input.TagIDs) > 0 {
+		var tags []model.Tag
+		if err := tx.Where("id IN ?", input.TagIDs).Find(&tags).Error; err != nil {
+			tx.Rollback()
+			return nil, err
+		}
+		if err := tx.Model(post).Association("Tags").Append(&tags); err != nil {
+			tx.Rollback()
+			return nil, err
+		}
+	}
+
+	// 3. 扣减积分
+	if input.RewardScore > 0 {
+		var user model.User
+		if err := tx.Where("id = ?", userID).First(&user).Error; err != nil {
+			tx.Rollback()
+			return nil, err
+		}
+		if user.Score < input.RewardScore {
+			tx.Rollback()
+			return nil, errors.New("积分不足")
+		}
+		if err := tx.Model(&user).Update("score", gorm.Expr("score - ?", input.RewardScore)).Error; err != nil {
+			tx.Rollback()
+			return nil, err
+		}
+	}
+
+	// 4. 创建问答记录
+	question := &model.Question{
+		PostID:      post.ID,
+		RewardScore: input.RewardScore,
+		AnswerCount: 0,
+	}
+	if err := tx.Create(question).Error; err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		return nil, err
+	}
+
+	return &model.QuestionResponse{
+		ID:          question.ID,
+		PostID:      post.ID,
+		Title:       post.Title,
+		Content:     post.Content,
+		Summary:     post.Summary,
+		Cover:       post.Cover,
+		BoardID:     post.BoardID,
+		AuthorID:    post.AuthorID,
+		RewardScore: question.RewardScore,
+		AnswerCount: question.AnswerCount,
+		Status:      string(post.Status),
+		CreatedAt:   post.CreatedAt,
+		UpdatedAt:   post.UpdatedAt,
+	}, nil
+}

@@ -1,13 +1,13 @@
 package notification
 
 import (
-	"tiny-forum/internal/repository"
+	notificationRepo "tiny-forum/internal/repository/notification"
 )
 
 type NotificationService struct {
-	notifRepo *repository.NotificationRepository
+	notifRepo *notificationRepo.NotificationRepository
 }
 
-func NewNotificationService(notifRepo *repository.NotificationRepository) *NotificationService {
+func NewNotificationService(notifRepo *notificationRepo.NotificationRepository) *NotificationService {
 	return &NotificationService{notifRepo: notifRepo}
 }

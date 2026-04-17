@@ -3,26 +3,30 @@ package stats
 import (
 	"fmt"
 	"time"
-
-	"tiny-forum/internal/repository"
+	boardRepo "tiny-forum/internal/repository/board"
+	commentRepo "tiny-forum/internal/repository/comment"
+	postRepo "tiny-forum/internal/repository/post"
+	statsRepo "tiny-forum/internal/repository/stats"
+	tagRepo "tiny-forum/internal/repository/tag"
+	userRepo "tiny-forum/internal/repository/user"
 )
 
 type StatsService struct {
-	statsRepo   *repository.StatsRepository
-	postRepo    repository.PostRepository
-	tagRepo     *repository.TagRepository
-	boardRepo   *repository.BoardRepository
-	userRepo    *repository.UserRepository
-	commentRepo *repository.CommentRepository
+	statsRepo   *statsRepo.StatsRepository
+	postRepo    postRepo.PostRepository
+	tagRepo     *tagRepo.TagRepository
+	boardRepo   *boardRepo.BoardRepository
+	userRepo    *userRepo.UserRepository
+	commentRepo *commentRepo.CommentRepository
 }
 
 func NewStatsService(
-	statsRepo *repository.StatsRepository,
-	postRepo repository.PostRepository,
-	tagRepo *repository.TagRepository,
-	boardRepo *repository.BoardRepository,
-	userRepo *repository.UserRepository,
-	commentRepo *repository.CommentRepository,
+	statsRepo *statsRepo.StatsRepository,
+	postRepo postRepo.PostRepository,
+	tagRepo *tagRepo.TagRepository,
+	boardRepo *boardRepo.BoardRepository,
+	userRepo *userRepo.UserRepository,
+	commentRepo *commentRepo.CommentRepository,
 ) *StatsService {
 	return &StatsService{
 		statsRepo:   statsRepo,

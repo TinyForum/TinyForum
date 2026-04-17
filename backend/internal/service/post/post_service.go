@@ -1,23 +1,27 @@
 package post
 
 import (
-	"tiny-forum/internal/repository"
+	boardRepo "tiny-forum/internal/repository/board"
+	postRepo "tiny-forum/internal/repository/post"
+	tagRepo "tiny-forum/internal/repository/tag"
+	userRepo "tiny-forum/internal/repository/user"
+
 	"tiny-forum/internal/service/notification"
 )
 
 type PostService struct {
-	postRepo  repository.PostRepository
-	tagRepo   *repository.TagRepository
-	boardRepo *repository.BoardRepository
-	userRepo  *repository.UserRepository
+	postRepo  postRepo.PostRepository
+	tagRepo   *tagRepo.TagRepository
+	boardRepo *boardRepo.BoardRepository
+	userRepo  *userRepo.UserRepository
 	notifSvc  *notification.NotificationService // 需导入 "tiny-forum/internal/service/notification"
 }
 
 func NewPostService(
-	postRepo repository.PostRepository,
-	tagRepo *repository.TagRepository,
-	userRepo *repository.UserRepository,
-	boardRepo *repository.BoardRepository,
+	postRepo postRepo.PostRepository,
+	tagRepo *tagRepo.TagRepository,
+	userRepo *userRepo.UserRepository,
+	boardRepo *boardRepo.BoardRepository,
 	notifSvc *notification.NotificationService,
 ) *PostService {
 	return &PostService{

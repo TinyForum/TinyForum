@@ -1,21 +1,24 @@
 package timeline
 
 import (
-	"tiny-forum/internal/repository"
+	commentRepo "tiny-forum/internal/repository/comment"
+	postRepo "tiny-forum/internal/repository/post"
+	timelineRepo "tiny-forum/internal/repository/timeline"
+	userRepo "tiny-forum/internal/repository/user"
 )
 
 type TimelineService struct {
-	timelineRepo *repository.TimelineRepository
-	userRepo     *repository.UserRepository
-	postRepo     repository.PostRepository
-	commentRepo  *repository.CommentRepository
+	timelineRepo *timelineRepo.TimelineRepository
+	userRepo     *userRepo.UserRepository
+	postRepo     postRepo.PostRepository
+	commentRepo  *commentRepo.CommentRepository
 }
 
 func NewTimelineService(
-	timelineRepo *repository.TimelineRepository,
-	userRepo *repository.UserRepository,
-	postRepo repository.PostRepository,
-	commentRepo *repository.CommentRepository,
+	timelineRepo *timelineRepo.TimelineRepository,
+	userRepo *userRepo.UserRepository,
+	postRepo postRepo.PostRepository,
+	commentRepo *commentRepo.CommentRepository,
 ) *TimelineService {
 	return &TimelineService{
 		timelineRepo: timelineRepo,

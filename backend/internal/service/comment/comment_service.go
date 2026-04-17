@@ -1,24 +1,27 @@
 package comment
 
 import (
-	"tiny-forum/internal/repository"
+	commentRepo "tiny-forum/internal/repository/comment"
+	postRepo "tiny-forum/internal/repository/post"
+	userRepo "tiny-forum/internal/repository/user"
+	voteRepo "tiny-forum/internal/repository/vote"
 	"tiny-forum/internal/service/notification"
 )
 
 type CommentService struct {
-	commentRepo *repository.CommentRepository
-	postRepo    repository.PostRepository
-	userRepo    *repository.UserRepository
-	notifSvc    *notification.NotificationService // 注意：需正确导入包
-	voteRepo    *repository.VoteRepository
+	commentRepo *commentRepo.CommentRepository
+	postRepo    postRepo.PostRepository
+	userRepo    *userRepo.UserRepository
+	notifSvc    *notification.NotificationService
+	voteRepo    *voteRepo.VoteRepository
 }
 
 func NewCommentService(
-	commentRepo *repository.CommentRepository,
-	postRepo repository.PostRepository,
-	userRepo *repository.UserRepository,
+	commentRepo *commentRepo.CommentRepository,
+	postRepo postRepo.PostRepository,
+	userRepo *userRepo.UserRepository,
 	notifSvc *notification.NotificationService,
-	voteRepo *repository.VoteRepository,
+	voteRepo *voteRepo.VoteRepository,
 ) *CommentService {
 	return &CommentService{
 		commentRepo: commentRepo,

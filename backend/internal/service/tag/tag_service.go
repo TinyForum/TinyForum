@@ -1,13 +1,13 @@
 package tag
 
 import (
-	"tiny-forum/internal/repository"
+	tagRepo "tiny-forum/internal/repository/tag"
 )
 
 type TagService struct {
-	tagRepo *repository.TagRepository
+	tagRepo *tagRepo.TagRepository
 }
 
-func NewTagService(tagRepo *repository.TagRepository) *TagService {
+func NewTagService(tagRepo *tagRepo.TagRepository) *TagService {
 	return &TagService{tagRepo: tagRepo}
 }

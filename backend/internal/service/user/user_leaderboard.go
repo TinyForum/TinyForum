@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"tiny-forum/internal/model"
-	"tiny-forum/internal/repository"
+	userRepo "tiny-forum/internal/repository/user"
 	"tiny-forum/pkg/fields"
 )
 
@@ -23,7 +23,7 @@ func (s *UserService) GetLeaderboard(ctx context.Context, limit int, fieldsParam
 		model.UserDefaultFields,
 	)
 
-	query := repository.TopUsersQuery{
+	query := userRepo.TopUsersQuery{
 		Limit:          limit,
 		ExcludeBlocked: true,
 		Fields:         selectedFields,

@@ -5,21 +5,23 @@ import (
 	"regexp"
 
 	"tiny-forum/internal/model"
-	"tiny-forum/internal/repository"
+	boardRepo "tiny-forum/internal/repository/board"
+	postRepo "tiny-forum/internal/repository/post"
+	userRepo "tiny-forum/internal/repository/user"
 	"tiny-forum/internal/service/notification"
 )
 
 type BoardService struct {
-	boardRepo *repository.BoardRepository
-	userRepo  *repository.UserRepository
-	postRepo  repository.PostRepository
+	boardRepo *boardRepo.BoardRepository
+	userRepo  *userRepo.UserRepository
+	postRepo  postRepo.PostRepository
 	notifSvc  *notification.NotificationService // 需导入 "tiny-forum/internal/service/notification"
 }
 
 func NewBoardService(
-	boardRepo *repository.BoardRepository,
-	userRepo *repository.UserRepository,
-	postRepo repository.PostRepository,
+	boardRepo *boardRepo.BoardRepository,
+	userRepo *userRepo.UserRepository,
+	postRepo postRepo.PostRepository,
 	notifSvc *notification.NotificationService,
 ) *BoardService {
 	return &BoardService{

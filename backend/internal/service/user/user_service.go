@@ -1,20 +1,21 @@
 package user
 
 import (
-	"tiny-forum/internal/repository"
+	userRepo "tiny-forum/internal/repository/user"
 	"tiny-forum/internal/service/notification"
 	jwtpkg "tiny-forum/pkg/jwt"
+	"tiny-forum/pkg/role"
 )
 
 type UserService struct {
-	repo        *repository.UserRepository
+	repo        *userRepo.UserRepository
 	jwtMgr      *jwtpkg.Manager
 	notifSvc    *notification.NotificationService // 注意：NotificationService 定义在别的包，需正确导入
-	roleChecker RoleChangeChecker
+	roleChecker role.RoleChangeChecker
 }
 
 func NewUserService(
-	repo *repository.UserRepository,
+	repo *userRepo.UserRepository,
 	jwtMgr *jwtpkg.Manager,
 	notifSvc *notification.NotificationService,
 ) *UserService {
@@ -22,7 +23,7 @@ func NewUserService(
 		repo:        repo,
 		jwtMgr:      jwtMgr,
 		notifSvc:    notifSvc,
-		roleChecker: RoleChangeChecker{},
+		roleChecker: role.RoleChangeChecker{},
 	}
 }
 

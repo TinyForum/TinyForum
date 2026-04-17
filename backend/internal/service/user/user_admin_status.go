@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"tiny-forum/internal/model"
 	apperrors "tiny-forum/pkg/errors"
+	"tiny-forum/pkg/role"
 
 	"gorm.io/gorm"
 )
@@ -110,7 +111,7 @@ func (s *UserService) SetRole(operatorID, targetID uint, newRole string) error {
 		return nil
 	}
 
-	if err := s.roleChecker.Check(RoleChangeRequest{
+	if err := s.roleChecker.Check(role.RoleChangeRequest{
 		Operator: operator,
 		Target:   target,
 		NewRole:  targetRole,

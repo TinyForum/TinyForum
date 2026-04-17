@@ -3,7 +3,7 @@ package post
 import (
 	"strconv"
 
-	"tiny-forum/internal/repository"
+	postRepo "tiny-forum/internal/repository/post"
 	postService "tiny-forum/internal/service/post"
 	apperrors "tiny-forum/pkg/errors"
 	"tiny-forum/pkg/response"
@@ -113,7 +113,7 @@ func (h *PostHandler) List(c *gin.Context) {
 		tagID = uint(id)
 	}
 
-	opts := repository.PostListOptions{
+	opts := postRepo.PostListOptions{
 		AuthorID: authorID,
 		TagID:    tagID,
 		PostType: postType,

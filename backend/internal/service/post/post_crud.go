@@ -4,7 +4,7 @@ import (
 	"errors"
 
 	"tiny-forum/internal/model"
-	"tiny-forum/internal/repository"
+	postRepo "tiny-forum/internal/repository/post"
 )
 
 type CreatePostInput struct {
@@ -136,6 +136,6 @@ func (s *PostService) GetByID(postID, viewerID uint) (*model.Post, bool, error) 
 }
 
 // List 获取帖子列表（支持筛选）
-func (s *PostService) List(page, pageSize int, opts repository.PostListOptions) ([]model.Post, int64, error) {
+func (s *PostService) List(page, pageSize int, opts postRepo.PostListOptions) ([]model.Post, int64, error) {
 	return s.postRepo.List(page, pageSize, opts)
 }
