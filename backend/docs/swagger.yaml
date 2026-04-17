@@ -5971,6 +5971,11 @@ paths:
         in: query
         name: limit
         type: integer
+      - default: id,username,avatar,score
+        description: 需要返回的字段，逗号分隔
+        in: query
+        name: fields
+        type: string
       produces:
       - application/json
       responses: {}

@@ -1,17 +1,18 @@
-package handler
+package auth
 
 import (
 	"os"
-	"tiny-forum/internal/service"
+	userService "tiny-forum/internal/service/user"
 	"tiny-forum/pkg/response"
+
 	"github.com/gin-gonic/gin"
 )
 
 type AuthHandler struct {
-	userSvc *service.UserService
+	userSvc *userService.UserService
 }
 
-func NewAuthHandler(userSvc *service.UserService) *AuthHandler {
+func NewAuthHandler(userSvc *userService.UserService) *AuthHandler {
 	return &AuthHandler{userSvc: userSvc}
 }
 
@@ -24,7 +25,7 @@ func NewAuthHandler(userSvc *service.UserService) *AuthHandler {
 // @Success 200 {object} response.Response
 // @Router /auth/register [post]
 func (h *AuthHandler) Register(c *gin.Context) {
-	var input service.RegisterInput
+	var input userService.RegisterInput
 	if err := c.ShouldBindJSON(&input); err != nil {
 		response.BadRequest(c, err.Error())
 		return
@@ -46,7 +47,7 @@ func (h *AuthHandler) Register(c *gin.Context) {
 // @Success 200 {object} response.Response
 // @Router /auth/login [post]
 func (h *AuthHandler) Login(c *gin.Context) {
-	var input service.LoginInput
+	var input userService.LoginInput
 	if err := c.ShouldBindJSON(&input); err != nil {
 		response.BadRequest(c, err.Error())
 		return

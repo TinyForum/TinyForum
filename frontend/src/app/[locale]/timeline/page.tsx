@@ -14,19 +14,25 @@ import {
   EyeIcon,
   CalendarIcon,
   TagIcon,
+  ChevronDownIcon,
+  ChevronUpIcon,
+  UsersIcon,
+  SparklesIcon,
+  UserPlusIcon,
+  HomeIcon,
 } from '@heroicons/react/24/outline';
 import { HeartIcon as HeartSolidIcon } from '@heroicons/react/24/solid';
 import type { TimelineEvent, Subscription, User, Post, Comment } from '@/lib/api/types';
 
-// 时间线事件类型图标映射
-const eventTypeConfig: Record<string, { icon: string; label: string; color: string }> = {
-  create_post: { icon: '📝', label: '发布了新帖子', color: 'text-primary' },
-  create_answer: { icon: '💬', label: '回答了问题', color: 'text-secondary' },
-  like_post: { icon: '❤️', label: '点赞了帖子', color: 'text-error' },
-  like_answer: { icon: '❤️', label: '点赞了回答', color: 'text-error' },
-  follow_user: { icon: '➕', label: '关注了', color: 'text-accent' },
-  accept_answer: { icon: '✓', label: '采纳了答案', color: 'text-warning' },
-  reward_question: { icon: '💰', label: '获得了悬赏', color: 'text-warning' },
+// 事件类型配置 - 使用主题色
+const eventTypeConfig: Record<string, { icon: string; label: string; color: string; bgColor: string }> = {
+  create_post: { icon: '📝', label: '发布了新帖子', color: 'text-primary', bgColor: 'bg-primary/10' },
+  create_answer: { icon: '💬', label: '回答了问题', color: 'text-secondary', bgColor: 'bg-secondary/10' },
+  like_post: { icon: '❤️', label: '点赞了帖子', color: 'text-error', bgColor: 'bg-error/10' },
+  like_answer: { icon: '❤️', label: '点赞了回答', color: 'text-error', bgColor: 'bg-error/10' },
+  follow_user: { icon: '➕', label: '关注了', color: 'text-accent', bgColor: 'bg-accent/10' },
+  accept_answer: { icon: '✓', label: '采纳了答案', color: 'text-warning', bgColor: 'bg-warning/10' },
+  reward_question: { icon: '💰', label: '获得了悬赏', color: 'text-warning', bgColor: 'bg-warning/10' },
 };
 
 // 解析事件负载
@@ -48,33 +54,51 @@ function parsePayload(payload: string): EventPayload {
   }
 }
 
+// 加载骨架屏
+function LoadingSkeleton() {
+  return (
+    <div className="space-y-4">
+      {[1, 2, 3].map((i) => (
+        <div key={i} className="card bg-base-100 shadow-sm p-6 animate-pulse">
+          <div className="flex gap-4">
+            <div className="w-12 h-12 bg-base-200 rounded-full" />
+            <div className="flex-1 space-y-3">
+              <div className="h-4 bg-base-200 rounded w-1/4" />
+              <div className="h-3 bg-base-200 rounded w-3/4" />
+              <div className="h-20 bg-base-200 rounded-lg" />
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 // 时间线事件卡片组件
 function TimelineEventCard({ event, currentUserId }: { event: TimelineEvent; currentUserId?: number }) {
   const [liked, setLiked] = useState(false);
   const payload = parsePayload(event.payload);
-  const config = eventTypeConfig[event.action] || { icon: '📄', label: event.action, color: 'text-base-content/60' };
+  const config = eventTypeConfig[event.action] || { 
+    icon: '📄', 
+    label: event.action, 
+    color: 'text-base-content/60',
+    bgColor: 'bg-base-200'
+  };
 
   const handleLike = async () => {
     toast.success('功能开发中');
   };
 
-  // 构建目标链接
   const getTargetUrl = () => {
-    if (event.target_type === 'post') {
-      return `/posts/${event.target_id}`;
-    }
-    if (event.target_type === 'comment') {
-      return `/posts/${event.target_id}`;
-    }
-    if (event.target_type === 'user') {
-      return `/users/${event.target_id}`;
-    }
+    if (event.target_type === 'post') return `/posts/${event.target_id}`;
+    if (event.target_type === 'comment') return `/posts/${event.target_id}`;
+    if (event.target_type === 'user') return `/users/${event.target_id}`;
     return '#';
   };
 
   return (
-    <div className="card bg-base-100 shadow-sm hover:shadow-md transition-shadow">
-      <div className="card-body p-6">
+    <div className="card bg-base-100 shadow-sm hover:shadow-md transition-all duration-300 border border-base-200 hover:border-primary/20">
+      <div className="card-body p-5">
         <div className="flex gap-4">
           {/* 用户头像 */}
           <Link href={`/users/${event.actor_id}`} className="flex-shrink-0">
@@ -82,42 +106,39 @@ function TimelineEventCard({ event, currentUserId }: { event: TimelineEvent; cur
               <img
                 src={event.actor.avatar}
                 alt={event.actor.username}
-                className="w-12 h-12 rounded-full object-cover"
+                className="w-12 h-12 rounded-full object-cover ring-2 ring-primary/20"
               />
             ) : (
-              <UserCircleIcon className="w-12 h-12 text-base-content/40" />
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
+                <UserCircleIcon className="w-8 h-8 text-primary/60" />
+              </div>
             )}
           </Link>
 
-          <div className="flex-1">
+          <div className="flex-1 min-w-0">
             {/* 事件头部 */}
-            <div className="flex items-center gap-2 mb-2 flex-wrap">
+            <div className="flex items-center gap-2 mb-3 flex-wrap">
               <Link
                 href={`/users/${event.actor_id}`}
                 className="font-semibold text-base-content hover:text-primary transition-colors"
               >
                 {event.actor?.username || `用户${event.actor_id}`}
               </Link>
-              <span className="text-base-content/60">{config.label}</span>
-              <span className="text-xl">{config.icon}</span>
+              <span className="text-base-content/50">{config.label}</span>
+              <span className="text-lg">{config.icon}</span>
             </div>
 
             {/* 事件内容 */}
             {payload.title && (
-              <div className="mb-3">
-                <Link href={getTargetUrl()} className="block">
-                  <div className="bg-base-200 rounded-lg p-4 hover:bg-base-300 transition-colors">
-                    <h4 className="font-medium text-base-content mb-2">
+              <div className="mb-4">
+                <Link href={getTargetUrl()} className="block group">
+                  <div className="bg-base-200/50 rounded-xl p-4 hover:bg-base-200 transition-all duration-200 border border-base-200 group-hover:border-primary/20">
+                    <h4 className="font-medium text-base-content mb-2 group-hover:text-primary transition-colors">
                       {payload.title}
                     </h4>
-                    {payload.summary && (
-                      <p className="text-base-content/70 text-sm line-clamp-2">
-                        {payload.summary}
-                      </p>
-                    )}
-                    {payload.content && !payload.summary && (
-                      <p className="text-base-content/70 text-sm line-clamp-2">
-                        {payload.content}
+                    {(payload.summary || payload.content) && (
+                      <p className="text-base-content/60 text-sm line-clamp-2">
+                        {payload.summary || payload.content}
                       </p>
                     )}
                   </div>
@@ -126,52 +147,52 @@ function TimelineEventCard({ event, currentUserId }: { event: TimelineEvent; cur
             )}
 
             {/* 事件元信息 */}
-            <div className="flex items-center gap-4 text-sm text-base-content/40">
-              <div className="flex items-center gap-1">
-                <CalendarIcon className="w-4 h-4" />
-                {new Date(event.created_at).toLocaleDateString()}
+            <div className="flex flex-wrap items-center gap-4 text-sm text-base-content/40">
+              <div className="flex items-center gap-1.5">
+                <CalendarIcon className="w-3.5 h-3.5" />
+                <span>{new Date(event.created_at).toLocaleDateString()}</span>
               </div>
               
               {event.target_type === 'post' && (
                 <>
-                  <div className="flex items-center gap-1">
-                    <EyeIcon className="w-4 h-4" />
-                    {payload.view_count || 0}
+                  <div className="flex items-center gap-1.5">
+                    <EyeIcon className="w-3.5 h-3.5" />
+                    <span>{payload.view_count || 0}</span>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <ChatBubbleLeftRightIcon className="w-4 h-4" />
-                    {payload.comment_count || 0}
+                  <div className="flex items-center gap-1.5">
+                    <ChatBubbleLeftRightIcon className="w-3.5 h-3.5" />
+                    <span>{payload.comment_count || 0}</span>
                   </div>
                 </>
               )}
 
               {event.target_type === 'comment' && (
-                <div className="flex items-center gap-1">
-                  <div className="w-2 h-2 bg-success rounded-full" />
-                  回答
+                <div className="flex items-center gap-1.5">
+                  <div className="w-1.5 h-1.5 bg-success rounded-full" />
+                  <span>回答</span>
                 </div>
               )}
             </div>
 
             {/* 操作按钮 */}
             {event.target_type === 'post' && (
-              <div className="flex items-center gap-4 mt-3 pt-3 border-t border-base-200">
+              <div className="flex items-center gap-4 mt-4 pt-3 border-t border-base-200">
                 <button
                   onClick={handleLike}
-                  className="flex items-center gap-1 text-base-content/60 hover:text-error transition-colors"
+                  className="flex items-center gap-1.5 text-base-content/50 hover:text-error transition-all duration-200"
                 >
                   {liked ? (
-                    <HeartSolidIcon className="w-5 h-5 text-error" />
+                    <HeartSolidIcon className="w-4 h-4 text-error" />
                   ) : (
-                    <HeartIcon className="w-5 h-5" />
+                    <HeartIcon className="w-4 h-4" />
                   )}
                   <span className="text-sm">{payload.like_count || 0}</span>
                 </button>
                 <Link
                   href={getTargetUrl()}
-                  className="flex items-center gap-1 text-base-content/60 hover:text-primary transition-colors"
+                  className="flex items-center gap-1.5 text-base-content/50 hover:text-primary transition-all duration-200"
                 >
-                  <ChatBubbleLeftRightIcon className="w-5 h-5" />
+                  <ChatBubbleLeftRightIcon className="w-4 h-4" />
                   <span className="text-sm">查看详情</span>
                 </Link>
               </div>
@@ -184,32 +205,111 @@ function TimelineEventCard({ event, currentUserId }: { event: TimelineEvent; cur
 }
 
 // 订阅用户卡片组件
-interface SubscribedUser {
-  id: number;
-  username: string;
-  avatar: string;
-  bio?: string;
-}
-
-function SubscribeCard({ user, onUnsubscribe }: { user: SubscribedUser; onUnsubscribe: (userId: number) => void }) {
+function SubscribeCard({ user, onUnsubscribe }: { user: { id: number; username: string; avatar?: string; bio?: string }; onUnsubscribe: (userId: number) => void }) {
   return (
-    <div className="flex items-center justify-between p-3 bg-base-200 rounded-lg">
-      <Link href={`/users/${user.id}`} className="flex items-center gap-3 flex-1">
+    <div className="flex items-center justify-between p-3 bg-base-200/50 rounded-xl hover:bg-base-200 transition-all duration-200 group">
+      <Link href={`/users/${user.id}`} className="flex items-center gap-3 flex-1 min-w-0">
         {user.avatar ? (
-          <img src={user.avatar} alt={user.username} className="w-10 h-10 rounded-full object-cover" />
+          <img src={user.avatar} alt={user.username} className="w-10 h-10 rounded-full object-cover ring-2 ring-primary/20" />
         ) : (
-          <UserCircleIcon className="w-10 h-10 text-base-content/40" />
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
+            <UserCircleIcon className="w-6 h-6 text-primary/60" />
+          </div>
         )}
-        <div>
-          <div className="font-medium text-base-content">{user.username}</div>
-          <div className="text-sm text-base-content/60">{user.bio || '这个人很懒，什么都没写'}</div>
+        <div className="flex-1 min-w-0">
+          <div className="font-medium text-base-content truncate">{user.username}</div>
+          {user.bio && <div className="text-xs text-base-content/50 truncate">{user.bio}</div>}
         </div>
       </Link>
       <button
         onClick={() => onUnsubscribe(user.id)}
-        className="px-3 py-1 text-sm text-error hover:bg-error/10 rounded-md transition-colors"
+        className="px-3 py-1.5 text-sm text-error/70 hover:text-error hover:bg-error/10 rounded-lg transition-all duration-200 opacity-0 group-hover:opacity-100"
       >
         取消关注
+      </button>
+    </div>
+  );
+}
+
+// 空状态组件
+function EmptyState({ activeTab }: { activeTab: 'home' | 'following' }) {
+  return (
+    <div className="card bg-base-100 shadow-sm p-12 text-center border border-base-200">
+      <div className="text-6xl mb-4 opacity-50">
+        {activeTab === 'home' ? '📭' : '👥'}
+      </div>
+      <h3 className="text-lg font-semibold text-base-content mb-2">
+        {activeTab === 'home' ? '暂无动态' : '暂无关注动态'}
+      </h3>
+      <p className="text-base-content/60 mb-4">
+        {activeTab === 'home' 
+          ? '还没有任何动态，去探索更多内容吧！'
+          : '关注用户后，他们的动态会显示在这里'}
+      </p>
+      {activeTab === 'following' && (
+        <Link href="/explore" className="btn btn-primary btn-sm gap-2">
+          <UserPlusIcon className="w-4 h-4" />
+          发现用户
+        </Link>
+      )}
+    </div>
+  );
+}
+
+// 分页组件
+function Pagination({ currentPage, totalPages, onPageChange }: { 
+  currentPage: number; 
+  totalPages: number; 
+  onPageChange: (page: number) => void;
+}) {
+  const getPageNumbers = () => {
+    const pages: number[] = [];
+    const maxVisible = 5;
+    
+    if (totalPages <= maxVisible) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+    } else {
+      if (currentPage <= 3) {
+        for (let i = 1; i <= maxVisible; i++) pages.push(i);
+      } else if (currentPage >= totalPages - 2) {
+        for (let i = totalPages - maxVisible + 1; i <= totalPages; i++) pages.push(i);
+      } else {
+        for (let i = currentPage - 2; i <= currentPage + 2; i++) pages.push(i);
+      }
+    }
+    return pages;
+  };
+
+  return (
+    <div className="flex justify-center items-center gap-2 mt-8">
+      <button
+        onClick={() => onPageChange(currentPage - 1)}
+        disabled={currentPage === 1}
+        className="btn btn-ghost btn-sm gap-1"
+      >
+        上一页
+      </button>
+      
+      <div className="flex gap-1.5 mx-2">
+        {getPageNumbers().map((pageNum) => (
+          <button
+            key={pageNum}
+            onClick={() => onPageChange(pageNum)}
+            className={`btn btn-sm min-w-[2.5rem] ${
+              currentPage === pageNum ? 'btn-primary' : 'btn-ghost'
+            }`}
+          >
+            {pageNum}
+          </button>
+        ))}
+      </div>
+      
+      <button
+        onClick={() => onPageChange(currentPage + 1)}
+        disabled={currentPage >= totalPages}
+        className="btn btn-ghost btn-sm gap-1"
+      >
+        下一页
       </button>
     </div>
   );
@@ -227,7 +327,6 @@ export default function Timeline() {
   const [showSubscriptions, setShowSubscriptions] = useState(false);
   const pageSize = 20;
 
-  // 加载时间线
   const loadTimeline = async () => {
     setLoading(true);
     try {
@@ -250,7 +349,6 @@ export default function Timeline() {
     }
   };
 
-  // 加载订阅列表
   const loadSubscriptions = async () => {
     try {
       const response = await timelineApi.getSubscriptions();
@@ -262,7 +360,6 @@ export default function Timeline() {
     }
   };
 
-  // 取消关注
   const handleUnsubscribe = async (userId: number) => {
     try {
       const response = await timelineApi.unsubscribe(userId);
@@ -294,85 +391,85 @@ export default function Timeline() {
   }
 
   const totalPages = Math.ceil(total / pageSize);
-
-  // 转换订阅数据为用户格式
   const subscribedUsers = subscriptions.map(sub => ({
     id: sub.target_user_id,
-    username: `用户${sub.target_user_id}`, // 实际应该从 API 获取用户信息
+    username: `用户${sub.target_user_id}`,
     avatar: '',
   }));
 
   return (
-    <div className="min-h-screen bg-base-200 py-8">
-      <div className="max-w-3xl mx-auto px-4">
-        {/* 头部 */}
-        <div className="card bg-base-100 shadow-sm mb-6">
-          <div className="card-body p-6">
-            <h1 className="text-2xl font-bold text-base-content mb-2">时间线</h1>
-            <p className="text-base-content/60">关注你感兴趣的人和内容</p>
+    <div className="min-h-screen bg-gradient-to-b from-base-200 to-base-100">
+      <div className="max-w-3xl mx-auto px-4 py-8 md:py-12">
+        {/* 头部区域 */}
+        <div className="text-center mb-8">
+          <div className="relative inline-block mb-4">
+            <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-full blur-2xl" />
+            <div className="relative bg-gradient-to-br from-primary to-secondary p-3 rounded-full shadow-lg">
+              <HomeIcon className="w-8 h-8 text-white" />
+            </div>
           </div>
+          <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+            时间线
+          </h1>
+          <p className="text-base-content/60 mt-2">关注你感兴趣的人和内容</p>
         </div>
 
-        {/* Tab 切换 */}
-        <div className="card bg-base-100 shadow-sm mb-6">
-          <div className="flex border-b border-base-200">
+        {/* Tab 切换 - 优化样式 */}
+        <div className="card bg-base-100 shadow-sm mb-6 border border-base-200">
+          <div className="flex p-1">
             <button
               onClick={() => {
                 setActiveTab('home');
                 setPage(1);
               }}
-              className={`flex-1 py-3 text-center font-medium transition-colors ${
+              className={`flex-1 py-2.5 rounded-lg font-medium transition-all duration-200 ${
                 activeTab === 'home'
-                  ? 'text-primary border-b-2 border-primary'
-                  : 'text-base-content/60 hover:text-base-content'
+                  ? 'bg-primary text-white shadow-sm'
+                  : 'text-base-content/60 hover:text-base-content hover:bg-base-200'
               }`}
             >
-              推荐
+              <div className="flex items-center justify-center gap-2">
+                <SparklesIcon className="w-4 h-4" />
+                推荐
+              </div>
             </button>
             <button
               onClick={() => {
                 setActiveTab('following');
                 setPage(1);
               }}
-              className={`flex-1 py-3 text-center font-medium transition-colors ${
+              className={`flex-1 py-2.5 rounded-lg font-medium transition-all duration-200 ${
                 activeTab === 'following'
-                  ? 'text-primary border-b-2 border-primary'
-                  : 'text-base-content/60 hover:text-base-content'
+                  ? 'bg-primary text-white shadow-sm'
+                  : 'text-base-content/60 hover:text-base-content hover:bg-base-200'
               }`}
             >
-              关注
+              <div className="flex items-center justify-center gap-2">
+                <UsersIcon className="w-4 h-4" />
+                关注
+              </div>
             </button>
           </div>
         </div>
 
-        {/* 订阅管理 */}
-        <div className="mb-6">
-          <button
-            onClick={() => setShowSubscriptions(!showSubscriptions)}
-            className="flex items-center gap-2 text-base-content/70 hover:text-primary transition-colors"
-          >
-            <span className="font-medium">我关注的人 ({subscriptions.length})</span>
-            <svg
-              className={`w-4 h-4 transition-transform ${showSubscriptions ? 'rotate-180' : ''}`}
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+        {/* 订阅管理区域 */}
+        {subscriptions.length > 0 && (
+          <div className="mb-6">
+            <button
+              onClick={() => setShowSubscriptions(!showSubscriptions)}
+              className="flex items-center gap-2 text-base-content/70 hover:text-primary transition-colors group"
             >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
-          </button>
-          
-          {showSubscriptions && (
-            <div className="mt-3 space-y-2">
-              {subscriptions.length === 0 ? (
-                <div className="card bg-base-100 p-6 text-center">
-                  <p className="text-base-content/60">还没有关注任何人</p>
-                  <Link href="/explore" className="text-primary hover:underline mt-2 inline-block">
-                    发现更多用户 →
-                  </Link>
-                </div>
+              <span className="font-medium">我关注的人 ({subscriptions.length})</span>
+              {showSubscriptions ? (
+                <ChevronUpIcon className="w-4 h-4 group-hover:-translate-y-0.5 transition-transform" />
               ) : (
-                subscriptions.map((sub) => (
+                <ChevronDownIcon className="w-4 h-4 group-hover:translate-y-0.5 transition-transform" />
+              )}
+            </button>
+            
+            {showSubscriptions && (
+              <div className="mt-3 space-y-2 animate-fade-in">
+                {subscriptions.map((sub) => (
                   <SubscribeCard
                     key={sub.id}
                     user={{
@@ -382,45 +479,17 @@ export default function Timeline() {
                     }}
                     onUnsubscribe={handleUnsubscribe}
                   />
-                ))
-              )}
-            </div>
-          )}
-        </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* 时间线内容 */}
         {loading ? (
-          <div className="space-y-4">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="card bg-base-100 shadow-sm p-6 animate-pulse">
-                <div className="flex gap-4">
-                  <div className="w-12 h-12 bg-base-300 rounded-full" />
-                  <div className="flex-1">
-                    <div className="h-4 bg-base-300 rounded w-1/4 mb-2" />
-                    <div className="h-3 bg-base-300 rounded w-3/4" />
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+          <LoadingSkeleton />
         ) : events.length === 0 ? (
-          <div className="card bg-base-100 shadow-sm p-12 text-center">
-            <div className="text-6xl mb-4">📭</div>
-            <h3 className="text-lg font-medium text-base-content mb-2">暂无动态</h3>
-            <p className="text-base-content/60 mb-4">
-              {activeTab === 'home' 
-                ? '还没有任何动态，去探索更多内容吧！'
-                : '关注用户后，他们的动态会显示在这里'}
-            </p>
-            {activeTab === 'following' && (
-              <Link
-                href="/explore"
-                className="btn btn-primary"
-              >
-                发现用户
-              </Link>
-            )}
-          </div>
+          <EmptyState activeTab={activeTab} />
         ) : (
           <>
             <div className="space-y-4">
@@ -435,26 +504,17 @@ export default function Timeline() {
 
             {/* 分页 */}
             {totalPages > 1 && (
-              <div className="flex justify-center gap-2 mt-6">
-                <button
-                  onClick={() => setPage(p => Math.max(1, p - 1))}
-                  disabled={page === 1}
-                  className="px-3 py-1 border border-base-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-base-200 transition-colors text-base-content"
-                >
-                  上一页
-                </button>
-                <span className="px-3 py-1 text-base-content/70">
-                  第 {page} / {totalPages} 页
-                </span>
-                <button
-                  onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                  disabled={page >= totalPages}
-                  className="px-3 py-1 border border-base-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-base-200 transition-colors text-base-content"
-                >
-                  下一页
-                </button>
-              </div>
+              <Pagination 
+                currentPage={page}
+                totalPages={totalPages}
+                onPageChange={setPage}
+              />
             )}
+            
+            {/* 底部提示 */}
+            <div className="text-center text-xs text-base-content/40 mt-6 pt-4 border-t border-base-200">
+              已加载全部内容
+            </div>
           </>
         )}
       </div>

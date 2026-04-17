@@ -1,0 +1,58 @@
+package announcement
+
+import (
+	"context"
+	"errors"
+	"tiny-forum/internal/model"
+	"tiny-forum/internal/repository"
+	apperrors "tiny-forum/pkg/errors"
+
+	"gorm.io/gorm"
+)
+
+func (s *announcementService) GetByID(ctx context.Context, id uint) (*model.Announcement, error) {
+	announcement, err := s.repo.GetByID(ctx, id)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, apperrors.ErrAnnouncementNotFound
+		}
+		return nil, err
+	}
+	go s.repo.IncrementViewCount(context.Background(), id)
+	return announcement, nil
+}
+
+func (s *announcementService) List(ctx context.Context, req *ListAnnouncementRequest) (*ListAnnouncementResponse, error) {
+	if req.Page <= 0 {
+		req.Page = 1
+	}
+	if req.PageSize <= 0 {
+		req.PageSize = 20
+	}
+	repoReq := &repository.AnnouncementListRequest{
+		Page:      req.Page,
+		PageSize:  req.PageSize,
+		BoardID:   req.BoardID,
+		Type:      req.Type,
+		Status:    req.Status,
+		IsPinned:  req.IsPinned,
+		IsGlobal:  req.IsGlobal,
+		Keyword:   req.Keyword,
+		StartTime: req.StartTime,
+		EndTime:   req.EndTime,
+	}
+	announcements, total, err := s.repo.List(ctx, repoReq)
+	if err != nil {
+		return nil, err
+	}
+	return &ListAnnouncementResponse{
+		Total:         total,
+		Page:          req.Page,
+		PageSize:      req.PageSize,
+		Announcements: announcements,
+	}, nil
+}
+
+func (s *announcementService) GetPinned(ctx context.Context, boardID *uint) ([]model.Announcement, error) {
+	return s.repo.GetPinned(ctx, boardID)
+}

@@ -41,7 +41,8 @@ const (
 	// 积分模块 500xx
 	CodeFailedToQueryScore = 50001
 	// 密码
-
+	CodeAnnouncementNotFound    = 60001
+	CodeAnnouncementInvalidTime = 60002
 )
 
 // ========== 结构化错误类型 ==========
@@ -108,6 +109,11 @@ var (
 	ErrPasswordTooShort  = &AppError{Code: CodeInvalidPassword, Message: "密码长度至少为6位"}
 	ErrPasswordTooLong   = &AppError{Code: CodeInvalidPassword, Message: "密码长度不能超过32位"}
 	ErrPasswordSameAsOld = &AppError{Code: CodeInvalidPassword, Message: "新密码不能与旧密码相同"}
+	// var
+	ErrAnnouncementNotFound = &AppError{Code: CodeAnnouncementNotFound, Message: "公告不存在"}
+	ErrInvalidPublishTime   = &AppError{Code: CodeAnnouncementInvalidTime, Message: "发布时间无效"}
+	ErrExpiredTimeInvalid   = &AppError{Code: CodeAnnouncementInvalidTime, Message: "过期时间必须晚于发布时间"}
+	ErrPermissionDenied     = &AppError{Code: CodeForbidden, Message: "权限不足"}
 )
 
 // ========== 辅助函数：追加上下文信息 ==========

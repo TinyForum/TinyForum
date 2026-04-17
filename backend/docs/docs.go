@@ -6788,6 +6788,13 @@ const docTemplate = `{
                         "description": "数量",
                         "name": "limit",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "default": "id,username,avatar,score",
+                        "description": "需要返回的字段，逗号分隔",
+                        "name": "fields",
+                        "in": "query"
                     }
                 ],
                 "responses": {}

@@ -5,11 +5,35 @@ import (
 	"time"
 
 	"tiny-forum/config"
-	"tiny-forum/internal/handler"
+	announcementHandler "tiny-forum/internal/handler/announcement"
+	answerHandler "tiny-forum/internal/handler/answer"
+	authHandler "tiny-forum/internal/handler/auth"
+	boardHandler "tiny-forum/internal/handler/board"
+	commentHandler "tiny-forum/internal/handler/comment"
+	notificationHandler "tiny-forum/internal/handler/notification"
+	postHandler "tiny-forum/internal/handler/post"
+	questionHandler "tiny-forum/internal/handler/questions"
+	statsHandler "tiny-forum/internal/handler/stats"
+	tagHandler "tiny-forum/internal/handler/tags"
+	timelineHandler "tiny-forum/internal/handler/timelines"
+	topicHandler "tiny-forum/internal/handler/topic"
+	userHandler "tiny-forum/internal/handler/user"
+
+	announcementService "tiny-forum/internal/service/announcement"
+	boardService "tiny-forum/internal/service/board"
+	commentService "tiny-forum/internal/service/comment"
+	notificationService "tiny-forum/internal/service/notification"
+	postService "tiny-forum/internal/service/post"
+	questionService "tiny-forum/internal/service/question"
+	statsService "tiny-forum/internal/service/stats"
+	tagService "tiny-forum/internal/service/tag"
+	timelineService "tiny-forum/internal/service/timeline"
+	topicService "tiny-forum/internal/service/topic"
+	userService "tiny-forum/internal/service/user"
+
 	"tiny-forum/internal/middleware"
 	"tiny-forum/internal/model"
 	"tiny-forum/internal/repository"
-	"tiny-forum/internal/service"
 	jwtpkg "tiny-forum/pkg/jwt"
 	"tiny-forum/pkg/logger"
 
@@ -125,32 +149,32 @@ func InitApp(cfg *config.Config) (*App, error) {
 
 	// ========== Services ==========
 	// 基础服务
-	notifSvc := service.NewNotificationService(notifRepo)
-	userSvc := service.NewUserService(userRepo, jwtMgr, notifSvc)
-	tagSvc := service.NewTagService(tagRepo)
-	boardSvc := service.NewBoardService(boardRepo, userRepo, postRepo, notifSvc)
-	timelineSvc := service.NewTimelineService(timelineRepo, userRepo, postRepo, commentRepo)
-	topicSvc := service.NewTopicService(topicRepo, postRepo, userRepo, notifSvc)
-	questionSvc := service.NewQuestionService(questionRepo, postRepo, commentRepo, userRepo, notifSvc, tagRepo)
-	postSvc := service.NewPostService(postRepo, tagRepo, userRepo, boardRepo, notifSvc)
-	commentSvc := service.NewCommentService(commentRepo, postRepo, userRepo, notifSvc, voteRepo)
-	announcementSvc := service.NewAnnouncementService(announcementRepo)
-	statsSvc := service.NewStatsService(statsRepo, postRepo, tagRepo, boardRepo, userRepo, commentRepo)
+	notifSvc := notificationService.NewNotificationService(notifRepo)
+	userSvc := userService.NewUserService(userRepo, jwtMgr, notifSvc)
+	tagSvc := tagService.NewTagService(tagRepo)
+	boardSvc := boardService.NewBoardService(boardRepo, userRepo, postRepo, notifSvc)
+	timelineSvc := timelineService.NewTimelineService(timelineRepo, userRepo, postRepo, commentRepo)
+	topicSvc := topicService.NewTopicService(topicRepo, postRepo, userRepo, notifSvc)
+	questionSvc := questionService.NewQuestionService(questionRepo, postRepo, commentRepo, userRepo, notifSvc, tagRepo)
+	postSvc := postService.NewPostService(postRepo, tagRepo, userRepo, boardRepo, notifSvc)
+	commentSvc := commentService.NewCommentService(commentRepo, postRepo, userRepo, notifSvc, voteRepo)
+	announcementSvc := announcementService.NewAnnouncementService(announcementRepo)
+	statsSvc := statsService.NewStatsService(statsRepo, postRepo, tagRepo, boardRepo, userRepo, commentRepo)
 
 	// ========== Handlers ==========
-	authHandler := handler.NewAuthHandler(userSvc)
-	userHandler := handler.NewUserHandler(userSvc, notifSvc)
-	tagHandler := handler.NewTagHandler(tagSvc)
-	notifHandler := handler.NewNotificationHandler(notifSvc)
-	postHandler := handler.NewPostHandler(postSvc, questionSvc)
-	commentHandler := handler.NewCommentHandler(commentSvc, questionSvc)
-	boardHandler := handler.NewBoardHandler(boardSvc)
-	timelineHandler := handler.NewTimelineHandler(timelineSvc)
-	topicHandler := handler.NewTopicHandler(topicSvc)
-	questionHandler := handler.NewQuestionHandler(questionSvc, commentSvc, postSvc)
-	answerHandler := handler.NewAnswerHandler(questionSvc, commentSvc, postSvc)
-	announcementHandler := handler.NewAnnouncementHandler(announcementSvc)
-	statsHandler := handler.NewStatsHandler(statsSvc)
+	authHandler := authHandler.NewAuthHandler(userSvc)
+	userHandler := userHandler.NewUserHandler(userSvc, notifSvc)
+	tagHandler := tagHandler.NewTagHandler(tagSvc)
+	notifHandler := notificationHandler.NewNotificationHandler(notifSvc)
+	postHandler := postHandler.NewPostHandler(postSvc)
+	commentHandler := commentHandler.NewCommentHandler(commentSvc, questionSvc)
+	boardHandler := boardHandler.NewBoardHandler(boardSvc)
+	timelineHandler := timelineHandler.NewTimelineHandler(timelineSvc)
+	topicHandler := topicHandler.NewTopicHandler(topicSvc)
+	questionHandler := questionHandler.NewQuestionHandler(questionSvc, commentSvc, postSvc)
+	answerHandler := answerHandler.NewAnswerHandler(questionSvc, commentSvc, postSvc)
+	announcementHandler := announcementHandler.NewAnnouncementHandler(announcementSvc)
+	statsHandler := statsHandler.NewStatsHandler(statsSvc)
 
 	// ========== Gin Engine ==========
 	gin.SetMode(cfg.Server.Mode)
