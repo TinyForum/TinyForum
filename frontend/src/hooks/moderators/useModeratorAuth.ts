@@ -4,31 +4,32 @@ import { useRouter } from "next/navigation";
 import { useLocale } from "next-intl";
 import { useAuthStore } from "@/store/auth";
 
+// 修正后的版本
 export function useModeratorAuth() {
   const router = useRouter();
   const locale = useLocale();
   const { user, isAuthenticated, isHydrated } = useAuthStore();
 
-  const isModerator = 
-    user?.role === "moderator" || 
-    user?.role === "admin" || 
-    user?.role === "super_admin";
-
-  const isCheckingAuth = !isHydrated;
-
   useEffect(() => {
-    if (isHydrated) {
-      if (!isAuthenticated) {
-        router.replace(`/${locale}/auth/login?redirect=/dashboard/moderator`);
-      } else if (!isModerator) {
-        router.replace(`/${locale}`);
-      }
+    // 等待 hydration 完成
+    if (!isHydrated) return;
+    
+    // 未认证 → 跳转登录
+    if (!isAuthenticated) {
+      router.replace(`/${locale}/auth/login?redirect=/dashboard/moderator`);
+      return;
     }
-  }, [isHydrated, isAuthenticated, isModerator, router, locale]);
-
+    
+    // 已认证但权限不足 → 跳转首页
+    const isModerator = ['moderator', 'admin', 'super_admin'].includes(user?.role || '');
+    if (!isModerator) {
+      router.replace(`/${locale}`);
+    }
+  }, [isHydrated, isAuthenticated, user?.role, router, locale]);
+  
   return {
-    isCheckingAuth,
-    isModerator,
+    isCheckingAuth: !isHydrated,
+    isModerator: ['moderator', 'admin', 'super_admin'].includes(user?.role || ''),
     user,
   };
 }

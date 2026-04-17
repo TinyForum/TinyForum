@@ -52,6 +52,7 @@ export const useLoginStore = create<LoginState>()((set, get) => ({
 
     try {
       const response = await authApi.login({ email, password });
+      
       const { user } = response.data.data;
 
       // 更新全局认证状态

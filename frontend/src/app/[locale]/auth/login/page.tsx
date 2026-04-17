@@ -24,7 +24,7 @@ export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const locale = useLocale();
-  const t = useTranslations('auth');
+  const t = useTranslations('Auth');
   
   // 使用 Store
   const { user, isAuthenticated, isHydrated } = useAuthStore();
