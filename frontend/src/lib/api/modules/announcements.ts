@@ -54,6 +54,7 @@ export interface CreateAnnouncementPayload {
   cover?: string;
   type?: AnnouncementType;
   is_pinned?: boolean;
+  status?: AnnouncementStatus;
   is_global?: boolean;
   board_id?: number | null;
   published_at?: string | null;
@@ -68,6 +69,7 @@ export interface UpdateAnnouncementPayload {
   cover?: string;
   type?: AnnouncementType;
   is_pinned?: boolean;
+  status?: AnnouncementStatus;
   is_global?: boolean;
   board_id?: number | null;
   published_at?: string | null;
@@ -113,9 +115,13 @@ export const announcementApi = {
    * @param params 查询参数
    * @returns 分页的公告列表
    */
-  list: (params?: AnnouncementListParams) =>
+  list: (params: AnnouncementListParams) =>
     apiClient.get<ApiResponse<AnnouncementListResponse>>("/announcements", { params }),
 
+  /**
+   * 管理员获取公告
+   */
+  adminList: (params: AnnouncementListParams) => apiClient.get<ApiResponse<AnnouncementListResponse>>("/admin/announcements", { params }),
   /**
    * 获取置顶公告
    * @param boardId 可选，板块ID

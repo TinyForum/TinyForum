@@ -2,6 +2,7 @@ package handler
 
 import (
 	"strconv"
+	"tiny-forum/internal/model"
 	"tiny-forum/internal/service"
 	"tiny-forum/pkg/response"
 
@@ -130,7 +131,7 @@ func (h *AnnouncementHandler) GetByID(c *gin.Context) {
 	response.Success(c, announcement)
 }
 
-// List 获取公告列表
+// List 获取公告列表（普通用户）
 // @Summary 获取公告列表
 // @Tags 公告管理
 // @Produce json
@@ -138,10 +139,7 @@ func (h *AnnouncementHandler) GetByID(c *gin.Context) {
 // @Param page_size query int false "每页数量" default(20)
 // @Param board_id query int false "板块ID"
 // @Param type query string false "公告类型" Enums(normal,important,emergency,event)
-// @Param status query string false "状态" Enums(draft,published,archived)
-// @Param is_pinned query bool false "是否置顶"
 // @Param is_global query bool false "是否全局"
-// @Param keyword query string false "关键词"
 // @Success 200 {object} response.Response{data=service.ListAnnouncementResponse}
 // @Router /announcements [get]
 func (h *AnnouncementHandler) List(c *gin.Context) {
@@ -151,13 +149,51 @@ func (h *AnnouncementHandler) List(c *gin.Context) {
 		return
 	}
 
+	// 普通用户只能看到已发布的公告
+	publishedStatus := model.AnnouncementStatusPublished
+	req.Status = &publishedStatus
+
 	resp, err := h.service.List(c.Request.Context(), &req)
 	if err != nil {
 		response.InternalError(c, err.Error())
 		return
 	}
 
-	// 使用分页响应格式
+	response.SuccessPage(c, resp.Announcements, resp.Total, resp.Page, resp.PageSize)
+}
+
+// AdminList 管理员获取公告列表（可查看所有状态）
+// @Summary 管理员获取公告列表
+// @Tags 公告管理
+// @Produce json
+// @Security ApiKeyAuth
+// @Param page query int false "页码" default(1)
+// @Param page_size query int false "每页数量" default(20)
+// @Param board_id query int false "板块ID"
+// @Param type query string false "公告类型" Enums(normal,important,emergency,event)
+// @Param status query string false "状态" Enums(draft,published,expired)
+// @Param is_pinned query bool false "是否置顶"
+// @Param is_global query bool false "是否全局"
+// @Param keyword query string false "关键词"
+// @Success 200 {object} response.Response{data=service.ListAnnouncementResponse}
+// @Router /admin/announcements [get]
+func (h *AnnouncementHandler) AdminList(c *gin.Context) {
+	var req service.ListAnnouncementRequest
+	if err := c.ShouldBindQuery(&req); err != nil {
+		response.BadRequest(c, err.Error())
+		return
+	}
+
+	// 管理员：设置特殊状态 "all"，表示获取所有公告
+	statusAll := model.AnnouncementStatus("all")
+	req.Status = &statusAll
+
+	resp, err := h.service.List(c.Request.Context(), &req)
+	if err != nil {
+		response.InternalError(c, err.Error())
+		return
+	}
+
 	response.SuccessPage(c, resp.Announcements, resp.Total, resp.Page, resp.PageSize)
 }
 

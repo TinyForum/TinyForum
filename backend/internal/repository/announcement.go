@@ -65,6 +65,13 @@ func (r *announcementRepository) GetByID(ctx context.Context, id uint) (*model.A
 	return &announcement, nil
 }
 
+const (
+	AnnouncementStatusAll       = "all" // 查询所有状态
+	AnnouncementStatusDraft     = "draft"
+	AnnouncementStatusPublished = "published"
+	AnnouncementStatusExpired   = "expired"
+)
+
 func (r *announcementRepository) List(ctx context.Context, req *AnnouncementListRequest) ([]model.Announcement, int64, error) {
 	var announcements []model.Announcement
 	var total int64
@@ -79,10 +86,10 @@ func (r *announcementRepository) List(ctx context.Context, req *AnnouncementList
 		query = query.Where("type = ?", *req.Type)
 	}
 	if req.Status != nil {
-		query = query.Where("status = ?", *req.Status)
-	} else {
-		// 默认只显示已发布的
-		query = query.Where("status = ?", model.AnnouncementStatusPublished)
+		// 如果是 "all"，不添加 status 过滤
+		if *req.Status != AnnouncementStatusAll {
+			query = query.Where("status = ?", *req.Status)
+		}
 	}
 	if req.IsPinned != nil {
 		query = query.Where("is_pinned = ?", *req.IsPinned)
@@ -100,9 +107,15 @@ func (r *announcementRepository) List(ctx context.Context, req *AnnouncementList
 		query = query.Where("published_at <= ?", req.EndTime)
 	}
 
-	// 只显示已发布的公告
-	query = query.Where("published_at <= ?", time.Now())
-	query = query.Where("expired_at IS NULL OR expired_at > ?", time.Now())
+	// 时间过滤：只有查询 published 状态或未指定状态时才添加时间过滤
+	// 如果明确指定了 status="all" 或其他非 published 状态，则不过滤时间
+	shouldFilterTime := req.Status == nil ||
+		(req.Status != nil && *req.Status == AnnouncementStatusPublished)
+
+	if shouldFilterTime {
+		query = query.Where("published_at <= ?", time.Now())
+		query = query.Where("expired_at IS NULL OR expired_at > ?", time.Now())
+	}
 
 	// 统计总数
 	if err := query.Count(&total).Error; err != nil {

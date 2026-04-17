@@ -206,7 +206,7 @@ console.log("hasManagementAccess: ", hasManagementAccess)
                               : "badge-ghost"
                     }`}
                   >
-                    {t(`${user.role}`)}
+                    {t(`role.${user.role}`)}
                   </span>
                 )}
               </div>

@@ -104,7 +104,7 @@ export function useAnnouncementsData(
           }
         });
 
-        const response = await announcementApi.list(queryParams);
+        const response = await announcementApi.adminList(queryParams);
 
         if (response.data.code === 0 && response.data.data) {
           setAnnouncements(response.data.data.list || []);
@@ -305,7 +305,7 @@ export function useAnnouncementsData(
         const response = await announcementApi.pin(id, pinned);
 
         if (response.data.code === 0) {
-          toast.success(pinned ? "置顶成功" : "取消置顶成功");
+          // toast.success(pinned ? "置顶成功" : "取消置顶成功");
           await fetchAnnouncements();
           await fetchPinnedAnnouncements();
           return true;

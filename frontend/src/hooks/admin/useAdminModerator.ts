@@ -115,7 +115,7 @@ export const useAdminPinPost = () => {
     mutationFn: ({ boardId, postId, pinInBoard }: { boardId: number; postId: number; pinInBoard: boolean }) =>
       moderatorApi.pinPost(boardId, postId, pinInBoard),
     onSuccess: (_, variables) => {
-      toast.success(variables.pinInBoard ? "置顶成功" : "取消置顶成功");
+      // toast.success(variables.pinInBoard ? "置顶成功" : "取消置顶成功");
       queryClient.invalidateQueries({ queryKey: ["moderator", "boards"] });
     },
     onError: (error: any) => {

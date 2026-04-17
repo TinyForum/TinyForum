@@ -41,6 +41,7 @@ const (
 type AnnouncementStatus string
 
 const (
+	AnnouncementStatusAll       AnnouncementStatus = "all"       // 已删除
 	AnnouncementStatusDraft     AnnouncementStatus = "draft"     // 草稿
 	AnnouncementStatusPublished AnnouncementStatus = "published" // 已发布
 	AnnouncementStatusArchived  AnnouncementStatus = "archived"  // 已归档

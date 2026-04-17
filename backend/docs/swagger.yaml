@@ -252,19 +252,23 @@ definitions:
     type: object
   model.AnnouncementStatus:
     enum:
+    - all
     - draft
     - published
     - archived
     type: string
     x-enum-comments:
+      AnnouncementStatusAll: 已删除
       AnnouncementStatusArchived: 已归档
       AnnouncementStatusDraft: 草稿
       AnnouncementStatusPublished: 已发布
     x-enum-descriptions:
+    - 已删除
     - 草稿
     - 已发布
     - 已归档
     x-enum-varnames:
+    - AnnouncementStatusAll
     - AnnouncementStatusDraft
     - AnnouncementStatusPublished
     - AnnouncementStatusArchived
@@ -1774,6 +1778,68 @@ info:
   version: "1.0"
 paths:
   /admin/announcements:
+    get:
+      parameters:
+      - default: 1
+        description: 页码
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: 每页数量
+        in: query
+        name: page_size
+        type: integer
+      - description: 板块ID
+        in: query
+        name: board_id
+        type: integer
+      - description: 公告类型
+        enum:
+        - normal
+        - important
+        - emergency
+        - event
+        in: query
+        name: type
+        type: string
+      - description: 状态
+        enum:
+        - draft
+        - published
+        - expired
+        in: query
+        name: status
+        type: string
+      - description: 是否置顶
+        in: query
+        name: is_pinned
+        type: boolean
+      - description: 是否全局
+        in: query
+        name: is_global
+        type: boolean
+      - description: 关键词
+        in: query
+        name: keyword
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/service.ListAnnouncementResponse'
+              type: object
+      security:
+      - ApiKeyAuth: []
+      summary: 管理员获取公告列表
+      tags:
+      - 公告管理
     post:
       consumes:
       - application/json
@@ -2564,26 +2630,10 @@ paths:
         in: query
         name: type
         type: string
-      - description: 状态
-        enum:
-        - draft
-        - published
-        - archived
-        in: query
-        name: status
-        type: string
-      - description: 是否置顶
-        in: query
-        name: is_pinned
-        type: boolean
       - description: 是否全局
         in: query
         name: is_global
         type: boolean
-      - description: 关键词
-        in: query
-        name: keyword
-        type: string
       produces:
       - application/json
       responses:

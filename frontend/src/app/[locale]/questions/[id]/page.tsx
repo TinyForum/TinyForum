@@ -4,15 +4,145 @@
 import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeftIcon } from '@heroicons/react/24/outline';
+import { 
+  ArrowLeftIcon, 
+  ChatBubbleLeftRightIcon,
+  UserGroupIcon 
+} from '@heroicons/react/24/outline';
 import { useAuthStore } from '@/store/auth';
 import { useQuestionDetail } from '@/hooks/useQuestionDetail';
 import { AnswerCard } from '@/components/question/AnswerCard';
 import { toast } from 'react-hot-toast';
-import {  postApi, questionApi } from '@/lib/api';
+import { postApi, questionApi } from '@/lib/api';
 import { AnswerForm } from '@/components/question/AnswerForm';
 import { QuestionHeader } from '@/components/question/QuestionHeader';
 import { answerApi } from '@/lib/api/modules/answer';
+
+// 加载骨架屏组件
+function LoadingSkeleton() {
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-base-200 to-base-100">
+      <div className="max-w-4xl mx-auto px-4 py-8">
+        <div className="animate-pulse">
+          {/* 返回按钮骨架 */}
+          <div className="h-5 w-24 bg-base-200 rounded mb-6" />
+          
+          {/* 问题卡片骨架 */}
+          <div className="bg-base-100 rounded-2xl shadow-sm p-6 mb-6">
+            <div className="h-7 bg-base-200 rounded-lg w-3/4 mb-4" />
+            <div className="flex items-center gap-4 mb-4">
+              <div className="h-4 w-24 bg-base-200 rounded" />
+              <div className="h-4 w-32 bg-base-200 rounded" />
+            </div>
+            <div className="space-y-2">
+              <div className="h-4 bg-base-200 rounded w-full" />
+              <div className="h-4 bg-base-200 rounded w-full" />
+              <div className="h-4 bg-base-200 rounded w-2/3" />
+            </div>
+          </div>
+          
+          {/* 回答区域骨架 */}
+          <div className="space-y-3">
+            <div className="h-6 w-32 bg-base-200 rounded" />
+            {[1, 2].map((i) => (
+              <div key={i} className="bg-base-100 rounded-xl p-5">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 bg-base-200 rounded-full" />
+                  <div className="flex-1">
+                    <div className="h-4 bg-base-200 rounded w-32 mb-2" />
+                    <div className="h-3 bg-base-200 rounded w-24" />
+                  </div>
+                </div>
+                <div className="h-4 bg-base-200 rounded w-full mb-2" />
+                <div className="h-4 bg-base-200 rounded w-5/6" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// 错误状态组件
+function ErrorState({ message }: { message: string }) {
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-base-200 to-base-100 flex items-center justify-center">
+      <div className="text-center">
+        <div className="text-6xl mb-5">😕</div>
+        <h3 className="text-xl font-semibold text-base-content mb-2">加载失败</h3>
+        <p className="text-base-content/60 mb-6">{message}</p>
+        <Link href="/questions" className="btn btn-primary btn-sm gap-2">
+          <ArrowLeftIcon className="w-4 h-4" />
+          返回问答列表
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+// 分页组件
+function Pagination({ currentPage, totalPages, onPageChange }: { 
+  currentPage: number; 
+  totalPages: number; 
+  onPageChange: (page: number) => void;
+}) {
+  const getPageNumbers = () => {
+    const pages: number[] = [];
+    const maxVisible = 5;
+    
+    if (totalPages <= maxVisible) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+    } else {
+      if (currentPage <= 3) {
+        for (let i = 1; i <= maxVisible; i++) pages.push(i);
+      } else if (currentPage >= totalPages - 2) {
+        for (let i = totalPages - maxVisible + 1; i <= totalPages; i++) pages.push(i);
+      } else {
+        for (let i = currentPage - 2; i <= currentPage + 2; i++) pages.push(i);
+      }
+    }
+    return pages;
+  };
+
+  return (
+    <div className="flex justify-center items-center gap-2 mt-8">
+      <button
+        onClick={() => onPageChange(currentPage - 1)}
+        disabled={currentPage === 1}
+        className="btn btn-ghost btn-sm gap-1"
+      >
+        <ArrowLeftIcon className="w-4 h-4" />
+        上一页
+      </button>
+      
+      <div className="flex gap-1.5 mx-2">
+        {getPageNumbers().map((pageNum) => (
+          <button
+            key={pageNum}
+            onClick={() => onPageChange(pageNum)}
+            className={`btn btn-sm min-w-[2.5rem] ${
+              currentPage === pageNum
+                ? 'btn-primary'
+                : 'btn-ghost'
+            }`}
+          >
+            {pageNum}
+          </button>
+        ))}
+      </div>
+      
+      <button
+        onClick={() => onPageChange(currentPage + 1)}
+        disabled={currentPage >= totalPages}
+        className="btn btn-ghost btn-sm gap-1"
+      >
+        下一页
+        <ArrowLeftIcon className="w-4 h-4 rotate-180" />
+      </button>
+    </div>
+  );
+}
 
 export default function QuestionDetailPage() {
   const params = useParams();
@@ -65,11 +195,9 @@ export default function QuestionDetailPage() {
     try {
       if (liked) {
         await postApi.like(questionId);
-        console.log("喜欢")
         setLiked(false);
       } else {
         await postApi.unlike(questionId);
-        console.log("不喜欢")
         setLiked(true);
       }
       refresh();
@@ -84,24 +212,11 @@ export default function QuestionDetailPage() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-gray-500">加载中...</div>
-      </div>
-    );
+    return <LoadingSkeleton />;
   }
 
   if (!question) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-gray-500 mb-4">问题不存在</p>
-          <Link href="/questions" className="text-indigo-600 hover:underline">
-            返回问答列表
-          </Link>
-        </div>
-      </div>
-    );
+    return <ErrorState message="问题不存在" />;
   }
 
   const isAuthor = user?.id === question.author_id;
@@ -109,46 +224,62 @@ export default function QuestionDetailPage() {
   const totalPages = Math.ceil(answersTotal / pageSize);
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4">
-        {/* 返回按钮 */}
-        <div className="flex items-center justify-between mb-4">
+    <div className="min-h-screen bg-gradient-to-b from-base-200 to-base-100">
+      <div className="max-w-4xl mx-auto px-4 py-8 md:py-12">
+        {/* 返回按钮 - 优化样式 */}
+        <div className="flex items-center justify-between mb-6">
           <Link
             href="/questions"
-            className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900"
+            className="inline-flex items-center gap-2 text-base-content/60 hover:text-primary transition-all duration-200 group"
           >
-            <ArrowLeftIcon className="w-4 h-4" />
-            返回列表
+            <ArrowLeftIcon className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
+            <span className="text-sm font-medium">返回列表</span>
           </Link>
+          
+          {/* 统计信息 */}
+          <div className="flex items-center gap-4 text-sm text-base-content/50">
+            <div className="flex items-center gap-1.5">
+              <ChatBubbleLeftRightIcon className="w-4 h-4" />
+              <span>{answersTotal} 个回答</span>
+            </div>
+          </div>
         </div>
 
         {/* 问题头部 */}
-        <QuestionHeader
-          question={question}
-          answersCount={answersTotal}
-          liked={liked}
-          likesCount={question.like_count || 0}
-          hasAccepted={hasAccepted}
-          rewardScore={0} // 需要从 API 获取悬赏积分
-          onLike={handleLike}
-        />
+        <div className="mb-8">
+          <QuestionHeader
+            question={question}
+            answersCount={answersTotal}
+            liked={liked}
+            likesCount={question.like_count || 0}
+            hasAccepted={hasAccepted}
+            rewardScore={0}
+            onLike={handleLike}
+          />
+        </div>
 
-        {/* 答案列表 */}
-        <div className="mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold text-gray-900">
-              {answersTotal} 个回答
+        {/* 答案列表区域 */}
+        <div className="mb-8">
+          <div className="flex items-center gap-2.5 mb-5">
+            <div className="w-1 h-6 bg-primary rounded-full" />
+            <h2 className="text-lg font-semibold text-base-content">
+              全部回答
             </h2>
+            <span className="text-sm text-base-content/40">
+              ({answersTotal})
+            </span>
+            <div className="flex-1 h-px bg-gradient-to-r from-base-200 to-transparent" />
           </div>
           
           {answers.length === 0 ? (
-            <div className="bg-white rounded-lg shadow-sm p-8 text-center text-gray-500">
-              <p>暂无回答</p>
-              <p className="text-sm mt-1">成为第一个回答的人吧！</p>
+            <div className="bg-base-100 rounded-2xl shadow-sm p-12 text-center border border-base-200">
+              <div className="text-5xl mb-4 opacity-50">💬</div>
+              <p className="text-base-content/60">暂无回答</p>
+              <p className="text-sm text-base-content/40 mt-1">成为第一个回答的人吧！</p>
             </div>
           ) : (
             <div className="space-y-4">
-              {answers.map((answer) => (
+              {answers.map((answer, index) => (
                 <AnswerCard
                   key={answer.id}
                   answer={answer}
@@ -164,42 +295,42 @@ export default function QuestionDetailPage() {
 
           {/* 分页 */}
           {totalPages > 1 && (
-            <div className="flex justify-center gap-2 mt-6">
-              <button
-                onClick={() => setAnswerPage(p => Math.max(1, p - 1))}
-                disabled={answerPage === 1}
-                className="px-3 py-1 border rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
-              >
-                上一页
-              </button>
-              <span className="px-3 py-1 text-gray-600">
-                第 {answerPage} / {totalPages} 页
-              </span>
-              <button
-                onClick={() => setAnswerPage(p => Math.min(totalPages, p + 1))}
-                disabled={answerPage >= totalPages}
-                className="px-3 py-1 border rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
-              >
-                下一页
-              </button>
-            </div>
+            <Pagination 
+              currentPage={answerPage}
+              totalPages={totalPages}
+              onPageChange={setAnswerPage}
+            />
           )}
         </div>
 
-        {/* 回答表单 */}
-        {isAuthenticated ? (
-          <AnswerForm questionId={questionId} onSuccess={onAnswerCreated} />
-        ) : (
-          <div className="bg-white rounded-lg shadow-sm p-6 text-center">
-            <p className="text-gray-500 mb-3">登录后回答这个问题</p>
-            <Link
-              href={`/login?redirect=/questions/${questionId}`}
-              className="inline-block px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
-            >
-              登录
-            </Link>
+        {/* 回答表单区域 */}
+        <div className="mt-8">
+          <div className="flex items-center gap-2.5 mb-5">
+            <div className="w-1 h-6 bg-secondary rounded-full" />
+            <h2 className="text-lg font-semibold text-base-content">
+              发表回答
+            </h2>
+            <div className="flex-1 h-px bg-gradient-to-r from-base-200 to-transparent" />
           </div>
-        )}
+          
+          {isAuthenticated ? (
+            <div className="bg-base-100 rounded-2xl shadow-sm border border-base-200 overflow-hidden">
+              <AnswerForm questionId={questionId} onSuccess={onAnswerCreated} />
+            </div>
+          ) : (
+            <div className="bg-base-100 rounded-2xl shadow-sm p-8 text-center border border-base-200">
+              <div className="text-5xl mb-4 opacity-50">🔒</div>
+              <p className="text-base-content/60 mb-4">登录后回答这个问题</p>
+              <Link
+                href={`/login?redirect=/questions/${questionId}`}
+                className="btn btn-primary btn-md gap-2"
+              >
+                <UserGroupIcon className="w-4 h-4" />
+                立即登录
+              </Link>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

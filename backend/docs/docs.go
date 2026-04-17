@@ -16,6 +16,103 @@ const docTemplate = `{
     "basePath": "{{.BasePath}}",
     "paths": {
         "/admin/announcements": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "公告管理"
+                ],
+                "summary": "管理员获取公告列表",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 20,
+                        "description": "每页数量",
+                        "name": "page_size",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "板块ID",
+                        "name": "board_id",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "normal",
+                            "important",
+                            "emergency",
+                            "event"
+                        ],
+                        "type": "string",
+                        "description": "公告类型",
+                        "name": "type",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "draft",
+                            "published",
+                            "expired"
+                        ],
+                        "type": "string",
+                        "description": "状态",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "是否置顶",
+                        "name": "is_pinned",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "是否全局",
+                        "name": "is_global",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "关键词",
+                        "name": "keyword",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/service.ListAnnouncementResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
             "post": {
                 "consumes": [
                     "application/json"
@@ -1287,32 +1384,9 @@ const docTemplate = `{
                         "in": "query"
                     },
                     {
-                        "enum": [
-                            "draft",
-                            "published",
-                            "archived"
-                        ],
-                        "type": "string",
-                        "description": "状态",
-                        "name": "status",
-                        "in": "query"
-                    },
-                    {
-                        "type": "boolean",
-                        "description": "是否置顶",
-                        "name": "is_pinned",
-                        "in": "query"
-                    },
-                    {
                         "type": "boolean",
                         "description": "是否全局",
                         "name": "is_global",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "关键词",
-                        "name": "keyword",
                         "in": "query"
                     }
                 ],
@@ -7318,21 +7392,25 @@ const docTemplate = `{
         "model.AnnouncementStatus": {
             "type": "string",
             "enum": [
+                "all",
                 "draft",
                 "published",
                 "archived"
             ],
             "x-enum-comments": {
+                "AnnouncementStatusAll": "已删除",
                 "AnnouncementStatusArchived": "已归档",
                 "AnnouncementStatusDraft": "草稿",
                 "AnnouncementStatusPublished": "已发布"
             },
             "x-enum-descriptions": [
+                "已删除",
                 "草稿",
                 "已发布",
                 "已归档"
             ],
             "x-enum-varnames": [
+                "AnnouncementStatusAll",
                 "AnnouncementStatusDraft",
                 "AnnouncementStatusPublished",
                 "AnnouncementStatusArchived"

@@ -395,6 +395,7 @@ func InitApp(cfg *config.Config) (*App, error) {
 	// 公告管理接口（需要管理员权限）
 	announcementAdminGroup := api.Group("/admin/announcements", middleware.Auth(jwtMgr), middleware.AdminRequired())
 	{
+		announcementAdminGroup.GET("", announcementHandler.AdminList) // 管理员获取公告
 		announcementAdminGroup.POST("", announcementHandler.Create)
 		announcementAdminGroup.PUT("/:id", announcementHandler.Update)
 		announcementAdminGroup.DELETE("/:id", announcementHandler.Delete)

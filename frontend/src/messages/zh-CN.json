@@ -135,11 +135,10 @@
     "Dont_have_an_account": "没有账号？",
     "sign_up_for_free": "免费注册"
   },
-  
+
   "Common": {
     "change_role": "更改角色",
 
-   
     "profile": "个人主页",
     "my_timeline": "我的时间线",
     "my_topics": "我的专题",
@@ -156,16 +155,19 @@
     "logging_out": "退出中...",
     "logout_success": "已退出登录",
     "logout_failed": "退出失败，请重试",
-  
-      "super_admin": "超级管理员",
-      "admin": "管理员",
-      "moderator": "版主",
-      "reviewer": "审核员",
-      "member": "会员",
-      "user": "用户",
-      "guest": "访客",
-      "bot": "机器人",
-    
+
+    "role":{
+ "super_admin": "超级管理员",
+    "admin": "管理员",
+    "moderator": "版主",
+    "reviewer": "审核员",
+    "member": "会员",
+    "user": "用户",
+    "guest": "访客",
+    "bot": "机器人"
+    },
+   
+
     "select_role": "选择角色",
     "back": "返回",
     "reset_password_notice": "系统将生成随机临时密码并通过站内通知发送给用户，有效期 30 分钟。"
@@ -176,6 +178,8 @@
     "confirm_reset": "确认重置",
     "change_role": "更改角色",
     "back": "返回",
+    "inactive": "未激活",
+
     "role": {
       "super_admin": "超级管理员",
       "admin": "管理员",
@@ -272,7 +276,30 @@
     "summary_placeholder": "请输入公告摘要...",
     "summary": "摘要",
     "content_placeholder": "请输入公告内容...",
-
+    "edit_announcement": "编辑公告",
+    "cover": "封面图片",
+    "cover_placeholder": "请输入封面图片URL（可选）",
+    "scope": "公告范围",
+    "global_announcement_desc": "在所有板块显示",
+    "board_announcement_desc": "仅在指定板块显示",
+    "publish_time_hint": "留空表示立即发布",
+    "expire_time_hint": "留空表示永不过期",
+    "update": "更新",
+    "expired": "已过期",
+    "pinned": "已置顶",
+    "board": "板块",
+    "select_board": "选择板块",
+    "please_select_board": "请选择板块",
+    "loading_boards": "加载板块中...",
+    "pinned_announcements": "置顶公告",
+    "confirm_publish": "确定要发布这条公告吗？",
+    "delete_success": "删除成功",
+    "update_success": "更新成功",
+    "create_success": "创建成功",
+    "pin_success": "置顶成功",
+    "unpin_success": "取消置顶成功",
+    "publish_success": "发布成功",
+    "publish": "发布",
     "moderators_management": "版主管理",
     "moderators_management_description": "管理论坛版主",
     "title_placeholder": "请输入公告标题...",
@@ -340,6 +367,7 @@
   },
   "Sidebar": {
     "all": "全部",
+    "view_all_announcements": "查看所有公告",
     "login": "登录",
     "register": "注册",
     "loading": "加载中...",
@@ -394,7 +422,7 @@
     "help": "帮助",
     "track": "追踪",
     "questions": "问答",
-    "topics": "主题",
+    "topics": "话题",
     "timeline": "时间线"
   },
   "site": {
@@ -436,8 +464,8 @@
     "post_desc": "普通讨论",
     "article": "文章",
     "article_desc": "论述文章",
-    "topic": "主题",
-    "topic_desc": "主题讨论",
+    "topic": "话题",
+    "topic_desc": "话题讨论",
     "post_title": "帖子标题",
     "post_title_placeholder": "请输入帖子标题",
     "tags": "标签",
@@ -487,7 +515,7 @@
     "the_post_does_not_exist_or_has_been_deleted": "帖子不存在或已被删除",
     "back_to_home": "返回首页",
     "back": "返回",
-    "the_topic": "主题",
+    "the_topic": "话题",
     "the_post": "帖子",
     "Read": "次阅读",
     "to_edit": "编辑",
@@ -506,7 +534,7 @@
     "title": "个人主页",
     "joined": "加入时间",
     "the_questions": "问答",
-    "the_topics": "主题",
+    "the_topics": "话题",
     "no_articles": "TA 还没有发过文章呢...",
     "no_posts": "TA 还没有发过帖子呢...",
     "no_questions": "TA 似乎不太需要提问...",
