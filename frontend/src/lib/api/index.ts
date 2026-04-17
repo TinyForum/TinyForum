@@ -16,7 +16,7 @@ export type {
   PageData,
   PostType,
   PostStatus,
-  UserRole,
+  // UserRole,
   VoteType,
   NotificationType,
   User,

@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Avatar from "../user/Avatar";
+import { useTranslations } from "next-intl";
 
 interface MobileMenuProps {
   isOpen: boolean;
@@ -38,6 +39,8 @@ export default function MobileMenu({
   unreadCount,
 }: MobileMenuProps) {
   const pathname = usePathname();
+  const t = useTranslations("Nav");
+  // 如果某些文本不在 Nav 命名空间，可以再引入其他翻译，这里为了简洁统一使用 t 并假设已添加对应 key
 
   if (!isOpen) return null;
 
@@ -65,7 +68,7 @@ export default function MobileMenu({
               onClick={onClose}
             >
               <Image src="/assets/brand/logo.svg" width={32} height={32} alt="logo" />
-              <span>天方论坛</span>
+              <span>{t("brand")}</span>
             </Link>
             <button
               onClick={onClose}
@@ -86,7 +89,7 @@ export default function MobileMenu({
               <div className="flex-1">
                 <div className="font-medium">{user.username}</div>
                 <div className="text-xs text-base-content/50">
-                  积分: {user.score || 0}
+                  {t("score_label")}: {user.score || 0}
                 </div>
               </div>
             </Link>
@@ -97,7 +100,7 @@ export default function MobileMenu({
         <div className="flex-1 overflow-y-auto p-4">
           <div className="space-y-1">
             <div className="text-xs font-semibold text-base-content/50 mb-2 px-3">
-              导航
+              {t("navigation")}
             </div>
             {navItems.map((item) => {
               const active = isActive(item.href);
@@ -126,7 +129,7 @@ export default function MobileMenu({
             
             {/* 快捷操作 */}
             <div className="text-xs font-semibold text-base-content/50 mb-2 px-3">
-              快捷操作
+              {t("quick_actions")}
             </div>
             
             {isAuthenticated ? (
@@ -137,7 +140,7 @@ export default function MobileMenu({
                   className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-base-200 transition-colors text-primary"
                 >
                   <PenSquare className="w-5 h-5" />
-                  <span>写帖子</span>
+                  <span>{t("create_post")}</span>
                 </Link>
                 <Link
                   href="/questions/ask"
@@ -145,7 +148,7 @@ export default function MobileMenu({
                   className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-base-200 transition-colors"
                 >
                   <MessageCircleQuestion className="w-5 h-5" />
-                  <span>提问</span>
+                  <span>{t("ask_question")}</span>
                 </Link>
                 <Link
                   href="/timeline"
@@ -153,7 +156,7 @@ export default function MobileMenu({
                   className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-base-200 transition-colors"
                 >
                   <Sparkles className="w-5 h-5" />
-                  <span>时间线</span>
+                  <span>{t("timeline")}</span>
                   {unreadCount > 0 && (
                     <span className="ml-auto badge badge-primary badge-xs">
                       {unreadCount}
@@ -166,7 +169,7 @@ export default function MobileMenu({
                   className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-base-200 transition-colors"
                 >
                   <Bookmark className="w-5 h-5" />
-                  <span>专题</span>
+                  <span>{t("topics")}</span>
                 </Link>
                 <Link
                   href="/boards"
@@ -174,7 +177,7 @@ export default function MobileMenu({
                   className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-base-200 transition-colors"
                 >
                   <LayoutGrid className="w-5 h-5" />
-                  <span>板块</span>
+                  <span>{t("boards")}</span>
                 </Link>
                 
                 <div className="divider my-3"></div>
@@ -185,7 +188,7 @@ export default function MobileMenu({
                   className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-base-200 transition-colors"
                 >
                   <Settings className="w-5 h-5" />
-                  <span>设置</span>
+                  <span>{t("settings")}</span>
                 </Link>
                 <Link
                   href="/help"
@@ -193,7 +196,7 @@ export default function MobileMenu({
                   className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-base-200 transition-colors"
                 >
                   <HelpCircle className="w-5 h-5" />
-                  <span>帮助</span>
+                  <span>{t("help")}</span>
                 </Link>
                 
                 {user?.role === "admin" && (
@@ -203,7 +206,7 @@ export default function MobileMenu({
                     className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-base-200 transition-colors text-primary"
                   >
                     <LayoutDashboard className="w-5 h-5" />
-                    <span>管理后台</span>
+                    <span>{t("admin_dashboard")}</span>
                   </Link>
                 )}
                 
@@ -212,7 +215,7 @@ export default function MobileMenu({
                   className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-base-200 transition-colors text-error mt-2"
                 >
                   <LogOut className="w-5 h-5" />
-                  <span>退出登录</span>
+                  <span>{t("logout")}</span>
                 </button>
               </>
             ) : (
@@ -222,14 +225,14 @@ export default function MobileMenu({
                   onClick={onClose}
                   className="btn btn-ghost w-full"
                 >
-                  登录
+                  {t("login")}
                 </Link>
                 <Link
                   href="/auth/register"
                   onClick={onClose}
                   className="btn btn-primary w-full"
                 >
-                  注册
+                  {t("register")}
                 </Link>
               </div>
             )}

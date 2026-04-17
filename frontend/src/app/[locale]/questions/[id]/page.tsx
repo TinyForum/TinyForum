@@ -17,9 +17,11 @@ import { postApi, questionApi } from '@/lib/api';
 import { AnswerForm } from '@/components/question/AnswerForm';
 import { QuestionHeader } from '@/components/question/QuestionHeader';
 import { answerApi } from '@/lib/api/modules/answer';
+import { useTranslations } from 'next-intl';
 
 // 加载骨架屏组件
 function LoadingSkeleton() {
+  const t = useTranslations("Questions");
   return (
     <div className="min-h-screen bg-gradient-to-b from-base-200 to-base-100">
       <div className="max-w-4xl mx-auto px-4 py-8">
@@ -66,15 +68,16 @@ function LoadingSkeleton() {
 
 // 错误状态组件
 function ErrorState({ message }: { message: string }) {
+  const t = useTranslations("Questions");
   return (
     <div className="min-h-screen bg-gradient-to-b from-base-200 to-base-100 flex items-center justify-center">
       <div className="text-center">
         <div className="text-6xl mb-5">😕</div>
-        <h3 className="text-xl font-semibold text-base-content mb-2">加载失败</h3>
+        <h3 className="text-xl font-semibold text-base-content mb-2">{t('load_failed')}</h3>
         <p className="text-base-content/60 mb-6">{message}</p>
         <Link href="/questions" className="btn btn-primary btn-sm gap-2">
           <ArrowLeftIcon className="w-4 h-4" />
-          返回问答列表
+          {t('back_to_questions')}
         </Link>
       </div>
     </div>
@@ -87,6 +90,8 @@ function Pagination({ currentPage, totalPages, onPageChange }: {
   totalPages: number; 
   onPageChange: (page: number) => void;
 }) {
+  const t = useTranslations("Questions");
+  
   const getPageNumbers = () => {
     const pages: number[] = [];
     const maxVisible = 5;
@@ -113,7 +118,7 @@ function Pagination({ currentPage, totalPages, onPageChange }: {
         className="btn btn-ghost btn-sm gap-1"
       >
         <ArrowLeftIcon className="w-4 h-4" />
-        上一页
+        {t('prev_page')}
       </button>
       
       <div className="flex gap-1.5 mx-2">
@@ -137,7 +142,7 @@ function Pagination({ currentPage, totalPages, onPageChange }: {
         disabled={currentPage >= totalPages}
         className="btn btn-ghost btn-sm gap-1"
       >
-        下一页
+        {t('next_page')}
         <ArrowLeftIcon className="w-4 h-4 rotate-180" />
       </button>
     </div>
@@ -145,6 +150,7 @@ function Pagination({ currentPage, totalPages, onPageChange }: {
 }
 
 export default function QuestionDetailPage() {
+  const t = useTranslations("Questions");
   const params = useParams();
   const router = useRouter();
   const { user, isAuthenticated } = useAuthStore();
@@ -167,7 +173,7 @@ export default function QuestionDetailPage() {
 
   const handleAcceptAnswer = async (answerId: number) => {
     if (!isAuthenticated) {
-      toast.error('请先登录');
+      toast.error(t('please_login'));
       router.push('/login');
       return;
     }
@@ -175,19 +181,19 @@ export default function QuestionDetailPage() {
     try {
       const response = await answerApi.acceptAnswer(answerId);
       if (response.data.code === 200) {
-        toast.success('已采纳答案');
+        toast.success(t('answer_accepted'));
         refresh();
       } else {
-        toast.error(response.data.message || '操作失败');
+        toast.error(response.data.message || t('operation_failed'));
       }
     } catch (error: any) {
-      toast.error(error.response?.data?.message || '操作失败');
+      toast.error(error.response?.data?.message || t('operation_failed'));
     }
   };
 
   const handleLike = async () => {
     if (!isAuthenticated) {
-      toast.error('请先登录');
+      toast.error(t('please_login'));
       router.push('/login');
       return;
     }
@@ -202,7 +208,7 @@ export default function QuestionDetailPage() {
       }
       refresh();
     } catch (error: any) {
-      toast.error(error.response?.data?.message || '操作失败');
+      toast.error(error.response?.data?.message || t('operation_failed'));
     }
   };
 
@@ -216,7 +222,7 @@ export default function QuestionDetailPage() {
   }
 
   if (!question) {
-    return <ErrorState message="问题不存在" />;
+    return <ErrorState message={t('question_not_found')} />;
   }
 
   const isAuthor = user?.id === question.author_id;
@@ -233,14 +239,14 @@ export default function QuestionDetailPage() {
             className="inline-flex items-center gap-2 text-base-content/60 hover:text-primary transition-all duration-200 group"
           >
             <ArrowLeftIcon className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
-            <span className="text-sm font-medium">返回列表</span>
+            <span className="text-sm font-medium">{t('back_to_list')}</span>
           </Link>
           
           {/* 统计信息 */}
           <div className="flex items-center gap-4 text-sm text-base-content/50">
             <div className="flex items-center gap-1.5">
               <ChatBubbleLeftRightIcon className="w-4 h-4" />
-              <span>{answersTotal} 个回答</span>
+              <span>{t('answers_count', { count: answersTotal })}</span>
             </div>
           </div>
         </div>
@@ -263,7 +269,7 @@ export default function QuestionDetailPage() {
           <div className="flex items-center gap-2.5 mb-5">
             <div className="w-1 h-6 bg-primary rounded-full" />
             <h2 className="text-lg font-semibold text-base-content">
-              全部回答
+              {t('all_answers')}
             </h2>
             <span className="text-sm text-base-content/40">
               ({answersTotal})
@@ -274,8 +280,8 @@ export default function QuestionDetailPage() {
           {answers.length === 0 ? (
             <div className="bg-base-100 rounded-2xl shadow-sm p-12 text-center border border-base-200">
               <div className="text-5xl mb-4 opacity-50">💬</div>
-              <p className="text-base-content/60">暂无回答</p>
-              <p className="text-sm text-base-content/40 mt-1">成为第一个回答的人吧！</p>
+              <p className="text-base-content/60">{t('no_answers')}</p>
+              <p className="text-sm text-base-content/40 mt-1">{t('be_first_to_answer')}</p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -308,7 +314,7 @@ export default function QuestionDetailPage() {
           <div className="flex items-center gap-2.5 mb-5">
             <div className="w-1 h-6 bg-secondary rounded-full" />
             <h2 className="text-lg font-semibold text-base-content">
-              发表回答
+              {t('post_answer')}
             </h2>
             <div className="flex-1 h-px bg-gradient-to-r from-base-200 to-transparent" />
           </div>
@@ -320,13 +326,13 @@ export default function QuestionDetailPage() {
           ) : (
             <div className="bg-base-100 rounded-2xl shadow-sm p-8 text-center border border-base-200">
               <div className="text-5xl mb-4 opacity-50">🔒</div>
-              <p className="text-base-content/60 mb-4">登录后回答这个问题</p>
+              <p className="text-base-content/60 mb-4">{t('login_to_answer')}</p>
               <Link
                 href={`/login?redirect=/questions/${questionId}`}
                 className="btn btn-primary btn-md gap-2"
               >
                 <UserGroupIcon className="w-4 h-4" />
-                立即登录
+                {t('login_now')}
               </Link>
             </div>
           )}

@@ -18,8 +18,10 @@ import { BoardSelector } from '@/components/question/BoardSelector';
 import { TagSelector } from '@/components/question/TagSelector';
 import { RewardScoreInput } from '@/components/question/RewardScoreInput';
 import { FormActions } from '@/components/question/FormActions';
+import { useTranslations } from 'next-intl';
 
 export default function AskQuestionPage() {
+  const t = useTranslations("Questions");
   const router = useRouter();
   const { isAuthenticated, user } = useAuthStore();
   const { boards, loading: boardsLoading, getDefaultBoard, error: boardsError } = useBoard({ 
@@ -62,7 +64,7 @@ export default function AskQuestionPage() {
             <div className="card-body p-8">
               <div className="flex flex-col items-center justify-center py-12">
                 <span className="loading loading-spinner loading-lg text-primary mb-4"></span>
-                <p className="text-base-content/60">加载中...</p>
+                <p className="text-base-content/60">{t('loading')}</p>
               </div>
             </div>
           </div>
@@ -82,13 +84,13 @@ export default function AskQuestionPage() {
                 <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-red-100 dark:bg-red-900/20 flex items-center justify-center">
                   <ExclamationTriangleIcon className="w-10 h-10 text-red-500" />
                 </div>
-                <h3 className="text-lg font-semibold text-base-content mb-2">加载板块失败</h3>
+                <h3 className="text-lg font-semibold text-base-content mb-2">{t('load_boards_failed')}</h3>
                 <p className="text-base-content/60 mb-4">{boardsError}</p>
                 <button
                   onClick={() => window.location.reload()}
                   className="btn btn-primary"
                 >
-                  重新加载
+                  {t('reload')}
                 </button>
               </div>
             </div>
@@ -118,10 +120,10 @@ export default function AskQuestionPage() {
             <SparklesIcon className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-red-600 to-red-500 bg-clip-text text-transparent">
-            提问
+            {t('ask_question_title')}
           </h1>
           <p className="text-base-content/60 mt-2">
-            详细描述你的问题，获得更精准的回答
+            {t('ask_question_description')}
           </p>
         </div>
 
@@ -132,7 +134,7 @@ export default function AskQuestionPage() {
             className="inline-flex items-center gap-2 text-base-content/60 hover:text-primary transition-colors"
           >
             <ArrowLeftIcon className="w-4 h-4" />
-            返回问答列表
+            {t('back_to_questions')}
           </Link>
         </div>
 
@@ -140,9 +142,9 @@ export default function AskQuestionPage() {
         <div className="card bg-base-100 shadow-md border border-base-200">
           <div className="card-body p-0">
             <div className="p-6 border-b border-base-200">
-              <h2 className="text-xl font-bold text-base-content">发布问题</h2>
+              <h2 className="text-xl font-bold text-base-content">{t('publish_question')}</h2>
               <p className="text-sm text-base-content/60 mt-1">
-                请填写以下信息，让其他用户更好地帮助你
+                {t('publish_question_description')}
               </p>
             </div>
 
@@ -150,7 +152,7 @@ export default function AskQuestionPage() {
               {/* 板块选择 */}
               <div className="space-y-2">
                 <label className="text-sm font-medium text-base-content">
-                  选择板块 <span className="text-red-500">*</span>
+                  {t('select_board')} <span className="text-red-500">*</span>
                 </label>
                 <BoardSelector
                   boards={boards}
@@ -191,7 +193,7 @@ export default function AskQuestionPage() {
 
         {/* 提示信息 */}
         <div className="mt-6 text-center text-sm text-base-content/40">
-          <p>发布问题即表示你同意遵守社区规范</p>
+          <p>{t('agree_to_rules')}</p>
         </div>
       </div>
     </div>

@@ -6,6 +6,7 @@ import { GuestCard } from "./right/GuestCard";
 import { Leaderboard } from "./right/Leaderboard";
 import { TimelineEvents } from "./right/TimelineEvents";
 import { UserProfileCard } from "./right/UserProfileCard";
+import { LeaderboardResponse } from "@/lib/api/modules/users";
 
 
 interface UserProfile {
@@ -34,7 +35,7 @@ interface RightSidebarProps {
   isAuthenticated: boolean;
   user: any;
   userProfile?: UserProfile;
-  leaderboard: any[];
+  leaderboard: LeaderboardResponse;
   unreadCount: number;
   timelineEvents: TimelineEvent[];
 }
@@ -70,7 +71,7 @@ export default function RightSidebar({
       )}
 
       {/* 用户排行榜 */}
-      {leaderboard && leaderboard.length > 0 && (
+      {leaderboard && (
         <Leaderboard leaderboard={leaderboard} />
       )}
     </aside>

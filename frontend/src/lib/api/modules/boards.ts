@@ -3,6 +3,7 @@
  * 板块 + 版主管理 + 禁言管理 + 帖子管理
  */
 
+import { UserRoleType } from "@/type/roles.types";
 import apiClient from "../client";
 import type {
   ApiResponse,
@@ -11,7 +12,7 @@ import type {
   Moderator,
   ModeratorApplication,
   Post,
-  UserRole,
+  // UserRole,
 } from "../types";
 
 // ─── Payloads ─────────────────────────────────────────────────────────────────
@@ -24,9 +25,9 @@ export interface CreateBoardPayload {
   cover?: string;
   parent_id?: number;
   sort_order?: number;
-  view_role?: UserRole;
-  post_role?: UserRole;
-  reply_role?: UserRole;
+  view_role?: UserRoleType;
+  post_role?: UserRoleType;
+  reply_role?: UserRoleType;
 }
 
 export type UpdateBoardPayload = Partial<CreateBoardPayload>;

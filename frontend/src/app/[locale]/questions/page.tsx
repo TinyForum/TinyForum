@@ -18,11 +18,13 @@ import {
 import { useAuthStore } from '@/store/auth';
 import { questionApi } from '@/lib/api';
 import { QuestionSimple } from '@/lib/api/types';
+import { useTranslations } from 'next-intl';
 
 type FilterType = 'all' | 'unanswered' | 'answered';
 type SortType = 'latest' | 'hot' | 'score';
 
 export default function QuestionsPage() {
+  const t = useTranslations('Questions');
   const router = useRouter();
   const searchParams = useSearchParams();
   const { isAuthenticated } = useAuthStore();
@@ -55,23 +57,19 @@ export default function QuestionsPage() {
   const loadQuestions = async () => {
     setLoading(true);
     try {
-      // 构建请求参数
       const params: any = {
         page,
         page_size: pageSize,
       };
       
-      // 添加筛选条件
       if (filter !== 'all') {
         params.filter = filter;
       }
       
-      // 添加排序
       if (sort !== 'latest') {
         params.sort = sort;
       }
       
-      // 添加关键词搜索
       if (keyword) {
         params.keyword = keyword;
       }
@@ -83,7 +81,6 @@ export default function QuestionsPage() {
         setQuestions(response.data.data.list);
         setTotal(response.data.data.total);
         
-        // 更新 URL 参数
         const urlParams = new URLSearchParams();
         if (filter !== 'all') urlParams.set('filter', filter);
         if (sort !== 'latest') urlParams.set('sort', sort);
@@ -113,18 +110,18 @@ export default function QuestionsPage() {
     setPage(1);
   };
 
-const formatTime = (time: string | Date) => {
-  // 如果是 Date 对象，直接使用；如果是字符串，转换为 Date
-  const date = time instanceof Date ? time : new Date(time);
-  const now = new Date();
-  const diff = now.getTime() - date.getTime();
-  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-  
-  if (days === 0) return '今天';
-  if (days === 1) return '昨天';
-  if (days < 7) return `${days}天前`;
-  return date.toLocaleDateString();
-};
+  const formatTime = (time: string | Date) => {
+    const date = time instanceof Date ? time : new Date(time);
+    const now = new Date();
+    const diff = now.getTime() - date.getTime();
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    
+    if (days === 0) return t('today');
+    if (days === 1) return t('yesterday');
+    if (days < 7) return t('days_ago', { count: days });
+    return date.toLocaleDateString();
+  };
+
   const getAnswerCount = (question: QuestionSimple) => {
     return question.answer_count || 0;
   };
@@ -148,10 +145,10 @@ const formatTime = (time: string | Date) => {
             <SparklesIcon className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-red-600 to-red-500 bg-clip-text text-transparent">
-            问答社区
+            {t('title')}
           </h1>
           <p className="text-base-content/60 mt-2">
-            提问、回答、分享知识
+            {t('subtitle')}
           </p>
         </div>
 
@@ -165,7 +162,7 @@ const formatTime = (time: string | Date) => {
                   type="text"
                   value={keyword}
                   onChange={(e) => setKeyword(e.target.value)}
-                  placeholder="搜索问题..."
+                  placeholder={t('search_placeholder')}
                   className="w-full pl-11 pr-4 py-2.5 bg-transparent text-base-content placeholder-base-content/40 focus:outline-none"
                 />
               </div>
@@ -173,7 +170,7 @@ const formatTime = (time: string | Date) => {
                 type="submit"
                 className="btn btn-primary min-w-[80px]"
               >
-                搜索
+                {t('search_button')}
               </button>
             </form>
           </div>
@@ -181,14 +178,13 @@ const formatTime = (time: string | Date) => {
 
         {/* Main Content */}
         <div className="card bg-base-100 shadow-md border border-base-200">
-          {/* Header with Filters */}
           <div className="card-body p-0">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 border-b border-base-200">
               <div className="flex flex-wrap gap-2">
                 {[
-                  { value: 'all', label: '全部', icon: ChatBubbleLeftRightIcon, color: 'text-blue-500' },
-                  { value: 'unanswered', label: '未回答', icon: FireIcon, color: 'text-orange-500' },
-                  { value: 'answered', label: '已解决', icon: CheckBadgeIcon, color: 'text-green-500' },
+                  { value: 'all', label: t('filter_all'), icon: ChatBubbleLeftRightIcon, color: 'text-blue-500' },
+                  { value: 'unanswered', label: t('filter_unanswered'), icon: FireIcon, color: 'text-orange-500' },
+                  { value: 'answered', label: t('filter_answered'), icon: CheckBadgeIcon, color: 'text-green-500' },
                 ].map((item) => {
                   const Icon = item.icon;
                   const isActive = filter === item.value;
@@ -217,9 +213,9 @@ const formatTime = (time: string | Date) => {
                     onChange={(e) => handleSortChange(e.target.value as SortType)}
                     className="select select-bordered select-sm bg-transparent focus:outline-none"
                   >
-                    <option value="latest">最新</option>
-                    <option value="hot">最热</option>
-                    <option value="score">悬赏最高</option>
+                    <option value="latest">{t('sort_latest')}</option>
+                    <option value="hot">{t('sort_hot')}</option>
+                    <option value="score">{t('sort_score')}</option>
                   </select>
                 </div>
                 
@@ -229,7 +225,7 @@ const formatTime = (time: string | Date) => {
                     className="btn btn-primary btn-sm"
                   >
                     <PlusIcon className="w-4 h-4" />
-                    提问
+                    {t('ask_button')}
                   </Link>
                 )}
               </div>
@@ -257,12 +253,12 @@ const formatTime = (time: string | Date) => {
                   <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-red-50 dark:bg-red-900/20 flex items-center justify-center">
                     <ChatBubbleLeftRightIcon className="w-10 h-10 text-red-400" />
                   </div>
-                  <h3 className="text-lg font-semibold text-base-content mb-2">暂无问题</h3>
-                  <p className="text-base-content/60 mb-4">还没有人提问，成为第一个提问者吧</p>
+                  <h3 className="text-lg font-semibold text-base-content mb-2">{t('empty_title')}</h3>
+                  <p className="text-base-content/60 mb-4">{t('empty_description')}</p>
                   {isAuthenticated && (
                     <Link href="/questions/ask" className="btn btn-primary">
                       <PlusIcon className="w-4 h-4" />
-                      我要提问
+                      {t('ask_first_button')}
                     </Link>
                   )}
                 </div>
@@ -280,11 +276,11 @@ const formatTime = (time: string | Date) => {
                           <div className="text-sm font-semibold text-base-content">
                             {getAnswerCount(question)}
                           </div>
-                          <div className="text-xs text-base-content/40">回答</div>
+                          <div className="text-xs text-base-content/40">{t('answer_count_label')}</div>
                           <div className="text-sm font-semibold text-base-content mt-1">
                             {question.view_count || 0}
                           </div>
-                          <div className="text-xs text-base-content/40">浏览</div>
+                          <div className="text-xs text-base-content/40">{t('view_count_label')}</div>
                         </div>
                         
                         {/* 问题内容 */}
@@ -296,7 +292,7 @@ const formatTime = (time: string | Date) => {
                             {getIsAccepted(question) && (
                               <span className="badge badge-success gap-1 shrink-0">
                                 <CheckBadgeIcon className="w-3 h-3" />
-                                已解决
+                                {t('resolved_badge')}
                               </span>
                             )}
                           </div>
@@ -304,23 +300,21 @@ const formatTime = (time: string | Date) => {
                           {getRewardScore(question) > 0 && (
                             <div className="flex items-center gap-1 mt-1">
                               <span className="badge badge-warning badge-sm gap-1">
-                                💰 {getRewardScore(question)} 积分悬赏
+                                💰 {t('reward_score_text', { score: getRewardScore(question) })}
                               </span>
                             </div>
                           )}
                           
                           <p className="text-sm text-base-content/60 line-clamp-2 mt-2">
-                            {question.summary || '暂无内容'}
+                            {question.summary || t('no_content')}
                           </p>
                           
                           <div className="flex flex-wrap items-center gap-4 mt-3 text-xs text-base-content/50">
                             <span className="flex items-center gap-1">
                               <UserCircleIcon className="w-3.5 h-3.5" />
-                              {question.author?.username || '匿名用户'}
+                              {question.author?.username || t('anonymous')}
                             </span>
                             <span>{formatTime(question.created_at)}</span>
-
-                         
                             
                             {/* Tags */}
                             {question.tags && question.tags.length > 0 && (
@@ -368,7 +362,7 @@ const formatTime = (time: string | Date) => {
                   </button>
                 </div>
                 <span className="text-sm text-base-content/60 flex items-center">
-                  共 {total} 条
+                  {t('total_items', { total })}
                 </span>
               </div>
             )}

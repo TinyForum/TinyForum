@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { TrendingUp } from "lucide-react";
+import { LeaderboardResponse } from "@/lib/api/modules/users";
 
 interface LeaderboardUser {
   id: number;
@@ -12,7 +13,7 @@ interface LeaderboardUser {
 }
 
 interface LeaderboardProps {
-  leaderboard: LeaderboardUser[];
+  leaderboard: LeaderboardResponse;
 }
 
 export function Leaderboard({ leaderboard }: LeaderboardProps) {
@@ -40,7 +41,7 @@ export function Leaderboard({ leaderboard }: LeaderboardProps) {
         </h3>
       </div>
       <div className="p-2 space-y-1">
-        {leaderboard.slice(0, 5).map((user, index) => (
+        {leaderboard.items.slice(0, 5).map((user, index) => (
           <Link
             key={user.id}
             href={`/users/${user.id}`}

@@ -2,12 +2,14 @@
 
 import Link from "next/link";
 import { PenSquare, Sparkles, MessageCircleQuestion } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface QuickActionsProps {
   isAuthenticated: boolean;
 }
 
 export default function QuickActions({ isAuthenticated }: QuickActionsProps) {
+  const t = useTranslations("Nav")
   if (!isAuthenticated) return null;
 
   return (
@@ -18,7 +20,7 @@ export default function QuickActions({ isAuthenticated }: QuickActionsProps) {
         className="btn btn-primary btn-sm gap-1 shadow-md hover:shadow-lg transition-all"
       >
         <PenSquare className="w-4 h-4" />
-        <span className="hidden sm:inline">写帖子</span>
+        <span className="hidden sm:inline">{t("create_post")}</span>
       </Link>
 
       {/* 快速提问 */}
@@ -27,7 +29,7 @@ export default function QuickActions({ isAuthenticated }: QuickActionsProps) {
         className="btn btn-outline btn-sm gap-1"
       >
         <MessageCircleQuestion className="w-4 h-4" />
-        <span className="hidden sm:inline">提问</span>
+        <span className="hidden sm:inline">{t("ask_question")}</span>
       </Link>
     </div>
   );

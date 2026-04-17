@@ -20,7 +20,7 @@ import LeftSidebar, { FilterType } from "@/components/home/LeftSidebar";
 import RightSidebar from "@/components/home/RightSidebar";
 import { SortBy } from "@/type/posts.types";
 // import { PostType, SortBy } from "@/types";
-
+import { useLeaderboard } from "@/hooks/useLeaderboard";
 // export type FilterType = "all" | PostType;
 export default function HomePage() {
   const { isAuthenticated, user } = useAuthStore();
@@ -30,7 +30,7 @@ export default function HomePage() {
   const [filterType, setFilterType] = useState<FilterType>("all");
   const [page, setPage] = useState(1);
   const t = useTranslations("post");
-
+const { data: leaderboard } = useLeaderboard({ limit: 10 });
   // 帖子列表 - 根据 postType 选择不同的 API
   const {
     data: postsData,
@@ -126,10 +126,10 @@ export default function HomePage() {
   });
 
   // 用户排行榜
-  const { data: leaderboard } = useQuery({
-    queryKey: ["leaderboard"],
-    queryFn: () => userApi.leaderboard(10).then((r) => r.data.data),
-  });
+  // const { data: leaderboard } = useQuery({
+  //   queryKey: ["leaderboard"],
+  //   queryFn: () => userApi.leaderboard(10).then((r) => r.data.data),
+  // });
 
   // 用户信息（已登录时）
   const { data: userProfile } = useQuery({
@@ -223,16 +223,17 @@ export default function HomePage() {
           </div>
 
           {/* 右侧边栏 */}
-          <div className="lg:w-64 xl:w-72 flex-none overflow-y-auto custom-scrollbar sticky top-6 max-h-[calc(100vh-6rem)]">
+          {leaderboard !== undefined && <div className="lg:w-64 xl:w-72 flex-none overflow-y-auto custom-scrollbar sticky top-6 max-h-[calc(100vh-6rem)]">
             <RightSidebar
               isAuthenticated={isAuthenticated}
               user={user}
               userProfile={userProfile}
-              leaderboard={leaderboard ?? []}
+              leaderboard={leaderboard}
               unreadCount={unreadCount ?? 0}
               timelineEvents={timelineEvents ?? []}
             />
-          </div>
+          </div>}
+          
         </div>
       </div>
     </div>

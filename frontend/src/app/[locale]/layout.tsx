@@ -1,42 +1,50 @@
-import type { Metadata } from 'next';
-import { Inter, Fira_Code } from 'next/font/google';
-import Providers from '@/components/layout/Providers';
-import Navbar from '@/components/layout/Navbar';
-import { NextIntlClientProvider } from 'next-intl';
-import { notFound } from 'next/navigation';
-import { getTranslations } from 'next-intl/server';
-import '../styles/globals.css';
+import type { Metadata } from "next";
+import { Inter, Fira_Code } from "next/font/google";
+import Providers from "@/components/layout/Providers";
+import Navbar from "@/components/layout/Navbar";
+import { NextIntlClientProvider } from "next-intl";
+import { notFound } from "next/navigation";
+import { getTranslations } from "next-intl/server";
+import "../styles/globals.css";
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
-const firaCode = Fira_Code({ subsets: ['latin'], variable: '--font-fira-code' });
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+const firaCode = Fira_Code({
+  subsets: ["latin"],
+  variable: "--font-fira-code",
+});
 
-export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: 'site' });
+  const t = await getTranslations({ locale, namespace: "site" });
   const brandName = t("brand") || "Your Brand Name";
-    const description = t("description") || "Your brand description goes here.";
-    
-  return {
-   title: {
-        default: brandName,
-        template: `%s | ${brandName}`,  // 方便子页面拼接标题
-      },
-      description: description,
-    icons: [
-       { url: '/favicon.ico', sizes: 'any' },{ url: '/assets/brand/logo.svg', type: 'image/svg+xml' }] , 
+  const description = t("description") || "Your brand description goes here.";
 
+  return {
+    title: {
+      default: brandName,
+      template: `%s | ${brandName}`, // 方便子页面拼接标题
+    },
+    description: description,
+    icons: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/assets/brand/logo.svg", type: "image/svg+xml" },
+    ],
   };
 }
 
 export default async function RootLayout({
   children,
-  params
+  params,
 }: {
   children: React.ReactNode;
-  params: Promise<{ locale: string }> | { locale: string };
+params: Promise<{ locale: string }>
 }) {
   const { locale } = await params;
-  
+
   let messages;
   try {
     messages = (await import(`../../messages/${locale}.json`)).default;
@@ -45,8 +53,11 @@ export default async function RootLayout({
   }
 
   return (
-  <html lang={locale} suppressHydrationWarning>
-      <body suppressHydrationWarning className={`${inter.variable} ${firaCode.variable} font-sans h-screen overflow-hidden bg-base-200`}>
+    <html lang={locale} suppressHydrationWarning>
+      <body
+        suppressHydrationWarning
+        className={`${inter.variable} ${firaCode.variable} font-sans h-screen overflow-hidden bg-base-200`}
+      >
         <NextIntlClientProvider locale={locale} messages={messages}>
           <Providers>
             <div className="flex flex-col h-full">

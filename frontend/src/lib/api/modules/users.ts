@@ -20,7 +20,7 @@ export interface LeaderboardRequest {
     fields?: string;
 }
 
-interface LeaderboardItemResponse {
+export interface LeaderboardItemResponse {
     id: number;
     username: string;
     avatar: string;

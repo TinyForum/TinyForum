@@ -1,10 +1,11 @@
 import { User } from "@/lib/api";
 import Link from "next/link";
 import { TrophyIcon, UserCircleIcon } from "@heroicons/react/24/outline";
+import { LeaderboardItemResponse } from "@/lib/api/modules/users";
 
 // 活跃用户卡片
 interface ActiveUserCardProps {
-  user: User;
+  user: LeaderboardItemResponse;
   rank?: number; // 排名
 }
 
@@ -76,9 +77,9 @@ export function ActiveUserCard({ user, rank }: ActiveUserCardProps) {
                 <span className="font-medium text-base-content truncate group-hover:text-primary transition-colors">
                   {user.username}
                 </span>
-                {user.role === "admin" && (
+                {/* {user.role === "admin" && (
                   <span className="badge badge-primary badge-xs">管理员</span>
-                )}
+                )} */}
               </div>
               {/* <div className="flex items-center gap-2 text-xs text-base-content/50">
                 <span>积分: {user.score || 0}</span>

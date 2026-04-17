@@ -5,6 +5,7 @@ import { Bell } from "lucide-react";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { notificationApi } from "@/lib/api";
+import { useTranslations } from "next-intl";
 
 interface NotificationBellProps {
   unreadCount: number;
@@ -12,6 +13,7 @@ interface NotificationBellProps {
 
 export default function NotificationBell({ unreadCount }: NotificationBellProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const t = useTranslations("Notifications"); // 使用 Notifications 命名空间
 
   // 获取最新通知预览
   const { data: previewData } = useQuery({
@@ -40,10 +42,10 @@ export default function NotificationBell({ unreadCount }: NotificationBellProps)
       
       <div className="dropdown-content mt-2 w-80 bg-base-100 rounded-lg shadow-xl border border-base-200 z-50">
         <div className="p-3 border-b border-base-200 flex justify-between items-center">
-          <h3 className="font-semibold">通知中心</h3>
+          <h3 className="font-semibold">{t("title")}</h3>
           {unreadCount > 0 && (
             <Link href="/notifications" className="text-xs text-primary hover:underline">
-              标记全部已读
+              {t("mark_all_read")}
             </Link>
           )}
         </div>
@@ -52,7 +54,7 @@ export default function NotificationBell({ unreadCount }: NotificationBellProps)
           {notifications.length === 0 ? (
             <div className="p-8 text-center text-base-content/50">
               <Bell className="w-8 h-8 mx-auto mb-2 opacity-50" />
-              <p className="text-sm">暂无通知</p>
+              <p className="text-sm">{t("no_notifications")}</p>
             </div>
           ) : (
             notifications.map((notif: any) => (
@@ -77,7 +79,7 @@ export default function NotificationBell({ unreadCount }: NotificationBellProps)
             href="/notifications"
             className="block text-center text-sm text-primary hover:underline py-1"
           >
-            查看所有通知
+            {t("view_all")}
           </Link>
         </div>
       </div>
