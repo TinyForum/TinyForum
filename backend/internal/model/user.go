@@ -28,6 +28,9 @@ type User struct {
 	IsTempPassword     bool       `gorm:"default:false" json:"-"`                       // 是否为临时密码
 	TempPasswordExpire *time.Time `json:"-"`                                            // 临时密码过期时间
 
+	// 密码
+	ResetPasswordToken  string     `gorm:"size:255;index" json:"-"`
+	ResetPasswordSentAt *time.Time `json:"-"`
 	// 社交活动，可用于风控、审查
 	Posts     []Post    `gorm:"foreignKey:AuthorID" json:"-"`    // 用户发布的帖子
 	Comments  []Comment `gorm:"foreignKey:AuthorID" json:"-"`    // 用户发布的评论

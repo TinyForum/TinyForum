@@ -35,8 +35,11 @@ import (
 	voteRepo "tiny-forum/internal/repository/vote"
 
 	announcementService "tiny-forum/internal/service/announcement"
+
+	authService "tiny-forum/internal/service/auth"
 	boardService "tiny-forum/internal/service/board"
 	commentService "tiny-forum/internal/service/comment"
+	emailService "tiny-forum/internal/service/email"
 	notificationService "tiny-forum/internal/service/notification"
 	postService "tiny-forum/internal/service/post"
 	questionService "tiny-forum/internal/service/question"
@@ -71,17 +74,17 @@ type App struct {
 func InitDB(cfg *config.Config) (*gorm.DB, error) {
 	dsn := fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s port=%d sslmode=%s TimeZone=%s",
-		cfg.Database.Host,
-		cfg.Database.User,
-		cfg.Database.Password,
-		cfg.Database.DBName,
-		cfg.Database.Port,
-		cfg.Database.SSLMode,
-		cfg.Database.TimeZone,
+		cfg.Basic.Database.Host,
+		cfg.Basic.Database.User,
+		cfg.Basic.Database.Password,
+		cfg.Basic.Database.DBName,
+		cfg.Basic.Database.Port,
+		cfg.Basic.Database.SSLMode,
+		cfg.Basic.Database.TimeZone,
 	)
 
 	logLevel := gormlogger.Silent
-	if cfg.Server.Mode == "debug" {
+	if cfg.Basic.Server.Mode == "debug" {
 		logLevel = gormlogger.Info
 	}
 
@@ -144,7 +147,7 @@ func InitApp(cfg *config.Config) (*App, error) {
 	}
 
 	// JWT manager
-	jwtMgr := jwtpkg.NewManager(cfg.JWT.Secret, cfg.JWT.Expire)
+	jwtMgr := jwtpkg.NewManager(cfg.Private.JWT.Secret, cfg.Private.JWT.Expire)
 
 	// ========== Repositories ==========
 	tokenRepo := tokenRepo.NewTokenRepository(db)
@@ -174,10 +177,12 @@ func InitApp(cfg *config.Config) (*App, error) {
 	commentSvc := commentService.NewCommentService(commentRepo, postRepo, userRepo, notifSvc, voteRepo)
 	announcementSvc := announcementService.NewAnnouncementService(announcementRepo)
 	statsSvc := statsService.NewStatsService(statsRepo, postRepo, tagRepo, boardRepo, userRepo, commentRepo)
+	emailSvc := emailService.NewEmailService(&cfg.Private.Email)
 
+	authSvc := authService.NewAuthService(userRepo, jwtMgr, notifSvc, emailSvc, cfg, tokenRepo)
 	// ========== Handlers ==========
-	authHandler := authHandler.NewAuthHandler(userSvc)
-	userHandler := userHandler.NewUserHandler(userSvc, notifSvc)
+	authHandler := authHandler.NewAuthHandler(authSvc)
+	userHandler := userHandler.NewUserHandler(userSvc, notifSvc, authSvc)
 	tagHandler := tagHandler.NewTagHandler(tagSvc)
 	notifHandler := notificationHandler.NewNotificationHandler(notifSvc)
 	postHandler := postHandler.NewPostHandler(postSvc)
@@ -191,7 +196,7 @@ func InitApp(cfg *config.Config) (*App, error) {
 	statsHandler := statsHandler.NewStatsHandler(statsSvc)
 
 	// ========== Gin Engine ==========
-	gin.SetMode(cfg.Server.Mode)
+	gin.SetMode(cfg.Basic.Server.Mode)
 	engine := gin.New()
 	engine.Use(gin.Logger())
 	engine.Use(gin.Recovery())
@@ -217,8 +222,11 @@ func InitApp(cfg *config.Config) (*App, error) {
 	{
 		authGroup.POST("/register", authHandler.Register)
 		authGroup.POST("/login", authHandler.Login)
-		authGroup.POST("/logout", authHandler.Logout) // 新增
-		authGroup.GET("/me", middleware.Auth(jwtMgr), authHandler.Me)
+		authGroup.POST("/logout", authHandler.Logout)
+		authGroup.GET("/me", middleware.Auth(jwtMgr), userHandler.Me) // 获取个人信息需要登录
+		authGroup.POST("/forgot-password", authHandler.ForgotPassword)
+		authGroup.POST("/reset-password", authHandler.ResetPassword)
+		authGroup.GET("/validate-reset-token", authHandler.ValidateResetToken)
 	}
 
 	// ----- MARK: Tag routes
@@ -269,6 +277,7 @@ func InitApp(cfg *config.Config) (*App, error) {
 		userGroup.GET("/:id/following", middleware.OptionalAuth(jwtMgr), userHandler.GetFollowing) // 获取用户的关注列表
 		userGroup.GET("/:id/Score", middleware.OptionalAuth(jwtMgr), userHandler.GetScore)         // 获取用户的积分
 		userGroup.GET("/me/role", middleware.OptionalAuth(jwtMgr), userHandler.GetCurrentUserRole) // 获取当前用户的角色
+
 	}
 
 	// ----- MARK: Notification routes

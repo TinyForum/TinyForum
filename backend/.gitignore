@@ -3,3 +3,5 @@ logs/
 *.log
 .env
 vendor/
+private.yaml
+basic.yaml

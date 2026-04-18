@@ -7,7 +7,7 @@ import (
 )
 
 // ListByUserID 获取用户的所有登录设备（仅未过期的）
-func (r *TokenRepository) ListByUserID(ctx context.Context, userID uint) ([]model.RefreshToken, error) {
+func (r *tokenRepository) ListByUserID(ctx context.Context, userID uint) ([]model.RefreshToken, error) {
 	var tokens []model.RefreshToken
 	err := r.db.WithContext(ctx).
 		Where("user_id = ? AND expires_at > ?", userID, time.Now()).
@@ -17,7 +17,7 @@ func (r *TokenRepository) ListByUserID(ctx context.Context, userID uint) ([]mode
 }
 
 // CountByUserID 统计用户的有效 Token 数量
-func (r *TokenRepository) CountByUserID(ctx context.Context, userID uint) (int64, error) {
+func (r *tokenRepository) CountByUserID(ctx context.Context, userID uint) (int64, error) {
 	var count int64
 	err := r.db.WithContext(ctx).
 		Model(&model.RefreshToken{}).

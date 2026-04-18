@@ -1,0 +1,71 @@
+# 服务器配置
+server:
+  port: 8080                    # 服务端口
+  mode: debug                   # 运行模式: debug/release/test
+  read_timeout: 30s             # 读取超时
+  write_timeout: 30s            # 写入超时
+  max_header_bytes: 1048576     # 最大请求头大小 (1MB)
+
+# API配置
+api:
+  protocol: https               # 协议: http/https
+  host: api.example.com         # API主机
+  port: 443                     # API端口
+  version: v1                   # API版本
+  prefix: /api                  # API路径前缀
+
+# 数据库配置
+database:
+  host: localhost               # 数据库主机
+  port: 5432                    # 数据库端口
+  user: forum_user              # 用户名
+  dbname: tiny_forum           # 数据库名
+  sslmode: disable             # SSL模式: disable/require/verify-ca/verify-full
+  timezone: Asia/Shanghai      # 时区
+  max_idle_conns: 10           # 最大空闲连接数
+  max_open_conns: 100          # 最大打开连接数
+  conn_max_lifetime: 3600s     # 连接最大生命周期
+
+# JWT配置
+jwt:
+  secret: "your-super-secret-jwt-key-change-in-production"  # JWT密钥
+  expire: 24h                    # 访问令牌过期时间
+  refresh_expire: 168h           # 刷新令牌过期时间 (7天)
+  issuer: "tiny-forum"          # 签发者
+
+# 日志配置
+log:
+  level: info                    # 日志级别: debug/info/warn/error
+  filename: ./logs/app.log       # 日志文件路径
+  max_size: 100                  # 单个日志文件最大大小(MB)
+  max_backups: 10                # 保留的旧日志文件最大数量
+  max_age: 30                    # 保留日志文件的最大天数
+  compress: true                 # 是否压缩旧日志文件
+  console: true                  # 是否输出到控制台
+  json_format: false             # 是否使用JSON格式
+
+# Redis配置
+redis:
+  host: localhost               # Redis主机
+  port: 6379                    # Redis端口
+  db: 0                         # Redis数据库索引
+  pool_size: 10                 # 连接池大小
+
+# 文件上传配置
+upload:
+  max_size: 5242880             # 最大文件大小(5MB)
+  allowed_types:                # 允许的文件类型
+    - image/jpeg
+    - image/png
+    - image/gif
+    - image/webp
+  storage_path: ./uploads       # 存储路径
+  cdn_domain: https://cdn.example.com  # CDN域名
+  enable_compress: true         # 是否启用压缩
+
+# 限流配置
+rate_limit:
+  enabled: true                 # 是否启用
+  requests: 100                 # 请求次数
+  duration: 60                  # 时间窗口(秒)
+  burst: 50                     # 突发请求数

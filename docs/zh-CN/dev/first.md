@@ -41,7 +41,7 @@ All services are ready! 🎉
 
 > 在 mac 上，一般是 mac 的用户名为数据库用户名，psql 允许无密码连接
  
- 您也可以创建指定的用户
+您也可以创建指定的用户
 
 ```sql
 

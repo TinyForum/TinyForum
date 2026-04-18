@@ -82,10 +82,27 @@ func (h *UserHandler) ChangePassword(c *gin.Context) {
 		response.BadRequest(c, "请输入新密码")
 		return
 	}
-	message, err := h.userSvc.ChangePassword(userID.(uint), input.OldPassword, input.NewPassword)
+	message, err := h.authSvc.ChangePassword(userID.(uint), input.OldPassword, input.NewPassword)
 	if err != nil {
 		response.AppError(c, err)
 		return
 	}
 	response.Success(c, gin.H{"message": message})
+}
+
+// Me godoc
+// @Summary 获取当前用户信息
+// @Tags 验证管理
+// @Security ApiKeyAuth
+// @Produce json
+// @Success 200 {object} response.Response
+// @Router /auth/me [get]
+func (h *UserHandler) Me(c *gin.Context) {
+	userID := c.GetUint("user_id")
+	user, err := h.userSvc.GetProfile(userID)
+	if err != nil {
+		response.NotFound(c, "用户不存在")
+		return
+	}
+	response.Success(c, user)
 }

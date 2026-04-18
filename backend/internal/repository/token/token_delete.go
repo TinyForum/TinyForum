@@ -7,28 +7,28 @@ import (
 )
 
 // DeleteByUserID 删除用户的所有 Token（全局登出、密码重置、封禁时调用）
-func (r *TokenRepository) DeleteByUserID(ctx context.Context, userID uint) error {
+func (r *tokenRepository) DeleteByUserID(ctx context.Context, userID uint) error {
 	return r.db.WithContext(ctx).
 		Where("user_id = ?", userID).
 		Delete(&model.RefreshToken{}).Error
 }
 
 // DeleteByToken 删除单个 Token（单设备登出）
-func (r *TokenRepository) DeleteByToken(ctx context.Context, token string) error {
+func (r *tokenRepository) DeleteByToken(ctx context.Context, token string) error {
 	return r.db.WithContext(ctx).
 		Where("token = ?", token).
 		Delete(&model.RefreshToken{}).Error
 }
 
 // DeleteByJTI 根据 JTI 精确撤销
-func (r *TokenRepository) DeleteByJTI(ctx context.Context, jti string) error {
+func (r *tokenRepository) DeleteByJTI(ctx context.Context, jti string) error {
 	return r.db.WithContext(ctx).
 		Where("jti = ?", jti).
 		Delete(&model.RefreshToken{}).Error
 }
 
 // DeleteExpired 清理过期的 Token（建议用定时任务每天执行）
-func (r *TokenRepository) DeleteExpired(ctx context.Context) (int64, error) {
+func (r *tokenRepository) DeleteExpired(ctx context.Context) (int64, error) {
 	result := r.db.WithContext(ctx).
 		Where("expires_at <= ?", time.Now()).
 		Delete(&model.RefreshToken{})
@@ -36,7 +36,7 @@ func (r *TokenRepository) DeleteExpired(ctx context.Context) (int64, error) {
 }
 
 // DeleteByUserIDExcept 删除用户的所有 Token，但保留指定的一个（切换设备时用）
-func (r *TokenRepository) DeleteByUserIDExcept(ctx context.Context, userID uint, keepToken string) error {
+func (r *tokenRepository) DeleteByUserIDExcept(ctx context.Context, userID uint, keepToken string) error {
 	return r.db.WithContext(ctx).
 		Where("user_id = ? AND token != ?", userID, keepToken).
 		Delete(&model.RefreshToken{}).Error

@@ -1,0 +1,35 @@
+# 邮件配置
+email:
+  host: smtp.gmail.com          # SMTP服务器地址
+  port: 587                     # SMTP服务器端口
+  username: noreply@example.com # 邮箱账号
+  password: your-email-password # 邮箱密码/授权码
+  from: noreply@example.com     # 发件人邮箱
+  from_name: Tiny Forum         # 发件人名称
+  ssl: false                    # 是否使用SSL
+  tls: true                     # 是否使用TLS
+  pool_size: 5                  # 连接池大小
+
+# OAuth配置
+oauth:
+  # GitHub OAuth
+  github:
+    client_id: your-github-client-id
+    client_secret: your-github-client-secret
+    redirect_url: https://example.com/auth/github/callback
+  
+  # Google OAuth
+  google:
+    client_id: your-google-client-id
+    client_secret: your-google-client-secret
+    redirect_url: https://example.com/auth/google/callback
+  
+  # 微信 OAuth
+  wechat:
+    app_id: your-wechat-app-id
+    app_secret: your-wechat-app-secret
+    redirect_url: https://example.com/auth/wechat/callback
+
+# Redis私有配置（如果密码未放在redis配置中）
+redis:
+  password: your-redis-password

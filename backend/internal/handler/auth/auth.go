@@ -2,6 +2,7 @@ package auth
 
 import (
 	"os"
+	authService "tiny-forum/internal/service/auth"
 	userService "tiny-forum/internal/service/user"
 	"tiny-forum/pkg/response"
 
@@ -9,11 +10,12 @@ import (
 )
 
 type AuthHandler struct {
-	userSvc *userService.UserService
+	// userSvc *userService.UserService
+	authSvc authService.AuthService
 }
 
-func NewAuthHandler(userSvc *userService.UserService) *AuthHandler {
-	return &AuthHandler{userSvc: userSvc}
+func NewAuthHandler(authSvc authService.AuthService) *AuthHandler {
+	return &AuthHandler{authSvc: authSvc}
 }
 
 // Register godoc
@@ -25,12 +27,13 @@ func NewAuthHandler(userSvc *userService.UserService) *AuthHandler {
 // @Success 200 {object} response.Response
 // @Router /auth/register [post]
 func (h *AuthHandler) Register(c *gin.Context) {
+	ctx := c.Request.Context()
 	var input userService.RegisterInput
 	if err := c.ShouldBindJSON(&input); err != nil {
 		response.BadRequest(c, err.Error())
 		return
 	}
-	result, err := h.userSvc.Register(input)
+	result, err := h.authSvc.Register(ctx, input)
 	if err != nil {
 		response.BadRequest(c, err.Error())
 		return
@@ -47,13 +50,14 @@ func (h *AuthHandler) Register(c *gin.Context) {
 // @Success 200 {object} response.Response
 // @Router /auth/login [post]
 func (h *AuthHandler) Login(c *gin.Context) {
+	ctx := c.Request.Context()
 	var input userService.LoginInput
 	if err := c.ShouldBindJSON(&input); err != nil {
 		response.BadRequest(c, err.Error())
 		return
 	}
 
-	result, err := h.userSvc.Login(input)
+	result, err := h.authSvc.Login(ctx, input)
 	if err != nil {
 		response.BadRequest(c, err.Error())
 		return
@@ -97,21 +101,4 @@ func (h *AuthHandler) Logout(c *gin.Context) {
 		true,
 	)
 	response.Success(c, nil)
-}
-
-// Me godoc
-// @Summary 获取当前用户信息
-// @Tags 验证管理
-// @Security ApiKeyAuth
-// @Produce json
-// @Success 200 {object} response.Response
-// @Router /auth/me [get]
-func (h *AuthHandler) Me(c *gin.Context) {
-	userID := c.GetUint("user_id")
-	user, err := h.userSvc.GetProfile(userID)
-	if err != nil {
-		response.NotFound(c, "用户不存在")
-		return
-	}
-	response.Success(c, user)
 }

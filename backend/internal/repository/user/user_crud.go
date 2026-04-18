@@ -1,6 +1,7 @@
 package user
 
 import (
+	"context"
 	"tiny-forum/internal/model"
 )
 
@@ -14,10 +15,22 @@ func (r *UserRepository) FindByID(id uint) (*model.User, error) {
 	return &user, err
 }
 
-func (r *UserRepository) FindByEmail(email string) (*model.User, error) {
+func (r *UserRepository) FindByEmail(ctx context.Context, email string) (*model.User, error) {
 	var user model.User
-	err := r.db.Where("email = ?", email).First(&user).Error
-	return &user, err
+	err := r.db.WithContext(ctx).Where("email = ?", email).First(&user).Error
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
+
+func (r *UserRepository) FindByResetToken(ctx context.Context, token string) (*model.User, error) {
+	var user model.User
+	err := r.db.WithContext(ctx).Where("reset_password_token = ?", token).First(&user).Error
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
 }
 
 func (r *UserRepository) FindByUsername(username string) (*model.User, error) {
@@ -26,7 +39,7 @@ func (r *UserRepository) FindByUsername(username string) (*model.User, error) {
 	return &user, err
 }
 
-func (r *UserRepository) Update(user *model.User) error {
+func (r *UserRepository) Update(ctx context.Context, user *model.User) error {
 	return r.db.Save(user).Error
 }
 

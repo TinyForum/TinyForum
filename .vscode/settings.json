@@ -1,0 +1,13 @@
+{
+    "[go]": {
+        "editor.insertSpaces": false,
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {}
+    },
+    "go.useLanguageServer": true,
+    "gopls": {
+        "ui.diagnostic.analyses": {
+            "composites": false
+        }
+    }
+}

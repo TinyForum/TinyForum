@@ -4,10 +4,10 @@ import (
 	"gorm.io/gorm"
 )
 
-type TokenRepository struct {
+type tokenRepository struct {
 	db *gorm.DB
 }
 
-func NewTokenRepository(db *gorm.DB) *TokenRepository {
-	return &TokenRepository{db: db}
+func NewTokenRepository(db *gorm.DB) TokenRepository {
+	return &tokenRepository{db: db}
 }

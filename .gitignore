@@ -39,3 +39,4 @@ Thumbs.db
 # node
 node_modules/
 .next/
+config.private.yaml

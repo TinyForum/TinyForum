@@ -8,9 +8,9 @@ import (
 
 type UserRepository struct {
 	db        *gorm.DB
-	tokenRepo *token.TokenRepository
+	tokenRepo token.TokenRepository
 }
 
-func NewUserRepository(db *gorm.DB, tokenRepo *token.TokenRepository) *UserRepository {
+func NewUserRepository(db *gorm.DB, tokenRepo token.TokenRepository) *UserRepository {
 	return &UserRepository{db: db, tokenRepo: tokenRepo}
 }

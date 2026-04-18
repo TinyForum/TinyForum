@@ -1,0 +1,8 @@
+[basic]
+avatar_url = "" # 配置默认头像的地址
+
+[frontend]
+base_url = ""
+
+[backend]
+base_url = ""

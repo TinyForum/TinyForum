@@ -195,11 +195,17 @@ var (
 	ErrCannotBlockSuperAdmin = &AppError{Code: CodeCannotChangeOwner, Message: "不能封禁超级管理员"}
 	ErrCannotBlockAdmin      = &AppError{Code: CodeInsufficientPermission, Message: "只有超级管理员才能封禁其他管理员"}
 
-	// 密码相关
+	// 验证相关
 	ErrPasswordNotMatch  = &AppError{Code: CodeUnauthorized, Message: "密码不匹配"}
 	ErrPasswordTooShort  = &AppError{Code: CodeInvalidPassword, Message: "密码长度至少为6位"}
 	ErrPasswordTooLong   = &AppError{Code: CodeInvalidPassword, Message: "密码长度不能超过32位"}
 	ErrPasswordSameAsOld = &AppError{Code: CodeInvalidPassword, Message: "新密码不能与旧密码相同"}
+	ErrorTokenExpired    = &AppError{Code: CodeUnauthorized, Message: "Token已过期"}
+	ErrInvalidToken      = &AppError{Code: CodeUnauthorized, Message: "无效的Token"}
+	ErrRequiredToken     = &AppError{Code: CodeValidation, Message: "需要Token"}
+	ErrRequiredCaptcha   = &AppError{Code: CodeValidation, Message: "需要验证码"}
+	ErrInvalidCaptcha    = &AppError{Code: CodeValidation, Message: "验证码错误"}
+	ErrValidationFailed  = &AppError{Code: CodeValidation, Message: "验证失败"}
 
 	// 内容模块 - 帖子
 	ErrPostNotFound = &AppError{Code: CodePostNotFound, Message: "帖子不存在"}

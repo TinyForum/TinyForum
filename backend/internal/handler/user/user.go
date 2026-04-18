@@ -1,6 +1,7 @@
 package user
 
 import (
+	authService "tiny-forum/internal/service/auth"
 	notiService "tiny-forum/internal/service/notification"
 	userService "tiny-forum/internal/service/user" // 别名
 )
@@ -8,10 +9,11 @@ import (
 type UserHandler struct {
 	userSvc  *userService.UserService
 	notifSvc *notiService.NotificationService
+	authSvc  authService.AuthService
 }
 
-func NewUserHandler(userSvc *userService.UserService, notifSvc *notiService.NotificationService) *UserHandler {
-	return &UserHandler{userSvc: userSvc, notifSvc: notifSvc}
+func NewUserHandler(userSvc *userService.UserService, notifSvc *notiService.NotificationService, authSvc authService.AuthService) *UserHandler {
+	return &UserHandler{userSvc: userSvc, notifSvc: notifSvc, authSvc: authSvc}
 }
 
 // ── 公开接口 ─────────────────────────────────────────────────────────────────

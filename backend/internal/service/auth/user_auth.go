@@ -1,4 +1,4 @@
-package user
+package auth
 
 import (
 	"context"
@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"time"
 	"tiny-forum/internal/model"
+	userSvc "tiny-forum/internal/service/user"
 	apperrors "tiny-forum/pkg/errors"
 
 	"golang.org/x/crypto/bcrypt"
@@ -14,11 +15,11 @@ import (
 )
 
 // Register 用户注册
-func (s *UserService) Register(input RegisterInput) (*AuthResult, error) {
-	if _, err := s.repo.FindByUsername(input.Username); err == nil {
+func (s *authService) Register(ctx context.Context, input userSvc.RegisterInput) (*userSvc.AuthResult, error) {
+	if _, err := s.userRepo.FindByUsername(input.Username); err == nil {
 		return nil, errors.New("用户名已被占用")
 	}
-	if _, err := s.repo.FindByEmail(input.Email); err == nil {
+	if _, err := s.userRepo.FindByEmail(ctx, input.Email); err == nil {
 		return nil, errors.New("邮箱已被注册")
 	}
 
@@ -34,7 +35,7 @@ func (s *UserService) Register(input RegisterInput) (*AuthResult, error) {
 		Role:     model.RoleUser,
 		Avatar:   avatarURL(input.Username),
 	}
-	if err := s.repo.Create(user); err != nil {
+	if err := s.userRepo.Create(user); err != nil {
 		return nil, err
 	}
 
@@ -44,12 +45,12 @@ func (s *UserService) Register(input RegisterInput) (*AuthResult, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &AuthResult{Token: token, User: user}, nil
+	return &userSvc.AuthResult{Token: token, User: user}, nil
 }
 
 // Login 用户登录
-func (s *UserService) Login(input LoginInput) (*AuthResult, error) {
-	user, err := s.repo.FindByEmail(input.Email)
+func (s *authService) Login(ctx context.Context, input userSvc.LoginInput) (*userSvc.AuthResult, error) {
+	user, err := s.userRepo.FindByEmail(ctx, input.Email)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.New("邮箱或密码错误")
@@ -65,20 +66,20 @@ func (s *UserService) Login(input LoginInput) (*AuthResult, error) {
 
 	now := time.Now()
 	user.LastLogin = &now
-	_ = s.repo.Update(user)
+	_ = s.userRepo.Update(ctx, user)
 
 	token, err := s.jwtMgr.Generate(user.ID, user.Username, string(user.Role))
 	if err != nil {
 		return nil, err
 	}
-	return &AuthResult{Token: token, User: user}, nil
+	return &userSvc.AuthResult{Token: token, User: user}, nil
 }
 
 // ChangePassword 修改密码
-func (s *UserService) ChangePassword(userID uint, oldPassword, newPassword string) (string, error) {
+func (s *authService) ChangePassword(userID uint, oldPassword, newPassword string) (string, error) {
 	ctx := context.Background()
 
-	targetUser, err := s.repo.FindByID(userID)
+	targetUser, err := s.userRepo.FindByID(userID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return "", apperrors.Wrapf(apperrors.ErrUserNotFound, "ID: %d", userID)
@@ -103,7 +104,7 @@ func (s *UserService) ChangePassword(userID uint, oldPassword, newPassword strin
 		return "", fmt.Errorf("密码加密失败: %w", err)
 	}
 
-	if err := s.repo.UpdatePassword(ctx, userID, string(hashedPassword)); err != nil {
+	if err := s.userRepo.UpdatePassword(ctx, userID, string(hashedPassword)); err != nil {
 		return "", fmt.Errorf("更新密码失败: %w", err)
 	}
 
@@ -114,7 +115,7 @@ func (s *UserService) ChangePassword(userID uint, oldPassword, newPassword strin
 }
 
 // checkPasswordStrength 检查密码强度（内部辅助）
-func (s *UserService) checkPasswordStrength(password string) string {
+func (s *authService) checkPasswordStrength(password string) string {
 	hasUpper := regexp.MustCompile(`[A-Z]`).MatchString(password)
 	hasLower := regexp.MustCompile(`[a-z]`).MatchString(password)
 	hasNumber := regexp.MustCompile(`[0-9]`).MatchString(password)
@@ -144,4 +145,9 @@ func (s *UserService) checkPasswordStrength(password string) string {
 		return "medium"
 	}
 	return "strong"
+}
+
+// avatarURL 生成默认头像URL
+func avatarURL(username string) string {
+	return "https://api.dicebear.com/8.x/lorelei/svg?seed=" + username
 }

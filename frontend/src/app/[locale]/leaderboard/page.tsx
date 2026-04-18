@@ -45,6 +45,7 @@ function RankBadge({ rank, isTopThree }: { rank: number; isTopThree: boolean }) 
 
 // 用户卡片组件
 function UserCard({ user, rank }: { user: any; rank: number }) {
+  const t = useTranslations("Leaderboard")
   const isTopThree = rank < 3;
   const cardStyles = {
     0: 'border-yellow-400/50 bg-gradient-to-r from-yellow-50/50 to-transparent dark:from-yellow-900/10',
@@ -83,6 +84,7 @@ function UserCard({ user, rank }: { user: any; rank: number }) {
                   <span className="badge badge-warning badge-sm gap-1">
                     <Crown className="w-3 h-3" />
                     冠军
+                    {t("first")}
                   </span>
                 )}
               </div>
@@ -114,10 +116,10 @@ function EmptyState() {
     <div className="bg-base-100 rounded-2xl shadow-sm p-12 text-center border border-base-200">
       <div className="text-6xl mb-4 opacity-50">📊</div>
       <h3 className="text-lg font-semibold text-base-content mb-2">
-        暂无数据
+        {t("no_data")}
       </h3>
       <p className="text-base-content/60 text-sm">
-        还没有用户数据，成为第一个上榜的人吧！
+        {t("no_data_description")}
       </p>
     </div>
   );
@@ -125,6 +127,7 @@ function EmptyState() {
 
 // 统计卡片组件
 function StatsCards({ totalUsers, topScore }: { totalUsers: number; topScore: number }) {
+    const t = useTranslations("Leaderboard");
   return (
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
       <div className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-2xl p-4 text-center border border-primary/20">
@@ -160,6 +163,7 @@ export default function LeaderboardPage() {
     limit: 50,
     fields: 'id,username,avatar,score,bio' // 确保返回 bio 字段
   });
+  
 
   const t = useTranslations("Leaderboard");
   const users = data?.items ?? [];

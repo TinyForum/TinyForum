@@ -13,7 +13,7 @@ import Image from "next/image";
 
 export default function RegisterPage() {
   const router = useRouter();
-  const t = useTranslations('auth');
+  const t = useTranslations('Auth');
   const { user, isAuthenticated, isHydrated } = useAuthStore();
   
   const {
