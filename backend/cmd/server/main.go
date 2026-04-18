@@ -101,13 +101,11 @@ func validateConfigWithHints(cfg *config.Config) error {
 
 	// 2. 验证数据库配置
 	if cfg.Basic.Database.Host == "" {
-		errors = append(errors, fmt.Sprintf(
-			"❌ Database host is required\n   → Set 'database.host' in config/basic.yaml or BASIC_DATABASE_HOST environment variable"))
+		errors = append(errors, "❌ Database host is required\n   → Set 'database.host' in config/basic.yaml or BASIC_DATABASE_HOST environment variable")
 	}
 
 	if cfg.Basic.Database.DBName == "" {
-		errors = append(errors, fmt.Sprintf(
-			"❌ Database name is required\n   → Set 'database.dbname' in config/basic.yaml or BASIC_DATABASE_DBNAME environment variable"))
+		errors = append(errors, "❌ Database name is required\n   → Set 'database.dbname' in config/basic.yaml or BASIC_DATABASE_DBNAME environment variable")
 	}
 
 	// 3. 验证 JWT 配置（关键配置，必须有值）
@@ -122,8 +120,7 @@ func validateConfigWithHints(cfg *config.Config) error {
 					"   → Example for development: echo 'BASIC_JWT_SECRET=dev-secret-key' > .env\n"+
 					"   → Example for production: Use a strong random string (at least 32 characters)"))
 		} else {
-			warnings = append(warnings, fmt.Sprintf(
-				"⚠️  JWT secret is set via environment variable (this is fine)"))
+			warnings = append(warnings, "⚠️  JWT secret is set via environment variable (this is fine)")
 		}
 	} else if len(cfg.Private.JWT.Secret) < 32 && cfg.IsProduction() {
 		warnings = append(warnings, fmt.Sprintf(
@@ -139,15 +136,13 @@ func validateConfigWithHints(cfg *config.Config) error {
 				cfg.Private.Email.Port))
 		}
 		if cfg.Private.Email.Password == "" {
-			warnings = append(warnings, fmt.Sprintf(
-				"⚠️  Email password is not set, email sending will fail\n   → Set email.password in config/private.yaml or PRIVATE_EMAIL_PASSWORD environment variable"))
+			warnings = append(warnings, "⚠️  Email password is not set, email sending will fail\n   → Set email.password in config/private.yaml or PRIVATE_EMAIL_PASSWORD environment variable")
 		}
 	}
 
 	// 5. 验证 Redis 配置（可选）
 	if cfg.Basic.Redis.Host != "" && cfg.Basic.Redis.Port == 0 {
-		warnings = append(warnings, fmt.Sprintf(
-			"⚠️  Redis host is set but port is 0, Redis features may not work"))
+		warnings = append(warnings, "⚠️  Redis host is set but port is 0, Redis features may not work")
 	}
 
 	// 输出警告信息
@@ -166,9 +161,9 @@ func validateConfigWithHints(cfg *config.Config) error {
 
 // printConfigError 打印友好的配置错误信息
 func printConfigError(err error) {
-	log.Printf("\n" + strings.Repeat("=", 60))
+	log.Printf("%s", "\n"+strings.Repeat("=", 60))
 	log.Printf("🚫 Configuration Error")
-	log.Printf(strings.Repeat("=", 60))
+	log.Printf("%s", strings.Repeat("=", 60))
 	log.Printf("\n%v\n", err)
 
 	// 提供解决建议
@@ -196,7 +191,7 @@ func printConfigError(err error) {
 	log.Printf("   export BASIC_JWT_SECRET=\"your-secret-key\"")
 	log.Printf("   export BASIC_DATABASE_HOST=\"localhost\"")
 	log.Printf("   export BASIC_DATABASE_DBNAME=\"tiny_forum\"")
-	log.Printf("\n" + strings.Repeat("=", 60))
+	log.Printf("%s", "\n"+strings.Repeat("=", 60))
 }
 
 // startServer 启动 HTTP 服务器
@@ -220,7 +215,7 @@ func printStartupInfo(cfg *config.Config, addr string) {
 	logger.Info("========================================")
 	logger.Info(fmt.Sprintf("🌍 Environment: %s", getEnvironment(cfg)))
 	logger.Info(fmt.Sprintf("🔧 Server Address: http://localhost%s", addr))
-	logger.Info(fmt.Sprintf("📚 API Base Path: /api/v1"))
+	logger.Info("📚 API Base Path: /api/v1")
 	logger.Info(fmt.Sprintf("🗄️  Database: %s@%s:%d/%s",
 		cfg.Basic.Database.User,
 		cfg.Basic.Database.Host,
