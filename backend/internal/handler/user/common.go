@@ -51,24 +51,8 @@ func (h *UserHandler) sendTempPasswordNotification(targetID, operatorID uint, te
 // ── 共享请求/响应结构体 ────────────────────────────────────────────────
 
 // LeaderboardRequest 排行榜请求参数
-type LeaderboardRequest struct {
-	Limit int `form:"limit,default=20" binding:"min=1,max=100"`
-	// Fields string `form:"fields"`
-}
-
-// LeaderboardItemResponse 排行榜条目响应
-type LeaderboardItemResponse struct {
-	ID       uint   `json:"id"`
-	Username string `json:"username"`
-	Avatar   string `json:"avatar"`
-	Score    int    `json:"score"`
-	Rank     int    `json:"rank"`
-}
 
 // LeaderboardResponse 排行榜响应
-type LeaderboardResponse struct {
-	Items []LeaderboardItemResponse `json:"items"`
-}
 
 // SetUserRoleRequest 设置用户角色请求
 type SetUserRoleRequest struct {

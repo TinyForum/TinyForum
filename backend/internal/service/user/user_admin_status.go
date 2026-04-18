@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"tiny-forum/internal/model"
 	apperrors "tiny-forum/pkg/errors"
-	"tiny-forum/pkg/role"
+	"tiny-forum/pkg/validator"
 
 	"gorm.io/gorm"
 )
@@ -94,6 +94,7 @@ func (s *UserService) SetActive(targetID uint, operatorID uint, isActive bool) e
 
 // SetRole 变更用户角色
 func (s *UserService) SetRole(operatorID, targetID uint, newRole string) error {
+	ctx := context.Background()
 	targetRole := model.UserRole(newRole)
 	if !model.IsValidRole(targetRole) {
 		return fmt.Errorf("%w: %s", apperrors.ErrInvalidRole, newRole)
@@ -111,7 +112,7 @@ func (s *UserService) SetRole(operatorID, targetID uint, newRole string) error {
 		return nil
 	}
 
-	if err := s.roleChecker.Check(role.RoleChangeRequest{
+	if err := s.roleChecker.Check(ctx, validator.RoleChangeRequest{
 		Operator: operator,
 		Target:   target,
 		NewRole:  targetRole,

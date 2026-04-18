@@ -3,6 +3,7 @@ package stats
 import (
 	"fmt"
 	"time"
+	"tiny-forum/internal/dto"
 	"tiny-forum/pkg/response"
 	"tiny-forum/pkg/utils"
 
@@ -115,12 +116,7 @@ func (h *StatsHandler) GetStatsTotal(c *gin.Context) {
 // @Failure 500 {object} response.Response
 // @Router /admin/statistics/trend [get]
 func (h *StatsHandler) GetStatsTrend(c *gin.Context) {
-	var req struct {
-		StartDate string `form:"start_date" binding:"omitempty,datetime=2006-01-02"`
-		EndDate   string `form:"end_date"   binding:"omitempty,datetime=2006-01-02"`
-		Type      string `form:"type"       binding:"required,oneof=users posts comments"`
-		Interval  string `form:"interval"   binding:"omitempty,oneof=day week month"`
-	}
+	var req dto.AdminStatsTrendRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
 		response.BadRequest(c, err.Error())
 		return
