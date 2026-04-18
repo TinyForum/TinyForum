@@ -21,7 +21,7 @@ func NewAuthHandler(userSvc *userService.UserService) *AuthHandler {
 // @Tags 验证管理
 // @Accept json
 // @Produce json
-// @Param body body service.RegisterInput true "注册信息"
+// @Param body body user.RegisterInput true "注册信息"
 // @Success 200 {object} response.Response
 // @Router /auth/register [post]
 func (h *AuthHandler) Register(c *gin.Context) {
@@ -43,7 +43,7 @@ func (h *AuthHandler) Register(c *gin.Context) {
 // @Tags 验证管理
 // @Accept json
 // @Produce json
-// @Param body body service.LoginInput true "登录信息"
+// @Param body body user.LoginInput true "登录信息"
 // @Success 200 {object} response.Response
 // @Router /auth/login [post]
 func (h *AuthHandler) Login(c *gin.Context) {

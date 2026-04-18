@@ -15,310 +15,6 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/admin/announcements": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "公告管理"
-                ],
-                "summary": "管理员获取公告列表",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "default": 1,
-                        "description": "页码",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "default": 20,
-                        "description": "每页数量",
-                        "name": "page_size",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "板块ID",
-                        "name": "board_id",
-                        "in": "query"
-                    },
-                    {
-                        "enum": [
-                            "normal",
-                            "important",
-                            "emergency",
-                            "event"
-                        ],
-                        "type": "string",
-                        "description": "公告类型",
-                        "name": "type",
-                        "in": "query"
-                    },
-                    {
-                        "enum": [
-                            "draft",
-                            "published",
-                            "expired"
-                        ],
-                        "type": "string",
-                        "description": "状态",
-                        "name": "status",
-                        "in": "query"
-                    },
-                    {
-                        "type": "boolean",
-                        "description": "是否置顶",
-                        "name": "is_pinned",
-                        "in": "query"
-                    },
-                    {
-                        "type": "boolean",
-                        "description": "是否全局",
-                        "name": "is_global",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "关键词",
-                        "name": "keyword",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/service.ListAnnouncementResponse"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            },
-            "post": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "公告管理"
-                ],
-                "summary": "创建公告",
-                "parameters": [
-                    {
-                        "description": "创建公告请求",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/service.CreateAnnouncementRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/model.Announcement"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
-        },
-        "/admin/announcements/{id}": {
-            "put": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "公告管理"
-                ],
-                "summary": "更新公告",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "公告ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "更新公告请求",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/service.UpdateAnnouncementRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "公告管理"
-                ],
-                "summary": "删除公告",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "公告ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/admin/announcements/{id}/archive": {
-            "post": {
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "公告管理"
-                ],
-                "summary": "归档公告",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "公告ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/admin/announcements/{id}/pin": {
-            "put": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "公告管理"
-                ],
-                "summary": "置顶/取消置顶公告",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "公告ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "置顶状态",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "object"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/admin/announcements/{id}/publish": {
-            "post": {
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "公告管理"
-                ],
-                "summary": "发布公告",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "公告ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
-            }
-        },
         "/admin/boards/applications": {
             "get": {
                 "security": [
@@ -460,7 +156,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.ReviewApplicationRequest"
+                            "$ref": "#/definitions/board.ReviewApplicationRequest"
                         }
                     }
                 ],
@@ -1158,7 +854,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.AdminResetUserPasswordResponse"
+                                            "$ref": "#/definitions/user.AdminResetUserPasswordResponse"
                                         }
                                     }
                                 }
@@ -1244,7 +940,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.SetUserRoleRequest"
+                            "$ref": "#/definitions/user.SetUserRoleRequest"
                         }
                     }
                 ],
@@ -1291,7 +987,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.AdminSetScoreRequest"
+                            "$ref": "#/definitions/user.AdminSetScoreRequest"
                         }
                     }
                 ],
@@ -1307,7 +1003,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.AdminSetScoreResponse"
+                                            "$ref": "#/definitions/user.AdminSetScoreResponse"
                                         }
                                     }
                                 }
@@ -1336,159 +1032,6 @@ const docTemplate = `{
                         "description": "服务器内部错误（如数据库操作失败）",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/announcements": {
-            "get": {
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "公告管理"
-                ],
-                "summary": "获取公告列表",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "default": 1,
-                        "description": "页码",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "default": 20,
-                        "description": "每页数量",
-                        "name": "page_size",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "板块ID",
-                        "name": "board_id",
-                        "in": "query"
-                    },
-                    {
-                        "enum": [
-                            "normal",
-                            "important",
-                            "emergency",
-                            "event"
-                        ],
-                        "type": "string",
-                        "description": "公告类型",
-                        "name": "type",
-                        "in": "query"
-                    },
-                    {
-                        "type": "boolean",
-                        "description": "是否全局",
-                        "name": "is_global",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/service.ListAnnouncementResponse"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
-        },
-        "/announcements/pinned": {
-            "get": {
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "公告管理"
-                ],
-                "summary": "获取置顶公告",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "板块ID",
-                        "name": "board_id",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/definitions/model.Announcement"
-                                            }
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
-        },
-        "/announcements/{id}": {
-            "get": {
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "公告管理"
-                ],
-                "summary": "获取公告详情",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "公告ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/model.Announcement"
-                                        }
-                                    }
-                                }
-                            ]
                         }
                     }
                 }
@@ -1653,7 +1196,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.CreateAnswerRequest"
+                            "$ref": "#/definitions/answer.CreateAnswerRequest"
                         }
                     }
                 ],
@@ -1736,7 +1279,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.VoteStatusResponse"
+                                            "$ref": "#/definitions/answer.VoteStatusResponse"
                                         }
                                     }
                                 }
@@ -2124,7 +1667,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/service.LoginInput"
+                            "$ref": "#/definitions/user.LoginInput"
                         }
                     }
                 ],
@@ -2200,7 +1743,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/service.RegisterInput"
+                            "$ref": "#/definitions/user.RegisterInput"
                         }
                     }
                 ],
@@ -2306,7 +1849,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/service.CreateBoardInput"
+                            "$ref": "#/definitions/board.CreateBoardInput"
                         }
                     }
                 ],
@@ -2523,7 +2066,7 @@ const docTemplate = `{
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/service.ModeratorBoardWithPerms"
+                                                "$ref": "#/definitions/board.ModeratorBoardWithPerms"
                                             }
                                         }
                                     }
@@ -2807,7 +2350,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/service.CreateBoardInput"
+                            "$ref": "#/definitions/board.CreateBoardInput"
                         }
                     }
                 ],
@@ -3304,7 +2847,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/boards/{id}/moderators/appapply-moderatorly": {
+        "/boards/{id}/moderators/apply": {
             "post": {
                 "security": [
                     {
@@ -3792,7 +3335,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/service.CreateCommentInput"
+                            "$ref": "#/definitions/comment.CreateCommentInput"
                         }
                     }
                 ],
@@ -4493,7 +4036,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/service.CreatePostInput"
+                            "$ref": "#/definitions/post.CreatePostInput"
                         }
                     }
                 ],
@@ -4625,7 +4168,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/service.UpdatePostInput"
+                            "$ref": "#/definitions/post.UpdatePostInput"
                         }
                     }
                 ],
@@ -5107,6 +4650,34 @@ const docTemplate = `{
                         "description": "每页数量",
                         "name": "page_size",
                         "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "all",
+                            "unanswered",
+                            "answered"
+                        ],
+                        "type": "string",
+                        "description": "过滤条件",
+                        "name": "filter",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "latest",
+                            "hot",
+                            "score"
+                        ],
+                        "type": "string",
+                        "description": "排序方式",
+                        "name": "sort",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "关键词搜索",
+                        "name": "keyword",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -5216,7 +4787,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/service.CreateTagInput"
+                            "$ref": "#/definitions/tag.CreateTagInput"
                         }
                     }
                 ],
@@ -5298,7 +4869,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/service.CreateTagInput"
+                            "$ref": "#/definitions/tag.CreateTagInput"
                         }
                     }
                 ],
@@ -5934,7 +5505,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/service.CreateTopicInput"
+                            "$ref": "#/definitions/topic.CreateTopicInput"
                         }
                     }
                 ],
@@ -6143,7 +5714,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/service.CreateTopicInput"
+                            "$ref": "#/definitions/topic.CreateTopicInput"
                         }
                     }
                 ],
@@ -6645,7 +6216,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.AddPostToTopicRequest"
+                            "$ref": "#/definitions/topic.AddPostToTopicRequest"
                         }
                     }
                 ],
@@ -6772,32 +6343,68 @@ const docTemplate = `{
                 }
             }
         },
-        "/users/leaderboard": {
+        "/users/leaderboard/detail": {
             "get": {
-                "produces": [
-                    "application/json"
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
                 ],
                 "tags": [
-                    "用户管理"
+                    "用户排行榜"
                 ],
-                "summary": "获取用户排行榜",
+                "summary": "详细排行榜信息",
                 "parameters": [
                     {
                         "type": "integer",
-                        "default": 20,
-                        "description": "数量",
+                        "description": "限制返回数量",
                         "name": "limit",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "default": "id,username,avatar,score",
-                        "description": "需要返回的字段，逗号分隔",
-                        "name": "fields",
                         "in": "query"
                     }
                 ],
-                "responses": {}
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dto.DetailLeaderboardItem"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/users/leaderboard/simple": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "用户排行榜"
+                ],
+                "summary": "精简排行榜信息",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "限制返回数量",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dto.SimpleLeaderboardItem"
+                            }
+                        }
+                    }
+                }
             }
         },
         "/users/me/role": {
@@ -6830,7 +6437,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.GetCurrentUserRoleResponse"
+                                            "$ref": "#/definitions/user.GetCurrentUserRoleResponse"
                                         }
                                     }
                                 }
@@ -6961,7 +6568,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/service.UserProfileResponse"
+                                            "$ref": "#/definitions/user.UserProfileResponse"
                                         }
                                     }
                                 }
@@ -7065,120 +6672,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "handler.AddPostToTopicRequest": {
-            "type": "object",
-            "required": [
-                "post_id"
-            ],
-            "properties": {
-                "post_id": {
-                    "description": "帖子ID",
-                    "type": "integer",
-                    "example": 123
-                },
-                "sort_order": {
-                    "description": "排序顺序",
-                    "type": "integer",
-                    "example": 0
-                }
-            }
-        },
-        "handler.AdminResetUserPasswordResponse": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "type": "string",
-                    "example": "临时密码已生成并发送给用户"
-                },
-                "operator_id": {
-                    "type": "integer",
-                    "example": 1
-                },
-                "user_id": {
-                    "type": "integer",
-                    "example": 123
-                }
-            }
-        },
-        "handler.AdminSetScoreRequest": {
-            "type": "object",
-            "required": [
-                "operation",
-                "reason",
-                "score"
-            ],
-            "properties": {
-                "operation": {
-                    "description": "操作类型：set（设置）、add（增加）、subtract（扣除）\nrequired: true\nenum: set,add,subtract",
-                    "type": "string",
-                    "enum": [
-                        "set",
-                        "add",
-                        "subtract"
-                    ],
-                    "example": "add"
-                },
-                "reason": {
-                    "description": "操作原因（用于日志审计）\nrequired: true\nmaxLength: 200",
-                    "type": "string",
-                    "maxLength": 200,
-                    "example": "用户活动奖励"
-                },
-                "score": {
-                    "description": "积分数量（set 时为目标积分，add/subtract 时为变化量）\nrequired: true\nminimum: 0\nmaximum: 999999",
-                    "type": "integer",
-                    "maximum": 999999,
-                    "minimum": 0,
-                    "example": 50
-                }
-            }
-        },
-        "handler.AdminSetScoreResponse": {
-            "type": "object",
-            "properties": {
-                "change": {
-                    "description": "积分变化量（可为负数）",
-                    "type": "integer",
-                    "example": 50
-                },
-                "new_score": {
-                    "description": "操作后积分",
-                    "type": "integer",
-                    "example": 200
-                },
-                "old_score": {
-                    "description": "操作前积分",
-                    "type": "integer",
-                    "example": 150
-                },
-                "operation": {
-                    "description": "执行的操作类型",
-                    "type": "string",
-                    "example": "add"
-                },
-                "operator_id": {
-                    "description": "操作管理员ID",
-                    "type": "integer",
-                    "example": 1
-                },
-                "reason": {
-                    "description": "操作原因",
-                    "type": "string",
-                    "example": "用户活动奖励"
-                },
-                "timestamp": {
-                    "description": "Unix时间戳（秒）",
-                    "type": "integer",
-                    "example": 1700000000
-                },
-                "user_id": {
-                    "description": "被操作用户ID",
-                    "type": "integer",
-                    "example": 10086
-                }
-            }
-        },
-        "handler.CreateAnswerRequest": {
+        "answer.CreateAnswerRequest": {
             "type": "object",
             "required": [
                 "content"
@@ -7192,18 +6686,126 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.GetCurrentUserRoleResponse": {
+        "answer.VoteStatusResponse": {
             "type": "object",
             "properties": {
-                "role": {
-                    "type": "string"
+                "down_count": {
+                    "description": "反对数",
+                    "type": "integer"
                 },
-                "user_id": {
+                "up_count": {
+                    "description": "赞同数",
+                    "type": "integer"
+                },
+                "user_vote": {
+                    "description": "0:未投票, 1:赞同, -1:反对",
                     "type": "integer"
                 }
             }
         },
-        "handler.ReviewApplicationRequest": {
+        "board.CreateBoardInput": {
+            "type": "object",
+            "required": [
+                "name",
+                "slug"
+            ],
+            "properties": {
+                "cover": {
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "description": {
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "icon": {
+                    "type": "string",
+                    "maxLength": 100
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 2
+                },
+                "parent_id": {
+                    "type": "integer"
+                },
+                "post_role": {
+                    "type": "string"
+                },
+                "reply_role": {
+                    "type": "string"
+                },
+                "slug": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 2
+                },
+                "sort_order": {
+                    "type": "integer"
+                },
+                "view_role": {
+                    "type": "string"
+                }
+            }
+        },
+        "board.ModeratorBoardWithPerms": {
+            "type": "object",
+            "properties": {
+                "cover": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "icon": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "parent_id": {
+                    "type": "integer"
+                },
+                "permissions": {
+                    "$ref": "#/definitions/model.ModeratorPermissions"
+                },
+                "post_count": {
+                    "type": "integer"
+                },
+                "post_role": {
+                    "$ref": "#/definitions/model.UserRole"
+                },
+                "reply_role": {
+                    "$ref": "#/definitions/model.UserRole"
+                },
+                "slug": {
+                    "type": "string"
+                },
+                "sort_order": {
+                    "type": "integer"
+                },
+                "thread_count": {
+                    "type": "integer"
+                },
+                "today_count": {
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "view_role": {
+                    "$ref": "#/definitions/model.UserRole"
+                }
+            }
+        },
+        "board.ReviewApplicationRequest": {
             "type": "object",
             "required": [
                 "approve"
@@ -7233,38 +6835,60 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.SetUserRoleRequest": {
+        "comment.CreateCommentInput": {
             "type": "object",
             "required": [
-                "role"
+                "content",
+                "post_id"
             ],
             "properties": {
-                "role": {
-                    "description": "角色：user / member / moderator / reviewer / bot / admin / super_admin",
+                "content": {
                     "type": "string",
-                    "enum": [
-                        "user",
-                        "member",
-                        "moderator",
-                        "reviewer",
-                        "bot",
-                        "admin",
-                        "super_admin"
-                    ]
+                    "maxLength": 2000,
+                    "minLength": 1
+                },
+                "parent_id": {
+                    "type": "integer"
+                },
+                "post_id": {
+                    "type": "integer"
                 }
             }
         },
-        "handler.VoteStatusResponse": {
+        "dto.DetailLeaderboardItem": {
             "type": "object",
             "properties": {
-                "down_count": {
+                "avatar": {
+                    "type": "string"
+                },
+                "id": {
                     "type": "integer"
                 },
-                "up_count": {
+                "rank": {
                     "type": "integer"
                 },
-                "user_vote": {
+                "score": {
                     "type": "integer"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.SimpleLeaderboardItem": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "rank": {
+                    "type": "integer"
+                },
+                "score": {
+                    "type": "integer"
+                },
+                "username": {
+                    "type": "string"
                 }
             }
         },
@@ -7317,138 +6941,6 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
-        },
-        "model.Announcement": {
-            "type": "object",
-            "properties": {
-                "board_id": {
-                    "description": "关联的板块ID（为空则全局）",
-                    "type": "integer"
-                },
-                "content": {
-                    "description": "公告内容",
-                    "type": "string"
-                },
-                "cover": {
-                    "description": "封面图",
-                    "type": "string"
-                },
-                "created_at": {
-                    "type": "string"
-                },
-                "created_by": {
-                    "description": "创建人ID",
-                    "type": "integer"
-                },
-                "expired_at": {
-                    "description": "过期时间",
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "is_global": {
-                    "description": "是否全局公告",
-                    "type": "boolean"
-                },
-                "is_pinned": {
-                    "description": "是否置顶",
-                    "type": "boolean"
-                },
-                "published_at": {
-                    "description": "发布时间",
-                    "type": "string"
-                },
-                "status": {
-                    "description": "状态",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/model.AnnouncementStatus"
-                        }
-                    ]
-                },
-                "summary": {
-                    "description": "公告摘要",
-                    "type": "string"
-                },
-                "title": {
-                    "description": "公告标题",
-                    "type": "string"
-                },
-                "type": {
-                    "description": "公告类型",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/model.AnnouncementType"
-                        }
-                    ]
-                },
-                "updated_at": {
-                    "type": "string"
-                },
-                "updated_by": {
-                    "description": "更新人ID",
-                    "type": "integer"
-                },
-                "view_count": {
-                    "description": "浏览次数",
-                    "type": "integer"
-                }
-            }
-        },
-        "model.AnnouncementStatus": {
-            "type": "string",
-            "enum": [
-                "all",
-                "draft",
-                "published",
-                "archived"
-            ],
-            "x-enum-comments": {
-                "AnnouncementStatusAll": "已删除",
-                "AnnouncementStatusArchived": "已归档",
-                "AnnouncementStatusDraft": "草稿",
-                "AnnouncementStatusPublished": "已发布"
-            },
-            "x-enum-descriptions": [
-                "已删除",
-                "草稿",
-                "已发布",
-                "已归档"
-            ],
-            "x-enum-varnames": [
-                "AnnouncementStatusAll",
-                "AnnouncementStatusDraft",
-                "AnnouncementStatusPublished",
-                "AnnouncementStatusArchived"
-            ]
-        },
-        "model.AnnouncementType": {
-            "type": "string",
-            "enum": [
-                "normal",
-                "important",
-                "emergency",
-                "event"
-            ],
-            "x-enum-comments": {
-                "AnnouncementTypeEmergency": "紧急公告",
-                "AnnouncementTypeEvent": "活动公告",
-                "AnnouncementTypeImportant": "重要公告",
-                "AnnouncementTypeNormal": "普通公告"
-            },
-            "x-enum-descriptions": [
-                "普通公告",
-                "重要公告",
-                "紧急公告",
-                "活动公告"
-            ],
-            "x-enum-varnames": [
-                "AnnouncementTypeNormal",
-                "AnnouncementTypeImportant",
-                "AnnouncementTypeEmergency",
-                "AnnouncementTypeEvent"
-            ]
         },
         "model.ApplicationStatus": {
             "type": "string",
@@ -8895,7 +8387,7 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "is_blocked": {
-                    "description": "优先级高于 IsActive，被动行为，一旦味 true 完全无法登录，处罚性质",
+                    "description": "优先级高于 IsActive，被动行为，一旦为 true 完全无法登录，处罚性质",
                     "type": "boolean"
                 },
                 "last_login": {
@@ -8946,6 +8438,69 @@ const docTemplate = `{
                 "RoleBot"
             ]
         },
+        "post.CreatePostInput": {
+            "type": "object",
+            "required": [
+                "board_id",
+                "content",
+                "title"
+            ],
+            "properties": {
+                "board_id": {
+                    "type": "integer"
+                },
+                "content": {
+                    "type": "string",
+                    "minLength": 10
+                },
+                "cover": {
+                    "type": "string"
+                },
+                "summary": {
+                    "type": "string"
+                },
+                "tag_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "title": {
+                    "type": "string",
+                    "maxLength": 200,
+                    "minLength": 2
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "post.UpdatePostInput": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string",
+                    "minLength": 10
+                },
+                "cover": {
+                    "type": "string"
+                },
+                "summary": {
+                    "type": "string"
+                },
+                "tag_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "title": {
+                    "type": "string",
+                    "maxLength": 200,
+                    "minLength": 2
+                }
+            }
+        },
         "response.PageData": {
             "type": "object",
             "properties": {
@@ -8992,165 +8547,7 @@ const docTemplate = `{
                 }
             }
         },
-        "service.CreateAnnouncementRequest": {
-            "type": "object",
-            "required": [
-                "content",
-                "title",
-                "type"
-            ],
-            "properties": {
-                "board_id": {
-                    "type": "integer"
-                },
-                "content": {
-                    "type": "string"
-                },
-                "cover": {
-                    "type": "string"
-                },
-                "expired_at": {
-                    "type": "string"
-                },
-                "is_global": {
-                    "type": "boolean"
-                },
-                "is_pinned": {
-                    "type": "boolean"
-                },
-                "published_at": {
-                    "type": "string"
-                },
-                "status": {
-                    "$ref": "#/definitions/model.AnnouncementStatus"
-                },
-                "summary": {
-                    "type": "string"
-                },
-                "title": {
-                    "type": "string",
-                    "maxLength": 200,
-                    "minLength": 1
-                },
-                "type": {
-                    "enum": [
-                        "normal",
-                        "important",
-                        "emergency",
-                        "event"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/model.AnnouncementType"
-                        }
-                    ]
-                }
-            }
-        },
-        "service.CreateBoardInput": {
-            "type": "object",
-            "required": [
-                "name",
-                "slug"
-            ],
-            "properties": {
-                "cover": {
-                    "type": "string",
-                    "maxLength": 500
-                },
-                "description": {
-                    "type": "string",
-                    "maxLength": 500
-                },
-                "icon": {
-                    "type": "string",
-                    "maxLength": 100
-                },
-                "name": {
-                    "type": "string",
-                    "maxLength": 50,
-                    "minLength": 2
-                },
-                "parent_id": {
-                    "type": "integer"
-                },
-                "post_role": {
-                    "type": "string"
-                },
-                "reply_role": {
-                    "type": "string"
-                },
-                "slug": {
-                    "type": "string",
-                    "maxLength": 50,
-                    "minLength": 2
-                },
-                "sort_order": {
-                    "type": "integer"
-                },
-                "view_role": {
-                    "type": "string"
-                }
-            }
-        },
-        "service.CreateCommentInput": {
-            "type": "object",
-            "required": [
-                "content",
-                "post_id"
-            ],
-            "properties": {
-                "content": {
-                    "type": "string",
-                    "maxLength": 2000,
-                    "minLength": 1
-                },
-                "parent_id": {
-                    "type": "integer"
-                },
-                "post_id": {
-                    "type": "integer"
-                }
-            }
-        },
-        "service.CreatePostInput": {
-            "type": "object",
-            "required": [
-                "board_id",
-                "content",
-                "title"
-            ],
-            "properties": {
-                "board_id": {
-                    "type": "integer"
-                },
-                "content": {
-                    "type": "string",
-                    "minLength": 10
-                },
-                "cover": {
-                    "type": "string"
-                },
-                "summary": {
-                    "type": "string"
-                },
-                "tag_ids": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
-                },
-                "title": {
-                    "type": "string",
-                    "maxLength": 200,
-                    "minLength": 2
-                },
-                "type": {
-                    "type": "string"
-                }
-            }
-        },
-        "service.CreateTagInput": {
+        "tag.CreateTagInput": {
             "type": "object",
             "required": [
                 "name"
@@ -9169,7 +8566,25 @@ const docTemplate = `{
                 }
             }
         },
-        "service.CreateTopicInput": {
+        "topic.AddPostToTopicRequest": {
+            "type": "object",
+            "required": [
+                "post_id"
+            ],
+            "properties": {
+                "post_id": {
+                    "description": "帖子ID",
+                    "type": "integer",
+                    "example": 123
+                },
+                "sort_order": {
+                    "description": "排序顺序",
+                    "type": "integer",
+                    "example": 0
+                }
+            }
+        },
+        "topic.CreateTopicInput": {
             "type": "object",
             "required": [
                 "title"
@@ -9193,27 +8608,88 @@ const docTemplate = `{
                 }
             }
         },
-        "service.ListAnnouncementResponse": {
+        "user.AdminResetUserPasswordResponse": {
             "type": "object",
             "properties": {
-                "announcements": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/model.Announcement"
-                    }
+                "message": {
+                    "type": "string"
                 },
-                "page": {
+                "operator_id": {
                     "type": "integer"
                 },
-                "page_size": {
-                    "type": "integer"
-                },
-                "total": {
+                "user_id": {
                     "type": "integer"
                 }
             }
         },
-        "service.LoginInput": {
+        "user.AdminSetScoreRequest": {
+            "type": "object",
+            "required": [
+                "operation",
+                "reason",
+                "score"
+            ],
+            "properties": {
+                "operation": {
+                    "type": "string",
+                    "enum": [
+                        "set",
+                        "add",
+                        "subtract"
+                    ]
+                },
+                "reason": {
+                    "type": "string",
+                    "maxLength": 200
+                },
+                "score": {
+                    "type": "integer",
+                    "maximum": 999999,
+                    "minimum": 0
+                }
+            }
+        },
+        "user.AdminSetScoreResponse": {
+            "type": "object",
+            "properties": {
+                "change": {
+                    "type": "integer"
+                },
+                "new_score": {
+                    "type": "integer"
+                },
+                "old_score": {
+                    "type": "integer"
+                },
+                "operation": {
+                    "type": "string"
+                },
+                "operator_id": {
+                    "type": "integer"
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "timestamp": {
+                    "type": "integer"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "user.GetCurrentUserRoleResponse": {
+            "type": "object",
+            "properties": {
+                "role": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "user.LoginInput": {
             "type": "object",
             "required": [
                 "email",
@@ -9228,63 +8704,7 @@ const docTemplate = `{
                 }
             }
         },
-        "service.ModeratorBoardWithPerms": {
-            "type": "object",
-            "properties": {
-                "cover": {
-                    "type": "string"
-                },
-                "created_at": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "icon": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "parent_id": {
-                    "type": "integer"
-                },
-                "permissions": {
-                    "$ref": "#/definitions/model.ModeratorPermissions"
-                },
-                "post_count": {
-                    "type": "integer"
-                },
-                "post_role": {
-                    "$ref": "#/definitions/model.UserRole"
-                },
-                "reply_role": {
-                    "$ref": "#/definitions/model.UserRole"
-                },
-                "slug": {
-                    "type": "string"
-                },
-                "sort_order": {
-                    "type": "integer"
-                },
-                "thread_count": {
-                    "type": "integer"
-                },
-                "today_count": {
-                    "type": "integer"
-                },
-                "updated_at": {
-                    "type": "string"
-                },
-                "view_role": {
-                    "$ref": "#/definitions/model.UserRole"
-                }
-            }
-        },
-        "service.RegisterInput": {
+        "user.RegisterInput": {
             "type": "object",
             "required": [
                 "email",
@@ -9306,68 +8726,27 @@ const docTemplate = `{
                 }
             }
         },
-        "service.UpdateAnnouncementRequest": {
+        "user.SetUserRoleRequest": {
             "type": "object",
+            "required": [
+                "role"
+            ],
             "properties": {
-                "board_id": {
-                    "type": "integer"
-                },
-                "content": {
-                    "type": "string"
-                },
-                "cover": {
-                    "type": "string"
-                },
-                "expired_at": {
-                    "type": "string"
-                },
-                "is_global": {
-                    "type": "boolean"
-                },
-                "is_pinned": {
-                    "type": "boolean"
-                },
-                "published_at": {
-                    "type": "string"
-                },
-                "summary": {
-                    "type": "string"
-                },
-                "title": {
-                    "type": "string"
-                },
-                "type": {
-                    "$ref": "#/definitions/model.AnnouncementType"
+                "role": {
+                    "type": "string",
+                    "enum": [
+                        "user",
+                        "member",
+                        "moderator",
+                        "reviewer",
+                        "bot",
+                        "admin",
+                        "super_admin"
+                    ]
                 }
             }
         },
-        "service.UpdatePostInput": {
-            "type": "object",
-            "properties": {
-                "content": {
-                    "type": "string",
-                    "minLength": 10
-                },
-                "cover": {
-                    "type": "string"
-                },
-                "summary": {
-                    "type": "string"
-                },
-                "tag_ids": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
-                },
-                "title": {
-                    "type": "string",
-                    "maxLength": 200,
-                    "minLength": 2
-                }
-            }
-        },
-        "service.UserProfileResponse": {
+        "user.UserProfileResponse": {
             "type": "object",
             "properties": {
                 "avatar": {
@@ -9403,7 +8782,7 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "is_blocked": {
-                    "description": "优先级高于 IsActive，被动行为，一旦味 true 完全无法登录，处罚性质",
+                    "description": "优先级高于 IsActive，被动行为，一旦为 true 完全无法登录，处罚性质",
                     "type": "boolean"
                 },
                 "is_following": {

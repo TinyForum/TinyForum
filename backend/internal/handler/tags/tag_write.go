@@ -16,7 +16,7 @@ import (
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param body body service.CreateTagInput true "标签信息"
+// @Param body body tag.CreateTagInput true "标签信息"
 // @Success 200 {object} response.Response{data=model.Tag} "创建成功"
 // @Failure 400 {object} response.Response "请求参数错误"
 // @Failure 401 {object} response.Response "未授权"
@@ -45,7 +45,7 @@ func (h *TagHandler) Create(c *gin.Context) {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path int true "标签ID"
-// @Param body body service.CreateTagInput true "标签信息"
+// @Param body body tag.CreateTagInput true "标签信息"
 // @Success 200 {object} response.Response{data=model.Tag} "更新成功"
 // @Failure 400 {object} response.Response "请求参数错误或无效的标签ID"
 // @Failure 401 {object} response.Response "未授权"

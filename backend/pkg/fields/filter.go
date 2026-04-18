@@ -2,7 +2,13 @@ package fields
 
 import "strings"
 
-// Filter 根据白名单过滤请求的字段，若过滤后为空则返回默认字段
+/**
+ * @Description: 根据白名单过滤请求的字段，若过滤后为空则返回默认字段
+ * @param requested 请求的字段
+ * @param allowed 白名单
+ * @param defaults 默认字段
+ * @return []string
+ */
 func Filter(requested string, allowed []string, defaults []string) []string {
 	if requested == "" {
 		return defaults

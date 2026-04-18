@@ -195,7 +195,7 @@ func (h *BoardHandler) UpdateModeratorPermissions(c *gin.Context) {
 // @Tags 版主管理
 // @Produce json
 // @Security ApiKeyAuth
-// @Success 200 {object} response.Response{data=[]service.ModeratorBoardWithPerms} "获取成功"
+// @Success 200 {object} response.Response{data=[]board.ModeratorBoardWithPerms} "获取成功"
 // @Failure 401 {object} response.Response "未授权"
 // @Failure 500 {object} response.Response "服务器内部错误"
 // @Router /boards/moderators/managed [get]

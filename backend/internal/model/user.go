@@ -22,7 +22,7 @@ type User struct {
 	Role               UserRole   `gorm:"type:varchar(20);default:'user'" json:"role"`  // 用户的角色，默认为普通用户
 	Score              int        `gorm:"default:0" json:"score"`                       // 用户的积分
 	IsActive           bool       `gorm:"default:true" json:"is_active"`                // 低优先级，用户主动行为，例如验证邮箱后可以处于激活状态，非处罚性质
-	IsBlocked          bool       `gorm:"default:false" json:"is_blocked"`              // 优先级高于 IsActive，被动行为，一旦味 true 完全无法登录，处罚性质
+	IsBlocked          bool       `gorm:"default:false" json:"is_blocked"`              // 优先级高于 IsActive，被动行为，一旦为 true 完全无法登录，处罚性质
 	LastLogin          *time.Time `json:"last_login"`                                   // 最后登陆时间
 	InvitedByID        *uint      `json:"invited_by_id"`                                // 邀请人ID
 	IsTempPassword     bool       `gorm:"default:false" json:"-"`                       // 是否为临时密码
@@ -47,21 +47,24 @@ type ChangePasswordInput struct {
 	NewPassword string `json:"new_password" binding:"required"`
 }
 
-// 辅助方法：检查用户是否有某个权限
+// MARK: Helper
+// 检查用户是否拥有指定权限
 func (u *User) Can(perm Permission) bool {
 	return HasPermission(u.Role, perm)
 }
 
-// 辅助方法：检查用户是否是管理员
+// 检查用户是否是管理员
 func (u *User) IsAdmin() bool {
 	return u.Role == RoleAdmin || u.Role == RoleSuperAdmin
 }
 
-// 辅助方法：检查用户是否是版主
+// 检查用户是否是版主
 func (u *User) IsModerator() bool {
 	return u.Role == RoleModerator || u.IsAdmin()
 }
 
+// MARK: Fields
+// 公共返回的字段（公开场景）
 var UserPublicFields = []string{
 	"id",
 	"username",
@@ -71,7 +74,7 @@ var UserPublicFields = []string{
 	"created_at",
 }
 
-// UserDefaultFields 默认返回的字段（列表展示场景）
+// 默认返回的字段（默认场景）
 var UserDefaultFields = []string{
 	"id",
 	"username",
@@ -79,7 +82,7 @@ var UserDefaultFields = []string{
 	"score",
 }
 
-// UserDetailFields 详情页可用的额外字段（可选）
+// 详情页可用的额外字段（特殊场景）
 var UserDetailFields = []string{
 	"id",
 	"username",
@@ -88,7 +91,8 @@ var UserDetailFields = []string{
 	"bio",
 	"created_at",
 }
-var AllowedUserFieldsMap = map[string]bool{
-	"id": true, "username": true, "avatar": true,
-	"score": true, "bio": true, "created_at": true,
-}
+
+// var AllowedUserFieldsMap = map[string]bool{
+// 	"id": true, "username": true, "avatar": true,
+// 	"score": true, "bio": true, "created_at": true,
+// }

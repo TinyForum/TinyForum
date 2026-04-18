@@ -16,7 +16,7 @@ import (
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param body body service.CreateCommentInput true "评论信息"
+// @Param body body comment.CreateCommentInput true "评论信息"
 // @Success 200 {object} response.Response{data=model.Comment} "创建成功"
 // @Failure 400 {object} response.Response "请求参数错误"
 // @Failure 401 {object} response.Response "未授权"

@@ -257,7 +257,9 @@ func InitApp(cfg *config.Config) (*App, error) {
 	// ----- MARK: User routes
 	userGroup := api.Group("/users")
 	{
-		userGroup.GET("/leaderboard", userHandler.Leaderboard)                                     // 获取排行榜
+		userGroup.GET("/leaderboard/simple", userHandler.LeaderboardSimple) // 获取排行榜精简信息
+		userGroup.GET("/leaderboard/detail", userHandler.LeaderboardDetail) // 获取排行榜精简信息
+
 		userGroup.GET("/:id", middleware.OptionalAuth(jwtMgr), userHandler.GetProfile)             // 获取用户信息
 		userGroup.PUT("/profile", middleware.Auth(jwtMgr), userHandler.UpdateProfile)              // 更新用户信息
 		userGroup.PATCH("/password", middleware.Auth(jwtMgr), userHandler.ChangePassword)          // 更新用户密码

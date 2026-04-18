@@ -4,12 +4,10 @@ import (
 	"context"
 	"fmt"
 	"tiny-forum/internal/model"
-	userRepo "tiny-forum/internal/repository/user"
-	"tiny-forum/pkg/fields"
 )
 
-// GetLeaderboard 获取排行榜
-func (s *UserService) GetLeaderboard(ctx context.Context, limit int, fieldsParam string) ([]LeaderboardItem, error) {
+// 返回排行榜原始数据（按积分降序，过滤被封禁用户）
+func (s *UserService) GetLeaderboardData(ctx context.Context, limit int) ([]model.User, error) {
 	if limit < 1 {
 		limit = 20
 	}
@@ -17,32 +15,10 @@ func (s *UserService) GetLeaderboard(ctx context.Context, limit int, fieldsParam
 		limit = 100
 	}
 
-	selectedFields := fields.Filter(
-		fieldsParam,
-		model.UserPublicFields,
-		model.UserDefaultFields,
-	)
-
-	query := userRepo.TopUsersQuery{
-		Limit:          limit,
-		ExcludeBlocked: true,
-		Fields:         selectedFields,
-	}
-
-	users, err := s.repo.GetTopUsers(ctx, query)
+	var users []model.User
+	users, err := s.repo.GetTopScoreUsers(ctx, limit, true) // true 表示排除被封禁用户
 	if err != nil {
 		return nil, fmt.Errorf("查询排行榜失败: %w", err)
 	}
-
-	items := make([]LeaderboardItem, len(users))
-	for i, u := range users {
-		items[i] = LeaderboardItem{
-			ID:       u.ID,
-			Username: u.Username,
-			Avatar:   u.Avatar,
-			Score:    u.Score,
-			Rank:     i + 1,
-		}
-	}
-	return items, nil
+	return users, nil
 }

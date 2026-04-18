@@ -1,102 +1,6 @@
 basePath: /api/v1
 definitions:
-  handler.AddPostToTopicRequest:
-    properties:
-      post_id:
-        description: 帖子ID
-        example: 123
-        type: integer
-      sort_order:
-        description: 排序顺序
-        example: 0
-        type: integer
-    required:
-    - post_id
-    type: object
-  handler.AdminResetUserPasswordResponse:
-    properties:
-      message:
-        example: 临时密码已生成并发送给用户
-        type: string
-      operator_id:
-        example: 1
-        type: integer
-      user_id:
-        example: 123
-        type: integer
-    type: object
-  handler.AdminSetScoreRequest:
-    properties:
-      operation:
-        description: |-
-          操作类型：set（设置）、add（增加）、subtract（扣除）
-          required: true
-          enum: set,add,subtract
-        enum:
-        - set
-        - add
-        - subtract
-        example: add
-        type: string
-      reason:
-        description: |-
-          操作原因（用于日志审计）
-          required: true
-          maxLength: 200
-        example: 用户活动奖励
-        maxLength: 200
-        type: string
-      score:
-        description: |-
-          积分数量（set 时为目标积分，add/subtract 时为变化量）
-          required: true
-          minimum: 0
-          maximum: 999999
-        example: 50
-        maximum: 999999
-        minimum: 0
-        type: integer
-    required:
-    - operation
-    - reason
-    - score
-    type: object
-  handler.AdminSetScoreResponse:
-    properties:
-      change:
-        description: 积分变化量（可为负数）
-        example: 50
-        type: integer
-      new_score:
-        description: 操作后积分
-        example: 200
-        type: integer
-      old_score:
-        description: 操作前积分
-        example: 150
-        type: integer
-      operation:
-        description: 执行的操作类型
-        example: add
-        type: string
-      operator_id:
-        description: 操作管理员ID
-        example: 1
-        type: integer
-      reason:
-        description: 操作原因
-        example: 用户活动奖励
-        type: string
-      timestamp:
-        description: Unix时间戳（秒）
-        example: 1700000000
-        type: integer
-      user_id:
-        description: 被操作用户ID
-        example: 10086
-        type: integer
-    type: object
-  handler.CreateAnswerRequest:
+  answer.CreateAnswerRequest:
     properties:
       content:
         description: 回答内容
@@ -106,14 +10,89 @@ definitions:
     required:
     - content
     type: object
-  handler.GetCurrentUserRoleResponse:
+  answer.VoteStatusResponse:
     properties:
-      role:
-        type: string
-      user_id:
+      down_count:
+        description: 反对数
+        type: integer
+      up_count:
+        description: 赞同数
+        type: integer
+      user_vote:
+        description: 0:未投票, 1:赞同, -1:反对
         type: integer
     type: object
-  handler.ReviewApplicationRequest:
+  board.CreateBoardInput:
+    properties:
+      cover:
+        maxLength: 500
+        type: string
+      description:
+        maxLength: 500
+        type: string
+      icon:
+        maxLength: 100
+        type: string
+      name:
+        maxLength: 50
+        minLength: 2
+        type: string
+      parent_id:
+        type: integer
+      post_role:
+        type: string
+      reply_role:
+        type: string
+      slug:
+        maxLength: 50
+        minLength: 2
+        type: string
+      sort_order:
+        type: integer
+      view_role:
+        type: string
+    required:
+    - name
+    - slug
+    type: object
+  board.ModeratorBoardWithPerms:
+    properties:
+      cover:
+        type: string
+      created_at:
+        type: string
+      description:
+        type: string
+      icon:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      parent_id:
+        type: integer
+      permissions:
+        $ref: '#/definitions/model.ModeratorPermissions'
+      post_count:
+        type: integer
+      post_role:
+        $ref: '#/definitions/model.UserRole'
+      reply_role:
+        $ref: '#/definitions/model.UserRole'
+      slug:
+        type: string
+      sort_order:
+        type: integer
+      thread_count:
+        type: integer
+      today_count:
+        type: integer
+      updated_at:
+        type: string
+      view_role:
+        $ref: '#/definitions/model.UserRole'
+    type: object
+  board.ReviewApplicationRequest:
     properties:
       approve:
         type: boolean
@@ -133,30 +112,43 @@ definitions:
     required:
     - approve
     type: object
-  handler.SetUserRoleRequest:
+  comment.CreateCommentInput:
     properties:
-      role:
-        description: 角色：user / member / moderator / reviewer / bot / admin / super_admin
-        enum:
-        - user
-        - member
-        - moderator
-        - reviewer
-        - bot
-        - admin
-        - super_admin
+      content:
+        maxLength: 2000
+        minLength: 1
         type: string
+      parent_id:
+        type: integer
+      post_id:
+        type: integer
     required:
-    - role
+    - content
+    - post_id
     type: object
-  handler.VoteStatusResponse:
+  dto.DetailLeaderboardItem:
     properties:
-      down_count:
+      avatar:
+        type: string
+      id:
         type: integer
-      up_count:
+      rank:
         type: integer
-      user_vote:
+      score:
         type: integer
+      username:
+        type: string
+    type: object
+  dto.SimpleLeaderboardItem:
+    properties:
+      id:
+        type: integer
+      rank:
+        type: integer
+      score:
+        type: integer
+      username:
+        type: string
     type: object
   model.ActionType:
     enum:
@@ -197,103 +189,6 @@ definitions:
         description: 用户名
         type: string
     type: object
-  model.Announcement:
-    properties:
-      board_id:
-        description: 关联的板块ID（为空则全局）
-        type: integer
-      content:
-        description: 公告内容
-        type: string
-      cover:
-        description: 封面图
-        type: string
-      created_at:
-        type: string
-      created_by:
-        description: 创建人ID
-        type: integer
-      expired_at:
-        description: 过期时间
-        type: string
-      id:
-        type: integer
-      is_global:
-        description: 是否全局公告
-        type: boolean
-      is_pinned:
-        description: 是否置顶
-        type: boolean
-      published_at:
-        description: 发布时间
-        type: string
-      status:
-        allOf:
-        - $ref: '#/definitions/model.AnnouncementStatus'
-        description: 状态
-      summary:
-        description: 公告摘要
-        type: string
-      title:
-        description: 公告标题
-        type: string
-      type:
-        allOf:
-        - $ref: '#/definitions/model.AnnouncementType'
-        description: 公告类型
-      updated_at:
-        type: string
-      updated_by:
-        description: 更新人ID
-        type: integer
-      view_count:
-        description: 浏览次数
-        type: integer
-    type: object
-  model.AnnouncementStatus:
-    enum:
-    - all
-    - draft
-    - published
-    - archived
-    type: string
-    x-enum-comments:
-      AnnouncementStatusAll: 已删除
-      AnnouncementStatusArchived: 已归档
-      AnnouncementStatusDraft: 草稿
-      AnnouncementStatusPublished: 已发布
-    x-enum-descriptions:
-    - 已删除
-    - 草稿
-    - 已发布
-    - 已归档
-    x-enum-varnames:
-    - AnnouncementStatusAll
-    - AnnouncementStatusDraft
-    - AnnouncementStatusPublished
-    - AnnouncementStatusArchived
-  model.AnnouncementType:
-    enum:
-    - normal
-    - important
-    - emergency
-    - event
-    type: string
-    x-enum-comments:
-      AnnouncementTypeEmergency: 紧急公告
-      AnnouncementTypeEvent: 活动公告
-      AnnouncementTypeImportant: 重要公告
-      AnnouncementTypeNormal: 普通公告
-    x-enum-descriptions:
-    - 普通公告
-    - 重要公告
-    - 紧急公告
-    - 活动公告
-    x-enum-varnames:
-    - AnnouncementTypeNormal
-    - AnnouncementTypeImportant
-    - AnnouncementTypeEmergency
-    - AnnouncementTypeEvent
   model.ApplicationStatus:
     enum:
     - pending
@@ -1398,7 +1293,7 @@ definitions:
         description: 低优先级，用户主动行为，例如验证邮箱后可以处于激活状态，非处罚性质
         type: boolean
       is_blocked:
-        description: 优先级高于 IsActive，被动行为，一旦味 true 完全无法登录，处罚性质
+        description: 优先级高于 IsActive，被动行为，一旦为 true 完全无法登录，处罚性质
         type: boolean
       last_login:
         description: 最后登陆时间
@@ -1436,6 +1331,50 @@ definitions:
     - RoleAdmin
     - RoleSuperAdmin
     - RoleBot
+  post.CreatePostInput:
+    properties:
+      board_id:
+        type: integer
+      content:
+        minLength: 10
+        type: string
+      cover:
+        type: string
+      summary:
+        type: string
+      tag_ids:
+        items:
+          type: integer
+        type: array
+      title:
+        maxLength: 200
+        minLength: 2
+        type: string
+      type:
+        type: string
+    required:
+    - board_id
+    - content
+    - title
+    type: object
+  post.UpdatePostInput:
+    properties:
+      content:
+        minLength: 10
+        type: string
+      cover:
+        type: string
+      summary:
+        type: string
+      tag_ids:
+        items:
+          type: integer
+        type: array
+      title:
+        maxLength: 200
+        minLength: 2
+        type: string
+    type: object
   response.PageData:
     properties:
       list: {}
@@ -1467,117 +1406,7 @@ definitions:
       message:
         type: string
     type: object
-  service.CreateAnnouncementRequest:
-    properties:
-      board_id:
-        type: integer
-      content:
-        type: string
-      cover:
-        type: string
-      expired_at:
-        type: string
-      is_global:
-        type: boolean
-      is_pinned:
-        type: boolean
-      published_at:
-        type: string
-      status:
-        $ref: '#/definitions/model.AnnouncementStatus'
-      summary:
-        type: string
-      title:
-        maxLength: 200
-        minLength: 1
-        type: string
-      type:
-        allOf:
-        - $ref: '#/definitions/model.AnnouncementType'
-        enum:
-        - normal
-        - important
-        - emergency
-        - event
-    required:
-    - content
-    - title
-    - type
-    type: object
-  service.CreateBoardInput:
-    properties:
-      cover:
-        maxLength: 500
-        type: string
-      description:
-        maxLength: 500
-        type: string
-      icon:
-        maxLength: 100
-        type: string
-      name:
-        maxLength: 50
-        minLength: 2
-        type: string
-      parent_id:
-        type: integer
-      post_role:
-        type: string
-      reply_role:
-        type: string
-      slug:
-        maxLength: 50
-        minLength: 2
-        type: string
-      sort_order:
-        type: integer
-      view_role:
-        type: string
-    required:
-    - name
-    - slug
-    type: object
-  service.CreateCommentInput:
-    properties:
-      content:
-        maxLength: 2000
-        minLength: 1
-        type: string
-      parent_id:
-        type: integer
-      post_id:
-        type: integer
-    required:
-    - content
-    - post_id
-    type: object
-  service.CreatePostInput:
-    properties:
-      board_id:
-        type: integer
-      content:
-        minLength: 10
-        type: string
-      cover:
-        type: string
-      summary:
-        type: string
-      tag_ids:
-        items:
-          type: integer
-        type: array
-      title:
-        maxLength: 200
-        minLength: 2
-        type: string
-      type:
-        type: string
-    required:
-    - board_id
-    - content
-    - title
-    type: object
-  service.CreateTagInput:
+  tag.CreateTagInput:
     properties:
       color:
         type: string
@@ -1590,7 +1419,20 @@ definitions:
     required:
     - name
     type: object
-  service.CreateTopicInput:
+  topic.AddPostToTopicRequest:
+    properties:
+      post_id:
+        description: 帖子ID
+        example: 123
+        type: integer
+      sort_order:
+        description: 排序顺序
+        example: 0
+        type: integer
+    required:
+    - post_id
+    type: object
+  topic.CreateTopicInput:
     properties:
       cover:
         maxLength: 500
@@ -1607,20 +1449,62 @@ definitions:
     required:
     - title
     type: object
-  service.ListAnnouncementResponse:
+  user.AdminResetUserPasswordResponse:
     properties:
-      announcements:
-        items:
-          $ref: '#/definitions/model.Announcement'
-        type: array
-      page:
+      message:
+        type: string
+      operator_id:
         type: integer
-      page_size:
-        type: integer
-      total:
+      user_id:
         type: integer
     type: object
-  service.LoginInput:
+  user.AdminSetScoreRequest:
+    properties:
+      operation:
+        enum:
+        - set
+        - add
+        - subtract
+        type: string
+      reason:
+        maxLength: 200
+        type: string
+      score:
+        maximum: 999999
+        minimum: 0
+        type: integer
+    required:
+    - operation
+    - reason
+    - score
+    type: object
+  user.AdminSetScoreResponse:
+    properties:
+      change:
+        type: integer
+      new_score:
+        type: integer
+      old_score:
+        type: integer
+      operation:
+        type: string
+      operator_id:
+        type: integer
+      reason:
+        type: string
+      timestamp:
+        type: integer
+      user_id:
+        type: integer
+    type: object
+  user.GetCurrentUserRoleResponse:
+    properties:
+      role:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  user.LoginInput:
     properties:
       email:
         type: string
@@ -1630,44 +1514,7 @@ definitions:
     - email
     - password
     type: object
-  service.ModeratorBoardWithPerms:
-    properties:
-      cover:
-        type: string
-      created_at:
-        type: string
-      description:
-        type: string
-      icon:
-        type: string
-      id:
-        type: integer
-      name:
-        type: string
-      parent_id:
-        type: integer
-      permissions:
-        $ref: '#/definitions/model.ModeratorPermissions'
-      post_count:
-        type: integer
-      post_role:
-        $ref: '#/definitions/model.UserRole'
-      reply_role:
-        $ref: '#/definitions/model.UserRole'
-      slug:
-        type: string
-      sort_order:
-        type: integer
-      thread_count:
-        type: integer
-      today_count:
-        type: integer
-      updated_at:
-        type: string
-      view_role:
-        $ref: '#/definitions/model.UserRole'
-    type: object
-  service.RegisterInput:
+  user.RegisterInput:
     properties:
       email:
         type: string
@@ -1683,48 +1530,22 @@ definitions:
     - password
     - username
     type: object
-  service.UpdateAnnouncementRequest:
+  user.SetUserRoleRequest:
     properties:
-      board_id:
-        type: integer
-      content:
+      role:
+        enum:
+        - user
+        - member
+        - moderator
+        - reviewer
+        - bot
+        - admin
+        - super_admin
         type: string
-      cover:
-        type: string
-      expired_at:
-        type: string
-      is_global:
-        type: boolean
-      is_pinned:
-        type: boolean
-      published_at:
-        type: string
-      summary:
-        type: string
-      title:
-        type: string
-      type:
-        $ref: '#/definitions/model.AnnouncementType'
+    required:
+    - role
     type: object
-  service.UpdatePostInput:
-    properties:
-      content:
-        minLength: 10
-        type: string
-      cover:
-        type: string
-      summary:
-        type: string
-      tag_ids:
-        items:
-          type: integer
-        type: array
-      title:
-        maxLength: 200
-        minLength: 2
-        type: string
-    type: object
-  service.UserProfileResponse:
+  user.UserProfileResponse:
     properties:
       avatar:
         description: 用户的头像，目前为链接（暂不支持图片上传）
@@ -1750,7 +1571,7 @@ definitions:
         description: 低优先级，用户主动行为，例如验证邮箱后可以处于激活状态，非处罚性质
         type: boolean
       is_blocked:
-        description: 优先级高于 IsActive，被动行为，一旦味 true 完全无法登录，处罚性质
+        description: 优先级高于 IsActive，被动行为，一旦为 true 完全无法登录，处罚性质
         type: boolean
       is_following:
         type: boolean
@@ -1777,199 +1598,6 @@ info:
   title: Tiny Forum API
   version: "1.0"
 paths:
-  /admin/announcements:
-    get:
-      parameters:
-      - default: 1
-        description: 页码
-        in: query
-        name: page
-        type: integer
-      - default: 20
-        description: 每页数量
-        in: query
-        name: page_size
-        type: integer
-      - description: 板块ID
-        in: query
-        name: board_id
-        type: integer
-      - description: 公告类型
-        enum:
-        - normal
-        - important
-        - emergency
-        - event
-        in: query
-        name: type
-        type: string
-      - description: 状态
-        enum:
-        - draft
-        - published
-        - expired
-        in: query
-        name: status
-        type: string
-      - description: 是否置顶
-        in: query
-        name: is_pinned
-        type: boolean
-      - description: 是否全局
-        in: query
-        name: is_global
-        type: boolean
-      - description: 关键词
-        in: query
-        name: keyword
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/service.ListAnnouncementResponse'
-              type: object
-      security:
-      - ApiKeyAuth: []
-      summary: 管理员获取公告列表
-      tags:
-      - 公告管理
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: 创建公告请求
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/service.CreateAnnouncementRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/model.Announcement'
-              type: object
-      summary: 创建公告
-      tags:
-      - 公告管理
-  /admin/announcements/{id}:
-    delete:
-      parameters:
-      - description: 公告ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/response.Response'
-      summary: 删除公告
-      tags:
-      - 公告管理
-    put:
-      consumes:
-      - application/json
-      parameters:
-      - description: 公告ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: 更新公告请求
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/service.UpdateAnnouncementRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/response.Response'
-      summary: 更新公告
-      tags:
-      - 公告管理
-  /admin/announcements/{id}/archive:
-    post:
-      parameters:
-      - description: 公告ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/response.Response'
-      summary: 归档公告
-      tags:
-      - 公告管理
-  /admin/announcements/{id}/pin:
-    put:
-      consumes:
-      - application/json
-      parameters:
-      - description: 公告ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: 置顶状态
-        in: body
-        name: request
-        required: true
-        schema:
-          type: object
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/response.Response'
-      summary: 置顶/取消置顶公告
-      tags:
-      - 公告管理
-  /admin/announcements/{id}/publish:
-    post:
-      parameters:
-      - description: 公告ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/response.Response'
-      summary: 发布公告
-      tags:
-      - 公告管理
   /admin/boards/applications:
     get:
       description: 管理员分页查询版主申请列表，可按板块和状态筛选
@@ -2052,7 +1680,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/handler.ReviewApplicationRequest'
+          $ref: '#/definitions/board.ReviewApplicationRequest'
       produces:
       - application/json
       responses:
@@ -2443,7 +2071,7 @@ paths:
             - $ref: '#/definitions/response.Response'
             - properties:
                 data:
-                  $ref: '#/definitions/handler.AdminResetUserPasswordResponse'
+                  $ref: '#/definitions/user.AdminResetUserPasswordResponse'
               type: object
         "400":
           description: 参数错误
@@ -2492,7 +2120,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/handler.SetUserRoleRequest'
+          $ref: '#/definitions/user.SetUserRoleRequest'
       produces:
       - application/json
       responses:
@@ -2527,7 +2155,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/handler.AdminSetScoreRequest'
+          $ref: '#/definitions/user.AdminSetScoreRequest'
       produces:
       - application/json
       responses:
@@ -2538,7 +2166,7 @@ paths:
             - $ref: '#/definitions/response.Response'
             - properties:
                 data:
-                  $ref: '#/definitions/handler.AdminSetScoreResponse'
+                  $ref: '#/definitions/user.AdminSetScoreResponse'
               type: object
         "400":
           description: 请求参数错误（如积分范围非法、操作类型错误等）
@@ -2604,98 +2232,6 @@ paths:
       summary: 获取用户积分
       tags:
       - 管理接口
-  /announcements:
-    get:
-      parameters:
-      - default: 1
-        description: 页码
-        in: query
-        name: page
-        type: integer
-      - default: 20
-        description: 每页数量
-        in: query
-        name: page_size
-        type: integer
-      - description: 板块ID
-        in: query
-        name: board_id
-        type: integer
-      - description: 公告类型
-        enum:
-        - normal
-        - important
-        - emergency
-        - event
-        in: query
-        name: type
-        type: string
-      - description: 是否全局
-        in: query
-        name: is_global
-        type: boolean
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/service.ListAnnouncementResponse'
-              type: object
-      summary: 获取公告列表
-      tags:
-      - 公告管理
-  /announcements/{id}:
-    get:
-      parameters:
-      - description: 公告ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/model.Announcement'
-              type: object
-      summary: 获取公告详情
-      tags:
-      - 公告管理
-  /announcements/pinned:
-    get:
-      parameters:
-      - description: 板块ID
-        in: query
-        name: board_id
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  items:
-                    $ref: '#/definitions/model.Announcement'
-                  type: array
-              type: object
-      summary: 获取置顶公告
-      tags:
-      - 公告管理
   /answers/{id}:
     delete:
       consumes:
@@ -2789,7 +2325,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/handler.CreateAnswerRequest'
+          $ref: '#/definitions/answer.CreateAnswerRequest'
       produces:
       - application/json
       responses:
@@ -2840,7 +2376,7 @@ paths:
             - $ref: '#/definitions/response.Response'
             - properties:
                 data:
-                  $ref: '#/definitions/handler.VoteStatusResponse'
+                  $ref: '#/definitions/answer.VoteStatusResponse'
               type: object
         "400":
           description: 无效的回答ID
@@ -3077,7 +2613,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/service.LoginInput'
+          $ref: '#/definitions/user.LoginInput'
       produces:
       - application/json
       responses:
@@ -3124,7 +2660,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/service.RegisterInput'
+          $ref: '#/definitions/user.RegisterInput'
       produces:
       - application/json
       responses:
@@ -3185,7 +2721,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/service.CreateBoardInput'
+          $ref: '#/definitions/board.CreateBoardInput'
       produces:
       - application/json
       responses:
@@ -3305,7 +2841,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/service.CreateBoardInput'
+          $ref: '#/definitions/board.CreateBoardInput'
       produces:
       - application/json
       responses:
@@ -3708,7 +3244,7 @@ paths:
       summary: 更新版主权限
       tags:
       - 版主管理
-  /boards/{id}/moderators/appapply-moderatorly:
+  /boards/{id}/moderators/apply:
     post:
       consumes:
       - application/json
@@ -3961,7 +3497,7 @@ paths:
             - properties:
                 data:
                   items:
-                    $ref: '#/definitions/service.ModeratorBoardWithPerms'
+                    $ref: '#/definitions/board.ModeratorBoardWithPerms'
                   type: array
               type: object
         "401":
@@ -4093,7 +3629,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/service.CreateCommentInput'
+          $ref: '#/definitions/comment.CreateCommentInput'
       produces:
       - application/json
       responses:
@@ -4511,7 +4047,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/service.CreatePostInput'
+          $ref: '#/definitions/post.CreatePostInput'
       produces:
       - application/json
       responses:
@@ -4631,7 +4167,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/service.UpdatePostInput'
+          $ref: '#/definitions/post.UpdatePostInput'
       produces:
       - application/json
       responses:
@@ -4887,6 +4423,26 @@ paths:
         in: query
         name: page_size
         type: integer
+      - description: 过滤条件
+        enum:
+        - all
+        - unanswered
+        - answered
+        in: query
+        name: filter
+        type: string
+      - description: 排序方式
+        enum:
+        - latest
+        - hot
+        - score
+        in: query
+        name: sort
+        type: string
+      - description: 关键词搜索
+        in: query
+        name: keyword
+        type: string
       produces:
       - application/json
       responses:
@@ -4947,7 +4503,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/service.CreateTagInput'
+          $ref: '#/definitions/tag.CreateTagInput'
       produces:
       - application/json
       responses:
@@ -5042,7 +4598,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/service.CreateTagInput'
+          $ref: '#/definitions/tag.CreateTagInput'
       produces:
       - application/json
       responses:
@@ -5373,7 +4929,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/service.CreateTopicInput'
+          $ref: '#/definitions/topic.CreateTopicInput'
       produces:
       - application/json
       responses:
@@ -5491,7 +5047,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/service.CreateTopicInput'
+          $ref: '#/definitions/topic.CreateTopicInput'
       produces:
       - application/json
       responses:
@@ -5751,7 +5307,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/handler.AddPostToTopicRequest'
+          $ref: '#/definitions/topic.AddPostToTopicRequest'
       produces:
       - application/json
       responses:
@@ -5899,7 +5455,7 @@ paths:
             - $ref: '#/definitions/response.Response'
             - properties:
                 data:
-                  $ref: '#/definitions/service.UserProfileResponse'
+                  $ref: '#/definitions/user.UserProfileResponse'
               type: object
       summary: 获取用户资料
       tags:
@@ -5963,25 +5519,44 @@ paths:
       summary: 获取关注列表
       tags:
       - 用户管理
-  /users/leaderboard:
+  /users/leaderboard/detail:
     get:
       parameters:
-      - default: 20
-        description: 数量
+      - description: 限制返回数量
         in: query
         name: limit
         type: integer
-      - default: id,username,avatar,score
-        description: 需要返回的字段，逗号分隔
-        in: query
-        name: fields
-        type: string
-      produces:
-      - application/json
-      responses: {}
-      summary: 获取用户排行榜
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.DetailLeaderboardItem'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: 详细排行榜信息
       tags:
-      - 用户管理
+      - 用户排行榜
+  /users/leaderboard/simple:
+    get:
+      parameters:
+      - description: 限制返回数量
+        in: query
+        name: limit
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.SimpleLeaderboardItem'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: 精简排行榜信息
+      tags:
+      - 用户排行榜
   /users/me/role:
     get:
       consumes:
@@ -5997,7 +5572,7 @@ paths:
             - $ref: '#/definitions/response.Response'
             - properties:
                 data:
-                  $ref: '#/definitions/handler.GetCurrentUserRoleResponse'
+                  $ref: '#/definitions/user.GetCurrentUserRoleResponse'
               type: object
         "401":
           description: 未授权

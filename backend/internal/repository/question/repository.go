@@ -7,9 +7,8 @@ import (
 	"gorm.io/gorm"
 )
 
-// QuestionRepository 问答数据访问接口
 type QuestionRepository interface {
-	// 基础 CRUD
+	// CRUD
 	Create(question *model.Question) error
 	Update(question *model.Question) error
 	FindByID(id uint) (*model.Question, error)
@@ -20,17 +19,17 @@ type QuestionRepository interface {
 	UpdateAnswerCount(questionID uint) error
 	UpdateAcceptedAnswer(questionID uint, answerID uint) error
 
-	// 事务
+	// transaction
 	CreateWithTransaction(userID uint, input model.CreateQuestionInput) (*model.QuestionResponse, error)
 
-	// 投票
+	// about vote
 	CreateAnswerVote(vote *model.AnswerVote) error
 	UpdateAnswerVote(vote *model.AnswerVote) error
 	DeleteAnswerVote(userID, commentID uint) error
 	FindAnswerVote(userID, commentID uint) (*model.AnswerVote, error)
 	GetAnswerVoteCount(commentID uint) (int, error)
 
-	// 查询
+	// query
 	FindSimple(pageSize, offset int, boardID *uint) ([]model.QuestionListResponse, int64, error)
 	FindSimpleQuestions(pageSize, offset int, boardID *uint, filter, sort, keyword string) ([]QuestionSimpleData, int64, error)
 	FindQuestionSimpleByID(questionID uint) (*QuestionSimpleData, error)

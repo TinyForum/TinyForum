@@ -21,7 +21,7 @@ func NewUserHandler(userSvc *userService.UserService, notifSvc *notiService.Noti
 // @Tags 用户管理
 // @Produce json
 // @Param id path int true "用户ID"
-// @Success 200 {object} response.Response{data=service.UserProfileResponse}
+// @Success 200 {object} response.Response{data=user.UserProfileResponse}
 // @Router /users/{id} [get]
 // func (h *UserHandler) GetProfile(c *gin.Context) {
 // 	// 1. 参数解析

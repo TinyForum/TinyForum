@@ -18,7 +18,7 @@ import (
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param body body service.CreatePostInput true "帖子信息"
+// @Param body body post.CreatePostInput true "帖子信息"
 // @Success 200 {object} response.Response{data=model.Post} "创建成功"
 // @Failure 400 {object} response.Response "请求参数错误"
 // @Failure 401 {object} response.Response "未授权"
@@ -137,7 +137,7 @@ func (h *PostHandler) List(c *gin.Context) {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path int true "帖子ID"
-// @Param body body service.UpdatePostInput true "帖子信息"
+// @Param body body post.UpdatePostInput true "帖子信息"
 // @Success 200 {object} response.Response{data=model.Post} "更新成功"
 // @Failure 400 {object} response.Response "请求参数错误"
 // @Failure 401 {object} response.Response "未授权"

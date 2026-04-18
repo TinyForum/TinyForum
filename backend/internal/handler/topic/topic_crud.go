@@ -16,7 +16,7 @@ import (
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param body body service.CreateTopicInput true "话题信息"
+// @Param body body topic.CreateTopicInput true "话题信息"
 // @Success 200 {object} response.Response{data=model.Topic} "创建成功"
 // @Failure 400 {object} response.Response "请求参数错误"
 // @Failure 401 {object} response.Response "未授权"
@@ -46,7 +46,7 @@ func (h *TopicHandler) Create(c *gin.Context) {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path int true "话题ID"
-// @Param body body service.CreateTopicInput true "话题信息"
+// @Param body body topic.CreateTopicInput true "话题信息"
 // @Success 200 {object} response.Response{data=model.Topic} "更新成功"
 // @Failure 400 {object} response.Response "请求参数错误或无效的话题ID"
 // @Failure 401 {object} response.Response "未授权"
