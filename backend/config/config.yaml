@@ -5,7 +5,7 @@ server:
 database:
   host: localhost
   port: 5432
-  user: postgres
+  user: caoyang
   password: postgres
   dbname: tiny_forum
   sslmode: disable
