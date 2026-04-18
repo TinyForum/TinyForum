@@ -401,7 +401,7 @@
     "ask_question": "提问",
     "admin_dashboard": "管理后台",
     "boards": "Boards",
-    "brand": "Tianfang Forum",
+    "brand": "Tiny Forum",
     "create_post": "Create post",
     "search": "Search",
     "profile": "Profile",
@@ -420,7 +420,7 @@
     "timeline": "Timeline"
   },
   "site": {
-    "brand": "Tianfang Forum",
+    "brand": "Tiny Forum",
     "description": "A fully open source forum project built with Nextjs and Gin",
     "repo": "https://github.com/caoyang2002/TinyForum",
     "license": "MIT"
@@ -496,9 +496,9 @@
     "all": "All",
     "leaderboard": "Leaderboard",
     "view_the_full_rankings": "View full rankings",
-    "about": "About Tianfang Forum",
+    "about": "About Tiny Forum",
     "description": "A fully open source forum project built with Nextjs and Gin",
-    "copyright": "Tianfang Forum, MIT open source",
+    "copyright": "Tiny Forum, MIT open source",
     "post_deleted": "Post deleted",
     "deletion_failed": "Deletion failed",
     "like_has_been_removed": "Like removed",
