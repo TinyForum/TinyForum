@@ -4,8 +4,8 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { CheckCircle, XCircle, Clock, Eye, User as UserIcon, FileText, AlertTriangle } from "lucide-react";
 import { adminApi } from "@/lib/api";
-import type { Post, User } from "@/lib/api/types";
-
+import type { Post, User as ApiUser } from "@/lib/api/types";
+import DOMPurify from "dompurify";
 // 扩展 Post 类型以包含风险信息（根据实际后端字段调整）
 interface PostWithRisk extends Post {
   risk_score?: number;
@@ -19,15 +19,21 @@ interface PostWithRisk extends Post {
   }>;
 }
 
+// 定义后端返回的分页数据结构
+interface PendingPostsResponse {
+  list: PostWithRisk[];
+  total: number;
+}
+
 // 获取待审核帖子列表
-const fetchPendingPosts = async (params: { page: number; page_size: number; keyword?: string }) => {
+const fetchPendingPosts = async (params: { page: number; page_size: number; keyword?: string }): Promise<PendingPostsResponse> => {
   const res = await adminApi.listPendingPosts(params);
-  return res.data.data; // 假设返回 { list: Post[], total: number }
+  return res.data.data; // 假设后端返回 { list: Post[], total: number }
 };
 
 // 审核帖子
 const reviewPost = async (id: number, status: "approved" | "rejected" | "pending") => {
-  const res = await adminApi.reviewPosts(id, { status }); // 需要扩展 adminApi.reviewPosts 支持 body
+  const res = await adminApi.reviewPosts(id, { status });
   return res.data;
 };
 
@@ -39,10 +45,10 @@ export function ReviewManagement() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // 查询待审核列表
-  const { data, isLoading, refetch } = useQuery({
+  const { data, isLoading, refetch } = useQuery<PendingPostsResponse>({
     queryKey: ["admin-pending-posts", page, keyword],
     queryFn: () => fetchPendingPosts({ page, page_size: 20, keyword }),
-    keepPreviousData: true,
+    placeholderData: (prev) => prev, // 相当于 v4 的 keepPreviousData: true
   });
 
   // 审核 mutation
@@ -52,7 +58,6 @@ export function ReviewManagement() {
     onSuccess: (_, variables) => {
       toast.success(`帖子已${variables.status === "approved" ? "通过" : variables.status === "rejected" ? "拒绝" : "转为待审"}`);
       queryClient.invalidateQueries({ queryKey: ["admin-pending-posts"] });
-      // 如果当前模态框打开的是刚操作的帖子，关闭模态框
       if (selectedPost && selectedPost.id === variables.id) {
         setIsModalOpen(false);
         setSelectedPost(null);
@@ -74,6 +79,13 @@ export function ReviewManagement() {
   const posts = data?.list ?? [];
   const total = data?.total ?? 0;
   const totalPages = Math.ceil(total / 20);
+  
+  const sanitizeHtml = (html: string) => ({
+  __html: DOMPurify.sanitize(html, {
+    ALLOWED_TAGS: ["b", "i", "em", "strong", "a", "p", "br", "ul", "ol", "li", "img", "h1", "h2", "h3", "h4", "blockquote", "code", "pre"],
+    ALLOWED_ATTR: ["href", "target", "src", "alt", "class", "id"],
+  }),
+});
 
   return (
     <div className="space-y-4">
@@ -146,7 +158,7 @@ export function ReviewManagement() {
             {/* 用户信息 */}
             <div className="mb-4 p-3 bg-base-200 rounded-lg">
               <div className="flex items-center gap-2 mb-2">
-                <User className="w-4 h-4" />
+                <UserIcon className="w-4 h-4" />
                 <span className="font-medium">发布人信息</span>
               </div>
               <div className="grid grid-cols-2 gap-2 text-sm">
@@ -189,9 +201,10 @@ export function ReviewManagement() {
                 <span className="font-medium">帖子内容</span>
               </div>
               <h4 className="font-semibold mb-2">{selectedPost.title}</h4>
-              <div className="text-sm whitespace-pre-wrap max-h-60 overflow-y-auto bg-base-100 p-2 rounded">
-                {selectedPost.content}
-              </div>
+              <div
+  className="text-sm whitespace-pre-wrap max-h-60 overflow-y-auto bg-base-100 p-2 rounded"
+  dangerouslySetInnerHTML={sanitizeHtml(selectedPost.content)}
+/>
               {selectedPost.cover && (
                 <img src={selectedPost.cover} alt="封面" className="mt-2 max-h-32 rounded object-cover" />
               )}

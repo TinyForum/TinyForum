@@ -20,6 +20,7 @@
     "axios": "^1.7.2",
     "clsx": "^2.1.1",
     "date-fns": "^3.6.0",
+    "dompurify": "^3.4.0",
     "echarts": "^6.0.0",
     "highlight.js": "^11.11.1",
     "jose": "^6.2.2",
@@ -37,6 +38,7 @@
     "zustand": "^4.5.2"
   },
   "devDependencies": {
+    "@types/dompurify": "^3.2.0",
     "@types/highlight.js": "^10.1.0",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^20",
