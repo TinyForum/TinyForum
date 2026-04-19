@@ -13,11 +13,15 @@ import (
 	notificationHandler "tiny-forum/internal/handler/notification"
 	postHandler "tiny-forum/internal/handler/post"
 	questionHandler "tiny-forum/internal/handler/questions"
+	riskhandler "tiny-forum/internal/handler/risk"
 	statsHandler "tiny-forum/internal/handler/stats"
 	tagHandler "tiny-forum/internal/handler/tags"
 	timelineHandler "tiny-forum/internal/handler/timelines"
 	topicHandler "tiny-forum/internal/handler/topic"
 	userHandler "tiny-forum/internal/handler/user"
+	// adminInit "tiny-forum/internal/init"a
+	// adminInit "tiny-forum/internal/init"
+	adminInit "tiny-forum/init"
 
 	//
 	announcementRepo "tiny-forum/internal/repository/announcement"
@@ -27,6 +31,7 @@ import (
 	notificationRepo "tiny-forum/internal/repository/notification"
 	postRepo "tiny-forum/internal/repository/post"
 	questionRepo "tiny-forum/internal/repository/question"
+	riskRepo "tiny-forum/internal/repository/risk"
 	statsRepo "tiny-forum/internal/repository/stats"
 	tagRepo "tiny-forum/internal/repository/tag"
 	timelineRepo "tiny-forum/internal/repository/timeline"
@@ -45,6 +50,7 @@ import (
 	notificationService "tiny-forum/internal/service/notification"
 	postService "tiny-forum/internal/service/post"
 	questionService "tiny-forum/internal/service/question"
+	riskservice "tiny-forum/internal/service/risk"
 	statsService "tiny-forum/internal/service/stats"
 	tagService "tiny-forum/internal/service/tag"
 	timelineService "tiny-forum/internal/service/timeline"
@@ -55,11 +61,14 @@ import (
 	"tiny-forum/internal/model"
 	jwtpkg "tiny-forum/pkg/jwt"
 	"tiny-forum/pkg/logger"
+	"tiny-forum/pkg/ratelimit"
+	"tiny-forum/pkg/sensitive"
 
 	_ "tiny-forum/docs"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/redis/go-redis/v9"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"gorm.io/driver/postgres"
@@ -124,6 +133,10 @@ func InitDB(cfg *config.Config) (*gorm.DB, error) {
 		&model.ModeratorApplication{},
 		&model.Moderator{},
 		&model.Vote{},
+		// 审计
+		&model.ContentAuditTask{},
+		&model.AuditLog{},
+		&model.UserRiskRecord{},
 	); err != nil {
 		return nil, fmt.Errorf("auto migrate failed: %w", err)
 	}
@@ -131,6 +144,11 @@ func InitDB(cfg *config.Config) (*gorm.DB, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to get sql.DB: %w", err)
 	}
+	// 创建超级管理员
+	if err := adminInit.CreateSuperAdmin(db, &cfg.Private.Admin); err != nil {
+		logger.Warnf("创建超级管理员失败: %v", err)
+	}
+
 	// 核心配置：避免打爆 PostgreSQL
 	sqlDB.SetMaxOpenConns(80)                 // 最大打开连接数（PG 默认 max_connections=100）
 	sqlDB.SetMaxIdleConns(20)                 // 空闲连接池大小
@@ -151,6 +169,7 @@ func InitApp(cfg *config.Config) (*App, error) {
 	// JWT manager
 	jwtMgr := jwtpkg.NewManager(cfg.Private.JWT.Secret, cfg.Private.JWT.Expire)
 	transaction := transaction.NewTransactionManager(db)
+
 	// ========== Repositories ==========
 	tokenRepo := tokenRepo.NewTokenRepository(db)
 	userRepo := userRepo.NewUserRepository(db, tokenRepo)
@@ -167,6 +186,20 @@ func InitApp(cfg *config.Config) (*App, error) {
 	statsRepo := statsRepo.NewStatsRepository(db)
 	authRepo := authRepo.NewAuthRepository(db)
 
+	// ========== Redis & Risk Infrastructure ==========
+	rdb := redis.NewClient(&redis.Options{
+		Addr:     cfg.Basic.Redis.GetAddr(),
+		Password: cfg.Basic.Redis.Password,
+		DB:       cfg.Basic.Redis.DB,
+	})
+	rateLimiter := ratelimit.NewLimiter(rdb)
+	sensitiveFilter := sensitive.NewFilter()
+
+	// Risk services（先于其他服务初始化，因为其他服务可能依赖它）
+	riskRepo := riskRepo.NewRiskRepository(db)
+	riskSvc := riskservice.NewRiskService(riskRepo, rateLimiter)
+	checkSvc := riskservice.NewContentCheckService(riskRepo, sensitiveFilter)
+
 	// ========== Services ==========
 	// 基础服务
 	notifSvc := notificationService.NewNotificationService(notifRepo)
@@ -176,13 +209,13 @@ func InitApp(cfg *config.Config) (*App, error) {
 	timelineSvc := timelineService.NewTimelineService(timelineRepo, userRepo, postRepo, commentRepo)
 	topicSvc := topicService.NewTopicService(topicRepo, postRepo, userRepo, notifSvc)
 	questionSvc := questionService.NewQuestionService(questionRepo, postRepo, commentRepo, userRepo, notifSvc, tagRepo)
-	postSvc := postService.NewPostService(postRepo, tagRepo, userRepo, boardRepo, notifSvc)
+	postSvc := postService.NewPostService(postRepo, tagRepo, userRepo, boardRepo, notifSvc, checkSvc)
 	commentSvc := commentService.NewCommentService(commentRepo, postRepo, userRepo, notifSvc, voteRepo)
 	announcementSvc := announcementService.NewAnnouncementService(announcementRepo)
 	statsSvc := statsService.NewStatsService(statsRepo, postRepo, tagRepo, boardRepo, userRepo, commentRepo)
 	emailSvc := emailService.NewEmailService(&cfg.Private.Email)
-
 	authSvc := authService.NewAuthService(authRepo, userRepo, jwtMgr, notifSvc, emailSvc, cfg, tokenRepo, transaction)
+
 	// ========== Handlers ==========
 	authHandler := authHandler.NewAuthHandler(authSvc)
 	userHandler := userHandler.NewUserHandler(userSvc, notifSvc, authSvc)
@@ -197,6 +230,7 @@ func InitApp(cfg *config.Config) (*App, error) {
 	answerHandler := answerHandler.NewAnswerHandler(questionSvc, commentSvc, postSvc)
 	announcementHandler := announcementHandler.NewAnnouncementHandler(announcementSvc)
 	statsHandler := statsHandler.NewStatsHandler(statsSvc)
+	riskHandler := riskhandler.NewRiskHandler(checkSvc, riskSvc)
 
 	// ========== Gin Engine ==========
 	gin.SetMode(cfg.Basic.Server.Mode)
@@ -252,7 +286,12 @@ func InitApp(cfg *config.Config) (*App, error) {
 		// 普通帖子
 		postGroup.GET("", middleware.OptionalAuth(jwtMgr), postHandler.List)
 		postGroup.GET("/:id", middleware.OptionalAuth(jwtMgr), postHandler.GetByID)
-		postGroup.POST("", middleware.Auth(jwtMgr), postHandler.Create)
+		postGroup.POST("",
+			middleware.Auth(jwtMgr),
+			middleware.RateLimitMiddleware(db, riskSvc, ratelimit.ActionCreatePost),
+			middleware.ContentCheckMiddleware(checkSvc, []string{"title", "content"}),
+			postHandler.Create,
+		)
 		postGroup.PUT("/:id", middleware.Auth(jwtMgr), postHandler.Update)
 		postGroup.DELETE("/:id", middleware.Auth(jwtMgr), postHandler.Delete)
 		postGroup.POST("/:id/like", middleware.Auth(jwtMgr), postHandler.Like)
@@ -264,7 +303,12 @@ func InitApp(cfg *config.Config) (*App, error) {
 	commentGroup := api.Group("/comments")
 	{
 		commentGroup.GET("/post/:post_id", commentHandler.List)
-		commentGroup.POST("", middleware.Auth(jwtMgr), commentHandler.Create)
+		commentGroup.POST("",
+			middleware.Auth(jwtMgr),
+			middleware.RateLimitMiddleware(db, riskSvc, ratelimit.ActionCreateComment),
+			middleware.ContentCheckMiddleware(checkSvc, []string{"content"}),
+			commentHandler.Create,
+		)
 		commentGroup.DELETE("/:id", middleware.Auth(jwtMgr), commentHandler.Delete)
 
 		// commentGroup.GET("/post/:post_id/answers", commentHandler.GetAnswers)
@@ -476,7 +520,7 @@ func InitApp(cfg *config.Config) (*App, error) {
 
 		adminGroup.GET("/posts", postHandler.AdminList)
 		adminGroup.PUT("/posts/:id/pin", postHandler.AdminTogglePin)
-		adminGroup.PUT("/users/:id/role", userHandler.AdminSetRole)
+		adminGroup.PUT("/users/:id/role", userHandler.AdminSetRole) // 设置用户角色
 		adminGroup.GET("/boards", boardHandler.List)
 		// 平台统计
 		adminGroup.GET("/statistics/day", statsHandler.GetStatsDay)     // 获取日数据
@@ -485,7 +529,7 @@ func InitApp(cfg *config.Config) (*App, error) {
 		// 积分
 		adminGroup.GET("/users/score", userHandler.AdminGetUserScore) // 获取用户积分
 		adminGroup.PUT("/users/:id/score", userHandler.AdminSetScore) // 设置用户积分
-
+		riskHandler.RegisterRoutes(adminGroup)                        // 新增：挂载审核队列路由
 		// adminGroup.PUT("/boards/:id/sort", boardHandler.UpdateSortOrder)
 	}
 

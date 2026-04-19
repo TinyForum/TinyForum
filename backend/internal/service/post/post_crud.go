@@ -1,8 +1,10 @@
 package post
 
 import (
+	"context"
 	"errors"
 
+	"tiny-forum/internal/middleware"
 	"tiny-forum/internal/model"
 	postRepo "tiny-forum/internal/repository/post"
 )
@@ -26,7 +28,7 @@ type UpdatePostInput struct {
 }
 
 // Create 创建帖子
-func (s *PostService) Create(authorID uint, input CreatePostInput) (*model.Post, error) {
+func (s *PostService) Create(ctx context.Context, authorID uint, input CreatePostInput) (*model.Post, error) {
 	postType := model.PostType(input.Type)
 	if postType == "" {
 		postType = model.PostTypePost
@@ -42,15 +44,23 @@ func (s *PostService) Create(authorID uint, input CreatePostInput) (*model.Post,
 	if !validTypes[input.Type] {
 		input.Type = "post"
 	}
+	reviewRequired, hitWords := middleware.IsReviewRequired(ctx)
+
+	status := model.PostStatusPublished
+	if reviewRequired {
+		status = model.PostStatusPending
+	}
+
 	post := &model.Post{
-		Title:    input.Title,
-		Content:  input.Content,
-		Summary:  input.Summary,
-		Cover:    input.Cover,
-		Type:     postType,
-		Status:   model.PostStatusPublished,
+		Title:   input.Title,
+		Content: input.Content,
+		Summary: input.Summary,
+		Cover:   input.Cover,
+		Type:    postType,
+		// Status:   model.PostStatusPublished,
 		AuthorID: authorID,
 		BoardID:  board.ID,
+		Status:   status,
 	}
 	if len(input.TagIDs) > 0 {
 		var tags []model.Tag
@@ -69,7 +79,15 @@ func (s *PostService) Create(authorID uint, input CreatePostInput) (*model.Post,
 		_ = s.tagRepo.IncrPostCount(tag.ID, 1)
 	}
 	_ = s.userRepo.AddScore(authorID, 10)
-	return s.postRepo.FindByID(post.ID)
+	if post, err = s.postRepo.FindByID(post.ID); err != nil {
+		return nil, err
+	}
+	if reviewRequired {
+		go func() {
+			_ = s.contentcheckSvc.CreateAuditTaskForPost(post.ID, "sensitive_word", hitWords)
+		}()
+	}
+	return post, nil
 }
 
 // Update 更新帖子

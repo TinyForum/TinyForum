@@ -4,6 +4,7 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+	"tiny-forum/internal/model"
 	"tiny-forum/pkg/logger"
 
 	"github.com/spf13/viper"
@@ -40,6 +41,16 @@ type ConfigPrivate struct {
 	Email EmailConfig        `mapstructure:"email"`
 	OAuth OAuthConfig        `mapstructure:"oauth"`
 	Redis RedisPrivateConfig `mapstructure:"redis"`
+	Admin AdminConfig        `mapstructure:"admin"`
+}
+
+// AdminConfig 管理员配置
+type AdminConfig struct {
+	Username string         `mapstructure:"username"`
+	Email    string         `mapstructure:"email"`
+	Password string         `mapstructure:"password"`
+	Role     model.UserRole `mapstructure:"role"`
+	Score    int            `mapstructure:"score"`
 }
 
 // ServerConfig 服务器配置

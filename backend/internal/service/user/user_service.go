@@ -11,19 +11,25 @@ type UserService struct {
 	repo        *userRepo.UserRepository
 	jwtMgr      *jwtpkg.Manager
 	notifSvc    *notification.NotificationService // 注意：NotificationService 定义在别的包，需正确导入
-	roleChecker validator.RoleChangeChecker
+	roleChecker *validator.RoleChangeChecker      // 改为指针类型
+	// roleChange  validator.RoleChangeRequest
 }
 
 func NewUserService(
 	repo *userRepo.UserRepository,
 	jwtMgr *jwtpkg.Manager,
 	notifSvc *notification.NotificationService,
+	// roleChange validator.RoleChangeRequest,
 ) *UserService {
+	roleValidator := validator.NewRoleValidator()
+	roleChecker := validator.NewRoleChangeChecker(roleValidator)
 	return &UserService{
-		repo:        repo,
-		jwtMgr:      jwtMgr,
-		notifSvc:    notifSvc,
-		roleChecker: validator.RoleChangeChecker{},
+		repo:     repo,
+		jwtMgr:   jwtMgr,
+		notifSvc: notifSvc,
+		// roleChecker: validator.RoleChangeChecker{},
+		// roleChange:  validator.RoleChangeRequest{},
+		roleChecker: roleChecker,
 	}
 }
 

@@ -65,37 +65,3 @@ func (u *User) IsAdmin() bool {
 func (u *User) IsModerator() bool {
 	return u.Role == RoleModerator || u.IsAdmin()
 }
-
-// MARK: Fields
-// // 公共返回的字段（公开场景）
-// var UserPublicFields = []string{
-// 	"id",
-// 	"username",
-// 	"avatar",
-// 	"score",
-// 	"bio",
-// 	"created_at",
-// }
-
-// // 默认返回的字段（默认场景）
-// var UserDefaultFields = []string{
-// 	"id",
-// 	"username",
-// 	"avatar",
-// 	"score",
-// }
-
-// 详情页可用的额外字段（特殊场景）
-// var UserDetailFields = []string{
-// 	"id",
-// 	"username",
-// 	"avatar",
-// 	"score",
-// 	"bio",
-// 	"created_at",
-// }
-
-// var AllowedUserFieldsMap = map[string]bool{
-// 	"id": true, "username": true, "avatar": true,
-// 	"score": true, "bio": true, "created_at": true,
-// }

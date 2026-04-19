@@ -11,18 +11,18 @@ const (
 
 const (
 	PostStatusDraft     PostStatus = "draft"
+	PostStatusPending   PostStatus = "pending" // 待审核（命中 review 级敏感词 或 举报聚合触发）
 	PostStatusPublished PostStatus = "published"
-	PostStatusHidden    PostStatus = "hidden"
+	PostStatusHidden    PostStatus = "hidden" // 已隐藏（审核拒绝 或 管理员操作）
 )
 
 type Post struct {
-	// gorm.Model
 	BaseModel
 	Title     string     `gorm:"not null;size:200" json:"title"`
 	Content   string     `gorm:"not null;type:text" json:"content"`
 	Summary   string     `gorm:"size:500" json:"summary"`
 	Cover     string     `gorm:"size:500" json:"cover"`
-	Type      PostType   `gorm:"type:varchar(20);default:'post'" json:"type"` // essay 随笔, question 问答, article 文章
+	Type      PostType   `gorm:"type:varchar(20);default:'post'" json:"type"`
 	Status    PostStatus `gorm:"type:varchar(20);default:'published'" json:"status"`
 	AuthorID  uint       `gorm:"not null;index" json:"author_id"`
 	ViewCount int        `gorm:"default:0" json:"view_count"`

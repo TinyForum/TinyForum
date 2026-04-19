@@ -127,7 +127,7 @@ func (h *UserHandler) AdminSetBlocked(c *gin.Context) {
 // @Success 200 {object} response.Response
 // @Router /admin/users/{id}/role [put]
 func (h *UserHandler) AdminSetRole(c *gin.Context) {
-	operatorID, exists := c.Get("id")
+	operatorID, exists := c.Get("user_id")
 	if !exists {
 		response.Unauthorized(c, "未授权操作")
 		return

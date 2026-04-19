@@ -162,3 +162,7 @@ func Error(c *gin.Context, err error) {
 	}
 	AppError(c, err)
 }
+
+func TooManyRequests(c *gin.Context, msg string) {
+	Fail(c, http.StatusTooManyRequests, 42900, msg) // 自定义业务码 42900
+}
