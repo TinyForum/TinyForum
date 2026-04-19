@@ -3,6 +3,7 @@ package post
 import (
 	"context"
 	"time"
+	"tiny-forum/internal/dto"
 	"tiny-forum/internal/model"
 	statsRepo "tiny-forum/internal/repository/stats"
 
@@ -16,7 +17,7 @@ type PostRepository interface {
 	FindByID(id uint) (*model.Post, error)
 	Update(post *model.Post) error
 	Delete(id uint) error
-	List(page, pageSize int, opts PostListOptions) ([]model.Post, int64, error)
+	List(page, pageSize int, opts dto.PostListOptions) ([]model.Post, int64, error)
 
 	// 互动
 	IncrViewCount(id uint) error
@@ -26,7 +27,7 @@ type PostRepository interface {
 	IsLiked(userID, postID uint) bool
 
 	// 管理
-	AdminList(page, pageSize int, keyword string) ([]model.Post, int64, error)
+	AdminList(page, pageSize int, opts dto.PostListOptions) ([]model.Post, int64, error)
 
 	// 板块相关
 	GetByBoardID(boardID uint, limit, offset int) ([]model.Post, int64, error)
@@ -46,15 +47,6 @@ type PostRepository interface {
 	Count(ctx context.Context) (int64, error)
 	CountByDateRange(ctx context.Context, startDate, endDate time.Time) (int64, error)
 	GetHotArticlesByDateRange(ctx context.Context, startDate, endDate time.Time, limit int) ([]*statsRepo.HotArticleRow, error)
-}
-
-// PostListOptions 帖子列表查询选项
-type PostListOptions struct {
-	AuthorID uint
-	TagID    uint
-	PostType string
-	Keyword  string
-	SortBy   string // "" = latest, "hot" = popular
 }
 
 type postRepository struct {

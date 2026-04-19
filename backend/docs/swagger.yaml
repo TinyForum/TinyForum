@@ -22,6 +22,13 @@ definitions:
         description: 0:未投票, 1:赞同, -1:反对
         type: integer
     type: object
+  auth.DeleteAccountInput:
+    properties:
+      confirm:
+        type: string
+      password:
+        type: string
+    type: object
   board.CreateBoardInput:
     properties:
       cover:
@@ -126,14 +133,18 @@ definitions:
     - content
     - post_id
     type: object
-  dto.DetailLeaderboardItem:
+  dto.LeaderboardUserDetail:
     properties:
       avatar:
+        type: string
+      email:
         type: string
       id:
         type: integer
       rank:
         type: integer
+      role:
+        type: string
       score:
         type: integer
       username:
@@ -322,10 +333,8 @@ definitions:
       id:
         type: integer
       is_accepted:
-        description: 新增
         type: boolean
       is_answer:
-        description: 新增
         type: boolean
       like_count:
         type: integer
@@ -339,12 +348,33 @@ definitions:
         items:
           $ref: '#/definitions/model.Comment'
         type: array
+      status:
+        allOf:
+        - $ref: '#/definitions/model.CommentStatus'
+        description: 新增审核状态
       updated_at:
         type: string
       vote_count:
-        description: 新增
         type: integer
     type: object
+  model.CommentStatus:
+    enum:
+    - visible
+    - pending
+    - hidden
+    type: string
+    x-enum-comments:
+      CommentStatusHidden: 已隐藏
+      CommentStatusPending: 待审核
+      CommentStatusVisible: 正常可见
+    x-enum-descriptions:
+    - 正常可见
+    - 待审核
+    - 已隐藏
+    x-enum-varnames:
+    - CommentStatusVisible
+    - CommentStatusPending
+    - CommentStatusHidden
   model.CreateQuestionInput:
     properties:
       board_id:
@@ -956,9 +986,7 @@ definitions:
       title:
         type: string
       type:
-        allOf:
-        - $ref: '#/definitions/model.PostType'
-        description: essay 随笔, question 问答, article 文章
+        $ref: '#/definitions/model.PostType'
       updated_at:
         type: string
       view_count:
@@ -967,11 +995,23 @@ definitions:
   model.PostStatus:
     enum:
     - draft
+    - pending
     - published
     - hidden
     type: string
+    x-enum-comments:
+      PostStatusDraft: 草稿
+      PostStatusHidden: 已隐藏（审核拒绝 或 管理员操作）
+      PostStatusPending: 待审核（命中 review 级敏感词 或 举报聚合触发）
+      PostStatusPublished: 已发布
+    x-enum-descriptions:
+    - 草稿
+    - 待审核（命中 review 级敏感词 或 举报聚合触发）
+    - 已发布
+    - 已隐藏（审核拒绝 或 管理员操作）
     x-enum-varnames:
     - PostStatusDraft
+    - PostStatusPending
     - PostStatusPublished
     - PostStatusHidden
   model.PostType:
@@ -1810,6 +1850,60 @@ paths:
       summary: 切换帖子置顶状态
       tags:
       - 管理接口
+  /admin/posts/pending:
+    get:
+      description: 管理员分页获取所有待审核帖子列表，支持关键词搜索
+      parameters:
+      - default: 1
+        description: 页码
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: 每页数量
+        in: query
+        name: page_size
+        type: integer
+      - description: 搜索关键词
+        in: query
+        name: keyword
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.PageData'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/model.Post'
+                        type: array
+                    type: object
+              type: object
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "403":
+          description: 无权限
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 管理员获取待审核帖子列表
+      tags:
+      - 管理接口
   /admin/statistics/day:
     get:
       consumes:
@@ -2603,6 +2697,77 @@ paths:
       summary: 采纳答案
       tags:
       - 回答管理
+  /auth/cancel-deletion:
+    post:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 取消注销账户
+      tags:
+      - 用户管理
+  /auth/confirm-deletion:
+    delete:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 确认永久删除账户
+      tags:
+      - 用户管理
+  /auth/delete-account:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 注销请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/auth.DeleteAccountInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 用户注销账户（软删除）
+      tags:
+      - 用户管理
+  /auth/deletion-status:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 获取注销状态
+      tags:
+      - 用户管理
   /auth/login:
     post:
       consumes:
@@ -5528,10 +5693,10 @@ paths:
         type: integer
       responses:
         "200":
-          description: OK
+          description: 返回用户排行榜信息
           schema:
             items:
-              $ref: '#/definitions/dto.DetailLeaderboardItem'
+              $ref: '#/definitions/dto.LeaderboardUserDetail'
             type: array
       security:
       - BearerAuth: []

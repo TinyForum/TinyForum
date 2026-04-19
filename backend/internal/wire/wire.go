@@ -299,7 +299,7 @@ func InitApp(cfg *config.Config) (*App, error) {
 			middleware.RateLimitMiddleware(db, riskSvc, ratelimit.ActionCreatePost),
 			middleware.ContentCheckMiddleware(checkSvc, []string{"title", "content"}),
 			postHandler.Create,
-		)
+		) // 发布帖子是进行风控检查
 		postGroup.PUT("/:id", middleware.Auth(jwtMgr), postHandler.Update)
 		postGroup.DELETE("/:id", middleware.Auth(jwtMgr), postHandler.Delete)
 		postGroup.POST("/:id/like", middleware.Auth(jwtMgr), postHandler.Like)
@@ -316,7 +316,7 @@ func InitApp(cfg *config.Config) (*App, error) {
 			middleware.RateLimitMiddleware(db, riskSvc, ratelimit.ActionCreateComment),
 			middleware.ContentCheckMiddleware(checkSvc, []string{"content"}),
 			commentHandler.Create,
-		)
+		) // 发布评论是进行风控检查
 		commentGroup.DELETE("/:id", middleware.Auth(jwtMgr), commentHandler.Delete)
 
 		// commentGroup.GET("/post/:post_id/answers", commentHandler.GetAnswers)
@@ -526,9 +526,12 @@ func InitApp(cfg *config.Config) (*App, error) {
 		adminGroup.DELETE("/users/:id/", userHandler.AdminDeleteUser)                    // 删除用户
 		adminGroup.POST("/users/:id/reset-password", userHandler.AdminResetUserPassword) // 重置密码
 
+		// 帖子
 		adminGroup.GET("/posts", postHandler.AdminList)
-		adminGroup.PUT("/posts/:id/pin", postHandler.AdminTogglePin)
-		adminGroup.PUT("/users/:id/role", userHandler.AdminSetRole) // 设置用户角色
+		adminGroup.GET("/posts/pending", postHandler.AdminGetModerationRequire)   // 获取待审核队列
+		adminGroup.POST("/admin/posts/${id}/review", postHandler.AdminReviewPost) // 审核帖子
+		adminGroup.PUT("/posts/:id/pin", postHandler.AdminTogglePin)              // 置顶帖子
+		adminGroup.PUT("/users/:id/role", userHandler.AdminSetRole)               // 设置用户角色
 		adminGroup.GET("/boards", boardHandler.List)
 		// 平台统计
 		adminGroup.GET("/statistics/day", statsHandler.GetStatsDay)     // 获取日数据
@@ -537,7 +540,8 @@ func InitApp(cfg *config.Config) (*App, error) {
 		// 积分
 		adminGroup.GET("/users/score", userHandler.AdminGetUserScore) // 获取用户积分
 		adminGroup.PUT("/users/:id/score", userHandler.AdminSetScore) // 设置用户积分
-		riskHandler.RegisterRoutes(adminGroup)                        // 新增：挂载审核队列路由
+		// 审核
+		riskHandler.RegisterRoutes(adminGroup) // 新增：挂载审核队列路由
 		// adminGroup.PUT("/boards/:id/sort", boardHandler.UpdateSortOrder)
 	}
 

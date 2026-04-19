@@ -62,7 +62,7 @@ func (s *QuestionService) GetQuestionDetail(questionID uint) (*model.QuestionRes
 		RewardScore:      question.RewardScore,
 		AnswerCount:      question.AnswerCount,
 		AcceptedAnswerID: question.AcceptedAnswerID,
-		Status:           string(question.Post.Status),
+		Status:           string(question.Post.PostStatus),
 		CreatedAt:        question.CreatedAt,
 		UpdatedAt:        question.UpdatedAt,
 	}, nil

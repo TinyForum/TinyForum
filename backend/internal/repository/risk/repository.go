@@ -59,7 +59,7 @@ func (r *RiskRepository) ListPendingTasks(limit, offset int) ([]model.ContentAud
 	return tasks, total, err
 }
 
-func (r *RiskRepository) UpdateTaskStatus(taskID uint, status model.AuditStatus, reviewerID uint, note string) error {
+func (r *RiskRepository) UpdateTaskStatus(taskID uint, status model.ModerationStatus, reviewerID uint, note string) error {
 	now := time.Now()
 	return r.db.Model(&model.ContentAuditTask{}).Where("id = ?", taskID).Updates(map[string]interface{}{
 		"status":      status,

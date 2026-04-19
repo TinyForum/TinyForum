@@ -19,14 +19,15 @@ const (
 // 内容审核任务
 // ========================
 
-type AuditStatus string
+type ModerationStatus string
 
 const (
-	AuditStatusPending  AuditStatus = "pending"  // 待审核
-	AuditStatusApproved AuditStatus = "approved" // 审核通过
-	AuditStatusRejected AuditStatus = "rejected" // 审核拒绝（内容被隐藏）
+	AuditStatusPending  ModerationStatus = "pending"  // 待审核
+	AuditStatusApproved ModerationStatus = "approved" // 审核通过
+	AuditStatusRejected ModerationStatus = "rejected" // 审核拒绝（内容被隐藏）
 )
 
+// 审核类型
 type AuditTargetType string
 
 const (
@@ -39,14 +40,14 @@ const (
 // 命中 review 级敏感词或举报聚合触发后写入，由后台异步处理
 type ContentAuditTask struct {
 	BaseModel
-	TargetType  AuditTargetType `gorm:"type:varchar(20);not null;index" json:"target_type"`
-	TargetID    uint            `gorm:"not null;index" json:"target_id"`
-	TriggerType string          `gorm:"type:varchar(50);not null" json:"trigger_type"` // "sensitive_word" | "report_aggregate" | "manual"
-	TriggerMeta string          `gorm:"type:text" json:"trigger_meta"`                 // JSON：命中的词、举报数等
-	Status      AuditStatus     `gorm:"type:varchar(20);default:'pending';index" json:"status"`
-	ReviewerID  *uint           `gorm:"index" json:"reviewer_id"`
-	ReviewNote  string          `gorm:"size:500" json:"review_note"`
-	ReviewedAt  *time.Time      `json:"reviewed_at"`
+	TargetType  AuditTargetType  `gorm:"type:varchar(20);not null;index" json:"target_type"`
+	TargetID    uint             `gorm:"not null;index" json:"target_id"`
+	TriggerType string           `gorm:"type:varchar(50);not null" json:"trigger_type"` // "sensitive_word" | "report_aggregate" | "manual"
+	TriggerMeta string           `gorm:"type:text" json:"trigger_meta"`                 // JSON：命中的词、举报数等
+	Status      ModerationStatus `gorm:"type:varchar(20);default:'pending';index" json:"status"`
+	ReviewerID  *uint            `gorm:"index" json:"reviewer_id"`
+	ReviewNote  string           `gorm:"size:500" json:"review_note"`
+	ReviewedAt  *time.Time       `json:"reviewed_at"`
 
 	Reviewer *User `gorm:"foreignKey:ReviewerID" json:"reviewer,omitempty"`
 }

@@ -18,14 +18,14 @@ func (r *questionRepository) CreateWithTransaction(userID uint, input model.Crea
 
 	// 1. 创建帖子
 	post := &model.Post{
-		Title:    input.Title,
-		Content:  input.Content,
-		Summary:  input.Summary,
-		Cover:    input.Cover,
-		BoardID:  input.BoardID,
-		AuthorID: userID,
-		Type:     "question",
-		Status:   "published",
+		Title:      input.Title,
+		Content:    input.Content,
+		Summary:    input.Summary,
+		Cover:      input.Cover,
+		BoardID:    input.BoardID,
+		AuthorID:   userID,
+		Type:       model.PostTypeQuestion,
+		PostStatus: model.PostStatusPublished,
 	}
 	if err := tx.Create(post).Error; err != nil {
 		tx.Rollback()
@@ -88,7 +88,7 @@ func (r *questionRepository) CreateWithTransaction(userID uint, input model.Crea
 		AuthorID:    post.AuthorID,
 		RewardScore: question.RewardScore,
 		AnswerCount: question.AnswerCount,
-		Status:      string(post.Status),
+		Status:      string(post.PostStatus),
 		CreatedAt:   post.CreatedAt,
 		UpdatedAt:   post.UpdatedAt,
 	}, nil

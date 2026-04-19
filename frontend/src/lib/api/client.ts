@@ -9,7 +9,7 @@ function createClient(config?: AxiosRequestConfig): AxiosInstance {
     baseURL: API_BASE_URL,
     headers: { "Content-Type": "application/json" },
     timeout: 10_000,
-    withCredentials: true, // Cookie 自动携带，不需要手动附加 token
+    withCredentials: true, // Cookie 自动携带
     ...config,
   });
 

@@ -1,5 +1,6 @@
 package risk
 
+// TODO: Refactory
 import (
 	"net/http"
 	"strconv"

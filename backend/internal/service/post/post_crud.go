@@ -3,9 +3,9 @@ package post
 import (
 	"errors"
 
+	"tiny-forum/internal/dto"
 	"tiny-forum/internal/middleware"
 	"tiny-forum/internal/model"
-	postRepo "tiny-forum/internal/repository/post"
 
 	"github.com/gin-gonic/gin"
 )
@@ -30,10 +30,14 @@ type UpdatePostInput struct {
 
 // Create 创建帖子
 func (s *PostService) Create(ctx *gin.Context, authorID uint, input CreatePostInput) (*model.Post, error) {
+	// postType := model.PostType(input.Type)
+	// 默认创建帖子
 	postType := model.PostType(input.Type)
-	if postType == "" {
+	if postType == "" || !postType.IsValid() {
 		postType = model.PostTypePost
 	}
+
+	// 发布板块检查
 	if input.BoardID == 0 {
 		return nil, errors.New("board_id 不能为 0")
 	}
@@ -41,15 +45,24 @@ func (s *PostService) Create(ctx *gin.Context, authorID uint, input CreatePostIn
 	if err != nil {
 		return nil, errors.New("选择的板块不存在")
 	}
-	validTypes := map[string]bool{"post": true, "article": true, "topic": true}
-	if !validTypes[input.Type] {
-		input.Type = "post"
-	}
-	reviewRequired, hitWords := middleware.IsReviewRequired(ctx)
 
-	status := model.PostStatusPublished
+	// 是否需要审核
+	reviewRequired, hitWords := middleware.IsReviewRequired(ctx)
+	// 是否屏蔽
+	shadowed, hitWords := middleware.IsShadowed(ctx)
+
+	replace, hitWords := middleware.IsReplaced(ctx)
+
+	moderationStatus := model.AuditStatusPending
 	if reviewRequired {
-		status = model.PostStatusPending
+		// 先标记为待审核状态
+		moderationStatus = model.AuditStatusPending
+	}
+	if shadowed {
+		moderationStatus = model.AuditStatusRejected
+	}
+	if replace {
+		moderationStatus = model.AuditStatusApproved
 	}
 
 	post := &model.Post{
@@ -61,7 +74,8 @@ func (s *PostService) Create(ctx *gin.Context, authorID uint, input CreatePostIn
 		// Status:   model.PostStatusPublished,
 		AuthorID: authorID,
 		BoardID:  board.ID,
-		Status:   status,
+		// PostStatus:       poststatus,
+		ModerationStatus: moderationStatus,
 	}
 	if len(input.TagIDs) > 0 {
 		var tags []model.Tag
@@ -83,7 +97,8 @@ func (s *PostService) Create(ctx *gin.Context, authorID uint, input CreatePostIn
 	if post, err = s.postRepo.FindByID(post.ID); err != nil {
 		return nil, err
 	}
-	if reviewRequired {
+
+	if reviewRequired || shadowed || replace {
 		go func() {
 			_ = s.contentcheckSvc.CreateAuditTaskForPost(post.ID, "sensitive_word", hitWords)
 		}()
@@ -155,6 +170,6 @@ func (s *PostService) GetByID(postID, viewerID uint) (*model.Post, bool, error) 
 }
 
 // List 获取帖子列表（支持筛选）
-func (s *PostService) List(page, pageSize int, opts postRepo.PostListOptions) ([]model.Post, int64, error) {
+func (s *PostService) List(page, pageSize int, opts dto.PostListOptions) ([]model.Post, int64, error) {
 	return s.postRepo.List(page, pageSize, opts)
 }

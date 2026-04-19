@@ -61,7 +61,12 @@ export const adminApi = {
   // 置顶
   togglePin: (id: number) =>
     apiClient.put<ApiResponse<null>>(`/admin/posts/${id}/pin`),
-
+  // 获取所有待审核帖子
+  listPendingPosts: (params?: { page?: number; page_size?: number ,keyword?: string}) => apiClient.get<ApiResponse<PageData<Post>>>("/admin/posts/pending", { params }),
+  // 标记审核状态
+  reviewPosts: (id: number, data: { status: string }) =>
+  apiClient.put<ApiResponse<null>>(`/admin/posts/${id}/review`, data),
+  
   // ── 板块管理 ──────────────────────────────────────────────────────────────────
   listBoards: (params?: { page?: number; page_size?: number }) =>
     apiClient.get<ApiResponse<PageData<Board>>>("/admin/boards", { params }),

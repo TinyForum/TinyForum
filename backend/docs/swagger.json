@@ -292,6 +292,98 @@
                 }
             }
         },
+        "/admin/posts/pending": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "管理员分页获取所有待审核帖子列表，支持关键词搜索",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "管理接口"
+                ],
+                "summary": "管理员获取待审核帖子列表",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 20,
+                        "description": "每页数量",
+                        "name": "page_size",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "搜索关键词",
+                        "name": "keyword",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "获取成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/response.PageData"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "list": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "$ref": "#/definitions/model.Post"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "无权限",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/admin/posts/{id}/pin": {
             "put": {
                 "security": [
@@ -1635,6 +1727,125 @@
                     },
                     "404": {
                         "description": "问题或回答不存在",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/cancel-deletion": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户管理"
+                ],
+                "summary": "取消注销账户",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/confirm-deletion": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户管理"
+                ],
+                "summary": "确认永久删除账户",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/delete-account": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户管理"
+                ],
+                "summary": "用户注销账户（软删除）",
+                "parameters": [
+                    {
+                        "description": "注销请求",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/auth.DeleteAccountInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/deletion-status": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户管理"
+                ],
+                "summary": "获取注销状态",
+                "responses": {
+                    "200": {
+                        "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -6358,11 +6569,11 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "返回用户排行榜信息",
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/dto.DetailLeaderboardItem"
+                                "$ref": "#/definitions/dto.LeaderboardUserDetail"
                             }
                         }
                     }
@@ -6697,6 +6908,17 @@
                 }
             }
         },
+        "auth.DeleteAccountInput": {
+            "type": "object",
+            "properties": {
+                "confirm": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
         "board.CreateBoardInput": {
             "type": "object",
             "required": [
@@ -6849,10 +7071,13 @@
                 }
             }
         },
-        "dto.DetailLeaderboardItem": {
+        "dto.LeaderboardUserDetail": {
             "type": "object",
             "properties": {
                 "avatar": {
+                    "type": "string"
+                },
+                "email": {
                     "type": "string"
                 },
                 "id": {
@@ -6860,6 +7085,9 @@
                 },
                 "rank": {
                     "type": "integer"
+                },
+                "role": {
+                    "type": "string"
                 },
                 "score": {
                     "type": "integer"
@@ -7130,11 +7358,9 @@
                     "type": "integer"
                 },
                 "is_accepted": {
-                    "description": "新增",
                     "type": "boolean"
                 },
                 "is_answer": {
-                    "description": "新增",
                     "type": "boolean"
                 },
                 "like_count": {
@@ -7155,14 +7381,44 @@
                         "$ref": "#/definitions/model.Comment"
                     }
                 },
+                "status": {
+                    "description": "新增审核状态",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/model.CommentStatus"
+                        }
+                    ]
+                },
                 "updated_at": {
                     "type": "string"
                 },
                 "vote_count": {
-                    "description": "新增",
                     "type": "integer"
                 }
             }
+        },
+        "model.CommentStatus": {
+            "type": "string",
+            "enum": [
+                "visible",
+                "pending",
+                "hidden"
+            ],
+            "x-enum-comments": {
+                "CommentStatusHidden": "已隐藏",
+                "CommentStatusPending": "待审核",
+                "CommentStatusVisible": "正常可见"
+            },
+            "x-enum-descriptions": [
+                "正常可见",
+                "待审核",
+                "已隐藏"
+            ],
+            "x-enum-varnames": [
+                "CommentStatusVisible",
+                "CommentStatusPending",
+                "CommentStatusHidden"
+            ]
         },
         "model.CreateQuestionInput": {
             "type": "object",
@@ -7879,12 +8135,7 @@
                     "type": "string"
                 },
                 "type": {
-                    "description": "essay 随笔, question 问答, article 文章",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/model.PostType"
-                        }
-                    ]
+                    "$ref": "#/definitions/model.PostType"
                 },
                 "updated_at": {
                     "type": "string"
@@ -7898,11 +8149,25 @@
             "type": "string",
             "enum": [
                 "draft",
+                "pending",
                 "published",
                 "hidden"
             ],
+            "x-enum-comments": {
+                "PostStatusDraft": "草稿",
+                "PostStatusHidden": "已隐藏（审核拒绝 或 管理员操作）",
+                "PostStatusPending": "待审核（命中 review 级敏感词 或 举报聚合触发）",
+                "PostStatusPublished": "已发布"
+            },
+            "x-enum-descriptions": [
+                "草稿",
+                "待审核（命中 review 级敏感词 或 举报聚合触发）",
+                "已发布",
+                "已隐藏（审核拒绝 或 管理员操作）"
+            ],
             "x-enum-varnames": [
                 "PostStatusDraft",
+                "PostStatusPending",
                 "PostStatusPublished",
                 "PostStatusHidden"
             ]

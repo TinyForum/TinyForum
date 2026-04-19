@@ -13,7 +13,7 @@ import (
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param request body DeleteAccountRequest true "注销请求"
+// @Param request body auth.DeleteAccountInput true "注销请求"
 // @Success 200 {object} response.Response
 // @Router /auth/delete-account [delete]
 func (h *AuthHandler) DeleteAccount(c *gin.Context) {

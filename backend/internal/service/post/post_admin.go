@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 
+	"tiny-forum/internal/dto"
 	"tiny-forum/internal/model"
 	apperrors "tiny-forum/pkg/errors"
 
@@ -11,8 +12,8 @@ import (
 )
 
 // AdminList 管理员获取帖子列表
-func (s *PostService) AdminList(page, pageSize int, keyword string) ([]model.Post, int64, error) {
-	return s.postRepo.AdminList(page, pageSize, keyword)
+func (s *PostService) AdminList(page, pageSize int, opts dto.PostListOptions) ([]model.Post, int64, error) {
+	return s.postRepo.AdminList(page, pageSize, opts)
 }
 
 // SetStatus 设置帖子状态（暂未完全实现，保留接口）
@@ -30,5 +31,19 @@ func (s *PostService) TogglePin(postID uint) error {
 		return fmt.Errorf("查询帖子失败: %w", err)
 	}
 	post.PinTop = !post.PinTop
+	return s.postRepo.Update(post)
+}
+
+// 管理员更新审核状态
+func (s *PostService) AdminSetReviewPost(postID uint, status model.ModerationStatus) error {
+	post, err := s.postRepo.FindByID(postID)
+	if err != nil {
+		return err
+	}
+	if post == nil {
+		return gorm.ErrRecordNotFound
+	}
+
+	post.ModerationStatus = model.ModerationStatus(status)
 	return s.postRepo.Update(post)
 }

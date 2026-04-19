@@ -47,7 +47,7 @@ func (h *UserHandler) LeaderboardSimple(c *gin.Context) {
 // @Tags 用户排行榜
 // @Security BearerAuth
 // @Param limit query int false "限制返回数量"
-// @Success 200 {array} dto.DetailLeaderboardItem
+// @Success 200 {array} dto.LeaderboardUserDetail "返回用户排行榜信息"
 // @Router /users/leaderboard/detail [get]
 func (h *UserHandler) LeaderboardDetail(c *gin.Context) {
 	var req dto.LeaderboardRequest
