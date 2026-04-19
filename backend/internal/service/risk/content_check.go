@@ -66,7 +66,7 @@ func (s *ContentCheckService) CreateAuditTaskForPost(postID uint, triggerType st
 		TargetID:    postID,
 		TriggerType: triggerType,
 		TriggerMeta: string(meta),
-		Status:      model.AuditStatusPending,
+		Status:      model.ModerationStatusPending,
 	}
 	return s.repo.CreateAuditTask(task)
 }
@@ -81,7 +81,7 @@ func (s *ContentCheckService) CreateAuditTaskForComment(commentID uint, triggerT
 		TargetID:    commentID,
 		TriggerType: triggerType,
 		TriggerMeta: string(meta),
-		Status:      model.AuditStatusPending,
+		Status:      model.ModerationStatusPending,
 	}
 	return s.repo.CreateAuditTask(task)
 }
@@ -109,7 +109,7 @@ func (s *ContentCheckService) HandleReportAggregate(
 		TargetID:    targetID,
 		TriggerType: "report_aggregate",
 		TriggerMeta: string(meta),
-		Status:      model.AuditStatusPending,
+		Status:      model.ModerationStatusPending,
 	}
 	if err = s.repo.CreateAuditTask(task); err != nil {
 		return false, fmt.Errorf("create audit task: %w", err)
@@ -124,9 +124,9 @@ func (s *ContentCheckService) GetListPendingTasks(limit, offset int) ([]model.Co
 
 // ResolveTask 处理审核任务
 func (s *ContentCheckService) ResolveTask(taskID uint, approved bool, reviewerID uint, note string) error {
-	status := model.AuditStatusApproved
+	status := model.ModerationStatusApproved
 	if !approved {
-		status = model.AuditStatusRejected
+		status = model.ModerationStatusRejected
 	}
 	return s.repo.UpdateTaskStatus(taskID, status, reviewerID, note)
 }

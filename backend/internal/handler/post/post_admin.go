@@ -91,20 +91,15 @@ func (h *PostHandler) AdminTogglePin(c *gin.Context) {
 // @Failure      403  {object}  response.Response  "无权限（非管理员）"
 // @Failure      500  {object}  response.Response  "服务器内部错误"
 // @Router       /admin/posts/pending [get]
-func (h *PostHandler) AdminGetPending(c *gin.Context) {
-	// role := c.Get("user_role")
-	// if (role != "admin" || role != "super_admin") {
-	// 	response.Forbidden(c, "未授权")
-	// 	return
-	// }
+func (h *PostHandler) AdminGetModerationRequire(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "20"))
 	keyword := c.Query("keyword")
 
 	opts := dto.PostListOptions{
 		// Status:  model.PostStatusPending,
-		Risk:    model.AuditStatusPending,
-		Keyword: keyword,
+		ModerationStatus: model.ModerationStatusPending,
+		Keyword:          keyword,
 	}
 
 	posts, total, err := h.postSvc.AdminList(page, pageSize, opts)

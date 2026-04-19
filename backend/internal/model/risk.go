@@ -22,9 +22,9 @@ const (
 type ModerationStatus string
 
 const (
-	AuditStatusPending  ModerationStatus = "pending"  // 待审核
-	AuditStatusApproved ModerationStatus = "approved" // 审核通过
-	AuditStatusRejected ModerationStatus = "rejected" // 审核拒绝（内容被隐藏）
+	ModerationStatusPending  ModerationStatus = "pending"  // 待审核
+	ModerationStatusApproved ModerationStatus = "approved" // 审核通过
+	ModerationStatusRejected ModerationStatus = "rejected" // 审核拒绝（内容被隐藏）
 )
 
 // 审核类型

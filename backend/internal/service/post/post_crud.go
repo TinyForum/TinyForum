@@ -53,16 +53,16 @@ func (s *PostService) Create(ctx *gin.Context, authorID uint, input CreatePostIn
 
 	replace, hitWords := middleware.IsReplaced(ctx)
 
-	moderationStatus := model.AuditStatusPending
+	moderationStatus := model.ModerationStatusPending
 	if reviewRequired {
 		// 先标记为待审核状态
-		moderationStatus = model.AuditStatusPending
+		moderationStatus = model.ModerationStatusPending
 	}
 	if shadowed {
-		moderationStatus = model.AuditStatusRejected
+		moderationStatus = model.ModerationStatusRejected
 	}
 	if replace {
-		moderationStatus = model.AuditStatusApproved
+		moderationStatus = model.ModerationStatusApproved
 	}
 
 	post := &model.Post{

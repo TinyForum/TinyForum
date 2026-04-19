@@ -70,6 +70,7 @@ func (r *postRepository) List(page, pageSize int, opts dto.PostListOptions) ([]m
 		Find(&posts).Error
 	return posts, total, err
 }
+
 func (r *postRepository) AdminList(page, pageSize int, opts dto.PostListOptions) ([]model.Post, int64, error) {
 	var posts []model.Post
 	var total int64
@@ -93,6 +94,9 @@ func (r *postRepository) AdminList(page, pageSize int, opts dto.PostListOptions)
 	}
 	if opts.Keyword != "" {
 		query = query.Where("title LIKE ? OR content LIKE ?", "%"+opts.Keyword+"%", "%"+opts.Keyword+"%")
+	}
+	if opts.ModerationStatus != "" {
+		query = query.Where("moderation_status = ?", opts.ModerationStatus)
 	}
 
 	// 统计

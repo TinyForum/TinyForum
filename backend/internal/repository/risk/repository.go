@@ -40,7 +40,7 @@ func (r *RiskRepository) CreateAuditTask(task *model.ContentAuditTask) error {
 	// 幂等：同一目标已有 pending 任务则不重复创建
 	var existing model.ContentAuditTask
 	err := r.db.Where("target_type = ? AND target_id = ? AND status = ?",
-		task.TargetType, task.TargetID, model.AuditStatusPending).First(&existing).Error
+		task.TargetType, task.TargetID, model.ModerationStatusPending).First(&existing).Error
 	if err == nil {
 		return nil // 已存在，跳过
 	}
@@ -50,8 +50,8 @@ func (r *RiskRepository) CreateAuditTask(task *model.ContentAuditTask) error {
 func (r *RiskRepository) ListPendingTasks(limit, offset int) ([]model.ContentAuditTask, int64, error) {
 	var tasks []model.ContentAuditTask
 	var total int64
-	r.db.Model(&model.ContentAuditTask{}).Where("status = ?", model.AuditStatusPending).Count(&total)
-	err := r.db.Where("status = ?", model.AuditStatusPending).
+	r.db.Model(&model.ContentAuditTask{}).Where("status = ?", model.ModerationStatusPending).Count(&total)
+	err := r.db.Where("status = ?", model.ModerationStatusPending).
 		Preload("Reviewer").
 		Order("created_at ASC").
 		Limit(limit).Offset(offset).
