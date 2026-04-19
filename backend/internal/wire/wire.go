@@ -2,6 +2,7 @@ package wire
 
 import (
 	"fmt"
+	"log"
 	"time"
 
 	"tiny-forum/config"
@@ -19,6 +20,7 @@ import (
 	timelineHandler "tiny-forum/internal/handler/timelines"
 	topicHandler "tiny-forum/internal/handler/topic"
 	userHandler "tiny-forum/internal/handler/user"
+
 	// adminInit "tiny-forum/internal/init"a
 	// adminInit "tiny-forum/internal/init"
 	adminInit "tiny-forum/init"
@@ -194,6 +196,12 @@ func InitApp(cfg *config.Config) (*App, error) {
 	})
 	rateLimiter := ratelimit.NewLimiter(rdb)
 	sensitiveFilter := sensitive.NewFilter()
+	res, err := sensitiveFilter.LoadDictDir("./dicts")
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Printf("词库加载完成：block %d 个文件，review %d 个文件，共 %d 词条，失败 %d 个",
+		len(res.BlockFiles), len(res.ReviewFiles), res.TotalWords, len(res.Errors))
 
 	// Risk services（先于其他服务初始化，因为其他服务可能依赖它）
 	riskRepo := riskRepo.NewRiskRepository(db)

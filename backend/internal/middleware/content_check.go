@@ -2,97 +2,129 @@ package middleware
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
 	"io"
-	"tiny-forum/pkg/response"
-	"tiny-forum/pkg/sensitive"
 
 	riskservice "tiny-forum/internal/service/risk"
+	"tiny-forum/pkg/response"
+	"tiny-forum/pkg/sensitive"
 
 	"github.com/gin-gonic/gin"
 )
 
-// ContentCheckMiddleware 内容安全前置检测中间件（同步，Pre-check）
+// contextKey 私有类型，避免与其他包的 context key 冲突
+type contextKey string
+
+const (
+	keyReviewRequired contextKey = "content_review_required"
+	keyHitWords       contextKey = "content_hit_words"
+)
+
+// ContentCheckMiddleware 内容安全前置检测中间件（同步 Pre-check）
 //
-// 从请求 body 中读取指定字段进行敏感词检测：
-//   - LevelBlock  → 直接返回 400，请求不进入 handler
-//   - LevelReview → 放行，但在 context 中注入标记，handler 可据此将内容设为 pending
+// 从请求 body 中提取指定 JSON 字段，合并检测后统一决策：
+//   - 任意字段命中 LevelBlock → 返回 400，请求不进入 handler
+//   - 任意字段命中 LevelReview（且无 Block）→ 放行，向 context 注入审核标记
 //
-// fields: 需要检测的 JSON 字段名列表，例如 []string{"title", "content"}
+// fields: 需要检测的 JSON 字段名，如 []string{"title", "content"}
 func ContentCheckMiddleware(checkSvc *riskservice.ContentCheckService, fields []string) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// 读取 body（读后必须复位，否则 handler 无法再读）
-		bodyBytes, err := io.ReadAll(c.Request.Body)
+		body, restore, err := peekBody(c)
 		if err != nil {
-			c.Next()
-			return
-		}
-		c.Request.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
-
-		// 解析为 map 提取指定字段
-		var body map[string]interface{}
-		if err := json.Unmarshal(bodyBytes, &body); err != nil {
+			// 读 body 失败不阻断业务，交由 handler 自行处理
 			c.Next()
 			return
 		}
 
+		restore() // 确保 handler 仍能读到完整 body
+
+		var parsed map[string]any
+		if err := json.Unmarshal(body, &parsed); err != nil {
+			// 非 JSON body（如 form-data）直接放行
+			c.Next()
+			return
+		}
+
+		// 聚合所有字段的检测结果，统一决策
+		var (
+			maxLevel sensitive.Level
+			allHits  []string
+			seen     = make(map[string]bool)
+		)
 		for _, field := range fields {
-			val, ok := body[field]
-			if !ok {
+			text := extractString(parsed, field)
+			if text == "" {
 				continue
 			}
-			text, ok := val.(string)
-			if !ok || text == "" {
-				continue
+			res := checkSvc.CheckText(text)
+			if res.Level > maxLevel {
+				maxLevel = res.Level
 			}
-
-			result := checkSvc.CheckText(text)
-
-			if result.Level == sensitive.LevelBlock {
-				response.BadRequest(c, "内容包含违禁词，请修改后重新提交")
-				c.Abort()
-				return
+			for _, w := range res.HitWords {
+				if !seen[w] {
+					seen[w] = true
+					allHits = append(allHits, w)
+				}
 			}
+		}
 
-			if result.Level == sensitive.LevelReview {
-				// 注入标记到 context，handler 读取后将内容状态设为 pending
-				c.Set("content_review_required", true)
-				c.Set("content_hit_words", result.HitWords)
-				// 不 Abort，继续处理
-			}
+		switch maxLevel {
+		case sensitive.LevelBlock:
+			response.BadRequest(c, "内容包含违禁词，请修改后重新提交")
+			c.Abort()
+			return
+		case sensitive.LevelReview:
+			c.Set(string(keyReviewRequired), true)
+			c.Set(string(keyHitWords), allHits)
 		}
 
 		c.Next()
 	}
 }
 
-// IsReviewRequired 从 gin.Context 中读取是否需要人工审核标记
-// IsReviewRequired 检查内容是否需要审核
-// 返回值：是否需要审核，敏感词列表
-func IsReviewRequired(c context.Context) (required bool, hitWords []string) {
-	// 获取审核标记
-	requiredVal := c.Value("content_review_required")
-	if requiredVal == nil {
+// IsReviewRequired 从 *gin.Context 中读取内容审核标记。
+//
+// 返回：(是否需要人工审核, 命中的敏感词列表)
+func IsReviewRequired(c *gin.Context) (required bool, hitWords []string) {
+	val, exists := c.Get(string(keyReviewRequired))
+	if !exists {
 		return false, nil
 	}
-
-	required, ok := requiredVal.(bool)
-	if !ok || !required {
+	required, _ = val.(bool)
+	if !required {
 		return false, nil
 	}
-
-	// 获取敏感词列表
-	wordsVal := c.Value("content_hit_words")
-	if wordsVal == nil {
-		return true, nil
+	if raw, ok := c.Get(string(keyHitWords)); ok {
+		hitWords, _ = raw.([]string)
 	}
-
-	hitWords, ok = wordsVal.([]string)
-	if !ok {
-		// 类型断言失败，返回空切片而非 nil
-		return true, []string{}
+	if hitWords == nil {
+		hitWords = []string{}
 	}
-
 	return true, hitWords
+}
+
+// ---- helpers ----
+
+// peekBody 读取 body 并返回原始字节与还原函数。
+// 调用者必须在使用完字节后调用 restore()，否则 handler 将读不到 body。
+func peekBody(c *gin.Context) ([]byte, func(), error) {
+	data, err := io.ReadAll(c.Request.Body)
+	if err != nil {
+		return nil, func() {}, err
+	}
+	restore := func() {
+		c.Request.Body = io.NopCloser(bytes.NewReader(data))
+	}
+	restore() // 立即还原，让调用者在任意时刻都可再次调用
+	return data, restore, nil
+}
+
+// extractString 从解析后的 JSON map 中安全提取字符串字段。
+func extractString(m map[string]any, key string) string {
+	v, ok := m[key]
+	if !ok {
+		return ""
+	}
+	s, _ := v.(string)
+	return s
 }

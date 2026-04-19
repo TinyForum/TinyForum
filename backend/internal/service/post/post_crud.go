@@ -1,12 +1,13 @@
 package post
 
 import (
-	"context"
 	"errors"
 
 	"tiny-forum/internal/middleware"
 	"tiny-forum/internal/model"
 	postRepo "tiny-forum/internal/repository/post"
+
+	"github.com/gin-gonic/gin"
 )
 
 type CreatePostInput struct {
@@ -28,7 +29,7 @@ type UpdatePostInput struct {
 }
 
 // Create 创建帖子
-func (s *PostService) Create(ctx context.Context, authorID uint, input CreatePostInput) (*model.Post, error) {
+func (s *PostService) Create(ctx *gin.Context, authorID uint, input CreatePostInput) (*model.Post, error) {
 	postType := model.PostType(input.Type)
 	if postType == "" {
 		postType = model.PostTypePost

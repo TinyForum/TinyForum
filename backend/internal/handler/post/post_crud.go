@@ -25,7 +25,7 @@ import (
 // @Failure 500 {object} response.Response "服务器内部错误"
 // @Router /posts [post]
 func (h *PostHandler) Create(c *gin.Context) {
-	ctx := c.Request.Context()
+	// ctx := c.Request.Context()
 	authorID := c.GetUint("user_id")
 
 	var input postService.CreatePostInput
@@ -34,7 +34,7 @@ func (h *PostHandler) Create(c *gin.Context) {
 		return
 	}
 
-	post, err := h.postSvc.Create(ctx, authorID, input)
+	post, err := h.postSvc.Create(c, authorID, input)
 	if err != nil {
 		response.InternalError(c, err.Error())
 		return
