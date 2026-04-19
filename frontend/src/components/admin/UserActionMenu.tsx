@@ -17,7 +17,9 @@ import {
   XCircle,
   User as UserIcon,
   UserPlus,
-  Bot
+  Bot,
+  User2,
+  EyeIcon
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { User } from "@/lib/api";
@@ -144,16 +146,32 @@ export function UserActionMenu({
 
     // 根据当前角色提供可切换的选项
     switch (currentRole) {
+      // 超级管理员
+      // 降级：管理员
       case 'super_admin':
-        // 超级管理员一般不通过菜单降级
-        break;
-      
-      case 'admin':
         options.push({
-          label: t("role.super_admin"),
+          label: t("role.admin"),
           icon: <Crown className="w-4 h-4" />,
           className: "text-error",
-          nextRole: 'super_admin'
+          nextRole: 'admin'
+        });
+          options.push({
+          label: t("role.user"),
+          icon: <UserIcon className="w-4 h-4" />,
+          className: "text-info",
+          nextRole: 'user'
+        });
+        break;
+      
+        // 管理员
+        // 升级：无
+        // 降级：审核、版主、用户
+      case 'admin':
+       options.push({
+          label: t("role.reviewer"),
+          icon: <EyeIcon className="w-4 h-4" />,
+          className: "text-warning",
+          nextRole: 'reviewer'
         });
         options.push({
           label: t("role.moderator"),
@@ -169,6 +187,9 @@ export function UserActionMenu({
         });
         break;
       
+        // 版主
+        // 升级：管理员、审核员
+        // 降级：用户
       case 'moderator':
         options.push({
           label: t("role.admin"),
@@ -190,7 +211,16 @@ export function UserActionMenu({
         });
         break;
       
+      // 审核
+      // 升级：管理员、审核员版主
+      // 降级：用户
       case 'reviewer':
+         options.push({
+          label: t("role.admin"),
+          icon: <Shield className="w-4 h-4" />,
+          className: "text-warning",
+          nextRole: 'admin'
+        });
         options.push({
           label: t("role.moderator"),
           icon: <Hammer className="w-4 h-4" />,
@@ -205,7 +235,23 @@ export function UserActionMenu({
         });
         break;
       
+        // 成员
+        // 升级：管理员、
+        // 降级：用户
       case 'member':
+        options.push({
+          label: t("role.reviewer"),
+          icon: <EyeIcon className="w-4 h-4" />,
+          className: "text-warning",
+          nextRole: 'reviewer'
+        });
+         options.push({
+          label: t("role.admin"),
+          icon: <Shield className="w-4 h-4" />,
+          className: "text-warning",
+          nextRole: 'admin'
+        });
+        
         options.push({
           label: t("role.user"),
           icon: <UserIcon className="w-4 h-4" />,
@@ -213,13 +259,21 @@ export function UserActionMenu({
           nextRole: 'user'
         });
         break;
-      
+      // 用户：
+        // 升级：会员
+        // 降级：访客
       case 'user':
         options.push({
           label: t("role.member"),
           icon: <UserPlus className="w-4 h-4" />,
           className: "text-success",
           nextRole: 'member'
+        });
+         options.push({
+          label: t("role.guest"),
+          icon: <User2 className="w-4 h-4" />,
+          className: "text-info",
+          nextRole: 'guest'
         });
         break;
       
