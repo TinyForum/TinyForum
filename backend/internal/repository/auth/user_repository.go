@@ -4,17 +4,7 @@ package auth
 import (
 	"context"
 	"tiny-forum/internal/model"
-
-	"gorm.io/gorm"
 )
-
-type authRepository struct {
-	db *gorm.DB
-}
-
-func NewUserRepository(db *gorm.DB) *authRepository {
-	return &authRepository{db: db}
-}
 
 func (r *authRepository) FindByEmail(ctx context.Context, email string) (*model.User, error) {
 	var user model.User

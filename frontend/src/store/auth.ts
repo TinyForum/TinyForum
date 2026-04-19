@@ -40,6 +40,7 @@ export const useAuthStore = create<AuthState>()(
         })),
 
       setHydrated: (state) => set({ isHydrated: state }),
+    
       
       // 刷新用户信息
     // store/auth.ts

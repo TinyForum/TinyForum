@@ -21,6 +21,7 @@ import (
 
 	//
 	announcementRepo "tiny-forum/internal/repository/announcement"
+	authRepo "tiny-forum/internal/repository/auth"
 	boardRepo "tiny-forum/internal/repository/board"
 	commentRepo "tiny-forum/internal/repository/comment"
 	notificationRepo "tiny-forum/internal/repository/notification"
@@ -31,6 +32,7 @@ import (
 	timelineRepo "tiny-forum/internal/repository/timeline"
 	tokenRepo "tiny-forum/internal/repository/token"
 	topicRepo "tiny-forum/internal/repository/topic"
+	"tiny-forum/internal/repository/transaction"
 	userRepo "tiny-forum/internal/repository/user"
 	voteRepo "tiny-forum/internal/repository/vote"
 
@@ -148,7 +150,7 @@ func InitApp(cfg *config.Config) (*App, error) {
 
 	// JWT manager
 	jwtMgr := jwtpkg.NewManager(cfg.Private.JWT.Secret, cfg.Private.JWT.Expire)
-
+	transaction := transaction.NewTransactionManager(db)
 	// ========== Repositories ==========
 	tokenRepo := tokenRepo.NewTokenRepository(db)
 	userRepo := userRepo.NewUserRepository(db, tokenRepo)
@@ -163,6 +165,7 @@ func InitApp(cfg *config.Config) (*App, error) {
 	voteRepo := voteRepo.NewVoteRepository(db)
 	announcementRepo := announcementRepo.NewAnnouncementRepository(db)
 	statsRepo := statsRepo.NewStatsRepository(db)
+	authRepo := authRepo.NewAuthRepository(db)
 
 	// ========== Services ==========
 	// 基础服务
@@ -179,7 +182,7 @@ func InitApp(cfg *config.Config) (*App, error) {
 	statsSvc := statsService.NewStatsService(statsRepo, postRepo, tagRepo, boardRepo, userRepo, commentRepo)
 	emailSvc := emailService.NewEmailService(&cfg.Private.Email)
 
-	authSvc := authService.NewAuthService(userRepo, jwtMgr, notifSvc, emailSvc, cfg, tokenRepo)
+	authSvc := authService.NewAuthService(authRepo, userRepo, jwtMgr, notifSvc, emailSvc, cfg, tokenRepo, transaction)
 	// ========== Handlers ==========
 	authHandler := authHandler.NewAuthHandler(authSvc)
 	userHandler := userHandler.NewUserHandler(userSvc, notifSvc, authSvc)
@@ -220,13 +223,18 @@ func InitApp(cfg *config.Config) (*App, error) {
 	// ----- MARK: Auth routes
 	authGroup := api.Group("/auth")
 	{
-		authGroup.POST("/register", authHandler.Register)
-		authGroup.POST("/login", authHandler.Login)
-		authGroup.POST("/logout", authHandler.Logout)
-		authGroup.GET("/me", middleware.Auth(jwtMgr), userHandler.Me) // 获取个人信息需要登录
-		authGroup.POST("/forgot-password", authHandler.ForgotPassword)
-		authGroup.POST("/reset-password", authHandler.ResetPassword)
-		authGroup.GET("/validate-reset-token", authHandler.ValidateResetToken)
+		authGroup.POST("/register", authHandler.Register) // 注册
+		authGroup.POST("/login", authHandler.Login)       // 登录
+		authGroup.POST("/logout", authHandler.Logout)     // 登出
+		// 注销（两步验证）
+		authGroup.DELETE("/delete-account", middleware.Auth(jwtMgr), authHandler.DeleteAccount)     // 注销账户
+		authGroup.GET("/deletion-status", middleware.Auth(jwtMgr), authHandler.DeletionStatus)      // 获取注销状态
+		authGroup.POST("/cancel-deletion", middleware.Auth(jwtMgr), authHandler.CancelDeletion)     // 取消注销
+		authGroup.DELETE("/confirm-deletion", middleware.Auth(jwtMgr), authHandler.ConfirmDeletion) // 确认注销
+		authGroup.GET("/me", middleware.Auth(jwtMgr), userHandler.Me)                               // 获取个人信息需要登录
+		authGroup.POST("/forgot-password", authHandler.ForgotPassword)                              // 忘记密码
+		authGroup.POST("/reset-password", authHandler.ResetPassword)                                // 重置密码
+		authGroup.GET("/validate-reset-token", authHandler.ValidateResetToken)                      // 验证重置密码token
 	}
 
 	// ----- MARK: Tag routes

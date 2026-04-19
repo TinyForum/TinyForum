@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// ForgotPassword 忘记密码
 func (c *AuthHandler) ForgotPassword(ctx *gin.Context) {
 	var req dto.ForgotPasswordRequest
 
@@ -35,6 +36,7 @@ func (c *AuthHandler) ForgotPassword(ctx *gin.Context) {
 	})
 }
 
+// ResetPassword 重置密码
 func (c *AuthHandler) ResetPassword(ctx *gin.Context) {
 	var req dto.ResetPasswordRequest
 
@@ -54,6 +56,7 @@ func (c *AuthHandler) ResetPassword(ctx *gin.Context) {
 	})
 }
 
+// ValidateResetToken 验证重置密码 token
 func (c *AuthHandler) ValidateResetToken(ctx *gin.Context) {
 	token := ctx.Query("token")
 

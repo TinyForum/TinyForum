@@ -48,31 +48,73 @@ func (s *authService) Register(ctx context.Context, input userSvc.RegisterInput)
 	return &userSvc.AuthResult{Token: token, User: user}, nil
 }
 
+// type DeletionStatus struct {
+// 	IsDeleted     bool       `json:"is_deleted"`
+// 	DeletedAt     *time.Time `json:"deleted_at,omitempty"`
+// 	CanRestore    bool       `json:"can_restore"`
+// 	RemainingDays int        `json:"remaining_days,omitempty"`
+// }
+
+type AuthResult struct {
+	Token          string          `json:"token"`
+	User           *model.User     `json:"user"`
+	DeletionStatus *DeletionStatus `json:"deletion_status,omitempty"`
+}
+
 // Login 用户登录
-func (s *authService) Login(ctx context.Context, input userSvc.LoginInput) (*userSvc.AuthResult, error) {
-	user, err := s.userRepo.FindByEmail(ctx, input.Email)
+func (s *authService) Login(ctx context.Context, input userSvc.LoginInput) (*AuthResult, error) {
+	// 使用 Unscoped 查询，包括已软删除的用户
+	user, err := s.userRepo.FindByEmailUnscoped(ctx, input.Email)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.New("邮箱或密码错误")
 		}
 		return nil, err
 	}
+
+	// 检查是否被禁用
 	if user.IsBlocked {
 		return nil, errors.New("账户已被禁用")
 	}
+
+	// 验证密码
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(input.Password)); err != nil {
 		return nil, errors.New("邮箱或密码错误")
 	}
 
+	// 检查是否已软删除
+	var deletionStatus *DeletionStatus
+	if user.DeletedAt.Valid {
+		remainingDays := 30 - int(time.Since(user.DeletedAt.Time).Hours()/24)
+		deletionStatus = &DeletionStatus{
+			IsDeleted:     true,
+			DeletedAt:     &user.DeletedAt.Time,
+			CanRestore:    remainingDays > 0,
+			RemainingDays: remainingDays,
+		}
+
+		// 如果已超过恢复期，不允许登录
+		if remainingDays <= 0 {
+			return nil, errors.New("账户已永久删除，无法登录")
+		}
+	}
+
+	// 更新最后登录时间
 	now := time.Now()
 	user.LastLogin = &now
 	_ = s.userRepo.Update(ctx, user)
 
+	// 生成 token
 	token, err := s.jwtMgr.Generate(user.ID, user.Username, string(user.Role))
 	if err != nil {
 		return nil, err
 	}
-	return &userSvc.AuthResult{Token: token, User: user}, nil
+
+	return &AuthResult{
+		Token:          token,
+		User:           user,
+		DeletionStatus: deletionStatus, // 返回删除状态
+	}, nil
 }
 
 // ChangePassword 修改密码

@@ -4,6 +4,8 @@ import (
 	"context"
 	"time"
 	"tiny-forum/internal/model"
+
+	"gorm.io/gorm"
 )
 
 // Repository 令牌数据访问接口
@@ -24,4 +26,5 @@ type TokenRepository interface {
 	ListByUserID(ctx context.Context, userID uint) ([]model.RefreshToken, error)
 	CountByUserID(ctx context.Context, userID uint) (int64, error)
 	SaveResetToken(ctx context.Context, userID uint, token string, expiration time.Duration) error
+	DeleteByUserIDWithTx(ctx context.Context, tx *gorm.DB, userID uint) error
 }

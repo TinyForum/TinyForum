@@ -4,6 +4,8 @@ import (
 	"context"
 	"time"
 	"tiny-forum/internal/model"
+
+	"gorm.io/gorm"
 )
 
 // DeleteByUserID 删除用户的所有 Token（全局登出、密码重置、封禁时调用）
@@ -40,4 +42,8 @@ func (r *tokenRepository) DeleteByUserIDExcept(ctx context.Context, userID uint,
 	return r.db.WithContext(ctx).
 		Where("user_id = ? AND token != ?", userID, keepToken).
 		Delete(&model.RefreshToken{}).Error
+}
+
+func (r *tokenRepository) DeleteByUserIDWithTx(ctx context.Context, tx *gorm.DB, userID uint) error {
+	return tx.WithContext(ctx).Where("user_id = ?", userID).Delete(&model.RefreshToken{}).Error
 }

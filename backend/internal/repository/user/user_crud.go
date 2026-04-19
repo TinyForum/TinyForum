@@ -97,3 +97,10 @@ func (r *UserRepository) GetUserRoleById(userID uint) (string, error) {
 	}
 	return role, nil
 }
+
+// FindByEmailUnscoped 查找用户（包括已软删除的）
+func (r *UserRepository) FindByEmailUnscoped(ctx context.Context, email string) (*model.User, error) {
+	var user model.User
+	err := r.db.WithContext(ctx).Unscoped().Where("email = ?", email).First(&user).Error
+	return &user, err
+}

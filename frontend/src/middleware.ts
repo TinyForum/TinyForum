@@ -29,6 +29,7 @@ export async function middleware(request: NextRequest) {
   // 去除语言前缀的路径
   let pathnameWithoutLocale = pathname;
   for (const locale of routing.locales) {
+    console.log('8. Checking locale:', locale);
     if (pathname === `/${locale}` || pathname.startsWith(`/${locale}/`)) {
       pathnameWithoutLocale = pathname.replace(`/${locale}`, '') || '/';
       break;

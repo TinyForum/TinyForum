@@ -6,6 +6,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import "../styles/globals.css";
+import AuthProvider from "@/components/providers/AuthProvider";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const firaCode = Fira_Code({
@@ -58,6 +59,7 @@ params: Promise<{ locale: string }>
         suppressHydrationWarning
         className={`${inter.variable} ${firaCode.variable} font-sans h-screen overflow-hidden bg-base-200`}
       >
+          <AuthProvider>
         <NextIntlClientProvider locale={locale} messages={messages}>
           <Providers>
             <div className="flex flex-col h-full">
@@ -71,6 +73,7 @@ params: Promise<{ locale: string }>
             </div>
           </Providers>
         </NextIntlClientProvider>
+        </AuthProvider>
       </body>
     </html>
   );
