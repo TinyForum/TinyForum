@@ -104,7 +104,7 @@ export interface BanRecord {
 }
 
 // 申请状态
-type ApplicationStatus = 'pending' | 'approved' | 'rejected' | 'canceled';
+type ApplicationStatus = "pending" | "approved" | "rejected" | "canceled";
 
 // 申请状态详情
 interface ApplicationStatusDetailResponse {
@@ -127,7 +127,6 @@ interface ApplicationStatusDetailResponse {
   };
   can_apply: boolean;
 }
-
 
 // types/moderator.ts
 export interface ModeratorBoard {
@@ -203,21 +202,30 @@ export const moderatorApi = {
    * @param data 申请表单
    */
   applyModerator: (boardId: number, data: ApplyModeratorForm) =>
-    apiClient.post<ApiResponse<{ message: string }>>(`/boards/${boardId}/moderators/apply`, data),
-/**
- * 查看申请状态 (传递申请 ID)
- */
-getMyApplications: (params?: { page?: number; page_size?: number }) =>
-  apiClient.get<ApiResponse<{ list: ModeratorApplication[]; total: number; page: number; page_size: number }>>(
-    "/boards/moderators/apply",
-    { params }
-  ),
+    apiClient.post<ApiResponse<{ message: string }>>(
+      `/boards/${boardId}/moderators/apply-moderator`,
+      data,
+    ),
+  /**
+   * 查看申请状态 (传递申请 ID)
+   */
+  getMyApplications: (params?: { page?: number; page_size?: number }) =>
+    apiClient.get<
+      ApiResponse<{
+        list: ModeratorApplication[];
+        total: number;
+        page: number;
+        page_size: number;
+      }>
+    >("/boards/moderators/apply-status", { params }),
   /**
    * 撤销版主申请
    * @param applicationId 申请ID
    */
   cancelApplication: (applicationId: number) =>
-    apiClient.delete<ApiResponse<{ message: string }>>(`/boards/applications/${applicationId}`),
+    apiClient.delete<ApiResponse<{ message: string }>>(
+      `/boards/applications/${applicationId}`,
+    ),
 
   /**
    * 获取版主申请列表（管理员）
@@ -229,10 +237,14 @@ getMyApplications: (params?: { page?: number; page_size?: number }) =>
     page?: number;
     page_size?: number;
   }) =>
-    apiClient.get<ApiResponse<{ list: ModeratorApplication[]; total: number; page: number; page_size: number }>>(
-      "/admin/boards/applications",
-      { params }
-    ),
+    apiClient.get<
+      ApiResponse<{
+        list: ModeratorApplication[];
+        total: number;
+        page: number;
+        page_size: number;
+      }>
+    >("/admin/boards/applications", { params }),
 
   /**
    * 审批版主申请（管理员）
@@ -240,7 +252,10 @@ getMyApplications: (params?: { page?: number; page_size?: number }) =>
    * @param data 审批信息
    */
   reviewApplication: (applicationId: number, data: ReviewApplicationRequest) =>
-    apiClient.post<ApiResponse<{ message: string }>>(`/admin/boards/applications/${applicationId}/review`, data),
+    apiClient.post<ApiResponse<{ message: string }>>(
+      `/admin/boards/applications/${applicationId}/review`,
+      data,
+    ),
 
   // ── 版主管理 ──────────────────────────────────────────────────────────────
 
@@ -257,7 +272,10 @@ getMyApplications: (params?: { page?: number; page_size?: number }) =>
    * @param data 版主信息
    */
   addModerator: (boardId: number, data: AddModeratorRequest) =>
-    apiClient.post<ApiResponse<{ message: string }>>(`/boards/${boardId}/moderators`, data),
+    apiClient.post<ApiResponse<{ message: string }>>(
+      `/boards/${boardId}/moderators`,
+      data,
+    ),
 
   /**
    * 移除版主
@@ -265,7 +283,9 @@ getMyApplications: (params?: { page?: number; page_size?: number }) =>
    * @param userId 用户ID
    */
   removeModerator: (boardId: number, userId: number) =>
-    apiClient.delete<ApiResponse<{ message: string }>>(`/boards/${boardId}/moderators/${userId}`),
+    apiClient.delete<ApiResponse<{ message: string }>>(
+      `/boards/${boardId}/moderators/${userId}`,
+    ),
 
   /**
    * 更新版主权限（管理员）
@@ -273,8 +293,15 @@ getMyApplications: (params?: { page?: number; page_size?: number }) =>
    * @param userId 用户ID
    * @param data 权限配置
    */
-  updateModeratorPermissions: (boardId: number, userId: number, data: UpdatePermissionsRequest) =>
-    apiClient.put<ApiResponse<{ message: string }>>(`/boards/${boardId}/moderators/${userId}/permissions`, data),
+  updateModeratorPermissions: (
+    boardId: number,
+    userId: number,
+    data: UpdatePermissionsRequest,
+  ) =>
+    apiClient.put<ApiResponse<{ message: string }>>(
+      `/boards/${boardId}/moderators/${userId}/permissions`,
+      data,
+    ),
 
   // ── 禁言管理 ──────────────────────────────────────────────────────────────
 
@@ -284,7 +311,10 @@ getMyApplications: (params?: { page?: number; page_size?: number }) =>
    * @param data 禁言信息
    */
   banUser: (boardId: number, data: BanUserRequest) =>
-    apiClient.post<ApiResponse<{ message: string }>>(`/boards/${boardId}/bans`, data),
+    apiClient.post<ApiResponse<{ message: string }>>(
+      `/boards/${boardId}/bans`,
+      data,
+    ),
 
   /**
    * 解除禁言
@@ -292,7 +322,9 @@ getMyApplications: (params?: { page?: number; page_size?: number }) =>
    * @param userId 用户ID
    */
   unbanUser: (boardId: number, userId: number) =>
-    apiClient.delete<ApiResponse<{ message: string }>>(`/boards/${boardId}/bans/${userId}`),
+    apiClient.delete<ApiResponse<{ message: string }>>(
+      `/boards/${boardId}/bans/${userId}`,
+    ),
 
   // ── 帖子管理（版主） ───────────────────────────────────────────────────────
 
@@ -302,7 +334,9 @@ getMyApplications: (params?: { page?: number; page_size?: number }) =>
    * @param postId 帖子ID
    */
   deletePost: (boardId: number, postId: number) =>
-    apiClient.delete<ApiResponse<{ message: string }>>(`/boards/${boardId}/posts/${postId}`),
+    apiClient.delete<ApiResponse<{ message: string }>>(
+      `/boards/${boardId}/posts/${postId}`,
+    ),
 
   /**
    * 置顶/取消置顶帖子（版主/管理员）
@@ -311,31 +345,46 @@ getMyApplications: (params?: { page?: number; page_size?: number }) =>
    * @param pinInBoard 是否置顶
    */
   pinPost: (boardId: number, postId: number, pinInBoard: boolean) =>
-    apiClient.put<ApiResponse<{ message: string }>>(`/boards/${boardId}/posts/${postId}/pin`, { pin_in_board: pinInBoard }),
-// 获取当前用户管理的板块
-  getMyModeratorBoards: () =>
-    apiClient.get<ApiResponse<ModeratorBoard>>(
-      "/boards/moderators/managed"
+    apiClient.put<ApiResponse<{ message: string }>>(
+      `/boards/${boardId}/posts/${postId}/pin`,
+      { pin_in_board: pinInBoard },
     ),
+  // 获取当前用户管理的板块
+  getMyModeratorBoards: () =>
+    apiClient.get<ApiResponse<ModeratorBoard>>("/boards/moderators/managed"),
 
   // 获取板块帖子（版主视角）
-  getBoardPosts: (boardId: number, params?: { page?: number; page_size?: number; keyword?: string; status?: string }) =>
+  getBoardPosts: (
+    boardId: number,
+    params?: {
+      page?: number;
+      page_size?: number;
+      keyword?: string;
+      status?: string;
+    },
+  ) =>
     apiClient.get<ApiResponse<{ list: ModeratorPost[]; total: number }>>(
       `/moderator/boards/${boardId}/posts`,
-      { params }
+      { params },
     ),
 
   // 获取板块举报
-  getBoardReports: (boardId: number, params?: { page?: number; page_size?: number; status?: string }) =>
+  getBoardReports: (
+    boardId: number,
+    params?: { page?: number; page_size?: number; status?: string },
+  ) =>
     apiClient.get<ApiResponse<{ list: ModeratorReport[]; total: number }>>(
       `/moderator/boards/${boardId}/reports`,
-      { params }
+      { params },
     ),
 
   // 获取板块禁言用户
-  getBoardBannedUsers: (boardId: number, params?: { page?: number; page_size?: number }) =>
+  getBoardBannedUsers: (
+    boardId: number,
+    params?: { page?: number; page_size?: number },
+  ) =>
     apiClient.get<ApiResponse<{ list: BannedUser[]; total: number }>>(
       `/moderator/boards/${boardId}/bans`,
-      { params }
+      { params },
     ),
 };

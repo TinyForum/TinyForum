@@ -6,6 +6,9 @@ import (
 	"time"
 
 	"tiny-forum/config"
+	adminInit "tiny-forum/init"
+
+	// handler
 	announcementHandler "tiny-forum/internal/handler/announcement"
 	answerHandler "tiny-forum/internal/handler/answer"
 	authHandler "tiny-forum/internal/handler/auth"
@@ -21,11 +24,7 @@ import (
 	topicHandler "tiny-forum/internal/handler/topic"
 	userHandler "tiny-forum/internal/handler/user"
 
-	// adminInit "tiny-forum/internal/init"a
-	// adminInit "tiny-forum/internal/init"
-	adminInit "tiny-forum/init"
-
-	//
+	// repository
 	announcementRepo "tiny-forum/internal/repository/announcement"
 	authRepo "tiny-forum/internal/repository/auth"
 	boardRepo "tiny-forum/internal/repository/board"
@@ -43,8 +42,8 @@ import (
 	userRepo "tiny-forum/internal/repository/user"
 	voteRepo "tiny-forum/internal/repository/vote"
 
+	// service
 	announcementService "tiny-forum/internal/service/announcement"
-
 	authService "tiny-forum/internal/service/auth"
 	boardService "tiny-forum/internal/service/board"
 	commentService "tiny-forum/internal/service/comment"
@@ -364,7 +363,7 @@ func InitApp(cfg *config.Config) (*App, error) {
 			middleware.Auth(jwtMgr),
 			boardHandler.ApplyModerator) // 提交申请
 		// 查看申请状态
-		boardGroup.GET("/moderators/apply",
+		boardGroup.GET("/moderators/apply-status",
 			middleware.Auth(jwtMgr),
 			boardHandler.GetUserApplications) // 查看申请状态
 		// 用户获取自己管理的板块
@@ -423,16 +422,6 @@ func InitApp(cfg *config.Config) (*App, error) {
 				middleware.CanPinPost(jwtMgr, boardRepo),
 				boardHandler.PinPost)
 		}
-	}
-
-	// ── 管理员：版主申请审批（挂在 /admin 下，已有 AdminRequired 中间件）──────
-	// 建议放在 adminGroup 之内，与其他 admin 路由统一鉴权：
-	adminBoardGroup := api.Group("/admin/boards", middleware.Auth(jwtMgr), middleware.AdminRequired())
-	{
-		// GET  /admin/boards/applications?board_id=&status=pending&page=1&page_size=20
-		adminBoardGroup.GET("/applications", boardHandler.ListApplications)
-		// POST /admin/boards/applications/:application_id/review
-		adminBoardGroup.POST("/applications/:application_id/review", boardHandler.ReviewApplication)
 	}
 
 	// ----- MARK: Timeline routes
@@ -520,29 +509,33 @@ func InitApp(cfg *config.Config) (*App, error) {
 	// ----- MARK: Admin routes -----
 	adminGroup := api.Group("/admin", middleware.Auth(jwtMgr), middleware.AdminRequired())
 	{
+		// 用户
 		adminGroup.GET("/users", userHandler.AdminList)
 		adminGroup.PUT("/users/:id/active", userHandler.AdminSetActive)                  // 激活用户
 		adminGroup.PUT("/users/:id/blocked", userHandler.AdminSetBlocked)                // 封禁用户
 		adminGroup.DELETE("/users/:id/", userHandler.AdminDeleteUser)                    // 删除用户
+		adminGroup.PUT("/users/:id/role", userHandler.AdminSetRole)                      // 设置用户角色
 		adminGroup.POST("/users/:id/reset-password", userHandler.AdminResetUserPassword) // 重置密码
-
+		// 积分
+		adminGroup.GET("/users/score", userHandler.AdminGetUserScore) // 获取用户积分
+		adminGroup.PUT("/users/:id/score", userHandler.AdminSetScore) // 设置用户积分
+		// 版主
+		adminGroup.GET("/boards/applications", boardHandler.ListApplications)                          // 获取申请列表
+		adminGroup.POST("/boards/applications/:application_id/review", boardHandler.ReviewApplication) // 审批申请
+		adminGroup.GET("/boards", boardHandler.List)                                                   // 列出所有版主
 		// 帖子
 		adminGroup.GET("/posts", postHandler.AdminList)
-		adminGroup.GET("/posts/pending", postHandler.AdminGetModerationRequire)   // 获取待审核队列
-		adminGroup.POST("/admin/posts/${id}/review", postHandler.AdminReviewPost) // 审核帖子
-		adminGroup.PUT("/posts/:id/pin", postHandler.AdminTogglePin)              // 置顶帖子
-		adminGroup.PUT("/users/:id/role", userHandler.AdminSetRole)               // 设置用户角色
-		adminGroup.GET("/boards", boardHandler.List)
+		adminGroup.GET("/posts/pending", postHandler.AdminGetModerationRequire) // 获取待审核队列
+		adminGroup.POST("/posts/${id}/review", postHandler.AdminReviewPost)     // 审核帖子
+		adminGroup.PUT("/posts/:id/pin", postHandler.AdminTogglePin)            // 置顶帖子
 		// 平台统计
 		adminGroup.GET("/statistics/day", statsHandler.GetStatsDay)     // 获取日数据
 		adminGroup.GET("/statistics/total", statsHandler.GetStatsTotal) // 获取所有统计指标
 		adminGroup.GET("/statistics/trend", statsHandler.GetStatsTrend) // 获取趋势指标
-		// 积分
-		adminGroup.GET("/users/score", userHandler.AdminGetUserScore) // 获取用户积分
-		adminGroup.PUT("/users/:id/score", userHandler.AdminSetScore) // 设置用户积分
 		// 审核
-		riskHandler.RegisterRoutes(adminGroup) // 新增：挂载审核队列路由
-		// adminGroup.PUT("/boards/:id/sort", boardHandler.UpdateSortOrder)
+		riskHandler.RegisterRoutes(adminGroup) // 挂载审核队列路由
+		// 系统状态
+
 	}
 
 	return &App{Engine: engine, DB: db, Cfg: cfg}, nil

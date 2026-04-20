@@ -21,6 +21,7 @@ func NewRiskHandler(checkSvc *riskservice.ContentCheckService, riskSvc *riskserv
 	return &RiskHandler{checkSvc: checkSvc, riskSvc: riskSvc}
 }
 
+// RegisterRoutes 注册路由
 func (h *RiskHandler) RegisterRoutes(admin *gin.RouterGroup) {
 	g := admin.Group("/risk")
 	{
