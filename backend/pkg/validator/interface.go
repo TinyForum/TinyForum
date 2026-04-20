@@ -84,10 +84,12 @@ func NewRoleValidator() RoleValidator {
 	}
 }
 
+// 创建角色变更校验器
 func NewRoleChangeChecker(validator RoleValidator) *RoleChangeChecker {
 	return &RoleChangeChecker{validator: validator}
 }
 
+// 角色更改请求
 type RoleChangeRequest struct {
 	Operator *model.User
 	Target   *model.User
