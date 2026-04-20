@@ -20,7 +20,6 @@ type Config struct {
 type ConfigBasic struct {
 	Server    ServerConfig    `mapstructure:"server"`
 	API       APIConfig       `mapstructure:"api"`
-	Database  DatabaseConfig  `mapstructure:"database"`
 	Log       LogConfig       `mapstructure:"log"`
 	Redis     RedisConfig     `mapstructure:"redis"`
 	Upload    UploadConfig    `mapstructure:"upload"`
@@ -37,11 +36,12 @@ type APIConfig struct {
 
 // ConfigPrivate 私有配置（敏感信息）
 type ConfigPrivate struct {
-	JWT   JWTConfig          `mapstructure:"jwt"`
-	Email EmailConfig        `mapstructure:"email"`
-	OAuth OAuthConfig        `mapstructure:"oauth"`
-	Redis RedisPrivateConfig `mapstructure:"redis"`
-	Admin AdminConfig        `mapstructure:"admin"`
+	Database DatabaseConfig     `mapstructure:"database"`
+	JWT      JWTConfig          `mapstructure:"jwt"`
+	Email    EmailConfig        `mapstructure:"email"`
+	OAuth    OAuthConfig        `mapstructure:"oauth"`
+	Redis    RedisPrivateConfig `mapstructure:"redis"`
+	Admin    AdminConfig        `mapstructure:"admin"`
 }
 
 // AdminConfig 管理员配置
@@ -234,7 +234,7 @@ func applyOverrides(cfg *Config, overrides map[string]interface{}) {
 			}
 		case "database.host":
 			if v, ok := value.(string); ok {
-				cfg.Basic.Database.Host = v
+				cfg.Private.Database.Host = v
 			}
 			// 可扩展更多覆盖项
 		}
@@ -266,17 +266,17 @@ func (c *Config) setServerDefaults() {
 }
 
 func (c *Config) setDatabaseDefaults() {
-	if c.Basic.Database.SSLMode == "" {
-		c.Basic.Database.SSLMode = "disable"
+	if c.Private.Database.SSLMode == "" {
+		c.Private.Database.SSLMode = "disable"
 	}
-	if c.Basic.Database.TimeZone == "" {
-		c.Basic.Database.TimeZone = "Asia/Shanghai"
+	if c.Private.Database.TimeZone == "" {
+		c.Private.Database.TimeZone = "Asia/Shanghai"
 	}
-	if c.Basic.Database.MaxIdleConns == 0 {
-		c.Basic.Database.MaxIdleConns = 10
+	if c.Private.Database.MaxIdleConns == 0 {
+		c.Private.Database.MaxIdleConns = 10
 	}
-	if c.Basic.Database.MaxOpenConns == 0 {
-		c.Basic.Database.MaxOpenConns = 100
+	if c.Private.Database.MaxOpenConns == 0 {
+		c.Private.Database.MaxOpenConns = 100
 	}
 }
 
@@ -339,13 +339,13 @@ func (c *Config) validateJWT() error {
 }
 
 func (c *Config) validateDatabase() error {
-	if c.Basic.Database.Host == "" {
+	if c.Private.Database.Host == "" {
 		return &ConfigError{Field: "database.host", Message: "database host is required"}
 	}
-	if c.Basic.Database.User == "" {
+	if c.Private.Database.User == "" {
 		return &ConfigError{Field: "database.user", Message: "database user is required"}
 	}
-	if c.Basic.Database.DBName == "" {
+	if c.Private.Database.DBName == "" {
 		return &ConfigError{Field: "database.dbname", Message: "database name is required"}
 	}
 	return nil
@@ -358,7 +358,7 @@ func (c *Config) ToLoggerConfig() logger.Config {
 
 // GetDSN 获取数据库连接字符串
 func (c *Config) GetDSN() string {
-	return c.Basic.Database.GetDSN()
+	return c.Private.Database.GetDSN()
 }
 
 // GetRedisAddr 获取Redis地址

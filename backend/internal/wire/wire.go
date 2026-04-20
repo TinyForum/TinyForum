@@ -87,13 +87,13 @@ type App struct {
 func InitDB(cfg *config.Config) (*gorm.DB, error) {
 	dsn := fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s port=%d sslmode=%s TimeZone=%s",
-		cfg.Basic.Database.Host,
-		cfg.Basic.Database.User,
-		cfg.Basic.Database.Password,
-		cfg.Basic.Database.DBName,
-		cfg.Basic.Database.Port,
-		cfg.Basic.Database.SSLMode,
-		cfg.Basic.Database.TimeZone,
+		cfg.Private.Database.Host,
+		cfg.Private.Database.User,
+		cfg.Private.Database.Password,
+		cfg.Private.Database.DBName,
+		cfg.Private.Database.Port,
+		cfg.Private.Database.SSLMode,
+		cfg.Private.Database.TimeZone,
 	)
 
 	logLevel := gormlogger.Silent

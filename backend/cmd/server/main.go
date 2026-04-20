@@ -100,11 +100,11 @@ func validateConfigWithHints(cfg *config.Config) error {
 	}
 
 	// 2. 验证数据库配置
-	if cfg.Basic.Database.Host == "" {
+	if cfg.Private.Database.Host == "" {
 		errors = append(errors, "❌ Database host is required\n   → Set 'database.host' in config/basic.yaml or BASIC_DATABASE_HOST environment variable")
 	}
 
-	if cfg.Basic.Database.DBName == "" {
+	if cfg.Private.Database.DBName == "" {
 		errors = append(errors, "❌ Database name is required\n   → Set 'database.dbname' in config/basic.yaml or BASIC_DATABASE_DBNAME environment variable")
 	}
 
@@ -217,10 +217,10 @@ func printStartupInfo(cfg *config.Config, addr string) {
 	logger.Info(fmt.Sprintf("🔧 Server Address: http://localhost%s", addr))
 	logger.Info("📚 API Base Path: /api/v1")
 	logger.Info(fmt.Sprintf("🗄️  Database: %s@%s:%d/%s",
-		cfg.Basic.Database.User,
-		cfg.Basic.Database.Host,
-		cfg.Basic.Database.Port,
-		cfg.Basic.Database.DBName))
+		cfg.Private.Database.User,
+		cfg.Private.Database.Host,
+		cfg.Private.Database.Port,
+		cfg.Private.Database.DBName))
 
 	if cfg.Private.Email.Host != "" {
 		logger.Info(fmt.Sprintf("📧 Email Service: %s:%d", cfg.Private.Email.Host, cfg.Private.Email.Port))
@@ -240,9 +240,9 @@ func printConfigInfo(cfg *config.Config) {
 	logger.Debug("Configuration loaded:")
 	logger.Debug(fmt.Sprintf("  Server Mode: %s", cfg.Basic.Server.Mode))
 	logger.Debug(fmt.Sprintf("  Database: %s:%d/%s",
-		cfg.Basic.Database.Host,
-		cfg.Basic.Database.Port,
-		cfg.Basic.Database.DBName))
+		cfg.Private.Database.Host,
+		cfg.Private.Database.Port,
+		cfg.Private.Database.DBName))
 	logger.Debug(fmt.Sprintf("  Log Level: %s", cfg.Basic.Log.Level))
 
 	if cfg.Private.JWT.Secret != "" {

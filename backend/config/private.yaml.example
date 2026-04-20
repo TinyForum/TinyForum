@@ -10,26 +10,35 @@ email:
   tls: true                     # 是否使用TLS
   pool_size: 5                  # 连接池大小
 
-# OAuth配置
-oauth:
-  # GitHub OAuth
-  github:
-    client_id: your-github-client-id
-    client_secret: your-github-client-secret
-    redirect_url: https://example.com/auth/github/callback
-  
-  # Google OAuth
-  google:
-    client_id: your-google-client-id
-    client_secret: your-google-client-secret
-    redirect_url: https://example.com/auth/google/callback
-  
-  # 微信 OAuth
-  wechat:
-    app_id: your-wechat-app-id
-    app_secret: your-wechat-app-secret
-    redirect_url: https://example.com/auth/wechat/callback
+# JWT配置
+jwt:
+  secret: "your-super-secret-jwt-key-change-in-production"  # JWT密钥
+  expire: 24h                    # 访问令牌过期时间
+  refresh_expire: 168h           # 刷新令牌过期时间 (7天)
+  issuer: "tiny-forum"          # 签发者
 
-# Redis私有配置（如果密码未放在redis配置中）
+database:
+  host: localhost
+  port: 5432
+  user: postgres
+  password: ""
+  dbname: tiny_forum
+  sslmode: disable
+  timezone: Asia/Shanghai
+
+server:
+  port: 8080
+  mode: debug
+
 redis:
-  password: your-redis-password
+  host: localhost
+  port: 6379
+  password: ""
+  db: 0
+
+admin:
+  email: admin@test.com
+  password: password
+  username: admin
+  role: super_admin
+  score: 10000
