@@ -53,7 +53,7 @@ type Post struct {
 	LikeCount int  `gorm:"default:0" json:"like_count"`
 	PinTop    bool `gorm:"default:false" json:"pin_top"`
 
-	// 关联...
+	// 关联
 	Author   User      `gorm:"foreignKey:AuthorID" json:"author,omitempty"`
 	Tags     []Tag     `gorm:"many2many:post_tags" json:"tags,omitempty"`
 	Comments []Comment `gorm:"foreignKey:PostID" json:"-"`

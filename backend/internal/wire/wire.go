@@ -526,8 +526,12 @@ func InitApp(cfg *config.Config) (*App, error) {
 		// 帖子
 		adminGroup.GET("/posts", postHandler.AdminList)
 		adminGroup.GET("/posts/pending", postHandler.AdminGetModerationRequire) // 获取待审核队列
-		adminGroup.POST("/posts/${id}/review", postHandler.AdminReviewPost)     // 审核帖子
-		adminGroup.PUT("/posts/:id/pin", postHandler.AdminTogglePin)            // 置顶帖子
+		// adminGroup.PUT("/posts/:id/review", postHandler.AdminReviewPost)        // 审核帖子
+		//
+		adminGroup.PUT("/audit/tasks/:id/approve", postHandler.AdminApprovePost) // 审核通过
+		adminGroup.PUT("/audit/tasks/:id/reject", postHandler.AdminRejectPost)   // 审核拒绝
+
+		adminGroup.PUT("/posts/:id/pin", postHandler.AdminTogglePin) // 置顶帖子
 		// 平台统计
 		statsHandler.RegisterRoutes(adminGroup)
 		// 审核

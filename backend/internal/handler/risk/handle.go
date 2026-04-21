@@ -25,7 +25,7 @@ func NewRiskHandler(checkSvc *riskservice.ContentCheckService, riskSvc *riskserv
 func (h *RiskHandler) RegisterRoutes(admin *gin.RouterGroup) {
 	g := admin.Group("/risk")
 	{
-		// 审核队列
+		// 审核队列(暂时没用，可以删除)
 		g.GET("/audit/tasks", h.ListAuditTasks)
 		g.POST("/audit/tasks/:id/approve", h.ApproveTask)
 		g.POST("/audit/tasks/:id/reject", h.RejectTask)
@@ -35,8 +35,17 @@ func (h *RiskHandler) RegisterRoutes(admin *gin.RouterGroup) {
 	}
 }
 
-// ListAuditTasks 获取待审核内容列表
-// GET /admin/risk/audit/tasks?limit=20&offset=0
+// ListAuditTasks
+// @Summary      获取待审核内容列表
+// @Description  分页查询所有状态为 pending 的审核任务（内容安全检测不通过待人工审核）
+// @Tags         风险管理
+// @Accept       json
+// @Produce      json
+// @Param        limit   query     int     false  "每页数量，默认20，最大100"  default(20)
+// @Param        offset  query     int     false  "偏移量，默认0"            default(0)
+// @Success      200     {object}  response.Response  "成功"
+// @Failure      500     {object}  response.Response  "服务器内部错误"
+// @Router       /admin/risk/audit/tasks [get]
 func (h *RiskHandler) ListAuditTasks(c *gin.Context) {
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
 	offset, _ := strconv.Atoi(c.DefaultQuery("offset", "0"))
@@ -60,8 +69,18 @@ type resolveTaskInput struct {
 	Note string `json:"note" binding:"max=500"`
 }
 
-// ApproveTask 审核通过（内容恢复 published）
-// POST /admin/risk/audit/tasks/:id/approve
+// ApproveTask
+// @Summary      审核通过
+// @Description  将指定审核任务标记为通过，恢复内容为 published 状态，并记录操作日志
+// @Tags         风险管理
+// @Accept       json
+// @Produce      json
+// @Param        id    path      int               true  "审核任务ID"
+// @Param        input body      resolveTaskInput  false "审核备注"
+// @Success      200   {object}  response.Response{data=nil}  "操作成功"
+// @Failure      400   {object}  response.Response  "请求参数错误"
+// @Failure      500   {object}  response.Response  "服务器内部错误"
+// @Router       /admin/risk/audit/tasks/{id}/approve [post]
 func (h *RiskHandler) ApproveTask(c *gin.Context) {
 	taskID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
@@ -87,8 +106,18 @@ func (h *RiskHandler) ApproveTask(c *gin.Context) {
 	response.Success(c, nil)
 }
 
-// RejectTask 审核拒绝（内容保持/改为 hidden）
-// POST /admin/risk/audit/tasks/:id/reject
+// RejectTask
+// @Summary      审核拒绝
+// @Description  将指定审核任务标记为拒绝，内容状态改为 hidden（屏蔽），并记录操作日志
+// @Tags         风险管理
+// @Accept       json
+// @Produce      json
+// @Param        id    path      int               true  "审核任务ID"
+// @Param        input body      resolveTaskInput  true  "审核备注"
+// @Success      200   {object}  response.Response{data=nil}  "操作成功"
+// @Failure      400   {object}  response.Response  "请求参数错误"
+// @Failure      500   {object}  response.Response  "服务器内部错误"
+// @Router       /admin/risk/audit/tasks/{id}/reject [post]
 func (h *RiskHandler) RejectTask(c *gin.Context) {
 	taskID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
@@ -116,8 +145,19 @@ func (h *RiskHandler) RejectTask(c *gin.Context) {
 	response.Success(c, nil)
 }
 
-// ListAuditLogs 查询操作审计日志
-// GET /admin/risk/audit/logs?target_type=post&target_id=123&limit=20
+// ListAuditLogs
+// @Summary      查询审核操作日志
+// @Description  根据目标类型和ID查询管理员对审核任务的操作记录（批准/拒绝）
+// @Tags         风险管理
+// @Accept       json
+// @Produce      json
+// @Param        target_type  query     string  false  "目标类型，如 post、comment、user 等"
+// @Param        target_id    query     int     false  "目标ID"
+// @Param        limit        query     int     false  "返回条数，默认50，最大200"  default(50)
+// @Success      200     {object}  response.Response  "成功"
+// @Failure      400          {object}  response.Response  "参数错误（target_id无效）"
+// @Failure      500          {object}  response.Response  "服务器内部错误"
+// @Router       /admin/risk/audit/logs [get]
 func (h *RiskHandler) ListAuditLogs(c *gin.Context) {
 	targetType := c.Query("target_type")
 	targetIDStr := c.Query("target_id")

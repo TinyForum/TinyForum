@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 
+	"tiny-forum/internal/dto"
 	"tiny-forum/internal/model"
 	apperrors "tiny-forum/pkg/errors"
 )
@@ -121,7 +122,8 @@ func (s *BoardService) GetBoardBySlug(slug string) (*model.Board, error) {
 	return s.boardRepo.FindBySlug(slug)
 }
 
-func (s *BoardService) GetPostsBySlug(slug string, page, pageSize int) ([]*model.Post, int64, error) {
+// service/board_service.go
+func (s *BoardService) GetPostsBySlug(slug string, page, pageSize int) ([]*dto.GetBoardPostsResponse, int64, error) {
 	return s.boardRepo.GetPostsBySlug(slug, page, pageSize)
 }
 

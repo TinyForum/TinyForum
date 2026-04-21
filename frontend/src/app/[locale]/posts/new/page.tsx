@@ -13,17 +13,30 @@ import { getErrorMessage } from '@/lib/utils';
 import { FileText, Send, X, FolderOpen } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
-import type { Board } from '@/lib/api/types';
+import type { Board, PostStatus } from '@/lib/api/types'; // 确保 PostStatus 已导出
 
-const postSchema = z.object({
-  title: z.string().min(2, '标题至少2个字符').max(200, '标题最多200个字符'),
-  content: z.string().min(10, '内容至少10个字符'),
-  summary: z.string().max(500).optional(),
-  cover: z.string().url('请输入有效的图片URL').optional().or(z.literal('')),
-  type: z.enum(['post', 'article', 'topic']),
-  board_id: z.number().min(1, '请选择板块'),  // 添加板块验证
-  tag_ids: z.array(z.number()).max(5, '最多选择5个标签'),
-});
+// 增强的校验规则：草稿状态下内容最短可为 0，其他状态至少 10 字符
+const postSchema = z
+  .object({
+    title: z.string().min(2, '标题至少2个字符').max(200, '标题最多200个字符'),
+    content: z.string(),
+    summary: z.string().max(500).optional(),
+    cover: z.string().url('请输入有效的图片URL').optional().or(z.literal('')),
+    type: z.enum(['post', 'article', 'topic']),
+    board_id: z.number().min(1, '请选择板块'),
+    tag_ids: z.array(z.number()).max(5, '最多选择5个标签'),
+    status: z.enum(['draft', 'published', 'pending', 'hidden']).default('published'),
+  })
+  .superRefine((data, ctx) => {
+    // 动态内容校验：非草稿状态内容必须 >= 10 字符
+    if (data.status !== 'draft' && (!data.content || data.content.length < 10)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['content'],
+        message: '内容至少10个字符',
+      });
+    }
+  });
 
 type PostForm = z.infer<typeof postSchema>;
 
@@ -64,11 +77,13 @@ export default function NewPostPage() {
       type: 'post',
       board_id: undefined,
       tag_ids: [],
+      status: 'published', // 默认发布状态
     },
   });
 
   const selectedTagIds = watch('tag_ids');
   const selectedBoardId = watch('board_id');
+  const selectedStatus = watch('status');
 
   const toggleTag = (tagId: number) => {
     const current = selectedTagIds ?? [];
@@ -77,12 +92,11 @@ export default function NewPostPage() {
     } else if (current.length < 5) {
       setValue('tag_ids', [...current, tagId]);
     } else {
-      toast.error(t("select_up_to_tags"));
+      toast.error(t('select_up_to_tags'));
     }
   };
 
   const onSubmit = async (data: PostForm) => {
-    // 额外验证板块
     if (!data.board_id) {
       toast.error('请选择板块');
       return;
@@ -90,16 +104,17 @@ export default function NewPostPage() {
 
     setLoading(true);
     const requestBody = {
- ...data,
-        board_id: data.board_id,  // 确保传递 board_id
-        cover: data.cover || undefined,
-        summary: data.summary || undefined,
-    }
- console.log(requestBody);
+      ...data,
+      board_id: data.board_id,
+      cover: data.cover || undefined,
+      summary: data.summary || undefined,
+      status: data.status, // 明确传递状态
+    };
+    console.log(requestBody);
+
     try {
       const response = await postApi.create(requestBody);
-     
-      toast.success(t("publish_success"));
+      toast.success(t('publish_success'));
       console.log(response);
       router.push(`/posts/${response.data.data.id}`);
     } catch (err) {
@@ -111,17 +126,25 @@ export default function NewPostPage() {
 
   if (!isAuthenticated) return null;
 
+  // 状态选项配置（可配合 i18n 使用）
+  const statusOptions = [
+    { value: 'draft', label: '草稿', desc: '仅自己可见，可继续编辑' },
+    { value: 'published', label: '发布', desc: '直接公开' },
+    { value: 'pending', label: '待审核', desc: '提交后等待管理员审核' },
+    { value: 'hidden', label: '隐藏', desc: '不公开，仅管理员可见' },
+  ];
+
   return (
     <div className="max-w-3xl mx-auto">
       <div className="flex items-center gap-3 mb-6">
         <FileText className="w-6 h-6 text-primary" />
-        <h1 className="text-2xl font-bold">{t("publish_new_post")}</h1>
+        <h1 className="text-2xl font-bold">{t('publish_new_post')}</h1>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
         <div className="card bg-base-100 border border-base-300 shadow-sm">
           <div className="card-body p-5 space-y-4">
-            {/* 板块选择 - 新增 */}
+            {/* 板块选择 */}
             <div className="form-control">
               <label className="label pb-1">
                 <span className="label-text font-medium">
@@ -136,7 +159,9 @@ export default function NewPostPage() {
                 }`}
                 defaultValue=""
               >
-                <option value="" disabled>请选择板块</option>
+                <option value="" disabled>
+                  请选择板块
+                </option>
                 {boardsLoading ? (
                   <option disabled>加载中...</option>
                 ) : (
@@ -152,32 +177,25 @@ export default function NewPostPage() {
                   <span className="label-text-alt text-error">{errors.board_id.message}</span>
                 </label>
               )}
-              {!selectedBoardId && !errors.board_id && (
-                <label className="label pt-1">
-                  <span className="label-text-alt text-base-content/40">
-                    请选择帖子所属的板块
-                  </span>
-                </label>
-              )}
             </div>
 
-            {/* Type */}
+            {/* 帖子类型 */}
             <div className="form-control">
               <label className="label pb-1">
-                <span className="label-text font-medium">{t("post_type")}</span>
+                <span className="label-text font-medium">{t('post_type')}</span>
               </label>
               <div className="flex gap-2">
                 {[
-                  { value: 'post', label: t("post"), desc: t("post_desc") },
-                  { value: 'article', label: t("article"), desc: t("article_desc") },
-                  { value: 'topic', label: t("topic"), desc: t("topic_desc") },
+                  { value: 'post', label: t('post'), desc: t('post_desc') },
+                  { value: 'article', label: t('article'), desc: t('article_desc') },
+                  { value: 'topic', label: t('topic'), desc: t('topic_desc') },
                 ].map((typeOption) => (
                   <label key={typeOption.value} className="flex-1 cursor-pointer">
-                    <input 
-                      {...register('type')} 
-                      type="radio" 
-                      value={typeOption.value} 
-                      className="hidden peer" 
+                    <input
+                      {...register('type')}
+                      type="radio"
+                      value={typeOption.value}
+                      className="hidden peer"
                     />
                     <div className="border-2 border-base-300 rounded-xl p-3 text-center peer-checked:border-primary peer-checked:bg-primary/5 transition-all">
                       <div className="font-medium text-sm">{typeOption.label}</div>
@@ -188,18 +206,46 @@ export default function NewPostPage() {
               </div>
             </div>
 
-            {/* Title */}
+            {/* 文章状态 (新增) */}
             <div className="form-control">
               <label className="label pb-1">
                 <span className="label-text font-medium">
-                  {t("post_title")} <span className="text-error">*</span>
+                  状态 <span className="text-error">*</span>
+                </span>
+              </label>
+              <select
+                {...register('status')}
+                className="select select-bordered w-full focus:outline-none focus:border-primary"
+              >
+                {statusOptions.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label} - {opt.desc}
+                  </option>
+                ))}
+              </select>
+              {selectedStatus === 'draft' && (
+                <label className="label pt-1">
+                  <span className="label-text-alt text-info">
+                    草稿状态下内容长度不受限制，方便随时保存
+                  </span>
+                </label>
+              )}
+            </div>
+
+            {/* 标题 */}
+            <div className="form-control">
+              <label className="label pb-1">
+                <span className="label-text font-medium">
+                  {t('post_title')} <span className="text-error">*</span>
                 </span>
               </label>
               <input
                 {...register('title')}
                 type="text"
-                placeholder={t("post_title_placeholder")}
-                className={`input input-bordered focus:outline-none focus:border-primary ${errors.title ? 'input-error' : ''}`}
+                placeholder={t('post_title_placeholder')}
+                className={`input input-bordered focus:outline-none focus:border-primary ${
+                  errors.title ? 'input-error' : ''
+                }`}
               />
               {errors.title && (
                 <label className="label pt-1">
@@ -208,12 +254,12 @@ export default function NewPostPage() {
               )}
             </div>
 
-            {/* Tags */}
+            {/* 标签 */}
             <div className="form-control">
               <label className="label pb-1">
                 <span className="label-text font-medium">
-                  {t("tags")} 
-                  <span className="text-base-content/40 text-xs ml-2">{t("select_up_to_tags")}</span>
+                  {t('tags')}
+                  <span className="text-base-content/40 text-xs ml-2">{t('select_up_to_tags')}</span>
                 </span>
               </label>
               <div className="flex flex-wrap gap-2">
@@ -241,19 +287,21 @@ export default function NewPostPage() {
               </div>
             </div>
 
-            {/* Cover image URL */}
+            {/* 封面图 */}
             <div className="form-control">
               <label className="label pb-1">
                 <span className="label-text font-medium">
-                  {t("cover_image")} 
-                  <span className="text-base-content/40 text-xs ml-2">{t("cover_image_desc")}</span>
+                  {t('cover_image')}
+                  <span className="text-base-content/40 text-xs ml-2">{t('cover_image_desc')}</span>
                 </span>
               </label>
               <input
                 {...register('cover')}
                 type="text"
                 placeholder="https://example.com/image.jpg"
-                className={`input input-bordered focus:outline-none focus:border-primary ${errors.cover ? 'input-error' : ''}`}
+                className={`input input-bordered focus:outline-none focus:border-primary ${
+                  errors.cover ? 'input-error' : ''
+                }`}
               />
               {errors.cover && (
                 <label className="label pt-1">
@@ -262,29 +310,30 @@ export default function NewPostPage() {
               )}
             </div>
 
-            {/* Summary */}
+            {/* 摘要 */}
             <div className="form-control">
               <label className="label pb-1">
                 <span className="label-text font-medium">
-                  {t("summary")} 
-                  <span className="text-base-content/40 text-xs ml-2">{t("summary_desc")}</span>
+                  {t('summary')}
+                  <span className="text-base-content/40 text-xs ml-2">{t('summary_desc')}</span>
                 </span>
               </label>
               <textarea
                 {...register('summary')}
                 rows={2}
-                placeholder={t("summary_placeholder")}
+                placeholder={t('summary_placeholder')}
                 className="textarea textarea-bordered focus:outline-none focus:border-primary resize-none"
               />
             </div>
           </div>
         </div>
 
-        {/* Content editor */}
+        {/* 富文本编辑器 */}
         <div>
           <label className="label pb-2">
             <span className="label-text font-medium text-base">
-              {t("post_content")}<span className="text-error">*</span>
+              {t('post_content')}
+              {watch('status') !== 'draft' && <span className="text-error">*</span>}
             </span>
           </label>
           <Controller
@@ -294,7 +343,7 @@ export default function NewPostPage() {
               <RichEditor
                 content={field.value}
                 onChange={field.onChange}
-                placeholder={t("post_content_placeholder")}
+                placeholder={t('post_content_placeholder')}
               />
             )}
           />
@@ -303,10 +352,10 @@ export default function NewPostPage() {
           )}
         </div>
 
-        {/* Submit */}
+        {/* 提交按钮 */}
         <div className="flex gap-3 justify-end">
           <button type="button" className="btn btn-ghost" onClick={() => router.back()}>
-            {t("cancel")}
+            {t('cancel')}
           </button>
           <button type="submit" className="btn btn-primary gap-2" disabled={loading}>
             {loading ? (
@@ -314,7 +363,7 @@ export default function NewPostPage() {
             ) : (
               <Send className="w-4 h-4" />
             )}
-            {t("publish_post")}
+            {watch('status') === 'draft' ? '保存草稿' : t('publish_post')}
           </button>
         </div>
       </form>

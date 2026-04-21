@@ -18,6 +18,7 @@ type CreatePostInput struct {
 	Type    string `json:"type"`
 	BoardID uint   `json:"board_id" binding:"required"`
 	TagIDs  []uint `json:"tag_ids"`
+	Status  string `json:"status"`
 }
 
 type UpdatePostInput struct {
@@ -29,15 +30,15 @@ type UpdatePostInput struct {
 }
 
 // Create 创建帖子
+// Create 创建帖子
 func (s *PostService) Create(ctx *gin.Context, authorID uint, input CreatePostInput) (*model.Post, error) {
-	// postType := model.PostType(input.Type)
-	// 默认创建帖子
+	// 1. 帖子类型校验
 	postType := model.PostType(input.Type)
 	if postType == "" || !postType.IsValid() {
 		postType = model.PostTypePost
 	}
 
-	// 发布板块检查
+	// 2. 板块校验
 	if input.BoardID == 0 {
 		return nil, errors.New("board_id 不能为 0")
 	}
@@ -46,39 +47,47 @@ func (s *PostService) Create(ctx *gin.Context, authorID uint, input CreatePostIn
 		return nil, errors.New("选择的板块不存在")
 	}
 
-	// 是否需要审核
-	reviewRequired, hitWords := middleware.IsReviewRequired(ctx)
-	// 是否屏蔽
-	shadowed, hitWords := middleware.IsShadowed(ctx)
+	// 3. 获取中间件注入的审核标记（分别获取，避免覆盖）
+	reviewRequired, reviewHitWords := middleware.IsReviewRequired(ctx)
+	shadowed, shadowHitWords := middleware.IsShadowed(ctx)
+	replaced, replaceHitWords := middleware.IsReplaced(ctx)
 
-	replace, hitWords := middleware.IsReplaced(ctx)
+	// 4. 合并所有命中词
+	allHitWords := make([]string, 0,
+		len(reviewHitWords)+len(shadowHitWords)+len(replaceHitWords))
+	allHitWords = append(allHitWords, reviewHitWords...)
+	allHitWords = append(allHitWords, shadowHitWords...)
+	allHitWords = append(allHitWords, replaceHitWords...)
 
-	moderationStatus := model.ModerationStatusPending
-	if reviewRequired {
-		// 先标记为待审核状态
-		moderationStatus = model.ModerationStatusPending
-	}
-	if shadowed {
+	// 5. 确定审核状态（优先级：屏蔽 > 待审 > 替换 > 安全）
+	var moderationStatus model.ModerationStatus
+	switch {
+	case shadowed:
 		moderationStatus = model.ModerationStatusRejected
-	}
-	if replace {
+	case reviewRequired:
+		moderationStatus = model.ModerationStatusPending
+	case replaced:
+		moderationStatus = model.ModerationStatusApproved
+	default:
 		moderationStatus = model.ModerationStatusApproved
 	}
 
+	// 6. 构建帖子对象
 	post := &model.Post{
-		Title:   input.Title,
-		Content: input.Content,
-		Summary: input.Summary,
-		Cover:   input.Cover,
-		Type:    postType,
-		// Status:   model.PostStatusPublished,
-		AuthorID: authorID,
-		BoardID:  board.ID,
-		// PostStatus:       poststatus,
+		Title:            input.Title,
+		Content:          input.Content,
+		Summary:          input.Summary,
+		Cover:            input.Cover,
+		Type:             postType,
+		AuthorID:         authorID,
+		BoardID:          board.ID,
 		ModerationStatus: moderationStatus,
+		PostStatus:       model.PostStatus(input.Status),
 	}
+
+	// 7. 处理标签
 	if len(input.TagIDs) > 0 {
-		var tags []model.Tag
+		tags := make([]model.Tag, 0, len(input.TagIDs))
 		for _, id := range input.TagIDs {
 			tag, err := s.tagRepo.FindByID(id)
 			if err == nil {
@@ -87,22 +96,33 @@ func (s *PostService) Create(ctx *gin.Context, authorID uint, input CreatePostIn
 		}
 		post.Tags = tags
 	}
+
+	// 8. 创建帖子
 	if err := s.postRepo.Create(post); err != nil {
 		return nil, err
 	}
+
+	// 9. 更新标签计数
 	for _, tag := range post.Tags {
 		_ = s.tagRepo.IncrPostCount(tag.ID, 1)
 	}
+
+	// 10. 增加用户积分
 	_ = s.userRepo.AddScore(authorID, 10)
-	if post, err = s.postRepo.FindByID(post.ID); err != nil {
+
+	// 11. 重新加载完整帖子（包含关联数据）
+	post, err = s.postRepo.FindByID(post.ID)
+	if err != nil {
 		return nil, err
 	}
 
-	if reviewRequired || shadowed || replace {
+	// 12. 异步创建审核任务（如有需要）
+	if reviewRequired || shadowed || replaced {
 		go func() {
-			_ = s.contentcheckSvc.CreateAuditTaskForPost(post.ID, "sensitive_word", hitWords)
+			_ = s.contentcheckSvc.CreateAuditTaskForPost(post.ID, "sensitive_word", allHitWords)
 		}()
 	}
+
 	return post, nil
 }
 

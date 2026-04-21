@@ -126,46 +126,93 @@ func (h *PostHandler) AdminGetModerationRequire(c *gin.Context) {
 // @Failure      404    {object}  response.Response  "帖子不存在"
 // @Failure      500    {object}  response.Response  "服务器内部错误"
 // @Router       /admin/posts/{id}/review [put]
-func (h *PostHandler) AdminReviewPost(c *gin.Context) {
-	// 1. 权限检查（已有）
-	role, _ := c.Get("user_role")
-	isAdmin := role == "admin"
-	if !isAdmin {
-		response.Forbidden(c, "无权限，需要管理员角色")
-		return
-	}
+// func (h *PostHandler) AdminReviewPost(c *gin.Context) {
+// 	// 2. 解析帖子ID
+// 	postID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+// 	if err != nil {
+// 		response.BadRequest(c, "无效的帖子ID")
+// 		return
+// 	}
 
-	// 2. 解析帖子ID
+// 	// 3. 解析请求体（审核状态）
+// 	var req struct {
+// 		Status string `json:"status" binding:"required,oneof=approved rejected pending"`
+// 	}
+// 	if err := c.ShouldBindJSON(&req); err != nil {
+// 		response.BadRequest(c, "审核状态无效，必须是 approved、rejected 或 pending")
+// 		return
+// 	}
+
+// 	// 4. 调用 Service 执行审核
+// 	// 示例：h.postSvc.UpdatePostStatus(uint(postID), req.Status)
+// 	if err := h.postSvc.AdminSetReviewPost(uint(postID), model.ModerationStatus(req.Status)); err != nil {
+// 		if errors.Is(err, gorm.ErrRecordNotFound) {
+// 			response.NotFound(c, "帖子不存在")
+// 		} else {
+// 			response.InternalError(c, "审核失败："+err.Error())
+// 		}
+// 		return
+// 	}
+
+// 	// 5. 返回成功
+// 	response.Success(c, gin.H{
+// 		"message": "审核操作成功",
+// 		"post_id": postID,
+// 		"status":  req.Status,
+// 	})
+// }
+
+// AdminApprovePost 审核通过帖子
+// POST /admin/audit/tasks/:id/approve
+func (h *PostHandler) AdminApprovePost(c *gin.Context) {
 	postID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		response.BadRequest(c, "无效的帖子ID")
 		return
 	}
 
-	// 3. 解析请求体（审核状态）
-	var req struct {
-		Status string `json:"status" binding:"required,oneof=approved rejected pending"`
-	}
-	if err := c.ShouldBindJSON(&req); err != nil {
-		response.BadRequest(c, "审核状态无效，必须是 approved、rejected 或 pending")
-		return
-	}
-
-	// 4. 调用 Service 执行审核（需要你的 Service 层提供 UpdatePostStatus 方法）
-	// 示例：h.postSvc.UpdatePostStatus(uint(postID), req.Status)
-	if err := h.postSvc.AdminSetReviewPost(uint(postID), model.ModerationStatus(req.Status)); err != nil {
+	if err := h.postSvc.AdminSetReviewPost(uint(postID), model.ModerationStatusApproved); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			response.NotFound(c, "帖子不存在")
 		} else {
-			response.InternalError(c, "审核失败："+err.Error())
+			response.InternalError(c, "审核通过失败："+err.Error())
 		}
 		return
 	}
 
-	// 5. 返回成功
 	response.Success(c, gin.H{
-		"message": "审核操作成功",
+		"message": "审核通过成功",
 		"post_id": postID,
-		"status":  req.Status,
+	})
+}
+
+// AdminRejectPost 审核拒绝帖子
+// POST /admin/audit/tasks/:id/reject
+func (h *PostHandler) AdminRejectPost(c *gin.Context) {
+	postID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		response.BadRequest(c, "无效的帖子ID")
+		return
+	}
+
+	// 可选：从 body 获取拒绝原因
+	var req struct {
+		Reason string `json:"reason" binding:"max=500"`
+	}
+	_ = c.ShouldBindJSON(&req)
+
+	if err := h.postSvc.AdminSetReviewPost(uint(postID), model.ModerationStatusRejected); err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			response.NotFound(c, "帖子不存在")
+		} else {
+			response.InternalError(c, "审核拒绝失败："+err.Error())
+		}
+		return
+	}
+
+	// 这里可以保存拒绝原因到日志或扩展字段
+	response.Success(c, gin.H{
+		"message": "审核拒绝成功",
+		"post_id": postID,
 	})
 }

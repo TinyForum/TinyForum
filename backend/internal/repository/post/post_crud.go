@@ -26,6 +26,7 @@ func (r *postRepository) Delete(id uint) error {
 	return r.db.Delete(&model.Post{}, id).Error
 }
 
+// 获取文章列表
 func (r *postRepository) List(page, pageSize int, opts dto.PostListOptions) ([]model.Post, int64, error) {
 	var posts []model.Post
 	var total int64
@@ -34,10 +35,10 @@ func (r *postRepository) List(page, pageSize int, opts dto.PostListOptions) ([]m
 
 	// 状态过滤
 	if opts.Status != "" {
-		query = query.Where("status = ?", opts.Status)
+		query = query.Where("post_status = ?", opts.Status)
 	} else {
-		// 默认只查询已发布的（与原有行为保持一致）
-		query = query.Where("status = ?", model.PostStatusPublished)
+		// 默认只查询已发布的
+		query = query.Where("post_status = ?", model.PostStatusPublished)
 	}
 
 	if opts.AuthorID > 0 {

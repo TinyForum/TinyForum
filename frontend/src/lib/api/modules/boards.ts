@@ -15,6 +15,16 @@ import type {
   // UserRole,
 } from "../types";
 
+export interface BoardPostListItem {
+  id: number;
+  title: string;
+  summary: string;
+  cover: string;
+  type: string;
+  author_id: number;
+  author_name: string;
+  created_at: string; // ISO date string
+}
 // ─── Payloads ─────────────────────────────────────────────────────────────────
 
 export interface CreateBoardPayload {
@@ -64,11 +74,22 @@ export const boardApi = {
   getById: (id: number | string) =>
     apiClient.get<ApiResponse<Board>>(`/boards/${id}`),
 
+  /**
+   * 通过 slug 获取板块信息
+   * @param slug 
+   * @returns 
+   */
   getBySlug: (slug: string) =>
     apiClient.get<ApiResponse<Board>>(`/boards/slug/${slug}`),
 
+  /**
+   * 通过 slug 获取该板块帖子列表
+   * @param slug 
+   * @param params 
+   * @returns 
+   */
   getPostsBySlug: (slug: string, params?: { page?: number; page_size?: number }) =>
-    apiClient.get<ApiResponse<PageData<Post>>>(`/boards/slug/${slug}/posts`, {
+    apiClient.get<ApiResponse<PageData<BoardPostListItem>>>(`/boards/slug/${slug}/posts`, {
       params,
     }),
 

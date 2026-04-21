@@ -64,10 +64,13 @@ export const adminApi = {
   // 获取所有待审核帖子
   listPendingPosts: (params?: { page?: number; page_size?: number ,keyword?: string}) => apiClient.get<ApiResponse<PageData<Post>>>("/admin/posts/pending", { params }),
   // 标记审核状态
-  reviewPosts: (id: number, data: { status: string }) =>
-  apiClient.put<ApiResponse<null>>(`/admin/posts/${id}/review`, data),
+  // reviewPosts: (id: number, data: { status: string }) =>apiClient.put<ApiResponse<null>>(`/admin/posts/${id}/review`, data),
+   // 审核通过
+  approvePost: (id: number, note?: string) => apiClient.put<ApiResponse<null>>(`/admin/audit/tasks/${id}/approve`, { note }),
+
+  // 审核拒绝（可附带原因）
+  rejectPost: (id: number, reason?: string) => apiClient.put<ApiResponse<null>>(`/admin/audit/tasks/${id}/reject`, { reason }),
   
   // ── 板块管理 ──────────────────────────────────────────────────────────────────
-  listBoards: (params?: { page?: number; page_size?: number }) =>
-    apiClient.get<ApiResponse<PageData<Board>>>("/admin/boards", { params }),
+  listBoards: (params?: { page?: number; page_size?: number }) => apiClient.get<ApiResponse<PageData<Board>>>("/admin/boards", { params }),
 };

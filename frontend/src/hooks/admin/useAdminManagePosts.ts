@@ -1,4 +1,4 @@
-// 管理员审核用户的帖子
+// hooks/admin/useAdminManagePosts.ts
 import { adminApi } from "@/lib/api";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
@@ -30,37 +30,73 @@ export function useAdminManagePosts({
     enabled,
   });
 
-  // 审核帖子（通过/拒绝 - 根据后端 API 扩展）
-  // 当前 reviewPosts 只传 id，若需传递状态可修改
-  const reviewMutation = useMutation({
-    mutationFn: (id: number) => adminApi.reviewPosts(id,{status}),
+  // 审核通过 Mutation
+  const approveMutation = useMutation({
+    mutationFn: (params: { id: number; note?: string }) =>
+      adminApi.approvePost(params.id, params.note),
     onSuccess: () => {
-      // 刷新待审核列表和普通帖子列表（因为帖子状态会变化）
-      queryClient.invalidateQueries({ queryKey: ["admin-pending-posts"] });
-      queryClient.invalidateQueries({ queryKey: ["admin-posts"] });
-      toast.success(t("operation_successful"));
+      invalidateQueries();
+      toast.success(t("approve_success"));
     },
     onError: () => toast.error(t("operation_failed")),
   });
 
-  // 如果需要支持批量审核，可添加批量方法
-  const batchReviewMutation = useMutation({
-    mutationFn: (ids: number[]) =>
-      Promise.all(ids.map((id) => adminApi.reviewPosts(id,{status}))),
+  // 审核拒绝 Mutation（可带原因）
+  const rejectMutation = useMutation({
+    mutationFn: (params: { id: number; reason?: string }) =>
+      adminApi.rejectPost(params.id, params.reason),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin-pending-posts"] });
-      queryClient.invalidateQueries({ queryKey: ["admin-posts"] });
-      toast.success(t("batch_operation_successful"));
+      invalidateQueries();
+      toast.success(t("reject_success"));
     },
     onError: () => toast.error(t("operation_failed")),
   });
 
-  const handleReview = (id: number) => {
-    reviewMutation.mutate(id);
+  // 批量审核通过
+  const batchApproveMutation = useMutation({
+    mutationFn: (items: Array<{ id: number; note?: string }>) =>
+      Promise.all(items.map((item) => adminApi.approvePost(item.id, item.note))),
+    onSuccess: () => {
+      invalidateQueries();
+      toast.success(t("batch_approve_success"));
+    },
+    onError: () => toast.error(t("operation_failed")),
+  });
+
+  // 批量审核拒绝
+  const batchRejectMutation = useMutation({
+    mutationFn: (items: Array<{ id: number; reason?: string }>) =>
+      Promise.all(items.map((item) => adminApi.rejectPost(item.id, item.reason))),
+    onSuccess: () => {
+      invalidateQueries();
+      toast.success(t("batch_reject_success"));
+    },
+    onError: () => toast.error(t("operation_failed")),
+  });
+
+  // 刷新相关查询
+  const invalidateQueries = () => {
+    queryClient.invalidateQueries({ queryKey: ["admin-pending-posts"] });
+    queryClient.invalidateQueries({ queryKey: ["admin-posts"] });
   };
 
-  const handleBatchReview = (ids: number[]) => {
-    batchReviewMutation.mutate(ids);
+  // 便捷方法
+  const approvePost = (id: number, note?: string) => {
+    approveMutation.mutate({ id, note });
+  };
+
+  const rejectPost = (id: number, reason?: string) => {
+    rejectMutation.mutate({ id, reason });
+  };
+
+  const batchApprove = (ids: number[], note?: string) => {
+    const items = ids.map((id) => ({ id, note }));
+    batchApproveMutation.mutate(items);
+  };
+
+  const batchReject = (ids: number[], reason?: string) => {
+    const items = ids.map((id) => ({ id, reason }));
+    batchRejectMutation.mutate(items);
   };
 
   return {
@@ -68,9 +104,15 @@ export function useAdminManagePosts({
     total: data?.total ?? 0,
     isLoading,
     refetch,
-    reviewPost: handleReview,
-    isReviewing: reviewMutation.isPending,
-    batchReviewPosts: handleBatchReview,
-    isBatchReviewing: batchReviewMutation.isPending,
+    // 单个操作
+    approvePost,
+    isApproving: approveMutation.isPending,
+    rejectPost,
+    isRejecting: rejectMutation.isPending,
+    // 批量操作
+    batchApprove,
+    isBatchApproving: batchApproveMutation.isPending,
+    batchReject,
+    isBatchRejecting: batchRejectMutation.isPending,
   };
 }

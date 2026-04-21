@@ -4,6 +4,7 @@ import (
 	"errors"
 	"strconv"
 
+	"tiny-forum/internal/dto"
 	boardService "tiny-forum/internal/service/board"
 	"tiny-forum/pkg/response"
 
@@ -198,10 +199,25 @@ func (h *BoardHandler) GetPostsBySlug(c *gin.Context) {
 		response.BadRequest(c, "板块 slug 不能为空")
 		return
 	}
-	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
-	pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "20"))
 
-	posts, total, err := h.boardSvc.GetPostsBySlug(slug, page, pageSize)
+	var req dto.GetBoardPostsRequest
+	// 绑定查询参数 (page, page_size)
+	if err := c.ShouldBindQuery(&req); err != nil {
+		response.BadRequest(c, "分页参数错误")
+		return
+	}
+	// 设置默认值（若未传或为0）
+	if req.Page < 1 {
+		req.Page = 1
+	}
+	if req.PageSize < 1 {
+		req.PageSize = 20
+	}
+	if req.PageSize > 100 {
+		req.PageSize = 100
+	}
+
+	posts, total, err := h.boardSvc.GetPostsBySlug(slug, req.Page, req.PageSize)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			response.NotFound(c, "板块不存在")
@@ -210,5 +226,6 @@ func (h *BoardHandler) GetPostsBySlug(c *gin.Context) {
 		}
 		return
 	}
-	response.SuccessPage(c, posts, total, page, pageSize)
+
+	response.SuccessPage(c, posts, total, req.Page, req.PageSize)
 }

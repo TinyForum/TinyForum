@@ -3,6 +3,7 @@ package board
 import (
 	"errors"
 	"fmt"
+	"tiny-forum/internal/dto"
 	"tiny-forum/internal/model"
 	"tiny-forum/internal/repository/stats"
 
@@ -66,39 +67,37 @@ func (r *BoardRepository) FindBySlug(slug string) (*model.Board, error) {
 }
 
 // GetPostsBySlug 根据板块 slug 获取帖子列表
-func (r *BoardRepository) GetPostsBySlug(slug string, page, pageSize int) ([]*model.Post, int64, error) {
-	var posts []*model.Post
+// repository/board_repo.go
+func (r *BoardRepository) GetPostsBySlug(slug string, page, pageSize int) ([]*dto.GetBoardPostsResponse, int64, error) {
 	var total int64
+	var results []*dto.GetBoardPostsResponse
 
-	if slug == "" {
-		return nil, 0, fmt.Errorf("slug cannot be empty")
-	}
-	if page < 1 {
-		page = 1
-	}
-	if pageSize < 1 || pageSize > 100 {
-		pageSize = 20
-	}
-
-	query := r.db.Model(&model.Post{}).
+	// 1. 构建基础查询
+	baseQuery := r.db.Table("posts").
+		Select("posts.id, posts.title, posts.summary, posts.cover, posts.type, posts.author_id, users.username as author_name, posts.created_at").
 		Joins("JOIN boards ON boards.id = posts.board_id").
+		Joins("JOIN users ON users.id = posts.author_id").
 		Where("boards.slug = ?", slug).
-		Where("posts.deleted_at IS NULL")
+		Where("posts.deleted_at IS NULL").
+		Where("posts.post_status = ?", "published") // 只显示已发布的帖子（根据业务调整）
 
-	if err := query.Count(&total).Error; err != nil {
+	// 2. 统计总数
+	if err := baseQuery.Count(&total).Error; err != nil {
 		return nil, 0, fmt.Errorf("count posts failed: %w", err)
 	}
 
+	// 3. 分页查询
 	offset := (page - 1) * pageSize
-	err := query.
+	err := baseQuery.
 		Offset(offset).
 		Limit(pageSize).
 		Order("posts.created_at DESC").
-		Find(&posts).Error
+		Scan(&results).Error
 	if err != nil {
 		return nil, 0, fmt.Errorf("get posts failed: %w", err)
 	}
-	return posts, total, nil
+
+	return results, total, nil
 }
 
 // List 分页获取板块列表

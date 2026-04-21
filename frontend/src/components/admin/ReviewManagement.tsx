@@ -2,11 +2,12 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { CheckCircle, XCircle, Clock, Eye, User as UserIcon, FileText, AlertTriangle } from "lucide-react";
+import { CheckCircle, XCircle, Eye, User as UserIcon, FileText, AlertTriangle } from "lucide-react";
 import { adminApi } from "@/lib/api";
 import type { Post, User as ApiUser } from "@/lib/api/types";
 import DOMPurify from "dompurify";
-// 扩展 Post 类型以包含风险信息（根据实际后端字段调整）
+
+// 扩展 Post 类型以包含风险信息
 interface PostWithRisk extends Post {
   risk_score?: number;
   risk_reason?: string;
@@ -19,7 +20,7 @@ interface PostWithRisk extends Post {
   }>;
 }
 
-// 定义后端返回的分页数据结构
+// 后端返回的分页数据结构
 interface PendingPostsResponse {
   list: PostWithRisk[];
   total: number;
@@ -28,13 +29,7 @@ interface PendingPostsResponse {
 // 获取待审核帖子列表
 const fetchPendingPosts = async (params: { page: number; page_size: number; keyword?: string }): Promise<PendingPostsResponse> => {
   const res = await adminApi.listPendingPosts(params);
-  return res.data.data; // 假设后端返回 { list: Post[], total: number }
-};
-
-// 审核帖子
-const reviewPost = async (id: number, status: "approved" | "rejected" | "pending") => {
-  const res = await adminApi.reviewPosts(id, { status });
-  return res.data;
+  return res.data.data;
 };
 
 export function ReviewManagement() {
@@ -43,49 +38,73 @@ export function ReviewManagement() {
   const [keyword, setKeyword] = useState("");
   const [selectedPost, setSelectedPost] = useState<PostWithRisk | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [reviewNote, setReviewNote] = useState(""); // 审核备注/拒绝原因
 
   // 查询待审核列表
   const { data, isLoading, refetch } = useQuery<PendingPostsResponse>({
     queryKey: ["admin-pending-posts", page, keyword],
     queryFn: () => fetchPendingPosts({ page, page_size: 20, keyword }),
-    placeholderData: (prev) => prev, // 相当于 v4 的 keepPreviousData: true
+    placeholderData: (prev) => prev,
   });
 
-  // 审核 mutation
-  const reviewMutation = useMutation({
-    mutationFn: ({ id, status }: { id: number; status: "approved" | "rejected" | "pending" }) =>
-      reviewPost(id, status),
+  // 审核通过 mutation
+  const approveMutation = useMutation({
+    mutationFn: ({ id, note }: { id: number; note?: string }) =>
+      adminApi.approvePost(id, note),
     onSuccess: (_, variables) => {
-      toast.success(`帖子已${variables.status === "approved" ? "通过" : variables.status === "rejected" ? "拒绝" : "转为待审"}`);
+      toast.success("帖子已通过审核");
       queryClient.invalidateQueries({ queryKey: ["admin-pending-posts"] });
       if (selectedPost && selectedPost.id === variables.id) {
         setIsModalOpen(false);
         setSelectedPost(null);
+        setReviewNote("");
       }
     },
-    onError: () => toast.error("操作失败"),
+    onError: () => toast.error("审核通过失败"),
+  });
+
+  // 审核拒绝 mutation
+  const rejectMutation = useMutation({
+    mutationFn: ({ id, reason }: { id: number; reason?: string }) =>
+      adminApi.rejectPost(id, reason),
+    onSuccess: (_, variables) => {
+      toast.success("帖子已拒绝");
+      queryClient.invalidateQueries({ queryKey: ["admin-pending-posts"] });
+      if (selectedPost && selectedPost.id === variables.id) {
+        setIsModalOpen(false);
+        setSelectedPost(null);
+        setReviewNote("");
+      }
+    },
+    onError: () => toast.error("拒绝失败"),
   });
 
   const handleOpenModal = (post: PostWithRisk) => {
     setSelectedPost(post);
+    setReviewNote("");
     setIsModalOpen(true);
   };
 
-  const handleReview = (status: "approved" | "rejected" | "pending") => {
+  const handleApprove = () => {
     if (!selectedPost) return;
-    reviewMutation.mutate({ id: selectedPost.id, status });
+    approveMutation.mutate({ id: selectedPost.id, note: reviewNote.trim() || undefined });
+  };
+
+  const handleReject = () => {
+    if (!selectedPost) return;
+    rejectMutation.mutate({ id: selectedPost.id, reason: reviewNote.trim() || undefined });
   };
 
   const posts = data?.list ?? [];
   const total = data?.total ?? 0;
   const totalPages = Math.ceil(total / 20);
-  
+
   const sanitizeHtml = (html: string) => ({
-  __html: DOMPurify.sanitize(html, {
-    ALLOWED_TAGS: ["b", "i", "em", "strong", "a", "p", "br", "ul", "ol", "li", "img", "h1", "h2", "h3", "h4", "blockquote", "code", "pre"],
-    ALLOWED_ATTR: ["href", "target", "src", "alt", "class", "id"],
-  }),
-});
+    __html: DOMPurify.sanitize(html, {
+      ALLOWED_TAGS: ["b", "i", "em", "strong", "a", "p", "br", "ul", "ol", "li", "img", "h1", "h2", "h3", "h4", "blockquote", "code", "pre"],
+      ALLOWED_ATTR: ["href", "target", "src", "alt", "class", "id"],
+    }),
+  });
 
   return (
     <div className="space-y-4">
@@ -110,7 +129,11 @@ export function ReviewManagement() {
       ) : (
         <div className="space-y-3">
           {posts.map((post) => (
-            <div key={post.id} className="card bg-base-100 shadow-sm border border-base-200 cursor-pointer hover:shadow-md transition-shadow" onClick={() => handleOpenModal(post)}>
+            <div
+              key={post.id}
+              className="card bg-base-100 shadow-sm border border-base-200 cursor-pointer hover:shadow-md transition-shadow"
+              onClick={() => handleOpenModal(post)}
+            >
               <div className="card-body p-4">
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
@@ -154,7 +177,7 @@ export function ReviewManagement() {
         <dialog className="modal modal-open" onClick={() => setIsModalOpen(false)}>
           <div className="modal-box max-w-3xl" onClick={(e) => e.stopPropagation()}>
             <h3 className="font-bold text-lg mb-4">帖子审核</h3>
-            
+
             {/* 用户信息 */}
             <div className="mb-4 p-3 bg-base-200 rounded-lg">
               <div className="flex items-center gap-2 mb-2">
@@ -202,12 +225,24 @@ export function ReviewManagement() {
               </div>
               <h4 className="font-semibold mb-2">{selectedPost.title}</h4>
               <div
-  className="text-sm whitespace-pre-wrap max-h-60 overflow-y-auto bg-base-100 p-2 rounded"
-  dangerouslySetInnerHTML={sanitizeHtml(selectedPost.content)}
-/>
+                className="text-sm whitespace-pre-wrap max-h-60 overflow-y-auto bg-base-100 p-2 rounded"
+                dangerouslySetInnerHTML={sanitizeHtml(selectedPost.content)}
+              />
               {selectedPost.cover && (
                 <img src={selectedPost.cover} alt="封面" className="mt-2 max-h-32 rounded object-cover" />
               )}
+            </div>
+
+            {/* 审核备注输入框 */}
+            <div className="mb-4">
+              <label className="label-text">审核备注（拒绝原因或通过说明）</label>
+              <textarea
+                className="textarea textarea-bordered w-full"
+                rows={3}
+                placeholder="选填，将记录在审核日志中"
+                value={reviewNote}
+                onChange={(e) => setReviewNote(e.target.value)}
+              />
             </div>
 
             {/* 操作按钮 */}
@@ -215,27 +250,19 @@ export function ReviewManagement() {
               <button className="btn" onClick={() => setIsModalOpen(false)}>关闭</button>
               <button
                 className="btn btn-success"
-                onClick={() => handleReview("approved")}
-                disabled={reviewMutation.isPending}
+                onClick={handleApprove}
+                disabled={approveMutation.isPending || rejectMutation.isPending}
               >
                 <CheckCircle className="w-4 h-4 mr-1" />
                 通过
               </button>
               <button
                 className="btn btn-error"
-                onClick={() => handleReview("rejected")}
-                disabled={reviewMutation.isPending}
+                onClick={handleReject}
+                disabled={approveMutation.isPending || rejectMutation.isPending}
               >
                 <XCircle className="w-4 h-4 mr-1" />
                 拒绝
-              </button>
-              <button
-                className="btn btn-warning"
-                onClick={() => handleReview("pending")}
-                disabled={reviewMutation.isPending}
-              >
-                <Clock className="w-4 h-4 mr-1" />
-                待审
               </button>
             </div>
           </div>

@@ -1,14 +1,17 @@
+// ─── BoardPostCard (适配 BoardPostListItem) ───────────────────────────────────
 
-// ─── PostCard ──────────────────────────────────────────────────────────────────
+import Link from 'next/link';                     // Next.js 路由链接
+import { ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline';
+import { Heart, Eye, HeartCrack } from 'lucide-react';
+import { useState } from 'react';
+import { postApi } from '@/lib/api';
+import type { BoardPostListItem } from '@/lib/api/modules/boards';
 
-import { Post, postApi } from "@/lib/api";
-import { ChatBubbleLeftRightIcon } from "@heroicons/react/24/outline";
-import { Link, HeartIcon, EyeIcon, HeartCrack } from "lucide-react";
-import { useState } from "react";
-
-export function BoardPostCard({ post }: { post: Post }) {
+export function BoardPostCard({ post }: { post: BoardPostListItem }) {
   const [liked, setLiked] = useState(false);
-  const [likeCount, setLikeCount] = useState(post.like_count);
+  const [likeCount, setLikeCount] = useState(0);    // 后端列表未返回，默认为0
+  const [viewCount] = useState(0);                  // 后端未返回，暂为0
+  const [commentCount] = useState(0);               // 后端未返回，暂为0
 
   const handleLike = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -26,7 +29,8 @@ export function BoardPostCard({ post }: { post: Post }) {
     }
   };
 
-  const excerpt = post.summary || post.content.replace(/<[^>]*>/g, '').slice(0, 180);
+  // 摘要：仅使用 summary，无 content 后备
+  const excerpt = post.summary || '';
 
   return (
     <div className="group bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 hover:border-blue-200 dark:hover:border-blue-700 hover:shadow-md transition-all duration-200 p-5">
@@ -45,29 +49,31 @@ export function BoardPostCard({ post }: { post: Post }) {
         <div className="flex items-center gap-3">
           <Link href={`/users/${post.author_id}`} className="flex items-center gap-1.5 hover:text-blue-500 transition-colors">
             <img
-              src={post.author?.avatar || '/default-avatar.png'}
-              alt={post.author?.username}
+              src="/default-avatar.png"  // 使用统一默认头像，或根据 author_id 动态拼接
+              alt={post.author_name}
               className="w-5 h-5 rounded-full object-cover"
             />
-            <span>{post.author?.username}</span>
+            <span>{post.author_name}</span>
           </Link>
           <span>{new Date(post.created_at).toLocaleDateString('zh-CN')}</span>
         </div>
 
         <div className="flex items-center gap-3">
           <button onClick={handleLike} className="flex items-center gap-1 hover:text-red-500 transition-colors">
-            {liked
-              ? <HeartCrack className="w-4 h-4 text-red-500" />
-              : <HeartIcon className="w-4 h-4" />}
+            {liked ? (
+              <HeartCrack className="w-4 h-4 text-red-500" />
+            ) : (
+              <Heart className="w-4 h-4" />
+            )}
             <span>{likeCount}</span>
           </button>
           <div className="flex items-center gap-1">
             <ChatBubbleLeftRightIcon className="w-4 h-4" />
-            <span>{post.like_count}</span>
+            <span>{commentCount}</span>
           </div>
           <div className="flex items-center gap-1">
-            <EyeIcon className="w-4 h-4" />
-            <span>{post.view_count}</span>
+            <Eye className="w-4 h-4" />
+            <span>{viewCount}</span>
           </div>
         </div>
       </div>

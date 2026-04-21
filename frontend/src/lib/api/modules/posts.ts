@@ -34,7 +34,11 @@ export interface CreatePostPayload {
   type?: PostType;
   board_id?: number;
   tag_ids?: number[];
+  status?:PostStatus;
 }
+
+
+export type PostStatus = "draft" | "published" | "pending" | "hidden";
 
 export interface UpdatePostPayload {
   title?: string;
@@ -95,6 +99,11 @@ export const postApi = {
   getById: (id: number) =>
     apiClient.get<ApiResponse<PostDetailResult>>(`/posts/${id}`),
 
+  /**
+   * 创建文章
+   * @param data 
+   * @returns 
+   */
   create: (data: CreatePostPayload) =>
     apiClient.post<ApiResponse<Post>>("/posts", data),
 

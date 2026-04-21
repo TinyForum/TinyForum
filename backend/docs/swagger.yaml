@@ -458,6 +458,24 @@ definitions:
         description: 综合热度分
         type: integer
     type: object
+  model.ModerationStatus:
+    enum:
+    - pending
+    - approved
+    - rejected
+    type: string
+    x-enum-comments:
+      ModerationStatusApproved: 审核通过
+      ModerationStatusPending: 待审核
+      ModerationStatusRejected: 审核拒绝（内容被隐藏）
+    x-enum-descriptions:
+    - 待审核
+    - 审核通过
+    - 审核拒绝（内容被隐藏）
+    x-enum-varnames:
+    - ModerationStatusPending
+    - ModerationStatusApproved
+    - ModerationStatusRejected
   model.Moderator:
     properties:
       board:
@@ -952,7 +970,9 @@ definitions:
   model.Post:
     properties:
       author:
-        $ref: '#/definitions/model.User'
+        allOf:
+        - $ref: '#/definitions/model.User'
+        description: 关联...
       author_id:
         type: integer
       board:
@@ -969,14 +989,20 @@ definitions:
         type: integer
       like_count:
         type: integer
+      moderation_status:
+        allOf:
+        - $ref: '#/definitions/model.ModerationStatus'
+        description: 系统风控状态 - 由风控引擎或管理员审核决定
       pin_in_board:
         type: boolean
       pin_top:
         type: boolean
+      post_status:
+        allOf:
+        - $ref: '#/definitions/model.PostStatus'
+        description: 用户状态 - 用户自己控制/感知的状态
       question:
         $ref: '#/definitions/model.Question'
-      status:
-        $ref: '#/definitions/model.PostStatus'
       summary:
         type: string
       tags:
@@ -1000,15 +1026,15 @@ definitions:
     - hidden
     type: string
     x-enum-comments:
-      PostStatusDraft: 草稿
-      PostStatusHidden: 已隐藏（审核拒绝 或 管理员操作）
-      PostStatusPending: 待审核（命中 review 级敏感词 或 举报聚合触发）
-      PostStatusPublished: 已发布
+      PostStatusDraft: 草稿（用户保存未发布）
+      PostStatusHidden: 用户隐藏（如自己删除/隐藏，或管理员操作但以用户视角展示）
+      PostStatusPending: 待用户确认/提交（如编辑后重新提交）
+      PostStatusPublished: 已发布（用户主动发布）
     x-enum-descriptions:
-    - 草稿
-    - 待审核（命中 review 级敏感词 或 举报聚合触发）
-    - 已发布
-    - 已隐藏（审核拒绝 或 管理员操作）
+    - 草稿（用户保存未发布）
+    - 待用户确认/提交（如编辑后重新提交）
+    - 已发布（用户主动发布）
+    - 用户隐藏（如自己删除/隐藏，或管理员操作但以用户视角展示）
     x-enum-varnames:
     - PostStatusDraft
     - PostStatusPending
@@ -1019,11 +1045,13 @@ definitions:
     - post
     - article
     - topic
+    - question
     type: string
     x-enum-varnames:
     - PostTypePost
     - PostTypeArticle
     - PostTypeTopic
+    - PostTypeQuestion
   model.Question:
     properties:
       accepted_answer:
@@ -1446,6 +1474,12 @@ definitions:
       message:
         type: string
     type: object
+  risk.resolveTaskInput:
+    properties:
+      note:
+        maxLength: 500
+        type: string
+    type: object
   tag.CreateTagInput:
     properties:
       color:
@@ -1850,21 +1884,80 @@ paths:
       summary: 切换帖子置顶状态
       tags:
       - 管理接口
+  /admin/posts/{id}/review:
+    put:
+      consumes:
+      - application/json
+      description: 管理员对指定帖子进行审核，可设置为 approved（通过）、rejected（拒绝）或 pending（待审）
+      parameters:
+      - description: 帖子ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 审核状态
+        in: body
+        name: request
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 审核成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "403":
+          description: 无权限（非管理员）
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: 帖子不存在
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 管理员审核帖子
+      tags:
+      - 管理接口 - 帖子管理
   /admin/posts/pending:
     get:
-      description: 管理员分页获取所有待审核帖子列表，支持关键词搜索
+      consumes:
+      - application/json
+      description: 分页获取所有状态为 pending 的帖子，支持按标题关键词搜索。需要管理员权限。
       parameters:
       - default: 1
         description: 页码
         in: query
+        minimum: 1
         name: page
         type: integer
       - default: 20
         description: 每页数量
         in: query
+        maximum: 100
+        minimum: 1
         name: page_size
         type: integer
-      - description: 搜索关键词
+      - description: 搜索关键词（匹配标题）
         in: query
         name: keyword
         type: string
@@ -1888,11 +1981,11 @@ paths:
                     type: object
               type: object
         "401":
-          description: 未授权
+          description: 未授权（缺少或无效的 Token）
           schema:
             $ref: '#/definitions/response.Response'
         "403":
-          description: 无权限
+          description: 无权限（非管理员）
           schema:
             $ref: '#/definitions/response.Response'
         "500":
@@ -1901,9 +1994,155 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - ApiKeyAuth: []
-      summary: 管理员获取待审核帖子列表
+      summary: 获取待审核帖子列表
       tags:
-      - 管理接口
+      - 管理接口 - 帖子管理
+  /admin/risk/audit/logs:
+    get:
+      consumes:
+      - application/json
+      description: 根据目标类型和ID查询管理员对审核任务的操作记录（批准/拒绝）
+      parameters:
+      - description: 目标类型，如 post、comment、user 等
+        in: query
+        name: target_type
+        type: string
+      - description: 目标ID
+        in: query
+        name: target_id
+        type: integer
+      - default: 50
+        description: 返回条数，默认50，最大200
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: 参数错误（target_id无效）
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 查询审核操作日志
+      tags:
+      - 风险管理
+  /admin/risk/audit/tasks:
+    get:
+      consumes:
+      - application/json
+      description: 分页查询所有状态为 pending 的审核任务（内容安全检测不通过待人工审核）
+      parameters:
+      - default: 20
+        description: 每页数量，默认20，最大100
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: 偏移量，默认0
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 获取待审核内容列表
+      tags:
+      - 风险管理
+  /admin/risk/audit/tasks/{id}/approve:
+    post:
+      consumes:
+      - application/json
+      description: 将指定审核任务标记为通过，恢复内容为 published 状态，并记录操作日志
+      parameters:
+      - description: 审核任务ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 审核备注
+        in: body
+        name: input
+        schema:
+          $ref: '#/definitions/risk.resolveTaskInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 操作成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 审核通过
+      tags:
+      - 风险管理
+  /admin/risk/audit/tasks/{id}/reject:
+    post:
+      consumes:
+      - application/json
+      description: 将指定审核任务标记为拒绝，内容状态改为 hidden（屏蔽），并记录操作日志
+      parameters:
+      - description: 审核任务ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 审核备注
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/risk.resolveTaskInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 操作成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 审核拒绝
+      tags:
+      - 风险管理
   /admin/statistics/day:
     get:
       consumes:
