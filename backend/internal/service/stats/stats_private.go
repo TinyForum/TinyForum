@@ -7,6 +7,8 @@ import (
 	"time"
 
 	"tiny-forum/internal/model"
+
+	"golang.org/x/sync/errgroup"
 )
 
 // getBaseInfo 并行获取各维度总量
@@ -41,19 +43,72 @@ func (s *StatsService) getBaseInfo(ctx context.Context) (*model.StatsInfo, error
 
 // getRangeStats 并行获取时间段内各维度增量，单项失败不中断整体
 func (s *StatsService) getRangeStats(ctx context.Context, startDate, endDate time.Time) (*model.StatsTodayInfo, error) {
-	var wg sync.WaitGroup
 	var info model.StatsTodayInfo
-	wg.Add(6)
-	go func() { defer wg.Done(); info.NewUser, _ = s.userRepo.CountByDateRange(ctx, startDate, endDate) }()
-	go func() { defer wg.Done(); info.NewArticle, _ = s.postRepo.CountByDateRange(ctx, startDate, endDate) }()
-	go func() { defer wg.Done(); info.NewComment, _ = s.commentRepo.CountByDateRange(ctx, startDate, endDate) }()
-	go func() { defer wg.Done(); info.NewBoard, _ = s.boardRepo.CountByDateRange(ctx, startDate, endDate) }()
-	go func() { defer wg.Done(); info.NewTag, _ = s.tagRepo.CountByDateRange(ctx, startDate, endDate) }()
-	go func() {
-		defer wg.Done()
-		info.ActiveUser, _ = s.userRepo.CountActiveByDateRange(ctx, startDate, endDate)
-	}()
-	wg.Wait()
+	g, ctx := errgroup.WithContext(ctx)
+
+	// 新增用户
+	g.Go(func() error {
+		count, err := s.userRepo.CountByDateRange(ctx, startDate, endDate)
+		if err != nil {
+			return fmt.Errorf("统计新增用户: %w", err)
+		}
+		info.NewUser = count
+		return nil
+	})
+
+	// 新增文章
+	g.Go(func() error {
+		count, err := s.postRepo.CountByDateRange(ctx, startDate, endDate)
+		if err != nil {
+			return fmt.Errorf("统计新增文章: %w", err)
+		}
+		info.NewArticle = count
+		return nil
+	})
+
+	// 新增评论
+	g.Go(func() error {
+		count, err := s.commentRepo.CountByDateRange(ctx, startDate, endDate)
+		if err != nil {
+			return fmt.Errorf("统计新增评论: %w", err)
+		}
+		info.NewComment = count
+		return nil
+	})
+
+	// 新增版块
+	g.Go(func() error {
+		count, err := s.boardRepo.CountByDateRange(ctx, startDate, endDate)
+		if err != nil {
+			return fmt.Errorf("统计新增版块: %w", err)
+		}
+		info.NewBoard = count
+		return nil
+	})
+
+	// 新增标签
+	g.Go(func() error {
+		count, err := s.tagRepo.CountByDateRange(ctx, startDate, endDate)
+		if err != nil {
+			return fmt.Errorf("统计新增标签: %w", err)
+		}
+		info.NewTag = count
+		return nil
+	})
+
+	// 活跃用户
+	g.Go(func() error {
+		count, err := s.userRepo.CountActiveByDateRange(ctx, startDate, endDate)
+		if err != nil {
+			return fmt.Errorf("统计活跃用户: %w", err)
+		}
+		info.ActiveUser = count
+		return nil
+	})
+
+	if err := g.Wait(); err != nil {
+		return nil, err
+	}
 	return &info, nil
 }
 

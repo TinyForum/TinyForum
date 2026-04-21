@@ -2,6 +2,7 @@ package stats
 
 import (
 	"fmt"
+	"log"
 	"time"
 	"tiny-forum/internal/dto"
 	"tiny-forum/pkg/response"
@@ -24,10 +25,7 @@ import (
 // @Failure 500 {object} response.Response
 // @Router /admin/statistics/day [get]
 func (h *StatsHandler) GetStatsDay(c *gin.Context) {
-	var req struct {
-		Date string `form:"date" binding:"omitempty,datetime=2006-01-02"`
-		Type string `form:"type" binding:"omitempty,oneof=users posts comments all"`
-	}
+	var req dto.StatsDayQuery
 	if err := c.ShouldBindQuery(&req); err != nil {
 		response.BadRequest(c, err.Error())
 		return
@@ -36,7 +34,12 @@ func (h *StatsHandler) GetStatsDay(c *gin.Context) {
 		req.Type = "all"
 	}
 
-	date, err := utils.ParseTimeExpression(req.Date, time.Now(), time.Local, false)
+	dateStr := req.Date
+	if dateStr == "" {
+		dateStr = time.Now().Format("2006-01-02")
+	}
+
+	date, err := utils.ParseTimeExpression(dateStr, time.Now(), time.Local, false)
 	if err != nil {
 		response.BadRequest(c, "无效的日期格式: "+err.Error())
 		return
@@ -44,7 +47,9 @@ func (h *StatsHandler) GetStatsDay(c *gin.Context) {
 
 	stats, err := h.statsSvc.GetStatsByDate(c.Request.Context(), date, req.Type)
 	if err != nil {
-		response.InternalError(c, "获取统计数据失败: "+err.Error())
+		// 记录详细错误日志，便于排查
+		log.Printf("获取统计数据失败: %v", err) // 或者使用 slog
+		response.InternalError(c, "获取统计数据失败，请稍后重试")
 		return
 	}
 

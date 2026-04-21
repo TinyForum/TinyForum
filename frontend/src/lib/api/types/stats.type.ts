@@ -154,6 +154,8 @@ export interface ApiResponse<T = any> {
 
 /**
  * 获取日统计数据请求参数
+ * - data: 日期，格式为 YYYY-MM-DD
+ * - type: 统计类型，可选值为 'users' | 'posts' | 'comments' | 'likes' | 'all'，默认为 'all'
  */
 export interface GetStatsDayParams {
   date?: string;
@@ -178,3 +180,25 @@ export interface GetStatsTrendParams {
   type: 'users' | 'posts' | 'comments' | 'likes';
   interval?: 'day' | 'week' | 'month';
 }
+
+
+// 范围统计请求参数
+export interface GetStatsRangeParams {
+  start_date?: string;  // 2026-03-01
+  end_date?: string;    // 2026-03-31
+  type?: 'users' | 'posts' | 'comments' | 'all';
+}
+
+// 每日统计数据项
+export interface DailyStat {
+  date: string;          // 2026-03-21
+  new_user: number;
+  new_article: number;
+  new_comment: number;
+  new_board: number;
+  new_tag: number;
+  active_user: number;
+}
+
+// 范围统计响应
+export type StatsRangeResponse = DailyStat[];

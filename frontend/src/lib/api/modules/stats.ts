@@ -7,7 +7,9 @@ import {
   StatsTrendResponse,
   GetStatsDayParams,
   GetStatsTotalParams,
-  GetStatsTrendParams
+  GetStatsTrendParams,
+  GetStatsRangeParams,
+  StatsRangeResponse
 } from "../types/stats.type";
 
 export const statsApi = {
@@ -36,4 +38,9 @@ export const statsApi = {
    */
   trend: (params: GetStatsTrendParams) =>
     apiClient.get<ApiResponse<StatsTrendResponse>>("/admin/statistics/trend", { params }),
+  /**
+   * 获取范围统计数据
+   */
+  range: (params?: GetStatsRangeParams) =>
+    apiClient.get<ApiResponse<StatsRangeResponse>>("/admin/statistics/range", { params }),
 };

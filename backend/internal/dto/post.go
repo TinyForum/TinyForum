@@ -1,6 +1,9 @@
 package dto
 
-import "tiny-forum/internal/model"
+import (
+	"time"
+	"tiny-forum/internal/model"
+)
 
 // PostListOptions 帖子列表查询选项
 type PostListOptions struct {
@@ -11,4 +14,15 @@ type PostListOptions struct {
 	SortBy           string                 // "" = latest, "hot" = popular
 	Status           model.PostStatus       // "" = all, "pending" = pending, "approved" = approved, "rejected" = rejected
 	ModerationStatus model.ModerationStatus // "" = all, "low" = low, "medium" = medium, "high" = high
+}
+
+// GetStatsDay 获取每日统计数据
+type StatsDayQuery struct {
+	Date string `form:"date" binding:"omitempty,datetime=2006-01-02"`
+	Type string `form:"type" binding:"omitempty,oneof=users posts comments all"`
+}
+
+// GetStatsResponse 响应的统计数据
+type GetStatsResponse struct {
+	Day time.Time `json:"day"`
 }

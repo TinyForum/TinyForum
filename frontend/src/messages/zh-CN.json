@@ -253,7 +253,11 @@
     "change_role": "更改角色",
     "back": "返回",
     "inactive": "未激活",
-
+    "new_users_trend": "新增用户趋势",
+    "new_posts_trend": "新增文章趋势",
+    "new_comments_trend": "新增评论趋势",
+    "total_new_content": "总新增内容",
+    "comment_count": "评论数",
     "role": {
       "super_admin": "超级管理员",
       "admin": "管理员",

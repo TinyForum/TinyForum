@@ -529,9 +529,7 @@ func InitApp(cfg *config.Config) (*App, error) {
 		adminGroup.POST("/posts/${id}/review", postHandler.AdminReviewPost)     // 审核帖子
 		adminGroup.PUT("/posts/:id/pin", postHandler.AdminTogglePin)            // 置顶帖子
 		// 平台统计
-		adminGroup.GET("/statistics/day", statsHandler.GetStatsDay)     // 获取日数据
-		adminGroup.GET("/statistics/total", statsHandler.GetStatsTotal) // 获取所有统计指标
-		adminGroup.GET("/statistics/trend", statsHandler.GetStatsTrend) // 获取趋势指标
+		statsHandler.RegisterRoutes(adminGroup)
 		// 审核
 		riskHandler.RegisterRoutes(adminGroup) // 挂载审核队列路由
 		// 系统状态

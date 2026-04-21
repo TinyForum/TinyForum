@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"tiny-forum/internal/dto"
 	"tiny-forum/internal/model"
 )
 
@@ -12,18 +13,30 @@ import (
 func (s *StatsService) GetStatsByDate(ctx context.Context, date time.Time, statsType string) (*model.StatsTodayInfo, error) {
 	startOfDay := time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, date.Location())
 	endOfDay := time.Date(date.Year(), date.Month(), date.Day(), 23, 59, 59, 999999999, date.Location())
-	todayInfo := &model.StatsTodayInfo{}
+
+	// 统一返回完整结构
+	info := &model.StatsTodayInfo{}
+
 	var err error
 	switch statsType {
 	case "users":
-		todayInfo.NewUser, err = s.userRepo.CountByDateRange(ctx, startOfDay, endOfDay)
-		return todayInfo, err
+		info.NewUser, err = s.userRepo.CountByDateRange(ctx, startOfDay, endOfDay)
+		if err != nil {
+			return nil, fmt.Errorf("查询新增用户失败: %w", err)
+		}
+		return info, nil
 	case "posts":
-		todayInfo.NewArticle, err = s.postRepo.CountByDateRange(ctx, startOfDay, endOfDay)
-		return todayInfo, err
+		info.NewArticle, err = s.postRepo.CountByDateRange(ctx, startOfDay, endOfDay)
+		if err != nil {
+			return nil, fmt.Errorf("查询新增文章失败: %w", err)
+		}
+		return info, nil
 	case "comments":
-		todayInfo.NewComment, err = s.commentRepo.CountByDateRange(ctx, startOfDay, endOfDay)
-		return todayInfo, err
+		info.NewComment, err = s.commentRepo.CountByDateRange(ctx, startOfDay, endOfDay)
+		if err != nil {
+			return nil, fmt.Errorf("查询新增评论失败: %w", err)
+		}
+		return info, nil
 	default: // "all" or empty
 		return s.getRangeStats(ctx, startOfDay, endOfDay)
 	}
@@ -105,4 +118,38 @@ func (s *StatsService) GetTrendStats(ctx context.Context, startDate, endDate tim
 		})
 	}
 	return trendData, nil
+}
+
+// StatsService 新增方法
+func (s *StatsService) GetStatsByDateRange(ctx context.Context, startDate, endDate time.Time, statsType string) ([]dto.DailyStat, error) {
+	// 将日期对齐到零点（避免时区漂移）
+	start := time.Date(startDate.Year(), startDate.Month(), startDate.Day(), 0, 0, 0, 0, startDate.Location())
+	end := time.Date(endDate.Year(), endDate.Month(), endDate.Day(), 0, 0, 0, 0, endDate.Location())
+
+	if start.After(end) {
+		return nil, fmt.Errorf("开始日期不能晚于结束日期")
+	}
+
+	days := int(end.Sub(start).Hours()/24) + 1
+	result := make([]dto.DailyStat, 0, days)
+
+	// 逐日统计（可考虑并发优化，但30天内简单循环足够）
+	for d := start; !d.After(end); d = d.AddDate(0, 0, 1) {
+		dailyInfo, err := s.GetStatsByDate(ctx, d, statsType)
+		if err != nil {
+			return nil, fmt.Errorf("统计日期 %s 失败: %w", d.Format("2006-01-02"), err)
+		}
+
+		result = append(result, dto.DailyStat{
+			Date:       d.Format("2006-01-02"),
+			NewUser:    dailyInfo.NewUser,
+			NewArticle: dailyInfo.NewArticle,
+			NewComment: dailyInfo.NewComment,
+			NewBoard:   dailyInfo.NewBoard,
+			NewTag:     dailyInfo.NewTag,
+			ActiveUser: dailyInfo.ActiveUser,
+		})
+	}
+
+	return result, nil
 }
