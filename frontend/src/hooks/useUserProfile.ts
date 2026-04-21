@@ -31,5 +31,6 @@ export function useUserProfile() {
     isSuperAdmin: profile?.role === 'super_admin',
     isModerator: profile?.role === 'moderator',
     isReviewer: profile?.role === 'reviewer',
+    isMember: profile?.role === 'member',
   };
 }

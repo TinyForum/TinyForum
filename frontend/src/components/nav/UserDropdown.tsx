@@ -32,22 +32,22 @@ interface UserDropdownProps {
   onOpenChange?: (isOpen: boolean) => void;
 }
 
-export default function UserDropdown({ 
-  user, 
-  isOpen: controlledIsOpen, 
-  onOpenChange 
+export default function UserDropdown({
+  user,
+  isOpen: controlledIsOpen,
+  onOpenChange,
 }: UserDropdownProps) {
   const router = useRouter();
   const t = useTranslations("Common");
   const { logout, isLoading } = useLogoutStore();
-  
+
   // 内部状态（非受控模式）
   const [internalIsOpen, setInternalIsOpen] = useState(false);
-  
+
   // 判断是否为受控组件
   const isControlled = controlledIsOpen !== undefined;
   const isOpen = isControlled ? controlledIsOpen : internalIsOpen;
-  
+
   // 更新打开状态
   const setIsOpen = (newIsOpen: boolean) => {
     if (isControlled) {
@@ -56,35 +56,35 @@ export default function UserDropdown({
       setInternalIsOpen(newIsOpen);
     }
   };
-  
+
   // 处理点击外部关闭
   useEffect(() => {
     if (!isOpen) return;
-    
+
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
-      const dropdown = document.querySelector('.user-dropdown-container');
+      const dropdown = document.querySelector(".user-dropdown-container");
       if (dropdown && !dropdown.contains(target)) {
         setIsOpen(false);
       }
     };
-    
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isOpen]);
 
   // 处理 ESC 键关闭
   useEffect(() => {
     if (!isOpen) return;
-    
+
     const handleEsc = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
+      if (event.key === "Escape") {
         setIsOpen(false);
       }
     };
-    
-    document.addEventListener('keydown', handleEsc);
-    return () => document.removeEventListener('keydown', handleEsc);
+
+    document.addEventListener("keydown", handleEsc);
+    return () => document.removeEventListener("keydown", handleEsc);
   }, [isOpen]);
 
   // 处理登出
@@ -107,7 +107,7 @@ export default function UserDropdown({
 
   // 获取后台入口配置
   const getDashboardConfig = () => {
-    console.log("user role: ", user.role, "user role: ", user.role)
+    console.log("user role: ", user.role, "user role: ", user.role);
     const role = user?.role;
 
     if (role === "admin" || role === "super_admin") {
@@ -137,20 +137,37 @@ export default function UserDropdown({
       };
     }
 
+    if (role === "member") {
+      return {
+        icon: <Eye className="w-4 h-4" />,
+        label: t("member_dashboard"),
+        path: "/dashboard/member",
+        className: "text-accent",
+      };
+    }
+    if (role === "user") {
+      return {
+        icon: <Eye className="w-4 h-4" />,
+        label: t("user_dashboard"),
+        path: "/dashboard/user",
+        className: "text-accent",
+      };
+    }
     return null;
   };
 
-
   const dashboardConfig = getDashboardConfig();
-  console.log("dashboardConfig: ", dashboardConfig)
+  console.log("dashboardConfig: ", dashboardConfig);
 
   // 是否有管理权限
   const hasManagementAccess =
-    user.role === "admin" ||
     user.role === "super_admin" ||
+    user.role === "admin" ||
+    user.role === "reviewer" ||
     user.role === "moderator" ||
-    user.role === "reviewer";
-console.log("hasManagementAccess: ", hasManagementAccess)
+    user.role === "member" ||
+    user.role === "user";
+  console.log("hasManagementAccess: ", hasManagementAccess);
   return (
     <div className="dropdown dropdown-end user-dropdown-container">
       <div
@@ -160,18 +177,12 @@ console.log("hasManagementAccess: ", hasManagementAccess)
         onClick={() => setIsOpen(!isOpen)}
       >
         <div className="w-9 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
-          <Avatar
-            username={user.username}
-            avatarUrl={user.avatar}
-            size="md"
-          />
+          <Avatar username={user.username} avatarUrl={user.avatar} size="md" />
         </div>
       </div>
 
       {isOpen && (
-        <ul
-          className="dropdown-content menu bg-base-100 rounded-box z-10 w-64 p-2 shadow-xl border border-base-200 mt-2"
-        >
+        <ul className="dropdown-content menu bg-base-100 rounded-box z-10 w-64 p-2 shadow-xl border border-base-200 mt-2">
           {/* 用户信息 */}
           <li className="menu-title">
             <div className="flex items-center gap-2">
@@ -245,7 +256,7 @@ console.log("hasManagementAccess: ", hasManagementAccess)
 
           {/* 版主申请入口 */}
           {/* TODO: 返回用户是否已经申请 */}
-          {user.role  && (
+          {user.role && (
             <li onClick={handleMenuClick}>
               <Link href="/boards/applications" className="gap-2">
                 <ShieldCheckIcon className="w-4 h-4" />
