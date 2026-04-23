@@ -141,7 +141,7 @@ func validateConfigWithHints(cfg *config.Config) error {
 	}
 
 	// 5. 验证 Redis 配置（可选）
-	if cfg.Basic.Redis.Host != "" && cfg.Basic.Redis.Port == 0 {
+	if cfg.Private.Redis.Host != "" && cfg.Private.Redis.Port == 0 {
 		warnings = append(warnings, "⚠️  Redis host is set but port is 0, Redis features may not work")
 	}
 
@@ -228,8 +228,11 @@ func printStartupInfo(cfg *config.Config, addr string) {
 		logger.Info("📧 Email Service: Disabled")
 	}
 
-	if cfg.Basic.Redis.Host != "" {
-		logger.Info(fmt.Sprintf("📡 Redis: %s:%d", cfg.Basic.Redis.Host, cfg.Basic.Redis.Port))
+	if cfg.Private.Redis.Host != "" {
+		logger.Info(fmt.Sprintf("📡 Redis: %s:%d", cfg.Private.Redis.Host, cfg.Private.Redis.Port))
+	}
+	if cfg.Basic.Ollama.BaseURL != "" {
+		logger.Info(fmt.Sprintf("Ollama: %s", cfg.Basic.Ollama.BaseURL))
 	}
 
 	logger.Info("========================================")

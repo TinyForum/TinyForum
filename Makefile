@@ -534,6 +534,10 @@ docker-tools:
 	@$(DOCKER_COMPOSE) --env-file $(ENV_FILE) --profile tools up -d
 
 
+risk:
+	@cd backend && ollama serve	
+ollama:
+	@command ollama
 
 # 主入口：智能选择工具
 bench:

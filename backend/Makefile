@@ -15,3 +15,5 @@ wire:
 
 docs-api:
 	@swag init -g ./cmd/server/main.go --output ./docs
+
+

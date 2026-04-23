@@ -18,12 +18,19 @@ type Config struct {
 
 // ConfigBasic 基础配置（公开配置）
 type ConfigBasic struct {
-	Server    ServerConfig    `mapstructure:"server"`
-	API       APIConfig       `mapstructure:"api"`
-	Log       LogConfig       `mapstructure:"log"`
-	Redis     RedisConfig     `mapstructure:"redis"`
+	Server ServerConfig `mapstructure:"server"`
+	API    APIConfig    `mapstructure:"api"`
+	Log    LogConfig    `mapstructure:"log"`
+	// Redis     RedisConfig     `mapstructure:"redis"`
 	Upload    UploadConfig    `mapstructure:"upload"`
 	RateLimit RateLimitConfig `mapstructure:"rate_limit"`
+	Ollama    Ollama          `mapstructure:"ollama"`
+}
+
+type Ollama struct {
+	BaseURL string `mapstructure:"base_url"`
+	Model   string `mapstructure:"model"`
+	APIKey  string `mapstructure:"api_key"`
 }
 
 type APIConfig struct {
@@ -36,12 +43,12 @@ type APIConfig struct {
 
 // ConfigPrivate 私有配置（敏感信息）
 type ConfigPrivate struct {
-	Database DatabaseConfig     `mapstructure:"database"`
-	JWT      JWTConfig          `mapstructure:"jwt"`
-	Email    EmailConfig        `mapstructure:"email"`
-	OAuth    OAuthConfig        `mapstructure:"oauth"`
-	Redis    RedisPrivateConfig `mapstructure:"redis"`
-	Admin    AdminConfig        `mapstructure:"admin"`
+	Database DatabaseConfig `mapstructure:"database"`
+	JWT      JWTConfig      `mapstructure:"jwt"`
+	Email    EmailConfig    `mapstructure:"email"`
+	OAuth    OAuthConfig    `mapstructure:"oauth"`
+	Redis    RedisConfig    `mapstructure:"redis"`
+	Admin    AdminConfig    `mapstructure:"admin"`
 }
 
 // AdminConfig 管理员配置
@@ -106,9 +113,9 @@ type RedisConfig struct {
 }
 
 // RedisPrivateConfig 已废弃，密码已合并到 RedisConfig
-type RedisPrivateConfig struct {
-	Password string `mapstructure:"password"`
-}
+// type RedisPrivateConfig struct {
+// 	Password string `mapstructure:"password"`
+// }
 
 // EmailConfig 邮件配置
 type EmailConfig struct {
@@ -363,7 +370,7 @@ func (c *Config) GetDSN() string {
 
 // GetRedisAddr 获取Redis地址
 func (c *Config) GetRedisAddr() string {
-	return c.Basic.Redis.GetAddr()
+	return c.Private.Redis.GetAddr()
 }
 
 // IsProduction 是否为生产环境

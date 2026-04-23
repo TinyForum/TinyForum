@@ -1,5 +1,5 @@
 // hooks/useLeaderboard.ts
-import { LeaderboardRequest, LeaderboardResponse, userApi } from '@/lib/api/modules/users';
+import { LeaderboardRequest, LeaderboardItemResponse, userApi } from '@/lib/api/modules/users';
 import { useQuery, UseQueryOptions } from '@tanstack/react-query';
 // import { userApi } from '@/services/user';
 // import { LeaderboardRequest, LeaderboardResponse } from '@/types/user';
@@ -11,13 +11,13 @@ import { useQuery, UseQueryOptions } from '@tanstack/react-query';
  */
 export const useLeaderboard = (
   params?: LeaderboardRequest,
-  options?: Omit<UseQueryOptions<LeaderboardResponse, Error>, 'queryKey' | 'queryFn'>
+  options?: Omit<UseQueryOptions<LeaderboardItemResponse[], Error>, 'queryKey' | 'queryFn'>
 ) => {
   return useQuery({
     queryKey: ['leaderboard', params?.limit, params?.fields],
     queryFn: async () => {
-      const { data } = await userApi.leaderboard(params);
-      return data.data; // 假设 ApiResponse 包裹的数据在 data 字段中
+      const { data } = await userApi.getLeaderboardSimple(params);
+      return data.data; 
     },
     staleTime: 5 * 60 * 1000, // 5 分钟内数据视为新鲜
     ...options,

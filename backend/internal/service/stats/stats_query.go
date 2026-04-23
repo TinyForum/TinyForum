@@ -121,7 +121,7 @@ func (s *StatsService) GetTrendStats(ctx context.Context, startDate, endDate tim
 }
 
 // StatsService 新增方法
-func (s *StatsService) GetStatsByDateRange(ctx context.Context, startDate, endDate time.Time, statsType string) ([]dto.DailyStat, error) {
+func (s *StatsService) GetStatsByDateRange(ctx context.Context, startDate, endDate time.Time, statsType string) ([]dto.DailyStatResponse, error) {
 	// 将日期对齐到零点（避免时区漂移）
 	start := time.Date(startDate.Year(), startDate.Month(), startDate.Day(), 0, 0, 0, 0, startDate.Location())
 	end := time.Date(endDate.Year(), endDate.Month(), endDate.Day(), 0, 0, 0, 0, endDate.Location())
@@ -131,7 +131,7 @@ func (s *StatsService) GetStatsByDateRange(ctx context.Context, startDate, endDa
 	}
 
 	days := int(end.Sub(start).Hours()/24) + 1
-	result := make([]dto.DailyStat, 0, days)
+	result := make([]dto.DailyStatResponse, 0, days)
 
 	// 逐日统计（可考虑并发优化，但30天内简单循环足够）
 	for d := start; !d.After(end); d = d.AddDate(0, 0, 1) {
@@ -140,7 +140,7 @@ func (s *StatsService) GetStatsByDateRange(ctx context.Context, startDate, endDa
 			return nil, fmt.Errorf("统计日期 %s 失败: %w", d.Format("2006-01-02"), err)
 		}
 
-		result = append(result, dto.DailyStat{
+		result = append(result, dto.DailyStatResponse{
 			Date:       d.Format("2006-01-02"),
 			NewUser:    dailyInfo.NewUser,
 			NewArticle: dailyInfo.NewArticle,

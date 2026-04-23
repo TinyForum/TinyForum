@@ -4,13 +4,14 @@ import (
 	"errors"
 	"fmt"
 
+	"tiny-forum/internal/dto"
 	"tiny-forum/internal/model"
 
 	"gorm.io/gorm"
 )
 
 // CreateQuestion 创建问答帖
-func (s *QuestionService) CreateQuestion(userID uint, input model.CreateQuestionInput) (*model.QuestionResponse, error) {
+func (s *QuestionService) CreateQuestion(userID uint, input dto.CreateQuestionRequest) (*model.QuestionResponse, error) {
 	if err := s.validateCreateQuestion(input); err != nil {
 		return nil, err
 	}
@@ -22,7 +23,7 @@ func (s *QuestionService) CreateQuestion(userID uint, input model.CreateQuestion
 }
 
 // validateCreateQuestion 验证创建问答的输入
-func (s *QuestionService) validateCreateQuestion(input model.CreateQuestionInput) error {
+func (s *QuestionService) validateCreateQuestion(input dto.CreateQuestionRequest) error {
 	if input.Title == "" {
 		return errors.New("标题不能为空")
 	}

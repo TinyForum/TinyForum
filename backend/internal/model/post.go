@@ -26,10 +26,14 @@ type PostStatus string
 
 // 用户主动控制的状态（用户能感知、能操作）
 const (
-	PostStatusDraft     PostStatus = "draft"     // 草稿（用户保存未发布）
-	PostStatusPending   PostStatus = "pending"   // 待用户确认/提交（如编辑后重新提交）
-	PostStatusPublished PostStatus = "published" // 已发布（用户主动发布）
-	PostStatusHidden    PostStatus = "hidden"    // 用户隐藏（如自己删除/隐藏，或管理员操作但以用户视角展示）
+	// 草稿（用户保存未发布）
+	PostStatusDraft PostStatus = "draft"
+	// 待用户确认/提交（如编辑后重新提交）
+	PostStatusPending PostStatus = "pending"
+	// 已发布（用户主动发布）
+	PostStatusPublished PostStatus = "published"
+	// 用户隐藏（如自己删除/隐藏，或管理员操作但以用户视角展示）
+	PostStatusHidden PostStatus = "hidden"
 )
 
 // 系统风控状态（由内容安全模块自动判定或管理员审核结果）

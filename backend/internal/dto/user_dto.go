@@ -48,6 +48,6 @@ type LeaderboardItemResponse struct {
 	Rank     int    `json:"rank"`
 }
 
-type LeaderboardResponse struct {
-	Items []LeaderboardItemResponse `json:"items"`
-}
+// type LeaderboardResponse struct {
+// 	Items []LeaderboardItemResponse `json:"items"`
+// }

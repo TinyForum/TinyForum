@@ -2,13 +2,14 @@ package question
 
 import (
 	"errors"
+	"tiny-forum/internal/dto"
 	"tiny-forum/internal/model"
 
 	"gorm.io/gorm"
 )
 
 // CreateWithTransaction 使用事务创建问答（包括帖子、标签、积分扣减）
-func (r *questionRepository) CreateWithTransaction(userID uint, input model.CreateQuestionInput) (*model.QuestionResponse, error) {
+func (r *questionRepository) CreateWithTransaction(userID uint, input dto.CreateQuestionRequest) (*model.QuestionResponse, error) {
 	tx := r.db.Begin()
 	defer func() {
 		if r := recover(); r != nil {
@@ -25,7 +26,7 @@ func (r *questionRepository) CreateWithTransaction(userID uint, input model.Crea
 		BoardID:    input.BoardID,
 		AuthorID:   userID,
 		Type:       model.PostTypeQuestion,
-		PostStatus: model.PostStatusPublished,
+		PostStatus: input.Status,
 	}
 	if err := tx.Create(post).Error; err != nil {
 		tx.Rollback()

@@ -4,6 +4,7 @@ import (
 	"strconv"
 
 	"tiny-forum/internal/dto"
+	"tiny-forum/internal/model"
 	postService "tiny-forum/internal/service/post"
 	apperrors "tiny-forum/pkg/errors"
 	"tiny-forum/pkg/response"
@@ -32,6 +33,14 @@ func (h *PostHandler) Create(c *gin.Context) {
 	if err := c.ShouldBindJSON(&input); err != nil {
 		response.BadRequest(c, err.Error())
 		return
+	}
+
+	if input.BoardID == 0 {
+		response.BadRequest(c, "board_id is required")
+		return
+	}
+	if input.Status == "" {
+		input.Status = model.PostStatusPublished
 	}
 
 	post, err := h.postSvc.Create(c, authorID, input)

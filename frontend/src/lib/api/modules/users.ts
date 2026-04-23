@@ -28,10 +28,6 @@ export interface LeaderboardItemResponse {
     rank: number;
 }
 
-export interface LeaderboardResponse {
-    items: LeaderboardItemResponse[];
-}
-
 export const userApi = {
   // 获取用户信息
   getProfile: (id: number) => apiClient.get<ApiResponse<User>>(`/users/${id}`),
@@ -53,8 +49,12 @@ export const userApi = {
     apiClient.delete<ApiResponse<null>>(`/users/${id}/follow`),
 
   // 积分排行
-  leaderboard: (params?:LeaderboardRequest) =>
-    apiClient.get<ApiResponse<LeaderboardResponse>>("/users/leaderboard", {
+  getLeaderboardSimple: (params?:LeaderboardRequest) =>
+    apiClient.get<ApiResponse<LeaderboardItemResponse[]>>("/users/leaderboard/simple", {
+       params ,
+    }),
+  getLeaderboardDetail: (params?:LeaderboardRequest) =>
+    apiClient.get<ApiResponse<LeaderboardItemResponse[]>>("/users/leaderboard/detail", {
        params ,
     }),
 

@@ -207,6 +207,8 @@
   "Common": {
     "change_role": "更改角色",
 
+    "user_dashboard": "用户后台",
+    "member_dashboard": "会员后台",
     "profile": "个人主页",
     "my_timeline": "我的时间线",
     "my_topics": "我的专题",

@@ -45,7 +45,9 @@ type ValidationError struct {
 
 // ========== 核心响应方法 ==========
 
-// Success 成功响应
+/** Success 成功响应
+ * @data: 响应数据（可选）
+ */
 func Success(c *gin.Context, data interface{}) {
 	c.JSON(http.StatusOK, Response{
 		Code:      CodeSuccess,

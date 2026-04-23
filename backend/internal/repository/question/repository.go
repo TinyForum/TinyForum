@@ -2,6 +2,7 @@ package question
 
 import (
 	"time"
+	"tiny-forum/internal/dto"
 	"tiny-forum/internal/model"
 
 	"gorm.io/gorm"
@@ -20,7 +21,7 @@ type QuestionRepository interface {
 	UpdateAcceptedAnswer(questionID uint, answerID uint) error
 
 	// transaction
-	CreateWithTransaction(userID uint, input model.CreateQuestionInput) (*model.QuestionResponse, error)
+	CreateWithTransaction(userID uint, input dto.CreateQuestionRequest) (*model.QuestionResponse, error)
 
 	// about vote
 	CreateAnswerVote(vote *model.AnswerVote) error

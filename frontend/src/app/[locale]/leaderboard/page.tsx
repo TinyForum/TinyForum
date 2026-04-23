@@ -83,7 +83,7 @@ function UserCard({ user, rank }: { user: any; rank: number }) {
                 {rank === 0 && (
                   <span className="badge badge-warning badge-sm gap-1">
                     <Crown className="w-3 h-3" />
-                    冠军
+                 
                     {t("first")}
                   </span>
                 )}
@@ -163,12 +163,13 @@ export default function LeaderboardPage() {
     limit: 50,
     fields: 'id,username,avatar,score,bio' // 确保返回 bio 字段
   });
-  
+console.log(data);
 
   const t = useTranslations("Leaderboard");
-  const users = data?.items ?? [];
+  const users = data ?? [];
   const totalUsers = users.length;
   const topScore = users[0]?.score || 0;
+  console.log(users,totalUsers,topScore);
 
   if (error) {
     return (
@@ -209,7 +210,7 @@ export default function LeaderboardPage() {
         {/* 排行榜列表 */}
         {isLoading ? (
           <LoadingSkeleton />
-        ) : users.length === 0 ? (
+        ) : totalUsers === 0 ? (
           <EmptyState />
         ) : (
           <div className="space-y-3">

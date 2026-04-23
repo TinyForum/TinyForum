@@ -1,6 +1,8 @@
 package model
 
-import "time"
+import (
+	"time"
+)
 
 type Question struct {
 	BaseModel
@@ -21,15 +23,6 @@ type AnswerVote struct {
 }
 
 // CreateQuestionInput 创建问答输入
-type CreateQuestionInput struct {
-	Title       string `json:"title" binding:"required,max=100"`
-	Content     string `json:"content" binding:"required"`
-	Summary     string `json:"summary" binding:"max=500"`
-	Cover       string `json:"cover" binding:"omitempty,url"`
-	BoardID     uint   `json:"board_id"`
-	TagIDs      []uint `json:"tag_ids"`
-	RewardScore int    `json:"reward_score" binding:"min=0,max=100"`
-}
 
 type QuestionResponse struct {
 	ID               uint      `json:"id"`

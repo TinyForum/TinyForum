@@ -27,7 +27,7 @@ import { ActiveUserCard } from '@/components/explore/ActiveUserCard';
 import { HotPostCard } from '@/components/explore/HotPostCard';
 import { HotTagCard } from '@/components/explore/HotTagCard';
 import { HotTopicCard } from '@/components/explore/HotTopicCard';
-import { LeaderboardResponse } from '@/lib/api/modules/users';
+import { LeaderboardItemResponse } from '@/lib/api/modules/users';
 
 // 分类 Tab
 const exploreTabs = [
@@ -44,7 +44,7 @@ export default function Explore() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [hotTags, setHotTags] = useState<Tag[]>([]);
   const [hotTopics, setHotTopics] = useState<Topic[]>([]);
-  const [activeUsers, setActiveUsers] = useState<LeaderboardResponse>();
+  const [activeUsers, setActiveUsers] = useState<LeaderboardItemResponse[]>();
   const [loading, setLoading] = useState(true);
   const [searchKeyword, setSearchKeyword] = useState('');
   const [searchResults, setSearchResults] = useState<Post[]>([]);
@@ -59,7 +59,7 @@ export default function Explore() {
         postApi.list({ page: 1, page_size: 10, sort_by: currentTab?.sortBy }),
         tagApi.list(),
         topicApi.list({ page: 1, page_size: 8 }),
-        userApi.leaderboard({limit:10}),
+        userApi.getLeaderboardSimple({limit:10}),
       ]);
 
       if (postsResponse.data.code === 200) {
@@ -339,11 +339,11 @@ export default function Explore() {
                       <div key={i} className="h-14 bg-base-200 rounded animate-pulse" />
                     ))}
                   </div>
-                ) : activeUsers?.items.length === 0 ? (
+                ) : activeUsers?.length === 0 ? (
                   <p className="text-sm text-base-content/40 text-center py-4">暂无用户</p>
                 ) : (
                   <div className="space-y-2">
-                    {activeUsers?.items.slice(0, 6).map((user, index) => (
+                    {activeUsers?.slice(0, 6).map((user, index) => (
                       <ActiveUserCard key={user.id} user={user}  />
                     ))}
                   </div>

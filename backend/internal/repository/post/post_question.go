@@ -11,7 +11,7 @@ func (r *postRepository) GetQuestions(limit, offset int) ([]model.Post, int64, e
 	var total int64
 
 	query := r.db.Model(&model.Post{}).
-		Where("type = ? AND status = ?", "question", model.PostStatusPublished)
+		Where("type = ? AND post_status = ?", "question", model.PostStatusPublished)
 
 	query.Count(&total)
 
@@ -30,15 +30,21 @@ func (r *postRepository) GetUnansweredQuestions(limit, offset int) ([]model.Post
 	var posts []model.Post
 	var total int64
 
-	query := r.db.Table("posts").
-		Select("posts.*").
-		Joins("LEFT JOIN questions ON posts.id = questions.post_id").
-		Where("posts.type = ? AND posts.status = ? AND questions.accepted_answer_id IS NULL",
-			"question", model.PostStatusPublished)
+	// 使用 Model 自动映射表名，Where 条件优先使用结构体
+	db := r.db.Model(&model.Post{}).
+		Joins("LEFT JOIN questions ON posts.id = questions.post_id"). // JOIN 仍需要原生 SQL
+		Where(&model.Post{Type: "question", PostStatus: model.PostStatusPublished}).
+		Where("questions.accepted_answer_id IS NULL") // IS NULL 条件也保留为原生片段
 
-	query.Count(&total)
+	// 统计总数（错误处理）
+	if err := db.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
 
-	err := query.Offset(offset).Limit(limit).
+	// 分页查询并预加载关联
+	err := db.
+		Offset(offset).
+		Limit(limit).
 		Preload("Author").
 		Preload("Tags").
 		Preload("Board").

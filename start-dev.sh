@@ -25,6 +25,10 @@ echo -e "${GREEN}✅ Go found: $(go version)${NC}"
 command -v node >/dev/null 2>&1 || { echo -e "${RED}❌ Node.js is not installed. Visit https://nodejs.org/${NC}"; exit 1; }
 echo -e "${GREEN}✅ Node.js found: $(node --version)${NC}"
 
+# Chack Ollama
+command -v ollama >/dev/null 2>&1 || { echo -e "${RED}❌ Ollama is not installed. Visit https://ollama.com${NC}"; exit 1; }
+echo -e "${GREEN}✅ Ollama found: $(ollama --version)${NC}"
+
 # Check package manager (pnpm preferred, fallback to npm)
 if command -v pnpm >/dev/null 2>&1; then
     PACKAGE_MANAGER="pnpm"

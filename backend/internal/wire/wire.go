@@ -189,12 +189,18 @@ func InitApp(cfg *config.Config) (*App, error) {
 
 	// ========== Redis & Risk Infrastructure ==========
 	rdb := redis.NewClient(&redis.Options{
-		Addr:     cfg.Basic.Redis.GetAddr(),
-		Password: cfg.Basic.Redis.Password,
-		DB:       cfg.Basic.Redis.DB,
+		Addr:     cfg.Private.Redis.GetAddr(),
+		Password: cfg.Private.Redis.Password,
+		DB:       cfg.Private.Redis.DB,
 	})
 	rateLimiter := ratelimit.NewLimiter(rdb)
-	sensitiveFilter := sensitive.NewFilter()
+	// 敏感词检测
+	ollamaCfg := &sensitive.OllamaConfig{
+		BaseURL: cfg.Basic.Ollama.BaseURL, // 例："http://localhost:11434"
+		Model:   cfg.Basic.Ollama.Model,   // 例："qwen2.5:7b"
+		Timeout: 15 * time.Second,
+	}
+	sensitiveFilter := sensitive.NewFilter(ollamaCfg)
 	res, err := sensitiveFilter.LoadDictDir("./dicts")
 	if err != nil {
 		log.Fatal(err)

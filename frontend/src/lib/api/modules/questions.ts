@@ -50,4 +50,5 @@ export interface CreateQuestionPayload {
   board_id?: number;
   tag_ids?: number[];
   reward_score?: number;
+  post_status?: string;
 }

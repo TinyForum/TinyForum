@@ -10,7 +10,7 @@ import (
 
 // StatsHandler 新增方法
 func (h *StatsHandler) GetStatsRange(c *gin.Context) {
-	var req dto.StatsRangeQuery
+	var req dto.StatsRangeRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
 		response.BadRequest(c, err.Error())
 		return

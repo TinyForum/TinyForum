@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 
+	"tiny-forum/internal/dto"
 	"tiny-forum/internal/model"
 	"tiny-forum/pkg/response"
 
@@ -19,7 +20,7 @@ import (
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param body body model.CreateQuestionInput true "问答信息"
+// @Param body body dto.CreateQuestionRequest true "问答信息"
 // @Success 200 {object} response.Response{data=model.QuestionResponse} "创建成功"
 // @Failure 400 {object} response.Response "请求参数错误"
 // @Failure 401 {object} response.Response "未授权"
@@ -34,10 +35,18 @@ func (h *QuestionHandler) CreateQuestion(c *gin.Context) {
 		c.Request.Body = io.NopCloser(bytes.NewBuffer(body))
 	}
 
-	var input model.CreateQuestionInput
+	var input dto.CreateQuestionRequest
 	if err := c.ShouldBindJSON(&input); err != nil {
 		response.BadRequest(c, "参数错误: "+err.Error())
 		return
+	}
+
+	if input.BoardID == 0 {
+		response.BadRequest(c, "board_id is required")
+		return
+	}
+	if input.Status == "" {
+		input.Status = model.PostStatusPublished
 	}
 
 	userID, exists := c.Get("user_id")
