@@ -34,7 +34,7 @@ type ModeratorBoardWithPerms struct {
 	Permissions model.ModeratorPermissions `json:"permissions"`
 }
 
-func (s *BoardService) AddModerator(_ context.Context, input AddModeratorInput, operatorID uint) error {
+func (s *boardService) AddModerator(_ context.Context, input AddModeratorInput, operatorID uint) error {
 	user, err := s.userRepo.FindByID(input.UserID)
 	if err != nil {
 		return errors.New("用户不存在")
@@ -67,7 +67,7 @@ func (s *BoardService) AddModerator(_ context.Context, input AddModeratorInput, 
 	return nil
 }
 
-func (s *BoardService) RemoveModerator(_ context.Context, userID, boardID uint, operatorID uint) error {
+func (s *boardService) RemoveModerator(_ context.Context, userID, boardID uint, operatorID uint) error {
 	isMod, _ := s.boardRepo.IsModerator(userID, boardID)
 	if !isMod {
 		return errors.New("该用户不是此板块的版主")
@@ -81,15 +81,15 @@ func (s *BoardService) RemoveModerator(_ context.Context, userID, boardID uint, 
 	return nil
 }
 
-func (s *BoardService) GetModerators(boardID uint) ([]model.Moderator, error) {
+func (s *boardService) GetModerators(boardID uint) ([]model.Moderator, error) {
 	return s.boardRepo.GetModerators(boardID)
 }
 
-func (s *BoardService) IsModerator(userID, boardID uint) (bool, error) {
+func (s *boardService) IsModerator(userID, boardID uint) (bool, error) {
 	return s.boardRepo.IsModerator(userID, boardID)
 }
 
-func (s *BoardService) UpdateModeratorPermissions(_ context.Context, input UpdateModeratorPermissionsInput, operatorID uint) error {
+func (s *boardService) UpdateModeratorPermissions(_ context.Context, input UpdateModeratorPermissionsInput, operatorID uint) error {
 	mod, err := s.boardRepo.FindModeratorByUserAndBoard(input.UserID, input.BoardID)
 	if err != nil {
 		return errors.New("版主记录不存在")
@@ -119,7 +119,7 @@ func (s *BoardService) UpdateModeratorPermissions(_ context.Context, input Updat
 	return nil
 }
 
-func (s *BoardService) CheckModeratorPermission(_ context.Context, userID, boardID uint, permission string) (bool, error) {
+func (s *boardService) CheckModeratorPermission(_ context.Context, userID, boardID uint, permission string) (bool, error) {
 	mod, err := s.boardRepo.FindModeratorByUserAndBoard(userID, boardID)
 	if err != nil {
 		return false, nil
@@ -127,7 +127,7 @@ func (s *BoardService) CheckModeratorPermission(_ context.Context, userID, board
 	return mod.HasPermission(permission), nil
 }
 
-func (s *BoardService) GetModeratorBoardsWithPermissions(userID uint) ([]ModeratorBoardWithPerms, error) {
+func (s *boardService) GetModeratorBoardsWithPermissions(userID uint) ([]ModeratorBoardWithPerms, error) {
 	repoResults, err := s.boardRepo.GetModeratorBoardsWithPermissions(userID)
 	if err != nil {
 		return nil, err

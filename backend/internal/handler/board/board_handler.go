@@ -5,9 +5,9 @@ import (
 )
 
 type BoardHandler struct {
-	boardSvc *boardService.BoardService
+	boardSvc boardService.BoardService
 }
 
-func NewBoardHandler(boardSvc *boardService.BoardService) *BoardHandler {
+func NewBoardHandler(boardSvc boardService.BoardService) *BoardHandler {
 	return &BoardHandler{boardSvc: boardSvc}
 }

@@ -35,7 +35,7 @@ type ReviewApplicationInput struct {
 	CanBanUser         *bool  `json:"can_ban_user"`
 }
 
-func (s *BoardService) ApplyModerator(input model.ApplyModeratorInput) error {
+func (s *boardService) ApplyModerator(input model.ApplyModeratorInput) error {
 	isMod, _ := s.boardRepo.IsModerator(input.UserID, input.BoardID)
 	if isMod {
 		return errors.New("你已经是该板块的版主")
@@ -64,7 +64,7 @@ func (s *BoardService) ApplyModerator(input model.ApplyModeratorInput) error {
 	return nil
 }
 
-func (s *BoardService) CancelApplication(applicationID, userID uint) error {
+func (s *boardService) CancelApplication(applicationID, userID uint) error {
 	app, err := s.boardRepo.GetApplicationByID(applicationID)
 	if err != nil || app == nil {
 		return errors.New("申请不存在")
@@ -79,7 +79,7 @@ func (s *BoardService) CancelApplication(applicationID, userID uint) error {
 	return s.boardRepo.UpdateApplication(app)
 }
 
-func (s *BoardService) GetUserApplications(userID uint, page, pageSize int) ([]model.ModeratorApplication, int64, error) {
+func (s *boardService) GetUserApplications(userID uint, page, pageSize int) ([]model.ModeratorApplication, int64, error) {
 	if page <= 0 {
 		page = 1
 	}
@@ -89,7 +89,7 @@ func (s *BoardService) GetUserApplications(userID uint, page, pageSize int) ([]m
 	return s.boardRepo.GetApplicationsByUserID(userID, page, pageSize)
 }
 
-func (s *BoardService) ReviewApplication(_ context.Context, input ReviewApplicationInput, reviewerID uint) error {
+func (s *boardService) ReviewApplication(_ context.Context, input ReviewApplicationInput, reviewerID uint) error {
 	app, err := s.boardRepo.GetApplicationByID(input.ApplicationID)
 	if err != nil || app == nil {
 		return errors.New("申请不存在")
@@ -135,7 +135,7 @@ func (s *BoardService) ReviewApplication(_ context.Context, input ReviewApplicat
 	return nil
 }
 
-func (s *BoardService) ListApplications(boardID *uint, status model.ApplicationStatus, page, pageSize int) ([]model.ModeratorApplication, int64, error) {
+func (s *boardService) ListApplications(boardID *uint, status model.ApplicationStatus, page, pageSize int) ([]model.ModeratorApplication, int64, error) {
 	if page < 1 {
 		page = 1
 	}

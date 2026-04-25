@@ -22,7 +22,7 @@ type CreateBoardInput struct {
 	ReplyRole   string `json:"reply_role"`
 }
 
-func (s *BoardService) Create(input CreateBoardInput) (*model.Board, error) {
+func (s *boardService) Create(input CreateBoardInput) (*model.Board, error) {
 	if input.ParentID != nil && *input.ParentID != 0 {
 		parent, err := s.boardRepo.FindByID(*input.ParentID)
 		if err != nil || parent == nil || parent.ID == 0 {
@@ -70,7 +70,7 @@ func (s *BoardService) Create(input CreateBoardInput) (*model.Board, error) {
 	return s.boardRepo.FindByID(board.ID)
 }
 
-func (s *BoardService) Update(id uint, input CreateBoardInput) (*model.Board, error) {
+func (s *boardService) Update(id uint, input CreateBoardInput) (*model.Board, error) {
 	board, err := s.boardRepo.FindByID(id)
 	if err != nil {
 		return nil, errors.New("板块不存在")
@@ -103,7 +103,7 @@ func (s *BoardService) Update(id uint, input CreateBoardInput) (*model.Board, er
 	return board, nil
 }
 
-func (s *BoardService) Delete(id uint) error {
+func (s *boardService) Delete(id uint) error {
 	result, err := s.boardRepo.Delete(id)
 	if err != nil {
 		return fmt.Errorf("删除板块失败: %w", err)
@@ -114,20 +114,20 @@ func (s *BoardService) Delete(id uint) error {
 	return nil
 }
 
-func (s *BoardService) GetByID(id uint) (*model.Board, error) {
+func (s *boardService) GetByID(id uint) (*model.Board, error) {
 	return s.boardRepo.FindByID(id)
 }
 
-func (s *BoardService) GetBoardBySlug(slug string) (*model.Board, error) {
+func (s *boardService) GetBoardBySlug(slug string) (*model.Board, error) {
 	return s.boardRepo.FindBySlug(slug)
 }
 
 // service/board_service.go
-func (s *BoardService) GetPostsBySlug(slug string, page, pageSize int) ([]*dto.GetBoardPostsResponse, int64, error) {
+func (s *boardService) GetPostsBySlug(slug string, page, pageSize int) ([]*dto.GetBoardPostsResponse, int64, error) {
 	return s.boardRepo.GetPostsBySlug(slug, page, pageSize)
 }
 
-func (s *BoardService) List(page, pageSize int) ([]model.Board, int64, error) {
+func (s *boardService) List(page, pageSize int) ([]model.Board, int64, error) {
 	if page < 1 {
 		page = 1
 	}
@@ -138,11 +138,11 @@ func (s *BoardService) List(page, pageSize int) ([]model.Board, int64, error) {
 	return s.boardRepo.List(pageSize, offset)
 }
 
-func (s *BoardService) GetTree() ([]model.Board, error) {
+func (s *boardService) GetTree() ([]model.Board, error) {
 	return s.boardRepo.GetTree()
 }
 
-func (s *BoardService) GetPosts(boardID uint, page, pageSize int) ([]model.Post, int64, error) {
+func (s *boardService) GetPosts(boardID uint, page, pageSize int) ([]model.Post, int64, error) {
 	if page < 1 {
 		page = 1
 	}

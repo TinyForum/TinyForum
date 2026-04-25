@@ -3,34 +3,8 @@ package board
 import (
 	"fmt"
 	"regexp"
-
 	"tiny-forum/internal/model"
-	boardRepo "tiny-forum/internal/repository/board"
-	postRepo "tiny-forum/internal/repository/post"
-	userRepo "tiny-forum/internal/repository/user"
-	"tiny-forum/internal/service/notification"
 )
-
-type BoardService struct {
-	boardRepo boardRepo.BoardRepository
-	userRepo  userRepo.UserRepository
-	postRepo  postRepo.PostRepository
-	notifSvc  notification.NotificationService // 需导入 "tiny-forum/internal/service/notification"
-}
-
-func NewBoardService(
-	boardRepo boardRepo.BoardRepository,
-	userRepo userRepo.UserRepository,
-	postRepo postRepo.PostRepository,
-	notifSvc notification.NotificationService,
-) *BoardService {
-	return &BoardService{
-		boardRepo: boardRepo,
-		userRepo:  userRepo,
-		postRepo:  postRepo,
-		notifSvc:  notifSvc,
-	}
-}
 
 // validateSlug 校验 slug 格式
 func validateSlug(slug string) error {
@@ -70,7 +44,7 @@ func boolVal(ptr *bool, fallback bool) bool {
 }
 
 // writeLog 记录版主操作日志（忽略错误）
-func (s *BoardService) writeLog(moderatorID, boardID uint, action, targetType string, targetID uint, reason string) {
+func (s *boardService) writeLog(moderatorID, boardID uint, action, targetType string, targetID uint, reason string) {
 	log := &model.ModeratorLog{
 		ModeratorID: moderatorID,
 		BoardID:     boardID,
@@ -83,7 +57,7 @@ func (s *BoardService) writeLog(moderatorID, boardID uint, action, targetType st
 }
 
 // writeLogWithValues 同 writeLog，额外写入 OldValue / NewValue
-func (s *BoardService) writeLogWithValues(moderatorID, boardID uint, action, targetType string, targetID uint, reason, oldValue, newValue string) {
+func (s *boardService) writeLogWithValues(moderatorID, boardID uint, action, targetType string, targetID uint, reason, oldValue, newValue string) {
 	log := &model.ModeratorLog{
 		ModeratorID: moderatorID,
 		BoardID:     boardID,

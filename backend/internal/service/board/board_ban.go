@@ -14,7 +14,7 @@ type BanUserInput struct {
 	ExpiresAt *time.Time `json:"expires_at"`
 }
 
-func (s *BoardService) BanUser(input BanUserInput, bannerID uint) error {
+func (s *boardService) BanUser(input BanUserInput, bannerID uint) error {
 	user, err := s.userRepo.FindByID(input.UserID)
 	if err != nil {
 		return errors.New("用户不存在")
@@ -38,10 +38,10 @@ func (s *BoardService) BanUser(input BanUserInput, bannerID uint) error {
 	return nil
 }
 
-func (s *BoardService) UnbanUser(userID, boardID uint) error {
+func (s *boardService) UnbanUser(userID, boardID uint) error {
 	return s.boardRepo.UnbanUser(userID, boardID)
 }
 
-func (s *BoardService) IsBanned(userID, boardID uint) (bool, error) {
+func (s *boardService) IsBanned(userID, boardID uint) (bool, error) {
 	return s.boardRepo.IsBanned(userID, boardID)
 }
