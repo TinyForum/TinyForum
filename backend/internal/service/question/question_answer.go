@@ -20,7 +20,7 @@ type VoteAnswerResult struct {
 }
 
 // AcceptAnswer 采纳答案
-func (s *QuestionService) AcceptAnswer(postID, commentID uint, userID uint) error {
+func (s *questionService) AcceptAnswer(postID, commentID uint, userID uint) error {
 	post, err := s.postRepo.FindByID(postID)
 	if err != nil {
 		return fmt.Errorf("%w: 帖子不存在", apperrors.ErrPostNotFound)
@@ -57,7 +57,7 @@ func (s *QuestionService) AcceptAnswer(postID, commentID uint, userID uint) erro
 }
 
 // VoteAnswer 投票回答
-func (s *QuestionService) VoteAnswer(userID uint, input VoteAnswerInput) (*VoteAnswerResult, error) {
+func (s *questionService) VoteAnswer(userID uint, input VoteAnswerInput) (*VoteAnswerResult, error) {
 	comment, err := s.commentRepo.FindByID(input.CommentID)
 	if err != nil {
 		return nil, errors.New("回答不存在")
@@ -110,7 +110,7 @@ func (s *QuestionService) VoteAnswer(userID uint, input VoteAnswerInput) (*VoteA
 }
 
 // GetAnswerVoteStatus 获取用户对答案的投票状态
-func (s *QuestionService) GetAnswerVoteStatus(userID, commentID uint) (map[string]interface{}, error) {
+func (s *questionService) GetAnswerVoteStatus(userID, commentID uint) (map[string]interface{}, error) {
 	vote, err := s.questionRepo.FindAnswerVote(userID, commentID)
 	if err != nil {
 		return map[string]interface{}{
@@ -128,7 +128,7 @@ func (s *QuestionService) GetAnswerVoteStatus(userID, commentID uint) (map[strin
 }
 
 // GetQuestionWithAnswers 获取问题及其回答（分页）
-func (s *QuestionService) GetQuestionWithAnswers(postID uint, page, pageSize int) (*model.Question, []model.Comment, int64, error) {
+func (s *questionService) GetQuestionWithAnswers(postID uint, page, pageSize int) (*model.Question, []model.Comment, int64, error) {
 	question, err := s.questionRepo.FindByPostID(postID)
 	if err != nil {
 		return nil, nil, 0, err

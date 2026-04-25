@@ -32,7 +32,7 @@ type QuestionSimpleResponse struct {
 }
 
 // GetQuestionSimpleList 获取问题精简列表
-func (s *QuestionService) GetQuestionSimpleList(pageSize, offset int, boardID *uint, filter, sort, keyword string) ([]QuestionSimpleResponse, int64, error) {
+func (s *questionService) GetQuestionSimpleList(pageSize, offset int, boardID *uint, filter, sort, keyword string) ([]QuestionSimpleResponse, int64, error) {
 	questions, total, err := s.questionRepo.FindSimpleQuestions(pageSize, offset, boardID, filter, sort, keyword)
 	if err != nil {
 		return nil, 0, err
@@ -113,7 +113,7 @@ func (s *QuestionService) GetQuestionSimpleList(pageSize, offset int, boardID *u
 }
 
 // GetQuestionSimpleByID 获取单个问题详情（精简版）
-func (s *QuestionService) GetQuestionSimpleByID(questionID uint) (*QuestionSimpleResponse, error) {
+func (s *questionService) GetQuestionSimpleByID(questionID uint) (*QuestionSimpleResponse, error) {
 	question, err := s.questionRepo.FindQuestionSimpleByID(questionID)
 	if err != nil {
 		return nil, err

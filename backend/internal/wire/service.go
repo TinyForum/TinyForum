@@ -30,7 +30,7 @@ type Services struct {
 	Board        board.BoardService
 	Timeline     timeline.TimelineService
 	Topic        topic.TopicService
-	Question     *question.QuestionService
+	Question     question.QuestionService
 	Announcement announcement.AnnouncementService
 	Stats        *stats.StatsService
 	Risk         *risk.RiskService

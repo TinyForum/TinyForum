@@ -11,7 +11,7 @@ import (
 )
 
 // CreateQuestion 创建问答帖
-func (s *QuestionService) CreateQuestion(userID uint, input dto.CreateQuestionRequest) (*model.QuestionResponse, error) {
+func (s *questionService) CreateQuestion(userID uint, input dto.CreateQuestionRequest) (*model.QuestionResponse, error) {
 	if err := s.validateCreateQuestion(input); err != nil {
 		return nil, err
 	}
@@ -22,28 +22,8 @@ func (s *QuestionService) CreateQuestion(userID uint, input dto.CreateQuestionRe
 	return question, nil
 }
 
-// validateCreateQuestion 验证创建问答的输入
-func (s *QuestionService) validateCreateQuestion(input dto.CreateQuestionRequest) error {
-	if input.Title == "" {
-		return errors.New("标题不能为空")
-	}
-	if input.Content == "" {
-		return errors.New("内容不能为空")
-	}
-	if len(input.Title) > 100 {
-		return errors.New("标题长度不能超过100个字符")
-	}
-	if len(input.Summary) > 500 {
-		return errors.New("摘要长度不能超过500个字符")
-	}
-	if input.RewardScore < 0 || input.RewardScore > 100 {
-		return errors.New("悬赏积分必须在0-100之间")
-	}
-	return nil
-}
-
 // GetQuestionDetail 获取问答帖详情
-func (s *QuestionService) GetQuestionDetail(questionID uint) (*model.QuestionResponse, error) {
+func (s *questionService) GetQuestionDetail(questionID uint) (*model.QuestionResponse, error) {
 	question, err := s.questionRepo.FindByID(questionID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -70,7 +50,7 @@ func (s *QuestionService) GetQuestionDetail(questionID uint) (*model.QuestionRes
 }
 
 // GetQuestionsList 获取问答帖列表（支持只看未回答）
-func (s *QuestionService) GetQuestionsList(page, pageSize int, unanswered bool) ([]model.Post, int64, error) {
+func (s *questionService) GetQuestionsList(page, pageSize int, unanswered bool) ([]model.Post, int64, error) {
 	if page < 1 {
 		page = 1
 	}
@@ -85,6 +65,6 @@ func (s *QuestionService) GetQuestionsList(page, pageSize int, unanswered bool) 
 }
 
 // GetQuestionByID 根据 ID 获取 Question 模型（不含 Post 详情）
-func (s *QuestionService) GetQuestionByID(questionID uint) (*model.Question, error) {
+func (s *questionService) GetQuestionByID(questionID uint) (*model.Question, error) {
 	return s.questionRepo.FindByID(questionID)
 }
