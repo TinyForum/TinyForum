@@ -2,9 +2,9 @@ package middleware
 
 import (
 	"fmt"
+	"tiny-forum/internal/infra/ratelimit"
 	"tiny-forum/internal/model"
 	riskservice "tiny-forum/internal/service/risk"
-	"tiny-forum/pkg/ratelimit"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"

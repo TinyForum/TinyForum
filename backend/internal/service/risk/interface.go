@@ -3,9 +3,9 @@ package risk
 import (
 	"context"
 	"time"
+	"tiny-forum/internal/infra/ratelimit"
 	"tiny-forum/internal/model"
 	riskrepo "tiny-forum/internal/repository/risk"
-	"tiny-forum/pkg/ratelimit"
 )
 
 type RiskService interface {

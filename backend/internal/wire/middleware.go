@@ -1,10 +1,10 @@
 package wire
 
 import (
+	"tiny-forum/internal/infra/ratelimit"
 	"tiny-forum/internal/middleware"
 	"tiny-forum/internal/repository/board"
 	jwtpkg "tiny-forum/pkg/jwt"
-	"tiny-forum/pkg/ratelimit"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"

@@ -3,8 +3,8 @@ package risk
 import (
 	"context"
 	"time"
+	"tiny-forum/internal/infra/ratelimit"
 	"tiny-forum/internal/model"
-	"tiny-forum/pkg/ratelimit"
 )
 
 // GetUserRiskLevel 计算用户当前风险等级
