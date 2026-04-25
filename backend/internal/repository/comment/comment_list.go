@@ -7,7 +7,7 @@ import (
 )
 
 // ListByPost 获取帖子的顶级评论（带分页和子评论预加载）
-func (r *CommentRepository) ListByPost(postID uint, page, pageSize int) ([]model.Comment, int64, error) {
+func (r *commentRepository) ListByPost(postID uint, page, pageSize int) ([]model.Comment, int64, error) {
 	var comments []model.Comment
 	var total int64
 
@@ -30,7 +30,7 @@ func (r *CommentRepository) ListByPost(postID uint, page, pageSize int) ([]model
 }
 
 // GetAnswersByPostID 获取帖子的所有答案（按采纳、投票、创建时间排序）
-func (r *CommentRepository) GetAnswersByPostID(postID uint, limit, offset int) ([]model.Comment, int64, error) {
+func (r *commentRepository) GetAnswersByPostID(postID uint, limit, offset int) ([]model.Comment, int64, error) {
 	var comments []model.Comment
 	var total int64
 
@@ -47,7 +47,7 @@ func (r *CommentRepository) GetAnswersByPostID(postID uint, limit, offset int) (
 }
 
 // GetAnswersByPostIDOrderByNewest 按最新排序获取答案
-func (r *CommentRepository) GetAnswersByPostIDOrderByNewest(postID uint, limit, offset int) ([]model.Comment, int64, error) {
+func (r *commentRepository) GetAnswersByPostIDOrderByNewest(postID uint, limit, offset int) ([]model.Comment, int64, error) {
 	var comments []model.Comment
 	var total int64
 
@@ -64,7 +64,7 @@ func (r *CommentRepository) GetAnswersByPostIDOrderByNewest(postID uint, limit, 
 }
 
 // GetAnswersByPostIDOrderByOldest 按最早排序获取答案
-func (r *CommentRepository) GetAnswersByPostIDOrderByOldest(postID uint, limit, offset int) ([]model.Comment, int64, error) {
+func (r *commentRepository) GetAnswersByPostIDOrderByOldest(postID uint, limit, offset int) ([]model.Comment, int64, error) {
 	var comments []model.Comment
 	var total int64
 

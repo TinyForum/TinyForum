@@ -3,19 +3,19 @@ package comment
 import "tiny-forum/internal/model"
 
 // MarkAsAccepted 标记评论为已采纳答案
-func (r *CommentRepository) MarkAsAccepted(commentID uint) error {
+func (r *commentRepository) MarkAsAccepted(commentID uint) error {
 	return r.db.Model(&model.Comment{}).Where("id = ?", commentID).
 		Update("is_accepted", true).Error
 }
 
 // MarkAsAnswer 标记/取消标记评论为答案
-func (r *CommentRepository) MarkAsAnswer(commentID uint, isAnswer bool) error {
+func (r *commentRepository) MarkAsAnswer(commentID uint, isAnswer bool) error {
 	return r.db.Model(&model.Comment{}).Where("id = ?", commentID).
 		Update("is_answer", isAnswer).Error
 }
 
 // UnacceptAnswer 取消接受答案
-func (r *CommentRepository) UnacceptAnswer(commentID uint) error {
+func (r *commentRepository) UnacceptAnswer(commentID uint) error {
 	// 使用事务
 	tx := r.db.Begin()
 	defer func() {
@@ -45,7 +45,7 @@ func (r *CommentRepository) UnacceptAnswer(commentID uint) error {
 }
 
 // GetAcceptedAnswer 获取问题已接受的答案
-func (r *CommentRepository) GetAcceptedAnswer(postID uint) (*model.Comment, error) {
+func (r *commentRepository) GetAcceptedAnswer(postID uint) (*model.Comment, error) {
 	var comment model.Comment
 	err := r.db.Where("post_id = ? AND is_accepted = ?", postID, true).
 		First(&comment).Error

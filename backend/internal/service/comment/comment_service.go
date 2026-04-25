@@ -9,7 +9,7 @@ import (
 )
 
 type CommentService struct {
-	commentRepo *commentRepo.CommentRepository
+	commentRepo commentRepo.CommentRepository
 	postRepo    postRepo.PostRepository
 	userRepo    userRepo.UserRepository
 	notifSvc    *notification.NotificationService
@@ -17,7 +17,7 @@ type CommentService struct {
 }
 
 func NewCommentService(
-	commentRepo *commentRepo.CommentRepository,
+	commentRepo commentRepo.CommentRepository,
 	postRepo postRepo.PostRepository,
 	userRepo userRepo.UserRepository,
 	notifSvc *notification.NotificationService,
