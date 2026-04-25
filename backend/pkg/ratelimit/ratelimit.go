@@ -1,5 +1,3 @@
-// Package ratelimit 提供基于 Redis 的滑动窗口限流。
-// 依赖：github.com/redis/go-redis/v9
 package ratelimit
 
 import (
