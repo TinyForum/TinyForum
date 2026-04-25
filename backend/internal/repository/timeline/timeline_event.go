@@ -5,12 +5,12 @@ import (
 )
 
 // CreateEvent 创建时间线事件
-func (r *TimelineRepository) CreateEvent(event *model.TimelineEvent) error {
+func (r *timelineRepository) CreateEvent(event *model.TimelineEvent) error {
 	return r.db.Create(event).Error
 }
 
 // GetUserTimeline 获取用户时间线（包含用户自己的事件和与自己相关的事件）
-func (r *TimelineRepository) GetUserTimeline(userID uint, limit, offset int) ([]model.TimelineEvent, int64, error) {
+func (r *timelineRepository) GetUserTimeline(userID uint, limit, offset int) ([]model.TimelineEvent, int64, error) {
 	var events []model.TimelineEvent
 	var total int64
 
@@ -29,7 +29,7 @@ func (r *TimelineRepository) GetUserTimeline(userID uint, limit, offset int) ([]
 }
 
 // GetFollowingTimeline 获取关注用户的时间线（仅关注用户的事件）
-func (r *TimelineRepository) GetFollowingTimeline(userID uint, limit, offset int) ([]model.TimelineEvent, int64, error) {
+func (r *timelineRepository) GetFollowingTimeline(userID uint, limit, offset int) ([]model.TimelineEvent, int64, error) {
 	var events []model.TimelineEvent
 	var total int64
 
@@ -52,7 +52,7 @@ func (r *TimelineRepository) GetFollowingTimeline(userID uint, limit, offset int
 }
 
 // GetEventByTarget 根据目标类型和目标ID查询时间线事件
-func (r *TimelineRepository) GetEventByTarget(targetType string, targetID uint) ([]model.TimelineEvent, error) {
+func (r *timelineRepository) GetEventByTarget(targetType string, targetID uint) ([]model.TimelineEvent, error) {
 	var events []model.TimelineEvent
 	err := r.db.Where("target_type = ? AND target_id = ?", targetType, targetID).
 		Find(&events).Error

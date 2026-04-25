@@ -7,7 +7,7 @@ import (
 )
 
 // UpdateLastRead 更新用户某个时间线的最后阅读时间
-func (r *TimelineRepository) UpdateLastRead(userID uint, timelineType string) error {
+func (r *timelineRepository) UpdateLastRead(userID uint, timelineType string) error {
 	var userTimeline model.UserTimeline
 
 	err := r.db.Where("user_id = ? AND timeline_type = ?", userID, timelineType).
@@ -25,7 +25,7 @@ func (r *TimelineRepository) UpdateLastRead(userID uint, timelineType string) er
 }
 
 // GetLastRead 获取用户某个时间线的最后阅读时间
-func (r *TimelineRepository) GetLastRead(userID uint, timelineType string) (*model.UserTimeline, error) {
+func (r *timelineRepository) GetLastRead(userID uint, timelineType string) (*model.UserTimeline, error) {
 	var userTimeline model.UserTimeline
 	err := r.db.Where("user_id = ? AND timeline_type = ?", userID, timelineType).
 		First(&userTimeline).Error

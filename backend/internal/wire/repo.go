@@ -30,7 +30,7 @@ type Repositories struct {
 	Tag          tag.TagRepository
 	Notification notification.NotificationRepository
 	Board        board.BoardRepository
-	Timeline     *timeline.TimelineRepository
+	Timeline     timeline.TimelineRepository
 	Topic        *topic.TopicRepository
 	Question     question.QuestionRepository
 	Vote         *vote.VoteRepository
