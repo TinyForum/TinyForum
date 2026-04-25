@@ -4,25 +4,25 @@ import (
 	"tiny-forum/internal/model"
 )
 
-func (r *TopicRepository) Create(topic *model.Topic) error {
+func (r *topicRepository) Create(topic *model.Topic) error {
 	return r.db.Create(topic).Error
 }
 
-func (r *TopicRepository) Update(topic *model.Topic) error {
+func (r *topicRepository) Update(topic *model.Topic) error {
 	return r.db.Save(topic).Error
 }
 
-func (r *TopicRepository) Delete(id uint) error {
+func (r *topicRepository) Delete(id uint) error {
 	return r.db.Delete(&model.Topic{}, id).Error
 }
 
-func (r *TopicRepository) FindByID(id uint) (*model.Topic, error) {
+func (r *topicRepository) FindByID(id uint) (*model.Topic, error) {
 	var topic model.Topic
 	err := r.db.Preload("Creator").First(&topic, id).Error
 	return &topic, err
 }
 
-func (r *TopicRepository) List(limit, offset int) ([]model.Topic, int64, error) {
+func (r *topicRepository) List(limit, offset int) ([]model.Topic, int64, error) {
 	var topics []model.Topic
 	var total int64
 
@@ -35,7 +35,7 @@ func (r *TopicRepository) List(limit, offset int) ([]model.Topic, int64, error) 
 	return topics, total, err
 }
 
-func (r *TopicRepository) GetByCreator(creatorID uint, limit, offset int) ([]model.Topic, int64, error) {
+func (r *topicRepository) GetByCreator(creatorID uint, limit, offset int) ([]model.Topic, int64, error) {
 	var topics []model.Topic
 	var total int64
 

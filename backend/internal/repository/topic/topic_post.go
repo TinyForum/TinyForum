@@ -4,7 +4,7 @@ import (
 	"tiny-forum/internal/model"
 )
 
-func (r *TopicRepository) AddPost(topicPost *model.TopicPost) error {
+func (r *topicRepository) AddPost(topicPost *model.TopicPost) error {
 	var existing model.TopicPost
 	err := r.db.Where("topic_id = ? AND post_id = ?", topicPost.TopicID, topicPost.PostID).
 		First(&existing).Error
@@ -15,12 +15,12 @@ func (r *TopicRepository) AddPost(topicPost *model.TopicPost) error {
 	return r.db.Create(topicPost).Error
 }
 
-func (r *TopicRepository) RemovePost(topicID, postID uint) error {
+func (r *topicRepository) RemovePost(topicID, postID uint) error {
 	return r.db.Where("topic_id = ? AND post_id = ?", topicID, postID).
 		Delete(&model.TopicPost{}).Error
 }
 
-func (r *TopicRepository) GetTopicPosts(topicID uint, limit, offset int) ([]model.TopicPost, int64, error) {
+func (r *topicRepository) GetTopicPosts(topicID uint, limit, offset int) ([]model.TopicPost, int64, error) {
 	var topicPosts []model.TopicPost
 	var total int64
 
@@ -35,7 +35,7 @@ func (r *TopicRepository) GetTopicPosts(topicID uint, limit, offset int) ([]mode
 	return topicPosts, total, err
 }
 
-func (r *TopicRepository) UpdatePostOrder(topicID, postID uint, sortOrder int) error {
+func (r *topicRepository) UpdatePostOrder(topicID, postID uint, sortOrder int) error {
 	return r.db.Model(&model.TopicPost{}).
 		Where("topic_id = ? AND post_id = ?", topicID, postID).
 		Update("sort_order", sortOrder).Error

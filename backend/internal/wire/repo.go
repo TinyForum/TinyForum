@@ -31,7 +31,7 @@ type Repositories struct {
 	Notification notification.NotificationRepository
 	Board        board.BoardRepository
 	Timeline     timeline.TimelineRepository
-	Topic        *topic.TopicRepository
+	Topic        topic.TopicRepository
 	Question     question.QuestionRepository
 	Vote         *vote.VoteRepository
 	Announcement announcement.AnnouncementRepository

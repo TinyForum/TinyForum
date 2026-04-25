@@ -8,14 +8,14 @@ import (
 )
 
 type TopicService struct {
-	topicRepo *topicRepo.TopicRepository
+	topicRepo topicRepo.TopicRepository
 	postRepo  postRepo.PostRepository
 	userRepo  userRepo.UserRepository
 	notifSvc  *notification.NotificationService // 需导入 "tiny-forum/internal/service/notification"
 }
 
 func NewTopicService(
-	topicRepo *topicRepo.TopicRepository,
+	topicRepo topicRepo.TopicRepository,
 	postRepo postRepo.PostRepository,
 	userRepo userRepo.UserRepository,
 	notifSvc *notification.NotificationService,
