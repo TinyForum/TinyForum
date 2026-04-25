@@ -11,12 +11,12 @@ import (
 )
 
 // List 管理员获取用户列表（分页）
-func (s *UserService) List(page, pageSize int, keyword string) ([]model.User, int64, error) {
+func (s *userService) List(page, pageSize int, keyword string) ([]model.User, int64, error) {
 	return s.repo.List(page, pageSize, keyword)
 }
 
 // DeleteUser 管理员删除用户（软删除）
-func (s *UserService) DeleteUser(operatorID uint, targetID uint) error {
+func (s *userService) DeleteUser(operatorID uint, targetID uint) error {
 	ctx := context.Background()
 
 	targetUser, err := s.repo.FindByID(targetID)

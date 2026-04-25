@@ -7,7 +7,7 @@ import (
 )
 
 // 返回排行榜原始数据（按积分降序，过滤被封禁用户）
-func (s *UserService) GetSimpleLeaderboardData(ctx context.Context, limit int) ([]dto.LeaderboardUserSimple, error) {
+func (s *userService) GetSimpleLeaderboardData(ctx context.Context, limit int) ([]dto.LeaderboardUserSimple, error) {
 	if limit < 1 {
 		limit = 20
 	}
@@ -23,7 +23,7 @@ func (s *UserService) GetSimpleLeaderboardData(ctx context.Context, limit int) (
 	return users, nil
 }
 
-func (s *UserService) GetDetailLeaderboardData(ctx context.Context, limit int) ([]dto.LeaderboardUserDetail, error) {
+func (s *userService) GetDetailLeaderboardData(ctx context.Context, limit int) ([]dto.LeaderboardUserDetail, error) {
 	if limit < 1 {
 		limit = 20
 	}

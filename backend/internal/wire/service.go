@@ -21,7 +21,7 @@ import (
 
 // Services 聚合所有 Service
 type Services struct {
-	User         *user.UserService
+	User         user.UserService
 	Auth         auth.AuthService
 	Tag          *tag.TagService
 	Notification *notification.NotificationService

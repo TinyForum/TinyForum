@@ -21,7 +21,7 @@ const (
 )
 
 // ResetUserPasswordWithTemp 管理员重置用户密码（生成临时密码）
-func (s *UserService) ResetUserPasswordWithTemp(operatorID uint, targetID uint) (string, error) {
+func (s *userService) ResetUserPasswordWithTemp(operatorID uint, targetID uint) (string, error) {
 	ctx := context.Background()
 
 	targetUser, err := s.repo.FindByID(targetID)
@@ -68,7 +68,7 @@ func (s *UserService) ResetUserPasswordWithTemp(operatorID uint, targetID uint) 
 }
 
 // ResetUserPassword 管理员重置用户密码（指定新密码）
-func (s *UserService) ResetUserPassword(operatorID uint, targetID uint, newPassword string) error {
+func (s *userService) ResetUserPassword(operatorID uint, targetID uint, newPassword string) error {
 	ctx := context.Background()
 
 	targetUser, err := s.repo.FindByID(targetID)
@@ -109,6 +109,8 @@ func (s *UserService) ResetUserPassword(operatorID uint, targetID uint, newPassw
 	return nil
 }
 
+// private
+
 // generateSecurePassword 生成安全随机密码
 func generateSecurePassword(length int) (string, error) {
 	const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*"
@@ -124,7 +126,7 @@ func generateSecurePassword(length int) (string, error) {
 }
 
 // validatePasswordStrength 密码强度校验
-func (s *UserService) validatePasswordStrength(password string) error {
+func (s *userService) validatePasswordStrength(password string) error {
 	if len(password) < 6 {
 		return apperrors.Wrap(apperrors.ErrInvalidPassword, "密码长度至少6位")
 	}

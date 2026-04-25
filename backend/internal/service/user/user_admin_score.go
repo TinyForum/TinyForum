@@ -6,12 +6,12 @@ import (
 )
 
 // GetScoreById 获取用户积分
-func (s *UserService) GetScoreById(userID uint) (int, error) {
+func (s *userService) GetScoreById(userID uint) (int, error) {
 	return s.repo.GetScoreById(userID)
 }
 
 // SetScoreById 设置用户积分
-func (s *UserService) SetScoreById(userID uint, score int) error {
+func (s *userService) SetScoreById(userID uint, score int) error {
 	if userID == 0 {
 		return errors.New("用户ID不能为空")
 	}
@@ -24,12 +24,13 @@ func (s *UserService) SetScoreById(userID uint, score int) error {
 }
 
 // onScoreChanged 积分变更后的回调
-func (s *UserService) onScoreChanged(userID uint, newScore int) {
+func (s *userService) onScoreChanged(userID uint, newScore int) error {
 	// 可扩展：发送通知、更新缓存等
+	return nil
 }
 
 // GetAllUsersWithScore 获取所有用户积分（用于管理员）
-func (s *UserService) GetAllUsersWithScore() ([]UserScoreResponse, error) {
+func (s *userService) GetAllUsersWithScore() ([]UserScoreResponse, error) {
 	users, err := s.repo.GetEveryoneUsersScore()
 	if err != nil {
 		return nil, err

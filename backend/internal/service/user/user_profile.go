@@ -10,12 +10,12 @@ import (
 )
 
 // GetProfile 获取自己的资料（简化）
-func (s *UserService) GetProfile(userID uint) (*model.User, error) {
+func (s *userService) GetProfile(userID uint) (*model.User, error) {
 	return s.repo.FindByID(userID)
 }
 
 // UpdateProfile 更新个人资料
-func (s *UserService) UpdateProfile(userID uint, input model.UpdateProfileInput) error {
+func (s *userService) UpdateProfile(userID uint, input model.UpdateProfileInput) error {
 	fields := map[string]interface{}{}
 	if input.Bio != "" {
 		fields["bio"] = input.Bio
@@ -33,7 +33,7 @@ func (s *UserService) UpdateProfile(userID uint, input model.UpdateProfileInput)
 }
 
 // GetUserProfile 获取他人资料（含关注统计）
-func (s *UserService) GetUserProfile(targetID, viewerID uint) (*UserProfileResponse, error) {
+func (s *userService) GetUserProfile(targetID, viewerID uint) (*UserProfileResponse, error) {
 	user, err := s.repo.FindByID(targetID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -56,11 +56,11 @@ func (s *UserService) GetUserProfile(targetID, viewerID uint) (*UserProfileRespo
 }
 
 // GetUserBasicInfo 获取用户基本信息
-func (s *UserService) GetUserBasicInfo(userID uint) (*model.User, error) {
+func (s *userService) GetUserBasicInfo(userID uint) (*model.User, error) {
 	return s.repo.GetUserBasicInfoById(userID)
 }
 
 // GetUserRoleById 获取用户角色
-func (s *UserService) GetUserRoleById(userID uint) (string, error) {
+func (s *userService) GetUserRoleById(userID uint) (string, error) {
 	return s.repo.GetUserRoleById(userID)
 }

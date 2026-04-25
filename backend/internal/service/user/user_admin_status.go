@@ -12,7 +12,7 @@ import (
 )
 
 // SetBlocked 管理员封禁/解封用户
-func (s *UserService) SetBlocked(targetID uint, operatorID uint, isBlocked bool) error {
+func (s *userService) SetBlocked(targetID uint, operatorID uint, isBlocked bool) error {
 	ctx := context.Background()
 
 	targetUser, err := s.repo.FindByID(targetID)
@@ -55,7 +55,7 @@ func (s *UserService) SetBlocked(targetID uint, operatorID uint, isBlocked bool)
 }
 
 // SetActive 管理员设置用户激活状态
-func (s *UserService) SetActive(targetID uint, operatorID uint, isActive bool) error {
+func (s *userService) SetActive(targetID uint, operatorID uint, isActive bool) error {
 	ctx := context.Background()
 
 	targetUser, err := s.repo.FindByID(targetID)
@@ -93,7 +93,7 @@ func (s *UserService) SetActive(targetID uint, operatorID uint, isActive bool) e
 }
 
 // SetRole 变更用户角色
-func (s *UserService) SetRole(operatorID, targetID uint, newRole string) error {
+func (s *userService) SetRole(operatorID, targetID uint, newRole string) error {
 	ctx := context.Background()
 	targetRole := model.UserRole(newRole)
 	if !model.IsValidRole(targetRole) {

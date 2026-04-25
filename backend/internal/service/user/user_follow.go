@@ -6,7 +6,7 @@ import (
 )
 
 // Follow 关注用户
-func (s *UserService) Follow(followerID, followingID uint) error {
+func (s *userService) Follow(followerID, followingID uint) error {
 	if followerID == followingID {
 		return errors.New("不能关注自己")
 	}
@@ -22,16 +22,16 @@ func (s *UserService) Follow(followerID, followingID uint) error {
 }
 
 // Unfollow 取消关注
-func (s *UserService) Unfollow(followerID, followingID uint) error {
+func (s *userService) Unfollow(followerID, followingID uint) error {
 	return s.repo.Unfollow(followerID, followingID)
 }
 
 // GetFollowers 获取粉丝列表
-func (s *UserService) GetFollowers(userID uint, page, pageSize int) ([]model.User, int64, error) {
+func (s *userService) GetFollowers(userID uint, page, pageSize int) ([]model.User, int64, error) {
 	return s.repo.GetFollowers(userID, page, pageSize)
 }
 
 // GetFollowing 获取关注列表
-func (s *UserService) GetFollowing(userID uint, page, pageSize int) ([]model.User, int64, error) {
+func (s *userService) GetFollowing(userID uint, page, pageSize int) ([]model.User, int64, error) {
 	return s.repo.GetFollowing(userID, page, pageSize)
 }
