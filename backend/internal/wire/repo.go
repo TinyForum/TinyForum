@@ -28,7 +28,7 @@ type Repositories struct {
 	Post         post.PostRepository
 	Comment      comment.CommentRepository
 	Tag          tag.TagRepository
-	Notification *notification.NotificationRepository
+	Notification notification.NotificationRepository
 	Board        *board.BoardRepository
 	Timeline     *timeline.TimelineRepository
 	Topic        *topic.TopicRepository

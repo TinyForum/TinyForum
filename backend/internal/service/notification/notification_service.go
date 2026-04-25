@@ -5,9 +5,9 @@ import (
 )
 
 type NotificationService struct {
-	notifRepo *notificationRepo.NotificationRepository
+	notifRepo notificationRepo.NotificationRepository
 }
 
-func NewNotificationService(notifRepo *notificationRepo.NotificationRepository) *NotificationService {
+func NewNotificationService(notifRepo notificationRepo.NotificationRepository) *NotificationService {
 	return &NotificationService{notifRepo: notifRepo}
 }
