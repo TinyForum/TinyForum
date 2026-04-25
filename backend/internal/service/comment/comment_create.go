@@ -13,7 +13,7 @@ type CreateCommentInput struct {
 }
 
 // Create 创建普通评论
-func (s *CommentService) Create(authorID uint, input CreateCommentInput) (*model.Comment, error) {
+func (s *commentService) Create(authorID uint, input CreateCommentInput) (*model.Comment, error) {
 	post, err := s.postRepo.FindByID(input.PostID)
 	if err != nil {
 		return nil, errors.New("帖子不存在")
@@ -54,7 +54,7 @@ func (s *CommentService) Create(authorID uint, input CreateCommentInput) (*model
 }
 
 // CreateAnswer 创建回答（仅限问答帖）
-func (s *CommentService) CreateAnswer(authorID uint, input CreateCommentInput) (*model.Comment, error) {
+func (s *commentService) CreateAnswer(authorID uint, input CreateCommentInput) (*model.Comment, error) {
 	post, err := s.postRepo.FindByID(input.PostID)
 	if err != nil {
 		return nil, errors.New("帖子不存在")

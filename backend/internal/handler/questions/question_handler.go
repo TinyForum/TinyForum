@@ -8,13 +8,13 @@ import (
 
 type QuestionHandler struct {
 	questionSvc *questionService.QuestionService
-	commentSvc  *commentService.CommentService
+	commentSvc  commentService.CommentService
 	postSvc     postService.PostService
 }
 
 func NewQuestionHandler(
 	questionSvc *questionService.QuestionService,
-	commentSvc *commentService.CommentService,
+	commentSvc commentService.CommentService,
 	postSvc postService.PostService,
 ) *QuestionHandler {
 	return &QuestionHandler{

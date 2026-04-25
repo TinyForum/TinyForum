@@ -7,7 +7,7 @@ import (
 )
 
 // VoteAnswer 投票回答（支持 up/down）
-func (s *CommentService) VoteAnswer(answerID uint, userID uint, voteType int) (*model.Comment, error) {
+func (s *commentService) VoteAnswer(answerID uint, userID uint, voteType int) (*model.Comment, error) {
 	comment, err := s.commentRepo.FindByID(answerID)
 	if err != nil {
 		return nil, errors.New("回答不存在")
@@ -45,7 +45,7 @@ func (s *CommentService) VoteAnswer(answerID uint, userID uint, voteType int) (*
 }
 
 // RemoveVote 取消投票
-func (s *CommentService) RemoveVote(answerID uint, userID uint) (*model.Comment, error) {
+func (s *commentService) RemoveVote(answerID uint, userID uint) (*model.Comment, error) {
 	comment, err := s.commentRepo.FindByID(answerID)
 	if err != nil {
 		return nil, errors.New("回答不存在")
@@ -67,6 +67,6 @@ func (s *CommentService) RemoveVote(answerID uint, userID uint) (*model.Comment,
 }
 
 // GetUserVoteStatus 获取用户对指定答案的投票状态
-func (s *CommentService) GetUserVoteStatus(answerID uint, userID uint) (int, error) {
+func (s *commentService) GetUserVoteStatus(answerID uint, userID uint) (int, error) {
 	return s.voteRepo.GetUserVote(answerID, userID)
 }

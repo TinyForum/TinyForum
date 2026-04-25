@@ -6,7 +6,7 @@ import (
 )
 
 // MarkAsAnswer 标记/取消标记为答案
-func (s *CommentService) MarkAsAnswer(commentID, userID uint, isAdmin bool, isAnswer bool) error {
+func (s *commentService) MarkAsAnswer(commentID, userID uint, isAdmin bool, isAnswer bool) error {
 	comment, err := s.commentRepo.FindByID(commentID)
 	if err != nil {
 		return errors.New("评论不存在")
@@ -22,7 +22,7 @@ func (s *CommentService) MarkAsAnswer(commentID, userID uint, isAdmin bool, isAn
 }
 
 // UnacceptAnswer 取消接受答案（问题作者或管理员）
-func (s *CommentService) UnacceptAnswer(answerID, userID uint, isAdmin bool) error {
+func (s *commentService) UnacceptAnswer(answerID, userID uint, isAdmin bool) error {
 	answer, err := s.commentRepo.FindByID(answerID)
 	if err != nil {
 		return errors.New("回答不存在")

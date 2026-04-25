@@ -26,7 +26,7 @@ type Services struct {
 	Tag          tag.TagService
 	Notification notification.NotificationService
 	Post         post.PostService
-	Comment      *comment.CommentService
+	Comment      comment.CommentService
 	Board        *board.BoardService
 	Timeline     *timeline.TimelineService
 	Topic        *topic.TopicService

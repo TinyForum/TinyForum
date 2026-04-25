@@ -9,14 +9,14 @@ import (
 // AnswerHandler 处理回答相关请求
 type AnswerHandler struct {
 	questionSvc *questionService.QuestionService
-	commentSvc  *commentService.CommentService
+	commentSvc  commentService.CommentService
 	postSvc     postService.PostService
 }
 
 // NewAnswerHandler 创建 AnswerHandler 实例
 func NewAnswerHandler(
 	questionSvc *questionService.QuestionService,
-	commentSvc *commentService.CommentService,
+	commentSvc commentService.CommentService,
 	postSvc postService.PostService,
 ) *AnswerHandler {
 	return &AnswerHandler{

@@ -6,11 +6,11 @@ import (
 )
 
 type CommentHandler struct {
-	commentSvc  *commentService.CommentService
+	commentSvc  commentService.CommentService
 	questionSvc *questionService.QuestionService
 }
 
-func NewCommentHandler(commentSvc *commentService.CommentService, questionSvc *questionService.QuestionService) *CommentHandler {
+func NewCommentHandler(commentSvc commentService.CommentService, questionSvc *questionService.QuestionService) *CommentHandler {
 	return &CommentHandler{
 		commentSvc:  commentSvc,
 		questionSvc: questionSvc,

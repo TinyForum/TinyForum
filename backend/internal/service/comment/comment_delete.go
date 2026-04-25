@@ -5,7 +5,7 @@ import (
 )
 
 // Delete 删除普通评论
-func (s *CommentService) Delete(commentID, userID uint, isAdmin bool) error {
+func (s *commentService) Delete(commentID, userID uint, isAdmin bool) error {
 	comment, err := s.commentRepo.FindByID(commentID)
 	if err != nil {
 		return errors.New("评论不存在")
@@ -17,7 +17,7 @@ func (s *CommentService) Delete(commentID, userID uint, isAdmin bool) error {
 }
 
 // DeleteAnswer 删除回答（权限：管理员、作者、问题作者）
-func (s *CommentService) DeleteAnswer(commentID, userID uint, isAdmin bool) error {
+func (s *commentService) DeleteAnswer(commentID, userID uint, isAdmin bool) error {
 	comment, err := s.commentRepo.FindByID(commentID)
 	if err != nil {
 		return errors.New("回答不存在")

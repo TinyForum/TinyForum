@@ -5,22 +5,22 @@ import (
 )
 
 // List 获取评论列表（分页）
-func (s *CommentService) List(postID uint, page, pageSize int) ([]model.Comment, int64, error) {
+func (s *commentService) List(postID uint, page, pageSize int) ([]model.Comment, int64, error) {
 	return s.commentRepo.ListByPost(postID, page, pageSize)
 }
 
 // GetCommentCount 获取评论总数
-func (s *CommentService) GetCommentCount(postID uint) (int64, error) {
+func (s *commentService) GetCommentCount(postID uint) (int64, error) {
 	return s.commentRepo.CountByPost(postID)
 }
 
 // GetAnswerByID 获取回答详情
-func (s *CommentService) GetAnswerByID(commentID uint) (*model.Comment, error) {
+func (s *commentService) GetAnswerByID(commentID uint) (*model.Comment, error) {
 	return s.commentRepo.FindByID(commentID)
 }
 
 // GetAnswersByPostID 获取帖子的所有答案（支持排序）
-func (s *CommentService) GetAnswersByPostID(postID uint, page, pageSize int, sortBy string) ([]model.Comment, int64, error) {
+func (s *commentService) GetAnswersByPostID(postID uint, page, pageSize int, sortBy string) ([]model.Comment, int64, error) {
 	if page < 1 {
 		page = 1
 	}
@@ -40,7 +40,7 @@ func (s *CommentService) GetAnswersByPostID(postID uint, page, pageSize int, sor
 }
 
 // GetAnswerVoteCount 获取答案的投票数（直接从 Comment 字段读取）
-func (s *CommentService) GetAnswerVoteCount(commentID uint) (int, error) {
+func (s *commentService) GetAnswerVoteCount(commentID uint) (int, error) {
 	comment, err := s.commentRepo.FindByID(commentID)
 	if err != nil {
 		return 0, err
@@ -49,7 +49,7 @@ func (s *CommentService) GetAnswerVoteCount(commentID uint) (int, error) {
 }
 
 // GetVoteStatistics 获取投票统计（赞成/反对数）
-func (s *CommentService) GetVoteStatistics(answerID uint) (upCount, downCount int, err error) {
+func (s *commentService) GetVoteStatistics(answerID uint) (upCount, downCount int, err error) {
 	upUsers, err := s.voteRepo.GetVoteUsers(answerID, 1)
 	if err != nil {
 		return 0, 0, err
