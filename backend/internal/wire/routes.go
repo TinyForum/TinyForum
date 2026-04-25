@@ -56,7 +56,7 @@ func RegisterRoutes(
 	// MARK: Post routes
 	postGroup := api.Group("/posts")
 	{
-		postGroup.GET("", mw.OptionalAuthMW(), handlers.Post.List)
+		postGroup.GET("", mw.OptionalAuthMW(), handlers.Post.List) // 用户获取帖子列表
 		postGroup.GET("/:id", mw.OptionalAuthMW(), handlers.Post.GetByID)
 		postGroup.POST("",
 			mw.AuthMW(),
