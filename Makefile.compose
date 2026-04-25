@@ -140,7 +140,7 @@ dc-shell-frontend: dc-check
 
 dc-shell-postgres: dc-check
 	$(COMPOSE_CMD) -f $(COMPOSE_FILE) exec postgres \
-		psql -U $${DB_USER:-caoyang} -d $${DB_NAME:-tiny_forum}
+		psql -U $${DB_USER:-postgres} -d $${DB_NAME:-tiny_forum}
 
 dc-shell-redis: dc-check
 	$(COMPOSE_CMD) -f $(COMPOSE_FILE) exec redis redis-cli
@@ -149,7 +149,7 @@ dc-shell-redis: dc-check
 dc-backup-db: dc-check
 	@echo "💾 备份数据库..."
 	$(COMPOSE_CMD) -f $(COMPOSE_FILE) exec postgres \
-		pg_dump -U $${DB_USER:-caoyang} $${DB_NAME:-tiny_forum} \
+		pg_dump -U $${DB_USER:-postgres} $${DB_NAME:-tiny_forum} \
 		> backup_$$(date +%Y%m%d_%H%M%S).sql
 	@echo "✅ 备份完成"
 

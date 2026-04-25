@@ -6,16 +6,16 @@ services:
     container_name: tiny-forum-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: ${DB_USER:-caoyang}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-chang2002}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
       POSTGRES_DB: ${DB_NAME:-tiny_forum}
       TZ: Asia/Shanghai
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
-      - "${DB_PORT:-5432}:5432"
+      - "${DB_PORT:-54321}:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-caoyang} -d ${DB_NAME:-tiny_forum}"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-tiny_forum}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -30,7 +30,7 @@ services:
     volumes:
       - redis_data:/data
     ports:
-      - "${REDIS_PORT:-6379}:6379"
+      - "${REDIS_PORT:-63791}:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -47,33 +47,33 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     environment:
-      SERVER_MODE: ${SERVER_MODE:-release}
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_USER: ${DB_USER:-caoyang}
-      DB_PASSWORD: ${DB_PASSWORD:-chang2002}
-      DB_NAME: ${DB_NAME:-tiny_forum}
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-      JWT_SECRET: ${JWT_SECRET:-tiny-forum-secret-change-in-production-32chars}
+      PRIVATE_DATABASE_HOST: postgres
+      PRIVATE_DATABASE_PORT: 5432
+      PRIVATE_DATABASE_USER: ${DB_USER:-postgres}
+      PRIVATE_DATABASE_PASSWORD: ${DB_PASSWORD:-postgres}
+      PRIVATE_DATABASE_DBNAME: ${DB_NAME:-tiny_forum}
+      PRIVATE_REDIS_HOST: redis
+      PRIVATE_REDIS_PORT: 6379
+      PRIVATE_JWT_SECRET: ${JWT_SECRET:-tiny-forum-secret-change-in-production-32chars}
       TZ: Asia/Shanghai
     volumes:
-      - ./backend/configs:/app/configs:ro
+      - ./backend/config/basic.yaml.compose:/app/config/basic.yaml:ro
+      - ./backend/config/private.yaml.compose:/app/config/private.yaml:ro
       - backend_logs:/app/logs
       - backend_uploads:/app/uploads
     ports:
-      - "${BACKEND_PORT:-8080}:8080"
+      - "${BACKEND_PORT:-8081}:8080"
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/api/v1/health || exit 1"]
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/api/v1/health 2>/dev/null || wget -qO- http://localhost:8080/ 2>/dev/null || exit 1"]
       interval: 15s
       timeout: 5s
       retries: 5
-      start_period: 10s
+      start_period: 15s
     networks:
       - tiny-forum-net
 
@@ -89,6 +89,7 @@ services:
       NEXT_TELEMETRY_DISABLED: "1"
       BACKEND_URL: http://backend:8080
     depends_on:
+      # backend healthcheck 已恢复，可以用 service_healthy
       backend:
         condition: service_healthy
     networks:
@@ -99,14 +100,16 @@ services:
     container_name: tiny-forum-nginx
     restart: unless-stopped
     ports:
-      - "${HTTP_PORT:-80}:80"
-      - "${HTTPS_PORT:-443}:443"
+      # rootless Podman 不能绑定 <1024 特权端口
+      # .env 中设置 HTTP_PORT=8080 HTTPS_PORT=8443
+      - "${HTTP_PORT:-8080}:80"
+      - "${HTTPS_PORT:-8443}:443"
     volumes:
-      - ./deploy/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./deploy/nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
       - nginx_logs:/var/log/nginx
       # TLS 证书（可选）
-      # - ./deploy/nginx/certs:/etc/nginx/certs:ro
+      # - ./nginx/certs:/etc/nginx/certs:ro
     depends_on:
       - frontend
       - backend

@@ -10,6 +10,15 @@ brew install podman  # 如果还没安装
 ## 2. 初始化并启动 Podman machine
 ```bash
 podman machine init      # 创建虚拟机（默认分配 2GB 内存，可根据需要调整）
+
+```bash
+podman machine rm   # 删除现有 machine（会丢失已有的容器和镜像，谨慎操作）
+podman machine init --memory 4096 --cpus 2   # 分配 4GB 内存
+podman machine start
+```
+## 启动
+
+```bash
 podman machine start     # 启动虚拟机
 ```
 

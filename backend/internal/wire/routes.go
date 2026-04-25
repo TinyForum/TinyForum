@@ -27,6 +27,9 @@ func RegisterRoutes(
 	engine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	api := engine.Group("/api/v1")
+	{
+		api.GET("/health", func(c *gin.Context) { c.JSON(200, "pong") })
+	}
 
 	// MARK: Auth routes
 	authGroup := api.Group("/auth")

@@ -16,7 +16,7 @@ services:
   backend:
     build:
       context: ./backend
-      dockerfile: Dockerfile.dev       # 如有热重载版 Dockerfile，指向它
+      dockerfile: Dockerfile       # 如有热重载版 Dockerfile，指向它
       target: builder                   # 否则删除此行，用默认 target
     environment:
       SERVER_MODE: debug
