@@ -3,20 +3,11 @@ package announcement
 import (
 	"strconv"
 
-	announcementService "tiny-forum/internal/service/announcement"
 	apperrors "tiny-forum/pkg/errors"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
 )
-
-type AnnouncementHandler struct {
-	service announcementService.AnnouncementService
-}
-
-func NewAnnouncementHandler(svc announcementService.AnnouncementService) *AnnouncementHandler {
-	return &AnnouncementHandler{service: svc}
-}
 
 // parseAnnouncementID 解析公告ID，返回错误响应
 func parseAnnouncementID(c *gin.Context) (uint, bool) {

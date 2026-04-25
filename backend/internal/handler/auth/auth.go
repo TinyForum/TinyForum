@@ -2,21 +2,11 @@ package auth
 
 import (
 	"os"
-	authService "tiny-forum/internal/service/auth"
 	userService "tiny-forum/internal/service/user"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
 )
-
-type AuthHandler struct {
-	// userSvc *userService.UserService
-	authSvc authService.AuthService
-}
-
-func NewAuthHandler(authSvc authService.AuthService) *AuthHandler {
-	return &AuthHandler{authSvc: authSvc}
-}
 
 // Register godoc
 // @Summary 用户注册

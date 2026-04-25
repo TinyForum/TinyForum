@@ -2,20 +2,8 @@ package risk
 
 // TODO: Refactory
 import (
-	"tiny-forum/internal/service/check"
-	riskservice "tiny-forum/internal/service/risk"
-
 	"github.com/gin-gonic/gin"
 )
-
-type RiskHandler struct {
-	checkSvc check.ContentCheckService
-	riskSvc  riskservice.RiskService
-}
-
-func NewRiskHandler(checkSvc check.ContentCheckService, riskSvc riskservice.RiskService) *RiskHandler {
-	return &RiskHandler{checkSvc: checkSvc, riskSvc: riskSvc}
-}
 
 // RegisterRoutes 注册路由
 func (h *RiskHandler) RegisterRoutes(admin *gin.RouterGroup) {
