@@ -5,9 +5,9 @@ import (
 )
 
 type TopicHandler struct {
-	topicSvc *topicService.TopicService
+	topicSvc topicService.TopicService
 }
 
-func NewTopicHandler(topicSvc *topicService.TopicService) *TopicHandler {
+func NewTopicHandler(topicSvc topicService.TopicService) *TopicHandler {
 	return &TopicHandler{topicSvc: topicSvc}
 }

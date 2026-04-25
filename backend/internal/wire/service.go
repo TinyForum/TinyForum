@@ -29,7 +29,7 @@ type Services struct {
 	Comment      comment.CommentService
 	Board        board.BoardService
 	Timeline     timeline.TimelineService
-	Topic        *topic.TopicService
+	Topic        topic.TopicService
 	Question     *question.QuestionService
 	Announcement announcement.AnnouncementService
 	Stats        *stats.StatsService

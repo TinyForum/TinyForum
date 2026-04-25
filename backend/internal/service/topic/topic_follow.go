@@ -7,7 +7,7 @@ import (
 )
 
 // Follow 关注专题
-func (s *TopicService) Follow(userID, topicID uint) error {
+func (s *topicService) Follow(userID, topicID uint) error {
 	_, err := s.topicRepo.FindByID(topicID)
 	if err != nil {
 		return errors.New("专题不存在")
@@ -27,7 +27,7 @@ func (s *TopicService) Follow(userID, topicID uint) error {
 }
 
 // Unfollow 取消关注专题
-func (s *TopicService) Unfollow(userID, topicID uint) error {
+func (s *topicService) Unfollow(userID, topicID uint) error {
 	_, err := s.topicRepo.FindByID(topicID)
 	if err != nil {
 		return errors.New("专题不存在")
@@ -39,12 +39,12 @@ func (s *TopicService) Unfollow(userID, topicID uint) error {
 }
 
 // IsFollowing 检查是否已关注专题
-func (s *TopicService) IsFollowing(userID, topicID uint) (bool, error) {
+func (s *topicService) IsFollowing(userID, topicID uint) (bool, error) {
 	return s.topicRepo.IsFollowing(userID, topicID)
 }
 
 // GetFollowers 获取专题的关注者列表
-func (s *TopicService) GetFollowers(topicID uint, page, pageSize int) ([]model.TopicFollow, int64, error) {
+func (s *topicService) GetFollowers(topicID uint, page, pageSize int) ([]model.TopicFollow, int64, error) {
 	if page < 1 {
 		page = 1
 	}

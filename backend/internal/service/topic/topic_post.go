@@ -13,7 +13,7 @@ type AddPostToTopicInput struct {
 }
 
 // AddPostToTopic 添加帖子到专题
-func (s *TopicService) AddPostToTopic(input AddPostToTopicInput, userID uint) error {
+func (s *topicService) AddPostToTopic(input AddPostToTopicInput, userID uint) error {
 	topic, err := s.topicRepo.FindByID(input.TopicID)
 	if err != nil {
 		return errors.New("专题不存在")
@@ -43,7 +43,7 @@ func (s *TopicService) AddPostToTopic(input AddPostToTopicInput, userID uint) er
 }
 
 // RemovePostFromTopic 从专题移除帖子
-func (s *TopicService) RemovePostFromTopic(topicID, postID uint, userID uint) error {
+func (s *topicService) RemovePostFromTopic(topicID, postID uint, userID uint) error {
 	topic, err := s.topicRepo.FindByID(topicID)
 	if err != nil {
 		return errors.New("专题不存在")
@@ -58,7 +58,7 @@ func (s *TopicService) RemovePostFromTopic(topicID, postID uint, userID uint) er
 }
 
 // GetTopicPosts 获取专题下的帖子列表（分页）
-func (s *TopicService) GetTopicPosts(topicID uint, page, pageSize int) ([]model.TopicPost, int64, error) {
+func (s *topicService) GetTopicPosts(topicID uint, page, pageSize int) ([]model.TopicPost, int64, error) {
 	if page < 1 {
 		page = 1
 	}

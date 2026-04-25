@@ -14,7 +14,7 @@ type CreateTopicInput struct {
 }
 
 // Create 创建专题
-func (s *TopicService) Create(creatorID uint, input CreateTopicInput) (*model.Topic, error) {
+func (s *topicService) Create(creatorID uint, input CreateTopicInput) (*model.Topic, error) {
 	topic := &model.Topic{
 		Title:       input.Title,
 		Description: input.Description,
@@ -29,7 +29,7 @@ func (s *TopicService) Create(creatorID uint, input CreateTopicInput) (*model.To
 }
 
 // Update 更新专题
-func (s *TopicService) Update(id uint, input CreateTopicInput) (*model.Topic, error) {
+func (s *topicService) Update(id uint, input CreateTopicInput) (*model.Topic, error) {
 	topic, err := s.topicRepo.FindByID(id)
 	if err != nil {
 		return nil, errors.New("专题不存在")
@@ -45,7 +45,7 @@ func (s *TopicService) Update(id uint, input CreateTopicInput) (*model.Topic, er
 }
 
 // Delete 删除专题
-func (s *TopicService) Delete(id uint, userID uint, isAdmin bool) error {
+func (s *topicService) Delete(id uint, userID uint, isAdmin bool) error {
 	topic, err := s.topicRepo.FindByID(id)
 	if err != nil {
 		return errors.New("专题不存在")
@@ -57,12 +57,12 @@ func (s *TopicService) Delete(id uint, userID uint, isAdmin bool) error {
 }
 
 // GetByID 获取专题详情
-func (s *TopicService) GetByID(id uint) (*model.Topic, error) {
+func (s *topicService) GetByID(id uint) (*model.Topic, error) {
 	return s.topicRepo.FindByID(id)
 }
 
 // List 分页获取专题列表
-func (s *TopicService) List(page, pageSize int) ([]model.Topic, int64, error) {
+func (s *topicService) List(page, pageSize int) ([]model.Topic, int64, error) {
 	if page < 1 {
 		page = 1
 	}
@@ -74,7 +74,7 @@ func (s *TopicService) List(page, pageSize int) ([]model.Topic, int64, error) {
 }
 
 // GetByCreator 获取用户创建的专题列表
-func (s *TopicService) GetByCreator(creatorID uint, page, pageSize int) ([]model.Topic, int64, error) {
+func (s *topicService) GetByCreator(creatorID uint, page, pageSize int) ([]model.Topic, int64, error) {
 	if page < 1 {
 		page = 1
 	}
