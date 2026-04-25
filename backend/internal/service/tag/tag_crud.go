@@ -10,7 +10,7 @@ type CreateTagInput struct {
 	Color       string `json:"color"`
 }
 
-func (s *TagService) Create(input CreateTagInput) (*model.Tag, error) {
+func (s *tagService) Create(input CreateTagInput) (*model.Tag, error) {
 	color := input.Color
 	if color == "" {
 		color = "#6366f1"
@@ -26,11 +26,11 @@ func (s *TagService) Create(input CreateTagInput) (*model.Tag, error) {
 	return tag, nil
 }
 
-func (s *TagService) List() ([]model.Tag, error) {
+func (s *tagService) List() ([]model.Tag, error) {
 	return s.tagRepo.List()
 }
 
-func (s *TagService) Update(id uint, input CreateTagInput) (*model.Tag, error) {
+func (s *tagService) Update(id uint, input CreateTagInput) (*model.Tag, error) {
 	tag, err := s.tagRepo.FindByID(id)
 	if err != nil {
 		return nil, err
@@ -50,6 +50,6 @@ func (s *TagService) Update(id uint, input CreateTagInput) (*model.Tag, error) {
 	return tag, nil
 }
 
-func (s *TagService) Delete(id uint) error {
+func (s *tagService) Delete(id uint) error {
 	return s.tagRepo.Delete(id)
 }

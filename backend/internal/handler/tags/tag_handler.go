@@ -5,9 +5,9 @@ import (
 )
 
 type TagHandler struct {
-	tagSvc *tagService.TagService
+	tagSvc tagService.TagService
 }
 
-func NewTagHandler(tagSvc *tagService.TagService) *TagHandler {
+func NewTagHandler(tagSvc tagService.TagService) *TagHandler {
 	return &TagHandler{tagSvc: tagSvc}
 }

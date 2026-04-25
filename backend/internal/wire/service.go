@@ -23,7 +23,7 @@ import (
 type Services struct {
 	User         user.UserService
 	Auth         auth.AuthService
-	Tag          *tag.TagService
+	Tag          tag.TagService
 	Notification *notification.NotificationService
 	Post         *post.PostService
 	Comment      *comment.CommentService
