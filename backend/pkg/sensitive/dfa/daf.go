@@ -1,4 +1,4 @@
-package sensitive
+package dfa
 
 import (
 	"bufio"
@@ -6,7 +6,6 @@ import (
 	"log"
 	"os"
 	"strings"
-	"sync"
 	"unicode"
 )
 
@@ -18,17 +17,6 @@ type trieNode struct {
 
 func newTrieNode() *trieNode {
 	return &trieNode{children: make(map[rune]*trieNode)}
-}
-
-// DFAFilter DFA 敏感词过滤器
-type DFAFilter struct {
-	root *trieNode
-	mu   sync.RWMutex
-}
-
-// NewDFAFilter 创建一个新的 DFA 过滤器
-func NewDFAFilter() *DFAFilter {
-	return &DFAFilter{root: newTrieNode()}
 }
 
 // normalize 规范化字符：去除不可见字符、统一大小写、全角转半角
@@ -65,7 +53,7 @@ func normalizeRunes(text string) ([]rune, []int) {
 }
 
 // AddWord 动态添加敏感词（支持多个）
-func (f *DFAFilter) AddWord(words ...string) error {
+func (f *dFAFilter) AddWord(words ...string) error {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 	for _, word := range words {
@@ -90,7 +78,7 @@ func (f *DFAFilter) AddWord(words ...string) error {
 }
 
 // DelWord 动态删除敏感词（支持多个）
-func (f *DFAFilter) DelWord(words ...string) error {
+func (f *dFAFilter) DelWord(words ...string) error {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 	for _, word := range words {
@@ -103,7 +91,7 @@ func (f *DFAFilter) DelWord(words ...string) error {
 	return nil
 }
 
-func (f *DFAFilter) delWord(node *trieNode, runes []rune, depth int) bool {
+func (f *dFAFilter) delWord(node *trieNode, runes []rune, depth int) bool {
 	if depth == len(runes) {
 		if !node.isEnd {
 			return false
@@ -129,7 +117,7 @@ func (f *DFAFilter) delWord(node *trieNode, runes []rune, depth int) bool {
 }
 
 // LoadDictFile 从文件加载词库（每行一个词）
-func (f *DFAFilter) LoadDictFile(path string) error {
+func (f *dFAFilter) LoadDictFile(path string) error {
 	file, err := os.Open(path)
 	if err != nil {
 		return err
@@ -152,7 +140,7 @@ func (f *DFAFilter) LoadDictFile(path string) error {
 }
 
 // LoadDictContent 从字符串内容加载词库
-func (f *DFAFilter) LoadDictContent(content string) error {
+func (f *dFAFilter) LoadDictContent(content string) error {
 	var words []string
 	for _, line := range strings.Split(content, "\n") {
 		line = strings.TrimSpace(line)
@@ -166,7 +154,7 @@ func (f *DFAFilter) LoadDictContent(content string) error {
 
 // match 从规范化 rune 列表的 start 位置开始尝试最长匹配
 // 返回：匹配到的原始文本（通过原始 rune 列表重建），以及匹配结束的规范化索引（不含），-1 表示无匹配
-func (f *DFAFilter) match(norm []rune, origRunes []rune, origIdx []int, start int) (string, int) {
+func (f *dFAFilter) match(norm []rune, origRunes []rune, origIdx []int, start int) (string, int) {
 	node := f.root
 	lastEnd := -1
 	lastEndOrig := -1
@@ -196,7 +184,7 @@ func (f *DFAFilter) match(norm []rune, origRunes []rune, origIdx []int, start in
 }
 
 // IsSensitive 判断文本中是否存在敏感词
-func (f *DFAFilter) IsSensitive(text string) bool {
+func (f *dFAFilter) IsSensitive(text string) bool {
 	f.mu.RLock()
 	defer f.mu.RUnlock()
 
@@ -212,7 +200,7 @@ func (f *DFAFilter) IsSensitive(text string) bool {
 }
 
 // FindOne 查找文本中第一个敏感词
-func (f *DFAFilter) FindOne(text string) string {
+func (f *dFAFilter) FindOne(text string) string {
 	f.mu.RLock()
 	defer f.mu.RUnlock()
 
@@ -229,7 +217,7 @@ func (f *DFAFilter) FindOne(text string) string {
 }
 
 // FindAll 查找文本中所有敏感词（去重），跳过已匹配区域
-func (f *DFAFilter) FindAll(text string) []string {
+func (f *dFAFilter) FindAll(text string) []string {
 	f.mu.RLock()
 	defer f.mu.RUnlock()
 
@@ -255,7 +243,7 @@ func (f *DFAFilter) FindAll(text string) []string {
 }
 
 // FindAllCount 查找所有敏感词及其出现次数
-func (f *DFAFilter) FindAllCount(text string) map[string]int {
+func (f *dFAFilter) FindAllCount(text string) map[string]int {
 	f.mu.RLock()
 	defer f.mu.RUnlock()
 
@@ -277,7 +265,7 @@ func (f *DFAFilter) FindAllCount(text string) map[string]int {
 }
 
 // Replace 替换所有敏感词为指定字符（按敏感词长度替换对应数量的字符）
-func (f *DFAFilter) Replace(text string, replaceChar rune) string {
+func (f *dFAFilter) Replace(text string, replaceChar rune) string {
 	log.Printf(text)
 
 	f.mu.RLock()
@@ -318,7 +306,7 @@ func (f *DFAFilter) Replace(text string, replaceChar rune) string {
 }
 
 // Remove 从文本中删除所有敏感词
-func (f *DFAFilter) Remove(text string) string {
+func (f *dFAFilter) Remove(text string) string {
 	f.mu.RLock()
 	defer f.mu.RUnlock()
 

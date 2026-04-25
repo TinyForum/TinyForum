@@ -338,28 +338,3 @@ func (p *TimeRangeParser) parseSingle(expr string, now time.Time, loc *time.Loca
 	}
 	return time.Time{}, fmt.Errorf("unsupported time format: %s", expr)
 }
-
-// ============================================================================
-// 包级默认实例（向后兼容 + 开闭原则：可替换）
-// ============================================================================
-
-// var (
-// 	// defaultChain 默认解析链：绝对时间 → 相对时间
-// 	defaultChain = NewParserTimeChain(AbsoluteParser{}, NewRelativeParser())
-
-// 	// DefaultTimeParser 默认的错误返回解析器
-// 	DefaultTimeParser = NewTimeParser(defaultChain)
-
-// 	// DefaultTimeRangeParser 默认的时间范围解析器
-// 	DefaultTimeRangeParser = NewTimeRangeParser(defaultChain)
-// )
-
-// // ParseTimeExpression 解析单个时间表达式（与旧版 API 完全兼容）。
-// func ParseTimeExpression(expr string, now time.Time, loc *time.Location, isEnd bool) (time.Time, error) {
-// 	return DefaultTimeParser.Parse(expr, now, loc, isEnd)
-// }
-
-// // ParseTimeRange 解析时间范围（与旧版 API 完全兼容）。
-// func ParseTimeRange(startExpr, endExpr string) (*TimeRange, error) {
-// 	return DefaultTimeRangeParser.Parse(startExpr, endExpr)
-// }

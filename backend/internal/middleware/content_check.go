@@ -7,7 +7,7 @@ import (
 
 	"tiny-forum/internal/service/check"
 	"tiny-forum/pkg/response"
-	"tiny-forum/pkg/sensitive"
+	"tiny-forum/pkg/sensitive/filter"
 
 	"github.com/gin-gonic/gin"
 )
@@ -52,7 +52,7 @@ func ContentCheckMiddleware(checkSvc check.ContentCheckService, fields []string)
 
 		// 聚合所有字段的检测结果，统一决策
 		var (
-			maxLevel sensitive.Level
+			maxLevel filter.Level
 			allHits  []string
 			seen     = make(map[string]bool)
 		)
@@ -75,25 +75,25 @@ func ContentCheckMiddleware(checkSvc check.ContentCheckService, fields []string)
 
 		switch maxLevel {
 		//  禁止发布
-		case sensitive.LevelBlock:
+		case filter.LevelBlock:
 			c.Set(string(keyBlocked), true)
 			c.Set(string(keyHitWords), allHits)
 			response.BadRequest(c, "内容存在风险，请修改后重新提交")
 			c.Abort()
 			return
 			// 需要人工审核
-		case sensitive.LevelReview:
+		case filter.LevelReview:
 			c.Set(string(keyReviewRequired), true)
 			c.Set(string(keyHitWords), allHits)
 			c.Next()
 			return
 			// 内容被隐藏
-		case sensitive.LevelShadowed:
+		case filter.LevelShadowed:
 			c.Set(string(keyShadowed), true)
 			c.Set(string(keyHitWords), allHits)
 			return
 			// 内容被替换
-		case sensitive.LevelReplace:
+		case filter.LevelReplace:
 			c.Set(string(keyReviewRequired), true)
 			c.Set(string(keyHitWords), allHits)
 			return

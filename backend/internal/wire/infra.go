@@ -7,7 +7,7 @@ import (
 
 	"tiny-forum/config"
 	"tiny-forum/pkg/ratelimit"
-	"tiny-forum/pkg/sensitive"
+	"tiny-forum/pkg/sensitive/filter"
 
 	"github.com/redis/go-redis/v9"
 )
@@ -16,7 +16,7 @@ import (
 type Infra struct {
 	RedisClient     *redis.Client
 	RateLimiter     ratelimit.RateLimiter // 使用接口而非具体实现
-	SensitiveFilter sensitive.Filter
+	SensitiveFilter filter.Filter
 }
 
 // InitInfra 初始化基础设施
@@ -39,12 +39,12 @@ func InitInfra(cfg *config.Config) (*Infra, error) {
 	}
 
 	// 3. 敏感词过滤器
-	ollamaCfg := &sensitive.OllamaConfig{
+	ollamaCfg := &filter.OllamaConfig{
 		BaseURL: cfg.Basic.Ollama.BaseURL,
 		Model:   cfg.Basic.Ollama.Model,
 		Timeout: 15 * time.Second,
 	}
-	sensitiveFilter := sensitive.NewFilter(ollamaCfg)
+	sensitiveFilter := filter.NewFilter(ollamaCfg)
 	res, err := sensitiveFilter.LoadDictDir("./dicts")
 	if err != nil {
 		log.Fatal(err) // 词库加载失败是严重问题，可直接终止

@@ -3,7 +3,7 @@ package check
 import (
 	"tiny-forum/internal/model"
 	riskrepo "tiny-forum/internal/repository/risk"
-	"tiny-forum/pkg/sensitive"
+	"tiny-forum/pkg/sensitive/filter"
 )
 
 type ContentCheckService interface {
@@ -19,9 +19,9 @@ type ContentCheckService interface {
 // ContentCheckService 内容安全检测服务
 type contentCheckService struct {
 	repo   riskrepo.RiskRepository
-	filter sensitive.Filter
+	filter filter.Filter
 }
 
-func NewContentCheckService(repo riskrepo.RiskRepository, filter sensitive.Filter) ContentCheckService {
+func NewContentCheckService(repo riskrepo.RiskRepository, filter filter.Filter) ContentCheckService {
 	return &contentCheckService{repo: repo, filter: filter}
 }

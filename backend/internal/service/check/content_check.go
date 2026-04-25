@@ -4,15 +4,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"tiny-forum/internal/model"
-	"tiny-forum/pkg/sensitive"
+	"tiny-forum/pkg/sensitive/filter"
 )
 
 // CheckResult 内容检测结果
 type CheckResult struct {
-	Passed   bool            // false 表示直接拦截
-	Level    sensitive.Level // 命中等级
-	HitWords []string        // 命中词
-	Replaced string          // 替换后的内容
+	Passed   bool         // false 表示直接拦截
+	Level    filter.Level // 命中等级
+	HitWords []string     // 命中词
+	Replaced string       // 替换后的内容
 }
 
 // CheckPostContent 检测帖子内容（title + content）
@@ -27,7 +27,7 @@ func (s *contentCheckService) CheckPostContent(title, content string) CheckResul
 	}
 
 	return CheckResult{
-		Passed:   higher.Level != sensitive.LevelBlock,
+		Passed:   higher.Level != filter.LevelBlock,
 		Level:    higher.Level,
 		HitWords: append(titleResult.HitWords, contentResult.HitWords...),
 		Replaced: higher.Text,
@@ -38,7 +38,7 @@ func (s *contentCheckService) CheckPostContent(title, content string) CheckResul
 func (s *contentCheckService) CheckText(text string) CheckResult {
 	r := s.filter.Check(text)
 	return CheckResult{
-		Passed:   r.Level != sensitive.LevelBlock,
+		Passed:   r.Level != filter.LevelBlock,
 		Level:    r.Level,
 		HitWords: r.HitWords,
 		Replaced: r.Text,

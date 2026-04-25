@@ -1,5 +1,6 @@
 package sensitive
 
+// 敏感匹配工具
 import (
 	"regexp"
 	"strings"
