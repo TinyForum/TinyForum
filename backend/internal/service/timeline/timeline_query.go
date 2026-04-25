@@ -5,7 +5,7 @@ import (
 )
 
 // GetHomeTimeline 获取首页时间线（推荐/综合）
-func (s *TimelineService) GetHomeTimeline(userID uint, page, pageSize int) ([]model.TimelineEvent, int64, error) {
+func (s *timelineService) GetHomeTimeline(userID uint, page, pageSize int) ([]model.TimelineEvent, int64, error) {
 	if page < 1 {
 		page = 1
 	}
@@ -18,7 +18,7 @@ func (s *TimelineService) GetHomeTimeline(userID uint, page, pageSize int) ([]mo
 }
 
 // GetFollowingTimeline 获取关注时间线（仅关注用户的内容）
-func (s *TimelineService) GetFollowingTimeline(userID uint, page, pageSize int) ([]model.TimelineEvent, int64, error) {
+func (s *timelineService) GetFollowingTimeline(userID uint, page, pageSize int) ([]model.TimelineEvent, int64, error) {
 	if page < 1 {
 		page = 1
 	}

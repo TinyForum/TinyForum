@@ -15,7 +15,7 @@ type CreateEventInput struct {
 	Score      int
 }
 
-func (s *TimelineService) CreateEvent(input CreateEventInput) error {
+func (s *timelineService) CreateEvent(input CreateEventInput) error {
 	payloadJSON, _ := json.Marshal(input.Payload)
 
 	event := &model.TimelineEvent{

@@ -5,9 +5,9 @@ import (
 )
 
 type TimelineHandler struct {
-	timelineSvc *timelineService.TimelineService
+	timelineSvc timelineService.TimelineService
 }
 
-func NewTimelineHandler(timelineSvc *timelineService.TimelineService) *TimelineHandler {
+func NewTimelineHandler(timelineSvc timelineService.TimelineService) *TimelineHandler {
 	return &TimelineHandler{timelineSvc: timelineSvc}
 }

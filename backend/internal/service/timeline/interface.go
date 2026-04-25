@@ -1,13 +1,23 @@
 package timeline
 
 import (
+	"tiny-forum/internal/model"
 	commentRepo "tiny-forum/internal/repository/comment"
 	postRepo "tiny-forum/internal/repository/post"
 	timelineRepo "tiny-forum/internal/repository/timeline"
 	userRepo "tiny-forum/internal/repository/user"
 )
 
-type TimelineService struct {
+type TimelineService interface {
+	CreateEvent(input CreateEventInput) error
+	GetHomeTimeline(userID uint, page, pageSize int) ([]model.TimelineEvent, int64, error)
+	GetFollowingTimeline(userID uint, page, pageSize int) ([]model.TimelineEvent, int64, error)
+	Subscribe(subscriberID, targetUserID uint) error
+	Unsubscribe(subscriberID, targetUserID uint) error
+	GetSubscriptions(subscriberID uint) ([]model.TimelineSubscription, error)
+	IsSubscribed(subscriberID, targetUserID uint) (bool, error)
+}
+type timelineService struct {
 	timelineRepo timelineRepo.TimelineRepository
 	userRepo     userRepo.UserRepository
 	postRepo     postRepo.PostRepository
@@ -19,8 +29,8 @@ func NewTimelineService(
 	userRepo userRepo.UserRepository,
 	postRepo postRepo.PostRepository,
 	commentRepo commentRepo.CommentRepository,
-) *TimelineService {
-	return &TimelineService{
+) TimelineService {
+	return &timelineService{
 		timelineRepo: timelineRepo,
 		userRepo:     userRepo,
 		postRepo:     postRepo,

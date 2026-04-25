@@ -28,7 +28,7 @@ type Services struct {
 	Post         post.PostService
 	Comment      comment.CommentService
 	Board        board.BoardService
-	Timeline     *timeline.TimelineService
+	Timeline     timeline.TimelineService
 	Topic        *topic.TopicService
 	Question     *question.QuestionService
 	Announcement announcement.AnnouncementService

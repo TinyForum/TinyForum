@@ -5,7 +5,7 @@ import (
 )
 
 // Subscribe 关注用户
-func (s *TimelineService) Subscribe(subscriberID, targetUserID uint) error {
+func (s *timelineService) Subscribe(subscriberID, targetUserID uint) error {
 	_, err := s.userRepo.FindByID(targetUserID)
 	if err != nil {
 		return err
@@ -20,16 +20,16 @@ func (s *TimelineService) Subscribe(subscriberID, targetUserID uint) error {
 }
 
 // Unsubscribe 取消关注用户
-func (s *TimelineService) Unsubscribe(subscriberID, targetUserID uint) error {
+func (s *timelineService) Unsubscribe(subscriberID, targetUserID uint) error {
 	return s.timelineRepo.Unsubscribe(subscriberID, targetUserID)
 }
 
 // GetSubscriptions 获取关注列表
-func (s *TimelineService) GetSubscriptions(subscriberID uint) ([]model.TimelineSubscription, error) {
+func (s *timelineService) GetSubscriptions(subscriberID uint) ([]model.TimelineSubscription, error) {
 	return s.timelineRepo.GetSubscriptions(subscriberID)
 }
 
 // IsSubscribed 检查是否已关注
-func (s *TimelineService) IsSubscribed(subscriberID, targetUserID uint) (bool, error) {
+func (s *timelineService) IsSubscribed(subscriberID, targetUserID uint) (bool, error) {
 	return s.timelineRepo.IsSubscribed(subscriberID, targetUserID)
 }
