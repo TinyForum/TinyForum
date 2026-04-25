@@ -4,11 +4,15 @@ package ratelimit
 
 import (
 	"context"
+	_ "embed"
 	"fmt"
 	"time"
 
 	"github.com/redis/go-redis/v9"
 )
+
+//go:embed script.lua
+var luaScript string
 
 // Action 被限流的操作类型
 type Action string
@@ -63,7 +67,8 @@ var quotaTable = map[RiskLevel]map[Action]Quota{
 
 // Limiter 限流器
 type Limiter struct {
-	rdb *redis.Client
+	rdb         *redis.Client
+	allowScript *redis.Script // Lua 脚本缓存
 }
 
 // Result 限流结果
@@ -75,11 +80,16 @@ type Result struct {
 }
 
 func NewLimiter(rdb *redis.Client) *Limiter {
-	return &Limiter{rdb: rdb}
+	script := redis.NewScript(luaScript)
+	return &Limiter{
+		rdb:         rdb,
+		allowScript: script,
+	}
 }
 
 // Allow 检查 userID 执行 action 是否被允许（滑动窗口算法）
 // riskLevel 由调用方从 RiskService 获取
+// Allow 原子版：使用 Lua 脚本实现滑动窗口限流
 func (l *Limiter) Allow(ctx context.Context, userID uint, action Action, riskLevel RiskLevel) (Result, error) {
 	quota, ok := quotaTable[riskLevel][action]
 	if !ok {
@@ -89,42 +99,73 @@ func (l *Limiter) Allow(ctx context.Context, userID uint, action Action, riskLev
 
 	key := fmt.Sprintf("rl:%d:%s", userID, action)
 	now := time.Now()
-	windowStart := now.Add(-quota.Window)
+	windowMs := quota.Window.Milliseconds()
+	nowMs := now.UnixMilli()
+	member := fmt.Sprintf("%d", now.UnixNano()) // 纳秒级唯一标识
 
-	pipe := l.rdb.Pipeline()
-	// 移除窗口外的旧记录
-	pipe.ZRemRangeByScore(ctx, key, "0", fmt.Sprintf("%d", windowStart.UnixMilli()))
-	// 统计当前窗口内的请求数
-	countCmd := pipe.ZCard(ctx, key)
-	// 设置 key 过期（防止内存泄漏）
-	pipe.Expire(ctx, key, quota.Window+time.Minute)
+	// 执行 Lua 脚本
+	res, err := l.allowScript.Run(ctx, l.rdb, []string{key},
+		quota.Limit, windowMs, nowMs, member).Slice()
 
-	if _, err := pipe.Exec(ctx); err != nil {
-		return Result{}, fmt.Errorf("ratelimit pipeline: %w", err)
+	if err != nil {
+		return Result{}, fmt.Errorf("ratelimit lua script: %w", err)
 	}
 
-	current := int(countCmd.Val())
-	if current >= quota.Limit {
-		return Result{
-			Allowed: false,
-			Current: current,
-			Limit:   quota.Limit,
-			ResetIn: quota.Window,
-		}, nil
+	// 脚本返回: [allowed, current, limit, resetMs]
+
+	if len(res) != 4 {
+		return Result{}, fmt.Errorf("unexpected script result length: %d", len(res))
 	}
 
-	// 允许通过，记录本次请求
-	score := float64(now.UnixMilli())
-	member := fmt.Sprintf("%d", now.UnixNano())
-	if err := l.rdb.ZAdd(ctx, key, redis.Z{Score: score, Member: member}).Err(); err != nil {
-		return Result{}, fmt.Errorf("ratelimit zadd: %w", err)
+	// 类型转换辅助
+	toInt := func(v interface{}) (int, error) {
+		switch t := v.(type) {
+		case int64:
+			return int(t), nil
+		case int:
+			return t, nil
+		default:
+			return 0, fmt.Errorf("cannot convert %T to int", v)
+		}
+	}
+	toInt64 := func(v interface{}) (int64, error) {
+		switch t := v.(type) {
+		case int64:
+			return t, nil
+		case int:
+			return int64(t), nil
+		default:
+			return 0, fmt.Errorf("cannot convert %T to int64", v)
+		}
 	}
 
-	return Result{
-		Allowed: true,
-		Current: current + 1,
-		Limit:   quota.Limit,
-	}, nil
+	allowed, err := toInt(res[0])
+	if err != nil {
+		return Result{}, err
+	}
+	current, err := toInt(res[1])
+	if err != nil {
+		return Result{}, err
+	}
+	limit, err := toInt(res[2])
+	if err != nil {
+		return Result{}, err
+	}
+	resetMs, err := toInt64(res[3])
+	if err != nil {
+		return Result{}, err
+	}
+	fmt.Printf("Result: allowed=%v, current=%d, limit=%d, resetIn=%v\n",
+		res[0].(int64) == 1, res[1].(int64), res[2].(int64), time.Duration(res[3].(int64))*time.Millisecond)
+	result := Result{
+		Allowed: allowed == 1,
+		Current: current,
+		Limit:   limit,
+	}
+	if !result.Allowed {
+		result.ResetIn = time.Duration(resetMs) * time.Millisecond
+	}
+	return result, nil
 }
 
 // GetQuota 查询某用户某操作的当前配额使用情况（不消耗配额）
