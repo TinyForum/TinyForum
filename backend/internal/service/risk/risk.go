@@ -4,19 +4,8 @@ import (
 	"context"
 	"time"
 	"tiny-forum/internal/model"
-	riskrepo "tiny-forum/internal/repository/risk"
 	"tiny-forum/pkg/ratelimit"
 )
-
-// RiskService 风控核心服务
-type RiskService struct {
-	repo    riskrepo.RiskRepository
-	limiter ratelimit.RateLimiter
-}
-
-func NewRiskService(repo riskrepo.RiskRepository, limiter ratelimit.RateLimiter) *RiskService {
-	return &RiskService{repo: repo, limiter: limiter}
-}
 
 // GetUserRiskLevel 计算用户当前风险等级
 // 规则（优先级从高到低）：
@@ -24,7 +13,7 @@ func NewRiskService(repo riskrepo.RiskRepository, limiter ratelimit.RateLimiter)
 //  2. 活跃风险事件 >= 3 → restrict
 //  3. score < 50 或 注册不足7天 → observe
 //  4. 其他 → normal
-func (s *RiskService) GetUserRiskLevel(user *model.User) (model.RiskLevel, error) {
+func (s *riskService) GetUserRiskLevel(user *model.User) (model.RiskLevel, error) {
 	if user.IsBlocked {
 		return model.RiskLevelBlocked, nil
 	}
@@ -59,7 +48,7 @@ func toRatelimitLevel(level model.RiskLevel) ratelimit.RiskLevel {
 }
 
 // CheckRateLimit 检查用户操作频率是否超限
-func (s *RiskService) CheckRateLimit(ctx context.Context, user *model.User, action ratelimit.Action) (ratelimit.Result, error) {
+func (s *riskService) CheckRateLimit(ctx context.Context, user *model.User, action ratelimit.Action) (ratelimit.Result, error) {
 	level, err := s.GetUserRiskLevel(user)
 	if err != nil {
 		return ratelimit.Result{Allowed: true}, nil // 降级放行
@@ -69,7 +58,7 @@ func (s *RiskService) CheckRateLimit(ctx context.Context, user *model.User, acti
 
 // RecordRiskEvent 记录一次风险事件（举报成立、命中敏感词等）
 // ttl: 该事件计入风险分的有效期
-func (s *RiskService) RecordRiskEvent(userID uint, eventType, detail string, ttl time.Duration) error {
+func (s *riskService) RecordRiskEvent(userID uint, eventType, detail string, ttl time.Duration) error {
 	record := &model.UserRiskRecord{
 		UserID:      userID,
 		EventType:   eventType,
@@ -80,7 +69,7 @@ func (s *RiskService) RecordRiskEvent(userID uint, eventType, detail string, ttl
 }
 
 // WriteAuditLog 写入操作审计日志
-func (s *RiskService) WriteAuditLog(operatorID uint, action model.AuditActionType,
+func (s *riskService) WriteAuditLog(operatorID uint, action model.AuditActionType,
 	targetType string, targetID uint, before, after, reason, ip string) error {
 	log := &model.AuditLog{
 		OperatorID: operatorID,

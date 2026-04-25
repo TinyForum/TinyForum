@@ -16,7 +16,7 @@ import (
 // 用法：
 //
 //	router.POST("/posts", RateLimitMiddleware(db, riskSvc, ratelimit.ActionCreatePost), handler)
-func RateLimitMiddleware(db *gorm.DB, riskSvc *riskservice.RiskService, action ratelimit.Action) gin.HandlerFunc {
+func RateLimitMiddleware(db *gorm.DB, riskSvc riskservice.RiskService, action ratelimit.Action) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userIDRaw, exists := c.Get(ContextUserID)
 		if !exists {

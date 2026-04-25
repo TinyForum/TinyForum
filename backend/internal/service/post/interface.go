@@ -8,8 +8,8 @@ import (
 	tagRepo "tiny-forum/internal/repository/tag"
 	userRepo "tiny-forum/internal/repository/user"
 
+	"tiny-forum/internal/service/check"
 	"tiny-forum/internal/service/notification"
-	"tiny-forum/internal/service/risk"
 
 	"github.com/gin-gonic/gin"
 )
@@ -37,7 +37,7 @@ type postService struct {
 	userRepo  userRepo.UserRepository
 	notifSvc  notification.NotificationService // 需导入 "tiny-forum/internal/service/notification"
 	// riskSvc         *risk.RiskService
-	contentcheckSvc *risk.ContentCheckService
+	contentcheckSvc check.ContentCheckService
 }
 
 func NewPostService(
@@ -47,7 +47,7 @@ func NewPostService(
 	boardRepo boardRepo.BoardRepository,
 	notifSvc notification.NotificationService,
 	// riskSvc *risk.RiskService,
-	contentcheckSvc *risk.ContentCheckService,
+	contentcheckSvc check.ContentCheckService,
 ) PostService {
 	return &postService{
 		postRepo:  postRepo,

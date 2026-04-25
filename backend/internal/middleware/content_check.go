@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"io"
 
-	riskservice "tiny-forum/internal/service/risk"
+	"tiny-forum/internal/service/check"
 	"tiny-forum/pkg/response"
 	"tiny-forum/pkg/sensitive"
 
@@ -32,7 +32,7 @@ const (
 //   - 五级情况：【拦截】（用户级）→ 任意字段命中 LevelBlock → 返回 400，请求不进入 handler，标记用户风控行为
 //
 // fields: 需要检测的 JSON 字段名，如 []string{"title", "content"}
-func ContentCheckMiddleware(checkSvc *riskservice.ContentCheckService, fields []string) gin.HandlerFunc {
+func ContentCheckMiddleware(checkSvc check.ContentCheckService, fields []string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		body, restore, err := peekBody(c)
 		if err != nil {

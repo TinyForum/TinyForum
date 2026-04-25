@@ -5,6 +5,7 @@ import (
 	"tiny-forum/internal/service/announcement"
 	"tiny-forum/internal/service/auth"
 	"tiny-forum/internal/service/board"
+	"tiny-forum/internal/service/check"
 	"tiny-forum/internal/service/comment"
 	"tiny-forum/internal/service/email"
 	"tiny-forum/internal/service/notification"
@@ -33,8 +34,8 @@ type Services struct {
 	Question     question.QuestionService
 	Announcement announcement.AnnouncementService
 	Stats        stats.StatsService
-	Risk         *risk.RiskService
-	ContentCheck *risk.ContentCheckService
+	Risk         risk.RiskService
+	ContentCheck check.ContentCheckService
 }
 
 // NewServices 创建所有 Service 实例
@@ -46,7 +47,7 @@ func NewServices(
 ) *Services {
 	// 风险服务（先创建，因为其他服务可能依赖）
 	riskSvc := risk.NewRiskService(repos.Risk, infra.RateLimiter)
-	checkSvc := risk.NewContentCheckService(repos.Risk, infra.SensitiveFilter)
+	checkSvc := check.NewContentCheckService(repos.Risk, infra.SensitiveFilter)
 
 	// 基础服务
 	notifSvc := notification.NewNotificationService(repos.Notification)

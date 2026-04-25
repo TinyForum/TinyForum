@@ -1,22 +1,11 @@
-package risk
+package check
 
 import (
 	"encoding/json"
 	"fmt"
 	"tiny-forum/internal/model"
-	riskrepo "tiny-forum/internal/repository/risk"
 	"tiny-forum/pkg/sensitive"
 )
-
-// ContentCheckService 内容安全检测服务
-type ContentCheckService struct {
-	repo   riskrepo.RiskRepository
-	filter sensitive.Filter
-}
-
-func NewContentCheckService(repo riskrepo.RiskRepository, filter sensitive.Filter) *ContentCheckService {
-	return &ContentCheckService{repo: repo, filter: filter}
-}
 
 // CheckResult 内容检测结果
 type CheckResult struct {
@@ -27,7 +16,7 @@ type CheckResult struct {
 }
 
 // CheckPostContent 检测帖子内容（title + content）
-func (s *ContentCheckService) CheckPostContent(title, content string) CheckResult {
+func (s *contentCheckService) CheckPostContent(title, content string) CheckResult {
 	// title 和 content 分别检测，取最高等级
 	titleResult := s.filter.Check(title)
 	contentResult := s.filter.Check(content)
@@ -46,7 +35,7 @@ func (s *ContentCheckService) CheckPostContent(title, content string) CheckResul
 }
 
 // CheckText 检测单段文本（评论、简介等）
-func (s *ContentCheckService) CheckText(text string) CheckResult {
+func (s *contentCheckService) CheckText(text string) CheckResult {
 	r := s.filter.Check(text)
 	return CheckResult{
 		Passed:   r.Level != sensitive.LevelBlock,
@@ -57,7 +46,7 @@ func (s *ContentCheckService) CheckText(text string) CheckResult {
 }
 
 // CreateAuditTaskForPost 为帖子创建审核任务
-func (s *ContentCheckService) CreateAuditTaskForPost(postID uint, triggerType string, hitWords []string) error {
+func (s *contentCheckService) CreateAuditTaskForPost(postID uint, triggerType string, hitWords []string) error {
 	meta, _ := json.Marshal(map[string]interface{}{
 		"hit_words": hitWords,
 	})
@@ -72,7 +61,7 @@ func (s *ContentCheckService) CreateAuditTaskForPost(postID uint, triggerType st
 }
 
 // CreateAuditTaskForComment 为评论创建审核任务
-func (s *ContentCheckService) CreateAuditTaskForComment(commentID uint, triggerType string, hitWords []string) error {
+func (s *contentCheckService) CreateAuditTaskForComment(commentID uint, triggerType string, hitWords []string) error {
 	meta, _ := json.Marshal(map[string]interface{}{
 		"hit_words": hitWords,
 	})
@@ -89,7 +78,7 @@ func (s *ContentCheckService) CreateAuditTaskForComment(commentID uint, triggerT
 // HandleReportAggregate 处理举报聚合逻辑
 // 当某内容的 pending 举报数达到阈值时，自动创建审核任务并将内容状态改为 pending
 // 返回是否触发了聚合
-func (s *ContentCheckService) HandleReportAggregate(
+func (s *contentCheckService) HandleReportAggregate(
 	targetType model.AuditTargetType, targetID uint,
 ) (triggered bool, err error) {
 	count, err := s.repo.CountPendingByTarget(targetType, targetID)
@@ -118,12 +107,12 @@ func (s *ContentCheckService) HandleReportAggregate(
 }
 
 // GetListPendingTasks 获取待审核任务列表
-func (s *ContentCheckService) GetListPendingTasks(limit, offset int) ([]model.ContentAuditTask, int64, error) {
+func (s *contentCheckService) GetListPendingTasks(limit, offset int) ([]model.ContentAuditTask, int64, error) {
 	return s.repo.ListPendingTasks(limit, offset)
 }
 
 // ResolveTask 处理审核任务
-func (s *ContentCheckService) ResolveTask(taskID uint, approved bool, reviewerID uint, note string) error {
+func (s *contentCheckService) ResolveTask(taskID uint, approved bool, reviewerID uint, note string) error {
 	status := model.ModerationStatusApproved
 	if !approved {
 		status = model.ModerationStatusRejected

@@ -2,17 +2,18 @@ package risk
 
 // TODO: Refactory
 import (
+	"tiny-forum/internal/service/check"
 	riskservice "tiny-forum/internal/service/risk"
 
 	"github.com/gin-gonic/gin"
 )
 
 type RiskHandler struct {
-	checkSvc *riskservice.ContentCheckService
-	riskSvc  *riskservice.RiskService
+	checkSvc check.ContentCheckService
+	riskSvc  riskservice.RiskService
 }
 
-func NewRiskHandler(checkSvc *riskservice.ContentCheckService, riskSvc *riskservice.RiskService) *RiskHandler {
+func NewRiskHandler(checkSvc check.ContentCheckService, riskSvc riskservice.RiskService) *RiskHandler {
 	return &RiskHandler{checkSvc: checkSvc, riskSvc: riskSvc}
 }
 
