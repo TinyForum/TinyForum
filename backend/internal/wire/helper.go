@@ -2,14 +2,19 @@ package wire
 
 import "tiny-forum/pkg/utils"
 
-func NewTimeHelpers() *utils.TimeHelpers {
-	// 使用默认的解析链（绝对时间 + 相对时间）
+type Helpers struct {
+	TimeHelpers *utils.TimeHelpers
+	// 未来可以加其他: Logger, Cache 等
+}
+
+func NewHelpers() *Helpers {
 	defaultChain := utils.NewParserChain(
 		utils.AbsoluteParser{},
 		utils.NewRelativeParser(),
 	)
-	return &utils.TimeHelpers{
+	timeHelpers := &utils.TimeHelpers{
 		SingleParser: utils.NewTimeParser(defaultChain),
 		RangeParser:  utils.NewTimeRangeParser(defaultChain),
 	}
+	return &Helpers{TimeHelpers: timeHelpers}
 }
