@@ -29,7 +29,7 @@ type Repositories struct {
 	Comment      comment.CommentRepository
 	Tag          tag.TagRepository
 	Notification notification.NotificationRepository
-	Board        *board.BoardRepository
+	Board        board.BoardRepository
 	Timeline     *timeline.TimelineRepository
 	Topic        *topic.TopicRepository
 	Question     question.QuestionRepository

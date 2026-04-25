@@ -11,7 +11,7 @@ import (
 )
 
 // ModeratorRequired 检查用户是否为版主（任意权限即可）
-func ModeratorRequired(jwtMgr *jwt.Manager, boardRepo *boardRepo.BoardRepository) gin.HandlerFunc {
+func ModeratorRequired(jwtMgr *jwt.Manager, boardRepo boardRepo.BoardRepository) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// 获取用户ID
 		userID, exists := c.Get("user_id")
@@ -65,7 +65,7 @@ func ModeratorRequired(jwtMgr *jwt.Manager, boardRepo *boardRepo.BoardRepository
 }
 
 // SpecificModeratorPermission 检查版主是否有特定权限
-func SpecificModeratorPermission(jwtMgr *jwt.Manager, boardRepo *boardRepo.BoardRepository, permission string) gin.HandlerFunc {
+func SpecificModeratorPermission(jwtMgr *jwt.Manager, boardRepo boardRepo.BoardRepository, permission string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// 获取用户ID
 		userID, exists := c.Get("user_id")
@@ -123,26 +123,26 @@ func SpecificModeratorPermission(jwtMgr *jwt.Manager, boardRepo *boardRepo.Board
 }
 
 // CanDeletePost 检查是否有删除帖子的权限
-func CanDeletePost(jwtMgr *jwt.Manager, boardRepo *boardRepo.BoardRepository) gin.HandlerFunc {
+func CanDeletePost(jwtMgr *jwt.Manager, boardRepo boardRepo.BoardRepository) gin.HandlerFunc {
 	return SpecificModeratorPermission(jwtMgr, boardRepo, "delete_post")
 }
 
 // CanPinPost 检查是否有置顶帖子的权限
-func CanPinPost(jwtMgr *jwt.Manager, boardRepo *boardRepo.BoardRepository) gin.HandlerFunc {
+func CanPinPost(jwtMgr *jwt.Manager, boardRepo boardRepo.BoardRepository) gin.HandlerFunc {
 	return SpecificModeratorPermission(jwtMgr, boardRepo, "pin_post")
 }
 
 // CanEditAnyPost 检查是否有编辑任何帖子的权限
-func CanEditAnyPost(jwtMgr *jwt.Manager, boardRepo *boardRepo.BoardRepository) gin.HandlerFunc {
+func CanEditAnyPost(jwtMgr *jwt.Manager, boardRepo boardRepo.BoardRepository) gin.HandlerFunc {
 	return SpecificModeratorPermission(jwtMgr, boardRepo, "edit_any_post")
 }
 
 // CanManageModerator 检查是否有管理版主的权限
-func CanManageModerator(jwtMgr *jwt.Manager, boardRepo *boardRepo.BoardRepository) gin.HandlerFunc {
+func CanManageModerator(jwtMgr *jwt.Manager, boardRepo boardRepo.BoardRepository) gin.HandlerFunc {
 	return SpecificModeratorPermission(jwtMgr, boardRepo, "manage_moderator")
 }
 
 // CanBanUser 检查是否有禁言用户的权限
-func CanBanUser(jwtMgr *jwt.Manager, boardRepo *boardRepo.BoardRepository) gin.HandlerFunc {
+func CanBanUser(jwtMgr *jwt.Manager, boardRepo boardRepo.BoardRepository) gin.HandlerFunc {
 	return SpecificModeratorPermission(jwtMgr, boardRepo, "ban_user")
 }

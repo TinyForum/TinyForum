@@ -12,14 +12,14 @@ import (
 )
 
 type BoardService struct {
-	boardRepo *boardRepo.BoardRepository
+	boardRepo boardRepo.BoardRepository
 	userRepo  userRepo.UserRepository
 	postRepo  postRepo.PostRepository
 	notifSvc  *notification.NotificationService // 需导入 "tiny-forum/internal/service/notification"
 }
 
 func NewBoardService(
-	boardRepo *boardRepo.BoardRepository,
+	boardRepo boardRepo.BoardRepository,
 	userRepo userRepo.UserRepository,
 	postRepo postRepo.PostRepository,
 	notifSvc *notification.NotificationService,

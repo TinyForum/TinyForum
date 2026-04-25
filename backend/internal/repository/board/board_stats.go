@@ -8,14 +8,14 @@ import (
 )
 
 // Count 统计板块总数
-func (r *BoardRepository) Count(ctx context.Context) (int64, error) {
+func (r *boardRepository) Count(ctx context.Context) (int64, error) {
 	var count int64
 	err := r.db.WithContext(ctx).Model(&model.Board{}).Count(&count).Error
 	return count, err
 }
 
 // CountByDateRange 按日期范围统计新增板块数
-func (r *BoardRepository) CountByDateRange(ctx context.Context, startDate, endDate time.Time) (int64, error) {
+func (r *boardRepository) CountByDateRange(ctx context.Context, startDate, endDate time.Time) (int64, error) {
 	var count int64
 	err := r.db.WithContext(ctx).
 		Model(&model.Board{}).
@@ -25,7 +25,7 @@ func (r *BoardRepository) CountByDateRange(ctx context.Context, startDate, endDa
 }
 
 // GetHotBoardsByDateRange 获取热门板块（委托给 stats 仓库）
-func (r *BoardRepository) GetHotBoardsByDateRange(
+func (r *boardRepository) GetHotBoardsByDateRange(
 	ctx context.Context,
 	startDate, endDate time.Time,
 	limit int,

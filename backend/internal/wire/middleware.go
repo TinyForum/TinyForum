@@ -17,11 +17,11 @@ type MiddlewareSet struct {
 	AdminRequiredMW      func() gin.HandlerFunc
 	RateLimitMW          func(action ratelimit.Action) gin.HandlerFunc
 	ContentCheckMW       func(fields []string) gin.HandlerFunc
-	ModeratorRequiredMW  func(boardRepo *board.BoardRepository) gin.HandlerFunc
-	CanManageModeratorMW func(boardRepo *board.BoardRepository) gin.HandlerFunc
-	CanBanUserMW         func(boardRepo *board.BoardRepository) gin.HandlerFunc
-	CanDeletePostMW      func(boardRepo *board.BoardRepository) gin.HandlerFunc
-	CanPinPostMW         func(boardRepo *board.BoardRepository) gin.HandlerFunc
+	ModeratorRequiredMW  func(boardRepo board.BoardRepository) gin.HandlerFunc
+	CanManageModeratorMW func(boardRepo board.BoardRepository) gin.HandlerFunc
+	CanBanUserMW         func(boardRepo board.BoardRepository) gin.HandlerFunc
+	CanDeletePostMW      func(boardRepo board.BoardRepository) gin.HandlerFunc
+	CanPinPostMW         func(boardRepo board.BoardRepository) gin.HandlerFunc
 }
 
 // NewMiddlewareSet 创建中间件工厂（需要依赖注入）
@@ -37,19 +37,19 @@ func NewMiddlewareSet(jwtMgr *jwtpkg.Manager, db *gorm.DB, services *Services) *
 		ContentCheckMW: func(fields []string) gin.HandlerFunc {
 			return middleware.ContentCheckMiddleware(services.ContentCheck, fields)
 		},
-		ModeratorRequiredMW: func(boardRepo *board.BoardRepository) gin.HandlerFunc {
+		ModeratorRequiredMW: func(boardRepo board.BoardRepository) gin.HandlerFunc {
 			return middleware.ModeratorRequired(jwtMgr, boardRepo)
 		},
-		CanManageModeratorMW: func(boardRepo *board.BoardRepository) gin.HandlerFunc {
+		CanManageModeratorMW: func(boardRepo board.BoardRepository) gin.HandlerFunc {
 			return middleware.CanManageModerator(jwtMgr, boardRepo)
 		},
-		CanBanUserMW: func(boardRepo *board.BoardRepository) gin.HandlerFunc {
+		CanBanUserMW: func(boardRepo board.BoardRepository) gin.HandlerFunc {
 			return middleware.CanBanUser(jwtMgr, boardRepo)
 		},
-		CanDeletePostMW: func(boardRepo *board.BoardRepository) gin.HandlerFunc {
+		CanDeletePostMW: func(boardRepo board.BoardRepository) gin.HandlerFunc {
 			return middleware.CanDeletePost(jwtMgr, boardRepo)
 		},
-		CanPinPostMW: func(boardRepo *board.BoardRepository) gin.HandlerFunc {
+		CanPinPostMW: func(boardRepo board.BoardRepository) gin.HandlerFunc {
 			return middleware.CanPinPost(jwtMgr, boardRepo)
 		},
 	}
