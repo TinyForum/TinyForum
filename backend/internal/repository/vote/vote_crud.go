@@ -8,7 +8,7 @@ import (
 )
 
 // CreateOrUpdateVote 创建或更新投票
-func (r *VoteRepository) CreateOrUpdateVote(commentID, userID uint, value int) error {
+func (r *voteRepository) CreateOrUpdateVote(commentID, userID uint, value int) error {
 	tx := r.db.Begin()
 	defer func() {
 		if r := recover(); r != nil {
@@ -61,7 +61,7 @@ func (r *VoteRepository) CreateOrUpdateVote(commentID, userID uint, value int) e
 }
 
 // RemoveVote 删除投票
-func (r *VoteRepository) RemoveVote(commentID, userID uint) error {
+func (r *voteRepository) RemoveVote(commentID, userID uint) error {
 	tx := r.db.Begin()
 	defer func() {
 		if r := recover(); r != nil {

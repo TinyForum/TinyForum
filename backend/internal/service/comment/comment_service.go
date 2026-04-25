@@ -13,7 +13,7 @@ type CommentService struct {
 	postRepo    postRepo.PostRepository
 	userRepo    userRepo.UserRepository
 	notifSvc    *notification.NotificationService
-	voteRepo    *voteRepo.VoteRepository
+	voteRepo    voteRepo.VoteRepository
 }
 
 func NewCommentService(
@@ -21,7 +21,7 @@ func NewCommentService(
 	postRepo postRepo.PostRepository,
 	userRepo userRepo.UserRepository,
 	notifSvc *notification.NotificationService,
-	voteRepo *voteRepo.VoteRepository,
+	voteRepo voteRepo.VoteRepository,
 ) *CommentService {
 	return &CommentService{
 		commentRepo: commentRepo,

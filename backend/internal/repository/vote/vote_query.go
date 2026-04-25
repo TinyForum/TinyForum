@@ -8,7 +8,7 @@ import (
 )
 
 // GetUserVote 获取用户对评论的投票
-func (r *VoteRepository) GetUserVote(commentID, userID uint) (int, error) {
+func (r *voteRepository) GetUserVote(commentID, userID uint) (int, error) {
 	var vote model.Vote
 	err := r.db.Where("comment_id = ? AND user_id = ?", commentID, userID).
 		First(&vote).Error
@@ -23,7 +23,7 @@ func (r *VoteRepository) GetUserVote(commentID, userID uint) (int, error) {
 }
 
 // GetVoteCount 获取评论的投票数（从 vote_count 字段获取更高效）
-func (r *VoteRepository) GetVoteCount(commentID uint) (int, error) {
+func (r *voteRepository) GetVoteCount(commentID uint) (int, error) {
 	var comment model.Comment
 	err := r.db.Select("vote_count").First(&comment, commentID).Error
 	if err != nil {
@@ -33,7 +33,7 @@ func (r *VoteRepository) GetVoteCount(commentID uint) (int, error) {
 }
 
 // GetVoteUsers 获取投票的用户列表
-func (r *VoteRepository) GetVoteUsers(commentID uint, voteType int) ([]model.User, error) {
+func (r *voteRepository) GetVoteUsers(commentID uint, voteType int) ([]model.User, error) {
 	var users []model.User
 	err := r.db.Table("users").
 		Joins("INNER JOIN votes ON votes.user_id = users.id").

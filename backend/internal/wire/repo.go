@@ -33,7 +33,7 @@ type Repositories struct {
 	Timeline     timeline.TimelineRepository
 	Topic        topic.TopicRepository
 	Question     question.QuestionRepository
-	Vote         *vote.VoteRepository
+	Vote         vote.VoteRepository
 	Announcement announcement.AnnouncementRepository
 	Stats        stats.StatsRepository
 	Auth         auth.AuthRepository
