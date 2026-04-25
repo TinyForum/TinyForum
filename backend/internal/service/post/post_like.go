@@ -5,7 +5,7 @@ import (
 )
 
 // Like 点赞帖子
-func (s *PostService) Like(userID, postID uint) error {
+func (s *postService) Like(userID, postID uint) error {
 	if err := s.postRepo.AddLike(userID, postID); err != nil {
 		return err
 	}
@@ -20,7 +20,7 @@ func (s *PostService) Like(userID, postID uint) error {
 }
 
 // Unlike 取消点赞帖子
-func (s *PostService) Unlike(userID, postID uint) error {
+func (s *postService) Unlike(userID, postID uint) error {
 	if err := s.postRepo.RemoveLike(userID, postID); err != nil {
 		return err
 	}

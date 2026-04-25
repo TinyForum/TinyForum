@@ -12,17 +12,17 @@ import (
 )
 
 // AdminList 管理员获取帖子列表
-func (s *PostService) AdminList(page, pageSize int, opts dto.PostListOptions) ([]model.Post, int64, error) {
+func (s *postService) AdminList(page, pageSize int, opts dto.PostListOptions) ([]model.Post, int64, error) {
 	return s.postRepo.AdminList(page, pageSize, opts)
 }
 
 // SetStatus 设置帖子状态（暂未完全实现，保留接口）
-func (s *PostService) SetStatus(postID uint, status model.PostStatus) error {
+func (s *postService) SetStatus(postID uint, status model.PostStatus) error {
 	return s.postRepo.Update(&model.Post{})
 }
 
 // TogglePin 切换帖子置顶状态
-func (s *PostService) TogglePin(postID uint) error {
+func (s *postService) TogglePin(postID uint) error {
 	post, err := s.postRepo.FindByID(postID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -35,7 +35,7 @@ func (s *PostService) TogglePin(postID uint) error {
 }
 
 // 管理员更新审核状态
-func (s *PostService) AdminSetReviewPost(postID uint, status model.ModerationStatus) error {
+func (s *postService) AdminSetReviewPost(postID uint, status model.ModerationStatus) error {
 	post, err := s.postRepo.FindByID(postID)
 	if err != nil {
 		return err

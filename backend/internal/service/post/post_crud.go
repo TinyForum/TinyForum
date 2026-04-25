@@ -30,8 +30,7 @@ type UpdatePostInput struct {
 }
 
 // Create 创建帖子
-// Create 创建帖子
-func (s *PostService) Create(ctx *gin.Context, authorID uint, input CreatePostInput) (*model.Post, error) {
+func (s *postService) Create(ctx *gin.Context, authorID uint, input CreatePostInput) (*model.Post, error) {
 	// 1. 帖子类型校验
 	postType := model.PostType(input.Type)
 	if postType == "" || !postType.IsValid() {
@@ -127,7 +126,7 @@ func (s *PostService) Create(ctx *gin.Context, authorID uint, input CreatePostIn
 }
 
 // Update 更新帖子
-func (s *PostService) Update(postID, userID uint, isAdmin bool, input UpdatePostInput) (*model.Post, error) {
+func (s *postService) Update(postID, userID uint, isAdmin bool, input UpdatePostInput) (*model.Post, error) {
 	post, err := s.postRepo.FindByID(postID)
 	if err != nil {
 		return nil, errors.New("帖子不存在")
@@ -164,7 +163,7 @@ func (s *PostService) Update(postID, userID uint, isAdmin bool, input UpdatePost
 }
 
 // Delete 删除帖子
-func (s *PostService) Delete(postID, userID uint, isAdmin bool) error {
+func (s *postService) Delete(postID, userID uint, isAdmin bool) error {
 	post, err := s.postRepo.FindByID(postID)
 	if err != nil {
 		return errors.New("帖子不存在")
@@ -176,7 +175,7 @@ func (s *PostService) Delete(postID, userID uint, isAdmin bool) error {
 }
 
 // GetByID 获取帖子详情（含点赞状态）
-func (s *PostService) GetByID(postID, viewerID uint) (*model.Post, bool, error) {
+func (s *postService) GetByID(postID, viewerID uint) (*model.Post, bool, error) {
 	post, err := s.postRepo.FindByID(postID)
 	if err != nil {
 		return nil, false, errors.New("帖子不存在")
@@ -190,6 +189,6 @@ func (s *PostService) GetByID(postID, viewerID uint) (*model.Post, bool, error) 
 }
 
 // List 获取帖子列表（支持筛选）
-func (s *PostService) List(page, pageSize int, opts dto.PostListOptions) ([]model.Post, int64, error) {
+func (s *postService) List(page, pageSize int, opts dto.PostListOptions) ([]model.Post, int64, error) {
 	return s.postRepo.List(page, pageSize, opts)
 }

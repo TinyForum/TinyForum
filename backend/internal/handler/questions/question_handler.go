@@ -9,13 +9,13 @@ import (
 type QuestionHandler struct {
 	questionSvc *questionService.QuestionService
 	commentSvc  *commentService.CommentService
-	postSvc     *postService.PostService
+	postSvc     postService.PostService
 }
 
 func NewQuestionHandler(
 	questionSvc *questionService.QuestionService,
 	commentSvc *commentService.CommentService,
-	postSvc *postService.PostService,
+	postSvc postService.PostService,
 ) *QuestionHandler {
 	return &QuestionHandler{
 		questionSvc: questionSvc,
