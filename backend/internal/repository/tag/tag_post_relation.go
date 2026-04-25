@@ -5,7 +5,7 @@ import (
 )
 
 // FindTagsByPostIDs 批量查询帖子的标签
-func (r *TagRepository) FindTagsByPostIDs(postIDs []uint) (map[uint][]model.Tag, error) {
+func (r *tagRepository) FindTagsByPostIDs(postIDs []uint) (map[uint][]model.Tag, error) {
 	if len(postIDs) == 0 {
 		return make(map[uint][]model.Tag), nil
 	}
@@ -33,7 +33,7 @@ func (r *TagRepository) FindTagsByPostIDs(postIDs []uint) (map[uint][]model.Tag,
 }
 
 // FindTagsByPostID 查询单个帖子的标签
-func (r *TagRepository) FindTagsByPostID(postID uint) ([]model.Tag, error) {
+func (r *tagRepository) FindTagsByPostID(postID uint) ([]model.Tag, error) {
 	var tags []model.Tag
 	err := r.db.Table("tags").
 		Select("tags.*").

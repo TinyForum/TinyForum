@@ -12,7 +12,7 @@ import (
 
 type PostService struct {
 	postRepo  postRepo.PostRepository
-	tagRepo   *tagRepo.TagRepository
+	tagRepo   tagRepo.TagRepository
 	boardRepo *boardRepo.BoardRepository
 	userRepo  userRepo.UserRepository
 	notifSvc  *notification.NotificationService // 需导入 "tiny-forum/internal/service/notification"
@@ -22,7 +22,7 @@ type PostService struct {
 
 func NewPostService(
 	postRepo postRepo.PostRepository,
-	tagRepo *tagRepo.TagRepository,
+	tagRepo tagRepo.TagRepository,
 	userRepo userRepo.UserRepository,
 	boardRepo *boardRepo.BoardRepository,
 	notifSvc *notification.NotificationService,

@@ -4,10 +4,10 @@ import (
 	"gorm.io/gorm"
 )
 
-type TagRepository struct {
+type tagRepository struct {
 	db *gorm.DB
 }
 
-func NewTagRepository(db *gorm.DB) *TagRepository {
-	return &TagRepository{db: db}
+func NewTagRepository(db *gorm.DB) TagRepository {
+	return &tagRepository{db: db}
 }

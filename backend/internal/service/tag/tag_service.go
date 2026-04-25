@@ -5,9 +5,9 @@ import (
 )
 
 type TagService struct {
-	tagRepo *tagRepo.TagRepository
+	tagRepo tagRepo.TagRepository
 }
 
-func NewTagService(tagRepo *tagRepo.TagRepository) *TagService {
+func NewTagService(tagRepo tagRepo.TagRepository) *TagService {
 	return &TagService{tagRepo: tagRepo}
 }

@@ -7,14 +7,14 @@ import (
 )
 
 // Count 获取标签总数
-func (r *TagRepository) Count(ctx context.Context) (int64, error) {
+func (r *tagRepository) Count(ctx context.Context) (int64, error) {
 	var count int64
 	err := r.db.Model(&model.Tag{}).Count(&count).Error
 	return count, err
 }
 
 // CountByDateRange 根据日期范围统计标签数
-func (r *TagRepository) CountByDateRange(ctx context.Context, startDate, endDate time.Time) (int64, error) {
+func (r *tagRepository) CountByDateRange(ctx context.Context, startDate, endDate time.Time) (int64, error) {
 	var count int64
 	err := r.db.Model(&model.Tag{}).
 		Where("created_at BETWEEN ? AND ?", startDate, endDate).
