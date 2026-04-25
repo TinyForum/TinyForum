@@ -16,7 +16,7 @@ type QuestionService struct {
 	postRepo     postRepo.PostRepository
 	commentRepo  commentRepo.CommentRepository
 	userRepo     userRepo.UserRepository
-	notifSvc     *notification.NotificationService // 需导入 "tiny-forum/internal/service/notification"
+	notifSvc     notification.NotificationService // 需导入 "tiny-forum/internal/service/notification"
 	db           *gorm.DB
 	tagRepo      tagRepo.TagRepository
 }
@@ -26,7 +26,7 @@ func NewQuestionService(
 	postRepo postRepo.PostRepository,
 	commentRepo commentRepo.CommentRepository,
 	userRepo userRepo.UserRepository,
-	notifSvc *notification.NotificationService,
+	notifSvc notification.NotificationService,
 	tagRepo tagRepo.TagRepository,
 ) *QuestionService {
 	return &QuestionService{

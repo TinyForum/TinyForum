@@ -43,7 +43,7 @@ type AuthService interface {
 }
 type authService struct {
 	userRepo  user.UserRepository
-	notifSvc  *notification.NotificationService
+	notifSvc  notification.NotificationService
 	jwtMgr    *jwtpkg.Manager
 	authRepo  auth.AuthRepository
 	emailSvc  email.EmailService
@@ -76,7 +76,7 @@ func NewAuthService(
 	authRepo auth.AuthRepository,
 	userRepo user.UserRepository,
 	jwtMgr *jwtpkg.Manager,
-	notifSvc *notification.NotificationService,
+	notifSvc notification.NotificationService,
 	emailSvc email.EmailService,
 	cfg *config.Config,
 	tokenRepo token.TokenRepository, // 添加参数

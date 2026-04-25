@@ -8,11 +8,11 @@ import (
 
 type UserHandler struct {
 	userSvc  userService.UserService
-	notifSvc *notiService.NotificationService
+	notifSvc notiService.NotificationService
 	authSvc  authService.AuthService
 }
 
-func NewUserHandler(userSvc userService.UserService, notifSvc *notiService.NotificationService, authSvc authService.AuthService) *UserHandler {
+func NewUserHandler(userSvc userService.UserService, notifSvc notiService.NotificationService, authSvc authService.AuthService) *UserHandler {
 	return &UserHandler{userSvc: userSvc, notifSvc: notifSvc, authSvc: authSvc}
 }
 

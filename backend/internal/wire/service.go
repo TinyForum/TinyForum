@@ -24,7 +24,7 @@ type Services struct {
 	User         user.UserService
 	Auth         auth.AuthService
 	Tag          tag.TagService
-	Notification *notification.NotificationService
+	Notification notification.NotificationService
 	Post         *post.PostService
 	Comment      *comment.CommentService
 	Board        *board.BoardService

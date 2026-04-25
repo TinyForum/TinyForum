@@ -11,14 +11,14 @@ type TopicService struct {
 	topicRepo topicRepo.TopicRepository
 	postRepo  postRepo.PostRepository
 	userRepo  userRepo.UserRepository
-	notifSvc  *notification.NotificationService // 需导入 "tiny-forum/internal/service/notification"
+	notifSvc  notification.NotificationService // 需导入 "tiny-forum/internal/service/notification"
 }
 
 func NewTopicService(
 	topicRepo topicRepo.TopicRepository,
 	postRepo postRepo.PostRepository,
 	userRepo userRepo.UserRepository,
-	notifSvc *notification.NotificationService,
+	notifSvc notification.NotificationService,
 ) *TopicService {
 	return &TopicService{
 		topicRepo: topicRepo,

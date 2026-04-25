@@ -5,9 +5,9 @@ import (
 )
 
 type NotificationHandler struct {
-	notifSvc *notificationService.NotificationService
+	notifSvc notificationService.NotificationService
 }
 
-func NewNotificationHandler(notifSvc *notificationService.NotificationService) *NotificationHandler {
+func NewNotificationHandler(notifSvc notificationService.NotificationService) *NotificationHandler {
 	return &NotificationHandler{notifSvc: notifSvc}
 }
