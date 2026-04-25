@@ -8,7 +8,7 @@ type Helpers struct {
 }
 
 func NewHelpers() *Helpers {
-	defaultChain := utils.NewParserChain(
+	defaultChain := utils.NewParserTimeChain(
 		utils.AbsoluteParser{},
 		utils.NewRelativeParser(),
 	)

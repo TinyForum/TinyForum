@@ -27,6 +27,7 @@ func (r *postRepository) Delete(id uint) error {
 }
 
 // 获取文章列表
+// 查询 published + approved
 func (r *postRepository) List(page, pageSize int, opts dto.PostListOptions) ([]model.Post, int64, error) {
 	var posts []model.Post
 	var total int64

@@ -24,9 +24,9 @@ const (
 type RiskLevel string
 
 const (
-	RiskNormal   RiskLevel = "normal"
-	RiskObserve  RiskLevel = "observe"
-	RiskRestrict RiskLevel = "restrict"
+	RiskNormal   RiskLevel = "normal"   // 正常用户
+	RiskObserve  RiskLevel = "observe"  // 观察用户（可疑）
+	RiskRestrict RiskLevel = "restrict" // 受限用户（高危）
 )
 
 // Quota 单位时间内的配额
@@ -38,18 +38,21 @@ type Quota struct {
 // quotaTable 各风险等级 × 操作 的配额表
 // key: RiskLevel → Action → Quota
 var quotaTable = map[RiskLevel]map[Action]Quota{
+	// 正常用户每小时可发 20 个帖子、60 条评论、10 次举报、5 次修改资料
 	RiskNormal: {
 		ActionCreatePost:    {Limit: 20, Window: time.Hour},
 		ActionCreateComment: {Limit: 60, Window: time.Hour},
 		ActionSendReport:    {Limit: 10, Window: time.Hour},
 		ActionUpdateProfile: {Limit: 5, Window: time.Hour},
 	},
+	// 观察用户每小时只能发 5 个帖子、20 条评论、5 次举报、3 次修改资料
 	RiskObserve: {
 		ActionCreatePost:    {Limit: 5, Window: time.Hour},
 		ActionCreateComment: {Limit: 20, Window: time.Hour},
 		ActionSendReport:    {Limit: 5, Window: time.Hour},
 		ActionUpdateProfile: {Limit: 3, Window: time.Hour},
 	},
+	//受限用户每小时只能发 2 个帖子、5 条评论、2 次举报、1 次修改资料
 	RiskRestrict: {
 		ActionCreatePost:    {Limit: 2, Window: time.Hour},
 		ActionCreateComment: {Limit: 5, Window: time.Hour},

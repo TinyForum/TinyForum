@@ -3,6 +3,7 @@ package sensitive
 import (
 	"bufio"
 	"fmt"
+	"log"
 	"os"
 	"strings"
 	"sync"
@@ -277,6 +278,8 @@ func (f *DFAFilter) FindAllCount(text string) map[string]int {
 
 // Replace 替换所有敏感词为指定字符（按敏感词长度替换对应数量的字符）
 func (f *DFAFilter) Replace(text string, replaceChar rune) string {
+	log.Printf(text)
+
 	f.mu.RLock()
 	defer f.mu.RUnlock()
 

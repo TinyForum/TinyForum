@@ -28,7 +28,7 @@ func RegisterRoutes(
 
 	api := engine.Group("/api/v1")
 
-	// ========== Auth routes ==========
+	// MARK: Auth routes
 	authGroup := api.Group("/auth")
 	{
 		authGroup.POST("/register", handlers.Auth.Register)
@@ -44,7 +44,7 @@ func RegisterRoutes(
 		authGroup.GET("/validate-reset-token", handlers.Auth.ValidateResetToken)
 	}
 
-	// ========== Tag routes ==========
+	// MARK: Tag routes
 	tagGroup := api.Group("/tags")
 	{
 		tagGroup.GET("", handlers.Tag.List)
@@ -53,7 +53,7 @@ func RegisterRoutes(
 		tagGroup.DELETE("/:id", mw.AuthMW(), mw.AdminRequiredMW(), handlers.Tag.Delete)
 	}
 
-	// ========== Post routes ==========
+	// MARK: Post routes
 	postGroup := api.Group("/posts")
 	{
 		postGroup.GET("", mw.OptionalAuthMW(), handlers.Post.List)
@@ -70,7 +70,7 @@ func RegisterRoutes(
 		postGroup.DELETE("/:id/like", mw.AuthMW(), handlers.Post.Unlike)
 	}
 
-	// ========== Comment routes ==========
+	// MARK: Comment routes
 	commentGroup := api.Group("/comments")
 	{
 		commentGroup.GET("/post/:post_id", handlers.Comment.List)
@@ -83,7 +83,7 @@ func RegisterRoutes(
 		commentGroup.DELETE("/:id", mw.AuthMW(), handlers.Comment.Delete)
 	}
 
-	// ========== User routes ==========
+	// MARK: User routes
 	userGroup := api.Group("/users")
 	{
 		userGroup.GET("/leaderboard/simple", handlers.User.LeaderboardSimple)
@@ -99,7 +99,7 @@ func RegisterRoutes(
 		userGroup.GET("/me/role", mw.OptionalAuthMW(), handlers.User.GetCurrentUserRole)
 	}
 
-	// ========== Notification routes ==========
+	// MARK: Notification routes
 	notifGroup := api.Group("/notifications", mw.AuthMW())
 	{
 		notifGroup.GET("", handlers.Notification.List)
@@ -107,7 +107,7 @@ func RegisterRoutes(
 		notifGroup.POST("/read-all", handlers.Notification.MarkAllRead)
 	}
 
-	// ========== Board routes ==========
+	// MARK: Board routes
 	boardGroup := api.Group("/boards")
 	{
 		boardGroup.GET("", handlers.Board.List)
@@ -146,7 +146,7 @@ func RegisterRoutes(
 		}
 	}
 
-	// ========== Timeline routes ==========
+	// MARK: Timeline routes
 	timelineGroup := api.Group("/timeline", mw.AuthMW())
 	{
 		timelineGroup.GET("", handlers.Timeline.GetHomeTimeline)
@@ -156,7 +156,7 @@ func RegisterRoutes(
 		timelineGroup.GET("/subscriptions", handlers.Timeline.GetSubscriptions)
 	}
 
-	// ========== Topic routes ==========
+	// MARK: Topic routes
 	topicGroup := api.Group("/topics")
 	{
 		topicGroup.GET("", handlers.Topic.List)
@@ -172,7 +172,7 @@ func RegisterRoutes(
 		topicGroup.DELETE("/:id/follow", mw.AuthMW(), handlers.Topic.Unfollow)
 	}
 
-	// ========== Answer routes ==========
+	// MARK: Answer routes
 	answerGroup := api.Group("/answers")
 	{
 		answerGroup.GET("/:id", mw.OptionalAuthMW(), handlers.Answer.GetAnswer)
@@ -184,7 +184,7 @@ func RegisterRoutes(
 		answerGroup.POST("/:id/unaccept", mw.AuthMW(), handlers.Answer.UnacceptAnswer)
 	}
 
-	// ========== Question routes ==========
+	// MARK: Question routes
 	questionGroup := api.Group("/questions")
 	{
 		questionGroup.GET("/simple", handlers.Question.GetQuestionSimple)
@@ -195,7 +195,7 @@ func RegisterRoutes(
 		questionGroup.POST("/:id/answers", mw.AuthMW(), handlers.Answer.CreateAnswer)
 	}
 
-	// ========== Announcement routes ==========
+	// MARK: Announcement routes
 	announcementGroup := api.Group("/announcements")
 	{
 		announcementGroup.GET("", handlers.Announcement.List)
@@ -214,13 +214,13 @@ func RegisterRoutes(
 		announcementAdminGroup.PUT("/:id/pin", handlers.Announcement.Pin)
 	}
 
-	// ========== Statistics routes ==========
+	// MARK: Statistics routes
 	statsGroup := api.Group("/statistics")
 	{
 		statsGroup.GET("", handlers.Stats.GetStatsTotal)
 	}
 
-	// ========== Admin routes ==========
+	// MARK: Admin routes
 	adminGroup := api.Group("/admin", mw.AuthMW(), mw.AdminRequiredMW())
 	{
 		adminGroup.GET("/users", handlers.User.AdminList)
@@ -240,7 +240,7 @@ func RegisterRoutes(
 		adminGroup.PUT("/audit/tasks/:id/reject", handlers.Post.AdminRejectPost)
 		adminGroup.PUT("/posts/:id/pin", handlers.Post.AdminTogglePin)
 
-		// 挂载子路由
+		// MARK: 挂载子路由
 		handlers.Stats.RegisterRoutes(adminGroup)
 		handlers.Risk.RegisterRoutes(adminGroup)
 	}

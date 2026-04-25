@@ -2,6 +2,7 @@ package config
 
 import (
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 	"tiny-forum/internal/model"
@@ -391,8 +392,8 @@ func (d *DatabaseConfig) GetDSN() string {
 
 // GetAddr 获取Redis地址
 func (r *RedisConfig) GetAddr() string {
-	// TODO: 实现完整的地址构建
-	return r.Host
+	addr := r.Host + ":" + strconv.Itoa(r.Port)
+	return addr
 }
 
 // ConfigError 配置错误

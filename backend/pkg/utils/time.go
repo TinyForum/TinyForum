@@ -28,7 +28,7 @@ type TimeHelpers struct {
 func NewTimeHelpers() *TimeHelpers {
 	// 使用默认的解析链（绝对时间 + 相对时间）
 	// 创建一个包含绝对时间解析器和相对时间解析器的解析链
-	defaultChain := NewParserChain(
+	defaultChain := NewParserTimeChain(
 		AbsoluteParser{},    // 绝对时间解析器
 		NewRelativeParser(), // 相对时间解析器
 	)
@@ -221,24 +221,24 @@ func (p *RelativeParser) Parse(expr string, now time.Time, loc *time.Location, i
 // 组合解析器（职责链，OCP：可无限扩展）
 // ============================================================================
 
-// ParserChain 实现 TimeExpressionParser 接口，按顺序尝试多个解析器。
-type ParserChain struct {
+// ParserTimeChain 实现 TimeExpressionParser 接口，按顺序尝试多个解析器。
+type ParserTimeChain struct {
 	parsers []TimeExpressionParser
 }
 
-// NewParserChain 创建一个解析器链。
-func NewParserChain(parsers ...TimeExpressionParser) *ParserChain {
-	return &ParserChain{parsers: parsers}
+// NewParserTimeChain 创建一个解析器链。
+func NewParserTimeChain(parsers ...TimeExpressionParser) *ParserTimeChain {
+	return &ParserTimeChain{parsers: parsers}
 }
 
 // Add 在链末尾添加解析器（返回自身，支持链式调用）。
-func (c *ParserChain) Add(p TimeExpressionParser) *ParserChain {
+func (c *ParserTimeChain) Add(p TimeExpressionParser) *ParserTimeChain {
 	c.parsers = append(c.parsers, p)
 	return c
 }
 
 // Parse 实现 TimeExpressionParser 接口。
-func (c *ParserChain) Parse(expr string, now time.Time, loc *time.Location, isEnd bool) (time.Time, bool) {
+func (c *ParserTimeChain) Parse(expr string, now time.Time, loc *time.Location, isEnd bool) (time.Time, bool) {
 	for _, p := range c.parsers {
 		if t, ok := p.Parse(expr, now, loc, isEnd); ok {
 			return t, true
@@ -345,7 +345,7 @@ func (p *TimeRangeParser) parseSingle(expr string, now time.Time, loc *time.Loca
 
 // var (
 // 	// defaultChain 默认解析链：绝对时间 → 相对时间
-// 	defaultChain = NewParserChain(AbsoluteParser{}, NewRelativeParser())
+// 	defaultChain = NewParserTimeChain(AbsoluteParser{}, NewRelativeParser())
 
 // 	// DefaultTimeParser 默认的错误返回解析器
 // 	DefaultTimeParser = NewTimeParser(defaultChain)

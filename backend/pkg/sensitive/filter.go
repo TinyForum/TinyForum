@@ -14,6 +14,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"tiny-forum/pkg/utils"
 )
 
 // Level 敏感词命中等级
@@ -282,7 +283,16 @@ func (f *filter) LoadDictDir(dir string) (DictLoadResult, error) {
 //     - LLM 判定"风险" → 保持 LevelReview
 //     - LLM 判定"违规" → 升级为 LevelBlock
 //     - LLM 调用失败  → 保守保持 LevelReview（不降级）
-func (f *filter) Check(text string) CheckResult {
+func (f *filter) Check(html string) CheckResult {
+	text, err := utils.HTMLToText(html)
+	if err != nil {
+		return CheckResult{
+			Level:    LevelBlock,
+			HitWords: []string{},
+			Text:     "HTML 解析失败",
+		}
+	}
+
 	result := CheckResult{
 		Level:    LevelClean,
 		HitWords: []string{},
@@ -457,7 +467,7 @@ func buildReviewPrompt(text string, hitWords []string) string {
 文本：“你真是个傻瓜” 命中词：["傻瓜"] → {"level":"review","reason":"轻度人身攻击"}
 文本：“这部电影很垃圾” 命中词：["垃圾"] → {"level":"safe","reason":"评价物品，无攻击对象"}
 
-现在请只输出你的判断 JSON。）`, string(wordsJSON), text)
+现在请只输出你的判断 JSON。`, string(wordsJSON), text)
 	log.Printf("[sensitive] LLM 复判 Prompt: %s", prompt)
 	return prompt
 }
