@@ -1,12 +1,15 @@
 package answer
 
 import (
+	"fmt"
 	"strconv"
 	apperrors "tiny-forum/pkg/errors"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
 )
+
+// MARK: Answer
 
 // GetAnswer 获取回答详情
 // @Summary 获取回答详情
@@ -71,4 +74,52 @@ func (h *AnswerHandler) GetQuestionAnswers(c *gin.Context) {
 		"page":      page,
 		"page_size": pageSize,
 	})
+}
+
+// MARK: Vote
+
+// GetVoteStatus 获取回答的投票状态
+// @Summary      获取回答投票状态
+// @Description  获取指定回答的投票统计信息（赞同数、反对数、总票数）以及当前用户的投票状态
+// @Tags         回答管理
+// @Accept       json
+// @Produce      json
+// @Security     ApiKeyAuth
+// @Param        id   path      int  true  "回答ID"
+// @Success      200  {object}  response.Response{data=VoteStatusResponse}  "获取成功"
+// @Failure      400  {object}  response.Response  "无效的回答ID"
+// @Failure      401  {object}  response.Response  "未授权"
+// @Failure      500  {object}  response.Response  "服务器内部错误"
+// @Router       /answers/{id}/status [get]
+func (h *AnswerHandler) GetVoteStatus(c *gin.Context) {
+	answerID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		response.BadRequest(c, "无效的回答ID")
+		return
+	}
+
+	userID := c.GetUint("user_id")
+
+	userVote, err := h.commentSvc.GetUserVoteStatus(uint(answerID), userID)
+	if err != nil {
+		response.InternalError(c, err.Error())
+		return
+	}
+
+	upCount, downCount, err := h.commentSvc.GetVoteStatistics(uint(answerID))
+	if err != nil {
+		response.InternalError(c, err.Error())
+		return
+	}
+	fmt.Printf("user_vote: %+v\n", userVote)
+	fmt.Printf("up_count: %d, down_count: %d, total: %d\n", upCount, downCount, upCount+downCount)
+
+	stats := VoteStatusResponse{
+		UserVote:  userVote,
+		UpCount:   upCount,
+		DownCount: downCount,
+		// Total:     upCount + downCount,
+	}
+
+	response.Success(c, stats)
 }

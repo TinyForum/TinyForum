@@ -65,3 +65,41 @@ func (h *AnswerHandler) DeleteAnswer(c *gin.Context) {
 		"answer_id": answerID,
 	})
 }
+
+// MARK: Vote
+// RemoveVote 取消投票
+// @Summary 取消回答的投票
+// @Description 取消用户对指定回答的投票
+// @Tags 回答管理
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path int true "回答ID"
+// @Success 200 {object} response.Response{data=object{message=string,vote_count=int,user_vote=int}} "取消投票成功"
+// @Failure 400 {object} response.Response "无效的回答ID或尚未投票"
+// @Failure 401 {object} response.Response "未授权"
+// @Router /answers/{id}/vote [delete]
+func (h *AnswerHandler) RemoveVote(c *gin.Context) {
+	answerID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		response.BadRequest(c, "无效的回答ID")
+		return
+	}
+
+	userID := c.GetUint("user_id")
+
+	// 调用取消投票的服务方法
+	comment, err := h.commentSvc.RemoveVote(uint(answerID), userID)
+	if err != nil {
+		response.BadRequest(c, err.Error())
+		return
+	}
+
+	// 获取用户当前投票状态（应该是 0）
+	userVote, _ := h.commentSvc.GetUserVoteStatus(uint(answerID), userID)
+
+	response.Success(c, gin.H{
+		"message":    "取消投票成功",
+		"vote_count": comment.VoteCount,
+		"user_vote":  userVote, // 0:未投票
+	})
+}
