@@ -23,15 +23,19 @@ type TimeHelpers struct {
 	RangeParser  *TimeRangeParser
 }
 
+// NewTimeHelpers 创建并返回一个新的TimeHelpers实例
+// TimeHelpers是一个时间处理工具结构体，包含单个时间解析器和时间范围解析器
 func NewTimeHelpers() *TimeHelpers {
 	// 使用默认的解析链（绝对时间 + 相对时间）
+	// 创建一个包含绝对时间解析器和相对时间解析器的解析链
 	defaultChain := NewParserChain(
-		AbsoluteParser{},
-		NewRelativeParser(),
+		AbsoluteParser{},    // 绝对时间解析器
+		NewRelativeParser(), // 相对时间解析器
 	)
+	// 返回一个新的TimeHelpers实例，初始化其SingleParser和RangeParser字段
 	return &TimeHelpers{
-		SingleParser: NewTimeParser(defaultChain),
-		RangeParser:  NewTimeRangeParser(defaultChain),
+		SingleParser: NewTimeParser(defaultChain),      // 单个时间解析器
+		RangeParser:  NewTimeRangeParser(defaultChain), // 时间范围解析器
 	}
 }
 

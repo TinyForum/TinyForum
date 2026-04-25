@@ -15,6 +15,7 @@ import (
 	timelineHandler "tiny-forum/internal/handler/timelines"
 	topicHandler "tiny-forum/internal/handler/topic"
 	userHandler "tiny-forum/internal/handler/user"
+	"tiny-forum/pkg/utils"
 )
 
 // Handlers 聚合所有 Handler
@@ -36,7 +37,7 @@ type Handlers struct {
 }
 
 // NewHandlers 创建所有 Handler 实例
-func NewHandlers(svc *Services, timeHelpers *TimeHelpers) *Handlers {
+func NewHandlers(svc *Services, timeHelpers *utils.TimeHelpers) *Handlers {
 
 	return &Handlers{
 		Auth:         authHandler.NewAuthHandler(svc.Auth),
@@ -53,8 +54,7 @@ func NewHandlers(svc *Services, timeHelpers *TimeHelpers) *Handlers {
 		Announcement: announcementHandler.NewAnnouncementHandler(svc.Announcement),
 		Stats: statsHandler.NewStatsHandler(
 			svc.Stats,
-			timeHelpers.SingleParser,
-			timeHelpers.RangeParser,
+			timeHelpers,
 		),
 		Risk: riskhandler.NewRiskHandler(svc.ContentCheck, svc.Risk),
 	}

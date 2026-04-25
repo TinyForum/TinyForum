@@ -40,7 +40,7 @@ func (h *StatsHandler) GetStatsDay(c *gin.Context) {
 		dateStr = time.Now().Format("2006-01-02")
 	}
 
-	date, err := h.timeParser.Parse(dateStr, time.Now(), time.Local, false)
+	date, err := h.timeHelpers.SingleParser.Parse(dateStr, time.Now(), time.Local, false)
 	if err != nil {
 		response.BadRequest(c, "无效的日期格式: "+err.Error())
 		return
@@ -87,7 +87,7 @@ func (h *StatsHandler) GetStatsTotal(c *gin.Context) {
 		req.Type = "all"
 	}
 
-	date, err := h.rangeParser.Parse(req.StartDate, req.EndDate)
+	date, err := h.timeHelpers.RangeParser.Parse(req.StartDate, req.EndDate)
 	if err != nil {
 		response.BadRequest(c, "invalid date range: "+err.Error())
 		return
@@ -128,7 +128,7 @@ func (h *StatsHandler) GetStatsTrend(c *gin.Context) {
 		return
 	}
 
-	date, err := h.rangeParser.Parse(req.StartDate, req.EndDate)
+	date, err := h.timeHelpers.RangeParser.Parse(req.StartDate, req.EndDate)
 	if err != nil {
 		response.BadRequest(c, "invalid date range: "+err.Error())
 		return
