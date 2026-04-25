@@ -4,9 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"tiny-forum/internal/infra/validator"
 	"tiny-forum/internal/model"
 	apperrors "tiny-forum/pkg/errors"
-	"tiny-forum/pkg/validator"
 
 	"gorm.io/gorm"
 )

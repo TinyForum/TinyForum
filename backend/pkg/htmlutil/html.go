@@ -1,4 +1,4 @@
-package utils
+package htmlutil
 
 import (
 	"bytes"
@@ -8,6 +8,10 @@ import (
 
 	"golang.org/x/net/html"
 )
+
+type HTMLParser interface {
+	Parse(node *html.Node, w io.Writer) error
+}
 
 // ============================================================================
 // 具体解析器实现（SRP：每个解析器只负责一种格式）

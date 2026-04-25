@@ -2,7 +2,7 @@ package sensitive
 
 import (
 	"log"
-	"tiny-forum/pkg/utils"
+	"tiny-forum/pkg/htmlutil"
 )
 
 // ---- Check（DFA + 可选 LLM 复判）----
@@ -19,7 +19,7 @@ import (
 //     - LLM 判定"违规" → 升级为 LevelBlock
 //     - LLM 调用失败  → 保守保持 LevelReview（不降级）
 func (f *filter) Check(html string) CheckResult {
-	text, err := utils.HTMLToText(html)
+	text, err := htmlutil.HTMLToText(html)
 	if err != nil {
 		return CheckResult{
 			Level:    LevelBlock,

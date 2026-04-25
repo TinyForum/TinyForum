@@ -1,20 +1,22 @@
 package wire
 
-import "tiny-forum/pkg/utils"
+import (
+	"tiny-forum/pkg/timeutil"
+)
 
 type Helpers struct {
-	TimeHelpers *utils.TimeHelpers
+	TimeHelpers *timeutil.TimeHelpers
 	// 未来可以加其他: Logger, Cache 等
 }
 
 func NewHelpers() *Helpers {
-	defaultChain := utils.NewParserTimeChain(
-		utils.AbsoluteParser{},
-		utils.NewRelativeParser(),
+	defaultChain := timeutil.NewParserTimeChain(
+		timeutil.AbsoluteParser{},
+		timeutil.NewRelativeParser(),
 	)
-	timeHelpers := &utils.TimeHelpers{
-		SingleParser: utils.NewTimeParser(defaultChain),
-		RangeParser:  utils.NewTimeRangeParser(defaultChain),
+	timeHelpers := &timeutil.TimeHelpers{
+		SingleParser: timeutil.NewTimeParser(defaultChain),
+		RangeParser:  timeutil.NewTimeRangeParser(defaultChain),
 	}
 	return &Helpers{TimeHelpers: timeHelpers}
 }

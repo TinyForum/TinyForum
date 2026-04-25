@@ -1,5 +1,5 @@
 // pkg/utils/param.go
-package utils
+package paramutils
 
 import (
 	"strconv"

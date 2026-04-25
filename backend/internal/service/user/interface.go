@@ -3,11 +3,11 @@ package user
 import (
 	"context"
 	"tiny-forum/internal/dto"
+	"tiny-forum/internal/infra/validator"
 	"tiny-forum/internal/model"
 	userRepo "tiny-forum/internal/repository/user"
 	"tiny-forum/internal/service/notification"
 	jwtpkg "tiny-forum/pkg/jwt"
-	"tiny-forum/pkg/validator"
 )
 
 type UserService interface {
