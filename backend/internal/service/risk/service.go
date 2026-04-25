@@ -10,11 +10,11 @@ import (
 
 // RiskService 风控核心服务
 type RiskService struct {
-	repo    *riskrepo.RiskRepository
-	limiter *ratelimit.Limiter
+	repo    riskrepo.RiskRepository
+	limiter ratelimit.RateLimiter
 }
 
-func NewRiskService(repo *riskrepo.RiskRepository, limiter *ratelimit.Limiter) *RiskService {
+func NewRiskService(repo riskrepo.RiskRepository, limiter ratelimit.RateLimiter) *RiskService {
 	return &RiskService{repo: repo, limiter: limiter}
 }
 

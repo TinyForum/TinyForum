@@ -10,11 +10,11 @@ import (
 
 // ContentCheckService 内容安全检测服务
 type ContentCheckService struct {
-	repo   *riskrepo.RiskRepository
+	repo   riskrepo.RiskRepository
 	filter sensitive.Filter
 }
 
-func NewContentCheckService(repo *riskrepo.RiskRepository, filter sensitive.Filter) *ContentCheckService {
+func NewContentCheckService(repo riskrepo.RiskRepository, filter sensitive.Filter) *ContentCheckService {
 	return &ContentCheckService{repo: repo, filter: filter}
 }
 

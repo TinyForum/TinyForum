@@ -37,7 +37,7 @@ type Repositories struct {
 	Announcement announcement.AnnouncementRepository
 	Stats        *stats.StatsRepository
 	Auth         auth.AuthRepository
-	Risk         *risk.RiskRepository
+	Risk         risk.RiskRepository
 	Transaction  transaction.TransactionManager
 }
 

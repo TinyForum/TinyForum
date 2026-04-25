@@ -1,0 +1,41 @@
+rate_limit:
+  risk_levels:
+    normal:
+      create_post:
+        limit: 20
+        window: 1h
+      create_comment:
+        limit: 60
+        window: 1h
+      send_report:
+        limit: 10
+        window: 1h
+      update_profile:
+        limit: 5
+        window: 1h
+    observe:
+      create_post:
+        limit: 5
+        window: 1h
+      create_comment:
+        limit: 20
+        window: 1h
+      send_report:
+        limit: 5
+        window: 1h
+      update_profile:
+        limit: 3
+        window: 1h
+    restrict:
+      create_post:
+        limit: 2
+        window: 1h
+      create_comment:
+        limit: 5
+        window: 1h
+      send_report:
+        limit: 2
+        window: 1h
+      update_profile:
+        limit: 1
+        window: 1h

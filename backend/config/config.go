@@ -13,8 +13,22 @@ import (
 
 // Config 总配置结构
 type Config struct {
-	Basic   ConfigBasic   `mapstructure:"basic"`
-	Private ConfigPrivate `mapstructure:"private"`
+	Basic       ConfigBasic       `mapstructure:"basic"`        //基础配置
+	Private     ConfigPrivate     `mapstructure:"private"`      // 私有配置
+	RiskControl ConfigRiskControl `mapstructure:"risk_control"` // 风控配置
+}
+
+// 风控配置
+type ConfigRiskControl struct {
+	RateLimit RateLimitConfig `mapstructure:"rate_limit"` // 风控
+}
+type RateLimitConfig struct {
+	RiskLevels map[string]map[string]QuotaConfig `yaml:"risk_levels"` // 风控等级
+}
+
+type QuotaConfig struct {
+	Limit  int    `yaml:"limit"`
+	Window string `yaml:"window"` // 如 "1h"
 }
 
 // ConfigBasic 基础配置（公开配置）
@@ -166,39 +180,51 @@ type UploadConfig struct {
 }
 
 // RateLimitConfig 限流配置
-type RateLimitConfig struct {
-	Enabled  bool `mapstructure:"enabled"`
-	Requests int  `mapstructure:"requests"`
-	Duration int  `mapstructure:"duration"`
-	Burst    int  `mapstructure:"burst"`
-}
+// type RateLimitConfig struct {
+// 	Enabled  bool `mapstructure:"enabled"`
+// 	Requests int  `mapstructure:"requests"`
+// 	Duration int  `mapstructure:"duration"`
+// 	Burst    int  `mapstructure:"burst"`
+// }
 
 // Load 加载配置文件
 func Load(configDir string) (*Config, error) {
 	basicViper, privateViper := newViperInstances(configDir)
 
+	// 加载基础配置
 	var basicConfig ConfigBasic
 	if err := basicViper.Unmarshal(&basicConfig); err != nil {
 		return nil, err
 	}
 
+	// 加载私有配置
 	var privateConfig ConfigPrivate
 	if err := privateViper.Unmarshal(&privateConfig); err != nil {
-		// 私有配置文件不存在时使用空配置
 		privateConfig = ConfigPrivate{}
 	}
 
+	// 加载风控配置（独立文件）
+	riskViper := viper.New()
+	riskViper.SetConfigType("yaml")
+	riskViper.SetConfigFile(filepath.Join(configDir, "risk_control.yaml"))
+	_ = riskViper.ReadInConfig() // 允许文件不存在
+
+	var riskControl ConfigRiskControl
+	if err := riskViper.Unmarshal(&riskControl); err != nil {
+		// 解析失败则使用空配置（不阻塞启动）
+		riskControl = ConfigRiskControl{}
+	}
+
 	cfg := &Config{
-		Basic:   basicConfig,
-		Private: privateConfig,
+		Basic:       basicConfig,
+		Private:     privateConfig,
+		RiskControl: riskControl,
 	}
 
 	cfg.setDefaults()
-
 	if err := cfg.validate(); err != nil {
 		return nil, err
 	}
-
 	return cfg, nil
 }
 

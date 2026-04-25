@@ -5,6 +5,7 @@ import (
 	_ "embed"
 	"fmt"
 	"time"
+	"tiny-forum/config"
 
 	"github.com/redis/go-redis/v9"
 )
@@ -22,51 +23,19 @@ const (
 	ActionUpdateProfile Action = "update_profile"
 )
 
-// RiskLevel 对应 model.RiskLevel，此处复制避免循环依赖
+// RiskLevel 用户风险等级
 type RiskLevel string
 
 const (
-	RiskNormal   RiskLevel = "normal"   // 正常用户
-	RiskObserve  RiskLevel = "observe"  // 观察用户（可疑）
-	RiskRestrict RiskLevel = "restrict" // 受限用户（高危）
+	RiskNormal   RiskLevel = "normal"
+	RiskObserve  RiskLevel = "observe"
+	RiskRestrict RiskLevel = "restrict"
 )
 
 // Quota 单位时间内的配额
 type Quota struct {
 	Limit  int
 	Window time.Duration
-}
-
-// quotaTable 各风险等级 × 操作 的配额表
-// key: RiskLevel → Action → Quota
-var quotaTable = map[RiskLevel]map[Action]Quota{
-	// 正常用户每小时可发 20 个帖子、60 条评论、10 次举报、5 次修改资料
-	RiskNormal: {
-		ActionCreatePost:    {Limit: 20, Window: time.Hour},
-		ActionCreateComment: {Limit: 60, Window: time.Hour},
-		ActionSendReport:    {Limit: 10, Window: time.Hour},
-		ActionUpdateProfile: {Limit: 5, Window: time.Hour},
-	},
-	// 观察用户每小时只能发 5 个帖子、20 条评论、5 次举报、3 次修改资料
-	RiskObserve: {
-		ActionCreatePost:    {Limit: 5, Window: time.Hour},
-		ActionCreateComment: {Limit: 20, Window: time.Hour},
-		ActionSendReport:    {Limit: 5, Window: time.Hour},
-		ActionUpdateProfile: {Limit: 3, Window: time.Hour},
-	},
-	//受限用户每小时只能发 2 个帖子、5 条评论、2 次举报、1 次修改资料
-	RiskRestrict: {
-		ActionCreatePost:    {Limit: 2, Window: time.Hour},
-		ActionCreateComment: {Limit: 5, Window: time.Hour},
-		ActionSendReport:    {Limit: 2, Window: time.Hour},
-		ActionUpdateProfile: {Limit: 1, Window: time.Hour},
-	},
-}
-
-// Limiter 限流器
-type Limiter struct {
-	rdb         *redis.Client
-	allowScript *redis.Script // Lua 脚本缓存
 }
 
 // Result 限流结果
@@ -77,114 +46,110 @@ type Result struct {
 	ResetIn time.Duration // 距离窗口重置的时间
 }
 
-func NewLimiter(rdb *redis.Client) *Limiter {
-	script := redis.NewScript(luaScript)
-	return &Limiter{
-		rdb:         rdb,
-		allowScript: script,
-	}
+// Limiter 限流器实现
+type Limiter struct {
+	rdb         *redis.Client
+	allowScript *redis.Script
+	quotas      map[RiskLevel]map[Action]Quota // 从配置构建
 }
 
-// Allow 检查 userID 执行 action 是否被允许（滑动窗口算法）
-// riskLevel 由调用方从 RiskService 获取
-// Allow 原子版：使用 Lua 脚本实现滑动窗口限流
-func (l *Limiter) Allow(ctx context.Context, userID uint, action Action, riskLevel RiskLevel) (Result, error) {
-	quota, ok := quotaTable[riskLevel][action]
-	if !ok {
-		// 未配置则不限流
-		return Result{Allowed: true}, nil
+// buildQuotaTable 将配置中的 map[string]map[string]QuotaConfig 转换为内部结构
+func buildQuotaTable(riskLevels map[string]map[string]config.QuotaConfig) (map[RiskLevel]map[Action]Quota, error) {
+	result := make(map[RiskLevel]map[Action]Quota)
+	for riskStr, actionMap := range riskLevels {
+		risk := RiskLevel(riskStr)
+		result[risk] = make(map[Action]Quota)
+		for actionStr, qc := range actionMap {
+			action := Action(actionStr)
+			window, err := time.ParseDuration(qc.Window)
+			if err != nil {
+				return nil, fmt.Errorf("invalid window for %s.%s: %w", riskStr, actionStr, err)
+			}
+			result[risk][action] = Quota{
+				Limit:  qc.Limit,
+				Window: window,
+			}
+		}
 	}
+	// 如果配置缺失，返回空 map，但 Allow 方法会按“不限流”处理
+	return result, nil
+}
 
+// Allow 实现 RateLimiter 接口
+func (l *Limiter) Allow(ctx context.Context, userID uint, action Action, riskLevel RiskLevel) (Result, error) {
+	// 获取对应的配额
+	if level, ok := l.quotas[riskLevel]; ok {
+		if quota, ok := level[action]; ok {
+			return l.checkAndRecord(ctx, userID, action, quota)
+		}
+	}
+	// 未配置则不限流
+	return Result{Allowed: true}, nil
+}
+
+// checkAndRecord 执行 Lua 脚本进行原子限流判断与记录
+func (l *Limiter) checkAndRecord(ctx context.Context, userID uint, action Action, quota Quota) (Result, error) {
 	key := fmt.Sprintf("rl:%d:%s", userID, action)
 	now := time.Now()
 	windowMs := quota.Window.Milliseconds()
 	nowMs := now.UnixMilli()
-	member := fmt.Sprintf("%d", now.UnixNano()) // 纳秒级唯一标识
+	member := fmt.Sprintf("%d", now.UnixNano())
 
-	// 执行 Lua 脚本
 	res, err := l.allowScript.Run(ctx, l.rdb, []string{key},
 		quota.Limit, windowMs, nowMs, member).Slice()
-
 	if err != nil {
-		return Result{}, fmt.Errorf("ratelimit lua script: %w", err)
+		return Result{}, fmt.Errorf("lua script error: %w", err)
 	}
-
-	// 脚本返回: [allowed, current, limit, resetMs]
-
 	if len(res) != 4 {
 		return Result{}, fmt.Errorf("unexpected script result length: %d", len(res))
 	}
 
-	// 类型转换辅助
-	toInt := func(v interface{}) (int, error) {
-		switch t := v.(type) {
-		case int64:
-			return int(t), nil
-		case int:
-			return t, nil
-		default:
-			return 0, fmt.Errorf("cannot convert %T to int", v)
-		}
-	}
-	toInt64 := func(v interface{}) (int64, error) {
-		switch t := v.(type) {
-		case int64:
-			return t, nil
-		case int:
-			return int64(t), nil
-		default:
-			return 0, fmt.Errorf("cannot convert %T to int64", v)
-		}
-	}
+	// 类型转换（假设返回均为 int64）
+	allowed := toInt64(res[0]) == 1
+	current := int(toInt64(res[1]))
+	limit := int(toInt64(res[2]))
+	resetMs := toInt64(res[3])
 
-	allowed, err := toInt(res[0])
-	if err != nil {
-		return Result{}, err
-	}
-	current, err := toInt(res[1])
-	if err != nil {
-		return Result{}, err
-	}
-	limit, err := toInt(res[2])
-	if err != nil {
-		return Result{}, err
-	}
-	resetMs, err := toInt64(res[3])
-	if err != nil {
-		return Result{}, err
-	}
-	fmt.Printf("Result: allowed=%v, current=%d, limit=%d, resetIn=%v\n",
-		res[0].(int64) == 1, res[1].(int64), res[2].(int64), time.Duration(res[3].(int64))*time.Millisecond)
 	result := Result{
-		Allowed: allowed == 1,
+		Allowed: allowed,
 		Current: current,
 		Limit:   limit,
 	}
-	if !result.Allowed {
+	if !allowed {
 		result.ResetIn = time.Duration(resetMs) * time.Millisecond
 	}
 	return result, nil
 }
 
-// GetQuota 查询某用户某操作的当前配额使用情况（不消耗配额）
+// GetQuota 实现 RateLimiter 接口（不消耗）
 func (l *Limiter) GetQuota(ctx context.Context, userID uint, action Action, riskLevel RiskLevel) (Result, error) {
-	quota, ok := quotaTable[riskLevel][action]
-	if !ok {
-		return Result{Allowed: true}, nil
+	if level, ok := l.quotas[riskLevel]; ok {
+		if quota, ok := level[action]; ok {
+			key := fmt.Sprintf("rl:%d:%s", userID, action)
+			windowStart := time.Now().Add(-quota.Window)
+			l.rdb.ZRemRangeByScore(ctx, key, "0", fmt.Sprintf("%d", windowStart.UnixMilli()))
+			current, err := l.rdb.ZCard(ctx, key).Result()
+			if err != nil {
+				return Result{}, err
+			}
+			return Result{
+				Allowed: int(current) < quota.Limit,
+				Current: int(current),
+				Limit:   quota.Limit,
+			}, nil
+		}
 	}
+	return Result{Allowed: true}, nil
+}
 
-	key := fmt.Sprintf("rl:%d:%s", userID, action)
-	windowStart := time.Now().Add(-quota.Window)
-
-	l.rdb.ZRemRangeByScore(ctx, key, "0", fmt.Sprintf("%d", windowStart.UnixMilli()))
-	current, err := l.rdb.ZCard(ctx, key).Result()
-	if err != nil {
-		return Result{}, err
+// 辅助类型转换
+func toInt64(v interface{}) int64 {
+	switch t := v.(type) {
+	case int64:
+		return t
+	case int:
+		return int64(t)
+	default:
+		return 0
 	}
-
-	return Result{
-		Allowed: int(current) < quota.Limit,
-		Current: int(current),
-		Limit:   quota.Limit,
-	}, nil
 }
