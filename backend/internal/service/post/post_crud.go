@@ -10,25 +10,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type CreatePostInput struct {
-	Title   string           `json:"title" binding:"required,min=2,max=200"`
-	Content string           `json:"content" binding:"required,min=10"`
-	Summary string           `json:"summary"`
-	Cover   string           `json:"cover"`
-	Type    string           `json:"type"`
-	BoardID uint             `json:"board_id" binding:"required"`
-	TagIDs  []uint           `json:"tag_ids"`
-	Status  model.PostStatus `json:"status"`
-}
-
-type UpdatePostInput struct {
-	Title   string `json:"title" binding:"min=2,max=200"`
-	Content string `json:"content" binding:"min=10"`
-	Summary string `json:"summary"`
-	Cover   string `json:"cover"`
-	TagIDs  []uint `json:"tag_ids"`
-}
-
 // Create 创建帖子
 func (s *postService) Create(ctx *gin.Context, authorID uint, input CreatePostInput) (*model.Post, error) {
 	// 1. 帖子类型校验

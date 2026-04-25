@@ -34,7 +34,7 @@ func (r *postRepository) List(page, pageSize int, opts dto.PostListOptions) ([]m
 
 	query := r.db.Model(&model.Post{})
 
-	// 状态过滤
+	// 用户感知状态过滤
 	if opts.Status != "" {
 		query = query.Where("post_status = ?", opts.Status)
 	} else {
@@ -42,6 +42,13 @@ func (r *postRepository) List(page, pageSize int, opts dto.PostListOptions) ([]m
 		query = query.Where("post_status = ?", model.PostStatusPublished)
 	}
 
+	// 风控状态过滤
+	if opts.ModerationStatus != "" {
+		query = query.Where("moderation_status = ?", opts.ModerationStatus)
+	} else {
+		// 默认只查询已审核通过的
+		query = query.Where("moderation_status = ?", model.ModerationStatusApproved)
+	}
 	if opts.AuthorID > 0 {
 		query = query.Where("author_id = ?", opts.AuthorID)
 	}

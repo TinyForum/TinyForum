@@ -11,9 +11,9 @@ type PostListOptions struct {
 	TagID            uint
 	PostType         string
 	Keyword          string
-	SortBy           string                 // "" = latest, "hot" = popular
-	Status           model.PostStatus       // "" = all, "pending" = pending, "approved" = approved, "rejected" = rejected
-	ModerationStatus model.ModerationStatus // "" = all, "low" = low, "medium" = medium, "high" = high
+	SortBy           string
+	Status           model.PostStatus
+	ModerationStatus model.ModerationStatus
 }
 
 // GetStatsDay 获取每日统计数据
