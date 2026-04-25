@@ -5,14 +5,83 @@ import (
 	"fmt"
 	"sync"
 	"time"
-
 	"tiny-forum/internal/model"
 
 	"golang.org/x/sync/errgroup"
 )
 
+// parseDateRange 将 "YYYY-MM-DD" 字符串解析为完整的日期时间字符串
+func parseDateRange(startDate, endDate string) (string, string, error) {
+	now := time.Now()
+	var start, end time.Time
+	var err error
+	if startDate == "" {
+		start = now.AddDate(0, 0, -30)
+	} else {
+		start, err = time.ParseInLocation("2006-01-02", startDate, time.Local)
+		if err != nil {
+			return "", "", fmt.Errorf("invalid start_date %q: %w", startDate, err)
+		}
+	}
+	if endDate == "" {
+		end = now
+	} else {
+		end, err = time.ParseInLocation("2006-01-02", endDate, time.Local)
+		if err != nil {
+			return "", "", fmt.Errorf("invalid end_date %q: %w", endDate, err)
+		}
+	}
+	if end.Before(start) {
+		return "", "", fmt.Errorf("end_date must not be before start_date")
+	}
+	return start.Format("2006-01-02 00:00:00"),
+		end.Format("2006-01-02 23:59:59"),
+		nil
+}
+
+// dateToRangeStrings 根据粒度将单个日期扩展为完整的起止时间字符串
+func dateToRangeStrings(date time.Time, interval string) (string, string) {
+	switch interval {
+	case "week":
+		weekStart := date.AddDate(0, 0, -int(date.Weekday()))
+		weekEnd := weekStart.AddDate(0, 0, 6)
+		return weekStart.Format("2006-01-02 00:00:00"), weekEnd.Format("2006-01-02 23:59:59")
+	case "month":
+		monthStart := time.Date(date.Year(), date.Month(), 1, 0, 0, 0, 0, time.Local)
+		monthEnd := monthStart.AddDate(0, 1, -1)
+		return monthStart.Format("2006-01-02 00:00:00"), monthEnd.Format("2006-01-02 23:59:59")
+	default: // "day"
+		return date.Format("2006-01-02 00:00:00"), date.Format("2006-01-02 23:59:59")
+	}
+}
+
+// generateDateRange 按粒度生成日期序列（代表各区间的起始日期）
+func generateDateRange(start, end time.Time, interval string) []time.Time {
+	var dates []time.Time
+	switch interval {
+	case "week":
+		cur := start.AddDate(0, 0, -int(start.Weekday()))
+		for !cur.After(end) {
+			dates = append(dates, cur)
+			cur = cur.AddDate(0, 0, 7)
+		}
+	case "month":
+		cur := time.Date(start.Year(), start.Month(), 1, 0, 0, 0, 0, time.Local)
+		endMonth := time.Date(end.Year(), end.Month(), 1, 0, 0, 0, 0, time.Local)
+		for !cur.After(endMonth) {
+			dates = append(dates, cur)
+			cur = cur.AddDate(0, 1, 0)
+		}
+	default: // "day"
+		for d := start; !d.After(end); d = d.AddDate(0, 0, 1) {
+			dates = append(dates, d)
+		}
+	}
+	return dates
+}
+
 // getBaseInfo 并行获取各维度总量
-func (s *StatsService) getBaseInfo(ctx context.Context) (*model.StatsInfo, error) {
+func (s *statsService) getBaseInfo(ctx context.Context) (*model.StatsInfo, error) {
 	var wg sync.WaitGroup
 	var info model.StatsInfo
 	var err1, err2, err3, err4, err5 error
@@ -42,7 +111,7 @@ func (s *StatsService) getBaseInfo(ctx context.Context) (*model.StatsInfo, error
 }
 
 // getRangeStats 并行获取时间段内各维度增量，单项失败不中断整体
-func (s *StatsService) getRangeStats(ctx context.Context, startDate, endDate time.Time) (*model.StatsTodayInfo, error) {
+func (s *statsService) getRangeStats(ctx context.Context, startDate, endDate time.Time) (*model.StatsTodayInfo, error) {
 	var info model.StatsTodayInfo
 	g, ctx := errgroup.WithContext(ctx)
 
@@ -113,13 +182,13 @@ func (s *StatsService) getRangeStats(ctx context.Context, startDate, endDate tim
 }
 
 // getIllegalInfo 获取违规统计（基于 reports 表）
-func (s *StatsService) getIllegalInfo(_ context.Context, _, _ time.Time) (*model.StatsIllegalInfo, error) {
+func (s *statsService) getIllegalInfo(_ context.Context, _, _ time.Time) (*model.StatsIllegalInfo, error) {
 	// TODO: 注入 ReportRepository 后按 target_type 分组统计
 	return &model.StatsIllegalInfo{}, nil
 }
 
 // getActiveUserInfo 获取活跃用户列表及发帖/评论数
-func (s *StatsService) getActiveUserInfo(ctx context.Context, startDate, endDate time.Time, limit int) (*model.StatsActiveUserInfo, error) {
+func (s *statsService) getActiveUserInfo(ctx context.Context, startDate, endDate time.Time, limit int) (*model.StatsActiveUserInfo, error) {
 	users, err := s.userRepo.GetActiveUsersByDateRange(ctx, startDate, endDate, limit)
 	if err != nil {
 		return nil, err
@@ -140,7 +209,7 @@ func (s *StatsService) getActiveUserInfo(ctx context.Context, startDate, endDate
 }
 
 // getHotArticles 获取热门文章列表
-func (s *StatsService) getHotArticles(ctx context.Context, startDate, endDate time.Time, limit int) ([]*model.HotArticleItem, error) {
+func (s *statsService) getHotArticles(ctx context.Context, startDate, endDate time.Time, limit int) ([]*model.HotArticleItem, error) {
 	rows, err := s.postRepo.GetHotArticlesByDateRange(ctx, startDate, endDate, limit)
 	if err != nil {
 		return nil, err
@@ -164,7 +233,7 @@ func (s *StatsService) getHotArticles(ctx context.Context, startDate, endDate ti
 }
 
 // getHotBoards 获取热门板块列表
-func (s *StatsService) getHotBoards(ctx context.Context, startDate, endDate time.Time, limit int) ([]*model.HotBoardItem, error) {
+func (s *statsService) getHotBoards(ctx context.Context, startDate, endDate time.Time, limit int) ([]*model.HotBoardItem, error) {
 	rows, err := s.boardRepo.GetHotBoardsByDateRange(ctx, startDate, endDate, limit)
 	if err != nil {
 		return nil, err

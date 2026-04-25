@@ -32,7 +32,7 @@ type Services struct {
 	Topic        topic.TopicService
 	Question     question.QuestionService
 	Announcement announcement.AnnouncementService
-	Stats        *stats.StatsService
+	Stats        stats.StatsService
 	Risk         *risk.RiskService
 	ContentCheck *risk.ContentCheckService
 }

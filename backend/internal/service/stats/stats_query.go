@@ -10,7 +10,7 @@ import (
 )
 
 // GetStatsByDate 获取指定日期的统计数据
-func (s *StatsService) GetStatsByDate(ctx context.Context, date time.Time, statsType string) (*model.StatsTodayInfo, error) {
+func (s *statsService) GetStatsByDate(ctx context.Context, date time.Time, statsType string) (*model.StatsTodayInfo, error) {
 	startOfDay := time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, date.Location())
 	endOfDay := time.Date(date.Year(), date.Month(), date.Day(), 23, 59, 59, 999999999, date.Location())
 
@@ -43,7 +43,7 @@ func (s *StatsService) GetStatsByDate(ctx context.Context, date time.Time, stats
 }
 
 // GetTotalStats 获取指定时间范围的汇总统计数据
-func (s *StatsService) GetTotalStats(ctx context.Context, startDate, endDate time.Time, statsType string) (*model.StatsInfoResp, error) {
+func (s *statsService) GetTotalStats(ctx context.Context, startDate, endDate time.Time, statsType string) (*model.StatsInfoResp, error) {
 	fmt.Printf("GetTotalStats: start_date=%s, end_date=%s, stats_type=%s", startDate, endDate, statsType)
 	resp := &model.StatsInfoResp{StatTime: time.Now()}
 	baseInfo, err := s.getBaseInfo(ctx)
@@ -93,7 +93,7 @@ func (s *StatsService) GetTotalStats(ctx context.Context, startDate, endDate tim
 }
 
 // GetTrendStats 获取趋势统计数据（按 day / week / month 粒度）
-func (s *StatsService) GetTrendStats(ctx context.Context, startDate, endDate time.Time, statsType, intervals string) ([]*model.TrendData, error) {
+func (s *statsService) GetTrendStats(ctx context.Context, startDate, endDate time.Time, statsType, intervals string) ([]*model.TrendData, error) {
 	dates := generateDateRange(startDate, endDate, intervals)
 	trendData := make([]*model.TrendData, 0, len(dates))
 	for _, date := range dates {
@@ -121,7 +121,7 @@ func (s *StatsService) GetTrendStats(ctx context.Context, startDate, endDate tim
 }
 
 // StatsService 新增方法
-func (s *StatsService) GetStatsByDateRange(ctx context.Context, startDate, endDate time.Time, statsType string) ([]dto.DailyStatResponse, error) {
+func (s *statsService) GetStatsByDateRange(ctx context.Context, startDate, endDate time.Time, statsType string) ([]dto.DailyStatResponse, error) {
 	// 将日期对齐到零点（避免时区漂移）
 	start := time.Date(startDate.Year(), startDate.Month(), startDate.Day(), 0, 0, 0, 0, startDate.Location())
 	end := time.Date(endDate.Year(), endDate.Month(), endDate.Day(), 0, 0, 0, 0, endDate.Location())
