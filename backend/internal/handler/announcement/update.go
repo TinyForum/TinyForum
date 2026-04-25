@@ -26,20 +26,6 @@ func (h *AnnouncementHandler) Update(c *gin.Context) {
 	response.Success(c, nil)
 }
 
-// Delete 删除公告
-func (h *AnnouncementHandler) Delete(c *gin.Context) {
-	id, ok := parseAnnouncementID(c)
-	if !ok {
-		return
-	}
-	userID := c.GetUint("user_id")
-	if err := h.service.Delete(c.Request.Context(), id, userID); err != nil {
-		handleAnnouncementServiceError(c, err)
-		return
-	}
-	response.Success(c, nil)
-}
-
 // Publish 发布公告
 func (h *AnnouncementHandler) Publish(c *gin.Context) {
 	id, ok := parseAnnouncementID(c)
