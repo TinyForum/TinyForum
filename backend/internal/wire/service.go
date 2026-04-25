@@ -41,7 +41,7 @@ type Services struct {
 // NewServices 创建所有 Service 实例
 func NewServices(
 	cfg *config.Config,
-	jwtMgr *jwtpkg.Manager,
+	jwtMgr *jwtpkg.JWTManager,
 	repos *Repositories,
 	infra *Infra,
 ) *Services {

@@ -23,7 +23,7 @@ func InitApp(cfg *config.Config) (*App, error) {
 	}
 
 	// 2. JWT 管理器
-	jwtMgr := jwtpkg.NewManager(cfg.Private.JWT.Secret, cfg.Private.JWT.Expire)
+	jwtMgr := jwtpkg.NewJWTManager(cfg.Private.JWT.Secret, cfg.Private.JWT.Expire)
 
 	// 3. 基础设施（Redis、限流、敏感词）
 	infra, err := InitInfra(cfg)

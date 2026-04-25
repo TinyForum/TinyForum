@@ -43,7 +43,7 @@ type UserService interface {
 }
 type userService struct {
 	repo        userRepo.UserRepository
-	jwtMgr      *jwtpkg.Manager
+	jwtMgr      *jwtpkg.JWTManager
 	notifSvc    notification.NotificationService // 注意：NotificationService 定义在别的包，需正确导入
 	roleChecker *validator.RoleChangeChecker     // 改为指针类型
 	// roleChange  validator.RoleChangeRequest
@@ -51,7 +51,7 @@ type userService struct {
 
 func NewUserService(
 	repo userRepo.UserRepository,
-	jwtMgr *jwtpkg.Manager,
+	jwtMgr *jwtpkg.JWTManager,
 	notifSvc notification.NotificationService,
 	// roleChange validator.RoleChangeRequest,
 ) UserService {

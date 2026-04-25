@@ -26,7 +26,7 @@ type MiddlewareSet struct {
 
 // NewMiddlewareSet 创建中间件工厂（需要依赖注入）
 // 注意：部分中间件需要运行时传入 boardRepo 或 action，因此返回的是构造函数。
-func NewMiddlewareSet(jwtMgr *jwtpkg.Manager, db *gorm.DB, services *Services) *MiddlewareSet {
+func NewMiddlewareSet(jwtMgr *jwtpkg.JWTManager, db *gorm.DB, services *Services) *MiddlewareSet {
 	return &MiddlewareSet{
 		AuthMW:          func() gin.HandlerFunc { return middleware.Auth(jwtMgr) },
 		OptionalAuthMW:  func() gin.HandlerFunc { return middleware.OptionalAuth(jwtMgr) },

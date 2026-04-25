@@ -7,6 +7,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
+// Claims 表示 JWT 中携带的自定义声明。
 type Claims struct {
 	UserID   uint   `json:"user_id"`
 	Username string `json:"username"`
@@ -14,28 +15,33 @@ type Claims struct {
 	jwt.RegisteredClaims
 }
 
-var ErrInvalidToken = errors.New("invalid token")
-var ErrExpiredToken = errors.New("token has expired")
+var (
+	ErrInvalidToken = errors.New("invalid token")
+	ErrExpiredToken = errors.New("token has expired")
+)
 
-type Manager struct {
-	secret []byte
-	expire time.Duration
+// JWTManager 负责 JWT 的签发与验证。
+type JWTManager struct {
+	secret     []byte
+	expiration time.Duration
 }
 
-func NewManager(secret string, expire time.Duration) *Manager {
-	return &Manager{
-		secret: []byte(secret),
-		expire: expire,
+// NewJWTManager 创建 JWT 管理器实例。
+func NewJWTManager(secret string, expiration time.Duration) *JWTManager {
+	return &JWTManager{
+		secret:     []byte(secret),
+		expiration: expiration,
 	}
 }
 
-func (m *Manager) Generate(userID uint, username, role string) (string, error) {
+// Generate 为给定用户生成 JWT 字符串。
+func (m *JWTManager) Generate(userID uint, username, role string) (string, error) {
 	claims := Claims{
 		UserID:   userID,
 		Username: username,
 		Role:     role,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(m.expire)),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(m.expiration)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 			Issuer:    "tiny-forum",
 		},
@@ -44,7 +50,8 @@ func (m *Manager) Generate(userID uint, username, role string) (string, error) {
 	return token.SignedString(m.secret)
 }
 
-func (m *Manager) Parse(tokenStr string) (*Claims, error) {
+// Parse 解析并验证 JWT 字符串，返回其中的声明。
+func (m *JWTManager) Parse(tokenStr string) (*Claims, error) {
 	token, err := jwt.ParseWithClaims(tokenStr, &Claims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, ErrInvalidToken

@@ -44,7 +44,7 @@ type AuthService interface {
 type authService struct {
 	userRepo  user.UserRepository
 	notifSvc  notification.NotificationService
-	jwtMgr    *jwtpkg.Manager
+	jwtMgr    *jwtpkg.JWTManager
 	authRepo  auth.AuthRepository
 	emailSvc  email.EmailService
 	cfg       *config.Config
@@ -75,7 +75,7 @@ type TokenGenerator interface {
 func NewAuthService(
 	authRepo auth.AuthRepository,
 	userRepo user.UserRepository,
-	jwtMgr *jwtpkg.Manager,
+	jwtMgr *jwtpkg.JWTManager,
 	notifSvc notification.NotificationService,
 	emailSvc email.EmailService,
 	cfg *config.Config,

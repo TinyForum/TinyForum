@@ -28,7 +28,7 @@ func extractToken(c *gin.Context) string {
 	return ""
 }
 
-func Auth(jwtMgr *jwt.Manager) gin.HandlerFunc {
+func Auth(jwtMgr *jwt.JWTManager) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		token := extractToken(c)
 		if token == "" {
@@ -61,7 +61,7 @@ func AdminRequired() gin.HandlerFunc {
 	}
 }
 
-func OptionalAuth(jwtMgr *jwt.Manager) gin.HandlerFunc {
+func OptionalAuth(jwtMgr *jwt.JWTManager) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if token := extractToken(c); token != "" {
 			if claims, err := jwtMgr.Parse(token); err == nil {
