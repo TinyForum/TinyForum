@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// parseAnnouncementID 解析公告ID，返回错误响应
+// 解析公告ID，返回错误响应
 func parseAnnouncementID(c *gin.Context) (uint, bool) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
@@ -19,7 +19,7 @@ func parseAnnouncementID(c *gin.Context) (uint, bool) {
 	return uint(id), true
 }
 
-// handleAnnouncementServiceError 统一处理 service 层错误
+// 统一处理 service 层错误
 func handleAnnouncementServiceError(c *gin.Context, err error) {
 	switch err {
 	case apperrors.ErrAnnouncementNotFound:
