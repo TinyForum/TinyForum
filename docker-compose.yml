@@ -1,267 +1,130 @@
-version: '3.9'
-
-# 定义自定义网络，便于服务间通信
-networks:
-  bbs-network:
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 172.20.0.0/16
+name: tiny-forum
 
 services:
-  # ============================================
-  # PostgreSQL 数据库
-  # ============================================
   postgres:
     image: postgres:16-alpine
-    container_name: bbs_postgres
+    container_name: tiny-forum-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: ${DB_USER:-postgres}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_USER: ${DB_USER:-caoyang}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-chang2002}
       POSTGRES_DB: ${DB_NAME:-tiny_forum}
-      PGDATA: /var/lib/postgresql/data/pgdata
-      # PostgreSQL 性能调优（可选）
-      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --locale=C"
+      TZ: Asia/Shanghai
     volumes:
-      - pgdata:/var/lib/postgresql/data
-      # 初始化脚本（可选）
-      - ./init-scripts:/docker-entrypoint-initdb.d:ro
+      - postgres_data:/var/lib/postgresql/data
     ports:
       - "${DB_PORT:-5432}:5432"
-    networks:
-      - bbs-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-tiny_forum}"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-caoyang} -d ${DB_NAME:-tiny_forum}"]
       interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 10s
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 512M
-        reservations:
-          cpus: '0.25'
-          memory: 256M
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
+    networks:
+      - tiny-forum-net
 
-  # ============================================
-  # Redis（会话缓存，可选但推荐）
-  # ============================================
   redis:
     image: redis:7-alpine
-    container_name: bbs_redis
+    container_name: tiny-forum-redis
     restart: unless-stopped
-    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-redis123}
+    command: redis-server --save 60 1 --loglevel warning
     volumes:
       - redis_data:/data
     ports:
       - "${REDIS_PORT:-6379}:6379"
-    networks:
-      - bbs-network
     healthcheck:
-      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
-    deploy:
-      resources:
-        limits:
-          memory: 256M
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
+    networks:
+      - tiny-forum-net
 
-  # ============================================
-  # Backend (Go)
-  # ============================================
   backend:
+    image: tiny-forum-backend:latest
+    container_name: tiny-forum-backend
     build:
       context: ./backend
       dockerfile: Dockerfile
-      args:
-        - GO_VERSION=${GO_VERSION:-1.21}
-        - APP_ENV=${APP_ENV:-production}
-    container_name: bbs_backend
     restart: unless-stopped
+    environment:
+      SERVER_MODE: ${SERVER_MODE:-release}
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: ${DB_USER:-caoyang}
+      DB_PASSWORD: ${DB_PASSWORD:-chang2002}
+      DB_NAME: ${DB_NAME:-tiny_forum}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      JWT_SECRET: ${JWT_SECRET:-tiny-forum-secret-change-in-production-32chars}
+      TZ: Asia/Shanghai
+    volumes:
+      - ./backend/configs:/app/configs:ro
+      - backend_logs:/app/logs
+      - backend_uploads:/app/uploads
+    ports:
+      - "${BACKEND_PORT:-8080}:8080"
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
-    environment:
-      # 数据库配置
-      - DB_HOST=postgres
-      - DB_PORT=5432
-      - DB_USER=${DB_USER:-postgres}
-      - DB_PASSWORD=${DB_PASSWORD:-postgres}
-      - DB_NAME=${DB_NAME:-tiny_forum}
-      # Redis 配置
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - REDIS_PASSWORD=${REDIS_PASSWORD:-redis123}
-      # 应用配置
-      - APP_ENV=${APP_ENV:-production}
-      - APP_PORT=8080
-      - APP_SECRET=${APP_SECRET:-change_me_in_production}
-      # JWT 配置
-      - JWT_SECRET=${JWT_SECRET:-change_jwt_secret}
-      - JWT_EXPIRE_HOURS=${JWT_EXPIRE_HOURS:-24}
-      # 日志级别
-      - LOG_LEVEL=${LOG_LEVEL:-info}
-    ports:
-      - "${BACKEND_PORT:-8080}:8080"
-    volumes:
-      # 配置文件（只读）
-      - ./backend/config:/app/config:ro
-      # 日志目录
-      - backend_logs:/app/logs
-      # 上传文件目录
-      - uploads:/app/uploads
-    networks:
-      - bbs-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-    deploy:
-      resources:
-        limits:
-          cpus: '1.0'
-          memory: 1G
-        reservations:
-          cpus: '0.5'
-          memory: 512M
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "20m"
-        max-file: "5"
-    # 优雅关闭
-    stop_grace_period: 30s
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/api/v1/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - tiny-forum-net
 
-  # ============================================
-  # Frontend (Next.js)
-  # ============================================
   frontend:
+    image: tiny-forum-frontend:latest
+    container_name: tiny-forum-frontend
     build:
       context: ./frontend
       dockerfile: Dockerfile
-      args:
-        - NODE_VERSION=${NODE_VERSION:-20}
-        - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:8080/api/v1}
-    container_name: bbs_frontend
     restart: unless-stopped
-    depends_on:
-      - backend
     environment:
-      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:8080/api/v1}
-      - NODE_ENV=${NODE_ENV:-production}
-      - PORT=3000
-    ports:
-      - "${FRONTEND_PORT:-3000}:3000"
+      NODE_ENV: production
+      NEXT_TELEMETRY_DISABLED: "1"
+      BACKEND_URL: http://backend:8080
+    depends_on:
+      backend:
+        condition: service_healthy
     networks:
-      - bbs-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
-    deploy:
-      resources:
-        limits:
-          cpus: '0.8'
-          memory: 512M
-        reservations:
-          cpus: '0.4'
-          memory: 256M
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
+      - tiny-forum-net
 
-  # ============================================
-  # Nginx (反向代理，生产环境推荐)
-  # ============================================
   nginx:
     image: nginx:alpine
-    container_name: bbs_nginx
+    container_name: tiny-forum-nginx
     restart: unless-stopped
-    depends_on:
-      - backend
-      - frontend
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/conf.d:/etc/nginx/conf.d:ro
-      - ./ssl:/etc/nginx/ssl:ro  # SSL 证书（可选）
-      - nginx_logs:/var/log/nginx
     ports:
       - "${HTTP_PORT:-80}:80"
       - "${HTTPS_PORT:-443}:443"
-    networks:
-      - bbs-network
-    healthcheck:
-      test: ["CMD", "nginx", "-t"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    deploy:
-      resources:
-        limits:
-          memory: 128M
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
-
-  # ============================================
-  # 数据库管理工具 (Adminer/phpPgAdmin，可选)
-  # ============================================
-  adminer:
-    image: adminer:latest
-    container_name: bbs_adminer
-    restart: unless-stopped
+    volumes:
+      - ./deploy/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./deploy/nginx/conf.d:/etc/nginx/conf.d:ro
+      - nginx_logs:/var/log/nginx
+      # TLS 证书（可选）
+      # - ./deploy/nginx/certs:/etc/nginx/certs:ro
     depends_on:
-      - postgres
-    environment:
-      - ADMINER_DEFAULT_SERVER=postgres
-    ports:
-      - "${ADMINER_PORT:-8081}:8080"
+      - frontend
+      - backend
     networks:
-      - bbs-network
-    profiles:
-      - tools  # 使用 profile，默认不启动
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
+      - tiny-forum-net
 
-# ============================================
-# 数据卷定义
-# ============================================
 volumes:
-  pgdata:
-    name: bbs_pgdata
+  postgres_data:
     driver: local
   redis_data:
-    name: bbs_redis_data
+    driver: local
   backend_logs:
-    name: bbs_backend_logs
-  uploads:
-    name: bbs_uploads
+    driver: local
+  backend_uploads:
+    driver: local
   nginx_logs:
-    name: bbs_nginx_logs
+    driver: local
+
+networks:
+  tiny-forum-net:
+    driver: bridge
