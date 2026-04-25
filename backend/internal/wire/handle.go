@@ -36,7 +36,8 @@ type Handlers struct {
 }
 
 // NewHandlers 创建所有 Handler 实例
-func NewHandlers(svc *Services) *Handlers {
+func NewHandlers(svc *Services, timeHelpers *TimeHelpers) *Handlers {
+
 	return &Handlers{
 		Auth:         authHandler.NewAuthHandler(svc.Auth),
 		User:         userHandler.NewUserHandler(svc.User, svc.Notification, svc.Auth),
@@ -50,7 +51,11 @@ func NewHandlers(svc *Services) *Handlers {
 		Question:     questionHandler.NewQuestionHandler(svc.Question, svc.Comment, svc.Post),
 		Answer:       answerHandler.NewAnswerHandler(svc.Question, svc.Comment, svc.Post),
 		Announcement: announcementHandler.NewAnnouncementHandler(svc.Announcement),
-		Stats:        statsHandler.NewStatsHandler(svc.Stats),
-		Risk:         riskhandler.NewRiskHandler(svc.ContentCheck, svc.Risk),
+		Stats: statsHandler.NewStatsHandler(
+			svc.Stats,
+			timeHelpers.SingleParser,
+			timeHelpers.RangeParser,
+		),
+		Risk: riskhandler.NewRiskHandler(svc.ContentCheck, svc.Risk),
 	}
 }

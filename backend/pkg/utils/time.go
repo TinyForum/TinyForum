@@ -8,76 +8,48 @@ import (
 	"time"
 )
 
-// TimeRange 时间范围
+// ============================================================================
+// 接口定义（ISP：小而专一）
+// ============================================================================
+
+// TimeExpressionParser 解析时间表达式，返回时间和是否成功。
+// isEnd 表示该表达式用于结束边界（影响相对时间及无时间的日期处理）。
+type TimeExpressionParser interface {
+	Parse(expr string, now time.Time, loc *time.Location, isEnd bool) (time.Time, bool)
+}
+
+type TimeHelpers struct {
+	SingleParser *TimeParser
+	RangeParser  *TimeRangeParser
+}
+
+func NewTimeHelpers() *TimeHelpers {
+	// 使用默认的解析链（绝对时间 + 相对时间）
+	defaultChain := NewParserChain(
+		AbsoluteParser{},
+		NewRelativeParser(),
+	)
+	return &TimeHelpers{
+		SingleParser: NewTimeParser(defaultChain),
+		RangeParser:  NewTimeRangeParser(defaultChain),
+	}
+}
+
+// ============================================================================
+// 具体解析器实现（SRP：每个解析器只负责一种格式）
+// ============================================================================
+
+// AbsoluteParser 解析绝对日期时间字符串。
+type AbsoluteParser struct{}
+
 type TimeRange struct {
 	Start time.Time
 	End   time.Time
 }
 
-// type TimeParser struct{}
-
-// ParseTimeRange 解析时间范围，支持多种格式和相对时间
-// 支持格式：
-// 1. 绝对日期: "2024-01-15", "2024/01/15", "2024.01.15", "2024-01-15 15:30:00"
-// 2. 相对时间: "today", "yesterday", "last7days", "last30days", "last90days", "thisweek", "lastweek", "thismonth", "lastmonth", "thisyear"
-// 3. 组合: start=2024-01-01&end=2024-01-31 或 start=last7days&end=today
-func ParseTimeRange(startExpr, endExpr string) (*TimeRange, error) {
-	now := time.Now()
-	loc := time.Local
-	fmt.Printf("now: %v\n", now)
-
-	// 如果都为空，默认最近30天
-	if startExpr == "" && endExpr == "" {
-		return &TimeRange{
-			Start: now.AddDate(0, 0, -30),
-			End:   now,
-		}, nil
-	}
-
-	var start, end time.Time
-	var err error
-
-	// 解析开始时间
-	if startExpr != "" {
-		start, err = ParseTimeExpression(startExpr, now, loc, false)
-		if err != nil {
-			return nil, fmt.Errorf("invalid start time: %w", err)
-		}
-	} else {
-		// 如果有结束时间但没有开始时间，默认开始时间为结束时间前30天
-		end, _ = ParseTimeExpression(endExpr, now, loc, true)
-		start = end.AddDate(0, 0, -30)
-	}
-
-	// 解析结束时间
-	if endExpr != "" {
-		end, err = ParseTimeExpression(endExpr, now, loc, true)
-		if err != nil {
-			return nil, fmt.Errorf("invalid end time: %w", err)
-		}
-	} else {
-		// 如果有开始时间但没有结束时间，默认结束时间为当前时间
-		end = now
-	}
-
-	// 确保开始时间不晚于结束时间
-	if start.After(end) {
-		start, end = end, start
-	}
-
-	return &TimeRange{Start: start, End: end}, nil
-}
-
-// parseTimeExpression 解析单个时间表达式
-func ParseTimeExpression(expr string, now time.Time, loc *time.Location, isEnd bool) (time.Time, error) {
-	expr = strings.TrimSpace(strings.ToLower(expr))
-
-	// 1. 尝试解析相对时间
-	if t, ok := ParseRelativeTime(expr, now, loc, isEnd); ok {
-		return t, nil
-	}
-
-	// 2. 尝试解析绝对时间（支持多种格式）
+// Parse 实现 TimeExpressionParser 接口。
+func (AbsoluteParser) Parse(expr string, now time.Time, loc *time.Location, isEnd bool) (time.Time, bool) {
+	expr = strings.TrimSpace(expr)
 	formats := []string{
 		"2006-01-02 15:04:05",
 		"2006-01-02 15:04",
@@ -87,23 +59,39 @@ func ParseTimeExpression(expr string, now time.Time, loc *time.Location, isEnd b
 		"2006-01-02T15:04:05Z07:00",
 		"2006-01-02T15:04:05",
 	}
-
 	for _, format := range formats {
 		if t, err := time.ParseInLocation(format, expr, loc); err == nil {
 			if isEnd && !strings.Contains(expr, ":") {
-				// 如果是结束日期且没有指定时间，设置为当天结束
-				return t.Add(23*time.Hour + 59*time.Minute + 59*time.Second), nil
+				// 结束日期无时间 → 当天 23:59:59
+				t = t.Add(23*time.Hour + 59*time.Minute + 59*time.Second)
 			}
-			return t, nil
+			return t, true
 		}
 	}
-
-	return time.Time{}, fmt.Errorf("unsupported time format: %s", expr)
+	return time.Time{}, false
 }
 
-// parseRelativeTime 解析相对时间表达式
-func ParseRelativeTime(expr string, now time.Time, loc *time.Location, isEnd bool) (time.Time, bool) {
-	// 获取当天的开始和结束时间
+// RelativeParser 解析相对时间表达式（today, yesterday, last7days, thisweek 等）。
+type RelativeParser struct {
+	reLastNDays   *regexp.Regexp
+	reLastNWeeks  *regexp.Regexp
+	reLastNMonths *regexp.Regexp
+}
+
+// NewRelativeParser 创建相对时间解析器并预编译正则。
+func NewRelativeParser() *RelativeParser {
+	return &RelativeParser{
+		reLastNDays:   regexp.MustCompile(`^last(\d+)days?$`),
+		reLastNWeeks:  regexp.MustCompile(`^last(\d+)weeks?$`),
+		reLastNMonths: regexp.MustCompile(`^last(\d+)months?$`),
+	}
+}
+
+// Parse 实现 TimeExpressionParser 接口。
+func (p *RelativeParser) Parse(expr string, now time.Time, loc *time.Location, isEnd bool) (time.Time, bool) {
+	expr = strings.ToLower(strings.TrimSpace(expr))
+
+	// 辅助函数：当天开始/结束
 	year, month, day := now.Date()
 	todayStart := time.Date(year, month, day, 0, 0, 0, 0, loc)
 	todayEnd := time.Date(year, month, day, 23, 59, 59, 999999999, loc)
@@ -117,19 +105,19 @@ func ParseRelativeTime(expr string, now time.Time, loc *time.Location, isEnd boo
 
 	case "yesterday":
 		yesterday := now.AddDate(0, 0, -1)
-		year, month, day := yesterday.Date()
+		yYear, yMonth, yDay := yesterday.Date()
 		if isEnd {
-			return time.Date(year, month, day, 23, 59, 59, 999999999, loc), true
+			return time.Date(yYear, yMonth, yDay, 23, 59, 59, 999999999, loc), true
 		}
-		return time.Date(year, month, day, 0, 0, 0, 0, loc), true
+		return time.Date(yYear, yMonth, yDay, 0, 0, 0, 0, loc), true
 
 	case "tomorrow":
 		tomorrow := now.AddDate(0, 0, 1)
-		year, month, day := tomorrow.Date()
+		tYear, tMonth, tDay := tomorrow.Date()
 		if isEnd {
-			return time.Date(year, month, day, 23, 59, 59, 999999999, loc), true
+			return time.Date(tYear, tMonth, tDay, 23, 59, 59, 999999999, loc), true
 		}
-		return time.Date(year, month, day, 0, 0, 0, 0, loc), true
+		return time.Date(tYear, tMonth, tDay, 0, 0, 0, 0, loc), true
 
 	case "thisweek":
 		weekday := int(now.Weekday())
@@ -195,9 +183,8 @@ func ParseRelativeTime(expr string, now time.Time, loc *time.Location, isEnd boo
 		return time.Date(lastYear, 1, 1, 0, 0, 0, 0, loc), true
 	}
 
-	// 匹配 lastNdays 格式 (如 last7days, last30days)
-	reLastNDays := regexp.MustCompile(`^last(\d+)days?$`)
-	if matches := reLastNDays.FindStringSubmatch(expr); len(matches) == 2 {
+	// lastNdays
+	if matches := p.reLastNDays.FindStringSubmatch(expr); len(matches) == 2 {
 		days, _ := strconv.Atoi(matches[1])
 		if isEnd {
 			return now, true
@@ -205,9 +192,8 @@ func ParseRelativeTime(expr string, now time.Time, loc *time.Location, isEnd boo
 		return now.AddDate(0, 0, -days), true
 	}
 
-	// 匹配 lastNweeks 格式
-	reLastNWeeks := regexp.MustCompile(`^last(\d+)weeks?$`)
-	if matches := reLastNWeeks.FindStringSubmatch(expr); len(matches) == 2 {
+	// lastNweeks
+	if matches := p.reLastNWeeks.FindStringSubmatch(expr); len(matches) == 2 {
 		weeks, _ := strconv.Atoi(matches[1])
 		if isEnd {
 			return now, true
@@ -215,9 +201,8 @@ func ParseRelativeTime(expr string, now time.Time, loc *time.Location, isEnd boo
 		return now.AddDate(0, 0, -weeks*7), true
 	}
 
-	// 匹配 lastNmonths 格式
-	reLastNMonths := regexp.MustCompile(`^last(\d+)months?$`)
-	if matches := reLastNMonths.FindStringSubmatch(expr); len(matches) == 2 {
+	// lastNmonths
+	if matches := p.reLastNMonths.FindStringSubmatch(expr); len(matches) == 2 {
 		months, _ := strconv.Atoi(matches[1])
 		if isEnd {
 			return now, true
@@ -227,3 +212,150 @@ func ParseRelativeTime(expr string, now time.Time, loc *time.Location, isEnd boo
 
 	return time.Time{}, false
 }
+
+// ============================================================================
+// 组合解析器（职责链，OCP：可无限扩展）
+// ============================================================================
+
+// ParserChain 实现 TimeExpressionParser 接口，按顺序尝试多个解析器。
+type ParserChain struct {
+	parsers []TimeExpressionParser
+}
+
+// NewParserChain 创建一个解析器链。
+func NewParserChain(parsers ...TimeExpressionParser) *ParserChain {
+	return &ParserChain{parsers: parsers}
+}
+
+// Add 在链末尾添加解析器（返回自身，支持链式调用）。
+func (c *ParserChain) Add(p TimeExpressionParser) *ParserChain {
+	c.parsers = append(c.parsers, p)
+	return c
+}
+
+// Parse 实现 TimeExpressionParser 接口。
+func (c *ParserChain) Parse(expr string, now time.Time, loc *time.Location, isEnd bool) (time.Time, bool) {
+	for _, p := range c.parsers {
+		if t, ok := p.Parse(expr, now, loc, isEnd); ok {
+			return t, true
+		}
+	}
+	return time.Time{}, false
+}
+
+// ============================================================================
+// 带错误返回的封装器（方便业务层使用）
+// ============================================================================
+
+// TimeParser 封装一个 TimeExpressionParser，提供返回 error 的 Parse 方法。
+type TimeParser struct {
+	parser TimeExpressionParser
+}
+
+// NewTimeParser 创建带错误返回的解析器。
+func NewTimeParser(parser TimeExpressionParser) *TimeParser {
+	return &TimeParser{parser: parser}
+}
+
+// Parse 解析表达式，返回时间或 error。
+func (tp *TimeParser) Parse(expr string, now time.Time, loc *time.Location, isEnd bool) (time.Time, error) {
+	if t, ok := tp.parser.Parse(expr, now, loc, isEnd); ok {
+		return t, nil
+	}
+	return time.Time{}, fmt.Errorf("unsupported time format: %s", expr)
+}
+
+// ============================================================================
+// 时间范围解析器（DIP：依赖 TimeExpressionParser 接口）
+// ============================================================================
+
+// TimeRangeParser 解析时间范围，支持默认值、自动交换等。
+type TimeRangeParser struct {
+	exprParser TimeExpressionParser
+}
+
+// NewTimeRangeParser 创建时间范围解析器。
+func NewTimeRangeParser(parser TimeExpressionParser) *TimeRangeParser {
+	return &TimeRangeParser{exprParser: parser}
+}
+
+// Parse 解析开始和结束表达式，返回 TimeRange。
+func (p *TimeRangeParser) Parse(startExpr, endExpr string) (*TimeRange, error) {
+	now := time.Now()
+	loc := time.Local
+
+	// 都为空 → 最近30天
+	if startExpr == "" && endExpr == "" {
+		return &TimeRange{
+			Start: now.AddDate(0, 0, -30),
+			End:   now,
+		}, nil
+	}
+
+	var start, end time.Time
+	var err error
+
+	// 开始时间
+	if startExpr != "" {
+		start, err = p.parseSingle(startExpr, now, loc, false)
+		if err != nil {
+			return nil, fmt.Errorf("invalid start time: %w", err)
+		}
+	} else {
+		end, err = p.parseSingle(endExpr, now, loc, true)
+		if err != nil {
+			return nil, fmt.Errorf("invalid end time: %w", err)
+		}
+		start = end.AddDate(0, 0, -30)
+	}
+
+	// 结束时间
+	if endExpr != "" {
+		end, err = p.parseSingle(endExpr, now, loc, true)
+		if err != nil {
+			return nil, fmt.Errorf("invalid end time: %w", err)
+		}
+	} else {
+		end = now
+	}
+
+	// 保证时间顺序
+	if start.After(end) {
+		start, end = end, start
+	}
+
+	return &TimeRange{Start: start, End: end}, nil
+}
+
+// parseSingle 辅助方法：将 bool 结果转换为 error。
+func (p *TimeRangeParser) parseSingle(expr string, now time.Time, loc *time.Location, isEnd bool) (time.Time, error) {
+	if t, ok := p.exprParser.Parse(expr, now, loc, isEnd); ok {
+		return t, nil
+	}
+	return time.Time{}, fmt.Errorf("unsupported time format: %s", expr)
+}
+
+// ============================================================================
+// 包级默认实例（向后兼容 + 开闭原则：可替换）
+// ============================================================================
+
+// var (
+// 	// defaultChain 默认解析链：绝对时间 → 相对时间
+// 	defaultChain = NewParserChain(AbsoluteParser{}, NewRelativeParser())
+
+// 	// DefaultTimeParser 默认的错误返回解析器
+// 	DefaultTimeParser = NewTimeParser(defaultChain)
+
+// 	// DefaultTimeRangeParser 默认的时间范围解析器
+// 	DefaultTimeRangeParser = NewTimeRangeParser(defaultChain)
+// )
+
+// // ParseTimeExpression 解析单个时间表达式（与旧版 API 完全兼容）。
+// func ParseTimeExpression(expr string, now time.Time, loc *time.Location, isEnd bool) (time.Time, error) {
+// 	return DefaultTimeParser.Parse(expr, now, loc, isEnd)
+// }
+
+// // ParseTimeRange 解析时间范围（与旧版 API 完全兼容）。
+// func ParseTimeRange(startExpr, endExpr string) (*TimeRange, error) {
+// 	return DefaultTimeRangeParser.Parse(startExpr, endExpr)
+// }

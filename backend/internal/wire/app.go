@@ -37,8 +37,9 @@ func InitApp(cfg *config.Config) (*App, error) {
 	// 5. 服务层
 	services := NewServices(cfg, jwtMgr, repos, infra)
 
+	timeHelpers := NewTimeHelpers()
 	// 6. 控制器层
-	handlers := NewHandlers(services)
+	handlers := NewHandlers(services, timeHelpers)
 
 	// 7. 中间件工厂
 	mw := NewMiddlewareSet(jwtMgr, db, services)

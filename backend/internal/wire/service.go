@@ -63,6 +63,8 @@ func NewServices(
 	emailSvc := email.NewEmailService(&cfg.Private.Email)
 	authSvc := auth.NewAuthService(repos.Auth, repos.User, jwtMgr, notifSvc, emailSvc, cfg, repos.Token, repos.Transaction)
 
+	// 辅助
+
 	return &Services{
 		User:         userSvc,
 		Auth:         authSvc,
