@@ -12,7 +12,7 @@ import (
 
 type BoardRepository struct {
 	db    *gorm.DB
-	stats *stats.StatsRepository
+	stats stats.StatsRepository
 }
 
 func NewBoardRepository(db *gorm.DB) *BoardRepository {

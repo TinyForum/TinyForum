@@ -12,7 +12,7 @@ import (
 )
 
 type StatsService struct {
-	statsRepo   *statsRepo.StatsRepository
+	statsRepo   statsRepo.StatsRepository
 	postRepo    postRepo.PostRepository
 	tagRepo     *tagRepo.TagRepository
 	boardRepo   *boardRepo.BoardRepository
@@ -21,7 +21,7 @@ type StatsService struct {
 }
 
 func NewStatsService(
-	statsRepo *statsRepo.StatsRepository,
+	statsRepo statsRepo.StatsRepository,
 	postRepo postRepo.PostRepository,
 	tagRepo *tagRepo.TagRepository,
 	boardRepo *boardRepo.BoardRepository,

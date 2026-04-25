@@ -51,7 +51,7 @@ type PostRepository interface {
 
 type postRepository struct {
 	db    *gorm.DB
-	stats *statsRepo.StatsRepository // 假设 StatsRepository 已在同一包或需要导入
+	stats statsRepo.StatsRepository // 假设 StatsRepository 已在同一包或需要导入
 }
 
 func NewPostRepository(db *gorm.DB) PostRepository {

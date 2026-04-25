@@ -20,7 +20,7 @@ type HotArticleRow struct {
 }
 
 // GetHotArticlesByDateRange 查询指定时间段内热门文章（按综合热度排序）
-func (r *StatsRepository) GetHotArticlesByDateRange(
+func (r *statsRepository) GetHotArticlesByDateRange(
 	ctx context.Context,
 	startDate, endDate time.Time,
 	limit int,

@@ -16,7 +16,7 @@ type HotBoardRow struct {
 }
 
 // GetHotBoardsByDateRange 查询指定时间段内热门板块（按活跃度排序）
-func (r *StatsRepository) GetHotBoardsByDateRange(
+func (r *statsRepository) GetHotBoardsByDateRange(
 	ctx context.Context,
 	startDate, endDate time.Time,
 	limit int,

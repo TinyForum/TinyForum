@@ -35,7 +35,7 @@ type Repositories struct {
 	Question     question.QuestionRepository
 	Vote         *vote.VoteRepository
 	Announcement announcement.AnnouncementRepository
-	Stats        *stats.StatsRepository
+	Stats        stats.StatsRepository
 	Auth         auth.AuthRepository
 	Risk         risk.RiskRepository
 	Transaction  transaction.TransactionManager
