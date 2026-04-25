@@ -8,30 +8,30 @@ import (
 	"gorm.io/gorm"
 )
 
-func (r *UserRepository) GetScoreById(userID uint) (int, error) {
+func (r *userRepository) GetScoreById(userID uint) (int, error) {
 	var user model.User
 	err := r.db.Model(&model.User{}).Select("score").Where("id = ?", userID).First(&user).Error
 	return user.Score, err
 }
 
-func (r *UserRepository) GetUsersScoreTotal() (int, error) {
+func (r *userRepository) GetUsersScoreTotal() (int, error) {
 	var totalScore int64
 	err := r.db.Model(&model.User{}).Select("COALESCE(SUM(score), 0)").Scan(&totalScore).Error
 	return int(totalScore), err
 }
 
-func (r *UserRepository) GetEveryoneUsersScore() ([]model.User, error) {
+func (r *userRepository) GetEveryoneUsersScore() ([]model.User, error) {
 	var users []model.User
 	err := r.db.Model(&model.User{}).Select("id, score").Find(&users).Error
 	return users, err
 }
 
-func (r *UserRepository) AddScore(userID uint, score int) error {
+func (r *userRepository) AddScore(userID uint, score int) error {
 	return r.db.Model(&model.User{}).Where("id = ?", userID).
 		UpdateColumn("score", gorm.Expr("score + ?", score)).Error
 }
 
-func (r *UserRepository) DeductScore(tx *gorm.DB, userID uint, score int) error {
+func (r *userRepository) DeductScore(tx *gorm.DB, userID uint, score int) error {
 	if score <= 0 {
 		return nil
 	}
@@ -45,7 +45,7 @@ func (r *UserRepository) DeductScore(tx *gorm.DB, userID uint, score int) error 
 	return tx.Model(&user).Update("score", gorm.Expr("score - ?", score)).Error
 }
 
-func (r *UserRepository) SetScoreById(id uint, score int) error {
+func (r *userRepository) SetScoreById(id uint, score int) error {
 	if id == 0 {
 		return errors.New("无效的用户ID")
 	}

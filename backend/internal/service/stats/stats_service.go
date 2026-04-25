@@ -16,7 +16,7 @@ type StatsService struct {
 	postRepo    postRepo.PostRepository
 	tagRepo     *tagRepo.TagRepository
 	boardRepo   *boardRepo.BoardRepository
-	userRepo    *userRepo.UserRepository
+	userRepo    userRepo.UserRepository
 	commentRepo *commentRepo.CommentRepository
 }
 
@@ -25,7 +25,7 @@ func NewStatsService(
 	postRepo postRepo.PostRepository,
 	tagRepo *tagRepo.TagRepository,
 	boardRepo *boardRepo.BoardRepository,
-	userRepo *userRepo.UserRepository,
+	userRepo userRepo.UserRepository,
 	commentRepo *commentRepo.CommentRepository,
 ) *StatsService {
 	return &StatsService{

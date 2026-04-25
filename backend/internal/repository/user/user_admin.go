@@ -8,7 +8,7 @@ import (
 	"tiny-forum/internal/model"
 )
 
-func (r *UserRepository) UpdateBlocked(ctx context.Context, userID uint, isBlocked bool) error {
+func (r *userRepository) UpdateBlocked(ctx context.Context, userID uint, isBlocked bool) error {
 	result := r.db.WithContext(ctx).
 		Model(&model.User{}).
 		Where("id = ?", userID).
@@ -25,7 +25,7 @@ func (r *UserRepository) UpdateBlocked(ctx context.Context, userID uint, isBlock
 	return nil
 }
 
-func (r *UserRepository) UpdateActive(ctx context.Context, userID uint, isActive bool) error {
+func (r *userRepository) UpdateActive(ctx context.Context, userID uint, isActive bool) error {
 	result := r.db.WithContext(ctx).
 		Model(&model.User{}).
 		Where("id = ?", userID).
@@ -39,7 +39,7 @@ func (r *UserRepository) UpdateActive(ctx context.Context, userID uint, isActive
 	return nil
 }
 
-func (r *UserRepository) UpdateRole(ctx context.Context, userID uint, role string) error {
+func (r *userRepository) UpdateRole(ctx context.Context, userID uint, role string) error {
 	result := r.db.WithContext(ctx).
 		Model(&model.User{}).
 		Where("id = ?", userID).
@@ -53,7 +53,7 @@ func (r *UserRepository) UpdateRole(ctx context.Context, userID uint, role strin
 	return nil
 }
 
-func (r *UserRepository) SoftDelete(ctx context.Context, userID uint) error {
+func (r *userRepository) SoftDelete(ctx context.Context, userID uint) error {
 	_ = r.tokenRepo.DeleteByUserID(ctx, userID)
 	result := r.db.WithContext(ctx).
 		Model(&model.User{}).
@@ -68,7 +68,7 @@ func (r *UserRepository) SoftDelete(ctx context.Context, userID uint) error {
 	return nil
 }
 
-func (r *UserRepository) HardDelete(ctx context.Context, userID uint) error {
+func (r *userRepository) HardDelete(ctx context.Context, userID uint) error {
 	result := r.db.WithContext(ctx).
 		Unscoped().
 		Delete(&model.User{}, userID)
@@ -81,7 +81,7 @@ func (r *UserRepository) HardDelete(ctx context.Context, userID uint) error {
 	return nil
 }
 
-func (r *UserRepository) UpdatePassword(ctx context.Context, userID uint, hashedPassword string) error {
+func (r *userRepository) UpdatePassword(ctx context.Context, userID uint, hashedPassword string) error {
 	result := r.db.WithContext(ctx).
 		Model(&model.User{}).
 		Where("id = ?", userID).
@@ -96,11 +96,11 @@ func (r *UserRepository) UpdatePassword(ctx context.Context, userID uint, hashed
 	return nil
 }
 
-func (r *UserRepository) InvalidateUserTokens(ctx context.Context, userID uint) error {
+func (r *userRepository) InvalidateUserTokens(ctx context.Context, userID uint) error {
 	return r.tokenRepo.DeleteByUserID(ctx, userID)
 }
 
-func (r *UserRepository) RestoreDeleted(ctx context.Context, userID uint) error {
+func (r *userRepository) RestoreDeleted(ctx context.Context, userID uint) error {
 	result := r.db.WithContext(ctx).
 		Model(&model.User{}).
 		Where("id = ?", userID).
@@ -114,7 +114,7 @@ func (r *UserRepository) RestoreDeleted(ctx context.Context, userID uint) error 
 	return nil
 }
 
-func (r *UserRepository) SetTempPasswordFlag(ctx context.Context, userID uint, isTemp bool, expireAt time.Time) error {
+func (r *userRepository) SetTempPasswordFlag(ctx context.Context, userID uint, isTemp bool, expireAt time.Time) error {
 	updates := map[string]interface{}{
 		"is_temp_password":     isTemp,
 		"temp_password_expire": expireAt,
@@ -129,7 +129,7 @@ func (r *UserRepository) SetTempPasswordFlag(ctx context.Context, userID uint, i
 	return nil
 }
 
-func (r *UserRepository) ClearTempPasswordFlag(ctx context.Context, userID uint) error {
+func (r *userRepository) ClearTempPasswordFlag(ctx context.Context, userID uint) error {
 	return r.db.WithContext(ctx).
 		Model(&model.User{}).
 		Where("id = ?", userID).
@@ -139,7 +139,7 @@ func (r *UserRepository) ClearTempPasswordFlag(ctx context.Context, userID uint)
 		}).Error
 }
 
-func (r *UserRepository) BatchUpdateBlocked(ctx context.Context, userIDs []uint, isBlocked bool) (int64, error) {
+func (r *userRepository) BatchUpdateBlocked(ctx context.Context, userIDs []uint, isBlocked bool) (int64, error) {
 	if len(userIDs) == 0 {
 		return 0, nil
 	}

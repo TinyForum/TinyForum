@@ -24,7 +24,7 @@ import (
 // Repositories 聚合所有 Repository
 type Repositories struct {
 	Token        token.TokenRepository
-	User         *user.UserRepository
+	User         user.UserRepository
 	Post         post.PostRepository
 	Comment      *comment.CommentRepository
 	Tag          *tag.TagRepository

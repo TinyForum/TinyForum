@@ -14,7 +14,7 @@ type PostService struct {
 	postRepo  postRepo.PostRepository
 	tagRepo   *tagRepo.TagRepository
 	boardRepo *boardRepo.BoardRepository
-	userRepo  *userRepo.UserRepository
+	userRepo  userRepo.UserRepository
 	notifSvc  *notification.NotificationService // 需导入 "tiny-forum/internal/service/notification"
 	// riskSvc         *risk.RiskService
 	contentcheckSvc *risk.ContentCheckService
@@ -23,7 +23,7 @@ type PostService struct {
 func NewPostService(
 	postRepo postRepo.PostRepository,
 	tagRepo *tagRepo.TagRepository,
-	userRepo *userRepo.UserRepository,
+	userRepo userRepo.UserRepository,
 	boardRepo *boardRepo.BoardRepository,
 	notifSvc *notification.NotificationService,
 	// riskSvc *risk.RiskService,

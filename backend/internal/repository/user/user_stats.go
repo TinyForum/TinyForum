@@ -6,13 +6,13 @@ import (
 	"tiny-forum/internal/model"
 )
 
-func (r *UserRepository) Count(ctx context.Context) (int64, error) {
+func (r *userRepository) Count(ctx context.Context) (int64, error) {
 	var count int64
 	err := r.db.WithContext(ctx).Model(&model.User{}).Count(&count).Error
 	return count, err
 }
 
-func (r *UserRepository) CountByDateRange(ctx context.Context, startDate, endDate time.Time) (int64, error) {
+func (r *userRepository) CountByDateRange(ctx context.Context, startDate, endDate time.Time) (int64, error) {
 	var count int64
 	err := r.db.WithContext(ctx).
 		Model(&model.User{}).
@@ -21,7 +21,7 @@ func (r *UserRepository) CountByDateRange(ctx context.Context, startDate, endDat
 	return count, err
 }
 
-func (r *UserRepository) CountActiveByDateRange(ctx context.Context, startDate, endDate time.Time) (int64, error) {
+func (r *userRepository) CountActiveByDateRange(ctx context.Context, startDate, endDate time.Time) (int64, error) {
 	var count int64
 	err := r.db.WithContext(ctx).
 		Table("users u").
@@ -44,7 +44,7 @@ type ActiveUserRow struct {
 	Avatar   string
 }
 
-func (r *UserRepository) GetActiveUsersByDateRange(
+func (r *userRepository) GetActiveUsersByDateRange(
 	ctx context.Context,
 	startDate, endDate time.Time,
 	limit int,

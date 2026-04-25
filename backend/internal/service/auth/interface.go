@@ -42,7 +42,7 @@ type AuthService interface {
 	GetDeletionStatus(ctx context.Context, userID uint) (*DeletionStatus, error)
 }
 type authService struct {
-	userRepo  *user.UserRepository
+	userRepo  user.UserRepository
 	notifSvc  *notification.NotificationService
 	jwtMgr    *jwtpkg.Manager
 	authRepo  auth.AuthRepository
@@ -74,7 +74,7 @@ type TokenGenerator interface {
 
 func NewAuthService(
 	authRepo auth.AuthRepository,
-	userRepo *user.UserRepository,
+	userRepo user.UserRepository,
 	jwtMgr *jwtpkg.Manager,
 	notifSvc *notification.NotificationService,
 	emailSvc email.EmailService,

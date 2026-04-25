@@ -16,7 +16,7 @@ import (
 - @Return user,error 错误信息
 *
 */
-func (r *UserRepository) GetTopScoreUsersSimple(ctx context.Context, limit int, excludeBlocked bool) ([]dto.LeaderboardUserSimple, error) {
+func (r *userRepository) GetTopScoreUsersSimple(ctx context.Context, limit int, excludeBlocked bool) ([]dto.LeaderboardUserSimple, error) {
 	var users []dto.LeaderboardUserSimple
 	db := r.db.WithContext(ctx).Model(&model.User{}).
 		Where("score IS NOT NULL").
@@ -31,7 +31,7 @@ func (r *UserRepository) GetTopScoreUsersSimple(ctx context.Context, limit int, 
 }
 
 // GetTopScoreUsersDetail 返回排行榜详细信息（用于 /leaderboard/detail 端点）
-func (r *UserRepository) GetTopScoreUsersDetail(ctx context.Context, limit int, excludeBlocked bool) ([]dto.LeaderboardUserDetail, error) {
+func (r *userRepository) GetTopScoreUsersDetail(ctx context.Context, limit int, excludeBlocked bool) ([]dto.LeaderboardUserDetail, error) {
 
 	var users []dto.LeaderboardUserDetail
 	db := r.db.WithContext(ctx).Model(&model.User{}).
