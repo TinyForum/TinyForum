@@ -24,7 +24,7 @@ podman machine start     # 启动虚拟机
 
 - 首次启动会自动配置 socket 连接。完成后，你可以用 `podman info` 验证是否正常。
 
-根据提示输入
+根据提示输入，我的输出是：
 
 ```bash
 export DOCKER_HOST='unix:///var/folders/22/jpg085553gv6xck8gdsnlhcr0000gn/T/podman/podman-machine-default-api.sock'
@@ -52,6 +52,20 @@ podman-compose up -d
 
 此时应该可以正常启动。
 
+## 查看日志
+```bash
+podman-compose logs -f
+podman logs tiny-forum-backend                            
+podman logs --tail 50 tiny-forum-backend
+
+```
+
+## 停止
+```bash
+podman-compose down
+podman machine stop
+```
+
 ## 补充说明
 
 - **资源占用**：Podman machine 默认会分配 2GB 内存和 2 个 CPU，如果你的 Mac 资源紧张，可以在 `init` 时指定 `--cpus` 和 `--memory`。
@@ -59,12 +73,6 @@ podman-compose up -d
 - **推荐方案**：如果你已经安装了 **Docker Desktop for Mac**，可以直接使用 `docker-compose up -d`（因为你的原配置本身就是 Docker Compose 格式），会更简单。Docker Desktop 在 macOS 上也是通过虚拟机运行，但用户体验更成熟。如果你希望使用 Podman 作为后端，则按上述步骤操作。
 
 ## 常见问题
-
-**Q: `podman machine init` 失败，提示 “Unable to find suitable image”**  
-A: 可能是网络问题或镜像拉取失败。可以设置镜像加速或重试。
-
-**Q: 启动后 `podman-compose` 仍然报同样的错误**  
-A: 检查 `podman system connection list` 确认当前 socket 路径是否正确；或者尝试重启 `podman machine restart`。
 
 **Q: 可以不使用 `podman machine` 直接在 macOS 运行 Podman 吗？**  
 A: 不可以，macOS 没有 Linux 内核，必须依赖虚拟机。这也是为什么 Docker Desktop 同样需要虚拟化后端。

@@ -40,3 +40,6 @@ Thumbs.db
 node_modules/
 .next/
 config.private.yaml
+
+# model
+backend/llm/*.gguf

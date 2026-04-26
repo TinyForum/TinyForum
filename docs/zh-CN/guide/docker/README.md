@@ -42,3 +42,4 @@ sudo docker logs tiny-forum-nginx --tail 20
 sudo docker logs tiny-forum-frontend --tail 50
 sudo docker logs tiny-forum-backend --tail 50
 ```
+
