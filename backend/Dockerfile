@@ -42,4 +42,4 @@ RUN mkdir -p logs uploads && chown -R appuser:appgroup /app
 USER appuser
 EXPOSE 8080
 
-CMD ["/app/bin/server"]
+CMD ["./server"]
