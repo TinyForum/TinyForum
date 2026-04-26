@@ -3,9 +3,9 @@ package middleware
 import (
 	"bytes"
 	"encoding/json"
-
 	"io"
 	"log"
+	"strings"
 
 	"tiny-forum/internal/infra/sensitive"
 	"tiny-forum/internal/service/check"
@@ -34,91 +34,61 @@ const (
 //   - 五级情况：【拦截】（用户级）→ 任意字段命中 LevelBlock → 返回 400，请求不进入 handler，标记用户风控行为
 //
 // fields: 需要检测的 JSON 字段名，如 []string{"title", "content"}
+// ContentCheckMiddleware 内容安全前置检测中间件（同步 Pre-check）
 func ContentCheckMiddleware(checkSvc check.ContentCheckService, fields []string) gin.HandlerFunc {
 	log.Printf("ContentCheckMiddleware: fields=%v", fields)
 
 	return func(c *gin.Context) {
 		body, restore, err := peekBody(c)
 		if err != nil {
-			// 读 body 失败不阻断业务，交由 handler 自行处理
 			c.Next()
 			return
 		}
-
-		restore() // 确保 handler 仍能读到完整 body
+		restore()
 
 		var parsed map[string]any
 		if err := json.Unmarshal(body, &parsed); err != nil {
-			// 非 JSON body（如 form-data）直接放行
 			c.Next()
 			return
 		}
 
-		// 聚合所有字段的检测结果，统一决策
-		var (
-			maxLevel sensitive.Level
-			allHits  []string
-			seen     = make(map[string]bool)
-		)
+		// ✅ 只收集各字段文本，合并成一个字符串后统一检测一次
+		var parts []string
 		for _, field := range fields {
-			text := extractString(parsed, field)
-			if text == "" {
-				continue
-			}
-			res := checkSvc.CheckText(text)
-			if res.Level > maxLevel {
-				maxLevel = res.Level
-			}
-			for _, w := range res.HitWords {
-				if !seen[w] {
-					seen[w] = true
-					allHits = append(allHits, w)
-				}
+			if text := extractString(parsed, field); text != "" {
+				parts = append(parts, text)
 			}
 		}
 
-		for _, field := range fields {
-			text := extractString(parsed, field)
-			if text == "" {
-				continue
-			}
-			res := checkSvc.CheckText(text)
-			log.Printf("[DEBUG] field=%s, text=%q, level=%d, hits=%v", field, text, res.Level, res.HitWords)
-
-			if res.Level > maxLevel {
-				maxLevel = res.Level
-			}
-			for _, w := range res.HitWords {
-				if !seen[w] {
-					seen[w] = true
-					allHits = append(allHits, w)
-				}
-			}
+		if len(parts) == 0 {
+			c.Next()
+			return
 		}
-		// 处理
-		switch maxLevel {
-		//  禁止发布
+
+		combined := strings.Join(parts, "\n")
+		res := checkSvc.CheckText(combined)
+
+		log.Printf("[DEBUG] combined check: level=%d, hits=%v", res.Level, res.HitWords)
+
+		switch res.Level {
 		case sensitive.LevelBlock:
 			c.Set(string(keyBlocked), true)
-			c.Set(string(keyHitWords), allHits)
+			c.Set(string(keyHitWords), res.HitWords)
 			response.BadRequest(c, "内容存在风险，请修改后重新提交")
 			c.Abort()
 			return
-			// 需要人工审核
 		case sensitive.LevelReview:
 			c.Set(string(keyReviewRequired), true)
-			c.Set(string(keyHitWords), allHits)
+			c.Set(string(keyHitWords), res.HitWords)
 			c.Next()
 			return
-			// 内容被隐藏
 		case sensitive.LevelShadowed:
 			c.Set(string(keyShadowed), true)
-			c.Set(string(keyHitWords), allHits)
+			c.Set(string(keyHitWords), res.HitWords)
 			return
-			// 内容被替换
 		case sensitive.LevelReplace:
 			c.Set(string(keyReviewRequired), true)
-			c.Set(string(keyHitWords), allHits)
+			c.Set(string(keyHitWords), res.HitWords)
 			return
 		}
 		c.Next()
