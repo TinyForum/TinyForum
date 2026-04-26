@@ -1,0 +1,9 @@
+# 默认所有者为 @TinyForum/core-team
+* @TinyForum/core-team
+
+# 文档相关
+/docs/ @TinyForum/docs-writer
+
+# 前端代码
+/static/ @TinyForum/frontend-team
+/templates/ @TinyForum/frontend-team
