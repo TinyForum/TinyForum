@@ -15,7 +15,7 @@ import (
 // Infra 封装基础设施（面向接口）
 type Infra struct {
 	RedisClient     *redis.Client
-	RateLimiter     ratelimit.RateLimiter // 使用接口而非具体实现
+	RateLimiter     ratelimit.RateLimiter
 	SensitiveFilter sensitive.Filter
 }
 

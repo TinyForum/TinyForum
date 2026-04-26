@@ -20,6 +20,9 @@ import (
 //     - LLM 调用失败  → 保守保持 LevelReview（不降级）
 func (f *filter) Check(html string) CheckResult {
 	text, err := htmlutil.HTMLToText(html)
+
+	log.Printf("[SENSITIVE] raw=%q, converted=%q", html, text)
+
 	if err != nil {
 		return CheckResult{
 			Level:    LevelBlock,

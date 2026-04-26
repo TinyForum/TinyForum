@@ -70,7 +70,7 @@ func RegisterRoutes(
 			mw.RateLimitMW("create_post"),
 			mw.ContentCheckMW([]string{"title", "content"}),
 			handlers.Post.Create,
-		)
+		) // 用户发布帖子
 		postGroup.PUT("/:id", mw.AuthMW(), handlers.Post.Update)
 		postGroup.DELETE("/:id", mw.AuthMW(), handlers.Post.Delete)
 		postGroup.POST("/:id/like", mw.AuthMW(), handlers.Post.Like)

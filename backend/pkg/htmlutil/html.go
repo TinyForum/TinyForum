@@ -6,9 +6,11 @@ import (
 	"io"
 	"strings"
 
+	htmltomarkdown "github.com/JohannesKaufmann/html-to-markdown/v2"
 	"golang.org/x/net/html"
 )
 
+// HTMLParser 定义将 HTML 节点写入 writer 的接口。
 type HTMLParser interface {
 	Parse(node *html.Node, w io.Writer) error
 }
@@ -18,173 +20,30 @@ type HTMLParser interface {
 // ============================================================================
 
 // MarkdownParser 将 HTML 转换为 Markdown。
+// 使用 html-to-markdown 开源库处理各种边界情况。
 type MarkdownParser struct{}
 
-// Parse 实现 HTMLParser 接口，将 HTML 节点转换为 Markdown 并写入 writer。
+// Parse 实现 HTMLParser 接口。
 func (MarkdownParser) Parse(node *html.Node, w io.Writer) error {
-	return parseNodeToMarkdown(node, w)
+	// 将节点渲染回 HTML 字符串，再交给成熟库转换
+	var buf bytes.Buffer
+	if err := html.Render(&buf, node); err != nil {
+		return fmt.Errorf("failed to render node to HTML: %w", err)
+	}
+	md, err := htmltomarkdown.ConvertString(buf.String())
+	if err != nil {
+		return fmt.Errorf("failed to convert HTML to markdown: %w", err)
+	}
+	_, err = io.WriteString(w, md)
+	return err
 }
 
 // TextParser 将 HTML 转换为纯文本。
 type TextParser struct{}
 
-// Parse 实现 HTMLParser 接口，将 HTML 节点转换为纯文本并写入 writer。
+// Parse 实现 HTMLParser 接口。
 func (TextParser) Parse(node *html.Node, w io.Writer) error {
 	return parseNodeToText(node, w)
-}
-
-// ============================================================================
-// Markdown 转换核心逻辑
-// ============================================================================
-
-func parseNodeToMarkdown(node *html.Node, w io.Writer) error {
-	switch node.Type {
-	case html.TextNode:
-		text := strings.TrimSpace(node.Data)
-		if text != "" {
-			_, err := w.Write([]byte(text))
-			if err != nil {
-				return err
-			}
-		}
-	case html.ElementNode:
-		switch node.Data {
-		case "h1", "h2", "h3", "h4", "h5", "h6":
-			level := int(node.Data[1] - '0')
-			prefix := strings.Repeat("#", level) + " "
-			_, err := w.Write([]byte(prefix))
-			if err != nil {
-				return err
-			}
-			err = parseChildrenToMarkdown(node, w)
-			if err != nil {
-				return err
-			}
-			_, err = w.Write([]byte("\n\n"))
-			return err
-
-		case "p":
-			err := parseChildrenToMarkdown(node, w)
-			if err != nil {
-				return err
-			}
-			_, err = w.Write([]byte("\n\n"))
-			return err
-
-		case "strong", "b":
-			_, err := w.Write([]byte("**"))
-			if err != nil {
-				return err
-			}
-			err = parseChildrenToMarkdown(node, w)
-			if err != nil {
-				return err
-			}
-			_, err = w.Write([]byte("**"))
-			return err
-
-		case "em", "i":
-			_, err := w.Write([]byte("*"))
-			if err != nil {
-				return err
-			}
-			err = parseChildrenToMarkdown(node, w)
-			if err != nil {
-				return err
-			}
-			_, err = w.Write([]byte("*"))
-			return err
-
-		case "a":
-			href := getAttr(node, "href")
-			_, err := w.Write([]byte("["))
-			if err != nil {
-				return err
-			}
-			err = parseChildrenToMarkdown(node, w)
-			if err != nil {
-				return err
-			}
-			_, err = w.Write([]byte("](" + href + ")"))
-			return err
-
-		case "img":
-			src := getAttr(node, "src")
-			alt := getAttr(node, "alt")
-			_, err := w.Write([]byte(fmt.Sprintf("![%s](%s)", alt, src)))
-			return err
-
-		case "ul", "ol":
-			err := parseListToMarkdown(node, w, node.Data == "ol")
-			if err != nil {
-				return err
-			}
-			_, err = w.Write([]byte("\n"))
-			return err
-
-		case "li":
-			// 由父级 ul/ol 处理，这里不单独输出
-			return parseChildrenToMarkdown(node, w)
-
-		case "blockquote":
-			_, err := w.Write([]byte("> "))
-			if err != nil {
-				return err
-			}
-			err = parseChildrenToMarkdown(node, w)
-			if err != nil {
-				return err
-			}
-			_, err = w.Write([]byte("\n\n"))
-			return err
-
-		case "br":
-			_, err := w.Write([]byte("\n"))
-			return err
-
-		default:
-			// 其他元素只处理子节点
-			return parseChildrenToMarkdown(node, w)
-		}
-	}
-	return nil
-}
-
-func parseChildrenToMarkdown(node *html.Node, w io.Writer) error {
-	for child := node.FirstChild; child != nil; child = child.NextSibling {
-		if err := parseNodeToMarkdown(child, w); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func parseListToMarkdown(node *html.Node, w io.Writer, ordered bool) error {
-	idx := 1
-	for child := node.FirstChild; child != nil; child = child.NextSibling {
-		if child.Type == html.ElementNode && child.Data == "li" {
-			if ordered {
-				_, err := fmt.Fprintf(w, "%d. ", idx)
-				if err != nil {
-					return err
-				}
-				idx++
-			} else {
-				_, err := w.Write([]byte("- "))
-				if err != nil {
-					return err
-				}
-			}
-			if err := parseChildrenToMarkdown(child, w); err != nil {
-				return err
-			}
-			_, err := w.Write([]byte("\n"))
-			if err != nil {
-				return err
-			}
-		}
-	}
-	return nil
 }
 
 // ============================================================================
@@ -193,22 +52,47 @@ func parseListToMarkdown(node *html.Node, w io.Writer, ordered bool) error {
 
 func parseNodeToText(node *html.Node, w io.Writer) error {
 	switch node.Type {
+	case html.DocumentNode: // 新增：处理文档根节点
+		return parseChildrenToText(node, w)
 	case html.TextNode:
-		text := strings.TrimSpace(node.Data)
-		if text != "" {
+		// 保留单个空格以维持内联元素间的间距，只去除首尾换行
+		text := strings.Trim(node.Data, "\r\n")
+		if strings.TrimSpace(text) != "" {
 			_, err := w.Write([]byte(text))
-			if err != nil {
-				return err
-			}
+			return err
 		}
+
 	case html.ElementNode:
 		switch node.Data {
-		case "br", "p", "div", "h1", "h2", "h3", "h4", "h5", "h6", "li":
-			err := parseChildrenToText(node, w)
-			if err != nil {
+		case "script", "style":
+			// 跳过脚本和样式内容
+			return nil
+		case "br":
+			_, err := w.Write([]byte("\n"))
+			return err
+		case "p", "div", "h1", "h2", "h3", "h4", "h5", "h6":
+			if err := parseChildrenToText(node, w); err != nil {
 				return err
 			}
-			_, err = w.Write([]byte("\n"))
+			_, err := w.Write([]byte("\n\n"))
+			return err
+		case "li":
+			if err := parseChildrenToText(node, w); err != nil {
+				return err
+			}
+			_, err := w.Write([]byte("\n"))
+			return err
+		case "tr":
+			if err := parseChildrenToText(node, w); err != nil {
+				return err
+			}
+			_, err := w.Write([]byte("\n"))
+			return err
+		case "td", "th":
+			if err := parseChildrenToText(node, w); err != nil {
+				return err
+			}
+			_, err := w.Write([]byte("\t"))
 			return err
 		default:
 			return parseChildrenToText(node, w)
@@ -243,37 +127,45 @@ func getAttr(node *html.Node, key string) string {
 // 组合解析器（职责链，OCP：可无限扩展）
 // ============================================================================
 
-// ParserHtmlChain 实现 HTMLParser 接口，按顺序尝试多个解析器。
-type ParserHtmlChain struct {
+// ParserChain 按顺序尝试多个解析器，全部成功才算成功。
+// 注意：每个 parser 写入独立的 buffer，成功后统一合并到 w，
+// 避免失败后已写入内容污染输出。
+type ParserChain struct {
 	parsers []HTMLParser
 }
 
-// NewParserHtmlChain 创建一个解析器链。
-func NewHtmlParserHtmlChain(parsers ...HTMLParser) *ParserHtmlChain {
-	return &ParserHtmlChain{parsers: parsers}
+// NewParserChain 创建一个解析器链。
+func NewParserChain(parsers ...HTMLParser) *ParserChain {
+	return &ParserChain{parsers: parsers}
 }
 
 // Add 在链末尾添加解析器（返回自身，支持链式调用）。
-func (c *ParserHtmlChain) Add(p HTMLParser) *ParserHtmlChain {
+func (c *ParserChain) Add(p HTMLParser) *ParserChain {
 	c.parsers = append(c.parsers, p)
 	return c
 }
 
-// Parse 实现 HTMLParser 接口，依次调用链中解析器，第一个成功即返回。
-func (c *ParserHtmlChain) Parse(node *html.Node, w io.Writer) error {
+// Parse 依次调用链中每个解析器并将结果顺序写入 w。
+// 任意一个 parser 失败则中止并返回错误（已写入部分不受影响，
+// 因为各 parser 写入独立 buffer 后才 flush）。
+func (c *ParserChain) Parse(node *html.Node, w io.Writer) error {
 	for _, p := range c.parsers {
-		if err := p.Parse(node, w); err == nil {
-			return nil
+		var buf bytes.Buffer
+		if err := p.Parse(node, &buf); err != nil {
+			return fmt.Errorf("parser %T failed: %w", p, err)
+		}
+		if _, err := w.Write(buf.Bytes()); err != nil {
+			return err
 		}
 	}
-	return fmt.Errorf("no parser could handle the HTML node")
+	return nil
 }
 
 // ============================================================================
 // 带错误返回的封装器（方便业务层使用）
 // ============================================================================
 
-// HTMLConverter 封装一个 HTMLParser，提供返回 error 的 Parse 方法。
+// HTMLConverter 封装一个 HTMLParser，提供返回 error 的 Convert 方法。
 type HTMLConverter struct {
 	parser HTMLParser
 }
@@ -289,25 +181,22 @@ func (c *HTMLConverter) Convert(htmlStr string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("failed to parse HTML: %w", err)
 	}
-	buf := &bytes.Buffer{}
-	if err := c.parser.Parse(node, buf); err != nil {
+	var buf bytes.Buffer
+	if err := c.parser.Parse(node, &buf); err != nil {
 		return "", err
 	}
 	return buf.String(), nil
 }
 
 // ============================================================================
-// 包级默认实例（向后兼容 + 开闭原则：可替换）
+// 包级默认实例（向后兼容）
 // ============================================================================
 
 var (
-	// defaultChain 默认解析链（目前只有一个，但可以扩展）
-	defaultChain = NewHtmlParserHtmlChain(MarkdownParser{})
-
-	// DefaultMDConverter 默认的 Markdown 转换器
+	// DefaultMDConverter 默认的 Markdown 转换器。
 	DefaultMDConverter = NewHTMLConverter(MarkdownParser{})
 
-	// DefaultTextConverter 默认的纯文本转换器
+	// DefaultTextConverter 默认的纯文本转换器。
 	DefaultTextConverter = NewHTMLConverter(TextParser{})
 )
 

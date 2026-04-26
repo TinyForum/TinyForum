@@ -107,22 +107,10 @@ sudo apt update && sudo apt upgrade
 curl -fsSL https://ollama.com/install.sh | sh
 ```
 
-然后下载一个轻量的 LLM，比如 Qwen3-0.6B-GGUF
-
-可以在 `backend/llm` 执行脚本下载：
-```bash
-cd backend/llm
-./download.sh
-```
-
->  通过官方脚本安装 Ollama 时，它会自动创建一个 systemd 服务并启动，默认监听 127.0.0.1:11434
-
-然后修改 `backend/config/llm.yaml`，将 `ollama.model_path` 修改为地址。
-
-创建模型
+安装模型
 
 ```bash
-ollama create qwen3-0.6b -f Modelfile
+ollama run qwen3:0.6b
 ```
 
 

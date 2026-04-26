@@ -3,7 +3,9 @@ package middleware
 import (
 	"bytes"
 	"encoding/json"
+
 	"io"
+	"log"
 
 	"tiny-forum/internal/infra/sensitive"
 	"tiny-forum/internal/service/check"
@@ -33,6 +35,8 @@ const (
 //
 // fields: 需要检测的 JSON 字段名，如 []string{"title", "content"}
 func ContentCheckMiddleware(checkSvc check.ContentCheckService, fields []string) gin.HandlerFunc {
+	log.Printf("ContentCheckMiddleware: fields=%v", fields)
+
 	return func(c *gin.Context) {
 		body, restore, err := peekBody(c)
 		if err != nil {
@@ -73,6 +77,25 @@ func ContentCheckMiddleware(checkSvc check.ContentCheckService, fields []string)
 			}
 		}
 
+		for _, field := range fields {
+			text := extractString(parsed, field)
+			if text == "" {
+				continue
+			}
+			res := checkSvc.CheckText(text)
+			log.Printf("[DEBUG] field=%s, text=%q, level=%d, hits=%v", field, text, res.Level, res.HitWords)
+
+			if res.Level > maxLevel {
+				maxLevel = res.Level
+			}
+			for _, w := range res.HitWords {
+				if !seen[w] {
+					seen[w] = true
+					allHits = append(allHits, w)
+				}
+			}
+		}
+		// 处理
 		switch maxLevel {
 		//  禁止发布
 		case sensitive.LevelBlock:
