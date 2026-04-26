@@ -47,6 +47,7 @@ type Ollama struct {
 	BaseURL string `mapstructure:"base_url"`
 	Model   string `mapstructure:"model"`
 	APIKey  string `mapstructure:"api_key"`
+	Timeout uint   `mapstructure:"timeout"`
 }
 
 type APIConfig struct {

@@ -16,7 +16,7 @@ import (
 type OllamaConfig struct {
 	// BaseURL Ollama 服务地址，默认 http://localhost:11434
 	BaseURL string
-	// Model 使用的模型名称，如 "qwen2.5:7b"
+	// Model 使用的模型名称，如 "qwen3:0.6b"
 	Model string
 	// Timeout 单次请求超时，默认 60s
 	Timeout time.Duration

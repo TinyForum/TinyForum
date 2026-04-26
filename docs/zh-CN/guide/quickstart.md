@@ -113,6 +113,26 @@ curl -fsSL https://ollama.com/install.sh | sh
 ollama run qwen3:0.6b
 ```
 
+修改配置
+
+```bash
+sudo systemctl stop ollama
+sudo nano /etc/systemd/system/ollama.service
+```
+输入
+
+```conf
+[Service]
+# 在此位置添加
+Environment="OLLAMA_HOST=0.0.0.0:11434"
+```
+
+重启
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl restart ollama
+```
 
 ## 测试
 

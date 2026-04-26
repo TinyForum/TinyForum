@@ -42,7 +42,7 @@ func InitInfra(cfg *config.Config) (*Infra, error) {
 	ollamaCfg := &sensitive.OllamaConfig{
 		BaseURL: cfg.Basic.Ollama.BaseURL,
 		Model:   cfg.Basic.Ollama.Model,
-		Timeout: 15 * time.Second,
+		Timeout: time.Duration(cfg.Basic.Ollama.Timeout) * time.Second,
 	}
 	sensitiveFilter := sensitive.NewFilter(ollamaCfg)
 	res, err := sensitiveFilter.LoadDictDir("./dicts")

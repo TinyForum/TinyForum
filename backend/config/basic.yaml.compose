@@ -56,6 +56,7 @@ ollama:
   model: qwen3:0.6b
   num_predict: 256 # 限制生成的最大 token 数量
   temperature: 0.7 # 适当降低随机性
+  timeout: 60 # 超时时间
 
 allow_origins:
   - http://localhost:3000
