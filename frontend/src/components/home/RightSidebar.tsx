@@ -6,7 +6,7 @@ import { GuestCard } from "./right/GuestCard";
 import { Leaderboard } from "./right/Leaderboard";
 import { TimelineEvents } from "./right/TimelineEvents";
 import { UserProfileCard } from "./right/UserProfileCard";
-import { LeaderboardResponse } from "@/lib/api/modules/users";
+import { LeaderboardItemResponse } from "@/lib/api/modules/users";
 
 
 interface UserProfile {
@@ -35,7 +35,7 @@ interface RightSidebarProps {
   isAuthenticated: boolean;
   user: any;
   userProfile?: UserProfile;
-  leaderboard: LeaderboardResponse;
+  leaderboard: LeaderboardItemResponse[];
   unreadCount: number;
   timelineEvents: TimelineEvent[];
 }
