@@ -53,7 +53,7 @@ rate_limit:
 
 ollama:
   base_url: http://192.168.5.243:11434
-  model: qwen3:0.6b
+  model: qwen3-0.6b
   num_predict: 256 # 限制生成的最大 token 数量
   temperature: 0.7 # 适当降低随机性
 

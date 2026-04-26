@@ -117,7 +117,14 @@ cd backend/llm
 
 >  通过官方脚本安装 Ollama 时，它会自动创建一个 systemd 服务并启动，默认监听 127.0.0.1:11434
 
-然后修改 `backend/config/llm.yaml`，将 `model_path` 修改为下载的模型路径。
+然后修改 `backend/config/llm.yaml`，将 `ollama.model_path` 修改为地址。
+
+创建模型
+
+```bash
+ollama create qwen3-0.6b -f Modelfile
+```
+
 
 ## 测试
 
