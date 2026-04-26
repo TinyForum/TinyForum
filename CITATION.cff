@@ -1,11 +1,11 @@
 cff-version: 1.2.0
 message: "如果你在学术工作中使用了 TinyForum，请引用如下。"
 authors:
-  - family-names: "Zhang"
-    given-names: "Wei"
-    orcid: "https://orcid.org/0000-0000-0000-0000"
+  - family-names: "Cao"
+    given-names: "Yang"
+    orcid: "https://orcid.org/0009-0008-4967-2293"
 title: "TinyForum: A Lightweight Forum System"
-version: 1.1.0
+version: 0.1.0
 date-released: 2025-04-26
 url: "https://github.com/TinyForum/TinyForum"
 license: MIT

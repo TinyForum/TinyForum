@@ -24,4 +24,4 @@ assignees: ''
 **环境**
  - OS: [如 Windows 10]
  - 浏览器 [如 chrome, safari]
- - 版本 [如 v1.0.0]
+ - 版本 [如 v0.1.0]
