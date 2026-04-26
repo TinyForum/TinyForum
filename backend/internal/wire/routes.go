@@ -1,6 +1,8 @@
 package wire
 
 import (
+	"tiny-forum/config"
+
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
@@ -13,10 +15,12 @@ func RegisterRoutes(
 	handlers *Handlers,
 	mw *MiddlewareSet,
 	repos *Repositories,
+	cfg *config.Config,
+
 ) {
 	// CORS
 	engine.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:3000", "http://127.0.0.1:3000"},
+		AllowOrigins:     cfg.Basic.AllowOrigins,
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},

@@ -53,7 +53,7 @@ func InitApp(cfg *config.Config) (*App, error) {
 	engine.Use(gin.Recovery())
 
 	// 9. 注册路由（传入 repos 是因为部分中间件需要 boardRepo 动态判断）
-	RegisterRoutes(engine, handlers, mw, repos)
+	RegisterRoutes(engine, handlers, mw, repos, cfg)
 
 	return &App{
 		Engine: engine,

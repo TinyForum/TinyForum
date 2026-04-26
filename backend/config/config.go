@@ -37,9 +37,10 @@ type ConfigBasic struct {
 	API    APIConfig    `mapstructure:"api"`
 	Log    LogConfig    `mapstructure:"log"`
 	// Redis     RedisConfig     `mapstructure:"redis"`
-	Upload    UploadConfig    `mapstructure:"upload"`
-	RateLimit RateLimitConfig `mapstructure:"rate_limit"`
-	Ollama    Ollama          `mapstructure:"ollama"`
+	Upload       UploadConfig    `mapstructure:"upload"`
+	RateLimit    RateLimitConfig `mapstructure:"rate_limit"`
+	Ollama       Ollama          `mapstructure:"ollama"`
+	AllowOrigins []string        `mapstructure:"allow_origins"`
 }
 
 type Ollama struct {
