@@ -7,6 +7,20 @@ import (
 )
 
 // Delete 删除公告
+// @Summary 删除公告
+// @Description 管理员根据ID删除公告，需要认证及管理员权限
+// @Tags 公告管理
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path int true "公告ID"
+// @Success 200 {object} response.Response "删除成功"
+// @Failure 400 {object} response.Response "参数错误（无效的公告ID）"
+// @Failure 401 {object} response.Response "未授权"
+// @Failure 403 {object} response.Response "无权限（非管理员）"
+// @Failure 404 {object} response.Response "公告不存在"
+// @Failure 500 {object} response.Response "服务器内部错误"
+// @Router /admin/announcements/{id} [delete]
 func (h *AnnouncementHandler) Delete(c *gin.Context) {
 	id, ok := parseAnnouncementID(c)
 	if !ok {

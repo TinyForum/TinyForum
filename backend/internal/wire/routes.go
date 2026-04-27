@@ -2,6 +2,7 @@ package wire
 
 import (
 	"tiny-forum/config"
+	"tiny-forum/internal/middleware"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -13,7 +14,7 @@ import (
 func RegisterRoutes(
 	engine *gin.Engine,
 	handlers *Handlers,
-	mw *MiddlewareSet,
+	mw *middleware.MiddlewareSet,
 	repos *Repositories,
 	cfg *config.Config,
 
@@ -93,17 +94,7 @@ func RegisterRoutes(
 	// MARK: User routes
 	userGroup := api.Group("/users")
 	{
-		userGroup.GET("/leaderboard/simple", handlers.User.LeaderboardSimple)
-		userGroup.GET("/leaderboard/detail", handlers.User.LeaderboardDetail)
-		userGroup.GET("/:id", mw.OptionalAuthMW(), handlers.User.GetProfile)
-		userGroup.PUT("/profile", mw.AuthMW(), handlers.User.UpdateProfile)
-		userGroup.PATCH("/password", mw.AuthMW(), handlers.User.ChangePassword)
-		userGroup.POST("/:id/follow", mw.AuthMW(), handlers.User.Follow)
-		userGroup.DELETE("/:id/follow", mw.AuthMW(), handlers.User.Unfollow)
-		userGroup.GET("/:id/followers", mw.OptionalAuthMW(), handlers.User.GetFollowers)
-		userGroup.GET("/:id/following", mw.OptionalAuthMW(), handlers.User.GetFollowing)
-		userGroup.GET("/:id/Score", mw.OptionalAuthMW(), handlers.User.GetScore)
-		userGroup.GET("/me/role", mw.OptionalAuthMW(), handlers.User.GetCurrentUserRole)
+		handlers.User.RegisterRoutes(userGroup, mw)
 	}
 
 	// MARK: Notification routes
@@ -117,20 +108,13 @@ func RegisterRoutes(
 	// MARK: Board routes
 	boardGroup := api.Group("/boards")
 	{
+		handlers.Board.RegisterRoutes(userGroup, mw)
 		boardGroup.GET("", handlers.Board.List)
 		boardGroup.GET("/tree", handlers.Board.GetTree)
-		boardGroup.GET("/:id", mw.OptionalAuthMW(), handlers.Board.GetByID)
-		boardGroup.GET("/slug/:slug", handlers.Board.GetBoardBySlug)
-		boardGroup.GET("/slug/:slug/posts", mw.OptionalAuthMW(), handlers.Board.GetPostsBySlug)
 
-		boardGroup.POST("/:id/moderators/apply-moderator", mw.AuthMW(), handlers.Board.ApplyModerator)
-		boardGroup.GET("/moderators/apply-status", mw.AuthMW(), handlers.Board.GetUserApplications)
-		boardGroup.GET("/moderators/managed", mw.AuthMW(), handlers.Board.GetUserModeratorBoards)
 		boardGroup.DELETE("/applications/:application_id", mw.AuthMW(), handlers.Board.CancelApplication)
 
 		boardGroup.POST("", mw.AuthMW(), mw.AdminRequiredMW(), handlers.Board.Create)
-		boardGroup.PUT("/:id", mw.AuthMW(), mw.AdminRequiredMW(), handlers.Board.Update)
-		boardGroup.DELETE("/:id", mw.AuthMW(), mw.AdminRequiredMW(), handlers.Board.Delete)
 
 		modGroup := boardGroup.Group("/:id/moderators", mw.AuthMW())
 		{
