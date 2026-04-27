@@ -482,7 +482,9 @@
     "total_users": "总用户数",
     "total_posts": "总帖子数",
     "view_the_full_rankings": "查看完整排行榜",
-    "no_announcements": "暂无公告"
+    "no_announcements": "暂无公告",
+    "post_count": "帖子数",
+    "last_7_days_posts_trend": "最近7天发帖趋势"
   },
 
   "Nav": {

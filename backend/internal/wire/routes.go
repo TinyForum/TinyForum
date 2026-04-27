@@ -148,35 +148,13 @@ func RegisterRoutes(
 	handlers.Topic.RegisterRoutes(api, mw)
 
 	// MARK: Answer routes
-	answerGroup := api.Group("/answers")
-	{
-		answerGroup.GET("/:id", mw.OptionalAuthMW(), handlers.Answer.GetAnswer)
-		answerGroup.DELETE("/:id", mw.AuthMW(), handlers.Answer.DeleteAnswer)
-		answerGroup.GET("/:id/status", mw.OptionalAuthMW(), handlers.Answer.GetVoteStatus)
-		answerGroup.POST("/:id/vote", mw.OptionalAuthMW(), handlers.Answer.VoteAnswer)
-		answerGroup.DELETE("/:id/vote", mw.AuthMW(), handlers.Answer.RemoveVote)
-		answerGroup.POST("/:id/accept", mw.AuthMW(), handlers.Answer.AcceptAnswer)
-		answerGroup.POST("/:id/unaccept", mw.AuthMW(), handlers.Answer.UnacceptAnswer)
-	}
+	handlers.Answer.RegisterRoutes(api, mw)
 
 	// MARK: Question routes
-	questionGroup := api.Group("/questions")
-	{
-		questionGroup.GET("/simple", handlers.Question.GetQuestionSimple)
-		questionGroup.GET("/list", mw.OptionalAuthMW(), handlers.Question.GetQuestionsList)
-		questionGroup.POST("/create", mw.AuthMW(), handlers.Question.CreateQuestion)
-		questionGroup.GET("/detail/:id", mw.OptionalAuthMW(), handlers.Question.GetQuestionDetail)
-		questionGroup.GET("/:id/answers", mw.OptionalAuthMW(), handlers.Answer.GetQuestionAnswers)
-		questionGroup.POST("/:id/answers", mw.AuthMW(), handlers.Answer.CreateAnswer)
-	}
+	handlers.Question.RegisterRoutes(api, mw)
 
 	// MARK: Announcement routes
-	announcementGroup := api.Group("/announcements")
-	{
-		announcementGroup.GET("", handlers.Announcement.List)
-		announcementGroup.GET("/pinned", handlers.Announcement.GetPinned)
-		announcementGroup.GET("/:id", handlers.Announcement.GetByID)
-	}
+	handlers.Announcement.RegisterRoutes(api, mw)
 
 	announcementAdminGroup := api.Group("/admin/announcements", mw.AuthMW(), mw.AdminRequiredMW())
 	{
@@ -190,12 +168,11 @@ func RegisterRoutes(
 	}
 
 	// MARK: Statistics routes
-	statsGroup := api.Group("/statistics")
-	{
-		statsGroup.GET("", handlers.Stats.GetStatsTotal)
-	}
+	handlers.Stats.RegisterRoutes(api, mw)
 
+	// FIXME: 通过上下文判断，而不是路径
 	// MARK: Admin routes
+
 	adminGroup := api.Group("/admin", mw.AuthMW(), mw.AdminRequiredMW())
 	{
 		adminGroup.GET("/users", handlers.User.AdminList)
@@ -216,12 +193,9 @@ func RegisterRoutes(
 		adminGroup.PUT("/posts/:id/pin", handlers.Post.AdminTogglePin)
 
 		// MARK: 挂载子路由
-		handlers.Stats.RegisterRoutes(adminGroup)
 		handlers.Risk.RegisterRoutes(adminGroup)
 	}
-	uploadGroup := api.Group("/upload", mw.AuthMW())
-	{
-		handlers.Upload.RegisterRoutes(uploadGroup)
 
-	}
+	handlers.Upload.RegisterRoutes(api, mw)
+
 }
