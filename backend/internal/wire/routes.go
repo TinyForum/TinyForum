@@ -99,76 +99,53 @@ func RegisterRoutes(
 	// }
 
 	// MARK: User routes
-	userGroup := api.Group("/users")
-	{
-		handlers.User.RegisterRoutes(userGroup, mw)
-	}
+	handlers.User.RegisterRoutes(api, mw)
+	// userGroup := api.Group("/users")
+	// {
+
+	// }
 
 	// MARK: Notification routes
-	notifGroup := api.Group("/notifications", mw.AuthMW())
-	{
-		notifGroup.GET("", handlers.Notification.List)
-		notifGroup.GET("/unread-count", handlers.Notification.UnreadCount)
-		notifGroup.POST("/read-all", handlers.Notification.MarkAllRead)
-	}
+	handlers.Notification.RegisterRoutes(api, mw)
 
 	// MARK: Board routes
-	boardGroup := api.Group("/boards")
-	{
-		handlers.Board.RegisterRoutes(boardGroup, mw)
-		boardGroup.GET("", handlers.Board.List)
-		boardGroup.GET("/tree", handlers.Board.GetTree)
+	handlers.Board.RegisterRoutes(api, mw, repos.Board)
+	// boardGroup := api.Group("/boards")
+	// {
 
-		boardGroup.DELETE("/applications/:application_id", mw.AuthMW(), handlers.Board.CancelApplication)
+	// 	boardGroup.GET("", handlers.Board.List)
+	// 	boardGroup.GET("/tree", handlers.Board.GetTree)
 
-		boardGroup.POST("", mw.AuthMW(), mw.AdminRequiredMW(), handlers.Board.Create)
+	// 	boardGroup.DELETE("/applications/:application_id", mw.AuthMW(), handlers.Board.CancelApplication)
 
-		modGroup := boardGroup.Group("/:id/moderators", mw.AuthMW())
-		{
-			modGroup.GET("", mw.ModeratorRequiredMW(repos.Board), handlers.Board.GetModerators)
-			modGroup.POST("", mw.CanManageModeratorMW(repos.Board), handlers.Board.AddModerator)
-			modGroup.DELETE("/:user_id", mw.CanManageModeratorMW(repos.Board), handlers.Board.RemoveModerator)
-			modGroup.PUT("/:user_id/permissions", mw.AdminRequiredMW(), handlers.Board.UpdateModeratorPermissions)
-		}
+	// 	boardGroup.POST("", mw.AuthMW(), mw.AdminRequiredMW(), handlers.Board.Create)
 
-		banGroup := boardGroup.Group("/:id/bans", mw.AuthMW())
-		{
-			banGroup.POST("", mw.CanBanUserMW(repos.Board), handlers.Board.BanUser)
-			banGroup.DELETE("/:user_id", mw.CanBanUserMW(repos.Board), handlers.Board.UnbanUser)
-		}
+	// 	modGroup := boardGroup.Group("/:id/moderators", mw.AuthMW())
+	// 	{
+	// 		modGroup.GET("", mw.ModeratorRequiredMW(repos.Board), handlers.Board.GetModerators)
+	// 		modGroup.POST("", mw.CanManageModeratorMW(repos.Board), handlers.Board.AddModerator)
+	// 		modGroup.DELETE("/:user_id", mw.CanManageModeratorMW(repos.Board), handlers.Board.RemoveModerator)
+	// 		modGroup.PUT("/:user_id/permissions", mw.AdminRequiredMW(), handlers.Board.UpdateModeratorPermissions)
+	// 	}
 
-		postManageGroup := boardGroup.Group("/:id/posts", mw.AuthMW())
-		{
-			postManageGroup.DELETE("/:post_id", mw.CanDeletePostMW(repos.Board), handlers.Board.DeletePost)
-			postManageGroup.PUT("/:post_id/pin", mw.CanPinPostMW(repos.Board), handlers.Board.PinPost)
-		}
-	}
+	// 	banGroup := boardGroup.Group("/:id/bans", mw.AuthMW())
+	// 	{
+	// 		banGroup.POST("", mw.CanBanUserMW(repos.Board), handlers.Board.BanUser)
+	// 		banGroup.DELETE("/:user_id", mw.CanBanUserMW(repos.Board), handlers.Board.UnbanUser)
+	// 	}
+
+	// 	postManageGroup := boardGroup.Group("/:id/posts", mw.AuthMW())
+	// 	{
+	// 		postManageGroup.DELETE("/:post_id", mw.CanDeletePostMW(repos.Board), handlers.Board.DeletePost)
+	// 		postManageGroup.PUT("/:post_id/pin", mw.CanPinPostMW(repos.Board), handlers.Board.PinPost)
+	// 	}
+	// }
 
 	// MARK: Timeline routes
-	timelineGroup := api.Group("/timeline", mw.AuthMW())
-	{
-		timelineGroup.GET("", handlers.Timeline.GetHomeTimeline)
-		timelineGroup.GET("/following", handlers.Timeline.GetFollowingTimeline)
-		timelineGroup.POST("/subscribe/:user_id", handlers.Timeline.Subscribe)
-		timelineGroup.DELETE("/subscribe/:user_id", handlers.Timeline.Unsubscribe)
-		timelineGroup.GET("/subscriptions", handlers.Timeline.GetSubscriptions)
-	}
+	handlers.Timeline.RegisterRoutes(api, mw)
 
 	// MARK: Topic routes
-	topicGroup := api.Group("/topics")
-	{
-		topicGroup.GET("", handlers.Topic.List)
-		topicGroup.GET("/:id", handlers.Topic.GetByID)
-		topicGroup.GET("/:id/posts", handlers.Topic.GetTopicPosts)
-		topicGroup.GET("/:id/followers", handlers.Topic.GetFollowers)
-		topicGroup.POST("", mw.AuthMW(), handlers.Topic.Create)
-		topicGroup.PUT("/:id", mw.AuthMW(), handlers.Topic.Update)
-		topicGroup.DELETE("/:id", mw.AuthMW(), handlers.Topic.Delete)
-		topicGroup.POST("/:id/posts", mw.AuthMW(), handlers.Topic.AddPost)
-		topicGroup.DELETE("/:id/posts/:post_id", mw.AuthMW(), handlers.Topic.RemovePost)
-		topicGroup.POST("/:id/follow", mw.AuthMW(), handlers.Topic.Follow)
-		topicGroup.DELETE("/:id/follow", mw.AuthMW(), handlers.Topic.Unfollow)
-	}
+	handlers.Topic.RegisterRoutes(api, mw)
 
 	// MARK: Answer routes
 	answerGroup := api.Group("/answers")

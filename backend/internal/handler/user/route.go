@@ -8,37 +8,41 @@ import (
 )
 
 // RegisterRoutes 注册路由
-func (h *UserHandler) RegisterRoutes(user *gin.RouterGroup, mw *middleware.MiddlewareSet) {
-	// 用户排行榜
-	g := user.Group("/leaderboard")
-	{
-		g.GET("/simple", h.LeaderboardSimple) // 获取排行榜简要信息
-		g.GET("/detail", h.LeaderboardDetail) // 获取排行榜详细信息
+func (h *UserHandler) RegisterRoutes(api *gin.RouterGroup, mw *middleware.MiddlewareSet) {
+	// 用户资源根路径
+	users := api.Group("/users")
 
-	}
-	// 用户社交信息
-	g = user.Group("/:id")
+	// 1. 排行榜（独立资源）
+	leaderboard := users.Group("/leaderboard")
 	{
-		g.GET("", mw.OptionalAuthMW(), h.GetProfile)             // 获取用户信息（）
-		g.POST("/follow", mw.AuthMW(), h.Follow)                 // 关注用户
-		g.DELETE("/follow", mw.AuthMW(), h.Unfollow)             // 取消关注用户
-		g.GET("/followers", mw.OptionalAuthMW(), h.GetFollowers) // 获取用户粉丝列表
-		g.GET("/following", mw.OptionalAuthMW(), h.GetFollowing) // 获取用户关注列表
-		g.GET("/Score", mw.OptionalAuthMW(), h.GetScore)         // 获取用户积分
+		leaderboard.GET("/simple", h.LeaderboardSimple) // GET /api/v1/users/leaderboard/simple
+		leaderboard.GET("/detail", h.LeaderboardDetail) // GET /api/v1/users/leaderboard/detail
+	}
 
-	}
-	// 用户个人信息
-	g = user.Group("/me")
+	// 2. 特定用户的操作
+	user := users.Group("/:id")
 	{
-		g.GET("/role", mw.OptionalAuthMW(), h.GetCurrentUserRole) // 获取当前用户角色
-	}
-	g = user.Group("/profile")
-	{
-		g.PUT("", mw.AuthMW(), h.UpdateProfile)
+		// 公开/可选认证
+		user.GET("", mw.OptionalAuthMW(), h.GetProfile)             // GET /api/v1/users/:id
+		user.GET("/followers", mw.OptionalAuthMW(), h.GetFollowers) // GET /api/v1/users/:id/followers
+		user.GET("/following", mw.OptionalAuthMW(), h.GetFollowing) // GET /api/v1/users/:id/following
+		user.GET("/score", mw.OptionalAuthMW(), h.GetScore)         // GET /api/v1/users/:id/score
 
+		// 需要认证
+		auth := user.Group("")
+		auth.Use(mw.AuthMW())
+		{
+			auth.POST("/follow", h.Follow)     // POST /api/v1/users/:id/follow
+			auth.DELETE("/follow", h.Unfollow) // DELETE /api/v1/users/:id/follow
+		}
 	}
-	g = user.Group("/password")
+
+	// 3. 当前用户自己的信息
+	me := users.Group("/me")
+	me.Use(mw.AuthMW()) // 所有 /me 操作都需要认证
 	{
-		g.PATCH("", mw.AuthMW(), h.ChangePassword)
+		me.GET("/role", h.GetCurrentUserRole)   // GET /api/v1/users/me/role
+		me.PUT("/profile", h.UpdateProfile)     // PUT /api/v1/users/me/profile
+		me.PATCH("/password", h.ChangePassword) // PATCH /api/v1/users/me/password
 	}
 }
