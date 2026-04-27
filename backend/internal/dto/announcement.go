@@ -1,4 +1,4 @@
-package announcement
+package dto
 
 import (
 	"time"

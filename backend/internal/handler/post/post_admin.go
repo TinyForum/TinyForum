@@ -85,7 +85,7 @@ func (h *PostHandler) AdminTogglePin(c *gin.Context) {
 // @Param page query int false "页码" default(1)
 // @Param page_size query int false "每页数量" default(20)
 // @Param keyword query string false "搜索关键词"
-// @Success 200 {object} response.PageResponse{data=[]model.Post} "获取成功"
+// @Success 200 {object} response.Response{data=response.PageData{list=[]model.Post}} "获取成功"
 // @Failure 401 {object} response.Response "未授权"
 // @Failure 403 {object} response.Response "无权限"
 // @Failure 500 {object} response.Response "服务器内部错误"

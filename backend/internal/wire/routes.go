@@ -108,7 +108,7 @@ func RegisterRoutes(
 	// MARK: Board routes
 	boardGroup := api.Group("/boards")
 	{
-		handlers.Board.RegisterRoutes(userGroup, mw)
+		handlers.Board.RegisterRoutes(boardGroup, mw)
 		boardGroup.GET("", handlers.Board.List)
 		boardGroup.GET("/tree", handlers.Board.GetTree)
 

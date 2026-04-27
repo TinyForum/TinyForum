@@ -3,17 +3,18 @@ package announcement
 import (
 	"context"
 	"time"
+	"tiny-forum/internal/dto"
 	"tiny-forum/internal/model"
 	announcementRepo "tiny-forum/internal/repository/announcement"
 	apperrors "tiny-forum/pkg/errors"
 )
 
 type AnnouncementService interface {
-	Create(ctx context.Context, req *CreateAnnouncementRequest, userID uint) (*model.Announcement, error)
-	Update(ctx context.Context, id uint, req *UpdateAnnouncementRequest, userID uint) error
+	Create(ctx context.Context, req *dto.CreateAnnouncementRequest, userID uint) (*model.Announcement, error)
+	Update(ctx context.Context, id uint, req *dto.UpdateAnnouncementRequest, userID uint) error
 	Delete(ctx context.Context, id uint, userID uint) error
 	GetByID(ctx context.Context, id uint) (*model.Announcement, error)
-	List(ctx context.Context, req *ListAnnouncementRequest) (*ListAnnouncementResponse, error)
+	List(ctx context.Context, req *dto.ListAnnouncementRequest) (*dto.ListAnnouncementResponse, error)
 	GetPinned(ctx context.Context, boardID *uint) ([]model.Announcement, error)
 	Publish(ctx context.Context, id uint, userID uint) error
 	Archive(ctx context.Context, id uint, userID uint) error

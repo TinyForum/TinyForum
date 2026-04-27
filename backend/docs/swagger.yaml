@@ -133,6 +133,71 @@ definitions:
     - content
     - post_id
     type: object
+  dto.CreateAnnouncementRequest:
+    properties:
+      board_id:
+        type: integer
+      content:
+        type: string
+      cover:
+        type: string
+      expired_at:
+        type: string
+      is_global:
+        type: boolean
+      is_pinned:
+        type: boolean
+      published_at:
+        type: string
+      status:
+        $ref: '#/definitions/model.AnnouncementStatus'
+      summary:
+        type: string
+      title:
+        maxLength: 200
+        minLength: 1
+        type: string
+      type:
+        allOf:
+        - $ref: '#/definitions/model.AnnouncementType'
+        enum:
+        - normal
+        - important
+        - emergency
+        - event
+    required:
+    - content
+    - title
+    - type
+    type: object
+  dto.CreateQuestionRequest:
+    properties:
+      board_id:
+        type: integer
+      content:
+        type: string
+      cover:
+        type: string
+      reward_score:
+        maximum: 100
+        minimum: 0
+        type: integer
+      status:
+        $ref: '#/definitions/model.PostStatus'
+      summary:
+        maxLength: 500
+        type: string
+      tag_ids:
+        items:
+          type: integer
+        type: array
+      title:
+        maxLength: 100
+        type: string
+    required:
+    - content
+    - title
+    type: object
   dto.LeaderboardUserDetail:
     properties:
       avatar:
@@ -160,6 +225,29 @@ definitions:
         type: integer
       username:
         type: string
+    type: object
+  dto.UpdateAnnouncementRequest:
+    properties:
+      board_id:
+        type: integer
+      content:
+        type: string
+      cover:
+        type: string
+      expired_at:
+        type: string
+      is_global:
+        type: boolean
+      is_pinned:
+        type: boolean
+      published_at:
+        type: string
+      summary:
+        type: string
+      title:
+        type: string
+      type:
+        $ref: '#/definitions/model.AnnouncementType'
     type: object
   model.ActionType:
     enum:
@@ -200,6 +288,103 @@ definitions:
         description: 用户名
         type: string
     type: object
+  model.Announcement:
+    properties:
+      board_id:
+        description: 关联的板块ID（为空则全局）
+        type: integer
+      content:
+        description: 公告内容
+        type: string
+      cover:
+        description: 封面图
+        type: string
+      created_at:
+        type: string
+      created_by:
+        description: 创建人ID
+        type: integer
+      expired_at:
+        description: 过期时间
+        type: string
+      id:
+        type: integer
+      is_global:
+        description: 是否全局公告
+        type: boolean
+      is_pinned:
+        description: 是否置顶
+        type: boolean
+      published_at:
+        description: 发布时间
+        type: string
+      status:
+        allOf:
+        - $ref: '#/definitions/model.AnnouncementStatus'
+        description: 状态
+      summary:
+        description: 公告摘要
+        type: string
+      title:
+        description: 公告标题
+        type: string
+      type:
+        allOf:
+        - $ref: '#/definitions/model.AnnouncementType'
+        description: 公告类型
+      updated_at:
+        type: string
+      updated_by:
+        description: 更新人ID
+        type: integer
+      view_count:
+        description: 浏览次数
+        type: integer
+    type: object
+  model.AnnouncementStatus:
+    enum:
+    - all
+    - draft
+    - published
+    - archived
+    type: string
+    x-enum-comments:
+      AnnouncementStatusAll: 已删除
+      AnnouncementStatusArchived: 已归档
+      AnnouncementStatusDraft: 草稿
+      AnnouncementStatusPublished: 已发布
+    x-enum-descriptions:
+    - 已删除
+    - 草稿
+    - 已发布
+    - 已归档
+    x-enum-varnames:
+    - AnnouncementStatusAll
+    - AnnouncementStatusDraft
+    - AnnouncementStatusPublished
+    - AnnouncementStatusArchived
+  model.AnnouncementType:
+    enum:
+    - normal
+    - important
+    - emergency
+    - event
+    type: string
+    x-enum-comments:
+      AnnouncementTypeEmergency: 紧急公告
+      AnnouncementTypeEvent: 活动公告
+      AnnouncementTypeImportant: 重要公告
+      AnnouncementTypeNormal: 普通公告
+    x-enum-descriptions:
+    - 普通公告
+    - 重要公告
+    - 紧急公告
+    - 活动公告
+    x-enum-varnames:
+    - AnnouncementTypeNormal
+    - AnnouncementTypeImportant
+    - AnnouncementTypeEmergency
+    - AnnouncementTypeEvent
   model.ApplicationStatus:
     enum:
     - pending
@@ -375,32 +560,6 @@ definitions:
     - CommentStatusVisible
     - CommentStatusPending
     - CommentStatusHidden
-  model.CreateQuestionInput:
-    properties:
-      board_id:
-        type: integer
-      content:
-        type: string
-      cover:
-        type: string
-      reward_score:
-        maximum: 100
-        minimum: 0
-        type: integer
-      summary:
-        maxLength: 500
-        type: string
-      tag_ids:
-        items:
-          type: integer
-        type: array
-      title:
-        maxLength: 100
-        type: string
-    required:
-    - content
-    - title
-    type: object
   model.HotArticleItem:
     properties:
       author_id:
@@ -972,7 +1131,7 @@ definitions:
       author:
         allOf:
         - $ref: '#/definitions/model.User'
-        description: 关联...
+        description: 关联
       author_id:
         type: integer
       board:
@@ -1025,16 +1184,6 @@ definitions:
     - published
     - hidden
     type: string
-    x-enum-comments:
-      PostStatusDraft: 草稿（用户保存未发布）
-      PostStatusHidden: 用户隐藏（如自己删除/隐藏，或管理员操作但以用户视角展示）
-      PostStatusPending: 待用户确认/提交（如编辑后重新提交）
-      PostStatusPublished: 已发布（用户主动发布）
-    x-enum-descriptions:
-    - 草稿（用户保存未发布）
-    - 待用户确认/提交（如编辑后重新提交）
-    - 已发布（用户主动发布）
-    - 用户隐藏（如自己删除/隐藏，或管理员操作但以用户视角展示）
     x-enum-varnames:
     - PostStatusDraft
     - PostStatusPending
@@ -1408,6 +1557,8 @@ definitions:
         type: string
       cover:
         type: string
+      status:
+        $ref: '#/definitions/model.PostStatus'
       summary:
         type: string
       tag_ids:
@@ -1672,6 +1823,388 @@ info:
   title: Tiny Forum API
   version: "1.0"
 paths:
+  /admin/announcements:
+    post:
+      consumes:
+      - application/json
+      description: 管理员创建一条新公告，需要认证及管理员权限
+      parameters:
+      - description: 公告信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateAnnouncementRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 创建成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.Announcement'
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "403":
+          description: 无权限（非管理员）
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 创建公告
+      tags:
+      - 公告管理
+  /admin/announcements/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: 管理员根据ID删除公告，需要认证及管理员权限
+      parameters:
+      - description: 公告ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 删除成功
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: 参数错误（无效的公告ID）
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "403":
+          description: 无权限（非管理员）
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: 公告不存在
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 删除公告
+      tags:
+      - 公告管理
+    put:
+      consumes:
+      - application/json
+      description: 更新公告信息
+      parameters:
+      - description: 公告ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 公告信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateAnnouncementRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 更新成功
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "403":
+          description: 无权限
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: 公告不存在
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 更新公告
+      tags:
+      - 公告管理
+  /admin/announcements/{id}/archive:
+    post:
+      consumes:
+      - application/json
+      description: 将公告状态设为已归档
+      parameters:
+      - description: 公告ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 归档成功
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "403":
+          description: 无权限
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: 公告不存在
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 归档公告
+      tags:
+      - 公告管理
+  /admin/announcements/{id}/pin:
+    put:
+      consumes:
+      - application/json
+      description: 设置公告的置顶状态
+      parameters:
+      - description: 公告ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 置顶状态
+        in: body
+        name: body
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 操作成功
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "403":
+          description: 无权限
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: 公告不存在
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 置顶/取消置顶公告
+      tags:
+      - 公告管理
+  /admin/announcements/{id}/publish:
+    post:
+      consumes:
+      - application/json
+      description: 将公告状态设为已发布
+      parameters:
+      - description: 公告ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 发布成功
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: 参数错误或发布时间无效
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "403":
+          description: 无权限
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: 公告不存在
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 发布公告
+      tags:
+      - 公告管理
+  /admin/audit/tasks/{id}/approve:
+    put:
+      consumes:
+      - application/json
+      description: 管理员审核通过指定帖子
+      parameters:
+      - description: 帖子ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 审核通过成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  properties:
+                    message:
+                      type: string
+                    post_id:
+                      type: integer
+                  type: object
+              type: object
+        "400":
+          description: 无效的帖子ID
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "403":
+          description: 无权限
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: 帖子不存在
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 审核通过帖子
+      tags:
+      - 帖子管理
+  /admin/audit/tasks/{id}/reject:
+    put:
+      consumes:
+      - application/json
+      description: 管理员审核拒绝指定帖子
+      parameters:
+      - description: 帖子ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 拒绝原因
+        in: body
+        name: body
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 审核拒绝成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  properties:
+                    message:
+                      type: string
+                    post_id:
+                      type: integer
+                  type: object
+              type: object
+        "400":
+          description: 无效的帖子ID
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "403":
+          description: 无权限
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: 帖子不存在
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 审核拒绝帖子
+      tags:
+      - 帖子管理
   /admin/boards/applications:
     get:
       description: 管理员分页查询版主申请列表，可按板块和状态筛选
@@ -1884,80 +2417,23 @@ paths:
       summary: 切换帖子置顶状态
       tags:
       - 管理接口
-  /admin/posts/{id}/review:
-    put:
-      consumes:
-      - application/json
-      description: 管理员对指定帖子进行审核，可设置为 approved（通过）、rejected（拒绝）或 pending（待审）
-      parameters:
-      - description: 帖子ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: 审核状态
-        in: body
-        name: request
-        required: true
-        schema:
-          type: object
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 审核成功
-          schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  type: object
-              type: object
-        "400":
-          description: 请求参数错误
-          schema:
-            $ref: '#/definitions/response.Response'
-        "401":
-          description: 未授权
-          schema:
-            $ref: '#/definitions/response.Response'
-        "403":
-          description: 无权限（非管理员）
-          schema:
-            $ref: '#/definitions/response.Response'
-        "404":
-          description: 帖子不存在
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: 服务器内部错误
-          schema:
-            $ref: '#/definitions/response.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: 管理员审核帖子
-      tags:
-      - 管理接口 - 帖子管理
   /admin/posts/pending:
     get:
       consumes:
       - application/json
-      description: 分页获取所有状态为 pending 的帖子，支持按标题关键词搜索。需要管理员权限。
+      description: 管理员获取需要审核的帖子列表（状态为待审核）
       parameters:
       - default: 1
         description: 页码
         in: query
-        minimum: 1
         name: page
         type: integer
       - default: 20
         description: 每页数量
         in: query
-        maximum: 100
-        minimum: 1
         name: page_size
         type: integer
-      - description: 搜索关键词（匹配标题）
+      - description: 搜索关键词
         in: query
         name: keyword
         type: string
@@ -1981,11 +2457,11 @@ paths:
                     type: object
               type: object
         "401":
-          description: 未授权（缺少或无效的 Token）
+          description: 未授权
           schema:
             $ref: '#/definitions/response.Response'
         "403":
-          description: 无权限（非管理员）
+          description: 无权限
           schema:
             $ref: '#/definitions/response.Response'
         "500":
@@ -1996,7 +2472,7 @@ paths:
       - ApiKeyAuth: []
       summary: 获取待审核帖子列表
       tags:
-      - 管理接口 - 帖子管理
+      - 帖子管理
   /admin/risk/audit/logs:
     get:
       consumes:
@@ -2565,6 +3041,129 @@ paths:
       summary: 获取用户积分
       tags:
       - 管理接口
+  /announcements:
+    get:
+      consumes:
+      - application/json
+      description: 分页获取已发布的公告列表（用户端）
+      parameters:
+      - default: 1
+        description: 页码
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: 每页数量
+        in: query
+        name: page_size
+        type: integer
+      - description: 版块ID（可选）
+        in: query
+        name: board_id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  properties:
+                    list:
+                      items:
+                        $ref: '#/definitions/model.Announcement'
+                      type: array
+                    page:
+                      type: integer
+                    pageSize:
+                      type: integer
+                    total:
+                      type: integer
+                  type: object
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 获取公告列表
+      tags:
+      - 公告管理
+  /announcements/{id}:
+    get:
+      consumes:
+      - application/json
+      description: 根据ID获取已发布的公告详情（用户端调用）
+      parameters:
+      - description: 公告ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.Announcement'
+              type: object
+        "400":
+          description: 无效的公告ID
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: 公告不存在
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 获取公告详情
+      tags:
+      - 公告管理
+  /announcements/pinned:
+    get:
+      consumes:
+      - application/json
+      description: 获取置顶的公告列表，可按版块过滤
+      parameters:
+      - description: 版块ID（可选）
+        in: query
+        name: board_id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/model.Announcement'
+                  type: array
+              type: object
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 获取置顶公告
+      tags:
+      - 公告管理
   /answers/{id}:
     delete:
       consumes:
@@ -4691,7 +5290,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/model.CreateQuestionInput'
+          $ref: '#/definitions/dto.CreateQuestionRequest'
       produces:
       - application/json
       responses:
@@ -4873,6 +5472,65 @@ paths:
       summary: 获取问题精简列表
       tags:
       - 问题管理
+  /statistics/range:
+    get:
+      consumes:
+      - application/json
+      description: 根据日期范围和统计类型获取统计数据
+      parameters:
+      - default: all
+        description: 统计类型
+        enum:
+        - all
+        - user
+        - post
+        - comment
+        - like
+        - board
+        in: query
+        name: type
+        type: string
+      - description: 开始日期，格式：2006-01-02
+        in: query
+        name: start_date
+        type: string
+      - description: 结束日期，格式：2006-01-02
+        in: query
+        name: end_date
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "400":
+          description: 参数错误或日期范围超过90天
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "403":
+          description: 无权限
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 获取指定日期范围的统计数据
+      tags:
+      - 统计管理
   /tags:
     get:
       description: 获取系统中所有的标签列表

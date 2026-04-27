@@ -1,8 +1,8 @@
 package announcement
 
 import (
+	"tiny-forum/internal/dto"
 	"tiny-forum/internal/model"
-	announcementService "tiny-forum/internal/service/announcement"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -10,7 +10,7 @@ import (
 
 // AdminList 管理员获取所有状态的公告列表
 func (h *AnnouncementHandler) AdminList(c *gin.Context) {
-	var req announcementService.ListAnnouncementRequest
+	var req dto.ListAnnouncementRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
 		response.BadRequest(c, err.Error())
 		return
