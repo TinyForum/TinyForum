@@ -16,6 +16,7 @@ import (
 	"tiny-forum/internal/service/tag"
 	"tiny-forum/internal/service/timeline"
 	"tiny-forum/internal/service/topic"
+	"tiny-forum/internal/service/upload"
 	"tiny-forum/internal/service/user"
 	jwtpkg "tiny-forum/pkg/jwt"
 )
@@ -36,6 +37,7 @@ type Services struct {
 	Stats        stats.StatsService
 	Risk         risk.RiskService
 	ContentCheck check.ContentCheckService
+	Upload       upload.UploadService
 }
 
 // NewServices 创建所有 Service 实例
@@ -63,6 +65,7 @@ func NewServices(
 	statsSvc := stats.NewStatsService(repos.Stats, repos.Post, repos.Tag, repos.Board, repos.User, repos.Comment)
 	emailSvc := email.NewEmailService(&cfg.Private.Email)
 	authSvc := auth.NewAuthService(repos.Auth, repos.User, jwtMgr, notifSvc, emailSvc, cfg, repos.Token, repos.Transaction)
+	uploadSvc := upload.NewUploadService(repos.Upload, cfg.Basic.Upload)
 
 	// 辅助
 
@@ -81,5 +84,6 @@ func NewServices(
 		Stats:        statsSvc,
 		Risk:         riskSvc,
 		ContentCheck: checkSvc,
+		Upload:       uploadSvc,
 	}
 }

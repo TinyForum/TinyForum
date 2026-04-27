@@ -198,6 +198,35 @@ definitions:
     - content
     - title
     type: object
+  dto.FileInfo:
+    properties:
+      created_at:
+        type: string
+      ext:
+        type: string
+      file_type:
+        description: avatar, post_image, attachment
+        type: string
+      id:
+        type: string
+      mime_type:
+        type: string
+      original_name:
+        type: string
+      post_id:
+        type: integer
+      size:
+        type: integer
+      status:
+        description: 0:临时 1:正式 2:已删除
+        type: integer
+      stored_name:
+        type: string
+      stored_path:
+        type: string
+      user_id:
+        type: integer
+    type: object
   dto.LeaderboardUserDetail:
     properties:
       avatar:
@@ -248,6 +277,21 @@ definitions:
         type: string
       type:
         $ref: '#/definitions/model.AnnouncementType'
+    type: object
+  dto.UploadResponse:
+    properties:
+      file_id:
+        description: 存储标识
+        type: string
+      mime_type:
+        type: string
+      original_name:
+        type: string
+      size:
+        type: integer
+      url:
+        description: 访问URL
+        type: string
     type: object
   model.ActionType:
     enum:
@@ -4869,6 +4913,22 @@ paths:
       summary: 获取帖子的评论列表
       tags:
       - 评论管理
+  /files/{file_id}:
+    get:
+      parameters:
+      - description: 文件ID
+        in: path
+        name: file_id
+        required: true
+        type: string
+      produces:
+      - image/jpeg
+      - image/png
+      - application/pdf
+      responses: {}
+      summary: 获取文件内容
+      tags:
+      - Upload
   /notifications:
     get:
       description: 分页获取当前用户的通知列表
@@ -6499,6 +6559,117 @@ paths:
       summary: 获取用户创建的话题
       tags:
       - 话题管理
+  /upload:
+    post:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: 文件
+        in: formData
+        name: file
+        required: true
+        type: file
+      - description: 帖子ID
+        in: formData
+        name: post_id
+        type: integer
+      - description: 文件类型 (avatar/post_image/comment_attachment)
+        in: formData
+        name: type
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.UploadResponse'
+              type: object
+      summary: 上传文件
+      tags:
+      - Upload
+  /upload/{file_id}:
+    delete:
+      parameters:
+      - description: 文件ID
+        in: path
+        name: file_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 删除文件
+      tags:
+      - Upload
+    get:
+      parameters:
+      - description: 文件ID
+        in: path
+        name: file_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.FileInfo'
+              type: object
+      summary: 获取文件信息
+      tags:
+      - Upload
+  /user/files:
+    get:
+      parameters:
+      - description: 文件类型
+        in: query
+        name: type
+        type: string
+      - description: 页码
+        in: query
+        name: page
+        type: integer
+      - description: 每页数量
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.PageData'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/dto.FileInfo'
+                        type: array
+                    type: object
+              type: object
+      summary: 获取用户文件列表
+      tags:
+      - Upload
   /users/{id}:
     get:
       parameters:

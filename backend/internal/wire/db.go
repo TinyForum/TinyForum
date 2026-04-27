@@ -78,6 +78,7 @@ func InitDB(cfg *config.Config) (*gorm.DB, error) {
 		&model.ContentAuditTask{},
 		&model.AuditLog{},
 		&model.UserRiskRecord{},
+		&model.Attachment{},
 	); err != nil {
 		return nil, fmt.Errorf("auto migrate failed: %w", err)
 	}

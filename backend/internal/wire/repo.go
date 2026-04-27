@@ -15,6 +15,7 @@ import (
 	"tiny-forum/internal/repository/token"
 	"tiny-forum/internal/repository/topic"
 	"tiny-forum/internal/repository/transaction"
+	"tiny-forum/internal/repository/upload"
 	"tiny-forum/internal/repository/user"
 	"tiny-forum/internal/repository/vote"
 
@@ -39,6 +40,7 @@ type Repositories struct {
 	Auth         auth.AuthRepository
 	Risk         risk.RiskRepository
 	Transaction  transaction.TransactionManager
+	Upload       upload.UploadRepository
 }
 
 // NewRepositories 创建所有 Repository 实例
@@ -62,5 +64,6 @@ func NewRepositories(db *gorm.DB) *Repositories {
 		Auth:         auth.NewAuthRepository(db),
 		Risk:         risk.NewRiskRepository(db),
 		Transaction:  transaction.NewTransactionManager(db),
+		Upload:       upload.NewUploadRepository(db),
 	}
 }

@@ -9,5 +9,6 @@
         "ui.diagnostic.analyses": {
             "composites": false
         }
-    }
+    },
+    "makefile.configureOnOpen": false
 }
