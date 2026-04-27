@@ -5,8 +5,8 @@ import { Tag } from "./tags.type";
 
 import { User } from "./user.type";
 
-export type PostType =  "all" | "post" | "question" | "article";
-export type PostStatus = 'draft' | 'published' | 'hidden';
+export type PostType = "all" | "post" | "question" | "article";
+export type PostStatus = "draft" | "published" | "hidden";
 
 export interface Post extends BaseModel {
   title: string;

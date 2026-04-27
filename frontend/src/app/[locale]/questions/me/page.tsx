@@ -1,3 +1,3 @@
 export default function QuestionMePage() {
-    return(<>Me</>)
+  return <>Me</>;
 }

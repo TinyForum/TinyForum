@@ -37,11 +37,14 @@ export default function ModeratorPage() {
 
   // 获取当前用户管理的板块
   const { data: boardsData, isLoading: boardsLoading } = useMyModeratorBoards();
-  const boards: ModeratorBoard[] = boardsData || [];  // 明确类型为数组
-  
+  const boards: ModeratorBoard[] = boardsData || []; // 明确类型为数组
+
   // 选择第一个板块作为默认板块
-  const currentBoardId = selectedBoardId || (boards.length > 0 ? boards[0]?.id : null);
-  const currentBoard = boards.find((b: ModeratorBoard) => b.id === currentBoardId);
+  const currentBoardId =
+    selectedBoardId || (boards.length > 0 ? boards[0]?.id : null);
+  const currentBoard = boards.find(
+    (b: ModeratorBoard) => b.id === currentBoardId,
+  );
 
   // 当前板块的版主权限
   const permissions = useModeratorPermissions(currentBoardId || 0);
@@ -199,7 +202,7 @@ export default function ModeratorPage() {
             />
           </div>
         );
-        
+
       case "reports":
         return (
           <div className="space-y-4">
@@ -259,17 +262,17 @@ export default function ModeratorPage() {
   return (
     <div className="flex h-screen bg-base-100">
       {/* 左侧菜单 */}
-<ModeratorSidebar
-  activeMenu={activeMenu}
-  onMenuChange={setActiveMenu}
-  collapsed={sidebarCollapsed}
-  onCollapsedChange={setSidebarCollapsed}
-  boards={boards}  // 传递板块列表
-  currentBoardId={currentBoardId}  // 当前选中的板块ID
-  onBoardChange={setSelectedBoardId}  // 切换板块的回调
-  permissions={permissions}
-  t={t}
-/>
+      <ModeratorSidebar
+        activeMenu={activeMenu}
+        onMenuChange={setActiveMenu}
+        collapsed={sidebarCollapsed}
+        onCollapsedChange={setSidebarCollapsed}
+        boards={boards} // 传递板块列表
+        currentBoardId={currentBoardId} // 当前选中的板块ID
+        onBoardChange={setSelectedBoardId} // 切换板块的回调
+        permissions={permissions}
+        t={t}
+      />
 
       {/* 右侧内容区域 */}
       <div className="flex-1 overflow-y-auto">

@@ -16,7 +16,6 @@ export interface LoginPayload {
   password: string;
 }
 
-
 export const authApi = {
   register: (data: RegisterPayload) =>
     apiClient.post<ApiResponse<AuthResult>>("/auth/register", data),
@@ -58,13 +57,15 @@ export const authApi = {
       withCredentials: true,
       data,
     }),
-   getDeletionStatus: () =>
-    apiClient.get<ApiResponse<{ 
-      is_deleted: boolean; 
-      deleted_at?: string; 
-      can_restore: boolean;
-      remaining_days?: number;
-    }>>("/auth/deletion-status", {
+  getDeletionStatus: () =>
+    apiClient.get<
+      ApiResponse<{
+        is_deleted: boolean;
+        deleted_at?: string;
+        can_restore: boolean;
+        remaining_days?: number;
+      }>
+    >("/auth/deletion-status", {
       withCredentials: true,
     }),
 };

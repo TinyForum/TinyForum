@@ -24,17 +24,18 @@ func (s *commentService) VoteAnswer(answerID uint, userID uint, voteType int) (*
 		return nil, err
 	}
 
-	if currentVote == voteType {
+	switch currentVote {
+	case voteType:
 		// 相同投票：取消投票
 		if err := s.voteRepo.RemoveVote(answerID, userID); err != nil {
 			return nil, err
 		}
-	} else if currentVote == 0 {
+	case 0:
 		// 未投票：创建新投票
 		if err := s.voteRepo.CreateOrUpdateVote(answerID, userID, voteType); err != nil {
 			return nil, err
 		}
-	} else {
+	default:
 		// 改变投票：更新现有投票
 		if err := s.voteRepo.CreateOrUpdateVote(answerID, userID, voteType); err != nil {
 			return nil, err

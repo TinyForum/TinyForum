@@ -1,22 +1,22 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { userApi } from '@/lib/api';
-import { useAuthStore } from '@/store/auth';
-import toast from 'react-hot-toast';
-import { getErrorMessage } from '@/lib/utils';
-import { Save, AlertCircle, CheckCircle, Camera } from 'lucide-react';
-import Avatar from '@/components/user/Avatar';
+import { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { userApi } from "@/lib/api";
+import { useAuthStore } from "@/store/auth";
+import toast from "react-hot-toast";
+import { getErrorMessage } from "@/lib/utils";
+import { Save, AlertCircle, CheckCircle, Camera } from "lucide-react";
+import Avatar from "@/components/user/Avatar";
 
 const profileSchema = z.object({
-  bio: z.string().max(500, '个人简介最多500字'),
-  avatar: z.string().url('请输入有效的图片URL').optional().or(z.literal('')),
+  bio: z.string().max(500, "个人简介最多500字"),
+  avatar: z.string().url("请输入有效的图片URL").optional().or(z.literal("")),
   displayName: z.string().optional(),
   location: z.string().optional(),
-  website: z.string().url('请输入有效的网址').optional().or(z.literal('')),
+  website: z.string().url("请输入有效的网址").optional().or(z.literal("")),
 });
 
 type ProfileForm = z.infer<typeof profileSchema>;
@@ -29,26 +29,31 @@ export default function ProfileSettings({ user }: ProfileSettingsProps) {
   const { updateUser } = useAuthStore();
   const [loading, setLoading] = useState(false);
   const [avatarError, setAvatarError] = useState(false);
-  const [previewAvatarUrl, setPreviewAvatarUrl] = useState('');
+  const [previewAvatarUrl, setPreviewAvatarUrl] = useState("");
 
-  const { register, handleSubmit, watch, formState: { errors, isDirty } } = useForm<ProfileForm>({
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors, isDirty },
+  } = useForm<ProfileForm>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
-      bio: user?.bio || '',
-      avatar: user?.avatar || '',
-      displayName: user?.displayName || '',
-      location: user?.location || '',
-      website: user?.website || '',
+      bio: user?.bio || "",
+      avatar: user?.avatar || "",
+      displayName: user?.displayName || "",
+      location: user?.location || "",
+      website: user?.website || "",
     },
   });
 
-  const avatarValue = watch('avatar');
+  const avatarValue = watch("avatar");
 
   useEffect(() => {
     if (avatarValue && avatarValue !== user?.avatar) {
       setPreviewAvatarUrl(avatarValue);
     } else {
-      setPreviewAvatarUrl('');
+      setPreviewAvatarUrl("");
     }
   }, [avatarValue, user?.avatar]);
 
@@ -57,9 +62,9 @@ export default function ProfileSettings({ user }: ProfileSettingsProps) {
     try {
       await userApi.updateProfile(data);
       updateUser(data);
-      toast.success('资料已更新');
+      toast.success("资料已更新");
       setAvatarError(false);
-      setPreviewAvatarUrl('');
+      setPreviewAvatarUrl("");
     } catch (err) {
       toast.error(getErrorMessage(err));
     } finally {
@@ -72,7 +77,9 @@ export default function ProfileSettings({ user }: ProfileSettingsProps) {
       {/* 页面标题 */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold">个人资料</h1>
-        <p className="text-sm text-base-content/60 mt-1">管理您的个人信息和公开资料</p>
+        <p className="text-sm text-base-content/60 mt-1">
+          管理您的个人信息和公开资料
+        </p>
       </div>
 
       {/* 头像卡片 */}
@@ -82,7 +89,7 @@ export default function ProfileSettings({ user }: ProfileSettingsProps) {
             <div className="relative group">
               <div className="avatar">
                 <div className="w-28 h-28 rounded-2xl ring-2 ring-primary/20 ring-offset-2 transition-all group-hover:ring-primary/40">
-                  <Avatar 
+                  <Avatar
                     avatarUrl={previewAvatarUrl || user.avatar}
                     username={user.username}
                     shape="square"
@@ -110,10 +117,12 @@ export default function ProfileSettings({ user }: ProfileSettingsProps) {
             <div className="form-control">
               <label className="label pb-1">
                 <span className="label-text font-medium">显示名称</span>
-                <span className="label-text-alt text-base-content/40">可选</span>
+                <span className="label-text-alt text-base-content/40">
+                  可选
+                </span>
               </label>
               <input
-                {...register('displayName')}
+                {...register("displayName")}
                 type="text"
                 placeholder="您的显示名称"
                 className="input input-bordered focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
@@ -124,13 +133,15 @@ export default function ProfileSettings({ user }: ProfileSettingsProps) {
             <div className="form-control">
               <label className="label pb-1">
                 <span className="label-text font-medium">头像URL</span>
-                <span className="label-text-alt text-base-content/40">可选</span>
+                <span className="label-text-alt text-base-content/40">
+                  可选
+                </span>
               </label>
               <input
-                {...register('avatar')}
+                {...register("avatar")}
                 type="text"
                 placeholder="https://example.com/avatar.jpg"
-                className={`input input-bordered focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all ${errors.avatar ? 'input-error' : ''}`}
+                className={`input input-bordered focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all ${errors.avatar ? "input-error" : ""}`}
               />
               {errors.avatar && (
                 <label className="label pt-1">
@@ -151,10 +162,12 @@ export default function ProfileSettings({ user }: ProfileSettingsProps) {
             <div className="form-control">
               <label className="label pb-1">
                 <span className="label-text font-medium">所在地</span>
-                <span className="label-text-alt text-base-content/40">可选</span>
+                <span className="label-text-alt text-base-content/40">
+                  可选
+                </span>
               </label>
               <input
-                {...register('location')}
+                {...register("location")}
                 type="text"
                 placeholder="城市, 国家"
                 className="input input-bordered focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
@@ -165,13 +178,15 @@ export default function ProfileSettings({ user }: ProfileSettingsProps) {
             <div className="form-control">
               <label className="label pb-1">
                 <span className="label-text font-medium">个人网站</span>
-                <span className="label-text-alt text-base-content/40">可选</span>
+                <span className="label-text-alt text-base-content/40">
+                  可选
+                </span>
               </label>
               <input
-                {...register('website')}
+                {...register("website")}
                 type="url"
                 placeholder="https://yourwebsite.com"
-                className={`input input-bordered focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all ${errors.website ? 'input-error' : ''}`}
+                className={`input input-bordered focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all ${errors.website ? "input-error" : ""}`}
               />
               {errors.website && (
                 <label className="label pt-1">
@@ -187,13 +202,15 @@ export default function ProfileSettings({ user }: ProfileSettingsProps) {
             <div className="form-control">
               <label className="label pb-1">
                 <span className="label-text font-medium">个人简介</span>
-                <span className="label-text-alt text-base-content/40">选填</span>
+                <span className="label-text-alt text-base-content/40">
+                  选填
+                </span>
               </label>
               <textarea
-                {...register('bio')}
+                {...register("bio")}
                 rows={4}
                 placeholder="介绍一下自己吧..."
-                className={`textarea textarea-bordered focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all resize-none ${errors.bio ? 'textarea-error' : ''}`}
+                className={`textarea textarea-bordered focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all resize-none ${errors.bio ? "textarea-error" : ""}`}
               />
               {errors.bio && (
                 <label className="label pt-1">
@@ -204,17 +221,21 @@ export default function ProfileSettings({ user }: ProfileSettingsProps) {
                 </label>
               )}
               <div className="flex justify-between items-center mt-1">
-                <span className="text-xs text-base-content/40">支持Markdown格式</span>
-                <span className={`text-xs ${(watch('bio')?.length || 0) > 450 ? 'text-warning' : 'text-base-content/40'}`}>
-                  {(watch('bio')?.length || 0)}/500
+                <span className="text-xs text-base-content/40">
+                  支持Markdown格式
+                </span>
+                <span
+                  className={`text-xs ${(watch("bio")?.length || 0) > 450 ? "text-warning" : "text-base-content/40"}`}
+                >
+                  {watch("bio")?.length || 0}/500
                 </span>
               </div>
             </div>
 
             {/* 提交按钮 */}
-            <button 
-              type="submit" 
-              className="btn btn-primary w-full gap-2 transition-all transform active:scale-95" 
+            <button
+              type="submit"
+              className="btn btn-primary w-full gap-2 transition-all transform active:scale-95"
               disabled={loading || !isDirty}
             >
               {loading ? (
@@ -222,7 +243,7 @@ export default function ProfileSettings({ user }: ProfileSettingsProps) {
               ) : (
                 <Save className="w-4 h-4" />
               )}
-              {loading ? '保存中...' : '保存资料'}
+              {loading ? "保存中..." : "保存资料"}
             </button>
           </form>
         </div>

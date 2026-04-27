@@ -65,11 +65,14 @@ export const scoreApi = {
    * @returns 操作后的积分信息
    */
   setUserScore: (userId: number, score: number, reason: string) =>
-    apiClient.put<ApiResponse<SetScoreResponse>>(`/admin/users/${userId}/score`, {
-      operation: "set",
-      score: score,
-      reason: reason,
-    }),
+    apiClient.put<ApiResponse<SetScoreResponse>>(
+      `/admin/users/${userId}/score`,
+      {
+        operation: "set",
+        score: score,
+        reason: reason,
+      },
+    ),
 
   /**
    * 增加用户积分
@@ -79,11 +82,14 @@ export const scoreApi = {
    * @returns 操作后的积分信息
    */
   addUserScore: (userId: number, increment: number, reason: string) =>
-    apiClient.put<ApiResponse<SetScoreResponse>>(`/admin/users/${userId}/score`, {
-      operation: "add",
-      score: increment,
-      reason: reason,
-    }),
+    apiClient.put<ApiResponse<SetScoreResponse>>(
+      `/admin/users/${userId}/score`,
+      {
+        operation: "add",
+        score: increment,
+        reason: reason,
+      },
+    ),
 
   /**
    * 扣除用户积分
@@ -93,9 +99,12 @@ export const scoreApi = {
    * @returns 操作后的积分信息
    */
   subtractUserScore: (userId: number, decrement: number, reason: string) =>
-    apiClient.put<ApiResponse<SetScoreResponse>>(`/admin/users/${userId}/score`, {
-      operation: "subtract",
-      score: decrement,
-      reason: reason,
-    }),
+    apiClient.put<ApiResponse<SetScoreResponse>>(
+      `/admin/users/${userId}/score`,
+      {
+        operation: "subtract",
+        score: decrement,
+        reason: reason,
+      },
+    ),
 };

@@ -56,7 +56,9 @@ export function Leaderboard({ leaderboard }: LeaderboardProps) {
               className="w-6 h-6 rounded-full object-cover"
             />
             <span className="flex-1 text-sm truncate">{user.username}</span>
-            <span className="text-xs font-medium text-primary">{user.score}</span>
+            <span className="text-xs font-medium text-primary">
+              {user.score}
+            </span>
           </Link>
         ))}
       </div>

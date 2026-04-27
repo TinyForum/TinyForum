@@ -1,0 +1,22 @@
+# ============================================
+# 公共变量定义
+# ============================================
+
+# PID 文件存储目录
+PID_DIR := .pids
+BACKEND_PID_FILE := $(PID_DIR)/backend.pid
+FRONTEND_PID_FILE := $(PID_DIR)/frontend.pid
+DOCS_PID_FILE := $(PID_DIR)/docs.pid
+
+# 日志目录
+LOG_DIR := ./dev-script/applogs
+BACKEND_LOG := $(LOG_DIR)/backend.log
+FRONTEND_LOG := $(LOG_DIR)/frontend.log
+DOCS_LOG := $(LOG_DIR)/docs.log
+
+# 创建必要目录
+$(PID_DIR):
+	@mkdir -p $(PID_DIR)
+
+$(LOG_DIR):
+	@mkdir -p $(LOG_DIR)

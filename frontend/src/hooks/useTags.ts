@@ -1,8 +1,8 @@
 // hooks/useTags.ts
-import { useState, useEffect, useCallback } from 'react';
-import { tagApi } from '@/lib/api';
-import { Tag } from '@/lib/api/types';
-import { toast } from 'react-hot-toast';
+import { useState, useEffect, useCallback } from "react";
+import { tagApi } from "@/lib/api";
+import { Tag } from "@/lib/api/types";
+import { toast } from "react-hot-toast";
 
 export function useTags() {
   const [tags, setTags] = useState<Tag[]>([]);
@@ -17,8 +17,8 @@ export function useTags() {
         setTags(response.data.data);
       }
     } catch (error) {
-      console.error('Failed to load tags:', error);
-      toast.error('加载标签失败');
+      console.error("Failed to load tags:", error);
+      toast.error("加载标签失败");
     } finally {
       setLoading(false);
     }
@@ -26,14 +26,14 @@ export function useTags() {
 
   const toggleTag = useCallback((tagId: number) => {
     if (tagId === 0) {
-      toast.error('无效的标签');
+      toast.error("无效的标签");
       return;
     }
-    
-    setSelectedTags(prev =>
+
+    setSelectedTags((prev) =>
       prev.includes(tagId)
-        ? prev.filter(id => id !== tagId)
-        : [...prev, tagId]
+        ? prev.filter((id) => id !== tagId)
+        : [...prev, tagId],
     );
   }, []);
 

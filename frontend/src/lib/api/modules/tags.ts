@@ -14,8 +14,7 @@ export interface CreateTagPayload {
 export type UpdateTagPayload = Partial<CreateTagPayload>;
 
 export const tagApi = {
-  list: () =>
-    apiClient.get<ApiResponse<Tag[]>>("/tags"),
+  list: () => apiClient.get<ApiResponse<Tag[]>>("/tags"),
 
   create: (data: CreateTagPayload) =>
     apiClient.post<ApiResponse<Tag>>("/tags", data),
@@ -23,6 +22,5 @@ export const tagApi = {
   update: (id: number, data: UpdateTagPayload) =>
     apiClient.put<ApiResponse<Tag>>(`/tags/${id}`, data),
 
-  delete: (id: number) =>
-    apiClient.delete<ApiResponse<null>>(`/tags/${id}`),
+  delete: (id: number) => apiClient.delete<ApiResponse<null>>(`/tags/${id}`),
 };

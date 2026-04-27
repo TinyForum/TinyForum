@@ -1,11 +1,11 @@
 import { Topic } from "@/lib/api";
 import Link from "next/link";
-import { 
-  ChatBubbleLeftRightIcon, 
+import {
+  ChatBubbleLeftRightIcon,
   UserGroupIcon,
   ArrowRightIcon,
   HashtagIcon,
-  FireIcon
+  FireIcon,
 } from "@heroicons/react/24/outline";
 
 interface HotTopicCardProps {
@@ -14,27 +14,31 @@ interface HotTopicCardProps {
   showTodayCount?: boolean;
 }
 
-export function HotTopicCard({ topic, rank, showTodayCount = true }: HotTopicCardProps) {
+export function HotTopicCard({
+  topic,
+  rank,
+  showTodayCount = true,
+}: HotTopicCardProps) {
   // 获取排名样式
   const getRankStyles = (rank: number) => {
     switch (rank) {
       case 1:
         return {
-          bg: 'bg-yellow-100 dark:bg-yellow-900/20',
-          text: 'text-yellow-500',
-          icon: '🥇'
+          bg: "bg-yellow-100 dark:bg-yellow-900/20",
+          text: "text-yellow-500",
+          icon: "🥇",
         };
       case 2:
         return {
-          bg: 'bg-gray-100 dark:bg-gray-800',
-          text: 'text-gray-500',
-          icon: '🥈'
+          bg: "bg-gray-100 dark:bg-gray-800",
+          text: "text-gray-500",
+          icon: "🥈",
         };
       case 3:
         return {
-          bg: 'bg-orange-100 dark:bg-orange-900/20',
-          text: 'text-orange-500',
-          icon: '🥉'
+          bg: "bg-orange-100 dark:bg-orange-900/20",
+          text: "text-orange-500",
+          icon: "🥉",
         };
       default:
         return null;
@@ -50,7 +54,9 @@ export function HotTopicCard({ topic, rank, showTodayCount = true }: HotTopicCar
           <div className="flex items-start gap-3">
             {/* 话题图标/排名 */}
             {rankStyles ? (
-              <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${rankStyles.bg} ${rankStyles.text}`}>
+              <div
+                className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${rankStyles.bg} ${rankStyles.text}`}
+              >
                 <span className="text-sm font-bold">{rankStyles.icon}</span>
               </div>
             ) : (
@@ -58,7 +64,7 @@ export function HotTopicCard({ topic, rank, showTodayCount = true }: HotTopicCar
                 <HashtagIcon className="w-4 h-4 text-red-500" />
               </div>
             )}
-            
+
             {/* 话题内容 */}
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
@@ -66,9 +72,11 @@ export function HotTopicCard({ topic, rank, showTodayCount = true }: HotTopicCar
                   {topic.title}
                 </h4>
                 {topic.post_count !== undefined && topic.post_count > 50 && (
-                  <span className="badge badge-primary badge-xs shrink-0">热门</span>
+                  <span className="badge badge-primary badge-xs shrink-0">
+                    热门
+                  </span>
                 )}
-              </div             >
+              </div>
               {topic.description && (
                 <p className="text-sm text-base-content/60 line-clamp-2 mb-2">
                   {topic.description}
@@ -91,7 +99,7 @@ export function HotTopicCard({ topic, rank, showTodayCount = true }: HotTopicCar
                 )} */}
               </div>
             </div>
-            
+
             {/* 箭头指示 */}
             <div className="opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
               <ArrowRightIcon className="w-4 h-4 text-base-content/40 group-hover:text-primary group-hover:translate-x-1 transition-all" />

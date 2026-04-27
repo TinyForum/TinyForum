@@ -34,7 +34,9 @@ export default function TagList({
               key={tag.id}
               tag={tag}
               isSelected={selectedTag === tag.id}
-              onSelect={() => onTagChange(selectedTag === tag.id ? null : tag.id)}
+              onSelect={() =>
+                onTagChange(selectedTag === tag.id ? null : tag.id)
+              }
             />
           ))}
         </div>

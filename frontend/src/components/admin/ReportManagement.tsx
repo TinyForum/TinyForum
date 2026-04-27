@@ -5,40 +5,54 @@ import { useState } from "react";
 export function ReportManagement() {
   const [selectedBoardId, setSelectedBoardId] = useState<number>(1);
   const [status, setStatus] = useState<string>("pending");
-  
-  const { data: reports, isLoading, refetch } = useAdminReports(selectedBoardId, {
+
+  const {
+    data: reports,
+    isLoading,
+    refetch,
+  } = useAdminReports(selectedBoardId, {
     page: 1,
     page_size: 20,
     status,
   });
 
-  if (isLoading) return <div className="flex justify-center py-8"><span className="loading loading-spinner loading-lg"></span></div>;
+  if (isLoading)
+    return (
+      <div className="flex justify-center py-8">
+        <span className="loading loading-spinner loading-lg"></span>
+      </div>
+    );
 
   return (
     <div className="space-y-4">
       <div className="flex gap-4">
-        <input 
+        <input
           type="number"
           placeholder="板块 ID"
           value={selectedBoardId}
           onChange={(e) => setSelectedBoardId(parseInt(e.target.value))}
           className="input input-bordered w-32"
         />
-        <select 
+        <select
           className="select select-bordered w-32"
-          value={status} 
+          value={status}
           onChange={(e) => setStatus(e.target.value)}
         >
           <option value="pending">待处理</option>
           <option value="resolved">已处理</option>
           <option value="rejected">已驳回</option>
         </select>
-        <button className="btn btn-outline" onClick={() => refetch()}>刷新</button>
+        <button className="btn btn-outline" onClick={() => refetch()}>
+          刷新
+        </button>
       </div>
-      
+
       <div className="space-y-3">
         {reports?.list?.map((report: any) => (
-          <div key={report.id} className="card bg-base-100 shadow-sm border border-base-200">
+          <div
+            key={report.id}
+            className="card bg-base-100 shadow-sm border border-base-200"
+          >
             <div className="card-body">
               <div className="space-y-2">
                 <div className="flex justify-between">
@@ -46,11 +60,19 @@ export function ReportManagement() {
                     <Flag className="w-3 h-3" />
                     举报
                   </div>
-                  <span className="text-sm text-gray-500">{new Date(report.created_at).toLocaleString()}</span>
+                  <span className="text-sm text-gray-500">
+                    {new Date(report.created_at).toLocaleString()}
+                  </span>
                 </div>
-                <p className="text-sm"><strong>举报人:</strong> {report.reporter?.username}</p>
-                <p className="text-sm"><strong>被举报内容:</strong> {report.content_preview}</p>
-                <p className="text-sm"><strong>原因:</strong> {report.reason}</p>
+                <p className="text-sm">
+                  <strong>举报人:</strong> {report.reporter?.username}
+                </p>
+                <p className="text-sm">
+                  <strong>被举报内容:</strong> {report.content_preview}
+                </p>
+                <p className="text-sm">
+                  <strong>原因:</strong> {report.reason}
+                </p>
                 {report.status === "pending" && (
                   <div className="flex gap-2 mt-2">
                     <button className="btn btn-sm btn-success">

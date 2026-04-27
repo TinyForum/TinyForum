@@ -1,7 +1,7 @@
 import apiClient from "../client";
 import { ApiResponse, PageData } from "../types";
-import { 
-  StatsDayResponse, 
+import {
+  StatsDayResponse,
   StatsTodayInfo,
   StatsInfoResp,
   StatsTrendResponse,
@@ -9,12 +9,12 @@ import {
   GetStatsTotalParams,
   GetStatsTrendParams,
   GetStatsRangeParams,
-  StatsRangeResponse
+  StatsRangeResponse,
 } from "../types/stats.type";
 
 export const statsApi = {
   // ── 统计数据管理 ──────────────────────────────────────────────────────────────
-  
+
   /**
    * 获取日统计数据
    * @param params - 查询参数
@@ -22,7 +22,7 @@ export const statsApi = {
    */
   day: (params?: GetStatsDayParams) =>
     apiClient.get<ApiResponse<StatsTodayInfo>>("/statistics/day", { params }),
-  
+
   /**
    * 获取总计统计数据
    * @param params - 查询参数
@@ -30,17 +30,21 @@ export const statsApi = {
    */
   total: (params?: GetStatsTotalParams) =>
     apiClient.get<ApiResponse<StatsInfoResp>>("/statistics/total", { params }),
-  
+
   /**
    * 获取趋势统计数据
    * @param params - 查询参数
    * @returns 趋势数据（按天/周/月统计）
    */
   trend: (params: GetStatsTrendParams) =>
-    apiClient.get<ApiResponse<StatsTrendResponse>>("/statistics/trend", { params }),
+    apiClient.get<ApiResponse<StatsTrendResponse>>("/statistics/trend", {
+      params,
+    }),
   /**
    * 获取范围统计数据
    */
   range: (params?: GetStatsRangeParams) =>
-    apiClient.get<ApiResponse<StatsRangeResponse>>("/statistics/range", { params }),
+    apiClient.get<ApiResponse<StatsRangeResponse>>("/statistics/range", {
+      params,
+    }),
 };

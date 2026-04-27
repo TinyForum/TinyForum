@@ -1,18 +1,18 @@
 // components/question/AnswerForm.tsx
-'use client';
+"use client";
 
-import { postApi, questionApi } from '@/lib/api';
-import { useState } from 'react';
-import { toast } from 'react-hot-toast';
-import { 
-  PaperAirplaneIcon, 
+import { postApi, questionApi } from "@/lib/api";
+import { useState } from "react";
+import { toast } from "react-hot-toast";
+import {
+  PaperAirplaneIcon,
   XMarkIcon,
   InformationCircleIcon,
   CheckCircleIcon,
   ExclamationTriangleIcon,
   SparklesIcon,
-} from '@heroicons/react/24/outline';
-import { answerApi } from '@/lib/api/modules/answer';
+} from "@heroicons/react/24/outline";
+import { answerApi } from "@/lib/api/modules/answer";
 
 interface AnswerFormProps {
   questionId: number;
@@ -23,15 +23,15 @@ interface AnswerFormProps {
   onCancel?: () => void;
 }
 
-export function AnswerForm({ 
-  questionId, 
+export function AnswerForm({
+  questionId,
   questionAuthorId,
   rewardScore = 0,
   hasAccepted = false,
-  onSuccess, 
-  onCancel 
+  onSuccess,
+  onCancel,
 }: AnswerFormProps) {
-  const [content, setContent] = useState('');
+  const [content, setContent] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
 
@@ -41,41 +41,52 @@ export function AnswerForm({
 
   const handleSubmit = async () => {
     if (!content.trim()) {
-      toast.error('请输入回答内容');
+      toast.error("请输入回答内容");
       return;
     }
 
     if (contentLength < 10) {
-      toast.error('回答内容至少需要 10 个字符');
+      toast.error("回答内容至少需要 10 个字符");
       return;
     }
 
     if (contentLength > 50000) {
-      toast.error('回答内容不能超过 50000 个字符');
+      toast.error("回答内容不能超过 50000 个字符");
       return;
     }
 
     setSubmitting(true);
     try {
-      const response = await questionApi.createAnswer(questionId, { content: content.trim() });
-      
-      if (response.data.code === 200 || response.data.code === 201 || response.data.code === 0) {
-        setContent('');
+      const response = await questionApi.createAnswer(questionId, {
+        content: content.trim(),
+      });
+
+      if (
+        response.data.code === 200 ||
+        response.data.code === 201 ||
+        response.data.code === 0
+      ) {
+        setContent("");
         setShowPreview(false);
-        toast.success('回答发布成功');
-        
+        toast.success("回答发布成功");
+
         // 如果有悬赏，显示额外提示
         if (rewardScore > 0 && questionAuthorId) {
-          toast.success(`💡 回答被采纳可获得 ${rewardScore} 积分悬赏`, { duration: 5000 });
+          toast.success(`💡 回答被采纳可获得 ${rewardScore} 积分悬赏`, {
+            duration: 5000,
+          });
         }
-        
+
         onSuccess();
       } else {
-        toast.error(response.data.message || '发布失败');
+        toast.error(response.data.message || "发布失败");
       }
     } catch (error: any) {
-      console.error('发布回答失败:', error);
-      const errorMsg = error.response?.data?.message || error.message || '发布失败，请稍后重试';
+      console.error("发布回答失败:", error);
+      const errorMsg =
+        error.response?.data?.message ||
+        error.message ||
+        "发布失败，请稍后重试";
       toast.error(errorMsg);
     } finally {
       setSubmitting(false);
@@ -125,7 +136,7 @@ export function AnswerForm({
               你的回答
             </h3>
           </div>
-          
+
           {/* 预览切换 */}
           <div className="flex gap-2">
             <button
@@ -134,7 +145,7 @@ export function AnswerForm({
               className="btn btn-ghost btn-xs"
               disabled={submitting}
             >
-              {showPreview ? '编辑' : '预览'}
+              {showPreview ? "编辑" : "预览"}
             </button>
           </div>
         </div>
@@ -143,7 +154,11 @@ export function AnswerForm({
         {showPreview ? (
           <div className="min-h-[200px] p-4 bg-base-200 rounded-lg prose prose-sm max-w-none">
             {content ? (
-              <div dangerouslySetInnerHTML={{ __html: content.replace(/\n/g, '<br/>') }} />
+              <div
+                dangerouslySetInnerHTML={{
+                  __html: content.replace(/\n/g, "<br/>"),
+                }}
+              />
             ) : (
               <p className="text-base-content/40 text-center">暂无内容</p>
             )}
@@ -163,15 +178,15 @@ export function AnswerForm({
 • 附上相关文档或参考资料
 • 使用 Markdown 格式化内容`}
               className={`textarea w-full resize-y font-mono text-sm ${
-                !isContentValid && contentLength > 0 
-                  ? 'textarea-error' 
-                  : isContentTooLong 
-                    ? 'textarea-error' 
-                    : 'textarea-bordered'
+                !isContentValid && contentLength > 0
+                  ? "textarea-error"
+                  : isContentTooLong
+                    ? "textarea-error"
+                    : "textarea-bordered"
               } focus:textarea-primary`}
               disabled={submitting}
             />
-            
+
             {/* 字数统计 */}
             <div className="flex justify-between items-center mt-2">
               <div className="flex items-center gap-2">
@@ -194,19 +209,21 @@ export function AnswerForm({
                   </span>
                 )}
               </div>
-              <span className={`text-xs ${
-                contentLength > 45000 
-                  ? 'text-error' 
-                  : contentLength > 0 
-                    ? 'text-base-content/60' 
-                    : 'text-base-content/40'
-              }`}>
+              <span
+                className={`text-xs ${
+                  contentLength > 45000
+                    ? "text-error"
+                    : contentLength > 0
+                      ? "text-base-content/60"
+                      : "text-base-content/40"
+                }`}
+              >
                 {contentLength} / 50000
               </span>
             </div>
           </>
         )}
-        
+
         {/* 按钮区域 */}
         <div className="flex justify-end gap-3 mt-4">
           {onCancel && (

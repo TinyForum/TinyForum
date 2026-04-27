@@ -1,0 +1,102 @@
+# ============================================
+# Docker Compose 管理命令
+# ============================================
+
+.PHONY: docker-up docker-up-logs docker-down docker-down-volumes
+.PHONY: docker-restart docker-status docker-logs
+.PHONY: docker-logs-backend docker-logs-frontend docker-logs-postgres
+.PHONY: docker-shell-backend docker-shell-frontend docker-shell-postgres
+.PHONY: docker-build docker-build-backend docker-build-frontend
+.PHONY: docker-clean docker-backup-db docker-dev docker-tools
+
+# Docker 相关变量
+DOCKER_COMPOSE := docker-compose
+ENV_FILE := .env
+
+# 启动所有服务
+docker-up:
+	@echo "🐳 Starting all services..."
+	@$(DOCKER_COMPOSE) --env-file $(ENV_FILE) up -d
+	@$(MAKE) docker-status
+
+# 启动服务并查看日志
+docker-up-logs:
+	@echo "🐳 Starting all services with logs..."
+	@$(DOCKER_COMPOSE) --env-file $(ENV_FILE) up
+
+# 停止所有服务
+docker-down:
+	@echo "🛑 Stopping all services..."
+	@$(DOCKER_COMPOSE) --env-file $(ENV_FILE) down
+
+# 停止并删除 volumes（会丢失数据）
+docker-down-volumes:
+	@echo "⚠️  Stopping and removing volumes (data will be lost)..."
+	@$(DOCKER_COMPOSE) --env-file $(ENV_FILE) down -v
+
+# 重启服务
+docker-restart:
+	@echo "🔄 Restarting all services..."
+	@$(DOCKER_COMPOSE) --env-file $(ENV_FILE) restart
+	@$(MAKE) docker-status
+
+# 查看服务状态
+docker-status:
+	@echo "📊 Docker services status:"
+	@$(DOCKER_COMPOSE) --env-file $(ENV_FILE) ps
+
+# 查看日志
+docker-logs:
+	@echo "📝 Tailing all logs..."
+	@$(DOCKER_COMPOSE) --env-file $(ENV_FILE) logs -f
+
+docker-logs-backend:
+	@$(DOCKER_COMPOSE) --env-file $(ENV_FILE) logs -f backend
+
+docker-logs-frontend:
+	@$(DOCKER_COMPOSE) --env-file $(ENV_FILE) logs -f frontend
+
+docker-logs-postgres:
+	@$(DOCKER_COMPOSE) --env-file $(ENV_FILE) logs -f postgres
+
+# 进入容器
+docker-shell-backend:
+	@$(DOCKER_COMPOSE) --env-file $(ENV_FILE) exec backend /bin/sh
+
+docker-shell-frontend:
+	@$(DOCKER_COMPOSE) --env-file $(ENV_FILE) exec frontend /bin/sh
+
+docker-shell-postgres:
+	@$(DOCKER_COMPOSE) --env-file $(ENV_FILE) exec postgres psql -U ${DB_USER:-postgres} -d ${DB_NAME:-tiny_forum}
+
+# 重新构建服务
+docker-build:
+	@echo "🔨 Building Docker images..."
+	@$(DOCKER_COMPOSE) --env-file $(ENV_FILE) build --no-cache
+
+docker-build-backend:
+	@$(DOCKER_COMPOSE) --env-file $(ENV_FILE) build --no-cache backend
+
+docker-build-frontend:
+	@$(DOCKER_COMPOSE) --env-file $(ENV_FILE) build --no-cache frontend
+
+# 清理 Docker 资源
+docker-clean:
+	@echo "🧹 Cleaning Docker resources..."
+	@$(DOCKER_COMPOSE) --env-file $(ENV_FILE) down -v --rmi local
+	@docker system prune -f
+
+# 备份数据库
+docker-backup-db:
+	@echo "💾 Backing up database..."
+	@$(DOCKER_COMPOSE) --env-file $(ENV_FILE) exec postgres pg_dump -U ${DB_USER:-postgres} ${DB_NAME:-tiny_forum} > backup_$$(date +%Y%m%d_%H%M%S).sql
+
+# 启动开发环境（带热重载）
+docker-dev:
+	@echo "🛠️  Starting development environment..."
+	@$(DOCKER_COMPOSE) --env-file $(ENV_FILE) -f docker-compose.yml -f docker-compose.override.yml up
+
+# 启动工具服务（adminer等）
+docker-tools:
+	@echo "🔧 Starting tools services..."
+	@$(DOCKER_COMPOSE) --env-file $(ENV_FILE) --profile tools up -d

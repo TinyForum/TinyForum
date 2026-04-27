@@ -1,26 +1,38 @@
-'use client';
+"use client";
 
-import { useEffect } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Notification, notificationApi } from '@/lib/api';
-import { useAuthStore } from '@/store/auth';
-import { useRouter } from 'next/navigation';
-import { timeAgo } from '@/lib/utils';
-import Image from 'next/image';
-import { Bell, CheckCheck, Heart, MessageSquare, UserPlus, Info } from 'lucide-react';
-import toast from 'react-hot-toast';
+import { useEffect } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Notification, notificationApi } from "@/lib/api";
+import { useAuthStore } from "@/store/auth";
+import { useRouter } from "next/navigation";
+import { timeAgo } from "@/lib/utils";
+import Image from "next/image";
+import {
+  Bell,
+  CheckCheck,
+  Heart,
+  MessageSquare,
+  UserPlus,
+  Info,
+} from "lucide-react";
+import toast from "react-hot-toast";
 // import type { Notification } from '@/types';
-import Avatar from '@/components/user/Avatar';
-import { useTranslations } from 'next-intl';
+import Avatar from "@/components/user/Avatar";
+import { useTranslations } from "next-intl";
 
-const NotifIcon = ({ type }: { type: Notification['type'] }) => {
-  const cls = 'w-4 h-4';
+const NotifIcon = ({ type }: { type: Notification["type"] }) => {
+  const cls = "w-4 h-4";
   switch (type) {
-    case 'like': return <Heart className={`${cls} text-error`} />;
-    case 'comment': return <MessageSquare className={`${cls} text-info`} />;
-    case 'reply': return <MessageSquare className={`${cls} text-success`} />;
-    case 'follow': return <UserPlus className={`${cls} text-primary`} />;
-    default: return <Info className={`${cls} text-warning`} />;
+    case "like":
+      return <Heart className={`${cls} text-error`} />;
+    case "comment":
+      return <MessageSquare className={`${cls} text-info`} />;
+    case "reply":
+      return <MessageSquare className={`${cls} text-success`} />;
+    case "follow":
+      return <UserPlus className={`${cls} text-primary`} />;
+    default:
+      return <Info className={`${cls} text-warning`} />;
   }
 };
 
@@ -28,24 +40,25 @@ export default function NotificationsPage() {
   const { isAuthenticated } = useAuthStore();
   const router = useRouter();
   const queryClient = useQueryClient();
-  const t = useTranslations('notifications');
+  const t = useTranslations("notifications");
 
   useEffect(() => {
-    if (!isAuthenticated) router.push('/auth/login');
+    if (!isAuthenticated) router.push("/auth/login");
   }, [isAuthenticated, router]);
 
   const { data, isLoading } = useQuery({
-    queryKey: ['notifications'],
-    queryFn: () => notificationApi.list({ page: 1, page_size: 50 }).then((r) => r.data.data),
+    queryKey: ["notifications"],
+    queryFn: () =>
+      notificationApi.list({ page: 1, page_size: 50 }).then((r) => r.data.data),
     enabled: isAuthenticated,
   });
 
   const markAllMutation = useMutation({
     mutationFn: () => notificationApi.markAllRead(),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['notifications'] });
-      queryClient.invalidateQueries({ queryKey: ['notifications', 'unread'] });
-      toast.success('已全部标记为已读');
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      queryClient.invalidateQueries({ queryKey: ["notifications", "unread"] });
+      toast.success("已全部标记为已读");
     },
   });
 
@@ -90,7 +103,9 @@ export default function NotificationsPage() {
             <div
               key={notif.id}
               className={`card border transition-colors ${
-                notif.is_read ? 'bg-base-100 border-base-300' : 'bg-primary/5 border-primary/20'
+                notif.is_read
+                  ? "bg-base-100 border-base-300"
+                  : "bg-primary/5 border-primary/20"
               }`}
             >
               <div className="card-body p-4">
@@ -98,12 +113,11 @@ export default function NotificationsPage() {
                   {notif.sender ? (
                     <div className="avatar flex-none">
                       <div className="w-9 h-9 rounded-full">
-
-                         <Avatar 
-  username={notif.sender.username} 
-  avatarUrl={notif.sender.avatar}  // 数据库中的头像
-  size="md" 
-/>
+                        <Avatar
+                          username={notif.sender.username}
+                          avatarUrl={notif.sender.avatar} // 数据库中的头像
+                          size="md"
+                        />
                       </div>
                     </div>
                   ) : (
@@ -114,12 +128,16 @@ export default function NotificationsPage() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <NotifIcon type={notif.type} />
-                      <p className="text-sm text-base-content/80">{notif.content}</p>
+                      <p className="text-sm text-base-content/80">
+                        {notif.content}
+                      </p>
                       {!notif.is_read && (
                         <span className="w-2 h-2 bg-primary rounded-full flex-none ml-auto" />
                       )}
                     </div>
-                    <p className="text-xs text-base-content/40 mt-1">{timeAgo(notif.created_at)}</p>
+                    <p className="text-xs text-base-content/40 mt-1">
+                      {timeAgo(notif.created_at)}
+                    </p>
                   </div>
                 </div>
               </div>

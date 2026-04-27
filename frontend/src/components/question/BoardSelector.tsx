@@ -1,8 +1,8 @@
 // components/question/BoardSelector.tsx
-'use client';
+"use client";
 
-import { Board } from '@/lib/api';
-import { HashtagIcon } from '@heroicons/react/24/outline';
+import { Board } from "@/lib/api";
+import { HashtagIcon } from "@heroicons/react/24/outline";
 
 interface BoardSelectorProps {
   boards: Board[];
@@ -11,7 +11,12 @@ interface BoardSelectorProps {
   loading?: boolean;
 }
 
-export function BoardSelector({ boards, selectedBoardId, onBoardChange, loading }: BoardSelectorProps) {
+export function BoardSelector({
+  boards,
+  selectedBoardId,
+  onBoardChange,
+  loading,
+}: BoardSelectorProps) {
   if (loading) {
     return (
       <div className="select select-bordered w-full bg-base-100">
@@ -23,15 +28,17 @@ export function BoardSelector({ boards, selectedBoardId, onBoardChange, loading 
   return (
     <div className="form-control">
       <select
-        value={selectedBoardId || ''}
+        value={selectedBoardId || ""}
         onChange={(e) => onBoardChange(Number(e.target.value))}
         className="select select-bordered w-full bg-base-100 focus:select-primary transition-colors"
         required
       >
-        <option value="" disabled>请选择板块</option>
+        <option value="" disabled>
+          请选择板块
+        </option>
         {boards.map((board) => (
           <option key={board.id} value={board.id}>
-            {board.name} {board.description ? `- ${board.description}` : ''}
+            {board.name} {board.description ? `- ${board.description}` : ""}
           </option>
         ))}
       </select>

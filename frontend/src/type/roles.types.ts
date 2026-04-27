@@ -1,28 +1,28 @@
 // constants/roles.ts
 
 export const UserRole = {
-  Guest: 'guest',
-  User: 'user',
-  Member: 'member',
-  Moderator: 'moderator',
-  Reviewer: 'reviewer',
-  Admin: 'admin',
-  SuperAdmin: 'super_admin',
-  Bot: 'bot',
+  Guest: "guest",
+  User: "user",
+  Member: "member",
+  Moderator: "moderator",
+  Reviewer: "reviewer",
+  Admin: "admin",
+  SuperAdmin: "super_admin",
+  Bot: "bot",
 } as const;
 
-export type UserRoleType = typeof UserRole[keyof typeof UserRole];
+export type UserRoleType = (typeof UserRole)[keyof typeof UserRole];
 
 // 角色显示名称映射
 export const roleDisplayMap: Record<UserRoleType, string> = {
-  [UserRole.Guest]: '访客',
-  [UserRole.User]: '用户',
-  [UserRole.Member]: '会员',
-  [UserRole.Moderator]: '版主',
-  [UserRole.Reviewer]: '审核员',
-  [UserRole.Admin]: '管理员',
-  [UserRole.SuperAdmin]: '超级管理员',
-  [UserRole.Bot]: '机器人',
+  [UserRole.Guest]: "访客",
+  [UserRole.User]: "用户",
+  [UserRole.Member]: "会员",
+  [UserRole.Moderator]: "版主",
+  [UserRole.Reviewer]: "审核员",
+  [UserRole.Admin]: "管理员",
+  [UserRole.SuperAdmin]: "超级管理员",
+  [UserRole.Bot]: "机器人",
 };
 
 // 角色等级（用于权限判断）

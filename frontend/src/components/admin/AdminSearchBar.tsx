@@ -7,7 +7,7 @@ export function AdminSearchBar({
   keyword,
   onKeywordChange,
   onPageReset,
-  t
+  t,
 }: {
   tab: TabType;
   keyword: string;
@@ -20,9 +20,8 @@ export function AdminSearchBar({
     onPageReset();
   };
 
-  const placeholder = tab === "users"
-    ? t("search_username_or_email")
-    : t("search_post_title");
+  const placeholder =
+    tab === "users" ? t("search_username_or_email") : t("search_post_title");
 
   return (
     <div className="flex gap-3 mb-4">

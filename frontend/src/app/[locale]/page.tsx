@@ -30,7 +30,7 @@ export default function HomePage() {
   const [filterType, setFilterType] = useState<FilterType>("all");
   const [page, setPage] = useState(1);
   const t = useTranslations("post");
-const { data: leaderboard } = useLeaderboard({ limit: 10 });
+  const { data: leaderboard } = useLeaderboard({ limit: 10 });
   // 帖子列表 - 根据 postType 选择不同的 API
   const {
     data: postsData,
@@ -45,17 +45,17 @@ const { data: leaderboard } = useLeaderboard({ limit: 10 });
           page,
           page_size: 15,
         };
-        
+
         // 问答支持的过滤参数
         if (selectedBoard) {
           params.board_id = selectedBoard;
         }
-        
+
         // 注意：问答 API 目前不支持标签过滤和排序
         // 如果后端支持，可以添加：
         // if (selectedTag) params.tag_id = selectedTag;
         // if (sortBy === "latest") params.sort = "latest";
-        
+
         const res = await questionApi.getSimple(params);
         // 将 QuestionSimple 转换为 Post 格式以兼容 PostList 组件
         const questionList = res.data.data.list;
@@ -82,7 +82,7 @@ const { data: leaderboard } = useLeaderboard({ limit: 10 });
           board: q.board,
           tags: q.tags || [],
         }));
-        
+
         return {
           list: transformedPosts,
           total: res.data.data.total,
@@ -90,14 +90,14 @@ const { data: leaderboard } = useLeaderboard({ limit: 10 });
           page_size: res.data.data.page_size,
         };
       }
-      
+
       // 普通帖子、文章使用 list API
       const params: any = {
         page,
         page_size: 15,
         sort_by: sortBy === "latest" ? "latest" : sortBy,
       };
-      
+
       if (selectedTag) {
         params.tag_id = selectedTag;
       }
@@ -107,7 +107,7 @@ const { data: leaderboard } = useLeaderboard({ limit: 10 });
       if (filterType !== "all") {
         params.type = filterType;
       }
-      
+
       const res = await postApi.list(params);
       return res.data.data;
     },
@@ -223,17 +223,18 @@ const { data: leaderboard } = useLeaderboard({ limit: 10 });
           </div>
 
           {/* 右侧边栏 */}
-          {leaderboard !== undefined && <div className="lg:w-64 xl:w-72 flex-none overflow-y-auto custom-scrollbar sticky top-6 max-h-[calc(100vh-6rem)]">
-            <RightSidebar
-              isAuthenticated={isAuthenticated}
-              user={user}
-              userProfile={userProfile}
-              leaderboard={leaderboard}
-              unreadCount={unreadCount ?? 0}
-              timelineEvents={timelineEvents ?? []}
-            />
-          </div>}
-          
+          {leaderboard !== undefined && (
+            <div className="lg:w-64 xl:w-72 flex-none overflow-y-auto custom-scrollbar sticky top-6 max-h-[calc(100vh-6rem)]">
+              <RightSidebar
+                isAuthenticated={isAuthenticated}
+                user={user}
+                userProfile={userProfile}
+                leaderboard={leaderboard}
+                unreadCount={unreadCount ?? 0}
+                timelineEvents={timelineEvents ?? []}
+              />
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -2,13 +2,13 @@ import { TabType } from "@/type/admin.types";
 import { FileText, Users } from "lucide-react";
 
 // Tab 切换组件
-export function AdminTabs({ 
-  activeTab, 
-  onTabChange, 
-  t 
-}: { 
-  activeTab: TabType; 
-  onTabChange: (tab: TabType) => void; 
+export function AdminTabs({
+  activeTab,
+  onTabChange,
+  t,
+}: {
+  activeTab: TabType;
+  onTabChange: (tab: TabType) => void;
   t: (key: string) => string;
 }) {
   return (

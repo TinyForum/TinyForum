@@ -1,8 +1,8 @@
 // components/admin/UserActionMenu.tsx
 import { useState, useRef, useEffect, JSX } from "react";
-import { 
-  MoreVertical, 
-  Trash2, 
+import {
+  MoreVertical,
+  Trash2,
   AlertTriangle,
   Mail,
   Key,
@@ -19,7 +19,7 @@ import {
   UserPlus,
   Bot,
   User2,
-  EyeIcon
+  EyeIcon,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { User } from "@/lib/api";
@@ -61,7 +61,7 @@ export function UserActionMenu({
   isTogglingBlock,
   isDeleting,
   isUpdatingRole,
-  t
+  t,
 }: UserActionMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [showRoleMenu, setShowRoleMenu] = useState(false);
@@ -70,22 +70,25 @@ export function UserActionMenu({
   // 点击外部关闭菜单
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false);
         setShowRoleMenu(false);
       }
     };
 
     if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-      document.body.style.overflow = 'hidden';
+      document.addEventListener("mousedown", handleClickOutside);
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = '';
+      document.body.style.overflow = "";
     }
 
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-      document.body.style.overflow = '';
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.body.style.overflow = "";
     };
   }, [isOpen]);
 
@@ -105,7 +108,7 @@ export function UserActionMenu({
         icon: <XCircle className="w-4 h-4" />,
         className: "text-warning",
         hoverClass: "hover:bg-warning/10",
-        action: () => onToggleActive(user.id, false)
+        action: () => onToggleActive(user.id, false),
       };
     } else {
       return {
@@ -113,7 +116,7 @@ export function UserActionMenu({
         icon: <CheckCircle className="w-4 h-4" />,
         className: "text-success",
         hoverClass: "hover:bg-success/10",
-        action: () => onToggleActive(user.id, true)
+        action: () => onToggleActive(user.id, true),
       };
     }
   };
@@ -126,7 +129,7 @@ export function UserActionMenu({
         icon: <Unlock className="w-4 h-4" />,
         className: "text-success",
         hoverClass: "hover:bg-success/10",
-        action: () => onToggleBlock(user.id, false)
+        action: () => onToggleBlock(user.id, false),
       };
     } else {
       return {
@@ -134,7 +137,7 @@ export function UserActionMenu({
         icon: <Lock className="w-4 h-4" />,
         className: "text-error",
         hoverClass: "hover:bg-error/10",
-        action: () => onToggleBlock(user.id, true)
+        action: () => onToggleBlock(user.id, true),
       };
     }
   };
@@ -148,145 +151,145 @@ export function UserActionMenu({
     switch (currentRole) {
       // 超级管理员
       // 降级：管理员
-      case 'super_admin':
+      case "super_admin":
         options.push({
           label: t("role.admin"),
           icon: <Crown className="w-4 h-4" />,
           className: "text-error",
-          nextRole: 'admin'
+          nextRole: "admin",
         });
-          options.push({
+        options.push({
           label: t("role.user"),
           icon: <UserIcon className="w-4 h-4" />,
           className: "text-info",
-          nextRole: 'user'
+          nextRole: "user",
         });
         break;
-      
-        // 管理员
-        // 升级：无
-        // 降级：审核、版主、用户
-      case 'admin':
-       options.push({
+
+      // 管理员
+      // 升级：无
+      // 降级：审核、版主、用户
+      case "admin":
+        options.push({
           label: t("role.reviewer"),
           icon: <EyeIcon className="w-4 h-4" />,
           className: "text-warning",
-          nextRole: 'reviewer'
+          nextRole: "reviewer",
         });
         options.push({
           label: t("role.moderator"),
           icon: <Hammer className="w-4 h-4" />,
           className: "text-purple-500",
-          nextRole: 'moderator'
+          nextRole: "moderator",
         });
         options.push({
           label: t("role.user"),
           icon: <UserIcon className="w-4 h-4" />,
           className: "text-info",
-          nextRole: 'user'
+          nextRole: "user",
         });
         break;
-      
-        // 版主
-        // 升级：管理员、审核员
-        // 降级：用户
-      case 'moderator':
+
+      // 版主
+      // 升级：管理员、审核员
+      // 降级：用户
+      case "moderator":
         options.push({
           label: t("role.admin"),
           icon: <Shield className="w-4 h-4" />,
           className: "text-warning",
-          nextRole: 'admin'
+          nextRole: "admin",
         });
         options.push({
           label: t("role.reviewer"),
           icon: <Eye className="w-4 h-4" />,
           className: "text-indigo-500",
-          nextRole: 'reviewer'
+          nextRole: "reviewer",
         });
         options.push({
           label: t("role.user"),
           icon: <UserIcon className="w-4 h-4" />,
           className: "text-info",
-          nextRole: 'user'
+          nextRole: "user",
         });
         break;
-      
+
       // 审核
       // 升级：管理员、审核员版主
       // 降级：用户
-      case 'reviewer':
-         options.push({
+      case "reviewer":
+        options.push({
           label: t("role.admin"),
           icon: <Shield className="w-4 h-4" />,
           className: "text-warning",
-          nextRole: 'admin'
+          nextRole: "admin",
         });
         options.push({
           label: t("role.moderator"),
           icon: <Hammer className="w-4 h-4" />,
           className: "text-purple-500",
-          nextRole: 'moderator'
+          nextRole: "moderator",
         });
         options.push({
           label: t("role.user"),
           icon: <UserIcon className="w-4 h-4" />,
           className: "text-info",
-          nextRole: 'user'
+          nextRole: "user",
         });
         break;
-      
-        // 成员
-        // 升级：管理员、
-        // 降级：用户
-      case 'member':
+
+      // 成员
+      // 升级：管理员、
+      // 降级：用户
+      case "member":
         options.push({
           label: t("role.reviewer"),
           icon: <EyeIcon className="w-4 h-4" />,
           className: "text-warning",
-          nextRole: 'reviewer'
+          nextRole: "reviewer",
         });
-         options.push({
+        options.push({
           label: t("role.admin"),
           icon: <Shield className="w-4 h-4" />,
           className: "text-warning",
-          nextRole: 'admin'
+          nextRole: "admin",
         });
-        
+
         options.push({
           label: t("role.user"),
           icon: <UserIcon className="w-4 h-4" />,
           className: "text-info",
-          nextRole: 'user'
+          nextRole: "user",
         });
         break;
       // 用户：
-        // 升级：会员
-        // 降级：访客
-      case 'user':
+      // 升级：会员
+      // 降级：访客
+      case "user":
         options.push({
           label: t("role.member"),
           icon: <UserPlus className="w-4 h-4" />,
           className: "text-success",
-          nextRole: 'member'
+          nextRole: "member",
         });
-         options.push({
+        options.push({
           label: t("role.guest"),
           icon: <User2 className="w-4 h-4" />,
           className: "text-info",
-          nextRole: 'guest'
+          nextRole: "guest",
         });
         break;
-      
-      case 'guest':
+
+      case "guest":
         options.push({
           label: t("role.user"),
           icon: <UserIcon className="w-4 h-4" />,
           className: "text-info",
-          nextRole: 'user'
+          nextRole: "user",
         });
         break;
-      
-      case 'bot':
+
+      case "bot":
         // 机器人一般不切换角色
         break;
     }
@@ -307,7 +310,9 @@ export function UserActionMenu({
     };
 
     return {
-      icon: roleIcons[user.role as UserRoleType] || <UserIcon className="w-4 h-4" />,
+      icon: roleIcons[user.role as UserRoleType] || (
+        <UserIcon className="w-4 h-4" />
+      ),
       label: t(`role.${user.role}`),
     };
   };
@@ -320,14 +325,18 @@ export function UserActionMenu({
 
   // 打开删除确认模态框
   const openDeleteModal = () => {
-    const modal = document.getElementById(`delete_modal_${user.id}`) as HTMLDialogElement;
+    const modal = document.getElementById(
+      `delete_modal_${user.id}`,
+    ) as HTMLDialogElement;
     modal?.showModal();
     setIsOpen(false);
   };
 
   // 打开重置密码确认模态框
   const openResetPasswordModal = () => {
-    const modal = document.getElementById(`reset_pwd_modal_${user.id}`) as HTMLDialogElement;
+    const modal = document.getElementById(
+      `reset_pwd_modal_${user.id}`,
+    ) as HTMLDialogElement;
     modal?.showModal();
     setIsOpen(false);
   };
@@ -369,7 +378,7 @@ export function UserActionMenu({
 
         {/* 下拉菜单 - 使用 Portal 渲染到 body */}
         {isOpen && (
-          <div 
+          <div
             className="fixed z-[9999] min-w-52"
             style={{
               top: (() => {
@@ -405,7 +414,6 @@ export function UserActionMenu({
 
               {/* 激活/停用 - 仅未封禁时显示 */}
               {!isBlocked && (
-            
                 <div className="menu-item">
                   <button
                     className={`${activeConfig.className} ${activeConfig.hoverClass} gap-2 w-full text-left px-3 py-2 rounded-md`}
@@ -518,7 +526,11 @@ export function UserActionMenu({
 
       {/* 删除确认对话框 */}
       {onDeleteUser && (
-        <dialog id={`delete_modal_${user.id}`} className="modal" onClick={(e) => e.stopPropagation()}>
+        <dialog
+          id={`delete_modal_${user.id}`}
+          className="modal"
+          onClick={(e) => e.stopPropagation()}
+        >
           <div className="modal-box">
             <div className="flex items-center gap-3 mb-4">
               <div className="bg-error/10 p-2 rounded-full">
@@ -533,7 +545,9 @@ export function UserActionMenu({
               <div className="flex items-center gap-2">
                 <div className="avatar placeholder">
                   <div className="bg-neutral-focus text-neutral-content rounded-full w-8">
-                    <span className="text-xs">{user.username[0]?.toUpperCase()}</span>
+                    <span className="text-xs">
+                      {user.username[0]?.toUpperCase()}
+                    </span>
                   </div>
                 </div>
                 <div>
@@ -549,7 +563,7 @@ export function UserActionMenu({
             <div className="modal-action">
               <form method="dialog" className="flex gap-2">
                 <button className="btn btn-ghost">{t("cancel")}</button>
-                <button 
+                <button
                   className="btn btn-error"
                   onClick={() => onDeleteUser(user.id, user.username)}
                 >
@@ -566,7 +580,11 @@ export function UserActionMenu({
 
       {/* 重置密码确认对话框 */}
       {onResetPassword && (
-        <dialog id={`reset_pwd_modal_${user.id}`} className="modal" onClick={(e) => e.stopPropagation()}>
+        <dialog
+          id={`reset_pwd_modal_${user.id}`}
+          className="modal"
+          onClick={(e) => e.stopPropagation()}
+        >
           <div className="modal-box">
             <div className="flex items-center gap-3 mb-4">
               <div className="bg-info/10 p-2 rounded-full">
@@ -584,7 +602,7 @@ export function UserActionMenu({
             <div className="modal-action">
               <form method="dialog" className="flex gap-2">
                 <button className="btn btn-ghost">{t("cancel")}</button>
-                <button 
+                <button
                   className="btn btn-info"
                   onClick={() => onResetPassword(user.id, user.username)}
                 >

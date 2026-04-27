@@ -1,15 +1,27 @@
 // hooks/useModerator.ts
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { moderatorApi, ApplyModeratorForm, AddModeratorRequest, UpdatePermissionsRequest, ReviewApplicationRequest, BanUserRequest, ModeratorBoard } from "@/lib/api/modules/moderator";
+import {
+  moderatorApi,
+  ApplyModeratorForm,
+  AddModeratorRequest,
+  UpdatePermissionsRequest,
+  ReviewApplicationRequest,
+  BanUserRequest,
+  ModeratorBoard,
+} from "@/lib/api/modules/moderator";
 import toast from "react-hot-toast";
 import { useTranslations } from "next-intl";
 import { useAuthStore } from "@/store";
 
 // ========== 申请相关 ==========
-export function useMyApplications(params?: { page?: number; page_size?: number }) {
+export function useMyApplications(params?: {
+  page?: number;
+  page_size?: number;
+}) {
   return useQuery({
     queryKey: ["moderator", "my-applications", params],
-    queryFn: () => moderatorApi.getMyApplications(params).then((r) => r.data.data),
+    queryFn: () =>
+      moderatorApi.getMyApplications(params).then((r) => r.data.data),
     staleTime: 60 * 1000,
   });
 }
@@ -19,10 +31,13 @@ export function useApplyModerator(boardId: number) {
   const t = useTranslations("moderator");
 
   return useMutation({
-    mutationFn: (data: ApplyModeratorForm) => moderatorApi.applyModerator(boardId, data),
+    mutationFn: (data: ApplyModeratorForm) =>
+      moderatorApi.applyModerator(boardId, data),
     onSuccess: () => {
       toast.success(t("application_submitted"));
-      queryClient.invalidateQueries({ queryKey: ["moderator", "my-applications"] });
+      queryClient.invalidateQueries({
+        queryKey: ["moderator", "my-applications"],
+      });
     },
     onError: (error: any) => {
       toast.error(error?.response?.data?.message || t("application_failed"));
@@ -35,10 +50,13 @@ export function useCancelApplication() {
   const t = useTranslations("moderator");
 
   return useMutation({
-    mutationFn: (applicationId: number) => moderatorApi.cancelApplication(applicationId),
+    mutationFn: (applicationId: number) =>
+      moderatorApi.cancelApplication(applicationId),
     onSuccess: () => {
       toast.success(t("application_canceled"));
-      queryClient.invalidateQueries({ queryKey: ["moderator", "my-applications"] });
+      queryClient.invalidateQueries({
+        queryKey: ["moderator", "my-applications"],
+      });
     },
     onError: (error: any) => {
       toast.error(error?.response?.data?.message || t("cancel_failed"));
@@ -63,7 +81,9 @@ export function useBanUser(boardId: number) {
     mutationFn: (data: BanUserRequest) => moderatorApi.banUser(boardId, data),
     onSuccess: () => {
       toast.success(t("user_banned"));
-      queryClient.invalidateQueries({ queryKey: ["moderator", "bans", boardId] });
+      queryClient.invalidateQueries({
+        queryKey: ["moderator", "bans", boardId],
+      });
     },
     onError: (error: any) => {
       toast.error(error?.response?.data?.message || t("ban_failed"));
@@ -79,7 +99,9 @@ export function useUnbanUser(boardId: number) {
     mutationFn: (userId: number) => moderatorApi.unbanUser(boardId, userId),
     onSuccess: () => {
       toast.success(t("user_unbanned"));
-      queryClient.invalidateQueries({ queryKey: ["moderator", "bans", boardId] });
+      queryClient.invalidateQueries({
+        queryKey: ["moderator", "bans", boardId],
+      });
     },
     onError: (error: any) => {
       toast.error(error?.response?.data?.message || t("unban_failed"));
@@ -108,10 +130,17 @@ export function usePinPost(boardId: number) {
   const t = useTranslations("moderator");
 
   return useMutation({
-    mutationFn: ({ postId, pinInBoard }: { postId: number; pinInBoard: boolean }) =>
-      moderatorApi.pinPost(boardId, postId, pinInBoard),
+    mutationFn: ({
+      postId,
+      pinInBoard,
+    }: {
+      postId: number;
+      pinInBoard: boolean;
+    }) => moderatorApi.pinPost(boardId, postId, pinInBoard),
     onSuccess: (_, variables) => {
-      toast.success(variables.pinInBoard ? t("post_pinned") : t("post_unpinned"));
+      toast.success(
+        variables.pinInBoard ? t("post_pinned") : t("post_unpinned"),
+      );
       queryClient.invalidateQueries({ queryKey: ["posts", boardId] });
       queryClient.invalidateQueries({ queryKey: ["post", variables.postId] });
     },
@@ -126,21 +155,22 @@ export function useModeratorPermissions(boardId: number) {
   const { data: moderators } = useModerators(boardId);
   const { user } = useAuthStore();
 
-  const currentModerator = moderators?.find(m => m.user_id === user?.id);
-  
+  const currentModerator = moderators?.find((m) => m.user_id === user?.id);
+
   return {
     isModerator: !!currentModerator,
     canDeletePost: currentModerator?.permissions?.can_delete_post || false,
     canPinPost: currentModerator?.permissions?.can_pin_post || false,
     canEditAnyPost: currentModerator?.permissions?.can_edit_any_post || false,
-    canManageModerator: currentModerator?.permissions?.can_manage_moderator || false,
+    canManageModerator:
+      currentModerator?.permissions?.can_manage_moderator || false,
     canBanUser: currentModerator?.permissions?.can_ban_user || false,
   };
 }
 
 export function useMyModeratorBoards() {
   const { user, isHydrated } = useAuthStore();
-  
+
   return useQuery<ModeratorBoard[]>({
     queryKey: ["moderator", "my-boards", user?.id],
     queryFn: async () => {

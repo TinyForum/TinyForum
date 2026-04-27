@@ -1,24 +1,29 @@
 // components/question/QuestionForm.tsx
-'use client';
+"use client";
 
-import { useForm } from 'react-hook-form';
-import { AskFormData } from '@/hooks/useQuestionForm';
-import { 
-  DocumentTextIcon, 
-  TagIcon, 
+import { useForm } from "react-hook-form";
+import { AskFormData } from "@/hooks/useQuestionForm";
+import {
+  DocumentTextIcon,
+  TagIcon,
   InformationCircleIcon,
   ExclamationTriangleIcon,
   CheckCircleIcon,
-} from '@heroicons/react/24/outline';
+} from "@heroicons/react/24/outline";
 
 interface QuestionFormProps {
-  register: ReturnType<typeof useForm<AskFormData>>['register'];
-  errors: ReturnType<typeof useForm<AskFormData>>['formState']['errors'];
+  register: ReturnType<typeof useForm<AskFormData>>["register"];
+  errors: ReturnType<typeof useForm<AskFormData>>["formState"]["errors"];
   content: string;
   setContent: (content: string) => void;
 }
 
-export function QuestionForm({ register, errors, content, setContent }: QuestionFormProps) {
+export function QuestionForm({
+  register,
+  errors,
+  content,
+  setContent,
+}: QuestionFormProps) {
   const contentLength = content.length;
   const isContentValid = contentLength > 0;
   const minContentLength = 20;
@@ -36,15 +41,15 @@ export function QuestionForm({ register, errors, content, setContent }: Question
           </span>
         </label>
         <input
-          {...register('title', { 
-            required: '请输入标题', 
-            minLength: { value: 5, message: '标题至少 5 个字符' },
-            maxLength: { value: 100, message: '标题最多 100 个字符' }
+          {...register("title", {
+            required: "请输入标题",
+            minLength: { value: 5, message: "标题至少 5 个字符" },
+            maxLength: { value: 100, message: "标题最多 100 个字符" },
           })}
           type="text"
           placeholder="例如：如何在 Next.js 中实现动态路由？"
           className={`input input-bordered w-full focus:input-primary ${
-            errors.title ? 'input-error' : ''
+            errors.title ? "input-error" : ""
           }`}
         />
         {errors.title ? (
@@ -73,7 +78,7 @@ export function QuestionForm({ register, errors, content, setContent }: Question
             {contentLength} / 建议 ≥{minContentLength}
           </span>
         </label>
-        
+
         <div className="relative">
           <textarea
             value={content}
@@ -87,20 +92,23 @@ export function QuestionForm({ register, errors, content, setContent }: Question
 3. 遇到了什么具体的错误？
 4. 提供相关的代码片段`}
             className={`textarea textarea-bordered w-full font-mono text-sm resize-y ${
-              !isContentValid && contentLength > 0 ? 'textarea-error' : ''
+              !isContentValid && contentLength > 0 ? "textarea-error" : ""
             } focus:textarea-primary`}
           />
-          
+
           {/* 内容质量提示 */}
           {contentLength > 0 && contentLength < minContentLength && (
             <div className="absolute bottom-2 right-2">
-              <div className="tooltip tooltip-left" data-tip="内容太简短，建议提供更多细节">
+              <div
+                className="tooltip tooltip-left"
+                data-tip="内容太简短，建议提供更多细节"
+              >
                 <ExclamationTriangleIcon className="w-4 h-4 text-warning" />
               </div>
             </div>
           )}
         </div>
-        
+
         {!isContentValid && contentLength === 0 && (
           <label className="label">
             <span className="label-text-alt text-error flex items-center gap-1">
@@ -109,7 +117,7 @@ export function QuestionForm({ register, errors, content, setContent }: Question
             </span>
           </label>
         )}
-        
+
         {isContentValid && contentLength >= minContentLength && (
           <label className="label">
             <span className="label-text-alt text-success flex items-center gap-1">
@@ -118,7 +126,7 @@ export function QuestionForm({ register, errors, content, setContent }: Question
             </span>
           </label>
         )}
-        
+
         <label className="label">
           <span className="label-text-alt text-base-content/40 flex items-center gap-1">
             <InformationCircleIcon className="w-3 h-3" />
@@ -130,15 +138,13 @@ export function QuestionForm({ register, errors, content, setContent }: Question
       {/* 摘要 */}
       <div className="form-control w-full">
         <label className="label">
-          <span className="label-text font-medium">
-            问题摘要
-          </span>
+          <span className="label-text font-medium">问题摘要</span>
           <span className="label-text-alt text-base-content/60">
             可选，最多 500 字符
           </span>
         </label>
         <textarea
-          {...register('summary')}
+          {...register("summary")}
           rows={2}
           placeholder="简要描述问题（将显示在列表中，帮助用户快速了解）"
           className="textarea textarea-bordered w-full resize-none focus:textarea-primary"

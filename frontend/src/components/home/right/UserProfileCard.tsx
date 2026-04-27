@@ -18,7 +18,10 @@ interface UserProfileCardProps {
   unreadCount: number;
 }
 
-export function UserProfileCard({ userProfile, unreadCount }: UserProfileCardProps) {
+export function UserProfileCard({
+  userProfile,
+  unreadCount,
+}: UserProfileCardProps) {
   const t = useTranslations("Sidebar");
 
   return (
@@ -41,7 +44,7 @@ export function UserProfileCard({ userProfile, unreadCount }: UserProfileCardPro
           {userProfile.bio || t("no_bio")}
         </p>
       </div>
-      
+
       <div className="p-3 space-y-2">
         <div className="flex justify-between text-sm">
           <span className="text-muted-foreground flex items-center gap-1">
@@ -60,7 +63,7 @@ export function UserProfileCard({ userProfile, unreadCount }: UserProfileCardPro
           </span>
         </div>
       </div>
-      
+
       <div className="p-3 border-t space-y-2">
         <Link
           href="/notifications"

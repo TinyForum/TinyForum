@@ -1,13 +1,13 @@
 // components/question/FormActions.tsx
-'use client';
+"use client";
 
-import { useRouter } from 'next/navigation';
-import { 
-  ArrowLeftIcon, 
-  PaperAirplaneIcon, 
+import { useRouter } from "next/navigation";
+import {
+  ArrowLeftIcon,
+  PaperAirplaneIcon,
   CheckCircleIcon,
   ExclamationTriangleIcon,
-} from '@heroicons/react/24/outline';
+} from "@heroicons/react/24/outline";
 
 interface FormActionsProps {
   loading: boolean;
@@ -18,13 +18,13 @@ interface FormActionsProps {
   cancelText?: string;
 }
 
-export function FormActions({ 
-  loading, 
-  onCancel, 
-  isDirty = true, 
+export function FormActions({
+  loading,
+  onCancel,
+  isDirty = true,
   isValid = true,
-  submitText = '发布问题',
-  cancelText = '取消',
+  submitText = "发布问题",
+  cancelText = "取消",
 }: FormActionsProps) {
   const router = useRouter();
 
@@ -34,7 +34,7 @@ export function FormActions({
     } else {
       // 如果有未保存的内容，提示确认
       if (isDirty) {
-        const confirmed = confirm('有未保存的内容，确定要离开吗？');
+        const confirmed = confirm("有未保存的内容，确定要离开吗？");
         if (!confirmed) return;
       }
       router.back();
@@ -77,7 +77,7 @@ export function FormActions({
           type="submit"
           disabled={isDisabled}
           className={`btn btn-primary gap-2 min-w-[120px] ${
-            isDisabled ? 'opacity-50 cursor-not-allowed' : ''
+            isDisabled ? "opacity-50 cursor-not-allowed" : ""
           }`}
         >
           {loading ? (

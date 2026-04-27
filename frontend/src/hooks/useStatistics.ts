@@ -7,14 +7,14 @@ import {
   StatsInfoResp,
   StatsTrendResponse,
   GetStatsTrendParams,
-  GetStatsRangeParams,    // 新增导入
-  StatsRangeResponse,     // 新增导入
+  GetStatsRangeParams, // 新增导入
+  StatsRangeResponse, // 新增导入
 } from "@/lib/api/types/stats.type";
 import { useEffect, useState, useCallback } from "react";
 
 interface UseStatisticsOptions {
-  autoFetch?: boolean;               // 是否自动获取今日统计数据（默认 true）
-  dayParams?: GetStatsDayParams;     // 今日统计参数
+  autoFetch?: boolean; // 是否自动获取今日统计数据（默认 true）
+  dayParams?: GetStatsDayParams; // 今日统计参数
   totalParams?: GetStatsTotalParams; // 总计统计参数
   // 注意：range 参数需要手动传入 fetchRangeStats 调用，不自动获取
 }
@@ -46,7 +46,9 @@ interface UseStatisticsReturn {
   refreshAllStatistics: () => Promise<void>; // 刷新今日+总计（不包含范围）
 }
 
-export const useStatistics = (options: UseStatisticsOptions = {}): UseStatisticsReturn => {
+export const useStatistics = (
+  options: UseStatisticsOptions = {},
+): UseStatisticsReturn => {
   const { autoFetch = true, dayParams, totalParams } = options;
 
   // 原有状态

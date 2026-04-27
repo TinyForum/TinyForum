@@ -10,7 +10,16 @@ import { useUserProfile } from "@/hooks/useUserProfile";
 export default function DashboardPage() {
   const router = useRouter();
   const locale = useLocale();
-  const { profile, isLoading, role, isMember,isAdmin, isSuperAdmin, isModerator,isReviewer} = useUserProfile();
+  const {
+    profile,
+    isLoading,
+    role,
+    isMember,
+    isAdmin,
+    isSuperAdmin,
+    isModerator,
+    isReviewer,
+  } = useUserProfile();
 
   useEffect(() => {
     if (isLoading) return;
@@ -20,7 +29,7 @@ export default function DashboardPage() {
       router.replace(`/${locale}/dashboard/admin`);
     } else if (isModerator) {
       router.replace(`/${locale}/dashboard/moderator`);
-    } else if(isReviewer){
+    } else if (isReviewer) {
       // 审核员重定向到审核员后台
       router.replace(`/${locale}/dashboard/reviewer`);
     } else if (isMember) {

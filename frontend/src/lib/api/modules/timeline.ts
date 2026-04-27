@@ -3,7 +3,12 @@
  */
 
 import apiClient from "../client";
-import type { ApiResponse, PageData, TimelineEvent, Subscription } from "../types";
+import type {
+  ApiResponse,
+  PageData,
+  TimelineEvent,
+  Subscription,
+} from "../types";
 
 export const timelineApi = {
   getHome: (params?: { page?: number; page_size?: number }) =>
@@ -12,10 +17,9 @@ export const timelineApi = {
     }),
 
   getFollowing: (params?: { page?: number; page_size?: number }) =>
-    apiClient.get<ApiResponse<PageData<TimelineEvent>>>(
-      "/timeline/following",
-      { params }
-    ),
+    apiClient.get<ApiResponse<PageData<TimelineEvent>>>("/timeline/following", {
+      params,
+    }),
 
   subscribe: (userId: number) =>
     apiClient.post<ApiResponse<null>>(`/timeline/subscribe/${userId}`),

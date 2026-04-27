@@ -1,6 +1,6 @@
 @font-face {
-  font-family: 'Dongguan';
-  src: url('../../../public/assets/fonts/dongguan.woff2') format('woff2');
+  font-family: "Dongguan";
+  src: url("../../../public/assets/fonts/dongguan.woff2") format("woff2");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
@@ -21,7 +21,9 @@
 
   body {
     @apply antialiased;
-    font-family: 'Dongguan', 'Helvetica Neue', Helvetica, 'PingFang SC', 'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
+    font-family:
+      "Dongguan", "Helvetica Neue", Helvetica, "PingFang SC", "Microsoft YaHei",
+      "微软雅黑", Arial, sans-serif;
   }
 
   /* Prose styles for post content */
@@ -125,7 +127,6 @@
 ::-webkit-scrollbar-thumb:hover {
   @apply bg-primary/50;
 }
-
 
 /* nav */
 @keyframes slideDown {

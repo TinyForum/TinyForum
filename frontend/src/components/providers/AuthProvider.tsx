@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { ReactNode } from 'react';
-import PostLoginHandler from '../auth/PostLoginHandler';
+import { ReactNode } from "react";
+import PostLoginHandler from "../auth/PostLoginHandler";
 
 export default function AuthProvider({ children }: { children: ReactNode }) {
   return (

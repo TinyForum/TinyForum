@@ -55,7 +55,9 @@ export function useAdminManagePosts({
   // 批量审核通过
   const batchApproveMutation = useMutation({
     mutationFn: (items: Array<{ id: number; note?: string }>) =>
-      Promise.all(items.map((item) => adminApi.approvePost(item.id, item.note))),
+      Promise.all(
+        items.map((item) => adminApi.approvePost(item.id, item.note)),
+      ),
     onSuccess: () => {
       invalidateQueries();
       toast.success(t("batch_approve_success"));
@@ -66,7 +68,9 @@ export function useAdminManagePosts({
   // 批量审核拒绝
   const batchRejectMutation = useMutation({
     mutationFn: (items: Array<{ id: number; reason?: string }>) =>
-      Promise.all(items.map((item) => adminApi.rejectPost(item.id, item.reason))),
+      Promise.all(
+        items.map((item) => adminApi.rejectPost(item.id, item.reason)),
+      ),
     onSuccess: () => {
       invalidateQueries();
       toast.success(t("batch_reject_success"));

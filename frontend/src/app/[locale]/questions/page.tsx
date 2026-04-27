@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   MagnifyingGlassIcon,
   ChatBubbleLeftRightIcon,
@@ -14,17 +14,17 @@ import {
   EyeIcon,
   TagIcon,
   SparklesIcon,
-} from '@heroicons/react/24/outline';
-import { useAuthStore } from '@/store/auth';
-import { questionApi } from '@/lib/api';
-import { QuestionSimple } from '@/lib/api/types';
-import { useTranslations } from 'next-intl';
+} from "@heroicons/react/24/outline";
+import { useAuthStore } from "@/store/auth";
+import { questionApi } from "@/lib/api";
+import { QuestionSimple } from "@/lib/api/types";
+import { useTranslations } from "next-intl";
 
-type FilterType = 'all' | 'unanswered' | 'answered';
-type SortType = 'latest' | 'hot' | 'score';
+type FilterType = "all" | "unanswered" | "answered";
+type SortType = "latest" | "hot" | "score";
 
 export default function QuestionsPage() {
-  const t = useTranslations('Questions');
+  const t = useTranslations("Questions");
   const router = useRouter();
   const searchParams = useSearchParams();
   const { isAuthenticated } = useAuthStore();
@@ -33,18 +33,22 @@ export default function QuestionsPage() {
   const [loading, setLoading] = useState(true);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
-  const [filter, setFilter] = useState<FilterType>((searchParams.get('filter') as FilterType) || 'all');
-  const [sort, setSort] = useState<SortType>((searchParams.get('sort') as SortType) || 'latest');
-  const [keyword, setKeyword] = useState(searchParams.get('keyword') || '');
+  const [filter, setFilter] = useState<FilterType>(
+    (searchParams.get("filter") as FilterType) || "all",
+  );
+  const [sort, setSort] = useState<SortType>(
+    (searchParams.get("sort") as SortType) || "latest",
+  );
+  const [keyword, setKeyword] = useState(searchParams.get("keyword") || "");
 
   const pageSize = 15;
 
   // 监听路由参数变化
   useEffect(() => {
-    const newFilter = searchParams.get('filter') as FilterType;
-    const newSort = searchParams.get('sort') as SortType;
-    const newKeyword = searchParams.get('keyword') || '';
-    
+    const newFilter = searchParams.get("filter") as FilterType;
+    const newSort = searchParams.get("sort") as SortType;
+    const newKeyword = searchParams.get("keyword") || "";
+
     if (newFilter) setFilter(newFilter);
     if (newSort) setSort(newSort);
     if (newKeyword) setKeyword(newKeyword);
@@ -61,34 +65,34 @@ export default function QuestionsPage() {
         page,
         page_size: pageSize,
       };
-      
-      if (filter !== 'all') {
+
+      if (filter !== "all") {
         params.filter = filter;
       }
-      
-      if (sort !== 'latest') {
+
+      if (sort !== "latest") {
         params.sort = sort;
       }
-      
+
       if (keyword) {
         params.keyword = keyword;
       }
-      
+
       const response = await questionApi.getSimple(params);
       console.log(response);
-      
+
       if (response.status === 200 && response.data.code === 0) {
         setQuestions(response.data.data.list);
         setTotal(response.data.data.total);
-        
+
         const urlParams = new URLSearchParams();
-        if (filter !== 'all') urlParams.set('filter', filter);
-        if (sort !== 'latest') urlParams.set('sort', sort);
-        if (keyword) urlParams.set('keyword', keyword);
+        if (filter !== "all") urlParams.set("filter", filter);
+        if (sort !== "latest") urlParams.set("sort", sort);
+        if (keyword) urlParams.set("keyword", keyword);
         router.replace(`/questions?${urlParams.toString()}`, { scroll: false });
       }
     } catch (error) {
-      console.error('Failed to load questions:', error);
+      console.error("Failed to load questions:", error);
     } finally {
       setLoading(false);
     }
@@ -115,10 +119,10 @@ export default function QuestionsPage() {
     const now = new Date();
     const diff = now.getTime() - date.getTime();
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    
-    if (days === 0) return t('today');
-    if (days === 1) return t('yesterday');
-    if (days < 7) return t('days_ago', { count: days });
+
+    if (days === 0) return t("today");
+    if (days === 1) return t("yesterday");
+    if (days < 7) return t("days_ago", { count: days });
     return date.toLocaleDateString();
   };
 
@@ -131,7 +135,10 @@ export default function QuestionsPage() {
   };
 
   const getIsAccepted = (question: QuestionSimple) => {
-    return question.accepted_answer_id !== null && question.accepted_answer_id !== undefined;
+    return (
+      question.accepted_answer_id !== null &&
+      question.accepted_answer_id !== undefined
+    );
   };
 
   const totalPages = Math.ceil(total / pageSize);
@@ -145,11 +152,9 @@ export default function QuestionsPage() {
             <SparklesIcon className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-red-600 to-red-500 bg-clip-text text-transparent">
-            {t('title')}
+            {t("title")}
           </h1>
-          <p className="text-base-content/60 mt-2">
-            {t('subtitle')}
-          </p>
+          <p className="text-base-content/60 mt-2">{t("subtitle")}</p>
         </div>
 
         {/* Search Bar */}
@@ -162,15 +167,12 @@ export default function QuestionsPage() {
                   type="text"
                   value={keyword}
                   onChange={(e) => setKeyword(e.target.value)}
-                  placeholder={t('search_placeholder')}
+                  placeholder={t("search_placeholder")}
                   className="w-full pl-11 pr-4 py-2.5 bg-transparent text-base-content placeholder-base-content/40 focus:outline-none"
                 />
               </div>
-              <button
-                type="submit"
-                className="btn btn-primary min-w-[80px]"
-              >
-                {t('search_button')}
+              <button type="submit" className="btn btn-primary min-w-[80px]">
+                {t("search_button")}
               </button>
             </form>
           </div>
@@ -182,50 +184,71 @@ export default function QuestionsPage() {
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 border-b border-base-200">
               <div className="flex flex-wrap gap-2">
                 {[
-                  { value: 'all', label: t('filter_all'), icon: ChatBubbleLeftRightIcon, color: 'text-blue-500' },
-                  { value: 'unanswered', label: t('filter_unanswered'), icon: FireIcon, color: 'text-orange-500' },
-                  { value: 'answered', label: t('filter_answered'), icon: CheckBadgeIcon, color: 'text-green-500' },
+                  {
+                    value: "all",
+                    label: t("filter_all"),
+                    icon: ChatBubbleLeftRightIcon,
+                    color: "text-blue-500",
+                  },
+                  {
+                    value: "unanswered",
+                    label: t("filter_unanswered"),
+                    icon: FireIcon,
+                    color: "text-orange-500",
+                  },
+                  {
+                    value: "answered",
+                    label: t("filter_answered"),
+                    icon: CheckBadgeIcon,
+                    color: "text-green-500",
+                  },
                 ].map((item) => {
                   const Icon = item.icon;
                   const isActive = filter === item.value;
                   return (
                     <button
                       key={item.value}
-                      onClick={() => handleFilterChange(item.value as FilterType)}
+                      onClick={() =>
+                        handleFilterChange(item.value as FilterType)
+                      }
                       className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
                         isActive
-                          ? 'bg-primary/10 text-primary border border-primary/20'
-                          : 'text-base-content/60 hover:text-base-content hover:bg-base-200/50'
+                          ? "bg-primary/10 text-primary border border-primary/20"
+                          : "text-base-content/60 hover:text-base-content hover:bg-base-200/50"
                       }`}
                     >
-                      <Icon className={`w-4 h-4 ${isActive ? item.color : ''}`} />
+                      <Icon
+                        className={`w-4 h-4 ${isActive ? item.color : ""}`}
+                      />
                       {item.label}
                     </button>
                   );
                 })}
               </div>
-              
+
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-2 text-sm">
                   <ArrowsRightLeftIcon className="w-4 h-4 text-base-content/40" />
                   <select
                     value={sort}
-                    onChange={(e) => handleSortChange(e.target.value as SortType)}
+                    onChange={(e) =>
+                      handleSortChange(e.target.value as SortType)
+                    }
                     className="select select-bordered select-sm bg-transparent focus:outline-none"
                   >
-                    <option value="latest">{t('sort_latest')}</option>
-                    <option value="hot">{t('sort_hot')}</option>
-                    <option value="score">{t('sort_score')}</option>
+                    <option value="latest">{t("sort_latest")}</option>
+                    <option value="hot">{t("sort_hot")}</option>
+                    <option value="score">{t("sort_score")}</option>
                   </select>
                 </div>
-                
+
                 {isAuthenticated && (
                   <Link
                     href="/questions/ask"
                     className="btn btn-primary btn-sm"
                   >
                     <PlusIcon className="w-4 h-4" />
-                    {t('ask_button')}
+                    {t("ask_button")}
                   </Link>
                 )}
               </div>
@@ -236,7 +259,10 @@ export default function QuestionsPage() {
               {loading ? (
                 <div className="space-y-3 p-4">
                   {[1, 2, 3, 4, 5].map((i) => (
-                    <div key={i} className="card bg-base-100 border border-base-200">
+                    <div
+                      key={i}
+                      className="card bg-base-100 border border-base-200"
+                    >
                       <div className="card-body p-5">
                         <div className="h-5 bg-base-200 rounded w-3/4 mb-2 animate-pulse" />
                         <div className="h-4 bg-base-200 rounded w-1/2 mb-3 animate-pulse" />
@@ -253,12 +279,16 @@ export default function QuestionsPage() {
                   <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-red-50 dark:bg-red-900/20 flex items-center justify-center">
                     <ChatBubbleLeftRightIcon className="w-10 h-10 text-red-400" />
                   </div>
-                  <h3 className="text-lg font-semibold text-base-content mb-2">{t('empty_title')}</h3>
-                  <p className="text-base-content/60 mb-4">{t('empty_description')}</p>
+                  <h3 className="text-lg font-semibold text-base-content mb-2">
+                    {t("empty_title")}
+                  </h3>
+                  <p className="text-base-content/60 mb-4">
+                    {t("empty_description")}
+                  </p>
                   {isAuthenticated && (
                     <Link href="/questions/ask" className="btn btn-primary">
                       <PlusIcon className="w-4 h-4" />
-                      {t('ask_first_button')}
+                      {t("ask_first_button")}
                     </Link>
                   )}
                 </div>
@@ -276,13 +306,17 @@ export default function QuestionsPage() {
                           <div className="text-sm font-semibold text-base-content">
                             {getAnswerCount(question)}
                           </div>
-                          <div className="text-xs text-base-content/40">{t('answer_count_label')}</div>
+                          <div className="text-xs text-base-content/40">
+                            {t("answer_count_label")}
+                          </div>
                           <div className="text-sm font-semibold text-base-content mt-1">
                             {question.view_count || 0}
                           </div>
-                          <div className="text-xs text-base-content/40">{t('view_count_label')}</div>
+                          <div className="text-xs text-base-content/40">
+                            {t("view_count_label")}
+                          </div>
                         </div>
-                        
+
                         {/* 问题内容 */}
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between gap-4">
@@ -292,30 +326,33 @@ export default function QuestionsPage() {
                             {getIsAccepted(question) && (
                               <span className="badge badge-success gap-1 shrink-0">
                                 <CheckBadgeIcon className="w-3 h-3" />
-                                {t('resolved_badge')}
+                                {t("resolved_badge")}
                               </span>
                             )}
                           </div>
-                          
+
                           {getRewardScore(question) > 0 && (
                             <div className="flex items-center gap-1 mt-1">
                               <span className="badge badge-warning badge-sm gap-1">
-                                💰 {t('reward_score_text', { score: getRewardScore(question) })}
+                                💰{" "}
+                                {t("reward_score_text", {
+                                  score: getRewardScore(question),
+                                })}
                               </span>
                             </div>
                           )}
-                          
+
                           <p className="text-sm text-base-content/60 line-clamp-2 mt-2">
-                            {question.summary || t('no_content')}
+                            {question.summary || t("no_content")}
                           </p>
-                          
+
                           <div className="flex flex-wrap items-center gap-4 mt-3 text-xs text-base-content/50">
                             <span className="flex items-center gap-1">
                               <UserCircleIcon className="w-3.5 h-3.5" />
-                              {question.author?.username || t('anonymous')}
+                              {question.author?.username || t("anonymous")}
                             </span>
                             <span>{formatTime(question.created_at)}</span>
-                            
+
                             {/* Tags */}
                             {question.tags && question.tags.length > 0 && (
                               <div className="flex flex-wrap gap-1">
@@ -344,7 +381,7 @@ export default function QuestionsPage() {
               <div className="flex justify-center gap-2 p-4 border-t border-base-200">
                 <div className="join">
                   <button
-                    onClick={() => setPage(p => Math.max(1, p - 1))}
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
                     disabled={page === 1}
                     className="join-item btn btn-sm"
                   >
@@ -354,7 +391,7 @@ export default function QuestionsPage() {
                     {page}
                   </button>
                   <button
-                    onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                     disabled={page >= totalPages}
                     className="join-item btn btn-sm"
                   >
@@ -362,7 +399,7 @@ export default function QuestionsPage() {
                   </button>
                 </div>
                 <span className="text-sm text-base-content/60 flex items-center">
-                  {t('total_items', { total })}
+                  {t("total_items", { total })}
                 </span>
               </div>
             )}

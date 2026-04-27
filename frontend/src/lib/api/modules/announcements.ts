@@ -30,7 +30,7 @@ export interface Announcement {
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
-  
+
   // 关联数据
   board?: {
     id: number;
@@ -109,19 +109,25 @@ export interface AnnouncementListResponse {
 
 export const announcementApi = {
   // ========== 公开接口 ==========
-  
+
   /**
    * 获取公告列表（支持分页和过滤）
    * @param params 查询参数
    * @returns 分页的公告列表
    */
   list: (params: AnnouncementListParams) =>
-    apiClient.get<ApiResponse<AnnouncementListResponse>>("/announcements", { params }),
+    apiClient.get<ApiResponse<AnnouncementListResponse>>("/announcements", {
+      params,
+    }),
 
   /**
    * 管理员获取公告
    */
-  adminList: (params: AnnouncementListParams) => apiClient.get<ApiResponse<AnnouncementListResponse>>("/admin/announcements", { params }),
+  adminList: (params: AnnouncementListParams) =>
+    apiClient.get<ApiResponse<AnnouncementListResponse>>(
+      "/admin/announcements",
+      { params },
+    ),
   /**
    * 获取置顶公告
    * @param boardId 可选，板块ID
@@ -157,7 +163,10 @@ export const announcementApi = {
    * @returns 更新的公告
    */
   update: (id: number, data: UpdateAnnouncementPayload) =>
-    apiClient.put<ApiResponse<Announcement>>(`/admin/announcements/${id}`, data),
+    apiClient.put<ApiResponse<Announcement>>(
+      `/admin/announcements/${id}`,
+      data,
+    ),
 
   /**
    * 删除公告
@@ -186,7 +195,9 @@ export const announcementApi = {
    * @param pinned 是否置顶
    */
   pin: (id: number, pinned: boolean) =>
-    apiClient.put<ApiResponse<null>>(`/admin/announcements/${id}/pin`, { pinned }),
+    apiClient.put<ApiResponse<null>>(`/admin/announcements/${id}/pin`, {
+      pinned,
+    }),
 };
 
 // ============ 辅助函数 ============

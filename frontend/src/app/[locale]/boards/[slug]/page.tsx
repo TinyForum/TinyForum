@@ -1,23 +1,23 @@
 // src/app/[locale]/boards/[slug]/page.tsx
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { useQuery, keepPreviousData } from '@tanstack/react-query'; // 导入 keepPreviousData
-import { boardApi } from '@/lib/api';
-import { useAuthStore } from '@/store/auth';
+import { useState, useEffect } from "react";
+import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
+import { useQuery, keepPreviousData } from "@tanstack/react-query"; // 导入 keepPreviousData
+import { boardApi } from "@/lib/api";
+import { useAuthStore } from "@/store/auth";
 import {
   PlusIcon,
   ShieldCheckIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   ChatBubbleLeftRightIcon,
-} from '@heroicons/react/24/outline';
-import { BoardPostCard } from '@/components/boards/BoardPostCard';
-import { CreateBoardInline } from '@/components/boards/CreateBoardInline';
-import type { Board,  PageData } from '@/lib/api/types';
-import { BoardPostListItem } from '@/lib/api/modules/boards';
+} from "@heroicons/react/24/outline";
+import { BoardPostCard } from "@/components/boards/BoardPostCard";
+import { CreateBoardInline } from "@/components/boards/CreateBoardInline";
+import type { Board, PageData } from "@/lib/api/types";
+import { BoardPostListItem } from "@/lib/api/modules/boards";
 
 const PAGE_SIZE = 20;
 
@@ -35,7 +35,7 @@ export default function BoardDetailPage() {
     isLoading: loadingBoard,
     error: boardError,
   } = useQuery({
-    queryKey: ['board', slug],
+    queryKey: ["board", slug],
     queryFn: () => boardApi.getBySlug(slug).then((res) => res.data.data),
     retry: (failureCount, error: any) => {
       if (error.response?.status === 404) return false;
@@ -49,7 +49,7 @@ export default function BoardDetailPage() {
     isLoading: loadingPosts,
     error: postsError,
   } = useQuery<PageData<BoardPostListItem>>({
-    queryKey: ['board-posts', slug, page],
+    queryKey: ["board-posts", slug, page],
     queryFn: () =>
       boardApi
         .getPostsBySlug(slug, { page, page_size: PAGE_SIZE })
@@ -69,7 +69,7 @@ export default function BoardDetailPage() {
 
   const handleBoardCreated = (newBoard: Board) => {
     // 板块创建成功后的回调（可留空，或使用 router.refresh() 刷新）
-    console.log('Board created', newBoard);
+    console.log("Board created", newBoard);
   };
 
   const isNotFound = boardError && (boardError as any).response?.status === 404;
@@ -89,11 +89,17 @@ export default function BoardDetailPage() {
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <nav className="mb-6 flex items-center gap-1.5 text-sm text-gray-400">
-        <Link href="/" className="hover:text-blue-500 transition-colors">首页</Link>
+        <Link href="/" className="hover:text-blue-500 transition-colors">
+          首页
+        </Link>
         <span>/</span>
-        <Link href="/boards" className="hover:text-blue-500 transition-colors">板块</Link>
+        <Link href="/boards" className="hover:text-blue-500 transition-colors">
+          板块
+        </Link>
         <span>/</span>
-        <span className="text-gray-700 dark:text-gray-200 font-medium">{board.name}</span>
+        <span className="text-gray-700 dark:text-gray-200 font-medium">
+          {board.name}
+        </span>
       </nav>
 
       <BoardHeader board={board} slug={slug} user={user} />
@@ -110,7 +116,11 @@ export default function BoardDetailPage() {
             ))}
           </div>
           {totalPages > 1 && (
-            <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
+            <Pagination
+              page={page}
+              totalPages={totalPages}
+              onPageChange={setPage}
+            />
           )}
         </>
       )}
@@ -144,13 +154,22 @@ function BoardHeader({
           )}
           <div className="flex items-center gap-4 mt-3 text-xs text-gray-400">
             <span>
-              帖子 <strong className="text-gray-600 dark:text-gray-300">{board.post_count}</strong>
+              帖子{" "}
+              <strong className="text-gray-600 dark:text-gray-300">
+                {board.post_count}
+              </strong>
             </span>
             <span>
-              主题 <strong className="text-gray-600 dark:text-gray-300">{board.thread_count}</strong>
+              主题{" "}
+              <strong className="text-gray-600 dark:text-gray-300">
+                {board.thread_count}
+              </strong>
             </span>
             <span>
-              今日 <strong className="text-gray-600 dark:text-gray-300">{board.today_count}</strong>
+              今日{" "}
+              <strong className="text-gray-600 dark:text-gray-300">
+                {board.today_count}
+              </strong>
             </span>
           </div>
         </div>
@@ -183,7 +202,9 @@ function EmptyState({ boardId }: { boardId: number }) {
   return (
     <div className="text-center py-16 bg-white dark:bg-gray-800 rounded-2xl border border-dashed border-gray-200 dark:border-gray-700">
       <ChatBubbleLeftRightIcon className="w-10 h-10 text-gray-300 mx-auto mb-3" />
-      <p className="text-gray-500 dark:text-gray-400 mb-4">还没有帖子，来发第一帖吧</p>
+      <p className="text-gray-500 dark:text-gray-400 mb-4">
+        还没有帖子，来发第一帖吧
+      </p>
       <Link
         href={`/posts/new?board_id=${boardId}`}
         className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-xl transition-colors"
@@ -215,7 +236,8 @@ function Pagination({
         <ChevronLeftIcon className="w-4 h-4" />
       </button>
       <span className="text-sm text-gray-500 px-2">
-        第 <strong className="text-gray-900 dark:text-white">{page}</strong> / {totalPages} 页
+        第 <strong className="text-gray-900 dark:text-white">{page}</strong> /{" "}
+        {totalPages} 页
       </span>
       <button
         onClick={() => onPageChange(page + 1)}

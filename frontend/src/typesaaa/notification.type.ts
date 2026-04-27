@@ -1,4 +1,9 @@
-export type NotificationType = 'comment' | 'like' | 'follow' | 'reply' | 'system';
+export type NotificationType =
+  | "comment"
+  | "like"
+  | "follow"
+  | "reply"
+  | "system";
 
 import { User } from "./user.type";
 export interface Notification extends BaseModel {

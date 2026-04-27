@@ -1,23 +1,23 @@
 // app/questions/[id]/page.tsx
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { 
-  ArrowLeftIcon, 
+import { useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
+import {
+  ArrowLeftIcon,
   ChatBubbleLeftRightIcon,
-  UserGroupIcon 
-} from '@heroicons/react/24/outline';
-import { useAuthStore } from '@/store/auth';
-import { useQuestionDetail } from '@/hooks/useQuestionDetail';
-import { AnswerCard } from '@/components/question/AnswerCard';
-import { toast } from 'react-hot-toast';
-import { postApi, questionApi } from '@/lib/api';
-import { AnswerForm } from '@/components/question/AnswerForm';
-import { QuestionHeader } from '@/components/question/QuestionHeader';
-import { answerApi } from '@/lib/api/modules/answer';
-import { useTranslations } from 'next-intl';
+  UserGroupIcon,
+} from "@heroicons/react/24/outline";
+import { useAuthStore } from "@/store/auth";
+import { useQuestionDetail } from "@/hooks/useQuestionDetail";
+import { AnswerCard } from "@/components/question/AnswerCard";
+import { toast } from "react-hot-toast";
+import { postApi, questionApi } from "@/lib/api";
+import { AnswerForm } from "@/components/question/AnswerForm";
+import { QuestionHeader } from "@/components/question/QuestionHeader";
+import { answerApi } from "@/lib/api/modules/answer";
+import { useTranslations } from "next-intl";
 
 // 加载骨架屏组件
 function LoadingSkeleton() {
@@ -28,7 +28,7 @@ function LoadingSkeleton() {
         <div className="animate-pulse">
           {/* 返回按钮骨架 */}
           <div className="h-5 w-24 bg-base-200 rounded mb-6" />
-          
+
           {/* 问题卡片骨架 */}
           <div className="bg-base-100 rounded-2xl shadow-sm p-6 mb-6">
             <div className="h-7 bg-base-200 rounded-lg w-3/4 mb-4" />
@@ -42,7 +42,7 @@ function LoadingSkeleton() {
               <div className="h-4 bg-base-200 rounded w-2/3" />
             </div>
           </div>
-          
+
           {/* 回答区域骨架 */}
           <div className="space-y-3">
             <div className="h-6 w-32 bg-base-200 rounded" />
@@ -73,11 +73,13 @@ function ErrorState({ message }: { message: string }) {
     <div className="min-h-screen bg-gradient-to-b from-base-200 to-base-100 flex items-center justify-center">
       <div className="text-center">
         <div className="text-6xl mb-5">😕</div>
-        <h3 className="text-xl font-semibold text-base-content mb-2">{t('load_failed')}</h3>
+        <h3 className="text-xl font-semibold text-base-content mb-2">
+          {t("load_failed")}
+        </h3>
         <p className="text-base-content/60 mb-6">{message}</p>
         <Link href="/questions" className="btn btn-primary btn-sm gap-2">
           <ArrowLeftIcon className="w-4 h-4" />
-          {t('back_to_questions')}
+          {t("back_to_questions")}
         </Link>
       </div>
     </div>
@@ -85,24 +87,29 @@ function ErrorState({ message }: { message: string }) {
 }
 
 // 分页组件
-function Pagination({ currentPage, totalPages, onPageChange }: { 
-  currentPage: number; 
-  totalPages: number; 
+function Pagination({
+  currentPage,
+  totalPages,
+  onPageChange,
+}: {
+  currentPage: number;
+  totalPages: number;
   onPageChange: (page: number) => void;
 }) {
   const t = useTranslations("Questions");
-  
+
   const getPageNumbers = () => {
     const pages: number[] = [];
     const maxVisible = 5;
-    
+
     if (totalPages <= maxVisible) {
       for (let i = 1; i <= totalPages; i++) pages.push(i);
     } else {
       if (currentPage <= 3) {
         for (let i = 1; i <= maxVisible; i++) pages.push(i);
       } else if (currentPage >= totalPages - 2) {
-        for (let i = totalPages - maxVisible + 1; i <= totalPages; i++) pages.push(i);
+        for (let i = totalPages - maxVisible + 1; i <= totalPages; i++)
+          pages.push(i);
       } else {
         for (let i = currentPage - 2; i <= currentPage + 2; i++) pages.push(i);
       }
@@ -118,31 +125,29 @@ function Pagination({ currentPage, totalPages, onPageChange }: {
         className="btn btn-ghost btn-sm gap-1"
       >
         <ArrowLeftIcon className="w-4 h-4" />
-        {t('prev_page')}
+        {t("prev_page")}
       </button>
-      
+
       <div className="flex gap-1.5 mx-2">
         {getPageNumbers().map((pageNum) => (
           <button
             key={pageNum}
             onClick={() => onPageChange(pageNum)}
             className={`btn btn-sm min-w-[2.5rem] ${
-              currentPage === pageNum
-                ? 'btn-primary'
-                : 'btn-ghost'
+              currentPage === pageNum ? "btn-primary" : "btn-ghost"
             }`}
           >
             {pageNum}
           </button>
         ))}
       </div>
-      
+
       <button
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage >= totalPages}
         className="btn btn-ghost btn-sm gap-1"
       >
-        {t('next_page')}
+        {t("next_page")}
         <ArrowLeftIcon className="w-4 h-4 rotate-180" />
       </button>
     </div>
@@ -158,13 +163,13 @@ export default function QuestionDetailPage() {
   const pageSize = 20;
 
   const questionId = Number(params.id);
-  
-  const { 
-    question, 
-    answers, 
-    answersTotal, 
-    liked, 
-    loading, 
+
+  const {
+    question,
+    answers,
+    answersTotal,
+    liked,
+    loading,
     refresh,
     setLiked,
     setAnswers,
@@ -173,28 +178,28 @@ export default function QuestionDetailPage() {
 
   const handleAcceptAnswer = async (answerId: number) => {
     if (!isAuthenticated) {
-      toast.error(t('please_login'));
-      router.push('/login');
+      toast.error(t("please_login"));
+      router.push("/login");
       return;
     }
 
     try {
       const response = await answerApi.acceptAnswer(answerId);
       if (response.data.code === 200) {
-        toast.success(t('answer_accepted'));
+        toast.success(t("answer_accepted"));
         refresh();
       } else {
-        toast.error(response.data.message || t('operation_failed'));
+        toast.error(response.data.message || t("operation_failed"));
       }
     } catch (error: any) {
-      toast.error(error.response?.data?.message || t('operation_failed'));
+      toast.error(error.response?.data?.message || t("operation_failed"));
     }
   };
 
   const handleLike = async () => {
     if (!isAuthenticated) {
-      toast.error(t('please_login'));
-      router.push('/login');
+      toast.error(t("please_login"));
+      router.push("/login");
       return;
     }
 
@@ -208,7 +213,7 @@ export default function QuestionDetailPage() {
       }
       refresh();
     } catch (error: any) {
-      toast.error(error.response?.data?.message || t('operation_failed'));
+      toast.error(error.response?.data?.message || t("operation_failed"));
     }
   };
 
@@ -222,11 +227,11 @@ export default function QuestionDetailPage() {
   }
 
   if (!question) {
-    return <ErrorState message={t('question_not_found')} />;
+    return <ErrorState message={t("question_not_found")} />;
   }
 
   const isAuthor = user?.id === question.author_id;
-  const hasAccepted = answers.some(a => a.is_accepted);
+  const hasAccepted = answers.some((a) => a.is_accepted);
   const totalPages = Math.ceil(answersTotal / pageSize);
 
   return (
@@ -239,14 +244,14 @@ export default function QuestionDetailPage() {
             className="inline-flex items-center gap-2 text-base-content/60 hover:text-primary transition-all duration-200 group"
           >
             <ArrowLeftIcon className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
-            <span className="text-sm font-medium">{t('back_to_list')}</span>
+            <span className="text-sm font-medium">{t("back_to_list")}</span>
           </Link>
-          
+
           {/* 统计信息 */}
           <div className="flex items-center gap-4 text-sm text-base-content/50">
             <div className="flex items-center gap-1.5">
               <ChatBubbleLeftRightIcon className="w-4 h-4" />
-              <span>{t('answers_count', { count: answersTotal })}</span>
+              <span>{t("answers_count", { count: answersTotal })}</span>
             </div>
           </div>
         </div>
@@ -269,19 +274,21 @@ export default function QuestionDetailPage() {
           <div className="flex items-center gap-2.5 mb-5">
             <div className="w-1 h-6 bg-primary rounded-full" />
             <h2 className="text-lg font-semibold text-base-content">
-              {t('all_answers')}
+              {t("all_answers")}
             </h2>
             <span className="text-sm text-base-content/40">
               ({answersTotal})
             </span>
             <div className="flex-1 h-px bg-gradient-to-r from-base-200 to-transparent" />
           </div>
-          
+
           {answers.length === 0 ? (
             <div className="bg-base-100 rounded-2xl shadow-sm p-12 text-center border border-base-200">
               <div className="text-5xl mb-4 opacity-50">💬</div>
-              <p className="text-base-content/60">{t('no_answers')}</p>
-              <p className="text-sm text-base-content/40 mt-1">{t('be_first_to_answer')}</p>
+              <p className="text-base-content/60">{t("no_answers")}</p>
+              <p className="text-sm text-base-content/40 mt-1">
+                {t("be_first_to_answer")}
+              </p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -301,7 +308,7 @@ export default function QuestionDetailPage() {
 
           {/* 分页 */}
           {totalPages > 1 && (
-            <Pagination 
+            <Pagination
               currentPage={answerPage}
               totalPages={totalPages}
               onPageChange={setAnswerPage}
@@ -314,11 +321,11 @@ export default function QuestionDetailPage() {
           <div className="flex items-center gap-2.5 mb-5">
             <div className="w-1 h-6 bg-secondary rounded-full" />
             <h2 className="text-lg font-semibold text-base-content">
-              {t('post_answer')}
+              {t("post_answer")}
             </h2>
             <div className="flex-1 h-px bg-gradient-to-r from-base-200 to-transparent" />
           </div>
-          
+
           {isAuthenticated ? (
             <div className="bg-base-100 rounded-2xl shadow-sm border border-base-200 overflow-hidden">
               <AnswerForm questionId={questionId} onSuccess={onAnswerCreated} />
@@ -326,13 +333,15 @@ export default function QuestionDetailPage() {
           ) : (
             <div className="bg-base-100 rounded-2xl shadow-sm p-8 text-center border border-base-200">
               <div className="text-5xl mb-4 opacity-50">🔒</div>
-              <p className="text-base-content/60 mb-4">{t('login_to_answer')}</p>
+              <p className="text-base-content/60 mb-4">
+                {t("login_to_answer")}
+              </p>
               <Link
                 href={`/login?redirect=/questions/${questionId}`}
                 className="btn btn-primary btn-md gap-2"
               >
                 <UserGroupIcon className="w-4 h-4" />
-                {t('login_now')}
+                {t("login_now")}
               </Link>
             </div>
           )}

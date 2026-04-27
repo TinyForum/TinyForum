@@ -1,11 +1,10 @@
 // import { User } from './user.type';
 
-import { Board } from './board.type';
-import { Topic } from './topic.type';
-import { User } from './user.type';
+import { Board } from "./board.type";
+import { Topic } from "./topic.type";
+import { User } from "./user.type";
 
-
-export  type SortBy = 'latest'  | 'hot' | "like"| 'random';
+export type SortBy = "latest" | "hot" | "like" | "random";
 // export interface Tag {
 //   id: number;
 //   name: string;
@@ -16,12 +15,6 @@ export  type SortBy = 'latest'  | 'hot' | "like"| 'random';
 
 // export type PostType = 'post' | 'article' | 'topic' | "question" | "all";
 // export type PostStatus = 'draft' | 'published' | 'hidden';
-
-
-
-
-
-
 
 // export interface ApiResponse<T> {
 //   code: number;
@@ -122,7 +115,14 @@ export interface TimelineEvent {
   id: number;
   user_id: number;
   actor_id: number;
-  action: 'create_post' | 'create_comment' | 'like_post' | 'like_comment' | 'follow_user' | 'accept_answer' | 'sign_in';
+  action:
+    | "create_post"
+    | "create_comment"
+    | "like_post"
+    | "like_comment"
+    | "follow_user"
+    | "accept_answer"
+    | "sign_in";
   target_id: number;
   target_type: string;
   payload: any;
@@ -158,12 +158,10 @@ export interface Subscription {
 
 // AnswerVoteResult 投票结果
 export interface AnswerVoteResult {
-  vote_type: 'up' | 'down' | '';
+  vote_type: "up" | "down" | "";
   vote_count: number;
-  action: 'added' | 'removed' | 'updated';
+  action: "added" | "removed" | "updated";
 }
-
-
 
 // 添加版主申请类型
 export interface ModeratorApplication {
@@ -171,7 +169,7 @@ export interface ModeratorApplication {
   user_id: number;
   board_id: number;
   reason: string;
-  status: 'pending' | 'approved' | 'rejected';
+  status: "pending" | "approved" | "rejected";
   handled_by: number | null;
   handle_note: string;
   created_at: string;
@@ -180,8 +178,6 @@ export interface ModeratorApplication {
   board?: Board;
   handler?: User;
 }
-
-
 
 // // 基础类型
 // // export type SortBy = 'latest' | 'hot' | 'like' | 'random';
@@ -228,17 +224,17 @@ export interface AuthResult {
 //   handler?: User;
 // }
 
-export * from './auth.type'
-export * from './board.type';
-export * from './comment.type';
-export * from './follow.type'
-export * from './like.type';
-export * from './notification.type';
-export * from './post.type';
-export * from './question.type';
-export * from './report.type';
-export * from './tags.type';
-export * from './timeline.type';
-export * from './topic.type';
-export * from './user.type';
-export * from './moderator.type';
+export * from "./auth.type";
+export * from "./board.type";
+export * from "./comment.type";
+export * from "./follow.type";
+export * from "./like.type";
+export * from "./notification.type";
+export * from "./post.type";
+export * from "./question.type";
+export * from "./report.type";
+export * from "./tags.type";
+export * from "./timeline.type";
+export * from "./topic.type";
+export * from "./user.type";
+export * from "./moderator.type";

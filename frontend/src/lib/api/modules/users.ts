@@ -16,16 +16,16 @@ export interface RoleResponse {
   role: UserRoleType;
 }
 export interface LeaderboardRequest {
-    limit?: number;   // 对应 query 参数，可选
-    fields?: string;
+  limit?: number; // 对应 query 参数，可选
+  fields?: string;
 }
 
 export interface LeaderboardItemResponse {
-    id: number;
-    username: string;
-    avatar: string;
-    score: number;
-    rank: number;
+  id: number;
+  username: string;
+  avatar: string;
+  score: number;
+  rank: number;
 }
 
 export const userApi = {
@@ -49,14 +49,20 @@ export const userApi = {
     apiClient.delete<ApiResponse<null>>(`/users/${id}/follow`),
 
   // 积分排行
-  getLeaderboardSimple: (params?:LeaderboardRequest) =>
-    apiClient.get<ApiResponse<LeaderboardItemResponse[]>>("/users/leaderboard/simple", {
-       params ,
-    }),
-  getLeaderboardDetail: (params?:LeaderboardRequest) =>
-    apiClient.get<ApiResponse<LeaderboardItemResponse[]>>("/users/leaderboard/detail", {
-       params ,
-    }),
+  getLeaderboardSimple: (params?: LeaderboardRequest) =>
+    apiClient.get<ApiResponse<LeaderboardItemResponse[]>>(
+      "/users/leaderboard/simple",
+      {
+        params,
+      },
+    ),
+  getLeaderboardDetail: (params?: LeaderboardRequest) =>
+    apiClient.get<ApiResponse<LeaderboardItemResponse[]>>(
+      "/users/leaderboard/detail",
+      {
+        params,
+      },
+    ),
 
   follwowers: (id: number, params?: { page?: number; page_size?: number }) =>
     apiClient.get<ApiResponse<PageData<User>>>(`/users/${id}/followers`, {

@@ -1,1 +1,1 @@
-export  type SortBy = 'latest'  | 'hot' | "like"| 'random';
+export type SortBy = "latest" | "hot" | "like" | "random";

@@ -6,7 +6,7 @@ export function useModeratorPosts(
   boardId: number,
   page: number = 1,
   keyword: string = "",
-  enabled: boolean = true
+  enabled: boolean = true,
 ) {
   const query = useQuery({
     queryKey: ["moderator", "posts", boardId, page, keyword],

@@ -10,7 +10,12 @@ interface ModeratorDashboardProps {
   t: (key: string) => string;
 }
 
-export function ModeratorDashboard({ board, permissions, stats, t }: ModeratorDashboardProps) {
+export function ModeratorDashboard({
+  board,
+  permissions,
+  stats,
+  t,
+}: ModeratorDashboardProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       <div className="stat bg-base-100 rounded-lg border border-base-300 p-4">

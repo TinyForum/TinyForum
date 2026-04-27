@@ -1,11 +1,16 @@
-
 /**
  * api/modules/comments.ts
  * 包含评论 CRUD + 答案投票 / 采纳
  */
 
 import apiClient from "../client";
-import type { ApiResponse, PageData, Comment, AnswerVoteResult, VoteType } from "../types";
+import type {
+  ApiResponse,
+  PageData,
+  Comment,
+  AnswerVoteResult,
+  VoteType,
+} from "../types";
 
 export interface CreateCommentPayload {
   post_id: number;
@@ -20,11 +25,13 @@ export interface VoteStatusResult {
 }
 
 export const commentApi = {
-  listByPost: (postId: number, params?: { page?: number; page_size?: number }) =>
-    apiClient.get<ApiResponse<PageData<Comment>>>(
-      `/comments/post/${postId}`,
-      { params }
-    ),
+  listByPost: (
+    postId: number,
+    params?: { page?: number; page_size?: number },
+  ) =>
+    apiClient.get<ApiResponse<PageData<Comment>>>(`/comments/post/${postId}`, {
+      params,
+    }),
 
   create: (data: CreateCommentPayload) =>
     apiClient.post<ApiResponse<Comment>>("/comments", data),
@@ -46,5 +53,5 @@ export const commentApi = {
   //   apiClient.put<ApiResponse<null>>(
   //     `/comments/${id}/answer`,
   //     { is_answer: isAnswer }
-    // ),
+  // ),
 };

@@ -34,9 +34,8 @@ export interface CreatePostPayload {
   type?: PostType;
   board_id?: number;
   tag_ids?: number[];
-  status?:PostStatus;
+  status?: PostStatus;
 }
-
 
 export type PostStatus = "draft" | "published" | "pending" | "hidden";
 
@@ -101,8 +100,8 @@ export const postApi = {
 
   /**
    * 创建文章
-   * @param data 
-   * @returns 
+   * @param data
+   * @returns
    */
   create: (data: CreatePostPayload) =>
     apiClient.post<ApiResponse<Post>>("/posts", data),
@@ -110,11 +109,9 @@ export const postApi = {
   update: (id: number, data: UpdatePostPayload) =>
     apiClient.put<ApiResponse<Post>>(`/posts/${id}`, data),
 
-  delete: (id: number) =>
-    apiClient.delete<ApiResponse<null>>(`/posts/${id}`),
+  delete: (id: number) => apiClient.delete<ApiResponse<null>>(`/posts/${id}`),
 
-  like: (id: number) =>
-    apiClient.post<ApiResponse<null>>(`/posts/${id}/like`),
+  like: (id: number) => apiClient.post<ApiResponse<null>>(`/posts/${id}/like`),
 
   unlike: (id: number) =>
     apiClient.delete<ApiResponse<null>>(`/posts/${id}/like`),
@@ -131,7 +128,6 @@ export const postApi = {
   //     `/posts/question/${id}`,
   //     { params }
   //   ),
-  
 
   /** 采纳答案（通过 post 路由） */
   // acceptAnswer: (postId: number, commentId: number) =>

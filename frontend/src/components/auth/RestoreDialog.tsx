@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { AlertTriangle, RefreshCw, LogOut, Trash2 } from 'lucide-react';
+import { AlertTriangle, RefreshCw, LogOut, Trash2 } from "lucide-react";
 
 interface DeletionStatus {
   is_deleted: boolean;
@@ -37,14 +37,20 @@ export default function RestoreDialog({
           </div>
           <h2 className="text-xl font-bold text-warning">账户已标记删除</h2>
           <p className="text-gray-600 dark:text-gray-400 mt-2">
-            您的账户已于 {deletionStatus.deleted_at && new Date(deletionStatus.deleted_at).toLocaleDateString()} 标记为删除，
-            剩余 <span className="text-warning font-bold">{deletionStatus.remaining_days}</span> 天可恢复。
+            您的账户已于{" "}
+            {deletionStatus.deleted_at &&
+              new Date(deletionStatus.deleted_at).toLocaleDateString()}{" "}
+            标记为删除， 剩余{" "}
+            <span className="text-warning font-bold">
+              {deletionStatus.remaining_days}
+            </span>{" "}
+            天可恢复。
           </p>
           <p className="text-sm text-red-600 mt-2 font-semibold">
             逾期将永久删除，无法恢复！
           </p>
         </div>
-        
+
         <div className="flex flex-col gap-3 mt-6">
           <button
             onClick={onRestore}
@@ -58,7 +64,7 @@ export default function RestoreDialog({
             )}
             恢复账户
           </button>
-          
+
           <button
             onClick={onPermanentDelete}
             disabled={isLoading}
@@ -67,7 +73,7 @@ export default function RestoreDialog({
             <Trash2 className="w-4 h-4" />
             立即永久删除
           </button>
-          
+
           <button
             onClick={onLogout}
             disabled={isLoading}

@@ -2,20 +2,13 @@
 "use client";
 
 import { useState } from "react";
-import {
-  Shield,
-  Flag,
-  FileText,
-  Ban,
-  Bell,
-} from "lucide-react";
+import { Shield, Flag, FileText, Ban, Bell } from "lucide-react";
 import { ApplicationManagement } from "./ApplicationManagement";
 import { BanManagement } from "./BanManagement";
 import { ModeratorManagement } from "./ModeratorManagement";
 import { PostManagement } from "./PostManagement";
 import { ReportManagement } from "./ReportManagement";
 import { ReviewManagement } from "./ReviewManagement";
-
 
 // ============ 主组件 ============
 export function AdminTasks() {
@@ -28,12 +21,10 @@ export function AdminTasks() {
     { id: "reports", label: "举报管理", icon: Flag },
     { id: "posts", label: "帖子管理", icon: FileText },
     { id: "bans", label: "禁言管理", icon: Ban },
-
   ];
 
   return (
     <div className="flex flex-col gap-6">
-
       <div role="tablist" className="tabs tabs-lifted">
         {tabs.map((tab) => (
           <a
@@ -56,7 +47,9 @@ export function AdminTasks() {
                 <FileText className="w-5 h-5" />
                 版主申请审批
               </h2>
-              <p className="text-gray-500">审核用户提交的版主申请，通过后用户将成为对应板块的版主</p>
+              <p className="text-gray-500">
+                审核用户提交的版主申请，通过后用户将成为对应板块的版主
+              </p>
               <div className="mt-4">
                 <ApplicationManagement />
               </div>
@@ -66,7 +59,7 @@ export function AdminTasks() {
 
         {activeTab === "risks" && (
           <>
-          <ReviewManagement/>
+            <ReviewManagement />
           </>
         )}
         {activeTab === "moderators" && (
@@ -106,7 +99,9 @@ export function AdminTasks() {
                 <FileText className="w-5 h-5" />
                 帖子管理
               </h2>
-              <p className="text-gray-500">搜索、置顶、删除帖子，管理板块内容</p>
+              <p className="text-gray-500">
+                搜索、置顶、删除帖子，管理板块内容
+              </p>
               <div className="mt-4">
                 <PostManagement />
               </div>
@@ -121,7 +116,9 @@ export function AdminTasks() {
                 <Ban className="w-5 h-5" />
                 禁言管理
               </h2>
-              <p className="text-gray-500">禁言违规用户，查看禁言列表，解除禁言</p>
+              <p className="text-gray-500">
+                禁言违规用户，查看禁言列表，解除禁言
+              </p>
               <div className="mt-4">
                 <BanManagement />
               </div>

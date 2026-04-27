@@ -2,14 +2,24 @@ import { useEffect, useRef } from "react";
 import * as echarts from "echarts";
 import { useStatsData } from "@/hooks/admin/useStatsData";
 import { useStatistics } from "@/hooks/useStatistics";
-import { Activity, Award, Database, FileText, Users, MessageCircle, TrendingUp } from "lucide-react";
+import {
+  Activity,
+  Award,
+  Database,
+  FileText,
+  Users,
+  MessageCircle,
+  TrendingUp,
+} from "lucide-react";
 import { CommunityStats } from "../home/CommunityStats";
 
 export function Dashboard({ t }: { t: (key: string) => string }) {
   const { stats, charts, exportData, isLoading } = useStatsData(true);
 
   // 获取范围统计数据（最近30天，type=all）
-  const { rangeStats, rangeLoading, fetchRangeStats } = useStatistics({ autoFetch: false });
+  const { rangeStats, rangeLoading, fetchRangeStats } = useStatistics({
+    autoFetch: false,
+  });
 
   // 图表 refs（原有 + 新增）
   const newUserTrendRef = useRef<HTMLDivElement>(null);
@@ -28,16 +38,18 @@ export function Dashboard({ t }: { t: (key: string) => string }) {
     const chart = echarts.init(newUserTrendRef.current);
     chart.setOption({
       tooltip: { trigger: "axis" },
-      xAxis: { type: "category", data: rangeStats.map(d => d.date.slice(5)) },
+      xAxis: { type: "category", data: rangeStats.map((d) => d.date.slice(5)) },
       yAxis: { type: "value", name: t("user_count") },
-      series: [{
-        data: rangeStats.map(d => d.new_user),
-        type: "line",
-        smooth: true,
-        areaStyle: { opacity: 0.2 },
-        lineStyle: { color: "#6366f1", width: 2 },
-      }],
-      grid: { top: 30, left: 50, right: 20, bottom: 20, containLabel: true }
+      series: [
+        {
+          data: rangeStats.map((d) => d.new_user),
+          type: "line",
+          smooth: true,
+          areaStyle: { opacity: 0.2 },
+          lineStyle: { color: "#6366f1", width: 2 },
+        },
+      ],
+      grid: { top: 30, left: 50, right: 20, bottom: 20, containLabel: true },
     });
     return () => chart.dispose();
   }, [rangeStats, t]);
@@ -48,16 +60,18 @@ export function Dashboard({ t }: { t: (key: string) => string }) {
     const chart = echarts.init(newPostTrendRef.current);
     chart.setOption({
       tooltip: { trigger: "axis" },
-      xAxis: { type: "category", data: rangeStats.map(d => d.date.slice(5)) },
+      xAxis: { type: "category", data: rangeStats.map((d) => d.date.slice(5)) },
       yAxis: { type: "value", name: t("post_count") },
-      series: [{
-        data: rangeStats.map(d => d.new_article),
-        type: "line",
-        smooth: true,
-        areaStyle: { opacity: 0.2 },
-        lineStyle: { color: "#06b6d4", width: 2 },
-      }],
-      grid: { top: 30, left: 50, right: 20, bottom: 20, containLabel: true }
+      series: [
+        {
+          data: rangeStats.map((d) => d.new_article),
+          type: "line",
+          smooth: true,
+          areaStyle: { opacity: 0.2 },
+          lineStyle: { color: "#06b6d4", width: 2 },
+        },
+      ],
+      grid: { top: 30, left: 50, right: 20, bottom: 20, containLabel: true },
     });
     return () => chart.dispose();
   }, [rangeStats, t]);
@@ -68,16 +82,18 @@ export function Dashboard({ t }: { t: (key: string) => string }) {
     const chart = echarts.init(newCommentTrendRef.current);
     chart.setOption({
       tooltip: { trigger: "axis" },
-      xAxis: { type: "category", data: rangeStats.map(d => d.date.slice(5)) },
+      xAxis: { type: "category", data: rangeStats.map((d) => d.date.slice(5)) },
       yAxis: { type: "value", name: t("comment_count") },
-      series: [{
-        data: rangeStats.map(d => d.new_comment),
-        type: "line",
-        smooth: true,
-        areaStyle: { opacity: 0.2 },
-        lineStyle: { color: "#ec489a", width: 2 },
-      }],
-      grid: { top: 30, left: 50, right: 20, bottom: 20, containLabel: true }
+      series: [
+        {
+          data: rangeStats.map((d) => d.new_comment),
+          type: "line",
+          smooth: true,
+          areaStyle: { opacity: 0.2 },
+          lineStyle: { color: "#ec489a", width: 2 },
+        },
+      ],
+      grid: { top: 30, left: 50, right: 20, bottom: 20, containLabel: true },
     });
     return () => chart.dispose();
   }, [rangeStats, t]);
@@ -86,19 +102,21 @@ export function Dashboard({ t }: { t: (key: string) => string }) {
   useEffect(() => {
     if (!allTrendRef.current || !rangeStats?.length) return;
     const chart = echarts.init(allTrendRef.current);
-    const totalNew = rangeStats.map(d => d.new_article + d.new_comment);
+    const totalNew = rangeStats.map((d) => d.new_article + d.new_comment);
     chart.setOption({
       tooltip: { trigger: "axis" },
-      xAxis: { type: "category", data: rangeStats.map(d => d.date.slice(5)) },
+      xAxis: { type: "category", data: rangeStats.map((d) => d.date.slice(5)) },
       yAxis: { type: "value", name: t("total_new_content") },
-      series: [{
-        data: totalNew,
-        type: "line",
-        smooth: true,
-        areaStyle: { opacity: 0.2 },
-        lineStyle: { color: "#f59e0b", width: 2 },
-      }],
-      grid: { top: 30, left: 50, right: 20, bottom: 20, containLabel: true }
+      series: [
+        {
+          data: totalNew,
+          type: "line",
+          smooth: true,
+          areaStyle: { opacity: 0.2 },
+          lineStyle: { color: "#f59e0b", width: 2 },
+        },
+      ],
+      grid: { top: 30, left: 50, right: 20, bottom: 20, containLabel: true },
     });
     return () => chart.dispose();
   }, [rangeStats, t]);
