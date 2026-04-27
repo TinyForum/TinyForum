@@ -157,7 +157,7 @@ export default function UserDropdown({
   };
 
   const dashboardConfig = getDashboardConfig();
-  console.log("dashboardConfig: ", dashboardConfig);
+  // console.log("dashboardConfig: ", dashboardConfig);
 
   // 是否有管理权限
   const hasManagementAccess =
