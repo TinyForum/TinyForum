@@ -1,6 +1,7 @@
 package wire
 
 import (
+	"fmt"
 	"tiny-forum/config"
 	"tiny-forum/internal/middleware"
 
@@ -19,6 +20,7 @@ func RegisterRoutes(
 	cfg *config.Config,
 
 ) {
+	fmt.Printf("DEBUG: AllowOrigins = %v, len = %d\n", cfg.Basic.AllowOrigins, len(cfg.Basic.AllowOrigins))
 	// CORS
 	engine.Use(cors.New(cors.Config{
 		AllowOrigins:     cfg.Basic.AllowOrigins,
@@ -234,5 +236,10 @@ func RegisterRoutes(
 		// MARK: 挂载子路由
 		handlers.Stats.RegisterRoutes(adminGroup)
 		handlers.Risk.RegisterRoutes(adminGroup)
+	}
+	uploadGroup := api.Group("/upload", mw.AuthMW())
+	{
+		handlers.Upload.RegisterRoutes(uploadGroup)
+
 	}
 }

@@ -14,6 +14,7 @@ import (
 	tagHandler "tiny-forum/internal/handler/tags"
 	timelineHandler "tiny-forum/internal/handler/timelines"
 	topicHandler "tiny-forum/internal/handler/topic"
+	uploadHandler "tiny-forum/internal/handler/upload"
 	userHandler "tiny-forum/internal/handler/user"
 	"tiny-forum/pkg/timeutil"
 )
@@ -34,6 +35,7 @@ type Handlers struct {
 	Announcement *announcementHandler.AnnouncementHandler
 	Stats        *statsHandler.StatsHandler
 	Risk         *riskhandler.RiskHandler
+	Upload       *uploadHandler.UploadHandler
 }
 
 // NewHandlers 创建所有 Handler 实例
@@ -56,6 +58,7 @@ func NewHandlers(svc *Services, timeHelpers *timeutil.TimeHelpers) *Handlers {
 			svc.Stats,
 			timeHelpers,
 		),
-		Risk: riskhandler.NewRiskHandler(svc.ContentCheck, svc.Risk),
+		Risk:   riskhandler.NewRiskHandler(svc.ContentCheck, svc.Risk),
+		Upload: uploadHandler.NewUploadHandler(svc.Upload),
 	}
 }

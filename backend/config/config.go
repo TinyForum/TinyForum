@@ -13,9 +13,9 @@ import (
 
 // Config 总配置结构
 type Config struct {
-	Basic       ConfigBasic       `mapstructure:"basic"`        //基础配置
-	Private     ConfigPrivate     `mapstructure:"private"`      // 私有配置
-	RiskControl ConfigRiskControl `mapstructure:"risk_control"` // 风控配置
+	Basic       ConfigBasic       //基础配置
+	Private     ConfigPrivate     // 私有配置
+	RiskControl ConfigRiskControl // 风控配置
 }
 
 // 风控配置
@@ -33,14 +33,20 @@ type QuotaConfig struct {
 
 // ConfigBasic 基础配置（公开配置）
 type ConfigBasic struct {
-	Server ServerConfig `mapstructure:"server"`
-	API    APIConfig    `mapstructure:"api"`
-	Log    LogConfig    `mapstructure:"log"`
-	// Redis     RedisConfig     `mapstructure:"redis"`
-	Upload       UploadConfig    `mapstructure:"upload"`
+	Server       ServerConfig    `mapstructure:"server"`
+	API          APIConfig       `mapstructure:"api"`
+	Log          LogConfig       `mapstructure:"log"`
 	RateLimit    RateLimitConfig `mapstructure:"rate_limit"`
 	Ollama       Ollama          `mapstructure:"ollama"`
 	AllowOrigins []string        `mapstructure:"allow_origins"`
+	Upload       UploadConfig    `mapstructure:"upload"`
+}
+
+type UploadConfig struct {
+	UploadDir  string
+	URLPrefix  string
+	MaxSize    int64
+	AllowedExt []string
 }
 
 type Ollama struct {
@@ -173,13 +179,13 @@ type WechatOAuthConfig struct {
 }
 
 // UploadConfig 文件上传配置
-type UploadConfig struct {
-	MaxSize        int64    `mapstructure:"max_size"`
-	AllowedTypes   []string `mapstructure:"allowed_types"`
-	StoragePath    string   `mapstructure:"storage_path"`
-	CDNDomain      string   `mapstructure:"cdn_domain"`
-	EnableCompress bool     `mapstructure:"enable_compress"`
-}
+// type UploadConfig struct {
+// 	MaxSize        int64    `mapstructure:"max_size"`
+// 	AllowedTypes   []string `mapstructure:"allowed_types"`
+// 	StoragePath    string   `mapstructure:"storage_path"`
+// 	CDNDomain      string   `mapstructure:"cdn_domain"`
+// 	EnableCompress bool     `mapstructure:"enable_compress"`
+// }
 
 // RateLimitConfig 限流配置
 // type RateLimitConfig struct {
