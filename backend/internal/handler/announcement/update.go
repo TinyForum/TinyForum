@@ -1,7 +1,7 @@
 package announcement
 
 import (
-	announcementService "tiny-forum/internal/service/announcement"
+	"tiny-forum/internal/dto"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -14,7 +14,7 @@ import (
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path int true "公告ID"
-// @Param body body announcementService.UpdateAnnouncementRequest true "公告信息"
+// @Param body body dto.UpdateAnnouncementRequest true "公告信息"
 // @Success 200 {object} response.Response "更新成功"
 // @Failure 400 {object} response.Response "参数错误"
 // @Failure 401 {object} response.Response "未授权"
@@ -27,7 +27,7 @@ func (h *AnnouncementHandler) Update(c *gin.Context) {
 	if !ok {
 		return
 	}
-	var req announcementService.UpdateAnnouncementRequest
+	var req dto.UpdateAnnouncementRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		response.BadRequest(c, err.Error())
 		return

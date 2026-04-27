@@ -3,12 +3,13 @@ package announcement
 import (
 	"context"
 	"errors"
+	"tiny-forum/internal/dto"
 	apperrors "tiny-forum/pkg/errors"
 
 	"gorm.io/gorm"
 )
 
-func (s *announcementService) Update(ctx context.Context, id uint, req *UpdateAnnouncementRequest, userID uint) error {
+func (s *announcementService) Update(ctx context.Context, id uint, req *dto.UpdateAnnouncementRequest, userID uint) error {
 	announcement, err := s.repo.GetByID(ctx, id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {

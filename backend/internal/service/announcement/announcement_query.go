@@ -3,6 +3,7 @@ package announcement
 import (
 	"context"
 	"errors"
+	"tiny-forum/internal/dto"
 	"tiny-forum/internal/model"
 	announcementRepo "tiny-forum/internal/repository/announcement"
 	apperrors "tiny-forum/pkg/errors"
@@ -22,7 +23,7 @@ func (s *announcementService) GetByID(ctx context.Context, id uint) (*model.Anno
 	return announcement, nil
 }
 
-func (s *announcementService) List(ctx context.Context, req *ListAnnouncementRequest) (*ListAnnouncementResponse, error) {
+func (s *announcementService) List(ctx context.Context, req *dto.ListAnnouncementRequest) (*dto.ListAnnouncementResponse, error) {
 	if req.Page <= 0 {
 		req.Page = 1
 	}
@@ -46,7 +47,7 @@ func (s *announcementService) List(ctx context.Context, req *ListAnnouncementReq
 	if err != nil {
 		return nil, err
 	}
-	return &ListAnnouncementResponse{
+	return &dto.ListAnnouncementResponse{
 		Total:         total,
 		Page:          req.Page,
 		PageSize:      req.PageSize,

@@ -15,6 +15,614 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/admin/announcements": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "管理员创建一条新公告，需要认证及管理员权限",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "公告管理"
+                ],
+                "summary": "创建公告",
+                "parameters": [
+                    {
+                        "description": "公告信息",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreateAnnouncementRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "创建成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.Announcement"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "请求参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "无权限（非管理员）",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/announcements/{id}": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "更新公告信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "公告管理"
+                ],
+                "summary": "更新公告",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "公告ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "公告信息",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdateAnnouncementRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "更新成功",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "无权限",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "公告不存在",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "管理员根据ID删除公告，需要认证及管理员权限",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "公告管理"
+                ],
+                "summary": "删除公告",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "公告ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "删除成功",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误（无效的公告ID）",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "无权限（非管理员）",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "公告不存在",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/announcements/{id}/archive": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "将公告状态设为已归档",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "公告管理"
+                ],
+                "summary": "归档公告",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "公告ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "归档成功",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "无权限",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "公告不存在",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/announcements/{id}/pin": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "设置公告的置顶状态",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "公告管理"
+                ],
+                "summary": "置顶/取消置顶公告",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "公告ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "置顶状态",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "操作成功",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "无权限",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "公告不存在",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/announcements/{id}/publish": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "将公告状态设为已发布",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "公告管理"
+                ],
+                "summary": "发布公告",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "公告ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "发布成功",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误或发布时间无效",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "无权限",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "公告不存在",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/audit/tasks/{id}/approve": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "管理员审核通过指定帖子",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "帖子管理"
+                ],
+                "summary": "审核通过帖子",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "帖子ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "审核通过成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "message": {
+                                                    "type": "string"
+                                                },
+                                                "post_id": {
+                                                    "type": "integer"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "无效的帖子ID",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "无权限",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "帖子不存在",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/audit/tasks/{id}/reject": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "管理员审核拒绝指定帖子",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "帖子管理"
+                ],
+                "summary": "审核拒绝帖子",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "帖子ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "拒绝原因",
+                        "name": "body",
+                        "in": "body",
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "审核拒绝成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "message": {
+                                                    "type": "string"
+                                                },
+                                                "post_id": {
+                                                    "type": "integer"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "无效的帖子ID",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "无权限",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "帖子不存在",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/admin/boards/applications": {
             "get": {
                 "security": [
@@ -305,7 +913,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "分页获取所有状态为 pending 的帖子，支持按标题关键词搜索。需要管理员权限。",
+                "description": "管理员获取需要审核的帖子列表（状态为待审核）",
                 "consumes": [
                     "application/json"
                 ],
@@ -313,12 +921,11 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "管理接口 - 帖子管理"
+                    "帖子管理"
                 ],
                 "summary": "获取待审核帖子列表",
                 "parameters": [
                     {
-                        "minimum": 1,
                         "type": "integer",
                         "default": 1,
                         "description": "页码",
@@ -326,8 +933,6 @@ const docTemplate = `{
                         "in": "query"
                     },
                     {
-                        "maximum": 100,
-                        "minimum": 1,
                         "type": "integer",
                         "default": 20,
                         "description": "每页数量",
@@ -336,7 +941,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "搜索关键词（匹配标题）",
+                        "description": "搜索关键词",
                         "name": "keyword",
                         "in": "query"
                     }
@@ -376,13 +981,13 @@ const docTemplate = `{
                         }
                     },
                     "401": {
-                        "description": "未授权（缺少或无效的 Token）",
+                        "description": "未授权",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
                     },
                     "403": {
-                        "description": "无权限（非管理员）",
+                        "description": "无权限",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -453,94 +1058,6 @@ const docTemplate = `{
                     },
                     "403": {
                         "description": "无权限",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "服务器内部错误",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/admin/posts/{id}/review": {
-            "put": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "管理员对指定帖子进行审核，可设置为 approved（通过）、rejected（拒绝）或 pending（待审）",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "管理接口 - 帖子管理"
-                ],
-                "summary": "管理员审核帖子",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "帖子ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "审核状态",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "object"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "审核成功",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "请求参数错误",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "401": {
-                        "description": "未授权",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "403": {
-                        "description": "无权限（非管理员）",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "404": {
-                        "description": "帖子不存在",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -1446,6 +1963,206 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "服务器内部错误（如数据库操作失败）",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/announcements": {
+            "get": {
+                "description": "分页获取已发布的公告列表（用户端）",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "公告管理"
+                ],
+                "summary": "获取公告列表",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "每页数量",
+                        "name": "page_size",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "版块ID（可选）",
+                        "name": "board_id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "获取成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "list": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/definitions/model.Announcement"
+                                                    }
+                                                },
+                                                "page": {
+                                                    "type": "integer"
+                                                },
+                                                "pageSize": {
+                                                    "type": "integer"
+                                                },
+                                                "total": {
+                                                    "type": "integer"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "请求参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/announcements/pinned": {
+            "get": {
+                "description": "获取置顶的公告列表，可按版块过滤",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "公告管理"
+                ],
+                "summary": "获取置顶公告",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "版块ID（可选）",
+                        "name": "board_id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "获取成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/model.Announcement"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/announcements/{id}": {
+            "get": {
+                "description": "根据ID获取已发布的公告详情（用户端调用）",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "公告管理"
+                ],
+                "summary": "获取公告详情",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "公告ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "获取成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.Announcement"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "无效的公告ID",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "公告不存在",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -4972,7 +5689,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.CreateQuestionInput"
+                            "$ref": "#/definitions/dto.CreateQuestionRequest"
                         }
                     }
                 ],
@@ -5251,6 +5968,99 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/statistics/range": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "根据日期范围和统计类型获取统计数据",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "统计管理"
+                ],
+                "summary": "获取指定日期范围的统计数据",
+                "parameters": [
+                    {
+                        "enum": [
+                            "all",
+                            "user",
+                            "post",
+                            "comment",
+                            "like",
+                            "board"
+                        ],
+                        "type": "string",
+                        "default": "all",
+                        "description": "统计类型",
+                        "name": "type",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "开始日期，格式：2006-01-02",
+                        "name": "start_date",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "结束日期，格式：2006-01-02",
+                        "name": "end_date",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "获取成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误或日期范围超过90天",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "无权限",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -7401,6 +8211,101 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.CreateAnnouncementRequest": {
+            "type": "object",
+            "required": [
+                "content",
+                "title",
+                "type"
+            ],
+            "properties": {
+                "board_id": {
+                    "type": "integer"
+                },
+                "content": {
+                    "type": "string"
+                },
+                "cover": {
+                    "type": "string"
+                },
+                "expired_at": {
+                    "type": "string"
+                },
+                "is_global": {
+                    "type": "boolean"
+                },
+                "is_pinned": {
+                    "type": "boolean"
+                },
+                "published_at": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/model.AnnouncementStatus"
+                },
+                "summary": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string",
+                    "maxLength": 200,
+                    "minLength": 1
+                },
+                "type": {
+                    "enum": [
+                        "normal",
+                        "important",
+                        "emergency",
+                        "event"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/model.AnnouncementType"
+                        }
+                    ]
+                }
+            }
+        },
+        "dto.CreateQuestionRequest": {
+            "type": "object",
+            "required": [
+                "content",
+                "title"
+            ],
+            "properties": {
+                "board_id": {
+                    "type": "integer"
+                },
+                "content": {
+                    "type": "string"
+                },
+                "cover": {
+                    "type": "string"
+                },
+                "reward_score": {
+                    "type": "integer",
+                    "maximum": 100,
+                    "minimum": 0
+                },
+                "status": {
+                    "$ref": "#/definitions/model.PostStatus"
+                },
+                "summary": {
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "tag_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "title": {
+                    "type": "string",
+                    "maxLength": 100
+                }
+            }
+        },
         "dto.LeaderboardUserDetail": {
             "type": "object",
             "properties": {
@@ -7441,6 +8346,41 @@ const docTemplate = `{
                 },
                 "username": {
                     "type": "string"
+                }
+            }
+        },
+        "dto.UpdateAnnouncementRequest": {
+            "type": "object",
+            "properties": {
+                "board_id": {
+                    "type": "integer"
+                },
+                "content": {
+                    "type": "string"
+                },
+                "cover": {
+                    "type": "string"
+                },
+                "expired_at": {
+                    "type": "string"
+                },
+                "is_global": {
+                    "type": "boolean"
+                },
+                "is_pinned": {
+                    "type": "boolean"
+                },
+                "published_at": {
+                    "type": "string"
+                },
+                "summary": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "type": {
+                    "$ref": "#/definitions/model.AnnouncementType"
                 }
             }
         },
@@ -7493,6 +8433,138 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        },
+        "model.Announcement": {
+            "type": "object",
+            "properties": {
+                "board_id": {
+                    "description": "关联的板块ID（为空则全局）",
+                    "type": "integer"
+                },
+                "content": {
+                    "description": "公告内容",
+                    "type": "string"
+                },
+                "cover": {
+                    "description": "封面图",
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "created_by": {
+                    "description": "创建人ID",
+                    "type": "integer"
+                },
+                "expired_at": {
+                    "description": "过期时间",
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "is_global": {
+                    "description": "是否全局公告",
+                    "type": "boolean"
+                },
+                "is_pinned": {
+                    "description": "是否置顶",
+                    "type": "boolean"
+                },
+                "published_at": {
+                    "description": "发布时间",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "状态",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/model.AnnouncementStatus"
+                        }
+                    ]
+                },
+                "summary": {
+                    "description": "公告摘要",
+                    "type": "string"
+                },
+                "title": {
+                    "description": "公告标题",
+                    "type": "string"
+                },
+                "type": {
+                    "description": "公告类型",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/model.AnnouncementType"
+                        }
+                    ]
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "updated_by": {
+                    "description": "更新人ID",
+                    "type": "integer"
+                },
+                "view_count": {
+                    "description": "浏览次数",
+                    "type": "integer"
+                }
+            }
+        },
+        "model.AnnouncementStatus": {
+            "type": "string",
+            "enum": [
+                "all",
+                "draft",
+                "published",
+                "archived"
+            ],
+            "x-enum-comments": {
+                "AnnouncementStatusAll": "已删除",
+                "AnnouncementStatusArchived": "已归档",
+                "AnnouncementStatusDraft": "草稿",
+                "AnnouncementStatusPublished": "已发布"
+            },
+            "x-enum-descriptions": [
+                "已删除",
+                "草稿",
+                "已发布",
+                "已归档"
+            ],
+            "x-enum-varnames": [
+                "AnnouncementStatusAll",
+                "AnnouncementStatusDraft",
+                "AnnouncementStatusPublished",
+                "AnnouncementStatusArchived"
+            ]
+        },
+        "model.AnnouncementType": {
+            "type": "string",
+            "enum": [
+                "normal",
+                "important",
+                "emergency",
+                "event"
+            ],
+            "x-enum-comments": {
+                "AnnouncementTypeEmergency": "紧急公告",
+                "AnnouncementTypeEvent": "活动公告",
+                "AnnouncementTypeImportant": "重要公告",
+                "AnnouncementTypeNormal": "普通公告"
+            },
+            "x-enum-descriptions": [
+                "普通公告",
+                "重要公告",
+                "紧急公告",
+                "活动公告"
+            ],
+            "x-enum-varnames": [
+                "AnnouncementTypeNormal",
+                "AnnouncementTypeImportant",
+                "AnnouncementTypeEmergency",
+                "AnnouncementTypeEvent"
+            ]
         },
         "model.ApplicationStatus": {
             "type": "string",
@@ -7749,43 +8821,6 @@ const docTemplate = `{
                 "CommentStatusPending",
                 "CommentStatusHidden"
             ]
-        },
-        "model.CreateQuestionInput": {
-            "type": "object",
-            "required": [
-                "content",
-                "title"
-            ],
-            "properties": {
-                "board_id": {
-                    "type": "integer"
-                },
-                "content": {
-                    "type": "string"
-                },
-                "cover": {
-                    "type": "string"
-                },
-                "reward_score": {
-                    "type": "integer",
-                    "maximum": 100,
-                    "minimum": 0
-                },
-                "summary": {
-                    "type": "string",
-                    "maxLength": 500
-                },
-                "tag_ids": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
-                },
-                "title": {
-                    "type": "string",
-                    "maxLength": 100
-                }
-            }
         },
         "model.HotArticleItem": {
             "type": "object",
@@ -8437,7 +9472,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "author": {
-                    "description": "关联...",
+                    "description": "关联",
                     "allOf": [
                         {
                             "$ref": "#/definitions/model.User"
@@ -8523,18 +9558,6 @@ const docTemplate = `{
                 "pending",
                 "published",
                 "hidden"
-            ],
-            "x-enum-comments": {
-                "PostStatusDraft": "草稿（用户保存未发布）",
-                "PostStatusHidden": "用户隐藏（如自己删除/隐藏，或管理员操作但以用户视角展示）",
-                "PostStatusPending": "待用户确认/提交（如编辑后重新提交）",
-                "PostStatusPublished": "已发布（用户主动发布）"
-            },
-            "x-enum-descriptions": [
-                "草稿（用户保存未发布）",
-                "待用户确认/提交（如编辑后重新提交）",
-                "已发布（用户主动发布）",
-                "用户隐藏（如自己删除/隐藏，或管理员操作但以用户视角展示）"
             ],
             "x-enum-varnames": [
                 "PostStatusDraft",
@@ -9087,6 +10110,9 @@ const docTemplate = `{
                 },
                 "cover": {
                     "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/model.PostStatus"
                 },
                 "summary": {
                     "type": "string"

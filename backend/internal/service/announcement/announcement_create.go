@@ -3,10 +3,11 @@ package announcement
 import (
 	"context"
 	"time"
+	"tiny-forum/internal/dto"
 	"tiny-forum/internal/model"
 )
 
-func (s *announcementService) Create(ctx context.Context, req *CreateAnnouncementRequest, userID uint) (*model.Announcement, error) {
+func (s *announcementService) Create(ctx context.Context, req *dto.CreateAnnouncementRequest, userID uint) (*model.Announcement, error) {
 	if err := s.validateTime(req.PublishedAt, req.ExpiredAt); err != nil {
 		return nil, err
 	}
