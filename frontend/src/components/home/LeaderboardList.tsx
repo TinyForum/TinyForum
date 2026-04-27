@@ -27,7 +27,7 @@ export default function LeaderboardList({ leaderboard }: LeaderboardListProps) {
 
   // 过滤有效用户并限制数量
   const validUsers = leaderboard
-    .filter(user => user && user.id && user.username !== undefined)
+    .filter((user) => user && user.id && user.username !== undefined)
     .slice(0, 8);
 
   if (validUsers.length === 0) {
@@ -42,10 +42,10 @@ export default function LeaderboardList({ leaderboard }: LeaderboardListProps) {
         </h3>
         <div className="space-y-2">
           {validUsers.map((user, index) => (
-            <LeaderboardItem 
-              key={`${user.id}-${index}`}  // 组合 key 确保唯一性
-              user={user} 
-              rank={index + 1} 
+            <LeaderboardItem
+              key={`${user.id}-${index}`} // 组合 key 确保唯一性
+              user={user}
+              rank={index + 1}
             />
           ))}
         </div>
@@ -82,11 +82,7 @@ function LeaderboardItem({ user, rank }: { user: User; rank: number }) {
         {rank}
       </span>
 
-      <Avatar 
-        username={user.username} 
-        avatarUrl={user.avatar} 
-        size="md" 
-      />
+      <Avatar username={user.username} avatarUrl={user.avatar} size="md" />
 
       <span className="flex-1 text-sm truncate">{user.username}</span>
       <span className="text-xs text-warning font-medium">{user.score}</span>

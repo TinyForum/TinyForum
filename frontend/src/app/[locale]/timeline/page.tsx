@@ -1,12 +1,12 @@
 // app/[locale]/timeline/page.tsx
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { useAuthStore } from '@/store/auth';
-import { timelineApi } from '@/lib/api/modules/timeline';
-import { toast } from 'react-hot-toast';
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { useAuthStore } from "@/store/auth";
+import { timelineApi } from "@/lib/api/modules/timeline";
+import { toast } from "react-hot-toast";
 import {
   UserCircleIcon,
   HeartIcon,
@@ -20,19 +20,63 @@ import {
   SparklesIcon,
   UserPlusIcon,
   HomeIcon,
-} from '@heroicons/react/24/outline';
-import { HeartIcon as HeartSolidIcon } from '@heroicons/react/24/solid';
-import type { TimelineEvent, Subscription, User, Post, Comment } from '@/lib/api/types';
+} from "@heroicons/react/24/outline";
+import { HeartIcon as HeartSolidIcon } from "@heroicons/react/24/solid";
+import type {
+  TimelineEvent,
+  Subscription,
+  User,
+  Post,
+  Comment,
+} from "@/lib/api/types";
 
 // 事件类型配置 - 使用主题色
-const eventTypeConfig: Record<string, { icon: string; label: string; color: string; bgColor: string }> = {
-  create_post: { icon: '📝', label: '发布了新帖子', color: 'text-primary', bgColor: 'bg-primary/10' },
-  create_answer: { icon: '💬', label: '回答了问题', color: 'text-secondary', bgColor: 'bg-secondary/10' },
-  like_post: { icon: '❤️', label: '点赞了帖子', color: 'text-error', bgColor: 'bg-error/10' },
-  like_answer: { icon: '❤️', label: '点赞了回答', color: 'text-error', bgColor: 'bg-error/10' },
-  follow_user: { icon: '➕', label: '关注了', color: 'text-accent', bgColor: 'bg-accent/10' },
-  accept_answer: { icon: '✓', label: '采纳了答案', color: 'text-warning', bgColor: 'bg-warning/10' },
-  reward_question: { icon: '💰', label: '获得了悬赏', color: 'text-warning', bgColor: 'bg-warning/10' },
+const eventTypeConfig: Record<
+  string,
+  { icon: string; label: string; color: string; bgColor: string }
+> = {
+  create_post: {
+    icon: "📝",
+    label: "发布了新帖子",
+    color: "text-primary",
+    bgColor: "bg-primary/10",
+  },
+  create_answer: {
+    icon: "💬",
+    label: "回答了问题",
+    color: "text-secondary",
+    bgColor: "bg-secondary/10",
+  },
+  like_post: {
+    icon: "❤️",
+    label: "点赞了帖子",
+    color: "text-error",
+    bgColor: "bg-error/10",
+  },
+  like_answer: {
+    icon: "❤️",
+    label: "点赞了回答",
+    color: "text-error",
+    bgColor: "bg-error/10",
+  },
+  follow_user: {
+    icon: "➕",
+    label: "关注了",
+    color: "text-accent",
+    bgColor: "bg-accent/10",
+  },
+  accept_answer: {
+    icon: "✓",
+    label: "采纳了答案",
+    color: "text-warning",
+    bgColor: "bg-warning/10",
+  },
+  reward_question: {
+    icon: "💰",
+    label: "获得了悬赏",
+    color: "text-warning",
+    bgColor: "bg-warning/10",
+  },
 };
 
 // 解析事件负载
@@ -75,25 +119,31 @@ function LoadingSkeleton() {
 }
 
 // 时间线事件卡片组件
-function TimelineEventCard({ event, currentUserId }: { event: TimelineEvent; currentUserId?: number }) {
+function TimelineEventCard({
+  event,
+  currentUserId,
+}: {
+  event: TimelineEvent;
+  currentUserId?: number;
+}) {
   const [liked, setLiked] = useState(false);
   const payload = parsePayload(event.payload);
-  const config = eventTypeConfig[event.action] || { 
-    icon: '📄', 
-    label: event.action, 
-    color: 'text-base-content/60',
-    bgColor: 'bg-base-200'
+  const config = eventTypeConfig[event.action] || {
+    icon: "📄",
+    label: event.action,
+    color: "text-base-content/60",
+    bgColor: "bg-base-200",
   };
 
   const handleLike = async () => {
-    toast.success('功能开发中');
+    toast.success("功能开发中");
   };
 
   const getTargetUrl = () => {
-    if (event.target_type === 'post') return `/posts/${event.target_id}`;
-    if (event.target_type === 'comment') return `/posts/${event.target_id}`;
-    if (event.target_type === 'user') return `/users/${event.target_id}`;
-    return '#';
+    if (event.target_type === "post") return `/posts/${event.target_id}`;
+    if (event.target_type === "comment") return `/posts/${event.target_id}`;
+    if (event.target_type === "user") return `/users/${event.target_id}`;
+    return "#";
   };
 
   return (
@@ -152,8 +202,8 @@ function TimelineEventCard({ event, currentUserId }: { event: TimelineEvent; cur
                 <CalendarIcon className="w-3.5 h-3.5" />
                 <span>{new Date(event.created_at).toLocaleDateString()}</span>
               </div>
-              
-              {event.target_type === 'post' && (
+
+              {event.target_type === "post" && (
                 <>
                   <div className="flex items-center gap-1.5">
                     <EyeIcon className="w-3.5 h-3.5" />
@@ -166,7 +216,7 @@ function TimelineEventCard({ event, currentUserId }: { event: TimelineEvent; cur
                 </>
               )}
 
-              {event.target_type === 'comment' && (
+              {event.target_type === "comment" && (
                 <div className="flex items-center gap-1.5">
                   <div className="w-1.5 h-1.5 bg-success rounded-full" />
                   <span>回答</span>
@@ -175,7 +225,7 @@ function TimelineEventCard({ event, currentUserId }: { event: TimelineEvent; cur
             </div>
 
             {/* 操作按钮 */}
-            {event.target_type === 'post' && (
+            {event.target_type === "post" && (
               <div className="flex items-center gap-4 mt-4 pt-3 border-t border-base-200">
                 <button
                   onClick={handleLike}
@@ -205,20 +255,39 @@ function TimelineEventCard({ event, currentUserId }: { event: TimelineEvent; cur
 }
 
 // 订阅用户卡片组件
-function SubscribeCard({ user, onUnsubscribe }: { user: { id: number; username: string; avatar?: string; bio?: string }; onUnsubscribe: (userId: number) => void }) {
+function SubscribeCard({
+  user,
+  onUnsubscribe,
+}: {
+  user: { id: number; username: string; avatar?: string; bio?: string };
+  onUnsubscribe: (userId: number) => void;
+}) {
   return (
     <div className="flex items-center justify-between p-3 bg-base-200/50 rounded-xl hover:bg-base-200 transition-all duration-200 group">
-      <Link href={`/users/${user.id}`} className="flex items-center gap-3 flex-1 min-w-0">
+      <Link
+        href={`/users/${user.id}`}
+        className="flex items-center gap-3 flex-1 min-w-0"
+      >
         {user.avatar ? (
-          <img src={user.avatar} alt={user.username} className="w-10 h-10 rounded-full object-cover ring-2 ring-primary/20" />
+          <img
+            src={user.avatar}
+            alt={user.username}
+            className="w-10 h-10 rounded-full object-cover ring-2 ring-primary/20"
+          />
         ) : (
           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
             <UserCircleIcon className="w-6 h-6 text-primary/60" />
           </div>
         )}
         <div className="flex-1 min-w-0">
-          <div className="font-medium text-base-content truncate">{user.username}</div>
-          {user.bio && <div className="text-xs text-base-content/50 truncate">{user.bio}</div>}
+          <div className="font-medium text-base-content truncate">
+            {user.username}
+          </div>
+          {user.bio && (
+            <div className="text-xs text-base-content/50 truncate">
+              {user.bio}
+            </div>
+          )}
         </div>
       </Link>
       <button
@@ -232,21 +301,21 @@ function SubscribeCard({ user, onUnsubscribe }: { user: { id: number; username: 
 }
 
 // 空状态组件
-function EmptyState({ activeTab }: { activeTab: 'home' | 'following' }) {
+function EmptyState({ activeTab }: { activeTab: "home" | "following" }) {
   return (
     <div className="card bg-base-100 shadow-sm p-12 text-center border border-base-200">
       <div className="text-6xl mb-4 opacity-50">
-        {activeTab === 'home' ? '📭' : '👥'}
+        {activeTab === "home" ? "📭" : "👥"}
       </div>
       <h3 className="text-lg font-semibold text-base-content mb-2">
-        {activeTab === 'home' ? '暂无动态' : '暂无关注动态'}
+        {activeTab === "home" ? "暂无动态" : "暂无关注动态"}
       </h3>
       <p className="text-base-content/60 mb-4">
-        {activeTab === 'home' 
-          ? '还没有任何动态，去探索更多内容吧！'
-          : '关注用户后，他们的动态会显示在这里'}
+        {activeTab === "home"
+          ? "还没有任何动态，去探索更多内容吧！"
+          : "关注用户后，他们的动态会显示在这里"}
       </p>
-      {activeTab === 'following' && (
+      {activeTab === "following" && (
         <Link href="/explore" className="btn btn-primary btn-sm gap-2">
           <UserPlusIcon className="w-4 h-4" />
           发现用户
@@ -257,22 +326,27 @@ function EmptyState({ activeTab }: { activeTab: 'home' | 'following' }) {
 }
 
 // 分页组件
-function Pagination({ currentPage, totalPages, onPageChange }: { 
-  currentPage: number; 
-  totalPages: number; 
+function Pagination({
+  currentPage,
+  totalPages,
+  onPageChange,
+}: {
+  currentPage: number;
+  totalPages: number;
   onPageChange: (page: number) => void;
 }) {
   const getPageNumbers = () => {
     const pages: number[] = [];
     const maxVisible = 5;
-    
+
     if (totalPages <= maxVisible) {
       for (let i = 1; i <= totalPages; i++) pages.push(i);
     } else {
       if (currentPage <= 3) {
         for (let i = 1; i <= maxVisible; i++) pages.push(i);
       } else if (currentPage >= totalPages - 2) {
-        for (let i = totalPages - maxVisible + 1; i <= totalPages; i++) pages.push(i);
+        for (let i = totalPages - maxVisible + 1; i <= totalPages; i++)
+          pages.push(i);
       } else {
         for (let i = currentPage - 2; i <= currentPage + 2; i++) pages.push(i);
       }
@@ -289,21 +363,21 @@ function Pagination({ currentPage, totalPages, onPageChange }: {
       >
         上一页
       </button>
-      
+
       <div className="flex gap-1.5 mx-2">
         {getPageNumbers().map((pageNum) => (
           <button
             key={pageNum}
             onClick={() => onPageChange(pageNum)}
             className={`btn btn-sm min-w-[2.5rem] ${
-              currentPage === pageNum ? 'btn-primary' : 'btn-ghost'
+              currentPage === pageNum ? "btn-primary" : "btn-ghost"
             }`}
           >
             {pageNum}
           </button>
         ))}
       </div>
-      
+
       <button
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage >= totalPages}
@@ -321,7 +395,7 @@ export default function Timeline() {
   const [events, setEvents] = useState<TimelineEvent[]>([]);
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'home' | 'following'>('home');
+  const [activeTab, setActiveTab] = useState<"home" | "following">("home");
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [showSubscriptions, setShowSubscriptions] = useState(false);
@@ -330,20 +404,21 @@ export default function Timeline() {
   const loadTimeline = async () => {
     setLoading(true);
     try {
-      const response = activeTab === 'home'
-        ? await timelineApi.getHome({ page, page_size: pageSize })
-        : await timelineApi.getFollowing({ page, page_size: pageSize });
+      const response =
+        activeTab === "home"
+          ? await timelineApi.getHome({ page, page_size: pageSize })
+          : await timelineApi.getFollowing({ page, page_size: pageSize });
 
       if (response.data.code === 200) {
         const { list, total: totalCount } = response.data.data;
         setEvents(list || []);
         setTotal(totalCount || 0);
       } else {
-        toast.error(response.data.message || '加载失败');
+        toast.error(response.data.message || "加载失败");
       }
     } catch (error: any) {
-      console.error('Failed to load timeline:', error);
-      toast.error(error.response?.data?.message || '加载失败');
+      console.error("Failed to load timeline:", error);
+      toast.error(error.response?.data?.message || "加载失败");
     } finally {
       setLoading(false);
     }
@@ -356,7 +431,7 @@ export default function Timeline() {
         setSubscriptions(response.data.data || []);
       }
     } catch (error) {
-      console.error('Failed to load subscriptions:', error);
+      console.error("Failed to load subscriptions:", error);
     }
   };
 
@@ -364,22 +439,22 @@ export default function Timeline() {
     try {
       const response = await timelineApi.unsubscribe(userId);
       if (response.data.code === 200) {
-        toast.success('已取消关注');
+        toast.success("已取消关注");
         await loadSubscriptions();
-        if (activeTab === 'following') {
+        if (activeTab === "following") {
           await loadTimeline();
         }
       } else {
-        toast.error(response.data.message || '操作失败');
+        toast.error(response.data.message || "操作失败");
       }
     } catch (error: any) {
-      toast.error(error.response?.data?.message || '操作失败');
+      toast.error(error.response?.data?.message || "操作失败");
     }
   };
 
   useEffect(() => {
     if (!isAuthenticated) {
-      router.push('/login?redirect=/timeline');
+      router.push("/login?redirect=/timeline");
       return;
     }
     loadTimeline();
@@ -391,10 +466,10 @@ export default function Timeline() {
   }
 
   const totalPages = Math.ceil(total / pageSize);
-  const subscribedUsers = subscriptions.map(sub => ({
+  const subscribedUsers = subscriptions.map((sub) => ({
     id: sub.target_user_id,
     username: `用户${sub.target_user_id}`,
-    avatar: '',
+    avatar: "",
   }));
 
   return (
@@ -419,13 +494,13 @@ export default function Timeline() {
           <div className="flex p-1">
             <button
               onClick={() => {
-                setActiveTab('home');
+                setActiveTab("home");
                 setPage(1);
               }}
               className={`flex-1 py-2.5 rounded-lg font-medium transition-all duration-200 ${
-                activeTab === 'home'
-                  ? 'bg-primary text-white shadow-sm'
-                  : 'text-base-content/60 hover:text-base-content hover:bg-base-200'
+                activeTab === "home"
+                  ? "bg-primary text-white shadow-sm"
+                  : "text-base-content/60 hover:text-base-content hover:bg-base-200"
               }`}
             >
               <div className="flex items-center justify-center gap-2">
@@ -435,13 +510,13 @@ export default function Timeline() {
             </button>
             <button
               onClick={() => {
-                setActiveTab('following');
+                setActiveTab("following");
                 setPage(1);
               }}
               className={`flex-1 py-2.5 rounded-lg font-medium transition-all duration-200 ${
-                activeTab === 'following'
-                  ? 'bg-primary text-white shadow-sm'
-                  : 'text-base-content/60 hover:text-base-content hover:bg-base-200'
+                activeTab === "following"
+                  ? "bg-primary text-white shadow-sm"
+                  : "text-base-content/60 hover:text-base-content hover:bg-base-200"
               }`}
             >
               <div className="flex items-center justify-center gap-2">
@@ -459,14 +534,16 @@ export default function Timeline() {
               onClick={() => setShowSubscriptions(!showSubscriptions)}
               className="flex items-center gap-2 text-base-content/70 hover:text-primary transition-colors group"
             >
-              <span className="font-medium">我关注的人 ({subscriptions.length})</span>
+              <span className="font-medium">
+                我关注的人 ({subscriptions.length})
+              </span>
               {showSubscriptions ? (
                 <ChevronUpIcon className="w-4 h-4 group-hover:-translate-y-0.5 transition-transform" />
               ) : (
                 <ChevronDownIcon className="w-4 h-4 group-hover:translate-y-0.5 transition-transform" />
               )}
             </button>
-            
+
             {showSubscriptions && (
               <div className="mt-3 space-y-2 animate-fade-in">
                 {subscriptions.map((sub) => (
@@ -475,7 +552,7 @@ export default function Timeline() {
                     user={{
                       id: sub.target_user_id,
                       username: `用户${sub.target_user_id}`,
-                      avatar: '',
+                      avatar: "",
                     }}
                     onUnsubscribe={handleUnsubscribe}
                   />
@@ -504,13 +581,13 @@ export default function Timeline() {
 
             {/* 分页 */}
             {totalPages > 1 && (
-              <Pagination 
+              <Pagination
                 currentPage={page}
                 totalPages={totalPages}
                 onPageChange={setPage}
               />
             )}
-            
+
             {/* 底部提示 */}
             <div className="text-center text-xs text-base-content/40 mt-6 pt-4 border-t border-base-200">
               已加载全部内容

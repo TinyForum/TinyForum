@@ -1,15 +1,15 @@
 // components/moderator/ModeratorSidebar.tsx
 "use client";
 
-import { 
-  LayoutDashboard, 
-  FileText, 
-  Flag, 
+import {
+  LayoutDashboard,
+  FileText,
+  Flag,
   Ban,
   ChevronLeft,
   ChevronRight,
   Shield,
-  ChevronDown
+  ChevronDown,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -30,7 +30,7 @@ interface ModeratorSidebarProps {
   onMenuChange: (menu: string) => void;
   collapsed: boolean;
   onCollapsedChange: (collapsed: boolean) => void;
-  boards: ModeratorBoard[];  // 板块列表
+  boards: ModeratorBoard[]; // 板块列表
   currentBoardId: number | null;
   onBoardChange: (boardId: number) => void;
   permissions: {
@@ -55,26 +55,42 @@ export function ModeratorSidebar({
   t,
 }: ModeratorSidebarProps) {
   const [showBoardDropdown, setShowBoardDropdown] = useState(false);
-  const currentBoard = boards.find(b => b.id === currentBoardId);
+  const currentBoard = boards.find((b) => b.id === currentBoardId);
 
   const menuItems = [
-    { id: "dashboard", label: t("dashboard"), icon: LayoutDashboard, always: true },
+    {
+      id: "dashboard",
+      label: t("dashboard"),
+      icon: LayoutDashboard,
+      always: true,
+    },
     { id: "posts", label: t("posts_management"), icon: FileText, always: true },
     { id: "reports", label: t("reports_management"), icon: Flag, always: true },
-    { id: "bans", label: t("bans_management"), icon: Ban, require: permissions.canBanUser },
+    {
+      id: "bans",
+      label: t("bans_management"),
+      icon: Ban,
+      require: permissions.canBanUser,
+    },
   ];
 
   return (
-    <aside className={`bg-base-200 border-r border-base-300 transition-all duration-300 flex flex-col ${
-      collapsed ? "w-20" : "w-64"
-    }`}>
+    <aside
+      className={`bg-base-200 border-r border-base-300 transition-all duration-300 flex flex-col ${
+        collapsed ? "w-20" : "w-64"
+      }`}
+    >
       <div className="flex-1 p-4">
         {/* 折叠按钮 */}
         <button
           onClick={() => onCollapsedChange(!collapsed)}
           className="btn btn-ghost btn-sm w-full mb-4"
         >
-          {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+          {collapsed ? (
+            <ChevronRight className="w-4 h-4" />
+          ) : (
+            <ChevronLeft className="w-4 h-4" />
+          )}
           {!collapsed && <span className="ml-2">{t("collapse")}</span>}
         </button>
 
@@ -91,11 +107,15 @@ export function ModeratorSidebar({
               >
                 <div className="flex items-center gap-2 truncate">
                   <Shield className="w-4 h-4 text-primary" />
-                  <span className="truncate">{currentBoard?.name || t("select_board")}</span>
+                  <span className="truncate">
+                    {currentBoard?.name || t("select_board")}
+                  </span>
                 </div>
-                <ChevronDown className={`w-4 h-4 transition-transform ${showBoardDropdown ? "rotate-180" : ""}`} />
+                <ChevronDown
+                  className={`w-4 h-4 transition-transform ${showBoardDropdown ? "rotate-180" : ""}`}
+                />
               </button>
-              
+
               {showBoardDropdown && (
                 <div className="absolute left-0 right-0 top-full mt-1 bg-base-100 border border-base-300 rounded-lg shadow-lg z-50">
                   {boards.map((board) => (
@@ -106,7 +126,9 @@ export function ModeratorSidebar({
                         setShowBoardDropdown(false);
                       }}
                       className={`w-full text-left px-3 py-2 hover:bg-base-200 transition-colors ${
-                        currentBoardId === board.id ? "bg-primary/10 text-primary" : ""
+                        currentBoardId === board.id
+                          ? "bg-primary/10 text-primary"
+                          : ""
                       } first:rounded-t-lg last:rounded-b-lg`}
                     >
                       <div className="flex items-center gap-2">

@@ -1,15 +1,15 @@
 // components/boards/BoardCard.tsx
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { Board } from '@/lib/api';
+import Link from "next/link";
+import { Board } from "@/lib/api";
 import {
   ChatBubbleLeftRightIcon,
   FireIcon,
   RectangleGroupIcon,
   ArrowRightIcon,
   DocumentTextIcon,
-} from '@heroicons/react/24/outline';
+} from "@heroicons/react/24/outline";
 
 interface BoardCardProps {
   board: Board;
@@ -37,14 +37,14 @@ export function BoardCard({ board }: BoardCardProps) {
                 {board.name}
               </h2>
             </div>
-            
+
             {/* 描述 */}
             {board.description && (
               <p className="text-sm text-base-content/60 line-clamp-2 mb-3">
                 {board.description}
               </p>
             )}
-            
+
             {/* 统计信息 */}
             <div className="flex flex-wrap items-center gap-4 text-xs">
               <div className="flex items-center gap-1.5 text-base-content/50">
@@ -63,7 +63,7 @@ export function BoardCard({ board }: BoardCardProps) {
               )}
             </div>
           </div>
-          
+
           {/* 箭头图标 */}
           <div className="shrink-0 w-8 h-8 rounded-full bg-base-200 group-hover:bg-red-50 dark:group-hover:bg-red-900/20 flex items-center justify-center transition-all group-hover:translate-x-1">
             <ArrowRightIcon className="w-4 h-4 text-base-content/40 group-hover:text-primary transition-colors" />

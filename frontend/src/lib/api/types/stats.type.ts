@@ -136,8 +136,8 @@ export interface TrendData {
 export interface StatsTrendResponse {
   start_date: string;
   end_date: string;
-  interval: 'day' | 'week' | 'month';
-  type: 'users' | 'posts' | 'comments' | 'likes';
+  interval: "day" | "week" | "month";
+  type: "users" | "posts" | "comments" | "likes";
   trend: TrendData[];
 }
 
@@ -159,7 +159,7 @@ export interface ApiResponse<T = any> {
  */
 export interface GetStatsDayParams {
   date?: string;
-  type?: 'users' | 'posts' | 'comments' | 'likes' | 'all';
+  type?: "users" | "posts" | "comments" | "likes" | "all";
 }
 
 /**
@@ -168,7 +168,7 @@ export interface GetStatsDayParams {
 export interface GetStatsTotalParams {
   start_date?: string;
   end_date?: string;
-  type?: 'users' | 'posts' | 'comments' | 'likes' | 'all';
+  type?: "users" | "posts" | "comments" | "likes" | "all";
 }
 
 /**
@@ -177,21 +177,20 @@ export interface GetStatsTotalParams {
 export interface GetStatsTrendParams {
   start_date?: string;
   end_date?: string;
-  type: 'users' | 'posts' | 'comments' | 'likes';
-  interval?: 'day' | 'week' | 'month';
+  type: "users" | "posts" | "comments" | "likes";
+  interval?: "day" | "week" | "month";
 }
-
 
 // 范围统计请求参数
 export interface GetStatsRangeParams {
-  start_date?: string;  // 2026-03-01
-  end_date?: string;    // 2026-03-31
-  type?: 'users' | 'posts' | 'comments' | 'all';
+  start_date?: string; // 2026-03-01
+  end_date?: string; // 2026-03-31
+  type?: "users" | "posts" | "comments" | "all";
 }
 
 // 每日统计数据项
 export interface DailyStat {
-  date: string;          // 2026-03-21
+  date: string; // 2026-03-21
   new_user: number;
   new_article: number;
   new_comment: number;

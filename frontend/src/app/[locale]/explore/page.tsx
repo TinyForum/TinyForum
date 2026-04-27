@@ -1,11 +1,11 @@
 // app/[locale]/explore/page.tsx
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useAuthStore } from '@/store/auth';
-import { toast } from 'react-hot-toast';
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/store/auth";
+import { toast } from "react-hot-toast";
 import {
   MagnifyingGlassIcon,
   FireIcon,
@@ -19,34 +19,58 @@ import {
   ArrowTrendingUpIcon,
   SparklesIcon,
   ArrowRightIcon,
-} from '@heroicons/react/24/outline';
-import { HeartIcon as HeartSolidIcon } from '@heroicons/react/24/solid';
-import { postApi, tagApi, topicApi, userApi } from '@/lib/api';
-import type { Post, Tag, Topic, User } from '@/lib/api/types';
-import { ActiveUserCard } from '@/components/explore/ActiveUserCard';
-import { HotPostCard } from '@/components/explore/HotPostCard';
-import { HotTagCard } from '@/components/explore/HotTagCard';
-import { HotTopicCard } from '@/components/explore/HotTopicCard';
-import { LeaderboardItemResponse } from '@/lib/api/modules/users';
+} from "@heroicons/react/24/outline";
+import { HeartIcon as HeartSolidIcon } from "@heroicons/react/24/solid";
+import { postApi, tagApi, topicApi, userApi } from "@/lib/api";
+import type { Post, Tag, Topic, User } from "@/lib/api/types";
+import { ActiveUserCard } from "@/components/explore/ActiveUserCard";
+import { HotPostCard } from "@/components/explore/HotPostCard";
+import { HotTagCard } from "@/components/explore/HotTagCard";
+import { HotTopicCard } from "@/components/explore/HotTopicCard";
+import { LeaderboardItemResponse } from "@/lib/api/modules/users";
 
 // 分类 Tab
 const exploreTabs = [
-  { id: 'hot', label: '热门', icon: FireIcon, sortBy: 'hot', color: 'text-red-500' },
-  { id: 'latest', label: '最新', icon: ClockIcon, sortBy: 'latest', color: 'text-blue-500' },
-  { id: 'trending', label: '趋势', icon: ArrowTrendingUpIcon, sortBy: 'views', color: 'text-green-500' },
-  { id: 'recommended', label: '推荐', icon: SparklesIcon, sortBy: 'recommended', color: 'text-purple-500' },
+  {
+    id: "hot",
+    label: "热门",
+    icon: FireIcon,
+    sortBy: "hot",
+    color: "text-red-500",
+  },
+  {
+    id: "latest",
+    label: "最新",
+    icon: ClockIcon,
+    sortBy: "latest",
+    color: "text-blue-500",
+  },
+  {
+    id: "trending",
+    label: "趋势",
+    icon: ArrowTrendingUpIcon,
+    sortBy: "views",
+    color: "text-green-500",
+  },
+  {
+    id: "recommended",
+    label: "推荐",
+    icon: SparklesIcon,
+    sortBy: "recommended",
+    color: "text-purple-500",
+  },
 ];
 
 export default function Explore() {
   const router = useRouter();
   const { isAuthenticated } = useAuthStore();
-  const [activeTab, setActiveTab] = useState('hot');
+  const [activeTab, setActiveTab] = useState("hot");
   const [posts, setPosts] = useState<Post[]>([]);
   const [hotTags, setHotTags] = useState<Tag[]>([]);
   const [hotTopics, setHotTopics] = useState<Topic[]>([]);
   const [activeUsers, setActiveUsers] = useState<LeaderboardItemResponse[]>();
   const [loading, setLoading] = useState(true);
-  const [searchKeyword, setSearchKeyword] = useState('');
+  const [searchKeyword, setSearchKeyword] = useState("");
   const [searchResults, setSearchResults] = useState<Post[]>([]);
   const [searching, setSearching] = useState(false);
 
@@ -54,20 +78,21 @@ export default function Explore() {
   const loadExploreData = async () => {
     setLoading(true);
     try {
-      const currentTab = exploreTabs.find(tab => tab.id === activeTab);
-      const [postsResponse, tagsResponse, topicsResponse, usersResponse] = await Promise.all([
-        postApi.list({ page: 1, page_size: 10, sort_by: currentTab?.sortBy }),
-        tagApi.list(),
-        topicApi.list({ page: 1, page_size: 8 }),
-        userApi.getLeaderboardSimple({limit:10}),
-      ]);
+      const currentTab = exploreTabs.find((tab) => tab.id === activeTab);
+      const [postsResponse, tagsResponse, topicsResponse, usersResponse] =
+        await Promise.all([
+          postApi.list({ page: 1, page_size: 10, sort_by: currentTab?.sortBy }),
+          tagApi.list(),
+          topicApi.list({ page: 1, page_size: 8 }),
+          userApi.getLeaderboardSimple({ limit: 10 }),
+        ]);
 
       if (postsResponse.data.code === 200) {
         setPosts(postsResponse.data.data.list || []);
       }
       if (tagsResponse.data.code === 200) {
         const sortedTags = [...(tagsResponse.data.data || [])].sort(
-          (a, b) => (b.post_count || 0) - (a.post_count || 0)
+          (a, b) => (b.post_count || 0) - (a.post_count || 0),
         );
         setHotTags(sortedTags.slice(0, 12));
       }
@@ -78,8 +103,8 @@ export default function Explore() {
         setActiveUsers(usersResponse.data.data || []);
       }
     } catch (error) {
-      console.error('Failed to load explore data:', error);
-      toast.error('加载失败');
+      console.error("Failed to load explore data:", error);
+      toast.error("加载失败");
     } finally {
       setLoading(false);
     }
@@ -88,7 +113,7 @@ export default function Explore() {
   // 搜索
   const handleSearch = async () => {
     if (!searchKeyword.trim()) {
-      toast.error('请输入搜索关键词');
+      toast.error("请输入搜索关键词");
       return;
     }
 
@@ -102,12 +127,12 @@ export default function Explore() {
       if (response.data.code === 200) {
         setSearchResults(response.data.data.list || []);
         if (response.data.data.list?.length === 0) {
-          toast('未找到相关结果');
+          toast("未找到相关结果");
         }
       }
     } catch (error) {
-      console.error('Search failed:', error);
-      toast.error('搜索失败');
+      console.error("Search failed:", error);
+      toast.error("搜索失败");
     } finally {
       setSearching(false);
     }
@@ -115,7 +140,7 @@ export default function Explore() {
 
   // 清除搜索
   const clearSearch = () => {
-    setSearchKeyword('');
+    setSearchKeyword("");
     setSearchResults([]);
   };
 
@@ -151,7 +176,7 @@ export default function Explore() {
                   type="text"
                   value={searchKeyword}
                   onChange={(e) => setSearchKeyword(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+                  onKeyPress={(e) => e.key === "Enter" && handleSearch()}
                   placeholder="搜索帖子..."
                   className="w-full pl-11 pr-4 py-2.5 bg-transparent text-base-content placeholder-base-content/40 focus:outline-none"
                 />
@@ -164,14 +189,11 @@ export default function Explore() {
                 {searching ? (
                   <span className="loading loading-spinner loading-sm"></span>
                 ) : (
-                  '搜索'
+                  "搜索"
                 )}
               </button>
               {searchKeyword && (
-                <button
-                  onClick={clearSearch}
-                  className="btn btn-ghost"
-                >
+                <button onClick={clearSearch} className="btn btn-ghost">
                   清除
                 </button>
               )}
@@ -197,11 +219,13 @@ export default function Explore() {
                           onClick={() => setActiveTab(tab.id)}
                           className={`flex-1 py-3 text-center font-medium transition-all flex items-center justify-center gap-2 ${
                             isActive
-                              ? 'text-primary border-b-2 border-primary bg-gradient-to-b from-primary/5 to-transparent'
-                              : 'text-base-content/60 hover:text-base-content hover:bg-base-200/50'
+                              ? "text-primary border-b-2 border-primary bg-gradient-to-b from-primary/5 to-transparent"
+                              : "text-base-content/60 hover:text-base-content hover:bg-base-200/50"
                           }`}
                         >
-                          <Icon className={`w-4 h-4 ${isActive ? tab.color : ''}`} />
+                          <Icon
+                            className={`w-4 h-4 ${isActive ? tab.color : ""}`}
+                          />
                           {tab.label}
                         </button>
                       );
@@ -215,7 +239,10 @@ export default function Explore() {
             {loading && !searchKeyword ? (
               <div className="space-y-3">
                 {[1, 2, 3, 4, 5].map((i) => (
-                  <div key={i} className="card bg-base-100 shadow-md border border-base-200">
+                  <div
+                    key={i}
+                    className="card bg-base-100 shadow-md border border-base-200"
+                  >
                     <div className="card-body p-5">
                       <div className="h-5 bg-base-200 rounded w-3/4 mb-2 animate-pulse" />
                       <div className="h-4 bg-base-200 rounded w-1/2 animate-pulse" />
@@ -232,16 +259,15 @@ export default function Explore() {
                 <div className="card-body py-16 text-center">
                   <div className="text-6xl mb-4">🔍</div>
                   <h3 className="text-lg font-semibold text-base-content mb-2">
-                    {searchKeyword ? '未找到相关结果' : '暂无内容'}
+                    {searchKeyword ? "未找到相关结果" : "暂无内容"}
                   </h3>
                   <p className="text-base-content/60">
-                    {searchKeyword ? '尝试使用其他关键词' : '还没有内容，去发布第一个帖子吧！'}
+                    {searchKeyword
+                      ? "尝试使用其他关键词"
+                      : "还没有内容，去发布第一个帖子吧！"}
                   </p>
                   {!searchKeyword && (
-                    <Link
-                      href="/posts/new"
-                      className="btn btn-primary mt-4"
-                    >
+                    <Link href="/posts/new" className="btn btn-primary mt-4">
                       <ChatBubbleLeftRightIcon className="w-4 h-4" />
                       发布帖子
                     </Link>
@@ -254,7 +280,7 @@ export default function Explore() {
                   <HotPostCard
                     key={post.id}
                     post={post}
-                    rank={activeTab === 'hot' && !searchKeyword ? index + 1 : 0}
+                    rank={activeTab === "hot" && !searchKeyword ? index + 1 : 0}
                   />
                 ))}
               </div>
@@ -275,11 +301,16 @@ export default function Explore() {
                 {loading ? (
                   <div className="space-y-2">
                     {[1, 2, 3, 4].map((i) => (
-                      <div key={i} className="h-16 bg-base-200 rounded animate-pulse" />
+                      <div
+                        key={i}
+                        className="h-16 bg-base-200 rounded animate-pulse"
+                      />
                     ))}
                   </div>
                 ) : hotTags.length === 0 ? (
-                  <p className="text-sm text-base-content/40 text-center py-4">暂无标签</p>
+                  <p className="text-sm text-base-content/40 text-center py-4">
+                    暂无标签
+                  </p>
                 ) : (
                   <div className="flex flex-wrap gap-2">
                     {hotTags.slice(0, 12).map((tag) => (
@@ -302,11 +333,16 @@ export default function Explore() {
                 {loading ? (
                   <div className="space-y-2">
                     {[1, 2, 3].map((i) => (
-                      <div key={i} className="h-20 bg-base-200 rounded animate-pulse" />
+                      <div
+                        key={i}
+                        className="h-20 bg-base-200 rounded animate-pulse"
+                      />
                     ))}
                   </div>
                 ) : hotTopics.length === 0 ? (
-                  <p className="text-sm text-base-content/40 text-center py-4">暂无话题</p>
+                  <p className="text-sm text-base-content/40 text-center py-4">
+                    暂无话题
+                  </p>
                 ) : (
                   <div className="space-y-2">
                     {hotTopics.slice(0, 5).map((topic) => (
@@ -336,15 +372,20 @@ export default function Explore() {
                 {loading ? (
                   <div className="space-y-2">
                     {[1, 2, 3, 4].map((i) => (
-                      <div key={i} className="h-14 bg-base-200 rounded animate-pulse" />
+                      <div
+                        key={i}
+                        className="h-14 bg-base-200 rounded animate-pulse"
+                      />
                     ))}
                   </div>
                 ) : activeUsers?.length === 0 ? (
-                  <p className="text-sm text-base-content/40 text-center py-4">暂无用户</p>
+                  <p className="text-sm text-base-content/40 text-center py-4">
+                    暂无用户
+                  </p>
                 ) : (
                   <div className="space-y-2">
                     {activeUsers?.slice(0, 6).map((user, index) => (
-                      <ActiveUserCard key={user.id} user={user}  />
+                      <ActiveUserCard key={user.id} user={user} />
                     ))}
                   </div>
                 )}
@@ -354,15 +395,14 @@ export default function Explore() {
             {/* 关于 */}
             <div className="card bg-gradient-to-r from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/10 border border-red-200 dark:border-red-800/30">
               <div className="card-body p-5">
-                <h3 className="font-semibold text-base-content mb-2">发现更多</h3>
+                <h3 className="font-semibold text-base-content mb-2">
+                  发现更多
+                </h3>
                 <p className="text-sm text-base-content/70 mb-3">
                   关注热门话题、标签和活跃用户，发现更多精彩内容
                 </p>
                 {!isAuthenticated && (
-                  <Link
-                    href="/auth/login"
-                    className="btn btn-primary btn-sm"
-                  >
+                  <Link href="/auth/login" className="btn btn-primary btn-sm">
                     登录后获得个性化推荐
                     <ArrowRightIcon className="w-3 h-3" />
                   </Link>

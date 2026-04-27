@@ -6,7 +6,10 @@ import { format, formatISO, isValid, parse, parseISO } from "date-fns";
 import { zhCN } from "date-fns/locale";
 import toast from "react-hot-toast";
 import { Globe, BookOpen, Megaphone } from "lucide-react";
-import type { Announcement, AnnouncementType } from "@/lib/api/modules/announcements";
+import type {
+  Announcement,
+  AnnouncementType,
+} from "@/lib/api/modules/announcements";
 import { useAdminAnnouncements } from "@/hooks/admin/useAdminAnnouncements";
 import { useBoard } from "@/hooks/useBoard";
 // import { AnnouncementList } from "./AnnouncementList";
@@ -22,7 +25,9 @@ const formatDate = (dateStr: string | null): string => {
   return format(date, "yyyy-MM-dd HH:mm", { locale: zhCN });
 };
 
-const formatDateTimeLocal = (value: string | null | undefined): string | null => {
+const formatDateTimeLocal = (
+  value: string | null | undefined,
+): string | null => {
   if (!value) return null;
   const date = parse(value, "yyyy-MM-dd'T'HH:mm", new Date());
   return formatISO(date);
@@ -46,9 +51,12 @@ const announcementToFormValues = (announcement: Announcement) => {
 };
 
 export function AnnouncementsManager({ t }: { t: (key: string) => string }) {
-  const [announcementType, setAnnouncementType] = useState<"global" | "board">("global");
+  const [announcementType, setAnnouncementType] = useState<"global" | "board">(
+    "global",
+  );
   const [modalVisible, setModalVisible] = useState(false);
-  const [editingAnnouncement, setEditingAnnouncement] = useState<Announcement | null>(null);
+  const [editingAnnouncement, setEditingAnnouncement] =
+    useState<Announcement | null>(null);
 
   const {
     announcements,
@@ -70,24 +78,24 @@ export function AnnouncementsManager({ t }: { t: (key: string) => string }) {
   });
 
   // 过滤公告
-const filteredAnnouncements = announcements.filter((ann) => {
-  // 先按全局/板块过滤
-  if (announcementType === "global") {
-    if (ann.is_global !== true) return false;
-  } else {
-    if (ann.is_global !== false) return false;
-  }
-  // 排除置顶公告（置顶公告单独显示）
-  return !ann.is_pinned;
-});
+  const filteredAnnouncements = announcements.filter((ann) => {
+    // 先按全局/板块过滤
+    if (announcementType === "global") {
+      if (ann.is_global !== true) return false;
+    } else {
+      if (ann.is_global !== false) return false;
+    }
+    // 排除置顶公告（置顶公告单独显示）
+    return !ann.is_pinned;
+  });
 
-const filteredPinnedAnnouncements = pinnedAnnouncements.filter((ann) => {
-  if (announcementType === "global") {
-    return ann.is_global === true;
-  } else {
-    return ann.is_global === false;
-  }
-});
+  const filteredPinnedAnnouncements = pinnedAnnouncements.filter((ann) => {
+    if (announcementType === "global") {
+      return ann.is_global === true;
+    } else {
+      return ann.is_global === false;
+    }
+  });
 
   // 打开创建表单
   const handleCreate = () => {
@@ -102,84 +110,88 @@ const filteredPinnedAnnouncements = pinnedAnnouncements.filter((ann) => {
   };
 
   // 提交表单
-// 将 ISO 日期转换为 datetime-local 需要的格式
-const toDateTimeLocal = (isoString: string | null | undefined): string => {
-  if (!isoString) return '';
-  try {
-    const date = new Date(isoString);
-    if (isNaN(date.getTime())) return '';
-    
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    
-    return `${year}-${month}-${day}T${hours}:${minutes}`;
-  } catch {
-    return '';
-  }
-};
+  // 将 ISO 日期转换为 datetime-local 需要的格式
+  const toDateTimeLocal = (isoString: string | null | undefined): string => {
+    if (!isoString) return "";
+    try {
+      const date = new Date(isoString);
+      if (isNaN(date.getTime())) return "";
 
-// 将 datetime-local 值转换为 ISO 格式
-const fromDateTimeLocal = (localValue: string | null | undefined): string | null => {
-  if (!localValue) return null;
-  try {
-    const date = new Date(localValue);
-    if (isNaN(date.getTime())) return null;
-    return date.toISOString();
-  } catch {
-    return null;
-  }
-};
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      const hours = String(date.getHours()).padStart(2, "0");
+      const minutes = String(date.getMinutes()).padStart(2, "0");
 
-// 转换公告数据为表单数据
-const announcementToFormValues = (announcement: Announcement) => {
-  return {
-    title: announcement.title,
-    content: announcement.content,
-    summary: announcement.summary || "",
-    cover: announcement.cover || "",
-    type: announcement.type,
-    is_pinned: announcement.is_pinned,
-    status: announcement.status,
-    is_global: announcement.is_global,
-    board_id: announcement.board_id || null,
-    published_at: toDateTimeLocal(announcement.published_at),  // 转换为 datetime-local 格式
-    expired_at: toDateTimeLocal(announcement.expired_at),      // 转换为 datetime-local 格式
-  };
-};
-
-// 提交表单
-const handleFormSubmit = async (values: any) => {
-  const payload: any = {
-    title: values.title,
-    content: values.content,
-    summary: values.summary,
-    cover: values.cover,
-    type: values.type,
-    is_pinned: values.is_pinned,
-    is_global: values.is_global,
-    board_id: values.is_global ? null : values.board_id,
-    published_at: fromDateTimeLocal(values.published_at),  // 转换回 ISO 格式
-    expired_at: fromDateTimeLocal(values.expired_at),      // 转换回 ISO 格式
+      return `${year}-${month}-${day}T${hours}:${minutes}`;
+    } catch {
+      return "";
+    }
   };
 
-  // 不要传 status，只通过 publish 接口修改
+  // 将 datetime-local 值转换为 ISO 格式
+  const fromDateTimeLocal = (
+    localValue: string | null | undefined,
+  ): string | null => {
+    if (!localValue) return null;
+    try {
+      const date = new Date(localValue);
+      if (isNaN(date.getTime())) return null;
+      return date.toISOString();
+    } catch {
+      return null;
+    }
+  };
 
-  let result;
-  if (editingAnnouncement) {
-    result = await updateAnnouncement(editingAnnouncement.id, payload);
-  } else {
-    result = await createAnnouncement(payload);
-  }
+  // 转换公告数据为表单数据
+  const announcementToFormValues = (announcement: Announcement) => {
+    return {
+      title: announcement.title,
+      content: announcement.content,
+      summary: announcement.summary || "",
+      cover: announcement.cover || "",
+      type: announcement.type,
+      is_pinned: announcement.is_pinned,
+      status: announcement.status,
+      is_global: announcement.is_global,
+      board_id: announcement.board_id || null,
+      published_at: toDateTimeLocal(announcement.published_at), // 转换为 datetime-local 格式
+      expired_at: toDateTimeLocal(announcement.expired_at), // 转换为 datetime-local 格式
+    };
+  };
 
-  if (result) {
-    setModalVisible(false);
-    setEditingAnnouncement(null);
-    toast.success(editingAnnouncement ? t("update_success") : t("create_success"));
-  }
-};
+  // 提交表单
+  const handleFormSubmit = async (values: any) => {
+    const payload: any = {
+      title: values.title,
+      content: values.content,
+      summary: values.summary,
+      cover: values.cover,
+      type: values.type,
+      is_pinned: values.is_pinned,
+      is_global: values.is_global,
+      board_id: values.is_global ? null : values.board_id,
+      published_at: fromDateTimeLocal(values.published_at), // 转换回 ISO 格式
+      expired_at: fromDateTimeLocal(values.expired_at), // 转换回 ISO 格式
+    };
+
+    // 不要传 status，只通过 publish 接口修改
+
+    let result;
+    if (editingAnnouncement) {
+      result = await updateAnnouncement(editingAnnouncement.id, payload);
+    } else {
+      result = await createAnnouncement(payload);
+    }
+
+    if (result) {
+      setModalVisible(false);
+      setEditingAnnouncement(null);
+      toast.success(
+        editingAnnouncement ? t("update_success") : t("create_success"),
+      );
+    }
+  };
   // 删除公告
   const handleDelete = async (id: number) => {
     if (confirm(t("confirm_delete"))) {
@@ -191,7 +203,8 @@ const handleFormSubmit = async (values: any) => {
   // 置顶/取消置顶
   const handlePin = async (id: number, currentPinned: boolean) => {
     const success = await pinAnnouncement(id, !currentPinned);
-    if (success) toast.success(!currentPinned ? t("pin_success") : t("unpin_success"));
+    if (success)
+      toast.success(!currentPinned ? t("pin_success") : t("unpin_success"));
   };
 
   // 发布公告
@@ -204,12 +217,22 @@ const handleFormSubmit = async (values: any) => {
 
   // 样式辅助函数
   const getTypeBadge = (type: AnnouncementType) => {
-    const styles = { normal: "badge-info", important: "badge-warning", emergency: "badge-error", event: "badge-success" };
+    const styles = {
+      normal: "badge-info",
+      important: "badge-warning",
+      emergency: "badge-error",
+      event: "badge-success",
+    };
     return styles[type] || "badge-info";
   };
 
   const getTypeText = (type: AnnouncementType) => {
-    const texts = { normal: t("normal"), important: t("important"), emergency: t("emergency"), event: t("event") };
+    const texts = {
+      normal: t("normal"),
+      important: t("important"),
+      emergency: t("emergency"),
+      event: t("event"),
+    };
     return texts[type] || type;
   };
 
@@ -220,8 +243,8 @@ const handleFormSubmit = async (values: any) => {
   };
 
   const getStatusBadge = (status: string, expiredAt: string | null) => {
-    if (status === 'draft') return "badge-ghost";
-    if (status === 'published') {
+    if (status === "draft") return "badge-ghost";
+    if (status === "published") {
       // 已发布的公告，如果过期了显示过期样式
       if (isExpired(expiredAt)) return "badge-error";
       return "badge-success";
@@ -230,8 +253,8 @@ const handleFormSubmit = async (values: any) => {
   };
 
   const getStatusText = (status: string, expiredAt: string | null) => {
-    if (status === 'draft') return t("draft");
-    if (status === 'published') {
+    if (status === "draft") return t("draft");
+    if (status === "published") {
       if (isExpired(expiredAt)) return t("expired");
       return t("published");
     }
@@ -239,7 +262,7 @@ const handleFormSubmit = async (values: any) => {
   };
 
   // 转换板块数据为表单需要的格式
-  const boardOptions = boards.map(board => ({
+  const boardOptions = boards.map((board) => ({
     id: board.id,
     name: board.name,
   }));
@@ -249,14 +272,14 @@ const handleFormSubmit = async (values: any) => {
       {/* 头部操作栏 */}
       <div className="flex justify-between items-center">
         <div className="flex gap-2">
-          <button 
-            onClick={() => setAnnouncementType("global")} 
+          <button
+            onClick={() => setAnnouncementType("global")}
             className={`btn btn-sm ${announcementType === "global" ? "btn-primary" : "btn-ghost"}`}
           >
             <Globe className="w-4 h-4" /> {t("global_announcement")}
           </button>
-          <button 
-            onClick={() => setAnnouncementType("board")} 
+          <button
+            onClick={() => setAnnouncementType("board")}
             className={`btn btn-sm ${announcementType === "board" ? "btn-primary" : "btn-ghost"}`}
           >
             <BookOpen className="w-4 h-4" /> {t("board_announcement")}
@@ -292,7 +315,11 @@ const handleFormSubmit = async (values: any) => {
           setEditingAnnouncement(null);
         }}
         onSubmit={handleFormSubmit}
-        defaultValues={editingAnnouncement ? announcementToFormValues(editingAnnouncement) : undefined}
+        defaultValues={
+          editingAnnouncement
+            ? announcementToFormValues(editingAnnouncement)
+            : undefined
+        }
         isEditing={!!editingAnnouncement}
         isSubmitting={isSubmitting}
         boards={boardOptions}

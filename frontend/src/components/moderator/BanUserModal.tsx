@@ -9,7 +9,12 @@ interface BanUserModalProps {
   t: (key: string) => string;
 }
 
-export function BanUserModal({ boardId, onBan, isBanning, t }: BanUserModalProps) {
+export function BanUserModal({
+  boardId,
+  onBan,
+  isBanning,
+  t,
+}: BanUserModalProps) {
   const [userId, setUserId] = useState("");
   const [reason, setReason] = useState("");
   const [expiresAt, setExpiresAt] = useState("");
@@ -30,7 +35,11 @@ export function BanUserModal({ boardId, onBan, isBanning, t }: BanUserModalProps
     <>
       <button
         className="btn btn-warning btn-sm"
-        onClick={() => (document.getElementById("ban_modal") as HTMLDialogElement)?.showModal()}
+        onClick={() =>
+          (
+            document.getElementById("ban_modal") as HTMLDialogElement
+          )?.showModal()
+        }
       >
         <Ban className="w-4 h-4" />
         {t("ban_user")}
@@ -65,11 +74,19 @@ export function BanUserModal({ boardId, onBan, isBanning, t }: BanUserModalProps
               <button
                 type="button"
                 className="btn"
-                onClick={() => (document.getElementById("ban_modal") as HTMLDialogElement)?.close()}
+                onClick={() =>
+                  (
+                    document.getElementById("ban_modal") as HTMLDialogElement
+                  )?.close()
+                }
               >
                 {t("cancel")}
               </button>
-              <button type="submit" className="btn btn-warning" disabled={isBanning}>
+              <button
+                type="submit"
+                className="btn btn-warning"
+                disabled={isBanning}
+              >
                 {isBanning ? t("banning") : t("confirm_ban")}
               </button>
             </div>

@@ -1,12 +1,12 @@
 // components/topic/TopicCard.tsx
-'use client';
+"use client";
 
 import { Topic, topicApi } from "@/lib/api";
 import { useAuthStore } from "@/store/auth";
-import { 
-  DocumentTextIcon, 
-  UserGroupIcon, 
-  GlobeAltIcon, 
+import {
+  DocumentTextIcon,
+  UserGroupIcon,
+  GlobeAltIcon,
   LockClosedIcon,
   HeartIcon,
 } from "@heroicons/react/24/outline";
@@ -17,7 +17,13 @@ import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 
 // 话题卡片组件
-export function TopicCard({ topic, onFollowChange }: { topic: Topic; onFollowChange?: () => void }) {
+export function TopicCard({
+  topic,
+  onFollowChange,
+}: {
+  topic: Topic;
+  onFollowChange?: () => void;
+}) {
   const router = useRouter();
   const { isAuthenticated, user } = useAuthStore();
   const [following, setFollowing] = useState(topic.is_public || false);
@@ -26,10 +32,10 @@ export function TopicCard({ topic, onFollowChange }: { topic: Topic; onFollowCha
   const handleFollow = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     if (!isAuthenticated) {
-      toast.error('请先登录');
-      router.push('/login');
+      toast.error("请先登录");
+      router.push("/login");
       return;
     }
 
@@ -38,15 +44,15 @@ export function TopicCard({ topic, onFollowChange }: { topic: Topic; onFollowCha
       if (following) {
         await topicApi.unfollow(topic.id);
         setFollowing(false);
-        toast.success('已取消收藏');
+        toast.success("已取消收藏");
       } else {
         await topicApi.follow(topic.id);
         setFollowing(true);
-        toast.success('已收藏话题');
+        toast.success("已收藏话题");
       }
       onFollowChange?.();
     } catch (error: any) {
-      toast.error(error.response?.data?.message || '操作失败');
+      toast.error(error.response?.data?.message || "操作失败");
     } finally {
       setFollowLoading(false);
     }
@@ -66,20 +72,20 @@ export function TopicCard({ topic, onFollowChange }: { topic: Topic; onFollowCha
             <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           </figure>
         )}
-        
+
         <div className="card-body p-5">
           {/* 话题标题 */}
           <h3 className="card-title text-xl font-bold text-base-content group-hover:text-primary transition-colors">
             {topic.title}
           </h3>
-          
+
           {/* 话题描述 */}
           {topic.description && (
             <p className="text-base-content/60 line-clamp-2 leading-relaxed">
               {topic.description}
             </p>
           )}
-          
+
           {/* 统计信息 */}
           <div className="flex flex-wrap items-center gap-3 text-sm text-base-content/50 mt-2">
             <div className="flex items-center gap-1.5">
@@ -104,14 +110,14 @@ export function TopicCard({ topic, onFollowChange }: { topic: Topic; onFollowCha
               )}
             </div>
           </div>
-          
+
           {/* 创建者信息 */}
           {topic.creator && (
             <div className="flex items-center gap-2 mt-3 pt-3 border-t border-base-200">
               <div className="avatar placeholder">
                 <div className="w-5 h-5 rounded-full bg-primary/10 text-primary">
                   <span className="text-xs font-medium">
-                    {topic.creator.username?.[0]?.toUpperCase() || 'U'}
+                    {topic.creator.username?.[0]?.toUpperCase() || "U"}
                   </span>
                 </div>
               </div>
@@ -120,16 +126,14 @@ export function TopicCard({ topic, onFollowChange }: { topic: Topic; onFollowCha
               </span>
             </div>
           )}
-          
+
           {/* 操作按钮区域 */}
           <div className="card-actions justify-end mt-4">
             <button
               onClick={handleFollow}
               disabled={followLoading}
               className={`btn btn-sm gap-1.5 ${
-                following 
-                  ? 'btn-primary btn-outline' 
-                  : 'btn-primary'
+                following ? "btn-primary btn-outline" : "btn-primary"
               }`}
             >
               {followLoading ? (
@@ -139,7 +143,7 @@ export function TopicCard({ topic, onFollowChange }: { topic: Topic; onFollowCha
               ) : (
                 <HeartIcon className="w-4 h-4" />
               )}
-              {following ? '已收藏' : '收藏'}
+              {following ? "已收藏" : "收藏"}
             </button>
           </div>
         </div>

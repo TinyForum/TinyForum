@@ -13,23 +13,27 @@ export function useModeratorAuth() {
   useEffect(() => {
     // 等待 hydration 完成
     if (!isHydrated) return;
-    
+
     // 未认证 → 跳转登录
     if (!isAuthenticated) {
       router.replace(`/${locale}/auth/login?redirect=/dashboard/moderator`);
       return;
     }
-    
+
     // 已认证但权限不足 → 跳转首页
-    const isModerator = ['moderator', 'admin', 'super_admin'].includes(user?.role || '');
+    const isModerator = ["moderator", "admin", "super_admin"].includes(
+      user?.role || "",
+    );
     if (!isModerator) {
       router.replace(`/${locale}`);
     }
   }, [isHydrated, isAuthenticated, user?.role, router, locale]);
-  
+
   return {
     isCheckingAuth: !isHydrated,
-    isModerator: ['moderator', 'admin', 'super_admin'].includes(user?.role || ''),
+    isModerator: ["moderator", "admin", "super_admin"].includes(
+      user?.role || "",
+    ),
     user,
   };
 }

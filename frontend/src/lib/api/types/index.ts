@@ -55,8 +55,7 @@ export interface User {
   is_blocked: boolean;
   last_login?: string;
   created_at: string;
-  updated_at: string;  
-
+  updated_at: string;
 }
 
 export interface Follow extends BaseModel {
@@ -133,7 +132,6 @@ export interface QuestionResponse {
   answers: Comment[];
   total: number;
 }
-
 
 export interface AnswerVoteResult {
   vote_count: number;
@@ -244,9 +242,8 @@ export interface TopicFollow {
 }
 
 export interface AuthResult {
-  user: User;  
+  user: User;
 }
-
 
 // lib/api/types/index.ts 中添加
 // export interface Announcement {

@@ -16,25 +16,25 @@ interface PostCardProps {
 
 export default function PostCard({ post, commentCount }: PostCardProps) {
   if (!post) return null;
-  
+
   // 判断是否为问答帖
-  const isQuestion = post.type === 'question';
-  
+  const isQuestion = post.type === "question";
+
   // 如果 post.author 不存在，单独获取用户信息
   const { data: fetchedAuthor } = useQuery({
-    queryKey: ['user', post.author_id],
-    queryFn: () => userApi.getProfile(post.author_id).then(r => r.data.data),
-    enabled: !post.author && !!post.author_id,  // 只在没有 author 时获取
+    queryKey: ["user", post.author_id],
+    queryFn: () => userApi.getProfile(post.author_id).then((r) => r.data.data),
+    enabled: !post.author && !!post.author_id, // 只在没有 author 时获取
   });
-  
+
   // 使用已有的 author 或获取到的 author
   const author = post.author || fetchedAuthor;
-  
+
   // 从 post.question 获取问答相关信息
   const rewardScore = post.question?.reward_score || 0;
   const answerCount = post.question?.answer_count || 0;
   const isAccepted = post.question?.accepted_answer_id != null;
-  
+
   // 获取帖子类型显示文本
   const getPostTypeLabel = () => {
     switch (post.type) {
@@ -47,12 +47,10 @@ export default function PostCard({ post, commentCount }: PostCardProps) {
       default:
         return "帖子";
     }
-
   };
 
   // 获取帖子类型样式
   const getPostTypeClass = () => {
-
     switch (post.type) {
       case "question":
         return "badge-primary";

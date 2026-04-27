@@ -11,7 +11,7 @@ export function PostsTable({
   posts,
   onTogglePin,
   isToggling,
-  t
+  t,
 }: {
   posts: Post[];
   onTogglePin: (id: number) => void;
@@ -19,7 +19,11 @@ export function PostsTable({
   t: (key: string) => string;
 }) {
   if (posts.length === 0) {
-    return <div className="text-center py-8 text-base-content/60">{t("no_data")}</div>;
+    return (
+      <div className="text-center py-8 text-base-content/60">
+        {t("no_data")}
+      </div>
+    );
   }
 
   const getTypeBadge = (type: string) => {
@@ -68,25 +72,33 @@ export function PostsTable({
                   rel="noreferrer"
                   className="text-sm hover:text-primary transition-colors line-clamp-1"
                 >
-                  {post.pin_top && <Pin className="w-3 h-3 inline mr-1 text-primary" />}
+                  {post.pin_top && (
+                    <Pin className="w-3 h-3 inline mr-1 text-primary" />
+                  )}
                   {post.title}
                 </a>
               </td>
-              <td className="text-sm text-base-content/60">{post.author?.username}</td>
+              <td className="text-sm text-base-content/60">
+                {post.author?.username}
+              </td>
               <td>
                 <span className={`badge badge-sm ${getTypeBadge(post.type)}`}>
                   {getTypeText(post.type)}
                 </span>
               </td>
               <td>
-                <span className={`badge badge-sm ${getStatusBadge(post.status)}`}>
+                <span
+                  className={`badge badge-sm ${getStatusBadge(post.status)}`}
+                >
                   {getStatusText(post.status)}
                 </span>
               </td>
               <td className="text-xs text-base-content/50">
                 {post.view_count} / {post.like_count}
               </td>
-              <td className="text-xs text-base-content/50">{formatDate(post.created_at)}</td>
+              <td className="text-xs text-base-content/50">
+                {formatDate(post.created_at)}
+              </td>
               <td>
                 <button
                   className={`btn btn-xs gap-1 ${post.pin_top ? "btn-ghost" : "btn-primary btn-outline"}`}

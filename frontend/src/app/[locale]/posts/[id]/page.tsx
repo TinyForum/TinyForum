@@ -1,20 +1,23 @@
 // src/app/posts/[id]/page.tsx (服务端组件)
-import { Suspense } from 'react';
-import PostDetailClient from './PostDetailClient';
-import CommentSection from '@/components/post/CommentSection';
+import { Suspense } from "react";
+import PostDetailClient from "./PostDetailClient";
+import CommentSection from "@/components/post/CommentSection";
 
-export default async function PostDetailPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function PostDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   console.log(params);
   const { id } = await params;
   const postId = Number(id);
-  
+
   return (
-    
     <div className="max-w-3xl mx-auto">
       <Suspense fallback={<PostDetailSkeleton />}>
         <PostDetailClient postId={postId} />
       </Suspense>
-      
+
       {/* Comments section can be client component too */}
       <div className="card bg-base-100 border border-base-300 shadow-sm">
         <div className="card-body p-6 lg:p-8">

@@ -9,7 +9,7 @@ interface QuickActionsProps {
 }
 
 export default function QuickActions({ isAuthenticated }: QuickActionsProps) {
-  const t = useTranslations("Nav")
+  const t = useTranslations("Nav");
   if (!isAuthenticated) return null;
 
   return (
@@ -24,10 +24,7 @@ export default function QuickActions({ isAuthenticated }: QuickActionsProps) {
       </Link>
 
       {/* 快速提问 */}
-      <Link
-        href="/questions/ask"
-        className="btn btn-outline btn-sm gap-1"
-      >
+      <Link href="/questions/ask" className="btn btn-outline btn-sm gap-1">
         <MessageCircleQuestion className="w-4 h-4" />
         <span className="hidden sm:inline">{t("ask_question")}</span>
       </Link>

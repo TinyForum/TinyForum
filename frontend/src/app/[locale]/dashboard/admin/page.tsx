@@ -16,7 +16,7 @@ import { PointsManager } from "@/components/admin/PointsManager";
 import { PostsTable } from "@/components/admin/PostsTable";
 import { SidebarMenu } from "@/components/admin/SidebarMenu";
 import { Dashboard } from "@/components/admin/Dashboard";
-import { UsersTable } from "@/components/admin/UsersTable"; 
+import { UsersTable } from "@/components/admin/UsersTable";
 import { Statistics } from "@/components/admin/Statistics";
 import { ModeratorsTable } from "@/components/admin/ModeratorsTable";
 import { AdminTasks } from "@/components/admin/AdminTasks";
@@ -46,10 +46,12 @@ export default function AdminPage() {
     activeMenu === "announcements" && isAdmin,
   );
   const qaData = useQAData(page, keyword, activeMenu === "qa" && isAdmin);
-  
+
   // 修复：useScoreData 期望可选的 userId 参数，不是布尔值
-  const pointsData = useScoreData(activeMenu === "points" && isAdmin ? undefined : undefined);
-  
+  const pointsData = useScoreData(
+    activeMenu === "points" && isAdmin ? undefined : undefined,
+  );
+
   const statsData = useStatsData(activeMenu === "statistics" && isAdmin);
 
   // 处理用户激活/停用
@@ -101,10 +103,10 @@ export default function AdminPage() {
       // MARK: 统计
       case "dashboard":
         return <Dashboard t={t} />;
-        // MARK: 统计
+      // MARK: 统计
       case "tasks":
-        return <AdminTasks/>
-        
+        return <AdminTasks />;
+
       // MARK: 公告
       case "announcements":
         return <AnnouncementsManager t={t} />;
@@ -144,14 +146,10 @@ export default function AdminPage() {
             />
           </div>
         );
-      
-  
-        
+
       case "moderators_management":
-        return (
-          <ModeratorsTable />
-        );
-      
+        return <ModeratorsTable />;
+
       // MARK: 帖子
       case "posts":
         return (
@@ -210,15 +208,15 @@ export default function AdminPage() {
             />
           </div>
         );
-      
+
       // MARK: 积分
       case "points":
         return <PointsManager t={t} />;
-      
+
       // MARK: 统计
       case "statistics":
         return <Statistics t={t} />;
-      
+
       // MARK: 设置
       case "settings":
         return (

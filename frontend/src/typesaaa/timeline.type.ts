@@ -1,6 +1,13 @@
 import { User } from "./user.type";
 
-type ActionType = 'create_post' | 'create_comment' | 'like_post' | 'like_comment' | 'follow_user' | 'accept_answer' | 'sign_in';
+type ActionType =
+  | "create_post"
+  | "create_comment"
+  | "like_post"
+  | "like_comment"
+  | "follow_user"
+  | "accept_answer"
+  | "sign_in";
 
 interface TimelineEvent extends BaseModel {
   user_id: number;

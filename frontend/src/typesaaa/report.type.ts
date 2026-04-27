@@ -1,6 +1,6 @@
 import { User } from "./user.type";
 
-type ReportStatus = 'pending' | 'resolved' | 'rejected';
+type ReportStatus = "pending" | "resolved" | "rejected";
 
 export interface Report extends BaseModel {
   reporter_id: number;

@@ -1,12 +1,12 @@
 // app/[locale]/topics/page.tsx (话题列表页)
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useAuthStore } from '@/store/auth';
-import { topicApi } from '@/lib/api/modules/topics';
-import { toast } from 'react-hot-toast';
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/store/auth";
+import { topicApi } from "@/lib/api/modules/topics";
+import { toast } from "react-hot-toast";
 import {
   PlusIcon,
   HeartIcon,
@@ -17,9 +17,9 @@ import {
   LockClosedIcon,
   XMarkIcon,
   FireIcon,
-} from '@heroicons/react/24/outline';
-import type { Topic } from '@/lib/api/types';
-import { TopicCard } from '@/components/topic/TopicCard';
+} from "@heroicons/react/24/outline";
+import type { Topic } from "@/lib/api/types";
+import { TopicCard } from "@/components/topic/TopicCard";
 
 // 加载骨架屏组件
 function LoadingSkeleton() {
@@ -45,7 +45,13 @@ function LoadingSkeleton() {
 }
 
 // 空状态组件
-function EmptyState({ isAuthenticated, onOpenModal }: { isAuthenticated: boolean; onOpenModal: () => void }) {
+function EmptyState({
+  isAuthenticated,
+  onOpenModal,
+}: {
+  isAuthenticated: boolean;
+  onOpenModal: () => void;
+}) {
   return (
     <div className="card bg-base-100 shadow-sm p-12 text-center border border-base-200">
       <div className="text-6xl mb-4 opacity-50">📚</div>
@@ -64,8 +70,12 @@ function EmptyState({ isAuthenticated, onOpenModal }: { isAuthenticated: boolean
 }
 
 // 统计卡片组件
-function StatsCards({ totalTopics, totalFollowers, hotTopicsCount }: { 
-  totalTopics: number; 
+function StatsCards({
+  totalTopics,
+  totalFollowers,
+  hotTopicsCount,
+}: {
+  totalTopics: number;
   totalFollowers: number;
   hotTopicsCount: number;
 }) {
@@ -76,45 +86,56 @@ function StatsCards({ totalTopics, totalFollowers, hotTopicsCount }: {
           <DocumentTextIcon className="w-5 h-5 text-primary" />
           <span className="text-sm font-medium text-primary">话题总数</span>
         </div>
-        <div className="text-2xl font-bold text-base-content">{totalTopics}</div>
+        <div className="text-2xl font-bold text-base-content">
+          {totalTopics}
+        </div>
       </div>
-      
+
       <div className="bg-gradient-to-br from-secondary/10 to-secondary/5 rounded-2xl p-4 text-center border border-secondary/20">
         <div className="flex items-center justify-center gap-2 mb-2">
           <UserGroupIcon className="w-5 h-5 text-secondary" />
           <span className="text-sm font-medium text-secondary">总关注数</span>
         </div>
-        <div className="text-2xl font-bold text-base-content">{totalFollowers}</div>
+        <div className="text-2xl font-bold text-base-content">
+          {totalFollowers}
+        </div>
       </div>
-      
+
       <div className="bg-gradient-to-br from-warning/10 to-warning/5 rounded-2xl p-4 text-center border border-warning/20">
         <div className="flex items-center justify-center gap-2 mb-2">
           <FireIcon className="w-5 h-5 text-warning" />
           <span className="text-sm font-medium text-warning">热门话题</span>
         </div>
-        <div className="text-2xl font-bold text-base-content">{hotTopicsCount}</div>
+        <div className="text-2xl font-bold text-base-content">
+          {hotTopicsCount}
+        </div>
       </div>
     </div>
   );
 }
 
 // 分页组件
-function Pagination({ currentPage, totalPages, onPageChange }: { 
-  currentPage: number; 
-  totalPages: number; 
+function Pagination({
+  currentPage,
+  totalPages,
+  onPageChange,
+}: {
+  currentPage: number;
+  totalPages: number;
   onPageChange: (page: number) => void;
 }) {
   const getPageNumbers = () => {
     const pages: number[] = [];
     const maxVisible = 5;
-    
+
     if (totalPages <= maxVisible) {
       for (let i = 1; i <= totalPages; i++) pages.push(i);
     } else {
       if (currentPage <= 3) {
         for (let i = 1; i <= maxVisible; i++) pages.push(i);
       } else if (currentPage >= totalPages - 2) {
-        for (let i = totalPages - maxVisible + 1; i <= totalPages; i++) pages.push(i);
+        for (let i = totalPages - maxVisible + 1; i <= totalPages; i++)
+          pages.push(i);
       } else {
         for (let i = currentPage - 2; i <= currentPage + 2; i++) pages.push(i);
       }
@@ -131,21 +152,21 @@ function Pagination({ currentPage, totalPages, onPageChange }: {
       >
         上一页
       </button>
-      
+
       <div className="flex gap-1.5 mx-2">
         {getPageNumbers().map((pageNum) => (
           <button
             key={pageNum}
             onClick={() => onPageChange(pageNum)}
             className={`btn btn-sm min-w-[2.5rem] ${
-              currentPage === pageNum ? 'btn-primary' : 'btn-ghost'
+              currentPage === pageNum ? "btn-primary" : "btn-ghost"
             }`}
           >
             {pageNum}
           </button>
         ))}
       </div>
-      
+
       <button
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage >= totalPages}
@@ -158,33 +179,38 @@ function Pagination({ currentPage, totalPages, onPageChange }: {
 }
 
 // 创建话题模态框组件
-function CreateTopicModal({ 
-  isOpen, 
-  onClose, 
-  onCreate 
-}: { 
-  isOpen: boolean; 
-  onClose: () => void; 
-  onCreate: (data: { title: string; description: string; cover: string; is_public: boolean }) => Promise<void>;
+function CreateTopicModal({
+  isOpen,
+  onClose,
+  onCreate,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onCreate: (data: {
+    title: string;
+    description: string;
+    cover: string;
+    is_public: boolean;
+  }) => Promise<void>;
 }) {
   const [form, setForm] = useState({
-    title: '',
-    description: '',
-    cover: '',
+    title: "",
+    description: "",
+    cover: "",
     is_public: true,
   });
   const [creating, setCreating] = useState(false);
 
   const handleSubmit = async () => {
     if (!form.title.trim()) {
-      toast.error('请输入话题标题');
+      toast.error("请输入话题标题");
       return;
     }
 
     setCreating(true);
     try {
       await onCreate(form);
-      setForm({ title: '', description: '', cover: '', is_public: true });
+      setForm({ title: "", description: "", cover: "", is_public: true });
       onClose();
     } finally {
       setCreating(false);
@@ -214,9 +240,9 @@ function CreateTopicModal({
               <XMarkIcon className="w-5 h-5" />
             </button>
           </div>
-          
+
           <div className="divider my-2" />
-          
+
           {/* 表单内容 */}
           <div className="space-y-5">
             <div className="form-control">
@@ -228,7 +254,9 @@ function CreateTopicModal({
               <input
                 type="text"
                 value={form.title}
-                onChange={(e) => setForm(prev => ({ ...prev, title: e.target.value }))}
+                onChange={(e) =>
+                  setForm((prev) => ({ ...prev, title: e.target.value }))
+                }
                 placeholder="例如：科技前沿、美食分享、旅行日记"
                 className="input input-bordered w-full focus:input-primary"
                 maxLength={100}
@@ -240,14 +268,16 @@ function CreateTopicModal({
                 </span>
               </label>
             </div>
-            
+
             <div className="form-control">
               <label className="label">
                 <span className="label-text font-medium">描述</span>
               </label>
               <textarea
                 value={form.description}
-                onChange={(e) => setForm(prev => ({ ...prev, description: e.target.value }))}
+                onChange={(e) =>
+                  setForm((prev) => ({ ...prev, description: e.target.value }))
+                }
                 placeholder="描述这个话题的讨论方向和内容范围..."
                 rows={3}
                 className="textarea textarea-bordered w-full focus:textarea-primary resize-none"
@@ -259,7 +289,7 @@ function CreateTopicModal({
                 </span>
               </label>
             </div>
-            
+
             <div className="form-control">
               <label className="label">
                 <span className="label-text font-medium">封面图 URL</span>
@@ -267,30 +297,37 @@ function CreateTopicModal({
               <input
                 type="url"
                 value={form.cover}
-                onChange={(e) => setForm(prev => ({ ...prev, cover: e.target.value }))}
+                onChange={(e) =>
+                  setForm((prev) => ({ ...prev, cover: e.target.value }))
+                }
                 placeholder="https://example.com/cover.jpg"
                 className="input input-bordered w-full focus:input-primary"
               />
               {form.cover && (
                 <div className="mt-3 rounded-xl overflow-hidden border border-base-200">
-                  <img 
-                    src={form.cover} 
+                  <img
+                    src={form.cover}
                     alt="封面预览"
                     className="w-full h-32 object-cover"
                     onError={(e) => {
-                      (e.target as HTMLImageElement).style.display = 'none';
+                      (e.target as HTMLImageElement).style.display = "none";
                     }}
                   />
                 </div>
               )}
             </div>
-            
+
             <div className="form-control bg-base-200/50 rounded-xl p-4">
               <label className="cursor-pointer label justify-start gap-3">
                 <input
                   type="checkbox"
                   checked={form.is_public}
-                  onChange={(e) => setForm(prev => ({ ...prev, is_public: e.target.checked }))}
+                  onChange={(e) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      is_public: e.target.checked,
+                    }))
+                  }
                   className="checkbox checkbox-primary"
                 />
                 <div>
@@ -302,13 +339,10 @@ function CreateTopicModal({
               </label>
             </div>
           </div>
-          
+
           {/* 按钮区域 */}
           <div className="modal-action mt-6 gap-3">
-            <button
-              onClick={onClose}
-              className="btn btn-ghost flex-1"
-            >
+            <button onClick={onClose} className="btn btn-ghost flex-1">
               取消
             </button>
             <button
@@ -316,8 +350,10 @@ function CreateTopicModal({
               disabled={creating || !form.title.trim()}
               className="btn btn-primary flex-1 gap-2"
             >
-              {creating && <span className="loading loading-spinner loading-sm"></span>}
-              {creating ? '创建中...' : '创建话题'}
+              {creating && (
+                <span className="loading loading-spinner loading-sm"></span>
+              )}
+              {creating ? "创建中..." : "创建话题"}
             </button>
           </div>
         </div>
@@ -346,18 +382,23 @@ export default function TopicsPage() {
         setTopics(list || []);
         setTotal(totalCount || 0);
       } else {
-        toast.error(response.data.message || '加载失败');
+        toast.error(response.data.message || "加载失败");
       }
     } catch (error: any) {
-      console.error('Failed to load topics:', error);
-      toast.error(error.response?.data?.message || '加载失败');
+      console.error("Failed to load topics:", error);
+      toast.error(error.response?.data?.message || "加载失败");
     } finally {
       setLoading(false);
     }
   };
 
   // 创建话题
-  const handleCreateTopic = async (data: { title: string; description: string; cover: string; is_public: boolean }) => {
+  const handleCreateTopic = async (data: {
+    title: string;
+    description: string;
+    cover: string;
+    is_public: boolean;
+  }) => {
     try {
       const response = await topicApi.create({
         title: data.title.trim(),
@@ -365,17 +406,17 @@ export default function TopicsPage() {
         cover: data.cover || undefined,
         is_public: data.is_public,
       });
-      
+
       if (response.data.code === 200 || response.data.code === 201) {
-        toast.success('话题创建成功');
+        toast.success("话题创建成功");
         await loadTopics();
         return Promise.resolve();
       } else {
-        toast.error(response.data.message || '创建失败');
+        toast.error(response.data.message || "创建失败");
         return Promise.reject();
       }
     } catch (error: any) {
-      toast.error(error.response?.data?.message || '创建失败');
+      toast.error(error.response?.data?.message || "创建失败");
       return Promise.reject();
     }
   };
@@ -385,10 +426,15 @@ export default function TopicsPage() {
   }, [page]);
 
   const totalPages = Math.ceil(total / pageSize);
-  
+
   // 计算统计数据 - 使用正确的属性名 follower_count
-  const totalFollowers = topics.reduce((sum, topic) => sum + (topic.follower_count || 0), 0);
-  const hotTopicsCount = topics.filter(t => (t.follower_count || 0) > 100).length;
+  const totalFollowers = topics.reduce(
+    (sum, topic) => sum + (topic.follower_count || 0),
+    0,
+  );
+  const hotTopicsCount = topics.filter(
+    (t) => (t.follower_count || 0) > 100,
+  ).length;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-base-200 to-base-100">
@@ -411,7 +457,7 @@ export default function TopicsPage() {
 
         {/* 统计卡片 */}
         {!loading && topics.length > 0 && (
-          <StatsCards 
+          <StatsCards
             totalTopics={total}
             totalFollowers={totalFollowers}
             hotTopicsCount={hotTopicsCount}
@@ -435,12 +481,19 @@ export default function TopicsPage() {
         {loading ? (
           <LoadingSkeleton />
         ) : topics.length === 0 ? (
-          <EmptyState isAuthenticated={isAuthenticated} onOpenModal={() => setShowCreateModal(true)} />
+          <EmptyState
+            isAuthenticated={isAuthenticated}
+            onOpenModal={() => setShowCreateModal(true)}
+          />
         ) : (
           <>
             <div className="space-y-4">
               {topics.map((topic, index) => (
-                <div key={topic.id} className="animate-fade-in" style={{ animationDelay: `${index * 50}ms` }}>
+                <div
+                  key={topic.id}
+                  className="animate-fade-in"
+                  style={{ animationDelay: `${index * 50}ms` }}
+                >
                   <TopicCard topic={topic} onFollowChange={loadTopics} />
                 </div>
               ))}
@@ -448,13 +501,13 @@ export default function TopicsPage() {
 
             {/* 分页 */}
             {totalPages > 1 && (
-              <Pagination 
+              <Pagination
                 currentPage={page}
                 totalPages={totalPages}
                 onPageChange={setPage}
               />
             )}
-            
+
             {/* 底部提示 */}
             <div className="text-center text-xs text-base-content/40 mt-6 pt-4 border-t border-base-200">
               共 {total} 个话题，找到你感兴趣的

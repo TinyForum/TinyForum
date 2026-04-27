@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useDeleteAccountStore } from '@/store/delete';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useDeleteAccountStore } from "@/store/delete";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function DangerZone({ user }: { user: any }) {
   const router = useRouter();
@@ -22,7 +22,7 @@ export default function DangerZone({ user }: { user: any }) {
     const checkDeleteSuccess = async () => {
       const result = await deleteAccount();
       if (result.success) {
-        router.push('/');
+        router.push("/");
         router.refresh();
       }
     };
@@ -33,7 +33,7 @@ export default function DangerZone({ user }: { user: any }) {
   const handleDeleteAccount = async () => {
     const result = await deleteAccount();
     if (result.success) {
-      router.push('/');
+      router.push("/");
       router.refresh();
     }
   };
@@ -83,10 +83,14 @@ export default function DangerZone({ user }: { user: any }) {
             <p className="text-sm text-red-600 dark:text-red-400 font-semibold mb-4">
               此操作不可撤销！
             </p>
-            
+
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                请输入 <code className="px-1 py-0.5 bg-gray-100 dark:bg-gray-700 rounded">DELETE</code> 确认删除
+                请输入{" "}
+                <code className="px-1 py-0.5 bg-gray-100 dark:bg-gray-700 rounded">
+                  DELETE
+                </code>{" "}
+                确认删除
               </label>
               <input
                 type="text"
@@ -98,9 +102,7 @@ export default function DangerZone({ user }: { user: any }) {
               />
             </div>
 
-            {error && (
-              <p className="text-red-600 text-sm mb-4">{error}</p>
-            )}
+            {error && <p className="text-red-600 text-sm mb-4">{error}</p>}
 
             <div className="flex gap-3 justify-end">
               <button
@@ -114,7 +116,7 @@ export default function DangerZone({ user }: { user: any }) {
                 disabled={isDeleting}
                 className="px-4 py-2 bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
               >
-                {isDeleting ? '删除中...' : '确认删除'}
+                {isDeleting ? "删除中..." : "确认删除"}
               </button>
             </div>
           </div>

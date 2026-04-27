@@ -11,14 +11,17 @@ interface NotificationBellProps {
   unreadCount: number;
 }
 
-export default function NotificationBell({ unreadCount }: NotificationBellProps) {
+export default function NotificationBell({
+  unreadCount,
+}: NotificationBellProps) {
   const [isOpen, setIsOpen] = useState(false);
   const t = useTranslations("Notifications"); // 使用 Notifications 命名空间
 
   // 获取最新通知预览
   const { data: previewData } = useQuery({
     queryKey: ["notifications", "preview"],
-    queryFn: () => notificationApi.list({ page: 1, page_size: 5 }).then((r) => r.data.data),
+    queryFn: () =>
+      notificationApi.list({ page: 1, page_size: 5 }).then((r) => r.data.data),
     enabled: isOpen,
   });
 
@@ -39,17 +42,20 @@ export default function NotificationBell({ unreadCount }: NotificationBellProps)
           </span>
         )}
       </div>
-      
+
       <div className="dropdown-content mt-2 w-80 bg-base-100 rounded-lg shadow-xl border border-base-200 z-50">
         <div className="p-3 border-b border-base-200 flex justify-between items-center">
           <h3 className="font-semibold">{t("title")}</h3>
           {unreadCount > 0 && (
-            <Link href="/notifications" className="text-xs text-primary hover:underline">
+            <Link
+              href="/notifications"
+              className="text-xs text-primary hover:underline"
+            >
               {t("mark_all_read")}
             </Link>
           )}
         </div>
-        
+
         <div className="max-h-96 overflow-y-auto">
           {notifications.length === 0 ? (
             <div className="p-8 text-center text-base-content/50">
@@ -73,7 +79,7 @@ export default function NotificationBell({ unreadCount }: NotificationBellProps)
             ))
           )}
         </div>
-        
+
         <div className="p-2 border-t border-base-200">
           <Link
             href="/notifications"

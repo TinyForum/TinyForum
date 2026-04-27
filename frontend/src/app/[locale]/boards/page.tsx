@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useCallback } from 'react';
-import Link from 'next/link';
-import { Board, boardApi } from '@/lib/api';
-import { useAuthStore } from '@/store/auth';
+import { useState, useEffect, useCallback } from "react";
+import Link from "next/link";
+import { Board, boardApi } from "@/lib/api";
+import { useAuthStore } from "@/store/auth";
 import {
   MagnifyingGlassIcon,
   FolderPlusIcon,
@@ -12,14 +12,14 @@ import {
   ChatBubbleLeftRightIcon,
   FireIcon,
   RectangleGroupIcon,
-} from '@heroicons/react/24/outline';
-import { BoardCard } from '@/components/boards/BoardCard';
+} from "@heroicons/react/24/outline";
+import { BoardCard } from "@/components/boards/BoardCard";
 
 export default function BoardsPage() {
   const { user } = useAuthStore();
   const [boards, setBoards] = useState<Board[]>([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
   const [page] = useState(1);
   const [pageSize] = useState(20);
   const [total, setTotal] = useState(0);
@@ -32,7 +32,7 @@ export default function BoardsPage() {
       setBoards(pageData.list || []);
       setTotal(pageData.total || 0);
     } catch (err) {
-      console.error('Failed to load boards:', err);
+      console.error("Failed to load boards:", err);
       setBoards([]);
     } finally {
       setLoading(false);
@@ -45,7 +45,7 @@ export default function BoardsPage() {
 
   // 搜索过滤
   const filtered = search.trim()
-    ? boards.filter(board => {
+    ? boards.filter((board) => {
         const q = search.toLowerCase();
         return (
           board.name.toLowerCase().includes(q) ||
@@ -55,8 +55,14 @@ export default function BoardsPage() {
     : boards;
 
   // 统计数据
-  const totalPosts = boards.reduce((sum, board) => sum + (board.post_count || 0), 0);
-  const totalToday = boards.reduce((sum, board) => sum + (board.today_count || 0), 0);
+  const totalPosts = boards.reduce(
+    (sum, board) => sum + (board.post_count || 0),
+    0,
+  );
+  const totalToday = boards.reduce(
+    (sum, board) => sum + (board.today_count || 0),
+    0,
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-base-200 via-base-100 to-base-200">
@@ -88,24 +94,28 @@ export default function BoardsPage() {
                 </div>
               </div>
             </div>
-            
+
             <div className="card bg-base-100 shadow-md border border-base-200 hover:shadow-lg transition-shadow">
               <div className="card-body p-4 flex-row items-center justify-between">
                 <div>
                   <p className="text-base-content/60 text-sm">总帖子</p>
-                  <p className="text-2xl font-bold text-primary">{totalPosts}</p>
+                  <p className="text-2xl font-bold text-primary">
+                    {totalPosts}
+                  </p>
                 </div>
                 <div className="w-10 h-10 rounded-lg bg-red-50 dark:bg-red-900/20 flex items-center justify-center">
                   <ChatBubbleLeftRightIcon className="w-5 h-5 text-red-500" />
                 </div>
               </div>
             </div>
-            
+
             <div className="card bg-base-100 shadow-md border border-base-200 hover:shadow-lg transition-shadow">
               <div className="card-body p-4 flex-row items-center justify-between">
                 <div>
                   <p className="text-base-content/60 text-sm">今日活跃</p>
-                  <p className="text-2xl font-bold text-orange-500">{totalToday}</p>
+                  <p className="text-2xl font-bold text-orange-500">
+                    {totalToday}
+                  </p>
                 </div>
                 <div className="w-10 h-10 rounded-lg bg-orange-50 dark:bg-orange-900/20 flex items-center justify-center">
                   <FireIcon className="w-5 h-5 text-orange-500" />
@@ -122,20 +132,20 @@ export default function BoardsPage() {
             <input
               type="text"
               value={search}
-              onChange={e => setSearch(e.target.value)}
+              onChange={(e) => setSearch(e.target.value)}
               placeholder="搜索板块名称或描述..."
               className="w-full pl-11 pr-4 py-3 rounded-xl border border-base-200 bg-base-100 text-base-content placeholder-base-content/40 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
             />
             {search && (
               <button
-                onClick={() => setSearch('')}
+                onClick={() => setSearch("")}
                 className="absolute right-4 top-1/2 -translate-y-1/2 text-base-content/40 hover:text-base-content/60 transition-colors"
               >
                 <span className="text-xl leading-none">×</span>
               </button>
             )}
           </div>
-          
+
           {user && (
             <Link
               href="/boards/new"
@@ -151,7 +161,10 @@ export default function BoardsPage() {
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {[...Array(6)].map((_, i) => (
-              <div key={i} className="card bg-base-100 shadow-md border border-base-200">
+              <div
+                key={i}
+                className="card bg-base-100 shadow-md border border-base-200"
+              >
                 <div className="card-body p-5">
                   <div className="h-6 bg-base-200 rounded-lg w-1/3 mb-3 animate-pulse" />
                   <div className="h-4 bg-base-200 rounded-lg w-full mb-2 animate-pulse" />
@@ -179,7 +192,7 @@ export default function BoardsPage() {
                     没有找到匹配 "{search}" 的板块
                   </p>
                   <button
-                    onClick={() => setSearch('')}
+                    onClick={() => setSearch("")}
                     className="btn btn-primary btn-sm"
                   >
                     清除搜索
@@ -197,18 +210,12 @@ export default function BoardsPage() {
                     还没有任何板块，快来创建第一个吧
                   </p>
                   {user ? (
-                    <Link
-                      href="/boards/new"
-                      className="btn btn-primary"
-                    >
+                    <Link href="/boards/new" className="btn btn-primary">
                       <PlusIcon className="w-4 h-4" />
                       创建第一个板块
                     </Link>
                   ) : (
-                    <Link
-                      href="/auth/login"
-                      className="btn btn-primary"
-                    >
+                    <Link href="/auth/login" className="btn btn-primary">
                       登录后创建
                     </Link>
                   )}
@@ -218,7 +225,7 @@ export default function BoardsPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {filtered.map(board => (
+            {filtered.map((board) => (
               <BoardCard key={board.id} board={board} />
             ))}
           </div>

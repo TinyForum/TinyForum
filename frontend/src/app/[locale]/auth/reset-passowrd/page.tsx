@@ -1,23 +1,25 @@
 // app/[locale]/auth/reset-password/page.tsx
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import Link from 'next/link';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import toast from 'react-hot-toast';
-import { Lock, Eye, EyeOff, KeyRound, ArrowLeft } from 'lucide-react';
-import { useTranslations, useLocale } from 'next-intl';
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import toast from "react-hot-toast";
+import { Lock, Eye, EyeOff, KeyRound, ArrowLeft } from "lucide-react";
+import { useTranslations, useLocale } from "next-intl";
 
-const resetPasswordSchema = z.object({
-  password: z.string().min(6, '密码至少需要6个字符'),
-  password_confirmation: z.string().min(6, '请确认密码'),
-}).refine((data) => data.password === data.password_confirmation, {
-  message: "两次输入的密码不一致",
-  path: ["password_confirmation"],
-});
+const resetPasswordSchema = z
+  .object({
+    password: z.string().min(6, "密码至少需要6个字符"),
+    password_confirmation: z.string().min(6, "请确认密码"),
+  })
+  .refine((data) => data.password === data.password_confirmation, {
+    message: "两次输入的密码不一致",
+    path: ["password_confirmation"],
+  });
 
 type ResetPasswordForm = z.infer<typeof resetPasswordSchema>;
 
@@ -25,9 +27,9 @@ export default function ResetPasswordPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const locale = useLocale();
-  const t = useTranslations('Auth');
-  
-  const token = searchParams.get('token');
+  const t = useTranslations("Auth");
+
+  const token = searchParams.get("token");
   const [isLoading, setIsLoading] = useState(false);
   const [isValidToken, setIsValidToken] = useState<boolean | null>(null);
   const [showPassword, setShowPassword] = useState(false);
@@ -37,7 +39,7 @@ export default function ResetPasswordPage() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<ResetPasswordForm>({ 
+  } = useForm<ResetPasswordForm>({
     resolver: zodResolver(resetPasswordSchema),
   });
 
@@ -50,7 +52,9 @@ export default function ResetPasswordPage() {
 
     const validateToken = async () => {
       try {
-        const response = await fetch(`/api/auth/validate-reset-token?token=${token}`);
+        const response = await fetch(
+          `/api/auth/validate-reset-token?token=${token}`,
+        );
         const data = await response.json();
         setIsValidToken(data.valid);
       } catch (error) {
@@ -63,16 +67,16 @@ export default function ResetPasswordPage() {
 
   const onSubmit = async (data: ResetPasswordForm) => {
     if (!token) {
-      toast.error('无效的重置链接');
+      toast.error("无效的重置链接");
       return;
     }
 
     setIsLoading(true);
-    
+
     try {
-      const response = await fetch('/api/auth/reset-password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/auth/reset-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           token: token,
           password: data.password,
@@ -83,15 +87,15 @@ export default function ResetPasswordPage() {
       const result = await response.json();
 
       if (response.ok) {
-        toast.success('密码重置成功，请使用新密码登录');
+        toast.success("密码重置成功，请使用新密码登录");
         setTimeout(() => {
           router.push(`/${locale}/auth/login`);
         }, 2000);
       } else {
-        toast.error(result.error || '密码重置失败');
+        toast.error(result.error || "密码重置失败");
       }
     } catch (error) {
-      toast.error('网络错误，请稍后重试');
+      toast.error("网络错误，请稍后重试");
     } finally {
       setIsLoading(false);
     }
@@ -153,10 +157,10 @@ export default function ResetPasswordPage() {
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-base-content/40" />
                   <input
-                    {...register('password')}
-                    type={showPassword ? 'text' : 'password'}
+                    {...register("password")}
+                    type={showPassword ? "text" : "password"}
                     placeholder="••••••••"
-                    className={`input input-bordered w-full pl-10 pr-10 focus:outline-none focus:border-primary ${errors.password ? 'input-error' : ''}`}
+                    className={`input input-bordered w-full pl-10 pr-10 focus:outline-none focus:border-primary ${errors.password ? "input-error" : ""}`}
                     disabled={isLoading}
                   />
                   <button
@@ -164,12 +168,18 @@ export default function ResetPasswordPage() {
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-base-content/40 hover:text-base-content"
                     onClick={() => setShowPassword(!showPassword)}
                   >
-                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    {showPassword ? (
+                      <EyeOff className="w-4 h-4" />
+                    ) : (
+                      <Eye className="w-4 h-4" />
+                    )}
                   </button>
                 </div>
                 {errors.password && (
                   <label className="label pt-1">
-                    <span className="label-text-alt text-error">{errors.password.message}</span>
+                    <span className="label-text-alt text-error">
+                      {errors.password.message}
+                    </span>
                   </label>
                 )}
               </div>
@@ -177,15 +187,17 @@ export default function ResetPasswordPage() {
               {/* Confirm Password */}
               <div className="form-control">
                 <label className="label pb-1">
-                  <span className="label-text font-medium">Confirm Password</span>
+                  <span className="label-text font-medium">
+                    Confirm Password
+                  </span>
                 </label>
                 <div className="relative">
                   <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-base-content/40" />
                   <input
-                    {...register('password_confirmation')}
-                    type={showConfirmPassword ? 'text' : 'password'}
+                    {...register("password_confirmation")}
+                    type={showConfirmPassword ? "text" : "password"}
                     placeholder="••••••••"
-                    className={`input input-bordered w-full pl-10 pr-10 focus:outline-none focus:border-primary ${errors.password_confirmation ? 'input-error' : ''}`}
+                    className={`input input-bordered w-full pl-10 pr-10 focus:outline-none focus:border-primary ${errors.password_confirmation ? "input-error" : ""}`}
                     disabled={isLoading}
                   />
                   <button
@@ -193,12 +205,18 @@ export default function ResetPasswordPage() {
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-base-content/40 hover:text-base-content"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   >
-                    {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    {showConfirmPassword ? (
+                      <EyeOff className="w-4 h-4" />
+                    ) : (
+                      <Eye className="w-4 h-4" />
+                    )}
                   </button>
                 </div>
                 {errors.password_confirmation && (
                   <label className="label pt-1">
-                    <span className="label-text-alt text-error">{errors.password_confirmation.message}</span>
+                    <span className="label-text-alt text-error">
+                      {errors.password_confirmation.message}
+                    </span>
                   </label>
                 )}
               </div>
@@ -219,8 +237,8 @@ export default function ResetPasswordPage() {
 
               {/* Back to Login */}
               <div className="text-center">
-                <Link 
-                  href="/auth/login" 
+                <Link
+                  href="/auth/login"
                   className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
                 >
                   <ArrowLeft className="w-3 h-3" />

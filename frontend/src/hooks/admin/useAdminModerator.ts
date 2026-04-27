@@ -1,5 +1,8 @@
 // hooks/useAdminModerator.ts
-import { moderatorApi, ReviewApplicationRequest } from "@/lib/api/modules/moderator";
+import {
+  moderatorApi,
+  ReviewApplicationRequest,
+} from "@/lib/api/modules/moderator";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 
@@ -34,7 +37,9 @@ export const useReviewApplication = () => {
     onSuccess: () => {
       toast.success("审批成功");
       queryClient.invalidateQueries({ queryKey: ["admin", "applications"] });
-      queryClient.invalidateQueries({ queryKey: ["boards", "moderators", "apply"] });
+      queryClient.invalidateQueries({
+        queryKey: ["boards", "moderators", "apply"],
+      });
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.message || "审批失败");
@@ -47,11 +52,19 @@ export const useAddModerator = (boardId: number) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: { user_id: number; can_delete_post?: boolean; can_pin_post?: boolean; can_edit_any_post?: boolean; can_manage_moderator?: boolean; can_ban_user?: boolean }) =>
-      moderatorApi.addModerator(boardId, data),
+    mutationFn: (data: {
+      user_id: number;
+      can_delete_post?: boolean;
+      can_pin_post?: boolean;
+      can_edit_any_post?: boolean;
+      can_manage_moderator?: boolean;
+      can_ban_user?: boolean;
+    }) => moderatorApi.addModerator(boardId, data),
     onSuccess: () => {
       toast.success("任命版主成功");
-      queryClient.invalidateQueries({ queryKey: ["boards", boardId, "moderators"] });
+      queryClient.invalidateQueries({
+        queryKey: ["boards", boardId, "moderators"],
+      });
       queryClient.invalidateQueries({ queryKey: ["moderator", "my-boards"] });
     },
     onError: (error: any) => {
@@ -64,10 +77,13 @@ export const useRemoveModerator = (boardId: number) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (userId: number) => moderatorApi.removeModerator(boardId, userId),
+    mutationFn: (userId: number) =>
+      moderatorApi.removeModerator(boardId, userId),
     onSuccess: () => {
       toast.success("移除版主成功");
-      queryClient.invalidateQueries({ queryKey: ["boards", boardId, "moderators"] });
+      queryClient.invalidateQueries({
+        queryKey: ["boards", boardId, "moderators"],
+      });
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.message || "移除失败");
@@ -83,7 +99,9 @@ export const useUpdateModeratorPermissions = (boardId: number) => {
       moderatorApi.updateModeratorPermissions(boardId, userId, data),
     onSuccess: () => {
       toast.success("更新权限成功");
-      queryClient.invalidateQueries({ queryKey: ["boards", boardId, "moderators"] });
+      queryClient.invalidateQueries({
+        queryKey: ["boards", boardId, "moderators"],
+      });
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.message || "更新权限失败");
@@ -112,8 +130,15 @@ export const useAdminPinPost = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ boardId, postId, pinInBoard }: { boardId: number; postId: number; pinInBoard: boolean }) =>
-      moderatorApi.pinPost(boardId, postId, pinInBoard),
+    mutationFn: ({
+      boardId,
+      postId,
+      pinInBoard,
+    }: {
+      boardId: number;
+      postId: number;
+      pinInBoard: boolean;
+    }) => moderatorApi.pinPost(boardId, postId, pinInBoard),
     onSuccess: (_, variables) => {
       // toast.success(variables.pinInBoard ? "置顶成功" : "取消置顶成功");
       queryClient.invalidateQueries({ queryKey: ["moderator", "boards"] });
@@ -129,11 +154,16 @@ export const useAdminBanUser = (boardId: number) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: { user_id: number; reason: string; expires_at?: string }) =>
-      moderatorApi.banUser(boardId, data),
+    mutationFn: (data: {
+      user_id: number;
+      reason: string;
+      expires_at?: string;
+    }) => moderatorApi.banUser(boardId, data),
     onSuccess: () => {
       toast.success("禁言用户成功");
-      queryClient.invalidateQueries({ queryKey: ["moderator", "boards", boardId, "bans"] });
+      queryClient.invalidateQueries({
+        queryKey: ["moderator", "boards", boardId, "bans"],
+      });
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.message || "禁言失败");
@@ -148,7 +178,9 @@ export const useAdminUnbanUser = (boardId: number) => {
     mutationFn: (userId: number) => moderatorApi.unbanUser(boardId, userId),
     onSuccess: () => {
       toast.success("解除禁言成功");
-      queryClient.invalidateQueries({ queryKey: ["moderator", "boards", boardId, "bans"] });
+      queryClient.invalidateQueries({
+        queryKey: ["moderator", "boards", boardId, "bans"],
+      });
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.message || "解除禁言失败");
@@ -170,7 +202,10 @@ export const useAdminModeratorList = (boardId?: number) => {
 };
 
 // 管理员 - 获取板块禁言列表
-export const useAdminBannedUsers = (boardId: number, params?: { page?: number; page_size?: number }) => {
+export const useAdminBannedUsers = (
+  boardId: number,
+  params?: { page?: number; page_size?: number },
+) => {
   return useQuery({
     queryKey: ["moderator", "boards", boardId, "bans", params],
     queryFn: async () => {
@@ -182,7 +217,10 @@ export const useAdminBannedUsers = (boardId: number, params?: { page?: number; p
 };
 
 // 管理员 - 获取板块举报列表
-export const useAdminReports = (boardId: number, params?: { page?: number; page_size?: number; status?: string }) => {
+export const useAdminReports = (
+  boardId: number,
+  params?: { page?: number; page_size?: number; status?: string },
+) => {
   return useQuery({
     queryKey: ["moderator", "boards", boardId, "reports", params],
     queryFn: async () => {
@@ -194,7 +232,15 @@ export const useAdminReports = (boardId: number, params?: { page?: number; page_
 };
 
 // 管理员 - 获取板块帖子列表
-export const useAdminBoardPosts = (boardId: number, params?: { page?: number; page_size?: number; keyword?: string; status?: string }) => {
+export const useAdminBoardPosts = (
+  boardId: number,
+  params?: {
+    page?: number;
+    page_size?: number;
+    keyword?: string;
+    status?: string;
+  },
+) => {
   return useQuery({
     queryKey: ["moderator", "boards", boardId, "posts", params],
     queryFn: async () => {

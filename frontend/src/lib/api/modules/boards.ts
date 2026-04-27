@@ -68,30 +68,35 @@ export const boardApi = {
   list: (params?: { page?: number; page_size?: number }) =>
     apiClient.get<ApiResponse<PageData<Board>>>("/boards", { params }),
 
-  getTree: () =>
-    apiClient.get<ApiResponse<Board[]>>("/boards/tree"),
+  getTree: () => apiClient.get<ApiResponse<Board[]>>("/boards/tree"),
 
   getById: (id: number | string) =>
     apiClient.get<ApiResponse<Board>>(`/boards/${id}`),
 
   /**
    * 通过 slug 获取板块信息
-   * @param slug 
-   * @returns 
+   * @param slug
+   * @returns
    */
   getBySlug: (slug: string) =>
     apiClient.get<ApiResponse<Board>>(`/boards/slug/${slug}`),
 
   /**
    * 通过 slug 获取该板块帖子列表
-   * @param slug 
-   * @param params 
-   * @returns 
+   * @param slug
+   * @param params
+   * @returns
    */
-  getPostsBySlug: (slug: string, params?: { page?: number; page_size?: number }) =>
-    apiClient.get<ApiResponse<PageData<BoardPostListItem>>>(`/boards/slug/${slug}/posts`, {
-      params,
-    }),
+  getPostsBySlug: (
+    slug: string,
+    params?: { page?: number; page_size?: number },
+  ) =>
+    apiClient.get<ApiResponse<PageData<BoardPostListItem>>>(
+      `/boards/slug/${slug}/posts`,
+      {
+        params,
+      },
+    ),
 
   // ── 增删改（Admin） ───────────────────────────────────────────────────────────
   create: (data: CreateBoardPayload) =>
@@ -100,8 +105,7 @@ export const boardApi = {
   update: (id: number, data: UpdateBoardPayload) =>
     apiClient.put<ApiResponse<Board>>(`/boards/${id}`, data),
 
-  delete: (id: number) =>
-    apiClient.delete<ApiResponse<null>>(`/boards/${id}`),
+  delete: (id: number) => apiClient.delete<ApiResponse<null>>(`/boards/${id}`),
 
   // ── 版主管理 ──────────────────────────────────────────────────────────────────
   getModerators: (boardId: number) =>
@@ -112,7 +116,7 @@ export const boardApi = {
 
   removeModerator: (boardId: number, userId: number) =>
     apiClient.delete<ApiResponse<null>>(
-      `/boards/${boardId}/moderators/${userId}`
+      `/boards/${boardId}/moderators/${userId}`,
     ),
 
   // ── 申请版主 ──────────────────────────────────────────────────────────────────
@@ -155,6 +159,6 @@ export const boardApi = {
   pinPost: (boardId: number, postId: number, data: PinPostPayload) =>
     apiClient.put<ApiResponse<null>>(
       `/boards/${boardId}/posts/${postId}/pin`,
-      data
+      data,
     ),
 };

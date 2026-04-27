@@ -5,7 +5,7 @@ import { moderatorApi } from "@/lib/api/modules/moderator";
 export function useModeratorReports(
   boardId: number,
   page: number = 1,
-  enabled: boolean = true
+  enabled: boolean = true,
 ) {
   const query = useQuery({
     queryKey: ["moderator", "reports", boardId, page],

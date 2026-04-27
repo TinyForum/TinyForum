@@ -6,7 +6,7 @@ import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from "axios";
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1";
 function createClient(config?: AxiosRequestConfig): AxiosInstance {
-  console.log("API_BASE_URL: ", API_BASE_URL, "  config: ",config);
+  console.log("API_BASE_URL: ", API_BASE_URL, "  config: ", config);
   const instance = axios.create({
     baseURL: API_BASE_URL,
     headers: { "Content-Type": "application/json" },

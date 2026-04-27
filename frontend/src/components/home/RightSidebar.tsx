@@ -8,7 +8,6 @@ import { TimelineEvents } from "./right/TimelineEvents";
 import { UserProfileCard } from "./right/UserProfileCard";
 import { LeaderboardItemResponse } from "@/lib/api/modules/users";
 
-
 interface UserProfile {
   id: number;
   username: string;
@@ -54,16 +53,12 @@ export default function RightSidebar({
     <aside className="space-y-4">
       {/* 用户信息卡片 */}
       {isAuthenticated && userProfile ? (
-        <UserProfileCard 
-          userProfile={userProfile} 
-          unreadCount={unreadCount} 
-        />
+        <UserProfileCard userProfile={userProfile} unreadCount={unreadCount} />
       ) : (
         <GuestCard />
       )}
 
       {/* 违规情况（已登录时） */}
-   
 
       {/* 时间线事件（已登录时） */}
       {isAuthenticated && timelineEvents && timelineEvents.length > 0 && (
@@ -71,9 +66,7 @@ export default function RightSidebar({
       )}
 
       {/* 用户排行榜 */}
-      {leaderboard && (
-        <Leaderboard leaderboard={leaderboard} />
-      )}
+      {leaderboard && <Leaderboard leaderboard={leaderboard} />}
     </aside>
   );
 }

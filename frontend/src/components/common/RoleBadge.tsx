@@ -9,7 +9,11 @@ interface RoleBadgeProps {
   size?: "sm" | "md" | "lg";
 }
 
-export function RoleBadge({ role, showIcon = false, size = "md" }: RoleBadgeProps) {
+export function RoleBadge({
+  role,
+  showIcon = false,
+  size = "md",
+}: RoleBadgeProps) {
   const t = useTranslations("Common");
 
   const colorMap: Record<UserRoleType, string> = {

@@ -58,8 +58,7 @@ export function useUsersData(page: number, keyword: string, enabled: boolean) {
 
   // 删除用户
   const deleteUserMutation = useMutation({
-    mutationFn: ({ id }: { id: number }) =>
-      adminApi.deleteUser(id),
+    mutationFn: ({ id }: { id: number }) => adminApi.deleteUser(id),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["admin-users"] });
       toast.success(t("user_deleted_successfully"));
@@ -67,7 +66,7 @@ export function useUsersData(page: number, keyword: string, enabled: boolean) {
     onError: () => toast.error(t("delete_failed")),
   });
 
-// 重置密码（只需要传用户 ID）
+  // 重置密码（只需要传用户 ID）
   const resetPasswordMutation = useMutation({
     mutationFn: (id: number) => adminApi.resetUserPassword(id),
     onSuccess: (_, userId) => {
@@ -108,8 +107,8 @@ export function useUsersData(page: number, keyword: string, enabled: boolean) {
     deleteUserMutation.mutate({ id });
   };
 
-  const handleResetPassword = (id:number) => {
-    resetPasswordMutation.mutate( id );
+  const handleResetPassword = (id: number) => {
+    resetPasswordMutation.mutate(id);
   };
 
   return {

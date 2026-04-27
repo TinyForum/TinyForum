@@ -9,9 +9,21 @@ interface PendingPostsTableProps {
   t: (key: string) => string;
 }
 
-export function PendingPostsTable({ posts, onDelete, onPin, isDeleting, isPinning, permissions, t }: PendingPostsTableProps) {
+export function PendingPostsTable({
+  posts,
+  onDelete,
+  onPin,
+  isDeleting,
+  isPinning,
+  permissions,
+  t,
+}: PendingPostsTableProps) {
   if (!posts?.length) {
-    return <div className="text-center py-8 text-base-content/50">{t("no_posts")}</div>;
+    return (
+      <div className="text-center py-8 text-base-content/50">
+        {t("no_posts")}
+      </div>
+    );
   }
 
   return (

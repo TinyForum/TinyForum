@@ -27,7 +27,7 @@ interface UseAnnouncementsDataReturn {
   loading: boolean;
   submitting: boolean;
   refreshing: boolean;
-  isLoading:boolean;
+  isLoading: boolean;
 
   // 分页
   page: number;
@@ -38,11 +38,11 @@ interface UseAnnouncementsDataReturn {
   fetchPinnedAnnouncements: (boardId?: number) => Promise<void>;
   getAnnouncementById: (id: number) => Promise<Announcement | null>;
   createAnnouncement: (
-    params: CreateAnnouncementPayload
+    params: CreateAnnouncementPayload,
   ) => Promise<Announcement | null>;
   updateAnnouncement: (
     id: number,
-    params: UpdateAnnouncementPayload
+    params: UpdateAnnouncementPayload,
   ) => Promise<Announcement | null>;
   deleteAnnouncement: (id: number) => Promise<boolean>;
   publishAnnouncement: (id: number) => Promise<boolean>;
@@ -59,15 +59,15 @@ interface UseAnnouncementsDataReturn {
 // ============ Hook 实现 ============
 export function useAnnouncementsData(
   enabled: boolean = true,
-  options?: UseAnnouncementsDataOptions
+  options?: UseAnnouncementsDataOptions,
 ): UseAnnouncementsDataReturn {
   const { defaultParams = {}, autoLoadPinned = true } = options || {};
 
   // 数据状态
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
-  const [pinnedAnnouncements, setPinnedAnnouncements] = useState<Announcement[]>(
-    []
-  );
+  const [pinnedAnnouncements, setPinnedAnnouncements] = useState<
+    Announcement[]
+  >([]);
   const [total, setTotal] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
   const [submitting, setSubmitting] = useState<boolean>(false);
@@ -76,7 +76,9 @@ export function useAnnouncementsData(
 
   // 分页状态
   const [page, setPage] = useState<number>(defaultParams.page || 1);
-  const [pageSize, setPageSize] = useState<number>(defaultParams.page_size || 20);
+  const [pageSize, setPageSize] = useState<number>(
+    defaultParams.page_size || 20,
+  );
   const [filters, setFilters] = useState<AnnouncementListParams>(() => ({
     page,
     page_size: pageSize,
@@ -96,7 +98,12 @@ export function useAnnouncementsData(
       }
 
       try {
-        const queryParams = { ...filters, ...params, page, page_size: pageSize };
+        const queryParams = {
+          ...filters,
+          ...params,
+          page,
+          page_size: pageSize,
+        };
         // 移除 undefined 值
         Object.keys(queryParams).forEach((key) => {
           if (queryParams[key as keyof AnnouncementListParams] === undefined) {
@@ -121,7 +128,7 @@ export function useAnnouncementsData(
         setRefreshing(false);
       }
     },
-    [enabled, filters, page, pageSize]
+    [enabled, filters, page, pageSize],
   );
 
   // 获取置顶公告
@@ -139,7 +146,7 @@ export function useAnnouncementsData(
         console.error("获取置顶公告失败:", error);
       }
     },
-    [enabled]
+    [enabled],
   );
 
   // 根据 ID 获取公告详情
@@ -160,7 +167,7 @@ export function useAnnouncementsData(
         return null;
       }
     },
-    []
+    [],
   );
 
   // 创建公告
@@ -170,7 +177,7 @@ export function useAnnouncementsData(
       try {
         const response = await announcementApi.create(params);
 
-        console.log("创建公告: ",response);
+        console.log("创建公告: ", response);
         if (response.data.code === 0) {
           toast.success("创建公告成功");
           await fetchAnnouncements();
@@ -187,12 +194,15 @@ export function useAnnouncementsData(
         setSubmitting(false);
       }
     },
-    [fetchAnnouncements]
+    [fetchAnnouncements],
   );
 
   // 更新公告
   const updateAnnouncement = useCallback(
-    async (id: number, params: UpdateAnnouncementPayload): Promise<Announcement | null> => {
+    async (
+      id: number,
+      params: UpdateAnnouncementPayload,
+    ): Promise<Announcement | null> => {
       setSubmitting(true);
       try {
         const response = await announcementApi.update(id, params);
@@ -217,7 +227,7 @@ export function useAnnouncementsData(
         setSubmitting(false);
       }
     },
-    [fetchAnnouncements, fetchPinnedAnnouncements]
+    [fetchAnnouncements, fetchPinnedAnnouncements],
   );
 
   // 删除公告
@@ -241,7 +251,7 @@ export function useAnnouncementsData(
         return false;
       }
     },
-    [fetchAnnouncements, fetchPinnedAnnouncements]
+    [fetchAnnouncements, fetchPinnedAnnouncements],
   );
 
   // 发布公告
@@ -268,7 +278,7 @@ export function useAnnouncementsData(
         setSubmitting(false);
       }
     },
-    [fetchAnnouncements, fetchPinnedAnnouncements]
+    [fetchAnnouncements, fetchPinnedAnnouncements],
   );
 
   // 归档公告
@@ -294,7 +304,7 @@ export function useAnnouncementsData(
         setSubmitting(false);
       }
     },
-    [fetchAnnouncements]
+    [fetchAnnouncements],
   );
 
   // 置顶/取消置顶
@@ -321,7 +331,7 @@ export function useAnnouncementsData(
         setSubmitting(false);
       }
     },
-    [fetchAnnouncements, fetchPinnedAnnouncements]
+    [fetchAnnouncements, fetchPinnedAnnouncements],
   );
 
   // 重置筛选条件
@@ -361,7 +371,6 @@ export function useAnnouncementsData(
     page,
     pageSize,
 
-
     // 操作方法
     fetchAnnouncements,
     fetchPinnedAnnouncements,
@@ -378,8 +387,6 @@ export function useAnnouncementsData(
     setPageSize,
     setFilters,
     resetFilters,
-    isLoading
-
+    isLoading,
   };
 }
-

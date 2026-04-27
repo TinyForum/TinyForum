@@ -1,7 +1,7 @@
 import { Follow } from "./follow.type";
 import { Post } from "./post.type";
 
-export type UserRole = 'user' | 'admin' | 'moderator';
+export type UserRole = "user" | "admin" | "moderator";
 
 export interface User extends BaseModel {
   username: string;

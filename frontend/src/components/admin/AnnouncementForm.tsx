@@ -206,7 +206,10 @@ export function AnnouncementForm({
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="label text-sm font-medium">{t("type")}</label>
-            <select className="select select-bordered w-full" {...register("type")}>
+            <select
+              className="select select-bordered w-full"
+              {...register("type")}
+            >
               <option value="normal">{t("normal")}</option>
               <option value="important">{t("important")}</option>
               <option value="emergency">{t("emergency")}</option>
@@ -215,7 +218,10 @@ export function AnnouncementForm({
           </div>
           <div>
             <label className="label text-sm font-medium">{t("status")}</label>
-            <select className="select select-bordered w-full" {...register("status")}>
+            <select
+              className="select select-bordered w-full"
+              {...register("status")}
+            >
               <option value="draft">{t("draft")}</option>
               <option value="published">{t("published")}</option>
               <option value="expired">{t("archived")}</option>
@@ -226,7 +232,7 @@ export function AnnouncementForm({
         {/* 全局/板块切换 */}
         <div className="space-y-3">
           <label className="label text-sm font-medium">{t("scope")}</label>
-          
+
           {/* 全局公告选项 */}
           <label className="flex items-center gap-3 p-3 rounded-lg border cursor-pointer hover:bg-base-200">
             <input
@@ -240,7 +246,9 @@ export function AnnouncementForm({
             />
             <div className="flex-1">
               <span className="font-medium">{t("global_announcement")}</span>
-              <p className="text-xs text-base-content/50">{t("global_announcement_desc")}</p>
+              <p className="text-xs text-base-content/50">
+                {t("global_announcement_desc")}
+              </p>
             </div>
           </label>
 
@@ -254,21 +262,29 @@ export function AnnouncementForm({
             />
             <div className="flex-1">
               <span className="font-medium">{t("board_announcement")}</span>
-              <p className="text-xs text-base-content/50">{t("board_announcement_desc")}</p>
+              <p className="text-xs text-base-content/50">
+                {t("board_announcement_desc")}
+              </p>
             </div>
           </label>
 
           {/* 板块选择（仅非全局时显示） */}
           {!isGlobal && (
             <div className="ml-8 mt-2">
-              <label className="label text-sm font-medium">{t("select_board")}</label>
+              <label className="label text-sm font-medium">
+                {t("select_board")}
+              </label>
               <select
                 className="select select-bordered w-full"
                 value={selectedBoardId || ""}
                 onChange={handleBoardChange}
                 disabled={boardsLoading}
               >
-                <option value="">{boardsLoading ? t("loading_boards") : t("please_select_board")}</option>
+                <option value="">
+                  {boardsLoading
+                    ? t("loading_boards")
+                    : t("please_select_board")}
+                </option>
                 {boards.map((board) => (
                   <option key={board.id} value={board.id}>
                     {board.name}
@@ -282,7 +298,9 @@ export function AnnouncementForm({
                 </p>
               )}
               {errors.board_id && (
-                <p className="text-error text-xs mt-1">{errors.board_id.message}</p>
+                <p className="text-error text-xs mt-1">
+                  {errors.board_id.message}
+                </p>
               )}
             </div>
           )}
@@ -290,31 +308,45 @@ export function AnnouncementForm({
 
         {/* 置顶开关 */}
         <div className="flex items-center gap-2">
-          <input type="checkbox" className="toggle toggle-sm" {...register("is_pinned")} />
+          <input
+            type="checkbox"
+            className="toggle toggle-sm"
+            {...register("is_pinned")}
+          />
           <span className="text-sm">{t("pin")}</span>
         </div>
 
         {/* 时间 */}
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="label text-sm font-medium">{t("publish_time")}</label>
+            <label className="label text-sm font-medium">
+              {t("publish_time")}
+            </label>
             <input
               type="datetime-local"
               className="input input-bordered w-full"
               {...register("published_at")}
             />
-            <p className="text-xs text-base-content/50 mt-1">{t("publish_time_hint")}</p>
+            <p className="text-xs text-base-content/50 mt-1">
+              {t("publish_time_hint")}
+            </p>
           </div>
           <div>
-            <label className="label text-sm font-medium">{t("expire_time")}</label>
+            <label className="label text-sm font-medium">
+              {t("expire_time")}
+            </label>
             <input
               type="datetime-local"
               className="input input-bordered w-full"
               {...register("expired_at")}
             />
-            <p className="text-xs text-base-content/50 mt-1">{t("expire_time_hint")}</p>
+            <p className="text-xs text-base-content/50 mt-1">
+              {t("expire_time_hint")}
+            </p>
             {errors.expired_at && (
-              <p className="text-error text-xs mt-1">{errors.expired_at.message}</p>
+              <p className="text-error text-xs mt-1">
+                {errors.expired_at.message}
+              </p>
             )}
           </div>
         </div>
@@ -324,7 +356,11 @@ export function AnnouncementForm({
           <button type="button" className="btn btn-ghost" onClick={onClose}>
             {t("cancel")}
           </button>
-          <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
+          <button
+            type="submit"
+            className="btn btn-primary"
+            disabled={isSubmitting}
+          >
             {isSubmitting ? (
               <Loader2 className="w-4 h-4 animate-spin" />
             ) : isEditing ? (

@@ -1,7 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { Flame, Clock, PenSquare, TrendingUp, Award, RefreshCw, Megaphone } from "lucide-react";
+import {
+  Flame,
+  Clock,
+  PenSquare,
+  TrendingUp,
+  Award,
+  RefreshCw,
+  Megaphone,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 import { SortBy } from "@/type/posts.types";
 // import { SortBy } from "@/types";
@@ -21,17 +29,26 @@ export default function PostFilterBar({
   isAuthenticated,
   onRefetch,
   isLoading = false,
-  
+
   totalCount,
 }: PostFilterBarProps) {
   const t = useTranslations("post");
 
-  const sortOptions: { value: SortBy; label: string; icon: React.ReactNode }[] = [
-    { value: "random", label: t("random"), icon: <Clock className="w-4 h-4" /> },
-    { value: "hot", label: t("hot"), icon: <Flame className="w-4 h-4" /> },
-    { value: "like", label: t("like"), icon: <Award className="w-4 h-4" /> },
-    { value: "latest", label: t("latest"), icon: <Megaphone className="w-4 h-4" /> },
-  ];
+  const sortOptions: { value: SortBy; label: string; icon: React.ReactNode }[] =
+    [
+      {
+        value: "random",
+        label: t("random"),
+        icon: <Clock className="w-4 h-4" />,
+      },
+      { value: "hot", label: t("hot"), icon: <Flame className="w-4 h-4" /> },
+      { value: "like", label: t("like"), icon: <Award className="w-4 h-4" /> },
+      {
+        value: "latest",
+        label: t("latest"),
+        icon: <Megaphone className="w-4 h-4" />,
+      },
+    ];
 
   return (
     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4 bg-base-100 rounded-xl p-3 border border-base-300">
@@ -41,8 +58,8 @@ export default function PostFilterBar({
           <button
             key={option.value}
             className={`btn btn-sm gap-1 transition-all duration-200 ${
-              sortBy === option.value 
-                ? "btn-primary shadow-md" 
+              sortBy === option.value
+                ? "btn-primary shadow-md"
                 : "btn-ghost hover:bg-base-200"
             }`}
             onClick={() => onSortChange(option.value)}
@@ -51,7 +68,7 @@ export default function PostFilterBar({
             <span className="hidden sm:inline">{option.label}</span>
           </button>
         ))}
-        
+
         {/* 刷新按钮 */}
         <button
           className="btn btn-sm btn-ghost gap-1"
@@ -70,10 +87,13 @@ export default function PostFilterBar({
             {t("total_posts", { count: totalCount })}
           </div>
         )}
-        
+
         {isAuthenticated && (
-          <Link href="/posts/new" className="btn btn-primary btn-sm gap-1 w-full sm:w-auto">
-            <PenSquare className="w-4 h-4" /> 
+          <Link
+            href="/posts/new"
+            className="btn btn-primary btn-sm gap-1 w-full sm:w-auto"
+          >
+            <PenSquare className="w-4 h-4" />
             <span>{t("create")}</span>
           </Link>
         )}

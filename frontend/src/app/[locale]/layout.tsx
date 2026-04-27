@@ -42,7 +42,7 @@ export default async function RootLayout({
   params,
 }: {
   children: React.ReactNode;
-params: Promise<{ locale: string }>
+  params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
 
@@ -59,20 +59,20 @@ params: Promise<{ locale: string }>
         suppressHydrationWarning
         className={`${inter.variable} ${firaCode.variable} font-sans h-screen overflow-hidden bg-base-200`}
       >
-          <AuthProvider>
-        <NextIntlClientProvider locale={locale} messages={messages}>
-          <Providers>
-            <div className="flex flex-col h-full">
-              <Navbar />
-              {/* 让 main 负责滚动 */}
-              <main className="flex-1 overflow-y-auto custom-scrollbar">
-                <div className="container mx-auto max-w-7xl px-4 py-6">
-                  {children}
-                </div>
-              </main>
-            </div>
-          </Providers>
-        </NextIntlClientProvider>
+        <AuthProvider>
+          <NextIntlClientProvider locale={locale} messages={messages}>
+            <Providers>
+              <div className="flex flex-col h-full">
+                <Navbar />
+                {/* 让 main 负责滚动 */}
+                <main className="flex-1 overflow-y-auto custom-scrollbar">
+                  <div className="container mx-auto max-w-7xl px-4 py-6">
+                    {children}
+                  </div>
+                </main>
+              </div>
+            </Providers>
+          </NextIntlClientProvider>
         </AuthProvider>
       </body>
     </html>

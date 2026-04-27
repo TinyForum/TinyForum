@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { announcementApi } from '@/lib/api';
-import { toast } from 'react-hot-toast';
+import { useState, useEffect } from "react";
+import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
+import { announcementApi } from "@/lib/api";
+import { toast } from "react-hot-toast";
 import {
   MegaphoneIcon,
   CalendarIcon,
@@ -15,15 +15,38 @@ import {
   ClockIcon,
   UserIcon,
   AlertTriangleIcon,
-} from 'lucide-react';
-import type { Announcement } from '@/lib/api/modules/announcements';
+} from "lucide-react";
+import type { Announcement } from "@/lib/api/modules/announcements";
 
 // 公告类型配置 - 使用主题色
-const TYPE_CONFIG: Record<string, { color: string; label: string; bgColor: string; icon: typeof MegaphoneIcon }> = {
-  normal: { color: 'text-primary', label: '普通公告', bgColor: 'bg-primary/10', icon: MegaphoneIcon },
-  important: { color: 'text-secondary', label: '重要公告', bgColor: 'bg-secondary/10', icon: AlertTriangleIcon },
-  emergency: { color: 'text-error', label: '紧急公告', bgColor: 'bg-error/10', icon: AlertTriangleIcon },
-  event: { color: 'text-accent', label: '活动公告', bgColor: 'bg-accent/10', icon: CalendarIcon },
+const TYPE_CONFIG: Record<
+  string,
+  { color: string; label: string; bgColor: string; icon: typeof MegaphoneIcon }
+> = {
+  normal: {
+    color: "text-primary",
+    label: "普通公告",
+    bgColor: "bg-primary/10",
+    icon: MegaphoneIcon,
+  },
+  important: {
+    color: "text-secondary",
+    label: "重要公告",
+    bgColor: "bg-secondary/10",
+    icon: AlertTriangleIcon,
+  },
+  emergency: {
+    color: "text-error",
+    label: "紧急公告",
+    bgColor: "bg-error/10",
+    icon: AlertTriangleIcon,
+  },
+  event: {
+    color: "text-accent",
+    label: "活动公告",
+    bgColor: "bg-accent/10",
+    icon: CalendarIcon,
+  },
 };
 
 // 加载骨架屏
@@ -34,7 +57,7 @@ function LoadingSkeleton() {
         <div className="animate-pulse">
           {/* 返回按钮骨架 */}
           <div className="h-5 w-28 bg-base-200 rounded mb-6" />
-          
+
           {/* 内容卡片骨架 */}
           <div className="bg-base-100 rounded-2xl shadow-sm overflow-hidden">
             <div className="p-8 border-b border-base-200">
@@ -68,7 +91,9 @@ function ErrorState({ message }: { message: string }) {
     <div className="min-h-screen bg-gradient-to-b from-base-200 to-base-100 flex items-center justify-center">
       <div className="text-center">
         <div className="text-6xl mb-5">😕</div>
-        <h3 className="text-xl font-semibold text-base-content mb-2">加载失败</h3>
+        <h3 className="text-xl font-semibold text-base-content mb-2">
+          加载失败
+        </h3>
         <p className="text-base-content/60 mb-6">{message}</p>
         <Link href="/announcements" className="btn btn-primary btn-sm gap-2">
           <ArrowLeftIcon className="w-4 h-4" />
@@ -89,7 +114,7 @@ export default function AnnouncementDetailPage() {
   const loadAnnouncement = async () => {
     const id = parseInt(params.id as string);
     if (isNaN(id)) {
-      setError('无效的公告ID');
+      setError("无效的公告ID");
       setLoading(false);
       return;
     }
@@ -101,14 +126,14 @@ export default function AnnouncementDetailPage() {
       if (response.data.code === 0) {
         setAnnouncement(response.data.data);
       } else {
-        setError(response.data.message || '公告不存在');
+        setError(response.data.message || "公告不存在");
       }
     } catch (error: any) {
-      console.error('Failed to load announcement:', error);
+      console.error("Failed to load announcement:", error);
       if (error.response?.status === 404) {
-        setError('公告不存在');
+        setError("公告不存在");
       } else {
-        setError('加载失败，请稍后重试');
+        setError("加载失败，请稍后重试");
       }
     } finally {
       setLoading(false);
@@ -120,26 +145,29 @@ export default function AnnouncementDetailPage() {
   }, [params.id]);
 
   const formatDate = (dateStr: string | null, withTime: boolean = true) => {
-    if (!dateStr) return '待发布';
+    if (!dateStr) return "待发布";
     const date = new Date(dateStr);
     if (withTime) {
-      return date.toLocaleDateString('zh-CN', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
+      return date.toLocaleDateString("zh-CN", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
       });
     }
-    return date.toLocaleDateString('zh-CN', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
+    return date.toLocaleDateString("zh-CN", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
   };
 
-  const isExpired = announcement?.expired_at && new Date(announcement.expired_at) < new Date();
-  const typeConfig = announcement ? TYPE_CONFIG[announcement.type] || TYPE_CONFIG.normal : null;
+  const isExpired =
+    announcement?.expired_at && new Date(announcement.expired_at) < new Date();
+  const typeConfig = announcement
+    ? TYPE_CONFIG[announcement.type] || TYPE_CONFIG.normal
+    : null;
   const TypeIcon = typeConfig?.icon || MegaphoneIcon;
 
   if (loading) {
@@ -147,7 +175,7 @@ export default function AnnouncementDetailPage() {
   }
 
   if (error || !announcement) {
-    return <ErrorState message={error || '公告不存在'} />;
+    return <ErrorState message={error || "公告不存在"} />;
   }
 
   return (
@@ -168,11 +196,13 @@ export default function AnnouncementDetailPage() {
           <div className="relative p-8 pb-6 border-b border-base-200">
             {/* 装饰性背景 */}
             <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary/5 to-transparent rounded-full blur-2xl" />
-            
+
             {/* 标签区域 */}
             <div className="flex items-center gap-2 mb-5 flex-wrap relative z-10">
               {typeConfig && (
-                <span className={`inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1 rounded-full ${typeConfig.bgColor} ${typeConfig.color}`}>
+                <span
+                  className={`inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1 rounded-full ${typeConfig.bgColor} ${typeConfig.color}`}
+                >
                   <TypeIcon className="w-3.5 h-3.5" />
                   {typeConfig.label}
                 </span>
@@ -196,17 +226,22 @@ export default function AnnouncementDetailPage() {
                 </span>
               )}
             </div>
-            
+
             {/* 标题 */}
             <h1 className="text-2xl md:text-3xl font-bold text-base-content mb-5 leading-tight">
               {announcement.title}
             </h1>
-            
+
             {/* 元信息 - 优化布局 */}
             <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-base-content/50">
               <div className="flex items-center gap-1.5">
                 <CalendarIcon className="w-4 h-4" />
-                <span>发布于 {formatDate(announcement.published_at || announcement.created_at)}</span>
+                <span>
+                  发布于{" "}
+                  {formatDate(
+                    announcement.published_at || announcement.created_at,
+                  )}
+                </span>
               </div>
               <div className="flex items-center gap-1.5">
                 <EyeIcon className="w-4 h-4" />
@@ -223,7 +258,7 @@ export default function AnnouncementDetailPage() {
 
           {/* 内容区域 - 优化阅读体验 */}
           <div className="p-8 md:p-10">
-            <div 
+            <div
               className="prose prose-base max-w-none
                 prose-headings:text-base-content prose-headings:font-semibold
                 prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg
@@ -247,12 +282,16 @@ export default function AnnouncementDetailPage() {
               {isExpired ? (
                 <div className="flex items-center justify-center gap-2 text-sm text-error">
                   <AlertTriangleIcon className="w-4 h-4" />
-                  <span>此公告已于 {formatDate(announcement.expired_at, false)} 过期</span>
+                  <span>
+                    此公告已于 {formatDate(announcement.expired_at, false)} 过期
+                  </span>
                 </div>
               ) : (
                 <div className="flex items-center justify-center gap-2 text-sm text-base-content/40">
                   <ClockIcon className="w-4 h-4" />
-                  <span>有效期至 {formatDate(announcement.expired_at, false)}</span>
+                  <span>
+                    有效期至 {formatDate(announcement.expired_at, false)}
+                  </span>
                 </div>
               )}
             </div>
@@ -260,10 +299,7 @@ export default function AnnouncementDetailPage() {
 
           {/* 底部操作栏 */}
           <div className="p-6 bg-base-200/30 border-t border-base-200 flex justify-center gap-3">
-            <Link
-              href="/announcements"
-              className="btn btn-ghost btn-sm gap-2"
-            >
+            <Link href="/announcements" className="btn btn-ghost btn-sm gap-2">
               <MegaphoneIcon className="w-4 h-4" />
               查看全部公告
             </Link>

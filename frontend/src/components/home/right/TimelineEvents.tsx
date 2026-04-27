@@ -4,14 +4,14 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { formatDistanceToNow } from "date-fns";
 import { zhCN } from "date-fns/locale";
-import { 
-  Zap, 
-  FileText, 
-  MessageSquare, 
-  Heart, 
-  UserPlus, 
-  CheckCircle, 
-  Activity 
+import {
+  Zap,
+  FileText,
+  MessageSquare,
+  Heart,
+  UserPlus,
+  CheckCircle,
+  Activity,
 } from "lucide-react";
 
 interface TimelineEvent {

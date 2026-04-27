@@ -24,8 +24,7 @@ export const topicApi = {
   list: (params?: { page?: number; page_size?: number }) =>
     apiClient.get<ApiResponse<PageData<Topic>>>("/topics", { params }),
 
-  getById: (id: number) =>
-    apiClient.get<ApiResponse<Topic>>(`/topics/${id}`),
+  getById: (id: number) => apiClient.get<ApiResponse<Topic>>(`/topics/${id}`),
 
   getPosts: (id: number, params?: { page?: number; page_size?: number }) =>
     apiClient.get<ApiResponse<PageData<TopicPost>>>(`/topics/${id}/posts`, {
@@ -35,7 +34,7 @@ export const topicApi = {
   getFollowers: (id: number, params?: { page?: number; page_size?: number }) =>
     apiClient.get<ApiResponse<PageData<TopicFollow>>>(
       `/topics/${id}/followers`,
-      { params }
+      { params },
     ),
 
   create: (data: CreateTopicPayload) =>
@@ -44,8 +43,7 @@ export const topicApi = {
   update: (id: number, data: UpdateTopicPayload) =>
     apiClient.put<ApiResponse<Topic>>(`/topics/${id}`, data),
 
-  delete: (id: number) =>
-    apiClient.delete<ApiResponse<null>>(`/topics/${id}`),
+  delete: (id: number) => apiClient.delete<ApiResponse<null>>(`/topics/${id}`),
 
   addPost: (id: number, data: { post_id: number; sort_order?: number }) =>
     apiClient.post<ApiResponse<null>>(`/topics/${id}/posts`, data),

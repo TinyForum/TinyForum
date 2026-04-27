@@ -1,25 +1,29 @@
-'use client';
+"use client";
 
-import { Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { postApi } from '@/lib/api';
-import PostCard from '@/components/post/PostCard';
-import { Search } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { Suspense } from "react";
+import { useSearchParams } from "next/navigation";
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { postApi } from "@/lib/api";
+import PostCard from "@/components/post/PostCard";
+import { Search } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 function PostsContent() {
   const searchParams = useSearchParams();
-  const keyword = searchParams.get('keyword') || '';
-  const tagId = searchParams.get('tag_id') ? Number(searchParams.get('tag_id')) : undefined;
+  const keyword = searchParams.get("keyword") || "";
+  const tagId = searchParams.get("tag_id")
+    ? Number(searchParams.get("tag_id"))
+    : undefined;
   const [page, setPage] = useState(1);
-  const t = useTranslations('posts');
+  const t = useTranslations("posts");
 
   const { data, isLoading } = useQuery({
-    queryKey: ['posts', 'search', keyword, tagId, page],
+    queryKey: ["posts", "search", keyword, tagId, page],
     queryFn: () =>
-      postApi.list({ page, page_size: 20, keyword, tag_id: tagId }).then((r) => r.data.data),
+      postApi
+        .list({ page, page_size: 20, keyword, tag_id: tagId })
+        .then((r) => r.data.data),
   });
 
   const posts = data?.list ?? [];
@@ -32,7 +36,11 @@ function PostsContent() {
         <Search className="w-5 h-5 text-primary" />
         <h1 className="text-xl font-bold">
           {keyword ? `${t("search")}：${keyword}` : t("all_posts")}
-          {total > 0 && <span className="text-base-content/40 font-normal ml-2">({total} {t("results")})</span>}
+          {total > 0 && (
+            <span className="text-base-content/40 font-normal ml-2">
+              ({total} {t("results")})
+            </span>
+          )}
         </h1>
       </div>
 
@@ -58,11 +66,29 @@ function PostsContent() {
       {totalPages > 1 && (
         <div className="flex justify-center mt-6">
           <div className="join">
-            <button className="join-item btn btn-sm" disabled={page === 1} onClick={() => setPage((p) => p - 1)}>«</button>
+            <button
+              className="join-item btn btn-sm"
+              disabled={page === 1}
+              onClick={() => setPage((p) => p - 1)}
+            >
+              «
+            </button>
             {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-              <button key={p} className={`join-item btn btn-sm ${page === p ? 'btn-active btn-primary' : ''}`} onClick={() => setPage(p)}>{p}</button>
+              <button
+                key={p}
+                className={`join-item btn btn-sm ${page === p ? "btn-active btn-primary" : ""}`}
+                onClick={() => setPage(p)}
+              >
+                {p}
+              </button>
             ))}
-            <button className="join-item btn btn-sm" disabled={page === totalPages} onClick={() => setPage((p) => p + 1)}>»</button>
+            <button
+              className="join-item btn btn-sm"
+              disabled={page === totalPages}
+              onClick={() => setPage((p) => p + 1)}
+            >
+              »
+            </button>
           </div>
         </div>
       )}
@@ -72,7 +98,13 @@ function PostsContent() {
 
 export default function PostsPage() {
   return (
-    <Suspense fallback={<div className="flex justify-center py-20"><span className="loading loading-spinner loading-lg text-primary" /></div>}>
+    <Suspense
+      fallback={
+        <div className="flex justify-center py-20">
+          <span className="loading loading-spinner loading-lg text-primary" />
+        </div>
+      }
+    >
       <PostsContent />
     </Suspense>
   );

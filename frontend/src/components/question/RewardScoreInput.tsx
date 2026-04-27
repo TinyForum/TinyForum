@@ -1,9 +1,13 @@
 // components/question/RewardScoreInput.tsx
-'use client';
+"use client";
 
-import { CurrencyDollarIcon, SparklesIcon, InformationCircleIcon } from '@heroicons/react/24/outline';
-import { UseFormRegister } from 'react-hook-form';
-import { AskFormData } from '@/hooks/useQuestionForm';
+import {
+  CurrencyDollarIcon,
+  SparklesIcon,
+  InformationCircleIcon,
+} from "@heroicons/react/24/outline";
+import { UseFormRegister } from "react-hook-form";
+import { AskFormData } from "@/hooks/useQuestionForm";
 
 interface RewardScoreInputProps {
   register: UseFormRegister<AskFormData>;
@@ -12,7 +16,12 @@ interface RewardScoreInputProps {
   error?: string;
 }
 
-export function RewardScoreInput({ register, rewardScore, userScore = 0, error }: RewardScoreInputProps) {
+export function RewardScoreInput({
+  register,
+  rewardScore,
+  userScore = 0,
+  error,
+}: RewardScoreInputProps) {
   // 计算是否超出可用积分
   const isExceeded = rewardScore > userScore;
   // 预设悬赏金额
@@ -28,7 +37,9 @@ export function RewardScoreInput({ register, rewardScore, userScore = 0, error }
           </div>
           <div>
             <h3 className="font-semibold text-base-content">悬赏积分</h3>
-            <p className="text-xs text-base-content/60">设置悬赏吸引更多优质回答</p>
+            <p className="text-xs text-base-content/60">
+              设置悬赏吸引更多优质回答
+            </p>
           </div>
         </div>
 
@@ -42,19 +53,21 @@ export function RewardScoreInput({ register, rewardScore, userScore = 0, error }
                 type="button"
                 onClick={() => {
                   // 需要通过 react-hook-form 设置值
-                  const input = document.querySelector('input[name="reward_score"]') as HTMLInputElement;
+                  const input = document.querySelector(
+                    'input[name="reward_score"]',
+                  ) as HTMLInputElement;
                   if (input) {
                     input.value = String(score);
-                    input.dispatchEvent(new Event('change', { bubbles: true }));
+                    input.dispatchEvent(new Event("change", { bubbles: true }));
                   }
                 }}
                 className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
                   rewardScore === score
-                    ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md'
-                    : 'bg-base-100 border border-base-200 text-base-content/70 hover:border-amber-300 hover:text-amber-600 dark:hover:border-amber-700'
+                    ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md"
+                    : "bg-base-100 border border-base-200 text-base-content/70 hover:border-amber-300 hover:text-amber-600 dark:hover:border-amber-700"
                 }`}
               >
-                {score === 0 ? '无悬赏' : `${score} 积分`}
+                {score === 0 ? "无悬赏" : `${score} 积分`}
               </button>
             ))}
           </div>
@@ -64,9 +77,12 @@ export function RewardScoreInput({ register, rewardScore, userScore = 0, error }
             <div className="relative flex-1">
               <CurrencyDollarIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-base-content/40" />
               <input
-                {...register('reward_score', { 
-                  min: { value: 0, message: '悬赏积分不能为负数' },
-                  max: { value: Math.min(100, userScore), message: `悬赏积分不能超过 ${Math.min(100, userScore)}` },
+                {...register("reward_score", {
+                  min: { value: 0, message: "悬赏积分不能为负数" },
+                  max: {
+                    value: Math.min(100, userScore),
+                    message: `悬赏积分不能超过 ${Math.min(100, userScore)}`,
+                  },
                   valueAsNumber: true,
                 })}
                 type="number"
@@ -75,18 +91,20 @@ export function RewardScoreInput({ register, rewardScore, userScore = 0, error }
                 step="5"
                 className={`w-full pl-9 pr-3 py-2 rounded-lg border bg-base-100 text-base-content placeholder-base-content/40 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all ${
                   error || isExceeded
-                    ? 'border-red-500 focus:ring-red-500'
-                    : 'border-base-200 focus:border-primary'
+                    ? "border-red-500 focus:ring-red-500"
+                    : "border-base-200 focus:border-primary"
                 }`}
                 placeholder="自定义积分"
               />
             </div>
-            
+
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-base-100 border border-base-200">
               <SparklesIcon className="w-3.5 h-3.5 text-amber-500" />
               <span className="text-xs text-base-content/70">
-                可用积分: 
-                <span className={`font-semibold ml-1 ${userScore >= rewardScore ? 'text-primary' : 'text-red-500'}`}>
+                可用积分:
+                <span
+                  className={`font-semibold ml-1 ${userScore >= rewardScore ? "text-primary" : "text-red-500"}`}
+                >
                   {userScore}
                 </span>
               </span>
@@ -98,7 +116,8 @@ export function RewardScoreInput({ register, rewardScore, userScore = 0, error }
             <div className="alert alert-error alert-sm p-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30">
               <InformationCircleIcon className="w-4 h-4 text-red-500" />
               <span className="text-xs text-red-600 dark:text-red-400">
-                {error || `积分不足！需要 ${rewardScore} 积分，当前只有 ${userScore} 积分`}
+                {error ||
+                  `积分不足！需要 ${rewardScore} 积分，当前只有 ${userScore} 积分`}
               </span>
             </div>
           )}
@@ -109,7 +128,9 @@ export function RewardScoreInput({ register, rewardScore, userScore = 0, error }
               <SparklesIcon className="w-4 h-4 text-blue-500" />
               <div className="text-xs text-blue-600 dark:text-blue-400">
                 <p>💡 悬赏 {rewardScore} 积分后，帖子将获得更多曝光</p>
-                <p className="text-xs opacity-75 mt-0.5">采纳回答后将扣除 {rewardScore} 积分</p>
+                <p className="text-xs opacity-75 mt-0.5">
+                  采纳回答后将扣除 {rewardScore} 积分
+                </p>
               </div>
             </div>
           )}

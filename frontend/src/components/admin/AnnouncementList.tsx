@@ -1,5 +1,8 @@
 // components/admin/AnnouncementList.tsx
-import { Announcement, AnnouncementType } from "@/lib/api/modules/announcements";
+import {
+  Announcement,
+  AnnouncementType,
+} from "@/lib/api/modules/announcements";
 import { AnnouncementCard } from "./AnnouncementCard";
 import { Loader2, Pin } from "lucide-react";
 
@@ -9,8 +12,8 @@ interface AnnouncementListProps {
   isLoading: boolean;
   getTypeBadge: (type: AnnouncementType) => string;
   getTypeText: (type: AnnouncementType) => string;
-  getStatusBadge: (status: string, expiredAt: string | null) => string;  // 修改：增加第二个参数
-  getStatusText: (status: string, expiredAt: string | null) => string;   // 修改：增加第二个参数
+  getStatusBadge: (status: string, expiredAt: string | null) => string; // 修改：增加第二个参数
+  getStatusText: (status: string, expiredAt: string | null) => string; // 修改：增加第二个参数
   formatDate: (date: string | null) => string;
   onEdit: (ann: Announcement) => void;
   onDelete: (id: number) => void;

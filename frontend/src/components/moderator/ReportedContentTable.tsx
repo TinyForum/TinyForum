@@ -9,9 +9,21 @@ interface ReportedContentTableProps {
   t: (key: string) => string;
 }
 
-export function ReportedContentTable({ reports, onDeletePost, onBanUser, isDeleting, isBanning, permissions, t }: ReportedContentTableProps) {
+export function ReportedContentTable({
+  reports,
+  onDeletePost,
+  onBanUser,
+  isDeleting,
+  isBanning,
+  permissions,
+  t,
+}: ReportedContentTableProps) {
   if (!reports?.length) {
-    return <div className="text-center py-8 text-base-content/50">{t("no_reports")}</div>;
+    return (
+      <div className="text-center py-8 text-base-content/50">
+        {t("no_reports")}
+      </div>
+    );
   }
 
   return (
@@ -44,7 +56,12 @@ export function ReportedContentTable({ reports, onDeletePost, onBanUser, isDelet
                 {permissions.canBanUser && onBanUser && (
                   <button
                     className="btn btn-xs btn-warning"
-                    onClick={() => onBanUser({ userId: report.reporter_id, reason: report.reason })}
+                    onClick={() =>
+                      onBanUser({
+                        userId: report.reporter_id,
+                        reason: report.reason,
+                      })
+                    }
                     disabled={isBanning}
                   >
                     {t("ban_user")}

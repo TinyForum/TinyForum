@@ -11,23 +11,22 @@ export function useAdminAuth() {
   useEffect(() => {
     // 等待 store hydration 完成
     if (!isHydrated) return;
-    
+
     // hydration 完成，停止检查状态
     setIsCheckingAuth(false);
-    
+
     // 注意：middleware 已经处理了认证重定向
     // 这里不需要再重定向，避免冲突
     // 只需要返回权限状态即可
-    
   }, [isHydrated, router]);
 
-  const isAdmin = isAuthenticated && 
-    (user?.role === "admin" || user?.role === "super_admin");
+  const isAdmin =
+    isAuthenticated && (user?.role === "admin" || user?.role === "super_admin");
 
-  return { 
-    isCheckingAuth, 
-    isAdmin, 
+  return {
+    isCheckingAuth,
+    isAdmin,
     user,
-    isAuthenticated 
+    isAuthenticated,
   };
 }

@@ -1,20 +1,24 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useAuthStore } from '@/store/auth';
-import SettingsSidebar from '@/components/settings/SettingsSidebar';
-import DangerZone from '@/components/settings/DangerZone';
-import NotificationSettings from '@/components/settings/NotificationSettings';
-import ProfileSettings from '@/components/settings/ProfileSettings';
-import SecuritySettings from '@/components/settings/SecuritySettings';
-import AppearanceSettings from '@/components/settings/AppearanceSettings';
+import { useState } from "react";
+import { useAuthStore } from "@/store/auth";
+import SettingsSidebar from "@/components/settings/SettingsSidebar";
+import DangerZone from "@/components/settings/DangerZone";
+import NotificationSettings from "@/components/settings/NotificationSettings";
+import ProfileSettings from "@/components/settings/ProfileSettings";
+import SecuritySettings from "@/components/settings/SecuritySettings";
+import AppearanceSettings from "@/components/settings/AppearanceSettings";
 
-
-export type SettingsTab = 'profile' | 'security' | 'appearance' | 'notifications' | 'danger';
+export type SettingsTab =
+  | "profile"
+  | "security"
+  | "appearance"
+  | "notifications"
+  | "danger";
 
 export default function SettingsPage() {
   const { user } = useAuthStore();
-  const [activeTab, setActiveTab] = useState<SettingsTab>('profile');
+  const [activeTab, setActiveTab] = useState<SettingsTab>("profile");
 
   if (!user) {
     return (
@@ -35,11 +39,11 @@ export default function SettingsPage() {
       {/* 右侧内容区域 */}
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-4xl mx-auto p-6 md:p-8">
-          {activeTab === 'profile' && <ProfileSettings user={user} />}
-          {activeTab === 'security' && <SecuritySettings user={user} />}
-          {activeTab === 'appearance' && <AppearanceSettings />}
-          {activeTab === 'notifications' && <NotificationSettings />}
-          {activeTab === 'danger' && <DangerZone user={user} />}
+          {activeTab === "profile" && <ProfileSettings user={user} />}
+          {activeTab === "security" && <SecuritySettings user={user} />}
+          {activeTab === "appearance" && <AppearanceSettings />}
+          {activeTab === "notifications" && <NotificationSettings />}
+          {activeTab === "danger" && <DangerZone user={user} />}
         </div>
       </div>
     </div>

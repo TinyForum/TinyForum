@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { X } from 'lucide-react';
-import Avatar from '@/components/user/Avatar';
-import type { User } from '@/lib/api/types';
+import { X } from "lucide-react";
+import Avatar from "@/components/user/Avatar";
+import type { User } from "@/lib/api/types";
 
 interface UserListModalProps {
   title: string;
@@ -22,12 +22,12 @@ export function UserListModal({
   isLoading,
 }: UserListModalProps) {
   return (
-    <div 
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" 
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
       onClick={onClose}
     >
-      <div 
-        className="bg-base-100 rounded-2xl shadow-xl max-w-md w-full max-h-[80vh] flex flex-col" 
+      <div
+        className="bg-base-100 rounded-2xl shadow-xl max-w-md w-full max-h-[80vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between p-4 border-b border-base-200">
@@ -38,7 +38,7 @@ export function UserListModal({
             <X className="w-4 h-4" />
           </button>
         </div>
-        
+
         <div className="flex-1 overflow-y-auto p-2">
           {isLoading ? (
             <div className="space-y-2 p-4">
@@ -53,7 +53,9 @@ export function UserListModal({
               ))}
             </div>
           ) : users.length === 0 ? (
-            <div className="text-center py-8 text-base-content/40">暂无数据</div>
+            <div className="text-center py-8 text-base-content/40">
+              暂无数据
+            </div>
           ) : (
             <div className="space-y-1">
               {users.map((user) => (
@@ -67,12 +69,22 @@ export function UserListModal({
                 >
                   <div className="avatar">
                     <div className="w-10 h-10 rounded-full">
-                      <Avatar username={user.username} avatarUrl={user.avatar} size="md" />
+                      <Avatar
+                        username={user.username}
+                        avatarUrl={user.avatar}
+                        size="md"
+                      />
                     </div>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-sm truncate">{user.username}</p>
-                    {user.bio && <p className="text-xs text-base-content/40 truncate">{user.bio}</p>}
+                    <p className="font-medium text-sm truncate">
+                      {user.username}
+                    </p>
+                    {user.bio && (
+                      <p className="text-xs text-base-content/40 truncate">
+                        {user.bio}
+                      </p>
+                    )}
                   </div>
                 </button>
               ))}

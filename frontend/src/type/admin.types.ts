@@ -1,5 +1,11 @@
 // type/admin.types.ts
-export type TabType = "users" | "posts" | "qa" | "announcements" | "points" | "statistics";
+export type TabType =
+  | "users"
+  | "posts"
+  | "qa"
+  | "announcements"
+  | "points"
+  | "statistics";
 
 export interface User {
   id: number;

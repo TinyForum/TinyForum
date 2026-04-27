@@ -2,7 +2,14 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { CheckCircle, XCircle, Eye, User as UserIcon, FileText, AlertTriangle } from "lucide-react";
+import {
+  CheckCircle,
+  XCircle,
+  Eye,
+  User as UserIcon,
+  FileText,
+  AlertTriangle,
+} from "lucide-react";
 import { adminApi } from "@/lib/api";
 import type { Post, User as ApiUser } from "@/lib/api/types";
 import DOMPurify from "dompurify";
@@ -27,7 +34,11 @@ interface PendingPostsResponse {
 }
 
 // 获取待审核帖子列表
-const fetchPendingPosts = async (params: { page: number; page_size: number; keyword?: string }): Promise<PendingPostsResponse> => {
+const fetchPendingPosts = async (params: {
+  page: number;
+  page_size: number;
+  keyword?: string;
+}): Promise<PendingPostsResponse> => {
   const res = await adminApi.listPendingPosts(params);
   return res.data.data;
 };
@@ -87,12 +98,18 @@ export function ReviewManagement() {
 
   const handleApprove = () => {
     if (!selectedPost) return;
-    approveMutation.mutate({ id: selectedPost.id, note: reviewNote.trim() || undefined });
+    approveMutation.mutate({
+      id: selectedPost.id,
+      note: reviewNote.trim() || undefined,
+    });
   };
 
   const handleReject = () => {
     if (!selectedPost) return;
-    rejectMutation.mutate({ id: selectedPost.id, reason: reviewNote.trim() || undefined });
+    rejectMutation.mutate({
+      id: selectedPost.id,
+      reason: reviewNote.trim() || undefined,
+    });
   };
 
   const posts = data?.list ?? [];
@@ -101,7 +118,26 @@ export function ReviewManagement() {
 
   const sanitizeHtml = (html: string) => ({
     __html: DOMPurify.sanitize(html, {
-      ALLOWED_TAGS: ["b", "i", "em", "strong", "a", "p", "br", "ul", "ol", "li", "img", "h1", "h2", "h3", "h4", "blockquote", "code", "pre"],
+      ALLOWED_TAGS: [
+        "b",
+        "i",
+        "em",
+        "strong",
+        "a",
+        "p",
+        "br",
+        "ul",
+        "ol",
+        "li",
+        "img",
+        "h1",
+        "h2",
+        "h3",
+        "h4",
+        "blockquote",
+        "code",
+        "pre",
+      ],
       ALLOWED_ATTR: ["href", "target", "src", "alt", "class", "id"],
     }),
   });
@@ -118,14 +154,20 @@ export function ReviewManagement() {
             onChange={(e) => setKeyword(e.target.value)}
             className="input input-bordered flex-1"
           />
-          <button className="btn btn-outline" onClick={() => setPage(1)}>搜索</button>
-          <button className="btn btn-ghost" onClick={() => refetch()}>刷新</button>
+          <button className="btn btn-outline" onClick={() => setPage(1)}>
+            搜索
+          </button>
+          <button className="btn btn-ghost" onClick={() => refetch()}>
+            刷新
+          </button>
         </div>
       </div>
 
       {/* 列表 */}
       {isLoading ? (
-        <div className="flex justify-center py-8"><span className="loading loading-spinner loading-lg"></span></div>
+        <div className="flex justify-center py-8">
+          <span className="loading loading-spinner loading-lg"></span>
+        </div>
       ) : (
         <div className="space-y-3">
           {posts.map((post) => (
@@ -138,8 +180,12 @@ export function ReviewManagement() {
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="font-medium">{post.author?.username || `用户${post.author_id}`}</span>
-                      <span className="text-xs text-gray-400">#{post.author_id}</span>
+                      <span className="font-medium">
+                        {post.author?.username || `用户${post.author_id}`}
+                      </span>
+                      <span className="text-xs text-gray-400">
+                        #{post.author_id}
+                      </span>
                       {post.risk_score && (
                         <span className="badge badge-warning badge-sm">
                           <AlertTriangle className="w-3 h-3 mr-1" />
@@ -149,7 +195,9 @@ export function ReviewManagement() {
                     </div>
                     <h3 className="font-semibold">{post.title}</h3>
                     {post.risk_reason && (
-                      <p className="text-sm text-orange-600 mt-1">⚠️ {post.risk_reason}</p>
+                      <p className="text-sm text-orange-600 mt-1">
+                        ⚠️ {post.risk_reason}
+                      </p>
                     )}
                   </div>
                   <Eye className="w-5 h-5 text-gray-400" />
@@ -166,16 +214,36 @@ export function ReviewManagement() {
       {/* 分页 */}
       {totalPages > 1 && (
         <div className="flex justify-center gap-2 pt-4">
-          <button className="btn btn-sm" disabled={page === 1} onClick={() => setPage(p => p - 1)}>上一页</button>
-          <span className="btn btn-sm btn-ghost">第 {page} / {totalPages} 页</span>
-          <button className="btn btn-sm" disabled={page === totalPages} onClick={() => setPage(p => p + 1)}>下一页</button>
+          <button
+            className="btn btn-sm"
+            disabled={page === 1}
+            onClick={() => setPage((p) => p - 1)}
+          >
+            上一页
+          </button>
+          <span className="btn btn-sm btn-ghost">
+            第 {page} / {totalPages} 页
+          </span>
+          <button
+            className="btn btn-sm"
+            disabled={page === totalPages}
+            onClick={() => setPage((p) => p + 1)}
+          >
+            下一页
+          </button>
         </div>
       )}
 
       {/* 模态框 - 详情 */}
       {isModalOpen && selectedPost && (
-        <dialog className="modal modal-open" onClick={() => setIsModalOpen(false)}>
-          <div className="modal-box max-w-3xl" onClick={(e) => e.stopPropagation()}>
+        <dialog
+          className="modal modal-open"
+          onClick={() => setIsModalOpen(false)}
+        >
+          <div
+            className="modal-box max-w-3xl"
+            onClick={(e) => e.stopPropagation()}
+          >
             <h3 className="font-bold text-lg mb-4">帖子审核</h3>
 
             {/* 用户信息 */}
@@ -185,11 +253,24 @@ export function ReviewManagement() {
                 <span className="font-medium">发布人信息</span>
               </div>
               <div className="grid grid-cols-2 gap-2 text-sm">
-                <div>用户名：{selectedPost.author?.username || `ID ${selectedPost.author_id}`}</div>
+                <div>
+                  用户名：
+                  {selectedPost.author?.username ||
+                    `ID ${selectedPost.author_id}`}
+                </div>
                 <div>用户ID：{selectedPost.author_id}</div>
-                {selectedPost.author?.email && <div>邮箱：{selectedPost.author.email}</div>}
-                {selectedPost.author?.role && <div>角色：{selectedPost.author.role}</div>}
-                {selectedPost.author?.created_at && <div>注册时间：{new Date(selectedPost.author.created_at).toLocaleString()}</div>}
+                {selectedPost.author?.email && (
+                  <div>邮箱：{selectedPost.author.email}</div>
+                )}
+                {selectedPost.author?.role && (
+                  <div>角色：{selectedPost.author.role}</div>
+                )}
+                {selectedPost.author?.created_at && (
+                  <div>
+                    注册时间：
+                    {new Date(selectedPost.author.created_at).toLocaleString()}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -202,13 +283,20 @@ export function ReviewManagement() {
               {selectedPost.risk_logs && selectedPost.risk_logs.length > 0 ? (
                 <div className="space-y-2 max-h-40 overflow-y-auto">
                   {selectedPost.risk_logs.map((log) => (
-                    <div key={log.id} className="text-sm border-l-2 border-warning pl-2">
+                    <div
+                      key={log.id}
+                      className="text-sm border-l-2 border-warning pl-2"
+                    >
                       <div className="flex justify-between">
                         <span className="font-mono text-xs">{log.level}</span>
-                        <span className="text-xs text-gray-500">{new Date(log.created_at).toLocaleString()}</span>
+                        <span className="text-xs text-gray-500">
+                          {new Date(log.created_at).toLocaleString()}
+                        </span>
                       </div>
                       <div className="text-gray-700">规则：{log.rule}</div>
-                      <div className="text-gray-500 text-xs break-all">匹配内容：{log.matched_content}</div>
+                      <div className="text-gray-500 text-xs break-all">
+                        匹配内容：{log.matched_content}
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -229,13 +317,19 @@ export function ReviewManagement() {
                 dangerouslySetInnerHTML={sanitizeHtml(selectedPost.content)}
               />
               {selectedPost.cover && (
-                <img src={selectedPost.cover} alt="封面" className="mt-2 max-h-32 rounded object-cover" />
+                <img
+                  src={selectedPost.cover}
+                  alt="封面"
+                  className="mt-2 max-h-32 rounded object-cover"
+                />
               )}
             </div>
 
             {/* 审核备注输入框 */}
             <div className="mb-4">
-              <label className="label-text">审核备注（拒绝原因或通过说明）</label>
+              <label className="label-text">
+                审核备注（拒绝原因或通过说明）
+              </label>
               <textarea
                 className="textarea textarea-bordered w-full"
                 rows={3}
@@ -247,7 +341,9 @@ export function ReviewManagement() {
 
             {/* 操作按钮 */}
             <div className="modal-action">
-              <button className="btn" onClick={() => setIsModalOpen(false)}>关闭</button>
+              <button className="btn" onClick={() => setIsModalOpen(false)}>
+                关闭
+              </button>
               <button
                 className="btn btn-success"
                 onClick={handleApprove}

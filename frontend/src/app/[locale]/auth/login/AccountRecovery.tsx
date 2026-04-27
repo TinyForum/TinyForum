@@ -42,11 +42,11 @@
 //   const checkDeletionStatus = async (email: string, password: string) => {
 //     setIsLoading(true);
 //     setError(null);
-    
+
 //     try {
 //       // 先登录获取 token
 //       const loginResponse = await authApi.login({ email, password });
-      
+
 //       if (loginResponse.data.code === 200) {
 //         // 获取删除状态
 //         const statusResponse = await authApi.getDeletionStatus();
@@ -65,7 +65,7 @@
 //   const handleRestore = async () => {
 //     setIsLoading(true);
 //     setError(null);
-    
+
 //     try {
 //       await authApi.cancelDeletion();
 //       // 刷新状态
@@ -83,10 +83,10 @@
 //   const handlePermanentDelete = async () => {
 //     const confirm = window.confirm('⚠️ 警告：此操作将永久删除您的账户，所有数据无法恢复！\n\n确认永久删除吗？');
 //     if (!confirm) return;
-    
+
 //     setIsLoading(true);
 //     setError(null);
-    
+
 //     try {
 //       await authApi.confirmDeletion({ confirm: 'PERMANENT_DELETE' });
 //       alert('账户已永久删除');

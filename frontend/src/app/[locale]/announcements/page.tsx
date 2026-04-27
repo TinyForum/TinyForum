@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { announcementApi } from '@/lib/api';
-import { toast } from 'react-hot-toast';
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { announcementApi } from "@/lib/api";
+import { toast } from "react-hot-toast";
 import {
   MegaphoneIcon,
   CalendarIcon,
@@ -12,15 +12,15 @@ import {
   FileTextIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
-} from 'lucide-react';
-import type { Announcement } from '@/lib/api/modules/announcements';
+} from "lucide-react";
+import type { Announcement } from "@/lib/api/modules/announcements";
 
 // 公告类型配置 - 使用主题色
 const TYPE_CONFIG: Record<string, { color: string; label: string }> = {
-  normal: { color: 'bg-primary/10 text-primary', label: '普通' },
-  important: { color: 'bg-secondary/10 text-secondary', label: '重要' },
-  emergency: { color: 'bg-error/10 text-error', label: '紧急' },
-  event: { color: 'bg-accent/10 text-accent', label: '活动' },
+  normal: { color: "bg-primary/10 text-primary", label: "普通" },
+  important: { color: "bg-secondary/10 text-secondary", label: "重要" },
+  emergency: { color: "bg-error/10 text-error", label: "紧急" },
+  event: { color: "bg-accent/10 text-accent", label: "活动" },
 };
 
 // 获取公告类型样式
@@ -31,14 +31,14 @@ function getTypeConfig(type: string) {
 // 公告卡片组件
 function AnnouncementCard({ announcement }: { announcement: Announcement }) {
   const typeConfig = getTypeConfig(announcement.type);
-  
+
   // 格式化时间
   const formatDate = (dateStr: string | null) => {
-    if (!dateStr) return '待发布';
-    return new Date(dateStr).toLocaleDateString('zh-CN', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
+    if (!dateStr) return "待发布";
+    return new Date(dateStr).toLocaleDateString("zh-CN", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
     });
   };
 
@@ -49,7 +49,9 @@ function AnnouncementCard({ announcement }: { announcement: Announcement }) {
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-3 flex-wrap">
               <MegaphoneIcon className="w-4 h-4 text-primary" />
-              <span className={`text-xs px-2.5 py-0.5 rounded-full font-medium ${typeConfig.color}`}>
+              <span
+                className={`text-xs px-2.5 py-0.5 rounded-full font-medium ${typeConfig.color}`}
+              >
                 {typeConfig.label}
               </span>
               {announcement.is_pinned && (
@@ -58,7 +60,7 @@ function AnnouncementCard({ announcement }: { announcement: Announcement }) {
                   置顶
                 </span>
               )}
-              {announcement.status === 'draft' && (
+              {announcement.status === "draft" && (
                 <span className="text-xs px-2.5 py-0.5 rounded-full bg-neutral/10 text-neutral-content/60">
                   草稿
                 </span>
@@ -68,12 +70,15 @@ function AnnouncementCard({ announcement }: { announcement: Announcement }) {
               {announcement.title}
             </h3>
             <p className="text-sm text-base-content/60 line-clamp-2 mb-4">
-              {announcement.summary || announcement.content?.replace(/<[^>]*>/g, '').slice(0, 150)}
+              {announcement.summary ||
+                announcement.content?.replace(/<[^>]*>/g, "").slice(0, 150)}
             </p>
             <div className="flex items-center gap-4 text-xs text-base-content/40">
               <div className="flex items-center gap-1.5">
                 <CalendarIcon className="w-3.5 h-3.5" />
-                {formatDate(announcement.published_at || announcement.created_at)}
+                {formatDate(
+                  announcement.published_at || announcement.created_at,
+                )}
               </div>
               <div className="flex items-center gap-1.5">
                 <EyeIcon className="w-3.5 h-3.5" />
@@ -94,22 +99,27 @@ function AnnouncementCard({ announcement }: { announcement: Announcement }) {
 }
 
 // 分页组件
-function Pagination({ currentPage, totalPages, onPageChange }: { 
-  currentPage: number; 
-  totalPages: number; 
+function Pagination({
+  currentPage,
+  totalPages,
+  onPageChange,
+}: {
+  currentPage: number;
+  totalPages: number;
   onPageChange: (page: number) => void;
 }) {
   const getPageNumbers = () => {
     const pages: number[] = [];
     const maxVisible = 5;
-    
+
     if (totalPages <= maxVisible) {
       for (let i = 1; i <= totalPages; i++) pages.push(i);
     } else {
       if (currentPage <= 3) {
         for (let i = 1; i <= maxVisible; i++) pages.push(i);
       } else if (currentPage >= totalPages - 2) {
-        for (let i = totalPages - maxVisible + 1; i <= totalPages; i++) pages.push(i);
+        for (let i = totalPages - maxVisible + 1; i <= totalPages; i++)
+          pages.push(i);
       } else {
         for (let i = currentPage - 2; i <= currentPage + 2; i++) pages.push(i);
       }
@@ -127,23 +137,21 @@ function Pagination({ currentPage, totalPages, onPageChange }: {
         <ChevronLeftIcon className="w-4 h-4" />
         上一页
       </button>
-      
+
       <div className="flex gap-1.5 mx-2">
         {getPageNumbers().map((pageNum) => (
           <button
             key={pageNum}
             onClick={() => onPageChange(pageNum)}
             className={`btn btn-sm min-w-[2.5rem] ${
-              currentPage === pageNum
-                ? 'btn-primary'
-                : 'btn-ghost'
+              currentPage === pageNum ? "btn-primary" : "btn-ghost"
             }`}
           >
             {pageNum}
           </button>
         ))}
       </div>
-      
+
       <button
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage >= totalPages}
@@ -196,21 +204,21 @@ export default function AnnouncementsPage() {
   const loadAnnouncements = async () => {
     setLoading(true);
     try {
-      const response = await announcementApi.list({ 
-        page, 
+      const response = await announcementApi.list({
+        page,
         page_size: pageSize,
-        status: 'published',
+        status: "published",
       });
-      
+
       if (response.data.code === 0) {
         setAnnouncements(response.data.data.list || []);
         setTotal(response.data.data.total || 0);
       } else {
-        toast.error(response.data.message || '加载失败');
+        toast.error(response.data.message || "加载失败");
       }
     } catch (error: any) {
-      console.error('Failed to load announcements:', error);
-      toast.error(error.response?.data?.message || '加载失败，请稍后重试');
+      console.error("Failed to load announcements:", error);
+      toast.error(error.response?.data?.message || "加载失败，请稍后重试");
     } finally {
       setLoading(false);
     }
@@ -221,9 +229,9 @@ export default function AnnouncementsPage() {
   }, [page]);
 
   const totalPages = Math.ceil(total / pageSize);
-  
-  const pinnedAnnouncements = announcements.filter(a => a.is_pinned);
-  const normalAnnouncements = announcements.filter(a => !a.is_pinned);
+
+  const pinnedAnnouncements = announcements.filter((a) => a.is_pinned);
+  const normalAnnouncements = announcements.filter((a) => !a.is_pinned);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-base-200 to-base-100">
@@ -244,7 +252,7 @@ export default function AnnouncementsPage() {
                 了解最新的平台动态和重要通知
               </p>
             </div>
-            
+
             {/* 统计卡片 */}
             {!loading && announcements.length > 0 && (
               <div className="mt-6 md:mt-0 flex gap-4">
@@ -256,7 +264,7 @@ export default function AnnouncementsPage() {
             )}
           </div>
         </div>
-        
+
         {/* 装饰性背景圆点 */}
         <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-64 h-64 bg-primary/5 rounded-full blur-3xl" />
         <div className="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/2 w-48 h-48 bg-secondary/5 rounded-full blur-3xl" />
@@ -284,12 +292,15 @@ export default function AnnouncementsPage() {
                   </div>
                   <div className="space-y-3">
                     {pinnedAnnouncements.map((announcement) => (
-                      <AnnouncementCard key={announcement.id} announcement={announcement} />
+                      <AnnouncementCard
+                        key={announcement.id}
+                        announcement={announcement}
+                      />
                     ))}
                   </div>
                 </div>
               )}
-              
+
               {/* 普通公告区域 */}
               {normalAnnouncements.length > 0 && (
                 <div>
@@ -305,7 +316,10 @@ export default function AnnouncementsPage() {
                   )}
                   <div className="space-y-3">
                     {normalAnnouncements.map((announcement) => (
-                      <AnnouncementCard key={announcement.id} announcement={announcement} />
+                      <AnnouncementCard
+                        key={announcement.id}
+                        announcement={announcement}
+                      />
                     ))}
                   </div>
                 </div>
@@ -314,13 +328,13 @@ export default function AnnouncementsPage() {
 
             {/* 分页 */}
             {totalPages > 1 && (
-              <Pagination 
+              <Pagination
                 currentPage={page}
                 totalPages={totalPages}
                 onPageChange={setPage}
               />
             )}
-            
+
             {/* 显示总数 */}
             <div className="text-center text-xs text-base-content/40 mt-6">
               共 {total} 条公告

@@ -3,7 +3,7 @@ export function Pagination({
   currentPage,
   total,
   pageSize = 20,
-  onPageChange
+  onPageChange,
 }: {
   currentPage: number;
   total: number;
@@ -11,7 +11,7 @@ export function Pagination({
   onPageChange: (page: number) => void;
 }) {
   const totalPages = Math.ceil(total / pageSize);
-  
+
   if (total <= pageSize) return null;
 
   return (

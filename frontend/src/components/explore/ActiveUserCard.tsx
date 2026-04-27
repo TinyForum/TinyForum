@@ -45,18 +45,20 @@ export function ActiveUserCard({ user, rank }: ActiveUserCardProps) {
           <div className="flex items-center gap-3">
             {/* 排名徽章 */}
             {rank && rank <= 3 && (
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${getRankColor(rank)}`}>
+              <div
+                className={`w-8 h-8 rounded-full flex items-center justify-center ${getRankColor(rank)}`}
+              >
                 <span className="text-lg">{getRankIcon(rank)}</span>
               </div>
             )}
-            
+
             {/* 头像 */}
             {user.avatar ? (
               <div className="avatar">
                 <div className="w-10 h-10 rounded-full ring-1 ring-base-200 group-hover:ring-primary transition-all">
-                  <img 
-                    src={user.avatar} 
-                    alt={user.username} 
+                  <img
+                    src={user.avatar}
+                    alt={user.username}
                     className="object-cover"
                   />
                 </div>
@@ -70,7 +72,7 @@ export function ActiveUserCard({ user, rank }: ActiveUserCardProps) {
                 </div>
               </div>
             )}
-            
+
             {/* 用户信息 */}
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
@@ -91,16 +93,21 @@ export function ActiveUserCard({ user, rank }: ActiveUserCardProps) {
                 )}
               </div> */}
             </div>
-            
+
             {/* 箭头指示 */}
             <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-              <svg 
-                className="w-4 h-4 text-base-content/40 group-hover:text-primary transition-colors" 
-                fill="none" 
-                viewBox="0 0 24 24" 
+              <svg
+                className="w-4 h-4 text-base-content/40 group-hover:text-primary transition-colors"
+                fill="none"
+                viewBox="0 0 24 24"
                 stroke="currentColor"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5l7 7-7 7"
+                />
               </svg>
             </div>
           </div>

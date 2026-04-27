@@ -8,7 +8,12 @@ interface SearchBarProps {
   t?: (key: string) => string;
 }
 
-export default function SearchBar({ keyword, onKeywordChange, placeholder, t }: SearchBarProps) {
+export default function SearchBar({
+  keyword,
+  onKeywordChange,
+  placeholder,
+  t,
+}: SearchBarProps) {
   return (
     <div className="relative">
       <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-base-content/40" />

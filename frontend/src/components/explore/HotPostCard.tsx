@@ -15,29 +15,31 @@ export function HotPostCard({ post, rank }: { post: Post; rank: number }) {
       if (liked) {
         await postApi.unlike(post.id);
         setLiked(false);
-        setLikesCount(prev => prev - 1);
+        setLikesCount((prev) => prev - 1);
       } else {
         await postApi.like(post.id);
         setLiked(true);
-        setLikesCount(prev => prev + 1);
+        setLikesCount((prev) => prev + 1);
       }
     } catch (error) {
-      console.error('Like failed:', error);
-      toast.error('操作失败');
+      console.error("Like failed:", error);
+      toast.error("操作失败");
     }
   };
 
   const rankColors: Record<number, string> = {
-    1: 'text-yellow-500',
-    2: 'text-gray-400',
-    3: 'text-amber-600',
+    1: "text-yellow-500",
+    2: "text-gray-400",
+    3: "text-amber-600",
   };
 
   return (
     <div className="bg-white rounded-lg shadow-sm p-4 hover:shadow-md transition-shadow">
       <div className="flex items-start gap-3">
         {rank > 0 && (
-          <div className={`text-2xl font-bold w-8 ${rankColors[rank] || 'text-gray-300'}`}>
+          <div
+            className={`text-2xl font-bold w-8 ${rankColors[rank] || "text-gray-300"}`}
+          >
             {rank}
           </div>
         )}
@@ -56,7 +58,10 @@ export function HotPostCard({ post, rank }: { post: Post; rank: number }) {
               <ChatBubbleLeftRightIcon className="w-3 h-3" />
               {post.question?.answer_count || 0}
             </div>
-            <button onClick={handleLike} className="flex items-center gap-1 hover:text-red-500">
+            <button
+              onClick={handleLike}
+              className="flex items-center gap-1 hover:text-red-500"
+            >
               {liked ? (
                 <HeartCrack className="w-3 h-3 text-red-500" />
               ) : (
@@ -70,4 +75,3 @@ export function HotPostCard({ post, rank }: { post: Post; rank: number }) {
     </div>
   );
 }
-

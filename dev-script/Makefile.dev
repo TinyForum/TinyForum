@@ -1,0 +1,257 @@
+# ============================================
+# 开发服务管理（前台 + 后台）
+# ============================================
+
+.PHONY: frontend backend docs dev
+.PHONY: start start-backend start-frontend start-docs
+.PHONY: stop stop-backend stop-frontend stop-docs
+.PHONY: restart restart-backend restart-frontend restart-docs
+.PHONY: status logs logs-backend logs-frontend logs-docs
+.PHONY: clean-logs clean-pids
+
+# ========== 前台运行 ==========
+
+frontend:
+	@echo "🚀 Starting frontend development server..."
+	@cd frontend && pnpm run dev
+
+backend:
+	@echo "🚀 Starting backend development server..."
+	@cd backend && go run ./cmd/server/main.go
+
+docs:
+	@echo "📚 Starting documentation server..."
+	@cd docs && docsify serve
+
+dev:
+	@echo "🚀 Starting both frontend and backend (foreground)..."
+	@if command -v concurrently >/dev/null 2>&1; then \
+		concurrently "make frontend" "make backend"; \
+	else \
+		echo "⚠️  'concurrently' not found. Installing..."; \
+		pnpm install -g concurrently && concurrently "make frontend" "make backend"; \
+	fi
+
+# ========== 后台运行 ==========
+
+start: | $(PID_DIR) $(LOG_DIR) start-backend start-frontend start-docs
+	@echo "✅ All services started"
+	@$(MAKE) status
+
+start-backend: | $(PID_DIR) $(LOG_DIR)
+	@if [ -f $(BACKEND_PID_FILE) ] && kill -0 $$(cat $(BACKEND_PID_FILE)) 2>/dev/null; then \
+		echo "⚠️  Backend is already running (PID: $$(cat $(BACKEND_PID_FILE)))"; \
+	else \
+		echo "🚀 Starting backend server in background..."; \
+		cd backend && nohup go run ./cmd/server/main.go > ../$(BACKEND_LOG) 2>&1 & \
+		echo $$! > $(BACKEND_PID_FILE); \
+		sleep 1; \
+		if kill -0 $$(cat $(BACKEND_PID_FILE)) 2>/dev/null; then \
+			echo "✅ Backend started successfully (PID: $$(cat $(BACKEND_PID_FILE)))"; \
+			echo "📝 Logs: $(BACKEND_LOG)"; \
+		else \
+			echo "❌ Backend failed to start. Check logs: $(BACKEND_LOG)"; \
+			rm -f $(BACKEND_PID_FILE); \
+			exit 1; \
+		fi \
+	fi
+
+start-frontend: | $(PID_DIR) $(LOG_DIR)
+	@if [ -f $(FRONTEND_PID_FILE) ] && kill -0 $$(cat $(FRONTEND_PID_FILE)) 2>/dev/null; then \
+		echo "⚠️  Frontend is already running (PID: $$(cat $(FRONTEND_PID_FILE)))"; \
+	else \
+		echo "🚀 Starting frontend server in background..."; \
+		cd frontend && nohup pnpm run dev > ../$(FRONTEND_LOG) 2>&1 & \
+		echo $$! > $(FRONTEND_PID_FILE); \
+		sleep 2; \
+		if kill -0 $$(cat $(FRONTEND_PID_FILE)) 2>/dev/null; then \
+			echo "✅ Frontend started successfully (PID: $$(cat $(FRONTEND_PID_FILE)))"; \
+			echo "📝 Logs: $(FRONTEND_LOG)"; \
+		else \
+			echo "❌ Frontend failed to start. Check logs: $(FRONTEND_LOG)"; \
+			rm -f $(FRONTEND_PID_FILE); \
+			exit 1; \
+		fi \
+	fi
+
+start-docs: | $(PID_DIR) $(LOG_DIR)
+	@if [ -f $(DOCS_PID_FILE) ] && kill -0 $$(cat $(DOCS_PID_FILE)) 2>/dev/null; then \
+		echo "⚠️  Docs server is already running (PID: $$(cat $(DOCS_PID_FILE)))"; \
+	else \
+		echo "📚 Starting docs server in background..."; \
+		cd docs && nohup docsify serve > ../$(DOCS_LOG) 2>&1 & \
+		echo $$! > $(DOCS_PID_FILE); \
+		sleep 1; \
+		if kill -0 $$(cat $(DOCS_PID_FILE)) 2>/dev/null; then \
+			echo "✅ Docs server started successfully (PID: $$(cat $(DOCS_PID_FILE)))"; \
+			echo "📝 Logs: $(DOCS_LOG)"; \
+		else \
+			echo "❌ Docs server failed to start. Check logs: $(DOCS_LOG)"; \
+			rm -f $(DOCS_PID_FILE); \
+			exit 1; \
+		fi \
+	fi
+
+# ========== 停止服务 ==========
+
+stop: stop-backend stop-frontend stop-docs
+	@echo "✅ All services stopped"
+
+stop-backend:
+	@if [ -f $(BACKEND_PID_FILE) ]; then \
+		PID=$$(cat $(BACKEND_PID_FILE)); \
+		if kill -0 $$PID 2>/dev/null; then \
+			echo "🛑 Stopping backend server (PID: $$PID)..."; \
+			kill -TERM $$PID; \
+			sleep 2; \
+			if kill -0 $$PID 2>/dev/null; then \
+				echo "⚠️  Process didn't stop, forcing..."; \
+				kill -KILL $$PID; \
+			fi; \
+			echo "✅ Backend stopped"; \
+		else \
+			echo "⚠️  Backend not running (stale PID file)"; \
+		fi; \
+		rm -f $(BACKEND_PID_FILE); \
+	else \
+		echo "⚠️  Backend PID file not found (service not running)"; \
+	fi
+
+stop-frontend:
+	@if [ -f $(FRONTEND_PID_FILE) ]; then \
+		PID=$$(cat $(FRONTEND_PID_FILE)); \
+		if kill -0 $$PID 2>/dev/null; then \
+			echo "🛑 Stopping frontend server (PID: $$PID)..."; \
+			kill -TERM $$PID; \
+			sleep 2; \
+			if kill -0 $$PID 2>/dev/null; then \
+				echo "⚠️  Process didn't stop, forcing..."; \
+				kill -KILL $$PID; \
+			fi; \
+			echo "✅ Frontend stopped"; \
+		else \
+			echo "⚠️  Frontend not running (stale PID file)"; \
+		fi; \
+		rm -f $(FRONTEND_PID_FILE); \
+	else \
+		echo "⚠️  Frontend PID file not found (service not running)"; \
+	fi
+
+stop-docs:
+	@if [ -f $(DOCS_PID_FILE) ]; then \
+		PID=$$(cat $(DOCS_PID_FILE)); \
+		if kill -0 $$PID 2>/dev/null; then \
+			echo "🛑 Stopping docs server (PID: $$PID)..."; \
+			kill -TERM $$PID; \
+			sleep 1; \
+			if kill -0 $$PID 2>/dev/null; then \
+				echo "⚠️  Process didn't stop, forcing..."; \
+				kill -KILL $$PID; \
+			fi; \
+			echo "✅ Docs server stopped"; \
+		else \
+			echo "⚠️  Docs server not running (stale PID file)"; \
+		fi; \
+		rm -f $(DOCS_PID_FILE); \
+	else \
+		echo "⚠️  Docs PID file not found (service not running)"; \
+	fi
+
+# ========== 重启 ==========
+
+restart: stop start
+	@echo "🔄 All services restarted"
+
+restart-backend: stop-backend start-backend
+	@echo "🔄 Backend restarted"
+
+restart-frontend: stop-frontend start-frontend
+	@echo "🔄 Frontend restarted"
+
+restart-docs: stop-docs start-docs
+	@echo "🔄 Docs server restarted"
+
+# ========== 状态 ==========
+
+status:
+	@echo "=========================================="
+	@echo "📊 Service Status"
+	@echo "=========================================="
+	@echo ""
+	@# Backend status
+	@if [ -f $(BACKEND_PID_FILE) ]; then \
+		PID=$$(cat $(BACKEND_PID_FILE)); \
+		if kill -0 $$PID 2>/dev/null; then \
+			echo "✅ Backend:     RUNNING (PID: $$PID)"; \
+			ps -p $$PID -o pid,vsz,rss,pcpu,comm --no-headers 2>/dev/null || true; \
+		else \
+			echo "❌ Backend:     STOPPED (stale PID file)"; \
+			rm -f $(BACKEND_PID_FILE); \
+		fi \
+	else \
+		echo "❌ Backend:     STOPPED"; \
+	fi
+	@echo ""
+	@# Frontend status
+	@if [ -f $(FRONTEND_PID_FILE) ]; then \
+		PID=$$(cat $(FRONTEND_PID_FILE)); \
+		if kill -0 $$PID 2>/dev/null; then \
+			echo "✅ Frontend:    RUNNING (PID: $$PID)"; \
+			ps -p $$PID -o pid,vsz,rss,pcpu,comm --no-headers 2>/dev/null || true; \
+		else \
+			echo "❌ Frontend:    STOPPED (stale PID file)"; \
+			rm -f $(FRONTEND_PID_FILE); \
+		fi \
+	else \
+		echo "❌ Frontend:    STOPPED"; \
+	fi
+	@echo ""
+	@# Docs status
+	@if [ -f $(DOCS_PID_FILE) ]; then \
+		PID=$$(cat $(DOCS_PID_FILE)); \
+		if kill -0 $$PID 2>/dev/null; then \
+			echo "✅ Docs:        RUNNING (PID: $$PID)"; \
+			ps -p $$PID -o pid,vsz,rss,pcpu,comm --no-headers 2>/dev/null || true; \
+		else \
+			echo "❌ Docs:        STOPPED (stale PID file)"; \
+			rm -f $(DOCS_PID_FILE); \
+		fi \
+	else \
+		echo "❌ Docs:        STOPPED"; \
+	fi
+	@echo ""
+	@echo "=========================================="
+	@echo "📁 PID directory: $(PID_DIR)"
+	@echo "📝 Log directory: $(LOG_DIR)"
+	@echo "=========================================="
+
+# ========== 日志 ==========
+
+logs:
+	@echo "📝 Tailing all logs (Ctrl+C to exit)..."
+	@tail -f $(BACKEND_LOG) $(FRONTEND_LOG) $(DOCS_LOG) 2>/dev/null || echo "No log files found. Run 'make start' first."
+
+logs-backend:
+	@echo "📝 Tailing backend logs..."
+	@tail -f $(BACKEND_LOG) 2>/dev/null || echo "No backend log file found. Run 'make start-backend' first."
+
+logs-frontend:
+	@echo "📝 Tailing frontend logs..."
+	@tail -f $(FRONTEND_LOG) 2>/dev/null || echo "No frontend log file found. Run 'make start-frontend' first."
+
+logs-docs:
+	@echo "📝 Tailing docs logs..."
+	@tail -f $(DOCS_LOG) 2>/dev/null || echo "No docs log file found. Run 'make start-docs' first."
+
+# ========== 清理 ==========
+
+clean-logs:
+	@echo "🧹 Cleaning log files..."
+	@rm -rf $(LOG_DIR)
+	@mkdir -p $(LOG_DIR)
+	@echo "✅ Logs cleaned"
+
+clean-pids:
+	@echo "🧹 Cleaning PID files..."
+	@rm -rf $(PID_DIR)
+	@echo "✅ PID files cleaned"
