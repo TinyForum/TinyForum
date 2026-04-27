@@ -24,7 +24,7 @@ import (
 // @Success 200 {object} response.Response{data=model.StatsTodayInfo}
 // @Failure 400 {object} response.Response
 // @Failure 500 {object} response.Response
-// @Router /admin/statistics/day [get]
+// @Router /statistics/day [get]
 func (h *StatsHandler) GetStatsDay(c *gin.Context) {
 	var req dto.StatsDayQuery
 	if err := c.ShouldBindQuery(&req); err != nil {
@@ -70,7 +70,7 @@ func (h *StatsHandler) GetStatsDay(c *gin.Context) {
 // @Success 200 {object} response.Response{data=model.StatsInfoResp}
 // @Failure 400 {object} response.Response
 // @Failure 500 {object} response.Response
-// @Router /admin/statistics/total [get]
+// @Router /statistics/total [get]
 func (h *StatsHandler) GetStatsTotal(c *gin.Context) {
 	var req struct {
 		StartDate string `form:"start_date" binding:"omitempty,datetime=2006-01-02"`
@@ -120,7 +120,7 @@ func (h *StatsHandler) GetStatsTotal(c *gin.Context) {
 // @Success 200 {object} response.Response{data=model.StatsTrendResponse}
 // @Failure 400 {object} response.Response
 // @Failure 500 {object} response.Response
-// @Router /admin/statistics/trend [get]
+// @Router /statistics/trend [get]
 func (h *StatsHandler) GetStatsTrend(c *gin.Context) {
 	var req dto.AdminStatsTrendRequest
 	if err := c.ShouldBindQuery(&req); err != nil {

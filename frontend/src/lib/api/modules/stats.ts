@@ -21,7 +21,7 @@ export const statsApi = {
    * @returns 今日统计数据
    */
   day: (params?: GetStatsDayParams) =>
-    apiClient.get<ApiResponse<StatsTodayInfo>>("/admin/statistics/day", { params }),
+    apiClient.get<ApiResponse<StatsTodayInfo>>("/statistics/day", { params }),
   
   /**
    * 获取总计统计数据
@@ -29,7 +29,7 @@ export const statsApi = {
    * @returns 总计统计数据（包含基础信息、今日信息、热门内容等）
    */
   total: (params?: GetStatsTotalParams) =>
-    apiClient.get<ApiResponse<StatsInfoResp>>("/admin/statistics/total", { params }),
+    apiClient.get<ApiResponse<StatsInfoResp>>("/statistics/total", { params }),
   
   /**
    * 获取趋势统计数据
@@ -37,10 +37,10 @@ export const statsApi = {
    * @returns 趋势数据（按天/周/月统计）
    */
   trend: (params: GetStatsTrendParams) =>
-    apiClient.get<ApiResponse<StatsTrendResponse>>("/admin/statistics/trend", { params }),
+    apiClient.get<ApiResponse<StatsTrendResponse>>("/statistics/trend", { params }),
   /**
    * 获取范围统计数据
    */
   range: (params?: GetStatsRangeParams) =>
-    apiClient.get<ApiResponse<StatsRangeResponse>>("/admin/statistics/range", { params }),
+    apiClient.get<ApiResponse<StatsRangeResponse>>("/statistics/range", { params }),
 };

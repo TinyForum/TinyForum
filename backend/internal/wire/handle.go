@@ -40,25 +40,37 @@ type Handlers struct {
 
 // NewHandlers 创建所有 Handler 实例
 func NewHandlers(svc *Services, timeHelpers *timeutil.TimeHelpers) *Handlers {
+	auth := authHandler.NewAuthHandler(svc.Auth)
+	user := userHandler.NewUserHandler(svc.User, svc.Notification, svc.Auth)
+	tag := tagHandler.NewTagHandler(svc.Tag)
+	notification := notificationHandler.NewNotificationHandler(svc.Notification)
+	post := postHandler.NewPostHandler(svc.Post)
+	comment := commentHandler.NewCommentHandler(svc.Comment, svc.Question)
+	board := boardHandler.NewBoardHandler(svc.Board)
+	timeline := timelineHandler.NewTimelineHandler(svc.Timeline)
+	topic := topicHandler.NewTopicHandler(svc.Topic)
+	answer := answerHandler.NewAnswerHandler(svc.Question, svc.Comment, svc.Post)
+	question := questionHandler.NewQuestionHandler(svc.Question, svc.Comment, svc.Post, answer)
+	announcement := announcementHandler.NewAnnouncementHandler(svc.Announcement)
+	stats := statsHandler.NewStatsHandler(svc.Stats, timeHelpers)
+	risk := riskhandler.NewRiskHandler(svc.ContentCheck, svc.Risk)
+	upload := uploadHandler.NewUploadHandler(svc.Upload)
 
 	return &Handlers{
-		Auth:         authHandler.NewAuthHandler(svc.Auth),
-		User:         userHandler.NewUserHandler(svc.User, svc.Notification, svc.Auth),
-		Tag:          tagHandler.NewTagHandler(svc.Tag),
-		Notification: notificationHandler.NewNotificationHandler(svc.Notification),
-		Post:         postHandler.NewPostHandler(svc.Post),
-		Comment:      commentHandler.NewCommentHandler(svc.Comment, svc.Question),
-		Board:        boardHandler.NewBoardHandler(svc.Board),
-		Timeline:     timelineHandler.NewTimelineHandler(svc.Timeline),
-		Topic:        topicHandler.NewTopicHandler(svc.Topic),
-		Question:     questionHandler.NewQuestionHandler(svc.Question, svc.Comment, svc.Post),
-		Answer:       answerHandler.NewAnswerHandler(svc.Question, svc.Comment, svc.Post),
-		Announcement: announcementHandler.NewAnnouncementHandler(svc.Announcement),
-		Stats: statsHandler.NewStatsHandler(
-			svc.Stats,
-			timeHelpers,
-		),
-		Risk:   riskhandler.NewRiskHandler(svc.ContentCheck, svc.Risk),
-		Upload: uploadHandler.NewUploadHandler(svc.Upload),
+		Auth:         auth,
+		User:         user,
+		Tag:          tag,
+		Notification: notification,
+		Post:         post,
+		Comment:      comment,
+		Board:        board,
+		Timeline:     timeline,
+		Topic:        topic,
+		Question:     question,
+		Answer:       answer,
+		Announcement: announcement,
+		Stats:        stats,
+		Risk:         risk,
+		Upload:       upload,
 	}
 }
