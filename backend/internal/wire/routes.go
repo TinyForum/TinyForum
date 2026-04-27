@@ -37,62 +37,66 @@ func RegisterRoutes(
 	{
 		api.GET("/health", func(c *gin.Context) { c.JSON(200, "pong") })
 	}
-
+	handlers.Auth.RegisterRoutes(api, mw)
 	// MARK: Auth routes
-	authGroup := api.Group("/auth")
-	{
-		handlers.Auth.RegisterRoutes(authGroup, mw)
-		// authGroup.POST("/register", handlers.Auth.Register)                               // 用户注册
-		// authGroup.POST("/login", handlers.Auth.Login)                                     // 用户登录
-		// authGroup.POST("/logout", handlers.Auth.Logout)                                   // 用户登出
-		// authGroup.DELETE("/delete-account", mw.AuthMW(), handlers.Auth.DeleteAccount)     // 用户删除账号
-		// authGroup.GET("/deletion-status", mw.AuthMW(), handlers.Auth.DeletionStatus)      // 用户查询账号删除状态
-		// authGroup.POST("/cancel-deletion", mw.AuthMW(), handlers.Auth.CancelDeletion)     // 用户取消账号删除
-		// authGroup.DELETE("/confirm-deletion", mw.AuthMW(), handlers.Auth.ConfirmDeletion) // 用户确认账号删除
-		// // authGroup.GET("/me", mw.AuthMW(), handlers.User.Me)                               // 获取当前用户信息
-		// authGroup.POST("/forgot-password", handlers.Auth.ForgotPassword)                  // 用户忘记密码
-		// authGroup.POST("/reset-password", handlers.Auth.ResetPassword)                    // 用户重置密码
-		// authGroup.GET("/validate-reset-token", handlers.Auth.ValidateResetToken)          // 用户验证重置密码 token
-	}
+	// authGroup := api.Group("/auth")
+	// {
+
+	// 	authGroup.POST("/register", handlers.Auth.Register)                               // 用户注册
+	// 	authGroup.POST("/login", handlers.Auth.Login)                                     // 用户登录
+	// 	authGroup.POST("/logout", handlers.Auth.Logout)                                   // 用户登出
+	// 	authGroup.DELETE("/delete-account", mw.AuthMW(), handlers.Auth.DeleteAccount)     // 用户删除账号
+	// 	authGroup.GET("/deletion-status", mw.AuthMW(), handlers.Auth.DeletionStatus)      // 用户查询账号删除状态
+	// 	authGroup.POST("/cancel-deletion", mw.AuthMW(), handlers.Auth.CancelDeletion)     // 用户取消账号删除
+	// 	authGroup.DELETE("/confirm-deletion", mw.AuthMW(), handlers.Auth.ConfirmDeletion) // 用户确认账号删除
+	// 	// authGroup.GET("/me", mw.AuthMW(), handlers.User.Me)                               // 获取当前用户信息
+	// 	authGroup.POST("/forgot-password", handlers.Auth.ForgotPassword)                  // 用户忘记密码
+	// 	authGroup.POST("/reset-password", handlers.Auth.ResetPassword)                    // 用户重置密码
+	// 	authGroup.GET("/validate-reset-token", handlers.Auth.ValidateResetToken)          // 用户验证重置密码 token
+	// }
 
 	// MARK: Tag routes
-	tagGroup := api.Group("/tags")
-	{
-		tagGroup.GET("", handlers.Tag.List)
-		tagGroup.POST("", mw.AuthMW(), mw.AdminRequiredMW(), handlers.Tag.Create)
-		tagGroup.PUT("/:id", mw.AuthMW(), mw.AdminRequiredMW(), handlers.Tag.Update)
-		tagGroup.DELETE("/:id", mw.AuthMW(), mw.AdminRequiredMW(), handlers.Tag.Delete)
-	}
 
+	handlers.Tag.RegisterRoutes(api, mw)
+	// tagGroup := api.Group("/tags")
+	// {
+	// 	tagGroup.GET("", handlers.Tag.List)
+	// 	tagGroup.POST("", mw.AuthMW(), mw.AdminRequiredMW(), handlers.Tag.Create)
+	// 	tagGroup.PUT("/:id", mw.AuthMW(), mw.AdminRequiredMW(), handlers.Tag.Update)
+	// 	tagGroup.DELETE("/:id", mw.AuthMW(), mw.AdminRequiredMW(), handlers.Tag.Delete)
+	// }
+
+	handlers.Post.RegisterRoutes(api, mw)
 	// MARK: Post routes
-	postGroup := api.Group("/posts")
-	{
-		postGroup.GET("", mw.OptionalAuthMW(), handlers.Post.List) // 用户获取帖子列表
-		postGroup.GET("/:id", mw.OptionalAuthMW(), handlers.Post.GetByID)
-		postGroup.POST("",
-			mw.AuthMW(),
-			mw.RateLimitMW("create_post"),
-			mw.ContentCheckMW([]string{"title", "content"}),
-			handlers.Post.Create,
-		) // 用户发布帖子
-		postGroup.PUT("/:id", mw.AuthMW(), handlers.Post.Update)
-		postGroup.DELETE("/:id", mw.AuthMW(), handlers.Post.Delete)
-		postGroup.POST("/:id/like", mw.AuthMW(), handlers.Post.Like)
-		postGroup.DELETE("/:id/like", mw.AuthMW(), handlers.Post.Unlike)
-	}
+	// postGroup := api.Group("/posts")
+	// {
+	// 	postGroup.GET("", mw.OptionalAuthMW(), handlers.Post.List) // 用户获取帖子列表
+	// 	postGroup.GET("/:id", mw.OptionalAuthMW(), handlers.Post.GetByID)
+	// 	postGroup.POST("",
+	// 		mw.AuthMW(),
+	// 		mw.RateLimitMW("create_post"),
+	// 		mw.ContentCheckMW([]string{"title", "content"}),
+	// 		handlers.Post.Create,
+	// 	) // 用户发布帖子
+	// 	postGroup.PUT("/:id", mw.AuthMW(), handlers.Post.Update)
+	// 	postGroup.DELETE("/:id", mw.AuthMW(), handlers.Post.Delete)
+	// 	postGroup.POST("/:id/like", mw.AuthMW(), handlers.Post.Like)
+	// 	postGroup.DELETE("/:id/like", mw.AuthMW(), handlers.Post.Unlike)
+	// }
 
 	// MARK: Comment routes
-	commentGroup := api.Group("/comments")
-	{
-		commentGroup.GET("/post/:post_id", handlers.Comment.List)
-		commentGroup.POST("",
-			mw.AuthMW(),
-			mw.RateLimitMW("create_comment"),
-			mw.ContentCheckMW([]string{"content"}),
-			handlers.Comment.Create,
-		)
-		commentGroup.DELETE("/:id", mw.AuthMW(), handlers.Comment.Delete)
-	}
+	handlers.Comment.RegisterRoutes(api, mw)
+	// commentGroup := api.Group("/comments")
+	// {
+	// 	commentGroup.GET("/post/:post_id", handlers.Comment.List)
+	// 	commentGroup.POST("",
+	// 		mw.AuthMW(),
+	// 		mw.RateLimitMW("create_comment"),
+	// 		mw.ContentCheckMW([]string{"content"}),
+	// 		handlers.Comment.Create,
+	// 	)
+	// 	commentGroup.DELETE("/:id", mw.AuthMW(), handlers.Comment.Delete)
+	// }
 
 	// MARK: User routes
 	userGroup := api.Group("/users")

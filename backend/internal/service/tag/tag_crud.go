@@ -29,6 +29,9 @@ func (s *tagService) Create(input CreateTagInput) (*model.Tag, error) {
 func (s *tagService) List() ([]model.Tag, error) {
 	return s.tagRepo.List()
 }
+func (s *tagService) Get(id uint) (*model.Tag, error) {
+	return s.tagRepo.FindByID(id)
+}
 
 func (s *tagService) Update(id uint, input CreateTagInput) (*model.Tag, error) {
 	tag, err := s.tagRepo.FindByID(id)

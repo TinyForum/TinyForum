@@ -8,6 +8,7 @@ import (
 type TagService interface {
 	Create(input CreateTagInput) (*model.Tag, error)
 	List() ([]model.Tag, error)
+	Get(id uint) (*model.Tag, error)
 	Update(id uint, input CreateTagInput) (*model.Tag, error)
 	Delete(id uint) error
 }

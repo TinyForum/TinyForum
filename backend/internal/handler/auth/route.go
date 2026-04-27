@@ -12,7 +12,7 @@ import (
 // Group URL: /auth
 func (h *AuthHandler) RegisterRoutes(auth *gin.RouterGroup, mw *middleware.MiddlewareSet) {
 	// 用户排行榜
-	g := auth.Group("")
+	g := auth.Group("/auth")
 	{
 		g.POST("/register", h.Register)                               // 用户注册
 		g.POST("/login", h.Login)                                     // 用户登录
