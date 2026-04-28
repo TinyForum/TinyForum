@@ -1,0 +1,103 @@
+# Risk Control Configuration
+# 风控配置，可提交到版本控制
+
+# 不同风险等级的限流策略
+rate_limit:
+  risk_levels:
+    normal:
+      create_post:
+        limit: 20
+        window: 1h
+      create_comment:
+        limit: 60
+        window: 1h
+      send_report:
+        limit: 10
+        window: 1h
+      update_profile:
+        limit: 5
+        window: 1h
+      like_post:
+        limit: 100
+        window: 1h
+      follow_user:
+        limit: 50
+        window: 1h
+    
+    observe:
+      create_post:
+        limit: 5
+        window: 1h
+      create_comment:
+        limit: 20
+        window: 1h
+      send_report:
+        limit: 5
+        window: 1h
+      update_profile:
+        limit: 3
+        window: 1h
+      like_post:
+        limit: 30
+        window: 1h
+      follow_user:
+        limit: 15
+        window: 1h
+    
+    restrict:
+      create_post:
+        limit: 2
+        window: 1h
+      create_comment:
+        limit: 5
+        window: 1h
+      send_report:
+        limit: 2
+        window: 1h
+      update_profile:
+        limit: 1
+        window: 1h
+      like_post:
+        limit: 10
+        window: 1h
+      follow_user:
+        limit: 5
+        window: 1h
+
+# 内容过滤配置
+content_filter:
+  enabled: true
+  sensitive_words:
+    - "暴力"
+    - "色情"
+    - "赌博"
+    - "毒品"
+    - "诈骗"
+  custom_patterns:
+    - pattern: "\\b\\d{11}\\b"
+      action: mask
+    - pattern: "\\b[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}\\b"
+      action: mask
+
+# 反垃圾配置
+anti_spam:
+  enabled: true
+  max_similar_posts: 3
+  similarity_threshold: 0.85
+  check_interval: 5m
+  ban_duration: 24h
+
+# IP 黑名单
+ip_blacklist: []
+
+# 用户黑名单
+user_blacklist: []
+
+# 风控日志
+audit_log:
+  enabled: true
+  filename: ./logs/audit.log
+  max_size: 100
+  max_backups: 30
+  max_age: 90
+  compress: true
