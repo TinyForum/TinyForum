@@ -23,9 +23,7 @@ export const authApi = {
 
   // 登录：后端通过 Set-Cookie 设置 HttpOnly Cookie
   login: (data: LoginPayload) =>
-    apiClient.post<ApiResponse<AuthResult>>("/auth/login", data, {
-      withCredentials: true,
-    }),
+    apiClient.post<ApiResponse<AuthResult>>("/auth/login", data),
 
   // 获取当前用户：Cookie 会自动携带
   me: () =>
