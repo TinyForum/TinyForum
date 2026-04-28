@@ -2,101 +2,248 @@
 # Docker Compose 管理命令
 # ============================================
 
-.PHONY: docker-up docker-up-logs docker-down docker-down-volumes
+.PHONY: help docker-up docker-up-logs docker-down docker-down-volumes
 .PHONY: docker-restart docker-status docker-logs
 .PHONY: docker-logs-backend docker-logs-frontend docker-logs-postgres
 .PHONY: docker-shell-backend docker-shell-frontend docker-shell-postgres
 .PHONY: docker-build docker-build-backend docker-build-frontend
 .PHONY: docker-clean docker-backup-db docker-dev docker-tools
+.PHONY: docker-pull docker-prune docker-ps
 
 # Docker 相关变量
 DOCKER_COMPOSE := docker compose
 ENV_FILE := .env
+COMPOSE_FILES := -f docker-compose.yml
+BACKUP_DIR := ./backups
+
+# 颜色输出
+COLOR_RESET := \033[0m
+COLOR_GREEN := \033[32m
+COLOR_YELLOW := \033[33m
+COLOR_RED := \033[31m
+COLOR_BLUE := \033[34m
+COLOR_CYAN := \033[36m
+
+# 默认目标
+.DEFAULT_GOAL := help
+
+# 帮助信息
+help:
+	@echo "$(COLOR_CYAN)🐳 Docker Compose 管理命令$(COLOR_RESET)"
+	@echo "$(COLOR_GREEN)可用命令：$(COLOR_RESET)"
+	@echo ""
+	@echo "$(COLOR_YELLOW)服务管理:$(COLOR_RESET)"
+	@echo "  make docker-up            - 启动所有服务（后台运行）"
+	@echo "  make docker-up-logs       - 启动服务并显示日志"
+	@echo "  make docker-down          - 停止所有服务"
+	@echo "  make docker-down-volumes  - 停止服务并删除数据卷"
+	@echo "  make docker-restart       - 重启所有服务"
+	@echo "  make docker-status        - 查看服务状态"
+	@echo "  make docker-ps            - 查看容器详细状态"
+	@echo ""
+	@echo "$(COLOR_YELLOW)日志查看:$(COLOR_RESET)"
+	@echo "  make docker-logs          - 查看所有服务日志"
+	@echo "  make docker-logs-backend  - 查看 backend 日志"
+	@echo "  make docker-logs-frontend - 查看 frontend 日志"
+	@echo "  make docker-logs-postgres - 查看 postgres 日志"
+	@echo ""
+	@echo "$(COLOR_YELLOW)容器交互:$(COLOR_RESET)"
+	@echo "  make docker-shell-backend  - 进入 backend 容器"
+	@echo "  make docker-shell-frontend - 进入 frontend 容器"
+	@echo "  make docker-shell-postgres - 进入 postgres 数据库"
+	@echo ""
+	@echo "$(COLOR_YELLOW)镜像构建:$(COLOR_RESET)"
+	@echo "  make docker-build         - 重新构建所有镜像"
+	@echo "  make docker-build-backend - 构建 backend 镜像"
+	@echo "  make docker-build-frontend- 构建 frontend 镜像"
+	@echo "  make docker-pull          - 拉取最新基础镜像"
+	@echo ""
+	@echo "$(COLOR_YELLOW)数据管理:$(COLOR_RESET)"
+	@echo "  make docker-backup-db     - 备份数据库"
+	@echo "  make docker-restore-db    - 恢复数据库（需要指定文件）"
+	@echo ""
+	@echo "$(COLOR_YELLOW)清理维护:$(COLOR_RESET)"
+	@echo "  make docker-clean         - 清理所有容器、卷和镜像"
+	@echo "  make docker-prune         - 清理未使用的 Docker 资源"
+	@echo ""
+	@echo "$(COLOR_YELLOW)开发工具:$(COLOR_RESET)"
+	@echo "  make docker-dev           - 启动开发环境（热重载）"
+	@echo "  make docker-tools         - 启动工具服务（adminer等）"
+	@echo ""
+
+# 检查环境文件
+check-env:
+	@if [ ! -f $(ENV_FILE) ]; then \
+		echo "$(COLOR_RED)❌ 错误: $(ENV_FILE) 文件不存在$(COLOR_RESET)"; \
+		echo "$(COLOR_YELLOW)请复制 .env.example 到 .env 并配置$(COLOR_RESET)"; \
+		exit 1; \
+	fi
+
+# 创建备份目录
+create-backup-dir:
+	@mkdir -p $(BACKUP_DIR)
 
 # 启动所有服务
-docker-up:
-	@echo "🐳 Starting all services..."
-	@$(DOCKER_COMPOSE) --env-file $(ENV_FILE) up -d
-	@$(MAKE) docker-status
+docker-up: check-env
+	@echo "$(COLOR_GREEN)🐳 启动所有服务...$(COLOR_RESET)"
+	@$(DOCKER_COMPOSE) $(COMPOSE_FILES) --env-file $(ENV_FILE) up -d
+	@$(MAKE) --no-print-directory docker-status
 
 # 启动服务并查看日志
-docker-up-logs:
-	@echo "🐳 Starting all services with logs..."
-	@$(DOCKER_COMPOSE) --env-file $(ENV_FILE) up
+docker-up-logs: check-env
+	@echo "$(COLOR_GREEN)🐳 启动服务并显示日志...$(COLOR_RESET)"
+	@$(DOCKER_COMPOSE) $(COMPOSE_FILES) --env-file $(ENV_FILE) up
 
 # 停止所有服务
 docker-down:
-	@echo "🛑 Stopping all services..."
-	@$(DOCKER_COMPOSE) --env-file $(ENV_FILE) down
+	@echo "$(COLOR_YELLOW)🛑 停止所有服务...$(COLOR_RESET)"
+	@$(DOCKER_COMPOSE) $(COMPOSE_FILES) --env-file $(ENV_FILE) down
 
 # 停止并删除 volumes（会丢失数据）
 docker-down-volumes:
-	@echo "⚠️  Stopping and removing volumes (data will be lost)..."
-	@$(DOCKER_COMPOSE) --env-file $(ENV_FILE) down -v
+	@echo "$(COLOR_RED)⚠️  停止服务并删除数据卷（数据将丢失）...$(COLOR_RESET)"
+	@read -p "确认删除所有数据？(y/N) " -n 1 -r; \
+	echo; \
+	if [[ $$REPLY =~ ^[Yy]$$ ]]; then \
+		$(DOCKER_COMPOSE) $(COMPOSE_FILES) --env-file $(ENV_FILE) down -v; \
+		echo "$(COLOR_GREEN)✅ 清理完成$(COLOR_RESET)"; \
+	else \
+		echo "$(COLOR_YELLOW)操作已取消$(COLOR_RESET)"; \
+	fi
 
 # 重启服务
-docker-restart:
-	@echo "🔄 Restarting all services..."
-	@$(DOCKER_COMPOSE) --env-file $(ENV_FILE) restart
-	@$(MAKE) docker-status
+docker-restart: check-env
+	@echo "$(COLOR_BLUE)🔄 重启所有服务...$(COLOR_RESET)"
+	@$(DOCKER_COMPOSE) $(COMPOSE_FILES) --env-file $(ENV_FILE) restart
+	@$(MAKE) --no-print-directory docker-status
 
 # 查看服务状态
 docker-status:
-	@echo "📊 Docker services status:"
-	@$(DOCKER_COMPOSE) --env-file $(ENV_FILE) ps
+	@echo "$(COLOR_CYAN)📊 Docker 服务状态:$(COLOR_RESET)"
+	@$(DOCKER_COMPOSE) $(COMPOSE_FILES) --env-file $(ENV_FILE) ps
+
+# 查看详细容器状态
+docker-ps:
+	@echo "$(COLOR_CYAN)📊 容器详细状态:$(COLOR_RESET)"
+	@docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" | grep -E "(CONTAINER|tiny-forum|tinyforum)" || docker ps
 
 # 查看日志
 docker-logs:
-	@echo "📝 Tailing all logs..."
-	@$(DOCKER_COMPOSE) --env-file $(ENV_FILE) logs -f
+	@echo "$(COLOR_CYAN)📝 实时查看所有日志（Ctrl+C 退出）...$(COLOR_RESET)"
+	@$(DOCKER_COMPOSE) $(COMPOSE_FILES) --env-file $(ENV_FILE) logs -f
 
 docker-logs-backend:
-	@$(DOCKER_COMPOSE) --env-file $(ENV_FILE) logs -f backend
+	@$(DOCKER_COMPOSE) $(COMPOSE_FILES) --env-file $(ENV_FILE) logs -f backend
 
 docker-logs-frontend:
-	@$(DOCKER_COMPOSE) --env-file $(ENV_FILE) logs -f frontend
+	@$(DOCKER_COMPOSE) $(COMPOSE_FILES) --env-file $(ENV_FILE) logs -f frontend
 
 docker-logs-postgres:
-	@$(DOCKER_COMPOSE) --env-file $(ENV_FILE) logs -f postgres
+	@$(DOCKER_COMPOSE) $(COMPOSE_FILES) --env-file $(ENV_FILE) logs -f postgres
 
 # 进入容器
 docker-shell-backend:
-	@$(DOCKER_COMPOSE) --env-file $(ENV_FILE) exec backend /bin/sh
+	@if $(DOCKER_COMPOSE) $(COMPOSE_FILES) ps --quiet backend | grep -q .; then \
+		$(DOCKER_COMPOSE) $(COMPOSE_FILES) exec backend /bin/sh; \
+	else \
+		echo "$(COLOR_RED)❌ backend 服务未运行$(COLOR_RESET)"; \
+		exit 1; \
+	fi
 
 docker-shell-frontend:
-	@$(DOCKER_COMPOSE) --env-file $(ENV_FILE) exec frontend /bin/sh
+	@if $(DOCKER_COMPOSE) $(COMPOSE_FILES) ps --quiet frontend | grep -q .; then \
+		$(DOCKER_COMPOSE) $(COMPOSE_FILES) exec frontend /bin/sh; \
+	else \
+		echo "$(COLOR_RED)❌ frontend 服务未运行$(COLOR_RESET)"; \
+		exit 1; \
+	fi
 
 docker-shell-postgres:
-	@$(DOCKER_COMPOSE) --env-file $(ENV_FILE) exec postgres psql -U ${DB_USER:-postgres} -d ${DB_NAME:-tiny_forum}
+	@if $(DOCKER_COMPOSE) $(COMPOSE_FILES) ps --quiet postgres | grep -q .; then \
+		$(DOCKER_COMPOSE) $(COMPOSE_FILES) exec postgres psql -U ${DB_USER:-postgres} -d ${DB_NAME:-tiny_forum}; \
+	else \
+		echo "$(COLOR_RED)❌ postgres 服务未运行$(COLOR_RESET)"; \
+		exit 1; \
+	fi
+
+# 拉取最新基础镜像
+docker-pull:
+	@echo "$(COLOR_BLUE)📥 拉取最新基础镜像...$(COLOR_RESET)"
+	@$(DOCKER_COMPOSE) $(COMPOSE_FILES) pull
 
 # 重新构建服务
 docker-build:
-	@echo "🔨 Building Docker images..."
-	@$(DOCKER_COMPOSE) --env-file $(ENV_FILE) build --no-cache
+	@echo "$(COLOR_BLUE)🔨 重新构建所有镜像...$(COLOR_RESET)"
+	@$(DOCKER_COMPOSE) $(COMPOSE_FILES) --env-file $(ENV_FILE) build --no-cache --parallel
 
 docker-build-backend:
-	@$(DOCKER_COMPOSE) --env-file $(ENV_FILE) build --no-cache backend
+	@echo "$(COLOR_BLUE)🔨 构建 backend 镜像...$(COLOR_RESET)"
+	@$(DOCKER_COMPOSE) $(COMPOSE_FILES) --env-file $(ENV_FILE) build --no-cache backend
 
 docker-build-frontend:
-	@$(DOCKER_COMPOSE) --env-file $(ENV_FILE) build --no-cache frontend
+	@echo "$(COLOR_BLUE)🔨 构建 frontend 镜像...$(COLOR_RESET)"
+	@$(DOCKER_COMPOSE) $(COMPOSE_FILES) --env-file $(ENV_FILE) build --no-cache frontend
 
 # 清理 Docker 资源
-docker-clean:
-	@echo "🧹 Cleaning Docker resources..."
-	@$(DOCKER_COMPOSE) --env-file $(ENV_FILE) down -v --rmi local
+docker-clean: docker-down-volumes
+	@echo "$(COLOR_RED)🧹 清理 Docker 镜像...$(COLOR_RESET)"
+	@$(DOCKER_COMPOSE) $(COMPOSE_FILES) --rmi local 2>/dev/null || true
+	@echo "$(COLOR_GREEN)✅ 清理完成$(COLOR_RESET)"
+
+# 清理未使用的资源
+docker-prune:
+	@echo "$(COLOR_YELLOW)🧹 清理未使用的 Docker 资源...$(COLOR_RESET)"
 	@docker system prune -f
+	@echo "$(COLOR_GREEN)✅ 清理完成$(COLOR_RESET)"
 
 # 备份数据库
-docker-backup-db:
-	@echo "💾 Backing up database..."
-	@$(DOCKER_COMPOSE) --env-file $(ENV_FILE) exec postgres pg_dump -U ${DB_USER:-postgres} ${DB_NAME:-tiny_forum} > backup_$$(date +%Y%m%d_%H%M%S).sql
+docker-backup-db: create-backup-dir
+	@echo "$(COLOR_GREEN)💾 备份数据库...$(COLOR_RESET)"
+	@TIMESTAMP=$$(date +%Y%m%d_%H%M%S); \
+	BACKUP_FILE=$(BACKUP_DIR)/backup_$${TIMESTAMP}.sql; \
+	if $(DOCKER_COMPOSE) $(COMPOSE_FILES) exec -T postgres pg_dump -U ${DB_USER:-postgres} ${DB_NAME:-tiny_forum} > $$BACKUP_FILE 2>/dev/null; then \
+		echo "$(COLOR_GREEN)✅ 数据库已备份到: $$BACKUP_FILE$(COLOR_RESET)"; \
+		ls -lh $$BACKUP_FILE; \
+	else \
+		echo "$(COLOR_RED)❌ 备份失败$(COLOR_RESET)"; \
+		rm -f $$BACKUP_FILE; \
+		exit 1; \
+	fi
+
+# 恢复数据库
+docker-restore-db:
+	@echo "$(COLOR_YELLOW)💾 恢复数据库...$(COLOR_RESET)"
+	@echo "$(COLOR_CYAN)可用的备份文件:$(COLOR_RESET)"
+	@ls -lh $(BACKUP_DIR)/backup_*.sql 2>/dev/null || echo "  无备份文件"
+	@echo ""
+	@read -p "请输入备份文件名: " BACKUP_FILE; \
+	if [ ! -f "$(BACKUP_DIR)/$$BACKUP_FILE" ]; then \
+		echo "$(COLOR_RED)❌ 文件不存在: $(BACKUP_DIR)/$$BACKUP_FILE$(COLOR_RESET)"; \
+		exit 1; \
+	fi; \
+	echo "$(COLOR_YELLOW)⚠️  这将覆盖当前数据库！$(COLOR_RESET)"; \
+	read -p "确认恢复？(y/N) " -n 1 -r; \
+	echo; \
+	if [[ $$REPLY =~ ^[Yy]$$ ]]; then \
+		cat $(BACKUP_DIR)/$$BACKUP_FILE | $(DOCKER_COMPOSE) $(COMPOSE_FILES) exec -T postgres psql -U ${DB_USER:-postgres} ${DB_NAME:-tiny_forum} > /dev/null 2>&1; \
+		echo "$(COLOR_GREEN)✅ 数据库已从 $$BACKUP_FILE 恢复$(COLOR_RESET)"; \
+	else \
+		echo "$(COLOR_YELLOW)操作已取消$(COLOR_RESET)"; \
+	fi
 
 # 启动开发环境（带热重载）
-docker-dev:
-	@echo "🛠️  Starting development environment..."
-	@$(DOCKER_COMPOSE) --env-file $(ENV_FILE) -f docker-compose.yml -f docker-compose.override.yml up
+docker-dev: check-env
+	@echo "$(COLOR_GREEN)🛠️  启动开发环境（热重载模式）...$(COLOR_RESET)"
+	@if [ -f docker-compose.override.yml ]; then \
+		$(DOCKER_COMPOSE) $(COMPOSE_FILES) -f docker-compose.override.yml --env-file $(ENV_FILE) up; \
+	else \
+		echo "$(COLOR_YELLOW)⚠️  未找到 docker-compose.override.yml，使用标准配置$(COLOR_RESET)"; \
+		$(DOCKER_COMPOSE) $(COMPOSE_FILES) --env-file $(ENV_FILE) up; \
+	fi
 
 # 启动工具服务（adminer等）
-docker-tools:
-	@echo "🔧 Starting tools services..."
-	@$(DOCKER_COMPOSE) --env-file $(ENV_FILE) --profile tools up -d
+docker-tools: check-env
+	@echo "$(COLOR_GREEN)🔧 启动工具服务...$(COLOR_RESET)"
+	@$(DOCKER_COMPOSE) $(COMPOSE_FILES) --env-file $(ENV_FILE) --profile tools up -d
+	@echo "$(COLOR_GREEN)✅ 工具服务已启动$(COLOR_RESET)"
+	@$(DOCKER_COMPOSE) $(COMPOSE_FILES) --profile tools ps
