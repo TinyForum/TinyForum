@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { userApi, } from "@/lib/api";
+import { userApi } from "@/lib/api";
 import { useAuthStore } from "@/store/auth";
 import toast from "react-hot-toast";
 import { useTranslations } from "next-intl";
-import type {  User, ApiResponse } from "@/lib/api/types";
+import type { User, ApiResponse } from "@/lib/api/types";
 import { ProfileSidebar } from "./ProfileSidebar";
 import { ProfileContent } from "./ProfileContent";
 import { UserListModal } from "./UserListModal";
@@ -29,7 +29,10 @@ export default function UserProfileClient({ userId }: { userId: number }) {
   // 获取用户资料
   const { data: profile, isLoading } = useQuery({
     queryKey: ["user", userId],
-    queryFn: () => userApi.getProfile(userId).then((r: { data: ApiResponse<User> }) => r.data.data),
+    queryFn: () =>
+      userApi
+        .getProfile(userId)
+        .then((r: { data: ApiResponse<User> }) => r.data.data),
   });
 
   // 获取粉丝列表（用于获取粉丝数）

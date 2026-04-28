@@ -87,7 +87,8 @@ export default function SecuritySettings({ user }: SecuritySettingsProps) {
   const [passwordLoading, setPasswordLoading] = useState<boolean>(false);
   const [showOldPassword, setShowOldPassword] = useState<boolean>(false);
   const [showNewPassword, setShowNewPassword] = useState<boolean>(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
+  const [showConfirmPassword, setShowConfirmPassword] =
+    useState<boolean>(false);
   const [passwordStrength, setPasswordStrength] = useState<PasswordStrength>({
     score: 0,
     level: "无",

@@ -56,7 +56,8 @@ export function ApplicationManagement() {
   );
   const [selectedApp, setSelectedApp] = useState<Application | null>(null);
   const [reviewNote, setReviewNote] = useState<string>("");
-  const [permissions, setPermissions] = useState<ModeratorPermissions>(DEFAULT_PERMISSIONS);
+  const [permissions, setPermissions] =
+    useState<ModeratorPermissions>(DEFAULT_PERMISSIONS);
 
   const {
     data: applications,
@@ -221,7 +222,7 @@ export function ApplicationManagement() {
             </div>
           </div>
         ))}
-        
+
         {applicationList.length === 0 && (
           <div className="text-center py-12 text-base-content/50">
             <ClipboardList className="w-12 h-12 mx-auto mb-3 opacity-30" />

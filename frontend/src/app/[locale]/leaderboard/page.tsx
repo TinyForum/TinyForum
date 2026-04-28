@@ -19,7 +19,13 @@ function LoadingSkeleton() {
 }
 
 // 排名徽章组件
-function RankBadge({ rank, isTopThree }: { rank: number; isTopThree: boolean }) {
+function RankBadge({
+  rank,
+  isTopThree,
+}: {
+  rank: number;
+  isTopThree: boolean;
+}) {
   if (!isTopThree) {
     return (
       <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm bg-base-200 text-base-content/50">
@@ -58,14 +64,21 @@ function RankBadge({ rank, isTopThree }: { rank: number; isTopThree: boolean }) 
 }
 
 // 用户卡片组件
-function UserCard({ user, rank }: { user: LeaderboardItemResponse; rank: number }) {
+function UserCard({
+  user,
+  rank,
+}: {
+  user: LeaderboardItemResponse;
+  rank: number;
+}) {
   const t = useTranslations("Leaderboard");
   const isTopThree = rank < 3;
-  const cardStyles = [
-    "border-yellow-400/50 bg-gradient-to-r from-yellow-50/50 to-transparent dark:from-yellow-900/10",
-    "border-gray-300/50 bg-gradient-to-r from-gray-50/50 to-transparent dark:from-gray-900/10",
-    "border-amber-500/50 bg-gradient-to-r from-amber-50/50 to-transparent dark:from-amber-900/10",
-  ][rank] || "border-base-200 bg-base-100";
+  const cardStyles =
+    [
+      "border-yellow-400/50 bg-gradient-to-r from-yellow-50/50 to-transparent dark:from-yellow-900/10",
+      "border-gray-300/50 bg-gradient-to-r from-gray-50/50 to-transparent dark:from-gray-900/10",
+      "border-amber-500/50 bg-gradient-to-r from-amber-50/50 to-transparent dark:from-amber-900/10",
+    ][rank] || "border-base-200 bg-base-100";
 
   const scoreColor = isTopThree ? "text-warning" : "text-base-content/40";
 
@@ -141,14 +154,22 @@ function EmptyState() {
 }
 
 // 统计卡片组件
-function StatsCards({ totalUsers, topScore }: { totalUsers: number; topScore: number }) {
+function StatsCards({
+  totalUsers,
+  topScore,
+}: {
+  totalUsers: number;
+  topScore: number;
+}) {
   const t = useTranslations("Leaderboard");
   return (
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
       <div className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-2xl p-4 text-center border border-primary/20">
         <div className="flex items-center justify-center gap-2 mb-2">
           <Users className="w-5 h-5 text-primary" />
-          <span className="text-sm font-medium text-primary">{t("total_users")}</span>
+          <span className="text-sm font-medium text-primary">
+            {t("total_users")}
+          </span>
         </div>
         <div className="text-2xl font-bold text-base-content">{totalUsers}</div>
       </div>
@@ -156,7 +177,9 @@ function StatsCards({ totalUsers, topScore }: { totalUsers: number; topScore: nu
       <div className="bg-gradient-to-br from-warning/10 to-warning/5 rounded-2xl p-4 text-center border border-warning/20">
         <div className="flex items-center justify-center gap-2 mb-2">
           <Trophy className="w-5 h-5 text-warning" />
-          <span className="text-sm font-medium text-warning">{t("highest_score")}</span>
+          <span className="text-sm font-medium text-warning">
+            {t("highest_score")}
+          </span>
         </div>
         <div className="text-2xl font-bold text-base-content">
           {topScore?.toLocaleString() || 0}
@@ -166,9 +189,13 @@ function StatsCards({ totalUsers, topScore }: { totalUsers: number; topScore: nu
       <div className="bg-gradient-to-br from-secondary/10 to-secondary/5 rounded-2xl p-4 text-center border border-secondary/20">
         <div className="flex items-center justify-center gap-2 mb-2">
           <TrendingUp className="w-5 h-5 text-secondary" />
-          <span className="text-sm font-medium text-secondary">{t("active_ranking")}</span>
+          <span className="text-sm font-medium text-secondary">
+            {t("active_ranking")}
+          </span>
         </div>
-        <div className="text-2xl font-bold text-base-content">{t("real_time")}</div>
+        <div className="text-2xl font-bold text-base-content">
+          {t("real_time")}
+        </div>
       </div>
     </div>
   );
@@ -190,7 +217,9 @@ export default function LeaderboardPage() {
       <div className="max-w-2xl mx-auto px-4 py-8">
         <div className="bg-error/10 rounded-2xl p-8 text-center border border-error/20">
           <div className="text-5xl mb-4">⚠️</div>
-          <h3 className="text-lg font-semibold text-error mb-2">{t("load_failed")}</h3>
+          <h3 className="text-lg font-semibold text-error mb-2">
+            {t("load_failed")}
+          </h3>
           <p className="text-base-content/60 text-sm">{t("retry_later")}</p>
         </div>
       </div>

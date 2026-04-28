@@ -30,9 +30,9 @@ export function useAdminAnnouncement(
     async (announcementId: number): Promise<Announcement | null> => {
       setLoading(true);
       try {
-        const response: { data: ApiResponse<Announcement> } = 
+        const response: { data: ApiResponse<Announcement> } =
           await announcementApi.getById(announcementId);
-        
+
         if (response.data.code === 0 && response.data.data) {
           setAnnouncement(response.data.data);
           return response.data.data;
@@ -55,7 +55,6 @@ export function useAdminAnnouncement(
     setAnnouncement(null);
   }, []);
 
-   
   useEffect(() => {
     if (autoLoad && id) {
       fetch(id);

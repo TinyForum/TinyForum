@@ -60,7 +60,9 @@ export function BannedUsersTable({
                 </div>
               </td>
               <td className="max-w-xs">
-                <p className="line-clamp-2 text-sm">{user.reason || t("no_reason")}</p>
+                <p className="line-clamp-2 text-sm">
+                  {user.reason || t("no_reason")}
+                </p>
               </td>
               <td>{new Date(user.created_at).toLocaleDateString()}</td>
               <td>

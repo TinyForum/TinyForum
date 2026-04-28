@@ -43,7 +43,9 @@ export default function NotificationBell({
     queryFn: () =>
       notificationApi
         .list({ page: 1, page_size: 5 })
-        .then((r: { data: ApiResponse<NotificationListResponse> }) => r.data.data),
+        .then(
+          (r: { data: ApiResponse<NotificationListResponse> }) => r.data.data,
+        ),
     enabled: isOpen,
   });
 

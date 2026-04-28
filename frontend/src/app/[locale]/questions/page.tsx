@@ -89,7 +89,7 @@ export default function QuestionsPage() {
         params.keyword = keyword;
       }
 
-      const response: { data: ApiResponse<QuestionListResponse> } = 
+      const response: { data: ApiResponse<QuestionListResponse> } =
         await questionApi.getSimple(params);
 
       if (response.data.code === 0 && response.data.data) {

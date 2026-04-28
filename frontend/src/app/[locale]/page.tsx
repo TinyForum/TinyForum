@@ -17,7 +17,7 @@ import PostList from "@/components/home/PostList";
 import LeftSidebar, { FilterType } from "@/components/home/LeftSidebar";
 import RightSidebar from "@/components/home/RightSidebar";
 import { SortBy } from "@/type/posts.types";
-import type { Board, Tag,  TimelineEvent,  Post } from "@/lib/api/types";
+import type { Board, Tag, TimelineEvent, Post } from "@/lib/api/types";
 import { useLeaderboard } from "@/hooks/useLeaderboard";
 
 // 用户资料类型
@@ -57,7 +57,9 @@ export default function HomePage() {
           params.board_id = selectedBoard;
         }
         const res = await questionApi.getSimple(params);
-        const data = res.data.data as { list: unknown[]; total: number; page: number; page_size: number } | undefined;
+        const data = res.data.data as
+          | { list: unknown[]; total: number; page: number; page_size: number }
+          | undefined;
         return {
           list: data?.list || [],
           total: data?.total || 0,
@@ -80,7 +82,9 @@ export default function HomePage() {
       }
 
       const res = await postApi.list(params);
-      const data = res.data.data as { list: unknown[]; total: number; page: number; page_size: number } | undefined;
+      const data = res.data.data as
+        | { list: unknown[]; total: number; page: number; page_size: number }
+        | undefined;
       return {
         list: data?.list || [],
         total: data?.total || 0,
@@ -99,23 +103,26 @@ export default function HomePage() {
   // 板块列表
   const { data: boards } = useQuery({
     queryKey: ["boards-tree"],
-    queryFn: () => boardApi.getTree().then((r) => (r.data.data as Board[]) || []),
+    queryFn: () =>
+      boardApi.getTree().then((r) => (r.data.data as Board[]) || []),
   });
 
   // 用户信息（已登录时）
   const { data: userProfile } = useQuery({
     queryKey: ["user-profile", user?.id],
-    queryFn: () => userApi.getProfile(user!.id).then((r) => r.data.data as UserProfile),
+    queryFn: () =>
+      userApi.getProfile(user!.id).then((r) => r.data.data as UserProfile),
     enabled: isAuthenticated && !!user?.id,
   });
 
   // 未读通知数
   const { data: unreadCount } = useQuery({
     queryKey: ["unread-count"],
-    queryFn: () => notificationApi.unreadCount().then((r) => {
-      const data = r.data.data as { count: number } | undefined;
-      return data?.count || 0;
-    }),
+    queryFn: () =>
+      notificationApi.unreadCount().then((r) => {
+        const data = r.data.data as { count: number } | undefined;
+        return data?.count || 0;
+      }),
     enabled: isAuthenticated,
     refetchInterval: 30000,
   });
@@ -214,4 +221,3 @@ export default function HomePage() {
     </div>
   );
 }
-

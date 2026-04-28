@@ -69,7 +69,10 @@ export default function LeftSidebar({
     setExpandedBoards(newExpanded);
   };
 
-  const renderBoardTree = (boardList: Board[], level: number = 0): React.ReactNode => {
+  const renderBoardTree = (
+    boardList: Board[],
+    level: number = 0,
+  ): React.ReactNode => {
     return boardList.map((board: Board) => (
       <div key={board.id} style={{ marginLeft: level * 12 }}>
         <button
@@ -97,7 +100,11 @@ export default function LeftSidebar({
               </span>
             )}
             <span className="flex-shrink-0 w-4 h-4">
-              {board.icon ? <span dangerouslySetInnerHTML={{ __html: board.icon }} /> : <Hash className="w-4 h-4" />}
+              {board.icon ? (
+                <span dangerouslySetInnerHTML={{ __html: board.icon }} />
+              ) : (
+                <Hash className="w-4 h-4" />
+              )}
             </span>
             <span className="truncate">{board.name}</span>
           </div>

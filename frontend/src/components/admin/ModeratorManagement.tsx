@@ -47,7 +47,8 @@ export function ModeratorManagement() {
   const [selectedBoardId, setSelectedBoardId] = useState<number>(1);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState<boolean>(false);
   const [userId, setUserId] = useState<string>("");
-  const [permissions, setPermissions] = useState<ModeratorPermissions>(DEFAULT_PERMISSIONS);
+  const [permissions, setPermissions] =
+    useState<ModeratorPermissions>(DEFAULT_PERMISSIONS);
 
   const {
     data: moderators,
@@ -65,7 +66,7 @@ export function ModeratorManagement() {
       toast.error("请输入用户 ID");
       return;
     }
-    
+
     try {
       await addModerator.mutateAsync({
         user_id: parseInt(userId),
@@ -113,7 +114,7 @@ export function ModeratorManagement() {
               type="number"
               placeholder="板块 ID"
               value={selectedBoardId}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 setSelectedBoardId(parseInt(e.target.value) || 1)
               }
               className="input input-bordered w-32"
@@ -159,10 +160,14 @@ export function ModeratorManagement() {
                     </div>
                   </div>
                   <div>
-                    <p className="font-medium">{mod.user?.username || `用户${mod.user_id}`}</p>
+                    <p className="font-medium">
+                      {mod.user?.username || `用户${mod.user_id}`}
+                    </p>
                     <div className="flex gap-2 mt-1 flex-wrap">
                       {mod.can_delete_post && (
-                        <span className="badge badge-sm badge-ghost">删除帖子</span>
+                        <span className="badge badge-sm badge-ghost">
+                          删除帖子
+                        </span>
                       )}
                       {mod.can_pin_post && (
                         <span className="badge badge-sm badge-ghost">置顶</span>
@@ -174,14 +179,18 @@ export function ModeratorManagement() {
                         <span className="badge badge-sm badge-ghost">编辑</span>
                       )}
                       {mod.can_manage_moderator && (
-                        <span className="badge badge-sm badge-warning">管理版主</span>
+                        <span className="badge badge-sm badge-warning">
+                          管理版主
+                        </span>
                       )}
                     </div>
                   </div>
                 </div>
                 <button
                   className="btn btn-ghost btn-sm text-error hover:text-error"
-                  onClick={() => handleRemoveModerator(mod.user_id, mod.user?.username)}
+                  onClick={() =>
+                    handleRemoveModerator(mod.user_id, mod.user?.username)
+                  }
                   disabled={removeModerator.isPending}
                   title="移除版主"
                 >
@@ -191,7 +200,7 @@ export function ModeratorManagement() {
             </div>
           </div>
         ))}
-        
+
         {moderatorList.length === 0 && (
           <div className="text-center py-12 text-base-content/50">
             <Shield className="w-12 h-12 mx-auto mb-3 opacity-30" />
@@ -221,7 +230,7 @@ export function ModeratorManagement() {
                   type="number"
                   placeholder="用户 ID"
                   value={userId}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                     setUserId(e.target.value)
                   }
                   className="input input-bordered w-full"
@@ -302,10 +311,7 @@ export function ModeratorManagement() {
               </div>
             </div>
             <div className="modal-action">
-              <button 
-                className="btn" 
-                onClick={() => setIsAddDialogOpen(false)}
-              >
+              <button className="btn" onClick={() => setIsAddDialogOpen(false)}>
                 取消
               </button>
               <button

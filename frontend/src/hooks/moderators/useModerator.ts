@@ -34,7 +34,9 @@ export function useMyApplications(params?: {
   return useQuery({
     queryKey: ["moderator", "my-applications", params],
     queryFn: () =>
-      moderatorApi.getMyApplications(params).then((r: { data: ApiResponse<unknown> }) => r.data.data),
+      moderatorApi
+        .getMyApplications(params)
+        .then((r: { data: ApiResponse<unknown> }) => r.data.data),
     staleTime: 60 * 1000,
   });
 }
@@ -83,7 +85,10 @@ export function useCancelApplication() {
 export function useModerators(boardId: number, enabled: boolean = true) {
   return useQuery({
     queryKey: ["moderator", "list", boardId],
-    queryFn: () => moderatorApi.getModerators(boardId).then((r: { data: ApiResponse<unknown> }) => r.data.data),
+    queryFn: () =>
+      moderatorApi
+        .getModerators(boardId)
+        .then((r: { data: ApiResponse<unknown> }) => r.data.data),
     enabled: !!boardId && enabled,
   });
 }
@@ -171,9 +176,9 @@ export function useModeratorPermissions(boardId: number) {
 
   // 确保 moderators 是数组
   const moderatorsArray = Array.isArray(moderators) ? moderators : [];
-  
+
   const currentModerator = moderatorsArray.find(
-    (m: { user_id: number }) => m.user_id === user?.id
+    (m: { user_id: number }) => m.user_id === user?.id,
   );
 
   return {

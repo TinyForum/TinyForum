@@ -6,18 +6,16 @@ import { useAuthStore } from "@/store";
 import { notificationApi, timelineApi } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
 import {
-
   Trophy,
   Menu,
   Home,
   Bookmark,
-
   Sparkles,
   MessageCircleQuestion,
   LayoutGrid,
   Compass,
 } from "lucide-react";
-import { useState, useEffect, } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import LanguageSwitcher from "../LanguageSwitcher";
@@ -59,8 +57,6 @@ export default function Navbar() {
 
   const unreadCount = unreadData?.count ?? 0;
   const timelineUpdateCount = timelineData?.total ?? 0;
-
-
 
   const NAV_ITEMS = [
     {

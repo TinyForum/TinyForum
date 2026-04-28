@@ -5,7 +5,10 @@ import { useForm } from "react-hook-form";
 import { questionApi } from "@/lib/api";
 import { useAuthStore } from "@/store/auth";
 import { toast } from "react-hot-toast";
-import { CreateQuestionPayload, CreateQuestionResponse } from "@/lib/api/modules/questions";
+import {
+  CreateQuestionPayload,
+  CreateQuestionResponse,
+} from "@/lib/api/modules/questions";
 import { ApiResponse } from "@/lib/api/types";
 
 export interface AskFormData {
@@ -107,7 +110,11 @@ export function useQuestionForm({ onSuccess }: UseQuestionFormProps = {}) {
   );
 
   const handleSubmit = useCallback(
-    async (data: AskFormData, selectedTags: number[], boardId: number): Promise<void> => {
+    async (
+      data: AskFormData,
+      selectedTags: number[],
+      boardId: number,
+    ): Promise<void> => {
       if (!validateForm(data, selectedTags, boardId)) {
         return;
       }
@@ -118,7 +125,7 @@ export function useQuestionForm({ onSuccess }: UseQuestionFormProps = {}) {
       setLoading(true);
 
       try {
-        const response: { data: ApiResponse<CreateQuestionResponse> } = 
+        const response: { data: ApiResponse<CreateQuestionResponse> } =
           await questionApi.create(requestData);
         console.log("响应:", response.data);
 
@@ -143,7 +150,7 @@ export function useQuestionForm({ onSuccess }: UseQuestionFormProps = {}) {
         }
       } catch (err: unknown) {
         console.error("发布问题错误:", err);
-        
+
         const error = err as ErrorResponse;
 
         if (error.response) {
@@ -156,7 +163,9 @@ export function useQuestionForm({ onSuccess }: UseQuestionFormProps = {}) {
             403: errorData?.message || "积分不足或权限不足",
           };
 
-          toast.error(errorMessages[statusCode || 0] || `发布失败 (${statusCode})`);
+          toast.error(
+            errorMessages[statusCode || 0] || `发布失败 (${statusCode})`,
+          );
 
           if (statusCode === 401) {
             router.push("/login?redirect=/questions/ask");

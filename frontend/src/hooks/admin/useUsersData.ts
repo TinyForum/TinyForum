@@ -84,7 +84,8 @@ export function useUsersData(page: number, keyword: string, enabled: boolean) {
   // 删除用户 - 修复未使用的参数
   const deleteUserMutation = useMutation({
     mutationFn: ({ id }: { id: number }) => adminApi.deleteUser(id),
-    onSuccess: () => {  // 移除未使用的 _ 和 variables 参数
+    onSuccess: () => {
+      // 移除未使用的 _ 和 variables 参数
       queryClient.invalidateQueries({ queryKey: ["admin-users"] });
       toast.success(t("user_deleted_successfully"));
     },
@@ -94,16 +95,18 @@ export function useUsersData(page: number, keyword: string, enabled: boolean) {
   // 重置密码
   const resetPasswordMutation = useMutation({
     mutationFn: (id: number) => adminApi.resetUserPassword(id),
-    onSuccess: () => {  // 移除未使用的 userId 参数
+    onSuccess: () => {
+      // 移除未使用的 userId 参数
       toast.success(t("password_reset_and_notified"), {
         duration: 5000,
       });
       queryClient.invalidateQueries({ queryKey: ["admin-users"] });
     },
-    onError: (error: unknown) => {  // 修复 any 类型
+    onError: (error: unknown) => {
+      // 修复 any 类型
       const err = error as ErrorResponse;
       const errorCode = err?.response?.data?.code;
-      
+
       if (errorCode === 20011) {
         toast.error(t("cannot_modify_self"));
       } else if (errorCode === 20012) {
@@ -117,7 +120,8 @@ export function useUsersData(page: number, keyword: string, enabled: boolean) {
   });
 
   // 包装函数 - 修复未使用的 username 参数
-  const handleDeleteUser = (id: number) => {  // 添加下划线前缀表示未使用
+  const handleDeleteUser = (id: number) => {
+    // 添加下划线前缀表示未使用
     deleteUserMutation.mutate({ id });
   };
 

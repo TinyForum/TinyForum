@@ -57,10 +57,10 @@ export default function PostLoginHandler({
   // 检查删除状态
   const checkDeletionStatus = useCallback(async (): Promise<void> => {
     try {
-      const response: { data: ApiResponse<DeletionStatus> } = 
+      const response: { data: ApiResponse<DeletionStatus> } =
         await authApi.getDeletionStatus();
       const status = response.data.data;
-      
+
       if (status) {
         setDeletionStatus(status);
 

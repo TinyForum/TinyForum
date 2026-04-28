@@ -35,7 +35,7 @@ export function useAnswerVote(answerId: number, currentUserId?: number) {
 
     setLoading(true);
     try {
-      const response: { data: ApiResponse<VoteStatusResponse> } = 
+      const response: { data: ApiResponse<VoteStatusResponse> } =
         await answerApi.getVoteStatus(answerId);
 
       if (response.data.code === 0) {

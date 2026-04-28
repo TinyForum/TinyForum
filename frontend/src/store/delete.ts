@@ -66,7 +66,10 @@ export const useDeleteAccountStore = create<DeleteAccountState>()(
         }
       } catch (err: unknown) {
         const error = err as ApiError;
-        console.error("获取删除状态失败:", error.response?.data?.message || error.message);
+        console.error(
+          "获取删除状态失败:",
+          error.response?.data?.message || error.message,
+        );
       }
     },
 
@@ -94,7 +97,8 @@ export const useDeleteAccountStore = create<DeleteAccountState>()(
         return { success: true };
       } catch (err: unknown) {
         const error = err as ApiError;
-        const errorMessage = error.response?.data?.message || "注销请求失败，请重试";
+        const errorMessage =
+          error.response?.data?.message || "注销请求失败，请重试";
         set({ error: errorMessage });
         return { success: false };
       } finally {
@@ -118,7 +122,8 @@ export const useDeleteAccountStore = create<DeleteAccountState>()(
         return { success: true };
       } catch (err: unknown) {
         const error = err as ApiError;
-        const errorMessage = error.response?.data?.message || "取消注销失败，请重试";
+        const errorMessage =
+          error.response?.data?.message || "取消注销失败，请重试";
         set({ error: errorMessage });
         return { success: false };
       } finally {
@@ -150,7 +155,8 @@ export const useDeleteAccountStore = create<DeleteAccountState>()(
         return { success: true };
       } catch (err: unknown) {
         const error = err as ApiError;
-        const errorMessage = error.response?.data?.message || "永久删除失败，请重试";
+        const errorMessage =
+          error.response?.data?.message || "永久删除失败，请重试";
         set({ error: errorMessage });
         return { success: false };
       } finally {

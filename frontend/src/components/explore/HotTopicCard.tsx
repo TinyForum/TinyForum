@@ -13,10 +13,7 @@ interface HotTopicCardProps {
   showTodayCount?: boolean;
 }
 
-export function HotTopicCard({
-  topic,
-  rank,
-}: HotTopicCardProps) {
+export function HotTopicCard({ topic, rank }: HotTopicCardProps) {
   // 获取排名样式
   const getRankStyles = (rank: number) => {
     switch (rank) {

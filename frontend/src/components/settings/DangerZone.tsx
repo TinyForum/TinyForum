@@ -81,7 +81,7 @@ export default function DangerZone() {
               <input
                 type="text"
                 value={confirmText}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                   setConfirmText(e.target.value)
                 }
                 placeholder="输入 DELETE"

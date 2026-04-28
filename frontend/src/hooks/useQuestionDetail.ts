@@ -35,11 +35,11 @@ export function useQuestionDetail(
     setError(null);
 
     try {
-      const response: { data: ApiResponse<QuestionDetailResponse> } = 
+      const response: { data: ApiResponse<QuestionDetailResponse> } =
         await questionApi.getDetail(questionId);
 
       console.log(response);
-      
+
       if (response.data.code === 0) {
         const data = response.data.data;
         if (data) {
@@ -51,9 +51,10 @@ export function useQuestionDetail(
         throw new Error(response.data.message || "加载失败");
       }
     } catch (err: unknown) {
-      const errorMsg = 
-        (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 
-        (err as Error)?.message || 
+      const errorMsg =
+        (err as { response?: { data?: { message?: string } } })?.response?.data
+          ?.message ||
+        (err as Error)?.message ||
         "加载问题失败";
       setError(errorMsg);
       toast.error(errorMsg);

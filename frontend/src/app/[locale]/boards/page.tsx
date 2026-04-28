@@ -29,7 +29,7 @@ export default function BoardsPage() {
     try {
       const res = await boardApi.list({ page, page_size: pageSize });
       const pageData = res.data.data;
-      
+
       // 添加安全检查
       if (pageData) {
         setBoards(pageData.list || []);

@@ -44,3 +44,4 @@ config.private.yaml
 # model
 backend/llm/*.gguf
 dev-script/applogs
+tsconfig.tsbuildinfo

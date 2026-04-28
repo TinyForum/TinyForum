@@ -58,7 +58,9 @@ const toDateTimeLocal = (isoString: string | null | undefined): string => {
 };
 
 // 将 datetime-local 值转换为 ISO 格式
-const fromDateTimeLocal = (localValue: string | null | undefined): string | null => {
+const fromDateTimeLocal = (
+  localValue: string | null | undefined,
+): string | null => {
   if (!localValue) return null;
   try {
     const date = new Date(localValue);
@@ -70,7 +72,9 @@ const fromDateTimeLocal = (localValue: string | null | undefined): string | null
 };
 
 // 转换公告数据为表单数据
-const announcementToFormValues = (announcement: Announcement): AnnouncementFormValues => {
+const announcementToFormValues = (
+  announcement: Announcement,
+): AnnouncementFormValues => {
   return {
     title: announcement.title,
     content: announcement.content,
@@ -87,7 +91,9 @@ const announcementToFormValues = (announcement: Announcement): AnnouncementFormV
 };
 
 // 转换表单提交数据
-const formValuesToPayload = (values: AnnouncementFormValues): CreateAnnouncementPayload => {
+const formValuesToPayload = (
+  values: AnnouncementFormValues,
+): CreateAnnouncementPayload => {
   return {
     title: values.title,
     content: values.content,
@@ -96,7 +102,7 @@ const formValuesToPayload = (values: AnnouncementFormValues): CreateAnnouncement
     type: values.type,
     is_pinned: values.is_pinned,
     is_global: values.is_global,
-    board_id: values.is_global ? null : (values.board_id || null),
+    board_id: values.is_global ? null : values.board_id || null,
     published_at: fromDateTimeLocal(values.published_at),
     expired_at: fromDateTimeLocal(values.expired_at),
   };
@@ -107,7 +113,8 @@ export function AnnouncementsManager({ t }: { t: (key: string) => string }) {
     "global",
   );
   const [modalVisible, setModalVisible] = useState<boolean>(false);
-  const [editingAnnouncement, setEditingAnnouncement] = useState<Announcement | null>(null);
+  const [editingAnnouncement, setEditingAnnouncement] =
+    useState<Announcement | null>(null);
 
   const {
     announcements,
@@ -138,13 +145,15 @@ export function AnnouncementsManager({ t }: { t: (key: string) => string }) {
     return !ann.is_pinned;
   });
 
-  const filteredPinnedAnnouncements = pinnedAnnouncements.filter((ann: Announcement) => {
-    if (announcementType === "global") {
-      return ann.is_global === true;
-    } else {
-      return ann.is_global === false;
-    }
-  });
+  const filteredPinnedAnnouncements = pinnedAnnouncements.filter(
+    (ann: Announcement) => {
+      if (announcementType === "global") {
+        return ann.is_global === true;
+      } else {
+        return ann.is_global === false;
+      }
+    },
+  );
 
   // 打开创建表单
   const handleCreate = (): void => {
@@ -159,7 +168,9 @@ export function AnnouncementsManager({ t }: { t: (key: string) => string }) {
   };
 
   // 提交表单
-  const handleFormSubmit = async (values: AnnouncementFormValues): Promise<void> => {
+  const handleFormSubmit = async (
+    values: AnnouncementFormValues,
+  ): Promise<void> => {
     const payload = formValuesToPayload(values);
 
     let result: Announcement | null;
@@ -187,7 +198,10 @@ export function AnnouncementsManager({ t }: { t: (key: string) => string }) {
   };
 
   // 置顶/取消置顶
-  const handlePin = async (id: number, currentPinned: boolean): Promise<void> => {
+  const handlePin = async (
+    id: number,
+    currentPinned: boolean,
+  ): Promise<void> => {
     const success = await pinAnnouncement(id, !currentPinned);
     if (success)
       toast.success(!currentPinned ? t("pin_success") : t("unpin_success"));

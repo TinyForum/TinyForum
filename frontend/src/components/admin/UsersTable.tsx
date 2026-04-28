@@ -39,7 +39,7 @@ export function UsersTable({
   isDeleting = false,
   isUpdatingRole = false,
 }: UsersTableProps) {
-    const t = useTranslations("Admin");
+  const t = useTranslations("Admin");
   if (users.length === 0) {
     return (
       <div className="text-center py-8 text-base-content/60">
@@ -52,7 +52,6 @@ export function UsersTable({
   const getUserStatusBadges = (user: User): React.ReactNode[] => {
     const badges: React.ReactNode[] = [];
 
-  
     // IsBlocked 优先级最高，如果被封禁，只显示封禁状态
     if (user.is_blocked) {
       badges.push(

@@ -84,7 +84,7 @@ export function PostManagement() {
   }
 
   // 安全获取帖子列表
-  const postList = (posts as unknown as  PostsResponse)?.list || [];
+  const postList = (posts as unknown as PostsResponse)?.list || [];
 
   return (
     <div className="space-y-4">
@@ -97,7 +97,7 @@ export function PostManagement() {
             type="number"
             placeholder="板块 ID"
             value={selectedBoardId}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
               setSelectedBoardId(parseInt(e.target.value) || 1)
             }
             className="input input-bordered w-32"
@@ -114,23 +114,23 @@ export function PostManagement() {
                 <input
                   placeholder="搜索帖子..."
                   value={keyword}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                     setKeyword(e.target.value)
                   }
-                  onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => 
+                  onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) =>
                     e.key === "Enter" && setDebouncedKeyword(keyword)
                   }
                   className="input input-bordered w-full pl-9"
                 />
               </div>
-              <button 
-                className="btn btn-primary" 
+              <button
+                className="btn btn-primary"
                 onClick={() => setDebouncedKeyword(keyword)}
               >
                 搜索
               </button>
-              <button 
-                className="btn btn-outline" 
+              <button
+                className="btn btn-outline"
                 onClick={() => {
                   setKeyword("");
                   setDebouncedKeyword("");
@@ -161,10 +161,14 @@ export function PostManagement() {
                       )}
                     </h3>
                     <div className="flex items-center gap-3 mt-1 text-xs text-base-content/50">
-                      <span>作者: {post.author?.username || `用户${post.author_id}`}</span>
+                      <span>
+                        作者: {post.author?.username || `用户${post.author_id}`}
+                      </span>
                       <span>回复: {post.reply_count || 0}</span>
                       <span>浏览: {post.view_count || 0}</span>
-                      <span>{new Date(post.created_at).toLocaleDateString()}</span>
+                      <span>
+                        {new Date(post.created_at).toLocaleDateString()}
+                      </span>
                     </div>
                   </div>
                   <div className="flex gap-1">
@@ -188,13 +192,13 @@ export function PostManagement() {
                     </button>
                   </div>
                 </div>
-                
+
                 {post.content && (
                   <p className="text-sm text-base-content/70 line-clamp-2">
                     {post.content}
                   </p>
                 )}
-                
+
                 <div className="flex gap-2 flex-wrap">
                   {post.is_pinned && (
                     <span className="badge badge-primary badge-sm">置顶</span>
@@ -207,13 +211,15 @@ export function PostManagement() {
             </div>
           </div>
         ))}
-        
+
         {postList.length === 0 && (
           <div className="text-center py-12 text-base-content/50">
             <Search className="w-12 h-12 mx-auto mb-3 opacity-30" />
             <p>暂无帖子</p>
             {keyword && (
-              <p className="text-sm mt-2">没有找到 &quot;{keyword}&quot; 相关的帖子</p>
+              <p className="text-sm mt-2">
+                没有找到 &quot;{keyword}&quot; 相关的帖子
+              </p>
             )}
           </div>
         )}

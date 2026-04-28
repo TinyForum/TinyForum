@@ -92,8 +92,7 @@ export default function ApplyModeratorPage() {
     try {
       const res = await boardApi.getBySlug(slug);
       if (res.data.data) {
-        
-      setBoard(res.data.data);
+        setBoard(res.data.data);
       }
     } catch {
       router.push("/boards");
@@ -165,7 +164,7 @@ export default function ApplyModeratorPage() {
       await moderatorApi.applyModerator(board.id, formData);
       router.push(`/boards/${slug}?applied=1`);
     } catch {
-      setError( "提交失败，请稍后重试");
+      setError("提交失败，请稍后重试");
     } finally {
       setSubmitting(false);
     }

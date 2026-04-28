@@ -51,42 +51,42 @@ export function CreateBoardInline({ slug, onCreated }: CreateBoardInlineProps) {
     setError("");
   };
 
-const handleSubmit = async (e: React.FormEvent): Promise<void> => {
-  e.preventDefault();
-  if (!form.name.trim()) {
-    setError("请填写板块名称");
-    return;
-  }
-  if (!form.slug.trim()) {
-    setError("请填写板块标识");
-    return;
-  }
-  if (!/^[a-z0-9-]+$/.test(form.slug)) {
-    setError("标识只能包含小写字母、数字和连字符");
-    return;
-  }
-
-  setSubmitting(true);
-  try {
-    const res = await boardApi.create({
-      name: form.name.trim(),
-      slug: form.slug.trim(),
-      description: form.description.trim(),
-    });
-    
-    // 修复：检查 res.data.data 是否存在
-    if (res.data.data) {
-      onCreated(res.data.data);
-    } else {
-      setError("创建成功但未返回板块数据");
+  const handleSubmit = async (e: React.FormEvent): Promise<void> => {
+    e.preventDefault();
+    if (!form.name.trim()) {
+      setError("请填写板块名称");
+      return;
     }
-  } catch (err: unknown) {
-    const error = err as ErrorResponse;
-    setError(error.response?.data?.message || "创建失败，请稍后重试");
-  } finally {
-    setSubmitting(false);
-  }
-};
+    if (!form.slug.trim()) {
+      setError("请填写板块标识");
+      return;
+    }
+    if (!/^[a-z0-9-]+$/.test(form.slug)) {
+      setError("标识只能包含小写字母、数字和连字符");
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const res = await boardApi.create({
+        name: form.name.trim(),
+        slug: form.slug.trim(),
+        description: form.description.trim(),
+      });
+
+      // 修复：检查 res.data.data 是否存在
+      if (res.data.data) {
+        onCreated(res.data.data);
+      } else {
+        setError("创建成功但未返回板块数据");
+      }
+    } catch (err: unknown) {
+      const error = err as ErrorResponse;
+      setError(error.response?.data?.message || "创建失败，请稍后重试");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   // 处理申请提交
   const handleApplySubmit = async (e: React.FormEvent): Promise<void> => {
@@ -327,7 +327,7 @@ const handleSubmit = async (e: React.FormEvent): Promise<void> => {
                   </label>
                   <input
                     value={form.name}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                       setForm({ ...form, name: e.target.value })
                     }
                     type="text"

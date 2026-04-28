@@ -1,6 +1,10 @@
 // hooks/useAnnouncements.ts
 import { announcementApi } from "@/lib/api";
-import { Announcement, AnnouncementListParams, AnnouncementListResponse } from "@/lib/api/modules/announcements";
+import {
+  Announcement,
+  AnnouncementListParams,
+  AnnouncementListResponse,
+} from "@/lib/api/modules/announcements";
 import { ApiResponse } from "@/lib/api/types";
 import { useState, useEffect, useCallback } from "react";
 
@@ -40,9 +44,9 @@ export function useAnnouncements(boardId?: number) {
         params.is_global = true;
       }
 
-      const response: { data: ApiResponse<AnnouncementListResponse> } = 
+      const response: { data: ApiResponse<AnnouncementListResponse> } =
         await announcementApi.list(params);
-      
+
       console.log("前台公告列表:", response.data.data?.list);
 
       // 修复：response.data.data 可能为 undefined
@@ -55,7 +59,6 @@ export function useAnnouncements(boardId?: number) {
     }
   }, [boardId]);
 
-   
   useEffect((): void => {
     fetchAnnouncements();
   }, [fetchAnnouncements]);
