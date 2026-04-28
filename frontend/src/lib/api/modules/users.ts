@@ -4,7 +4,7 @@
 
 import { UserRoleType } from "@/type/roles.types";
 import apiClient from "../client";
-import type { ApiResponse, PageData, User } from "../types";
+import { ApiResponse, PageData, User } from "@/shared/api/types";
 
 export interface UpdateProfilePayload {
   bio?: string;
