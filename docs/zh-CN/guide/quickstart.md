@@ -74,7 +74,7 @@ cp .env.example .env
 
 由于 Docker 使用 Nginx 作为反向代理，所以需要修改后端配置文件。
 
-打开 `backend/config/basic.yaml.compose`，修改以下内容，改为你自己的前端地址：
+打开 `backend/config/basic.compose.yaml`，修改以下内容，改为你自己的前端地址：
 
 ```yaml
 allow_origins:
@@ -98,7 +98,7 @@ sudo docker compose logs -f
 本项目配置了敏感内容检测（DFA），但由于 DFA 误判严重，因而添加了 LLM 进行敏感内容复核。
 > 注意：
 > 
-> Docker 容器没有内置 Ollama，需要在宿主机安装 Ollam 和模型，然后修改配置 `backend/config/private.yaml.compose` 中的 `ollama.base_url` 改为你自己的 Ollama 地址。例如 192.168.5.243:11434
+> Docker 容器没有内置 Ollama，需要在宿主机安装 Ollam 和模型，然后修改配置 `backend/config/private.compose.yaml` 中的 `ollama.base_url` 改为你自己的 Ollama 地址。例如 192.168.5.243:11434
 
 可以使用 ollama 启动 LLM 后端，安装方法如下：
 
