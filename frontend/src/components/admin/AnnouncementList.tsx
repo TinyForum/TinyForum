@@ -2,7 +2,7 @@
 import {
   Announcement,
   AnnouncementType,
-} from "@/lib/api/modules/announcements";
+} from "@/shared/api/modules/announcements";
 import { AnnouncementCard } from "./AnnouncementCard";
 import { Loader2, Pin } from "lucide-react";
 

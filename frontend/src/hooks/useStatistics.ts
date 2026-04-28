@@ -1,5 +1,5 @@
 // hooks/useStatistics.ts
-import { statsApi } from "@/lib/api/modules/stats";
+import { statsApi } from "@/shared/api/modules/stats";
 import {
   GetStatsDayParams,
   GetStatsTotalParams,

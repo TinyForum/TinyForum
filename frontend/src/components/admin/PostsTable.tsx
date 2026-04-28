@@ -1,6 +1,6 @@
-// import { Post } from "@/lib/api/types";
+// import { Post } from "@/shared/api/types";
 
-import { Post } from "@/lib/api";
+import { Post } from "@/shared/api";
 import { formatDate } from "@/lib/utils";
 // import { Post } from "@/type/admin.types";
 // import { formatDate } from "date-fns";

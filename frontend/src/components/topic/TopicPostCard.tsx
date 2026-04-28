@@ -7,7 +7,7 @@ import {
   ChatBubbleLeftRightIcon,
   EyeIcon,
 } from "@heroicons/react/24/outline";
-import type { Post } from "@/lib/api/types";
+import type { Post } from "@/shared/api/types";
 import { formatDistanceToNow } from "date-fns";
 import { zhCN } from "date-fns/locale";
 

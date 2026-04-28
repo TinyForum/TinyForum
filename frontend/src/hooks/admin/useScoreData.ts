@@ -1,5 +1,5 @@
 // /hooks/admin/useScoreData.ts
-import { scoreApi } from "@/lib/api/modules/score";
+import { scoreApi } from "@/shared/api/modules/score";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 export function useScoreData(userId?: string | undefined) {

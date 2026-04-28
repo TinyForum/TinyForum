@@ -17,9 +17,9 @@ import {
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
-import { PostType, type Tag as TagType } from "@/lib/api";
+import { PostType, type Tag as TagType } from "@/shared/api";
 import { useAnnouncements } from "@/hooks/useAnnouncements";
-import type { Announcement } from "@/lib/api/modules/announcements";
+import type { Announcement } from "@/shared/api/modules/announcements";
 
 export type FilterType = "all" | PostType;
 

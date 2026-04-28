@@ -7,7 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { timeAgo, truncate } from "@/lib/utils";
 import { Eye, Heart, MessageSquare, Pin, Tag, HelpCircle } from "lucide-react";
 import Avatar from "../user/Avatar";
-import { Post, userApi, type User } from "@/lib/api";
+import { Post, userApi, type User } from "@/shared/api";
 
 interface PostCardProps {
   post: Post;

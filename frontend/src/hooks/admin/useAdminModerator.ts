@@ -2,10 +2,10 @@
 import {
   moderatorApi,
   ReviewApplicationRequest,
-} from "@/lib/api/modules/moderator";
+} from "@/shared/api/modules/moderator";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-// import { ApiResponse } from "@/lib/api/types";
+// import { ApiResponse } from "@/shared/api/types";
 
 // ============ 类型定义 ============
 interface ErrorResponse {

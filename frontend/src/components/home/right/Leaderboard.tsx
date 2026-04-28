@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { TrendingUp } from "lucide-react";
-import { LeaderboardItemResponse } from "@/lib/api/modules/users";
+import { LeaderboardItemResponse } from "@/shared/api/modules/users";
 
 interface LeaderboardProps {
   leaderboard: LeaderboardItemResponse[];

@@ -4,9 +4,9 @@ import Link from "next/link";
 import { Bell } from "lucide-react";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { notificationApi } from "@/lib/api";
+import { notificationApi } from "@/shared/api";
 import { useTranslations } from "next-intl";
-import { ApiResponse } from "@/lib/api/types";
+import { ApiResponse } from "@/shared/api/types";
 
 interface Notification {
   id: number;

@@ -1,8 +1,8 @@
 // hooks/useTags.ts
 import { useState, useEffect, useCallback } from "react";
-import { tagApi } from "@/lib/api";
-import { Tag, ApiResponse } from "@/lib/api/types";
+import { Tag, ApiResponse } from "@/shared/api/types";
 import { toast } from "react-hot-toast";
+import { tagApi } from "@/shared/api";
 
 export function useTags() {
   const [tags, setTags] = useState<Tag[]>([]);

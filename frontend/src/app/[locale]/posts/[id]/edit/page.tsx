@@ -6,13 +6,13 @@ import { useQuery } from "@tanstack/react-query";
 import { useForm, Controller, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { postApi, tagApi } from "@/lib/api";
+import { postApi, tagApi } from "@/shared/api";
 import { useAuthStore } from "@/store/auth";
 import RichEditor from "@/components/post/RichEditor";
 import toast from "react-hot-toast";
 import { getErrorMessage } from "@/lib/utils";
 import { Save, X } from "lucide-react";
-import type { ApiResponse, Tag, Post } from "@/lib/api/types";
+import type { ApiResponse, Tag, Post } from "@/shared/api/types";
 
 const schema = z.object({
   title: z.string().min(2, "标题至少2个字符").max(200, "标题最多200个字符"),

@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useAuthStore } from "@/store/auth";
-import { topicApi } from "@/lib/api/modules/topics";
+import { topicApi } from "@/shared/api/modules/topics";
 import { toast } from "react-hot-toast";
 import {
   PlusIcon,
@@ -12,7 +12,7 @@ import {
   XMarkIcon,
   FireIcon,
 } from "@heroicons/react/24/outline";
-import type { Topic } from "@/lib/api/types";
+import type { Topic } from "@/shared/api/types";
 import { TopicCard } from "@/components/topic/TopicCard";
 
 // 错误响应类型

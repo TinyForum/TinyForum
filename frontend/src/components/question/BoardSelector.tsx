@@ -1,7 +1,7 @@
 // components/question/BoardSelector.tsx
 "use client";
 
-import { Board } from "@/lib/api";
+import { Board } from "@/shared/api";
 import { HashtagIcon } from "@heroicons/react/24/outline";
 
 interface BoardSelectorProps {

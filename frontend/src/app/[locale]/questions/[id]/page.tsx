@@ -13,10 +13,10 @@ import { useAuthStore } from "@/store/auth";
 import { useQuestionDetail } from "@/hooks/useQuestionDetail";
 import { AnswerCard } from "@/components/question/AnswerCard";
 import { toast } from "react-hot-toast";
-import { postApi } from "@/lib/api";
+import { postApi } from "@/shared/api";
 import { AnswerForm } from "@/components/question/AnswerForm";
 import { QuestionHeader } from "@/components/question/QuestionHeader";
-import { answerApi } from "@/lib/api/modules/answer";
+import { answerApi } from "@/shared/api/modules/answer";
 import { useTranslations } from "next-intl";
 
 // 错误响应类型

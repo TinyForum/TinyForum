@@ -1,7 +1,7 @@
 // hooks/useBoard.ts
 import { useState, useEffect, useCallback } from "react";
-import { boardApi } from "@/lib/api/modules/boards";
-import type { Board, ApiResponse } from "@/lib/api/types";
+import { boardApi } from "@/shared/api/modules/boards";
+import type { Board, ApiResponse } from "@/shared/api/types";
 import { toast } from "react-hot-toast";
 
 interface UseBoardOptions {

@@ -2,7 +2,7 @@
 "use client";
 
 import Link from "next/link";
-import { Board } from "@/lib/api";
+import { Board } from "@/shared/api";
 import {
   ChatBubbleLeftRightIcon,
   FireIcon,

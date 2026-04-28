@@ -32,7 +32,7 @@ type DeletionStatus struct {
 
 // Service 定义业务逻辑接口
 type AuthService interface {
-	ForgotPassword(ctx context.Context, email, locale string) error
+	ForgotPassword(ctx context.Context, email, ip, userAgent,locale string) error
 	ResetPassword(ctx context.Context, req *dto.ResetPasswordRequest) error
 	ValidateResetToken(ctx context.Context, token string) (bool, error)
 	Login(ctx context.Context, input userSvc.LoginInput) (*AuthResult, error)

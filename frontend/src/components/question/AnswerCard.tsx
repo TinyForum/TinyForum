@@ -12,7 +12,7 @@ import {
   TrophyIcon,
 } from "@heroicons/react/24/outline";
 import { useAnswerVote } from "@/hooks/useAnswerVote";
-import type { Comment } from "@/lib/api/types";
+import type { Comment } from "@/shared/api/types";
 import { formatDistanceToNow } from "date-fns";
 import { zhCN } from "date-fns/locale";
 import { toast } from "react-hot-toast";

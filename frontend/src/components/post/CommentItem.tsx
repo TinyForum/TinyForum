@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Comment } from "@/lib/api/types";
+import { Comment } from "@/shared/api/types";
 import { timeAgo } from "@/lib/utils";
 import { CornerDownRight, Trash2 } from "lucide-react";
 import { useAuthStore } from "@/store/auth";
-import { commentApi } from "@/lib/api";
+import { commentApi } from "@/shared/api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import Avatar from "../user/Avatar";

@@ -2,7 +2,7 @@
 "use client";
 
 import { TagIcon, HashtagIcon } from "@heroicons/react/24/outline";
-import { Tag } from "@/lib/api/types";
+import { Tag } from "@/shared/api/types";
 
 interface TagSelectorProps {
   tags: Tag[];

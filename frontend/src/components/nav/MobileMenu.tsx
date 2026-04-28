@@ -18,7 +18,7 @@ import {
 import Image from "next/image";
 import Avatar from "../user/Avatar";
 import { useTranslations } from "next-intl";
-import type { User as UserType } from "@/lib/api/types";
+import type { User as UserType } from "@/shared/api/types";
 
 interface NavItem {
   key: string;

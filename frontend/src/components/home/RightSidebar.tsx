@@ -4,8 +4,8 @@ import { GuestCard } from "./right/GuestCard";
 import { Leaderboard } from "./right/Leaderboard";
 import { TimelineEvents } from "./right/TimelineEvents";
 import { UserProfileCard } from "./right/UserProfileCard";
-import { LeaderboardItemResponse } from "@/lib/api/modules/users";
-import type { User as UserType } from "@/lib/api/types";
+import { LeaderboardItemResponse } from "@/shared/api/modules/users";
+import type { User as UserType } from "@/shared/api/types";
 
 interface UserProfile {
   id: number;

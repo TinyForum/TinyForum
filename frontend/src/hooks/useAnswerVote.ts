@@ -1,8 +1,8 @@
 // hooks/useAnswerVote.ts
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "react-hot-toast";
-import { answerApi } from "@/lib/api/modules/answer";
-import { ApiResponse } from "@/lib/api/types";
+import { answerApi } from "@/shared/api/modules/answer";
+import { ApiResponse } from "@/shared/api/types";
 
 type VoteType = "up" | "down" | "";
 

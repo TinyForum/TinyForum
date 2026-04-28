@@ -1,7 +1,7 @@
 // store/logout.ts
 import { create } from "zustand";
-import { authApi } from "@/lib/api";
 import { useAuthStore } from "./auth";
+import { authApi } from "@/shared/api";
 
 interface LogoutState {
   isLoading: boolean;

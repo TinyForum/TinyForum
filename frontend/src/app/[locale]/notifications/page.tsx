@@ -2,8 +2,8 @@
 
 import { useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { notificationApi } from "@/lib/api";
-import type { Notification } from "@/lib/api";
+import { notificationApi } from "@/shared/api";
+import type { Notification } from "@/shared/api";
 import { useAuthStore } from "@/store/auth";
 import { useRouter } from "next/navigation";
 import { timeAgo } from "@/lib/utils";

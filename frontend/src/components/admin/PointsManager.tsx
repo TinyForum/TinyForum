@@ -10,7 +10,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import Image from "next/image";
-import { ApiResponse } from "@/lib/api/types";
+import { ApiResponse } from "@/shared/api/types";
 import { useTranslations } from "next-intl";
 
 // 类型定义

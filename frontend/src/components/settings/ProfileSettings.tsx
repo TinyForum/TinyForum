@@ -4,13 +4,13 @@ import { useState, useEffect } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { userApi } from "@/lib/api";
+import { userApi } from "@/shared/api";
 import { useAuthStore } from "@/store/auth";
 import toast from "react-hot-toast";
 import { getErrorMessage } from "@/lib/utils";
 import { Save, AlertCircle, Camera } from "lucide-react";
 import Avatar from "@/components/user/Avatar";
-import type { User } from "@/lib/api/types";
+import type { User } from "@/shared/api/types";
 
 // 注意：User 接口中没有 displayName, location, website 字段
 // 这些可能是扩展字段，或者需要使用其他字段名

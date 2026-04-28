@@ -17,12 +17,12 @@ import {
   SparklesIcon,
   ArrowRightIcon,
 } from "@heroicons/react/24/outline";
-import { postApi, tagApi, topicApi, userApi } from "@/lib/api";
+import { postApi, tagApi, topicApi, userApi } from "@/shared/api";
 import { ActiveUserCard } from "@/components/explore/ActiveUserCard";
 import { HotPostCard } from "@/components/explore/HotPostCard";
 import { HotTagCard } from "@/components/explore/HotTagCard";
 import { HotTopicCard } from "@/components/explore/HotTopicCard";
-import type { LeaderboardItemResponse } from "@/lib/api/modules/users";
+import type { LeaderboardItemResponse } from "@/shared/api/modules/users";
 import { Post, Tag, Topic } from "@/shared/api/types";
 
 // 分类 Tab

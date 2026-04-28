@@ -4,7 +4,6 @@
 
 import { ApiResponse, AuthResult, User } from "@/shared/api/types";
 import apiClient from "../client";
-import ForgotPasswordPage from "@/app/[locale]/auth/forgot-password/page";
 
 export interface RegisterPayload {
   username: string;
@@ -69,9 +68,14 @@ export const authApi = {
       withCredentials: true,
     }),
   // 忘记密码
-  forgotPassword: (data: { email: string }) =>
+  forgotPassword: (data: ForgotPasswordRequest) =>
     apiClient.post<ApiResponse<null>>("/auth/password/forgot", data),
   // 重置密码
   resetPassword: (data: { token: string; password: string }) =>
     apiClient.post<ApiResponse<null>>("/auth/password/reset", data),
 };
+
+// 请求
+export interface ForgotPasswordRequest {
+  email: string;
+}

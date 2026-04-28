@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { announcementApi } from "@/lib/api";
+import { announcementApi } from "@/shared/api";
 import { toast } from "react-hot-toast";
 import {
   MegaphoneIcon,
@@ -13,7 +13,7 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
 } from "lucide-react";
-import type { Announcement } from "@/lib/api/modules/announcements";
+import type { Announcement } from "@/shared/api/modules/announcements";
 
 // 公告类型配置 - 使用主题色
 const TYPE_CONFIG: Record<string, { color: string; label: string }> = {

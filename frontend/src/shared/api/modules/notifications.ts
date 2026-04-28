@@ -2,7 +2,7 @@
  * api/modules/notifications.ts
  */
 
-import { ApiResponse, PageData } from "@/shared/api/types";
+import { ApiResponse, Notification, PageData } from "@/shared/api/types";
 import apiClient from "../client";
 
 export const notificationApi = {

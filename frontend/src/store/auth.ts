@@ -1,5 +1,5 @@
 // store/auth.ts
-import { User, userApi, authApi } from "@/lib/api";
+import { User, userApi, authApi } from "@/shared/api";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 

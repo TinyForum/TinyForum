@@ -1,7 +1,7 @@
 // components/question/AnswerForm.tsx
 "use client";
 
-import { questionApi } from "@/lib/api";
+import { questionApi } from "@/shared/api";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
 import {
@@ -12,7 +12,7 @@ import {
   ExclamationTriangleIcon,
   SparklesIcon,
 } from "@heroicons/react/24/outline";
-import { ApiResponse } from "@/lib/api/types";
+import { ApiResponse } from "@/shared/api/types";
 
 interface AnswerFormProps {
   questionId: number;

@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { userApi } from "@/lib/api";
+import { userApi } from "@/shared/api";
 import { useAuthStore } from "@/store/auth";
 import toast from "react-hot-toast";
 import { useTranslations } from "next-intl";
-import type { User, ApiResponse } from "@/lib/api/types";
+import type { User, ApiResponse } from "@/shared/api/types";
 import { ProfileSidebar } from "./ProfileSidebar";
 import { ProfileContent } from "./ProfileContent";
 import { UserListModal } from "./UserListModal";

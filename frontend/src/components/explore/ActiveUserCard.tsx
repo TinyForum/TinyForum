@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { LeaderboardItemResponse } from "@/lib/api/modules/users";
+import { LeaderboardItemResponse } from "@/shared/api/modules/users";
 import Image from "next/image";
 
 // 活跃用户卡片

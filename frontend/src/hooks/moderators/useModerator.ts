@@ -5,11 +5,11 @@ import {
   ApplyModeratorForm,
   BanUserRequest,
   ModeratorBoard,
-} from "@/lib/api/modules/moderator";
+} from "@/shared/api/modules/moderator";
 import toast from "react-hot-toast";
 import { useTranslations } from "next-intl";
 import { useAuthStore } from "@/store";
-import { ApiResponse } from "@/lib/api/types";
+import { ApiResponse } from "@/shared/api/types";
 
 // ========== 类型定义 ==========
 interface ErrorResponse {

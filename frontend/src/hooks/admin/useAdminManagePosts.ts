@@ -1,5 +1,5 @@
 // hooks/admin/useAdminManagePosts.ts
-import { adminApi } from "@/lib/api";
+import { adminApi } from "@/shared/api";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import toast from "react-hot-toast";

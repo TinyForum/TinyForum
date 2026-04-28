@@ -3,10 +3,10 @@
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/auth";
-import { authApi } from "@/lib/api";
+import { authApi } from "@/shared/api";
 import toast from "react-hot-toast";
 import RestoreDialog from "./RestoreDialog";
-import { ApiResponse } from "@/lib/api/types";
+import { ApiResponse } from "@/shared/api/types";
 
 interface DeletionStatus {
   is_deleted: boolean;

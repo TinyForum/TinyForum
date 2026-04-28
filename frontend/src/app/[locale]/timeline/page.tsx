@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { useAuthStore } from "@/store/auth";
-import { timelineApi } from "@/lib/api/modules/timeline";
+import { timelineApi } from "@/shared/api/modules/timeline";
 import { toast } from "react-hot-toast";
 import {
   UserCircleIcon,
@@ -20,7 +20,7 @@ import {
   UserPlusIcon,
   HomeIcon,
 } from "@heroicons/react/24/outline";
-import type { TimelineEvent, Subscription } from "@/lib/api/types";
+import type { TimelineEvent, Subscription } from "@/shared/api/types";
 
 // 错误响应类型
 interface ErrorResponse {

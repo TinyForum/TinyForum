@@ -15,8 +15,8 @@ import {
   SparklesIcon,
 } from "@heroicons/react/24/outline";
 import { useAuthStore } from "@/store/auth";
-import { questionApi } from "@/lib/api";
-import { QuestionSimple, ApiResponse } from "@/lib/api/types";
+import { questionApi } from "@/shared/api";
+import { QuestionSimple, ApiResponse } from "@/shared/api/types";
 import { useTranslations } from "next-intl";
 
 type FilterType = "all" | "unanswered" | "answered";

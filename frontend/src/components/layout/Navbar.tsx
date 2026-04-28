@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store";
-import { notificationApi, timelineApi } from "@/lib/api";
+import { notificationApi, timelineApi } from "@/shared/api";
 import { useQuery } from "@tanstack/react-query";
 import {
   Trophy,

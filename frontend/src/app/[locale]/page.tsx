@@ -10,14 +10,14 @@ import {
   timelineApi,
   notificationApi,
   questionApi,
-} from "@/lib/api";
+} from "@/shared/api";
 import { useAuthStore } from "@/store/auth";
 import PostFilterBar from "@/components/home/PostFilterBar";
 import PostList from "@/components/home/PostList";
 import LeftSidebar, { FilterType } from "@/components/home/LeftSidebar";
 import RightSidebar from "@/components/home/RightSidebar";
 import { SortBy } from "@/type/posts.types";
-import type { Board, Tag, TimelineEvent, Post } from "@/lib/api/types";
+import type { Board, Tag, TimelineEvent, Post } from "@/shared/api/types";
 import { useLeaderboard } from "@/hooks/useLeaderboard";
 
 // 用户资料类型

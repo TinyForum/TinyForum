@@ -1,4 +1,4 @@
-import { Tag } from "@/lib/api";
+import { Tag } from "@/shared/api";
 import Link from "next/link";
 import {
   HashtagIcon,

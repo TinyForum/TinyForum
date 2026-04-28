@@ -10,13 +10,13 @@ import type {
   Announcement,
   AnnouncementType,
   AnnouncementStatus,
-} from "@/lib/api/modules/announcements";
+} from "@/shared/api/modules/announcements";
 import { useAdminAnnouncements } from "@/hooks/admin/useAdminAnnouncements";
 import { useBoard } from "@/hooks/useBoard";
 import { AnnouncementForm } from "./AnnouncementForm";
 import { AnnouncementList } from "./AnnouncementList";
 
-import { CreateAnnouncementPayload } from "@/lib/api/modules/announcements";
+import { CreateAnnouncementPayload } from "@/shared/api/modules/announcements";
 // 类型定义 - 让可选字段真正可选
 interface AnnouncementFormValues {
   title: string;

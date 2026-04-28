@@ -2,7 +2,7 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { postApi } from "@/lib/api";
+import { postApi } from "@/shared/api";
 import { useAuthStore } from "@/store/auth";
 import Image from "next/image";
 import Link from "next/link";

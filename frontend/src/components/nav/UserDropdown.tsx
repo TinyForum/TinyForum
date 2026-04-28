@@ -21,7 +21,7 @@ import Avatar from "../user/Avatar";
 import { useLogoutStore } from "@/store/logout";
 import toast from "react-hot-toast";
 import { useTranslations } from "next-intl";
-import { User } from "@/lib/api";
+import { User } from "@/shared/api";
 
 interface UserDropdownProps {
   user: User;

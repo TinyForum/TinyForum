@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { authApi, userApi } from "@/lib/api";
+import { authApi, userApi } from "@/shared/api";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { getErrorMessage } from "@/lib/utils";
@@ -20,7 +20,7 @@ import {
   Mail,
   History,
 } from "lucide-react";
-import type { User } from "@/lib/api/types";
+import type { User } from "@/shared/api/types";
 
 // 弱密码验证（仅用于提示，不强制）
 const passwordSchema = z

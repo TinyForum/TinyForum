@@ -2,7 +2,7 @@
 
 import { X } from "lucide-react";
 import Avatar from "@/components/user/Avatar";
-import type { User } from "@/lib/api/types";
+import type { User } from "@/shared/api/types";
 
 interface UserListModalProps {
   title: string;

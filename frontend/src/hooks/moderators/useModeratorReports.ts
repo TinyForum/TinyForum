@@ -1,6 +1,6 @@
 // hooks/moderators/useModeratorReports.ts
 import { useQuery } from "@tanstack/react-query";
-import { moderatorApi } from "@/lib/api/modules/moderator";
+import { moderatorApi } from "@/shared/api/modules/moderator";
 
 export function useModeratorReports(
   boardId: number,
