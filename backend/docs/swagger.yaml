@@ -2663,158 +2663,6 @@ paths:
       summary: 审核拒绝
       tags:
       - 风险管理
-  /admin/statistics/day:
-    get:
-      consumes:
-      - application/json
-      description: 获取指定日期的统计数据（用户、帖子、评论等）
-      parameters:
-      - default: 今天
-        description: '日期 (格式: 2006-01-02)'
-        in: query
-        name: date
-        type: string
-      - default: all
-        description: 统计类型
-        enum:
-        - users
-        - posts
-        - comments
-        - all
-        in: query
-        name: type
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/model.StatsTodayInfo'
-              type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: 获取日统计数据
-      tags:
-      - 统计管理
-  /admin/statistics/total:
-    get:
-      consumes:
-      - application/json
-      description: 获取指定时间范围内的汇总统计数据
-      parameters:
-      - description: '开始日期 (格式: 2006-01-02，默认30天前)'
-        in: query
-        name: start_date
-        type: string
-      - description: '结束日期 (格式: 2006-01-02，默认今天)'
-        in: query
-        name: end_date
-        type: string
-      - default: all
-        description: 统计类型
-        enum:
-        - users
-        - posts
-        - comments
-        - all
-        in: query
-        name: type
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/model.StatsInfoResp'
-              type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: 获取总计统计数据
-      tags:
-      - 统计管理
-  /admin/statistics/trend:
-    get:
-      consumes:
-      - application/json
-      description: 获取指定时间范围内的趋势数据（按天、周、月统计）
-      parameters:
-      - description: '开始日期 (格式: 2006-01-02，默认7天前)'
-        in: query
-        name: start_date
-        type: string
-      - description: '结束日期 (格式: 2006-01-02，默认今天)'
-        in: query
-        name: end_date
-        type: string
-      - description: 统计类型
-        enum:
-        - users
-        - posts
-        - comments
-        in: query
-        name: type
-        required: true
-        type: string
-      - default: day
-        description: 统计粒度
-        enum:
-        - day
-        - week
-        - month
-        in: query
-        name: interval
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/model.StatsTrendResponse'
-              type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: 获取趋势统计数据
-      tags:
-      - 统计管理
   /admin/users:
     get:
       produces:
@@ -3713,6 +3561,10 @@ paths:
       responses:
         "200":
           description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
           schema:
             $ref: '#/definitions/response.Response'
       summary: 用户注册
@@ -5532,6 +5384,52 @@ paths:
       summary: 获取问题精简列表
       tags:
       - 问题管理
+  /statistics/day:
+    get:
+      consumes:
+      - application/json
+      description: 获取指定日期的统计数据（用户、帖子、评论等）
+      parameters:
+      - default: 今天
+        description: '日期 (格式: 2006-01-02)'
+        in: query
+        name: date
+        type: string
+      - default: all
+        description: 统计类型
+        enum:
+        - users
+        - posts
+        - comments
+        - all
+        in: query
+        name: type
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.StatsTodayInfo'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 获取日统计数据
+      tags:
+      - 统计管理
   /statistics/range:
     get:
       consumes:
@@ -5589,6 +5487,112 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: 获取指定日期范围的统计数据
+      tags:
+      - 统计管理
+  /statistics/total:
+    get:
+      consumes:
+      - application/json
+      description: 获取指定时间范围内的汇总统计数据
+      parameters:
+      - description: '开始日期 (格式: 2006-01-02，默认30天前)'
+        in: query
+        name: start_date
+        type: string
+      - description: '结束日期 (格式: 2006-01-02，默认今天)'
+        in: query
+        name: end_date
+        type: string
+      - default: all
+        description: 统计类型
+        enum:
+        - users
+        - posts
+        - comments
+        - all
+        in: query
+        name: type
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.StatsInfoResp'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 获取总计统计数据
+      tags:
+      - 统计管理
+  /statistics/trend:
+    get:
+      consumes:
+      - application/json
+      description: 获取指定时间范围内的趋势数据（按天、周、月统计）
+      parameters:
+      - description: '开始日期 (格式: 2006-01-02，默认7天前)'
+        in: query
+        name: start_date
+        type: string
+      - description: '结束日期 (格式: 2006-01-02，默认今天)'
+        in: query
+        name: end_date
+        type: string
+      - description: 统计类型
+        enum:
+        - users
+        - posts
+        - comments
+        in: query
+        name: type
+        required: true
+        type: string
+      - default: day
+        description: 统计粒度
+        enum:
+        - day
+        - week
+        - month
+        in: query
+        name: interval
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.StatsTrendResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 获取趋势统计数据
       tags:
       - 统计管理
   /tags:

@@ -58,7 +58,10 @@ ollama:
   temperature: 0.7 # 适当降低随机性
   timeout: 60 # 超时时间
 
+# 根据你自己的情况修改 IP
+
 allow_origins:
   - http://localhost:3000
   - http://127.0.0.1:3000
   - http://192.168.5.243:8080
+  - http://192.168.5.180:8080

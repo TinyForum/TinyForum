@@ -8,26 +8,30 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Register godoc
+// Register 用户注册
 // @Summary 用户注册
 // @Tags 验证管理
 // @Accept json
 // @Produce json
 // @Param body body user.RegisterInput true "注册信息"
 // @Success 200 {object} response.Response
+// @Failure 400 {object} response.Response
 // @Router /auth/register [post]
 func (h *AuthHandler) Register(c *gin.Context) {
 	ctx := c.Request.Context()
 	var input userService.RegisterInput
+
 	if err := c.ShouldBindJSON(&input); err != nil {
-		response.BadRequest(c, err.Error())
+		response.BadRequest(c, "参数错误: "+err.Error())
 		return
 	}
+
 	result, err := h.authSvc.Register(ctx, input)
 	if err != nil {
 		response.BadRequest(c, err.Error())
 		return
 	}
+
 	response.Success(c, result)
 }
 

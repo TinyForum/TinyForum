@@ -90,7 +90,6 @@ services:
       NEXT_TELEMETRY_DISABLED: "1"
       BACKEND_URL: http://backend:8080
     depends_on:
-      # backend healthcheck 已恢复，可以用 service_healthy
       backend:
         condition: service_healthy
     networks:

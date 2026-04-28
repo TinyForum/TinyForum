@@ -1301,249 +1301,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/admin/statistics/day": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "获取指定日期的统计数据（用户、帖子、评论等）",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "统计管理"
-                ],
-                "summary": "获取日统计数据",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "default": "今天",
-                        "description": "日期 (格式: 2006-01-02)",
-                        "name": "date",
-                        "in": "query"
-                    },
-                    {
-                        "enum": [
-                            "users",
-                            "posts",
-                            "comments",
-                            "all"
-                        ],
-                        "type": "string",
-                        "default": "all",
-                        "description": "统计类型",
-                        "name": "type",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/model.StatsTodayInfo"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/admin/statistics/total": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "获取指定时间范围内的汇总统计数据",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "统计管理"
-                ],
-                "summary": "获取总计统计数据",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "开始日期 (格式: 2006-01-02，默认30天前)",
-                        "name": "start_date",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "结束日期 (格式: 2006-01-02，默认今天)",
-                        "name": "end_date",
-                        "in": "query"
-                    },
-                    {
-                        "enum": [
-                            "users",
-                            "posts",
-                            "comments",
-                            "all"
-                        ],
-                        "type": "string",
-                        "default": "all",
-                        "description": "统计类型",
-                        "name": "type",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/model.StatsInfoResp"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/admin/statistics/trend": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "获取指定时间范围内的趋势数据（按天、周、月统计）",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "统计管理"
-                ],
-                "summary": "获取趋势统计数据",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "开始日期 (格式: 2006-01-02，默认7天前)",
-                        "name": "start_date",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "结束日期 (格式: 2006-01-02，默认今天)",
-                        "name": "end_date",
-                        "in": "query"
-                    },
-                    {
-                        "enum": [
-                            "users",
-                            "posts",
-                            "comments"
-                        ],
-                        "type": "string",
-                        "description": "统计类型",
-                        "name": "type",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "enum": [
-                            "day",
-                            "week",
-                            "month"
-                        ],
-                        "type": "string",
-                        "default": "day",
-                        "description": "统计粒度",
-                        "name": "interval",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/model.StatsTrendResponse"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
-            }
-        },
         "/admin/users": {
             "get": {
                 "security": [
@@ -3002,6 +2759,12 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -5998,6 +5761,80 @@ const docTemplate = `{
                 }
             }
         },
+        "/statistics/day": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "获取指定日期的统计数据（用户、帖子、评论等）",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "统计管理"
+                ],
+                "summary": "获取日统计数据",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "今天",
+                        "description": "日期 (格式: 2006-01-02)",
+                        "name": "date",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "users",
+                            "posts",
+                            "comments",
+                            "all"
+                        ],
+                        "type": "string",
+                        "default": "all",
+                        "description": "统计类型",
+                        "name": "type",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.StatsTodayInfo"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/statistics/range": {
             "get": {
                 "security": [
@@ -6084,6 +5921,175 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/statistics/total": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "获取指定时间范围内的汇总统计数据",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "统计管理"
+                ],
+                "summary": "获取总计统计数据",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "开始日期 (格式: 2006-01-02，默认30天前)",
+                        "name": "start_date",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "结束日期 (格式: 2006-01-02，默认今天)",
+                        "name": "end_date",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "users",
+                            "posts",
+                            "comments",
+                            "all"
+                        ],
+                        "type": "string",
+                        "default": "all",
+                        "description": "统计类型",
+                        "name": "type",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.StatsInfoResp"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/statistics/trend": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "获取指定时间范围内的趋势数据（按天、周、月统计）",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "统计管理"
+                ],
+                "summary": "获取趋势统计数据",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "开始日期 (格式: 2006-01-02，默认7天前)",
+                        "name": "start_date",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "结束日期 (格式: 2006-01-02，默认今天)",
+                        "name": "end_date",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "users",
+                            "posts",
+                            "comments"
+                        ],
+                        "type": "string",
+                        "description": "统计类型",
+                        "name": "type",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "enum": [
+                            "day",
+                            "week",
+                            "month"
+                        ],
+                        "type": "string",
+                        "default": "day",
+                        "description": "统计粒度",
+                        "name": "interval",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.StatsTrendResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
