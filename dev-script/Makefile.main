@@ -5,10 +5,10 @@
 .PHONY: help all install build clean test api init-config
 
 # 包含各个模块
-include Makefile.common
-include Makefile.dev
-include Makefile.docker
-include Makefile.bench
+# include Makefile.common
+# include Makefile.dev
+# include Makefile.docker
+# include Makefile.bench
 
 # 默认目标
 help:

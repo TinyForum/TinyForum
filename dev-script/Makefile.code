@@ -98,7 +98,7 @@ type-check:
 # 测试
 # ============================================
 
-test: test-backend test-frontend
+test-project: test-backend test-frontend
 	@echo "$(GREEN)✅ 所有测试完成$(NC)"
 
 test-backend:
