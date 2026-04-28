@@ -16,8 +16,9 @@ import {
 } from "@heroicons/react/24/outline";
 import { BoardPostCard } from "@/components/boards/BoardPostCard";
 import { CreateBoardInline } from "@/components/boards/CreateBoardInline";
-import type { Board, PageData } from "@/lib/api/types";
+// import type { Board, PageData } from "@/lib/api/types";
 import type { BoardPostListItem } from "@/lib/api/modules/boards";
+import { Board, PageData } from "@/shared/api/types";
 
 const PAGE_SIZE = 20;
 

@@ -21,3 +21,13 @@ func (r *notificationRepository) UnreadCount(userID uint) (int64, error) {
 	err := r.db.Model(&model.Notification{}).Where("user_id = ? AND is_read = false", userID).Count(&count).Error
 	return count, err
 }
+
+func (r *notificationRepository) GetByID(id uint) (*model.Notification, error) {
+    var notif model.Notification
+    err := r.db.First(&notif, id).Error
+    if err != nil {
+        return nil, err
+    }
+    return &notif, nil
+}
+

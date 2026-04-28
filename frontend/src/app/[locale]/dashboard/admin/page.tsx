@@ -17,9 +17,9 @@ import { UsersTable } from "@/components/admin/UsersTable";
 import { Statistics } from "@/components/admin/Statistics";
 import { ModeratorsTable } from "@/components/admin/ModeratorsTable";
 import { AdminTasks } from "@/components/admin/AdminTasks";
+import { User } from "@/shared/api/types";
 
 // 导入类型
-import type { User } from "@/lib/api/types";
 
 // ==================== 主组件 ====================
 export default function AdminPage() {

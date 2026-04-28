@@ -9,6 +9,7 @@ type NotificationService interface {
 	Create(userID uint, senderID *uint, notifType model.NotificationType, content string, targetID *uint, targetType string)
 	List(userID uint, page, pageSize int) ([]model.Notification, int64, error)
 	MarkAllRead(userID uint) error
+	MarkRead(userID uint, notifID uint) error
 	UnreadCount(userID uint) (int64, error)
 }
 type notificationService struct {
