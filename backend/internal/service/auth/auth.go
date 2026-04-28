@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
+	"strings"
 	"time"
 	"tiny-forum/internal/model"
 	userSvc "tiny-forum/internal/service/user"
@@ -14,13 +15,45 @@ import (
 	"gorm.io/gorm"
 )
 
+// 保留用户名黑名单（防止注册 admin、root 等特权名）
+var reservedUsernames = map[string]bool{
+	"admin": true, "root": true, "system": true, "moderator": true,
+	"support": true, "help": true, "info": true, "contact": true,
+	"superadmin": true, "administrator": true, "staff": true, "official": true,
+}
+
+// usernameRegex: 只允许字母、数字、下划线、连字符，长度 3-30
+//
+//	防止用户名包含 XSS/注入特殊字符
+var usernameRegex = regexp.MustCompile(`^[a-zA-Z0-9_-]{3,30}$`)
+
 // Register 用户注册
 func (s *authService) Register(ctx context.Context, input userSvc.RegisterInput) (*userSvc.AuthResult, error) {
+	//  校验用户名格式（只允许字母数字下划线连字符）
+	if !usernameRegex.MatchString(input.Username) {
+		return nil, errors.New("用户名只能包含字母、数字、下划线和连字符，长度 3-30 位")
+	}
+
+	// 检查保留用户名
+	if reservedUsernames[strings.ToLower(input.Username)] {
+		return nil, errors.New("该用户名不可用，请换一个")
+	}
+
+	// 邮箱格式严格校验（防止换行符等邮件头注入）
+	if !isValidEmail(input.Email) {
+		return nil, errors.New("邮箱格式无效")
+	}
+
 	if _, err := s.userRepo.FindByUsername(input.Username); err == nil {
 		return nil, errors.New("用户名已被占用")
 	}
 	if _, err := s.userRepo.FindByEmail(ctx, input.Email); err == nil {
 		return nil, errors.New("邮箱已被注册")
+	}
+
+	// 注册时强制密码强度校验
+	if err := validatePasswordStrength(input.Password); err != nil {
+		return nil, err
 	}
 
 	hashed, err := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.DefaultCost)
@@ -48,13 +81,6 @@ func (s *authService) Register(ctx context.Context, input userSvc.RegisterInput)
 	return &userSvc.AuthResult{Token: token, User: user}, nil
 }
 
-// type DeletionStatus struct {
-// 	IsDeleted     bool       `json:"is_deleted"`
-// 	DeletedAt     *time.Time `json:"deleted_at,omitempty"`
-// 	CanRestore    bool       `json:"can_restore"`
-// 	RemainingDays int        `json:"remaining_days,omitempty"`
-// }
-
 type AuthResult struct {
 	Token          string          `json:"token"`
 	User           *model.User     `json:"user"`
@@ -63,26 +89,22 @@ type AuthResult struct {
 
 // Login 用户登录
 func (s *authService) Login(ctx context.Context, input userSvc.LoginInput) (*AuthResult, error) {
-	// 使用 Unscoped 查询，包括已软删除的用户
 	user, err := s.userRepo.FindByEmailUnscoped(ctx, input.Email)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errors.New("邮箱或密码错误")
+			return nil, errors.New("邮箱或密码错误") // 不区分邮箱/密码错误
 		}
 		return nil, err
 	}
 
-	// 检查是否被禁用
 	if user.IsBlocked {
 		return nil, errors.New("账户已被禁用")
 	}
 
-	// 验证密码
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(input.Password)); err != nil {
 		return nil, errors.New("邮箱或密码错误")
 	}
 
-	// 检查是否已软删除
 	var deletionStatus *DeletionStatus
 	if user.DeletedAt.Valid {
 		remainingDays := 30 - int(time.Since(user.DeletedAt.Time).Hours()/24)
@@ -92,19 +114,15 @@ func (s *authService) Login(ctx context.Context, input userSvc.LoginInput) (*Aut
 			CanRestore:    remainingDays > 0,
 			RemainingDays: remainingDays,
 		}
-
-		// 如果已超过恢复期，不允许登录
 		if remainingDays <= 0 {
 			return nil, errors.New("账户已永久删除，无法登录")
 		}
 	}
 
-	// 更新最后登录时间
 	now := time.Now()
 	user.LastLogin = &now
 	_ = s.userRepo.Update(ctx, user)
 
-	// 生成 token
 	token, err := s.jwtMgr.Generate(user.ID, user.Username, string(user.Role))
 	if err != nil {
 		return nil, err
@@ -113,8 +131,21 @@ func (s *authService) Login(ctx context.Context, input userSvc.LoginInput) (*Aut
 	return &AuthResult{
 		Token:          token,
 		User:           user,
-		DeletionStatus: deletionStatus, // 返回删除状态
+		DeletionStatus: deletionStatus,
 	}, nil
+}
+
+// RevokeToken  将 Token 加入黑名单，注销后无法再使用
+// 写入 tokenRepo 的黑名单，中间件验证时检查黑名单
+func (s *authService) RevokeToken(ctx context.Context, rawToken string) error {
+	// 解析 token 获取 JTI 和过期时间，精确存储黑名单
+	claims, err := s.jwtMgr.Parse(rawToken)
+	if err != nil {
+		// token 已无效，无需加入黑名单
+		return nil
+	}
+	// 将 JTI 存入黑名单，TTL 与 token 剩余有效期一致，节省存储
+	return s.tokenRepo.RevokeToken(ctx, claims.ID, claims.ExpiresAt.Time)
 }
 
 // ChangePassword 修改密码
@@ -132,14 +163,16 @@ func (s *authService) ChangePassword(userID uint, oldPassword, newPassword strin
 	if err := bcrypt.CompareHashAndPassword([]byte(targetUser.Password), []byte(oldPassword)); err != nil {
 		return "", apperrors.ErrInvalidPassword
 	}
+
+	// 禁止与旧密码相同
 	if oldPassword == newPassword {
 		return "", apperrors.ErrPasswordSameAsOld
 	}
-	if len(newPassword) < 6 {
-		return "", apperrors.ErrPasswordTooShort
-	}
 
-	strength := s.checkPasswordStrength(newPassword)
+	// 修改密码时同样强制密码强度校验
+	if err := validatePasswordStrength(newPassword); err != nil {
+		return "", err
+	}
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
 	if err != nil {
@@ -150,13 +183,42 @@ func (s *authService) ChangePassword(userID uint, oldPassword, newPassword strin
 		return "", fmt.Errorf("更新密码失败: %w", err)
 	}
 
+	//  修改密码后吊销该用户所有 refresh token，强制其他设备重新登录
+	// （当前 JWT 短期有效，此处清除 refresh token 以实现全端下线）
+	_ = s.tokenRepo.RevokeAllUserTokens(ctx, userID)
+
+	strength := s.checkPasswordStrength(newPassword)
 	if strength == "weak" {
 		return "密码修改成功，但密码强度较弱，建议使用更复杂的密码", nil
 	}
 	return "密码修改成功", nil
 }
 
-// checkPasswordStrength 检查密码强度（内部辅助）
+// validatePasswordStrength 统一密码强度校验（注册、修改、重置均使用）
+// 规则：至少 8 位，包含字母和数字
+func validatePasswordStrength(password string) error {
+	if len(password) < 8 {
+		return errors.New("密码长度不得少于 8 位")
+	}
+	hasLetter := regexp.MustCompile(`[a-zA-Z]`).MatchString(password)
+	hasDigit := regexp.MustCompile(`[0-9]`).MatchString(password)
+	if !hasLetter || !hasDigit {
+		return errors.New("密码必须同时包含字母和数字")
+	}
+	return nil
+}
+
+// isValidEmail 严格邮箱校验，过滤换行符等注入字符
+func isValidEmail(email string) bool {
+	// 拒绝包含换行、回车、空格等危险字符（防邮件头注入）
+	if strings.ContainsAny(email, "\r\n\t ") {
+		return false
+	}
+	emailRegex := regexp.MustCompile(`^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$`)
+	return emailRegex.MatchString(email) && len(email) <= 254
+}
+
+// checkPasswordStrength 密码强度评级（用于提示，不强制）
 func (s *authService) checkPasswordStrength(password string) string {
 	hasUpper := regexp.MustCompile(`[A-Z]`).MatchString(password)
 	hasLower := regexp.MustCompile(`[a-z]`).MatchString(password)

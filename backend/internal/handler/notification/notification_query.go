@@ -1,7 +1,6 @@
 package notification
 
 import (
-
 	"tiny-forum/internal/dto"
 	"tiny-forum/pkg/response"
 
@@ -21,63 +20,63 @@ import (
 // @Failure 500 {object} response.Response "服务器内部错误"
 // @Router /notifications [get]
 func (h *NotificationHandler) List(c *gin.Context) {
-    var req dto.NotificationListRequest
-    if err := c.ShouldBindQuery(&req); err != nil {
-        response.BadRequest(c, "参数错误")
-        return
-    }
-    
-    userID := c.GetUint("user_id")
-    
-    // 处理分页默认值
-    page := req.Page
-    if page < 1 {
-        page = 1
-    }
-    pageSize := req.PageSize
-    if pageSize < 1 {
-        pageSize = 20
-    }
-    
-    // 调用 Service，获取 BO
-    result, err := h.notifSvc.List(userID, page, pageSize)
-    if err != nil {
-        response.InternalError(c, err.Error())
-        return
-    }
-    
-    // BO → DTO 转换
-    resp := dto.NotificationListResponse{
-        List:        make([]dto.NotificationResponse, 0, len(result.List)),
-        Total:       result.Total,
-        UnreadCount: result.UnreadCount,
-        Page:        result.Page,
-        PageSize:    result.PageSize,
-    }
-    
-    for _, notif := range result.List {
-        item := dto.NotificationResponse{
-            ID:         notif.ID,
-            Type:       notif.Type,
-            Content:    notif.Content,
-            IsRead:     notif.IsRead,
-            CreatedAt:  notif.CreatedAt,
-            TargetID:   notif.TargetID,
-            TargetType: notif.TargetType,
-        }
-        
-        if notif.Sender != nil {
-            item.Sender = &dto.NotificationSenderResponse{
-                ID:       notif.Sender.ID,
-                Username: notif.Sender.Username,
-                Avatar:   notif.Sender.Avatar,
-            }
-        }
-        
-        resp.List = append(resp.List, item)
-    }
-    
-    response.Success(c, resp)
+	var req dto.NotificationListRequest
+	if err := c.ShouldBindQuery(&req); err != nil {
+		response.BadRequest(c, "参数错误")
+		return
+	}
+
+	userID := c.GetUint("user_id")
+
+	// 处理分页默认值
+	page := req.Page
+	if page < 1 {
+		page = 1
+	}
+	pageSize := req.PageSize
+	if pageSize < 1 {
+		pageSize = 20
+	}
+
+	// 调用 Service，获取 BO
+	result, err := h.notifSvc.List(userID, page, pageSize)
+	if err != nil {
+		response.InternalError(c, err.Error())
+		return
+	}
+
+	// BO → DTO 转换
+	resp := dto.NotificationListResponse{
+		List:        make([]dto.NotificationResponse, 0, len(result.List)),
+		Total:       result.Total,
+		UnreadCount: result.UnreadCount,
+		Page:        result.Page,
+		PageSize:    result.PageSize,
+	}
+
+	for _, notif := range result.List {
+		item := dto.NotificationResponse{
+			ID:         notif.ID,
+			Type:       notif.Type,
+			Content:    notif.Content,
+			IsRead:     notif.IsRead,
+			CreatedAt:  notif.CreatedAt,
+			TargetID:   notif.TargetID,
+			TargetType: notif.TargetType,
+		}
+
+		if notif.Sender != nil {
+			item.Sender = &dto.NotificationSenderResponse{
+				ID:       notif.Sender.ID,
+				Username: notif.Sender.Username,
+				Avatar:   notif.Sender.Avatar,
+			}
+		}
+
+		resp.List = append(resp.List, item)
+	}
+
+	response.Success(c, resp)
 }
 
 // UnreadCount 获取未读通知数量

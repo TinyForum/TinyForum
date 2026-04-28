@@ -16,7 +16,7 @@ export interface ApiError {
 export interface ApiResponse<T = unknown> {
   code: number;
   message: string;
-  data?: T; // 改为可选
+  data?: T;
 }
 
 export interface PageData<T> {

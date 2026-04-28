@@ -3,13 +3,14 @@ package ratelimit
 import (
 	"context"
 	"fmt"
+	"log"
 	"tiny-forum/config"
 
 	"github.com/redis/go-redis/v9"
 )
 
 type RateLimiter interface {
-	Allow(ctx context.Context, userID uint, action Action, riskLevel RiskLevel) (Result, error)
+	Allow(ctx context.Context, identifier string, action Action, riskLevel RiskLevel,customQuota ...Quota) (Result, error)
 	GetQuota(ctx context.Context, userID uint, action Action, riskLevel RiskLevel) (Result, error)
 }
 
@@ -20,6 +21,7 @@ func NewLimiter(rdb *redis.Client, cfg config.RateLimitConfig) (*Limiter, error)
 		return nil, fmt.Errorf("build quota table: %w", err)
 	}
 	script := redis.NewScript(luaScript)
+	log.Printf("[Limiter] Loaded quotas: %+v", quotas)
 	return &Limiter{
 		rdb:         rdb,
 		allowScript: script,

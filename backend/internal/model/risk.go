@@ -74,6 +74,7 @@ const (
 type AuditLog struct {
 	BaseModel
 	OperatorID uint            `gorm:"not null;index" json:"operator_id"`
+	OperatorIP string          `gorm:"type:varchar(45);index"` // 操作者IP
 	Action     AuditActionType `gorm:"type:varchar(50);not null;index" json:"action"`
 	TargetType string          `gorm:"type:varchar(50);not null" json:"target_type"`
 	TargetID   uint            `gorm:"not null" json:"target_id"`
@@ -85,11 +86,15 @@ type AuditLog struct {
 	Operator User `gorm:"foreignKey:OperatorID" json:"operator,omitempty"`
 }
 
+func (AuditLog) TableName() string {
+	return "audit_logs"
+}
+
 // ========================
-// 用户风控记录
+// 风控记录
 // ========================
 
-// UserRiskRecord 记录风险事件，用于计算当前风险等级
+// UserRiskRecord 记录用户风险事件，用于计算当前风险等级
 type UserRiskRecord struct {
 	BaseModel
 	UserID      uint      `gorm:"not null;index" json:"user_id"`
@@ -98,4 +103,50 @@ type UserRiskRecord struct {
 	ExpireAt    time.Time `gorm:"not null;index" json:"expire_at"`             // 超过此时间后不计入风险分
 
 	User User `gorm:"foreignKey:UserID" json:"user,omitempty"`
+}
+
+func (UserRiskRecord) TableName() string {
+	return "user_risk_records"
+}
+
+// IPRiskRecord IP风险记录
+type IPRiskRecord struct {
+	ID          uint      `gorm:"primaryKey"`
+	IP          string    `gorm:"type:varchar(45);index;not null"`
+	EventType   string    `gorm:"type:varchar(50);not null"`
+	EventDetail string    `gorm:"type:text"`
+	ExpireAt    time.Time `gorm:"index"`
+	CreatedAt   time.Time
+}
+
+func (IPRiskRecord) TableName() string {
+	return "ip_risk_records"
+}
+
+// BlockedIP IP封禁记录
+type BlockedIP struct {
+	ID         uint       `gorm:"primaryKey"`
+	IP         string     `gorm:"type:varchar(45);uniqueIndex;not null"` // 支持IPv6
+	Reason     string     `gorm:"type:text"`                             // 封禁原因
+	OperatorID uint       `gorm:"index"`                                 // 操作员ID
+	ExpireAt   *time.Time `gorm:"index"`                                 // 封禁过期时间，NULL表示永久封禁
+	CreatedAt  time.Time
+	UpdatedAt  time.Time
+}
+
+func (BlockedIP) TableName() string {
+	return "blocked_ips"
+}
+
+// IsExpired 检查封禁是否已过期
+func (b *BlockedIP) IsExpired() bool {
+	if b.ExpireAt == nil {
+		return false
+	}
+	return time.Now().After(*b.ExpireAt)
+}
+
+// IsPermanent 是否是永久封禁
+func (b *BlockedIP) IsPermanent() bool {
+	return b.ExpireAt == nil
 }

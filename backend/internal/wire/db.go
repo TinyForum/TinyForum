@@ -49,6 +49,8 @@ func InitDB(cfg *config.Config) (*gorm.DB, error) {
 
 	// Auto migrate all models
 	if err := db.AutoMigrate(
+		// 用户
+		&model.RefreshToken{},
 		&model.User{},
 		&model.Follow{},
 		&model.Tag{},
@@ -79,6 +81,9 @@ func InitDB(cfg *config.Config) (*gorm.DB, error) {
 		&model.AuditLog{},
 		&model.UserRiskRecord{},
 		&model.Attachment{},
+		&model.IPRiskRecord{},
+		&model.UserRiskRecord{},
+		&model.BlockedIP{},
 	); err != nil {
 		return nil, fmt.Errorf("auto migrate failed: %w", err)
 	}

@@ -64,7 +64,7 @@ func NewServices(
 	announcementSvc := announcement.NewAnnouncementService(repos.Announcement)
 	statsSvc := stats.NewStatsService(repos.Stats, repos.Post, repos.Tag, repos.Board, repos.User, repos.Comment)
 	emailSvc := email.NewEmailService(&cfg.Private.Email)
-	authSvc := auth.NewAuthService(repos.Auth, repos.User, jwtMgr, notifSvc, emailSvc, cfg, repos.Token, repos.Transaction)
+	authSvc := auth.NewAuthService(repos.Auth, repos.User, jwtMgr, notifSvc, emailSvc, cfg, repos.Token, repos.Transaction, infra.RedisClient)
 	uploadSvc := upload.NewUploadService(repos.Upload, cfg.Basic.Upload)
 
 	// 辅助

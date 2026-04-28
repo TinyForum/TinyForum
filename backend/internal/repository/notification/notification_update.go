@@ -7,7 +7,7 @@ func (r *notificationRepository) BatchMarkRead(userID uint, ids []uint) (int64, 
 	result := r.db.Model(&model.Notification{}).
 		Where("user_id = ? AND id IN (?) AND is_read = ?", userID, ids, false).
 		Update("is_read", true)
-	
+
 	if result.Error != nil {
 		return 0, result.Error
 	}
@@ -19,14 +19,14 @@ func (r *notificationRepository) MarkAllRead(userID uint) (int64, error) {
 	result := r.db.Model(&model.Notification{}).
 		Where("user_id = ? AND is_read = ?", userID, false).
 		Update("is_read", true)
-	
+
 	if result.Error != nil {
 		return 0, result.Error
 	}
 	return result.RowsAffected, nil
 }
 func (r *notificationRepository) MarkRead(notificationID uint) error {
-    return r.db.Model(&model.Notification{}).
-        Where("id = ?", notificationID).
-        UpdateColumn("is_read", true).Error
+	return r.db.Model(&model.Notification{}).
+		Where("id = ?", notificationID).
+		UpdateColumn("is_read", true).Error
 }

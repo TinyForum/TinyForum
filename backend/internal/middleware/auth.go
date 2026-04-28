@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"strings"
+	"tiny-forum/internal/repository/token"
 	"tiny-forum/pkg/jwt"
 	"tiny-forum/pkg/response"
 
@@ -28,9 +29,9 @@ func extractToken(c *gin.Context) string {
 	return ""
 }
 
-func Auth(jwtMgr *jwt.JWTManager) gin.HandlerFunc {
+func Auth(jwtMgr *jwt.JWTManager, tokenRepo token.TokenRepository) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		token := extractToken(c)
+		token := extractToken(c) // 从请求中提取 token
 		if token == "" {
 			response.Unauthorized(c, "请先登录")
 			c.Abort()
@@ -39,6 +40,12 @@ func Auth(jwtMgr *jwt.JWTManager) gin.HandlerFunc {
 		claims, err := jwtMgr.Parse(token)
 		if err != nil {
 			response.Unauthorized(c, "Token 无效或已过期，请重新登录")
+			c.Abort()
+			return
+		}
+		revoked, err := tokenRepo.IsTokenRevoked(c.Request.Context(), claims.ID)
+		if err == nil && revoked {
+			response.Unauthorized(c, "token 已失效，请重新登录")
 			c.Abort()
 			return
 		}

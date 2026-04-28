@@ -8,7 +8,7 @@ import (
 
 type NotificationService interface {
 	Create(userID uint, senderID *uint, notifType model.NotificationType, content string, targetID *uint, targetType string)
-	List(userID uint, page, pageSize int) (*bo.NotificationListResult, error)  
+	List(userID uint, page, pageSize int) (*bo.NotificationListResult, error)
 	MarkAllRead(userID uint) (int64, error)
 	MarkRead(userID uint, notifID uint) error
 	UnreadCount(userID uint) (int64, error)

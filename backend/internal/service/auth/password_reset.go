@@ -1,14 +1,12 @@
-// internal/auth/password_reset_service_impl.go
 package auth
 
 import (
 	"context"
-	"crypto/rand"
-	"encoding/hex"
 	"errors"
 	"fmt"
 	"time"
 	"tiny-forum/internal/dto"
+	"tiny-forum/pkg/logger"
 
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
@@ -16,6 +14,7 @@ import (
 
 // 修改 ForgotPassword 方法，使用 tokenRepo 保存重置令牌
 func (s *authService) ForgotPassword(ctx context.Context, email, locale string) error {
+
 	// 查找用户
 	user, err := s.userRepo.FindByEmail(ctx, email)
 	if err != nil {
@@ -43,11 +42,11 @@ func (s *authService) ForgotPassword(ctx context.Context, email, locale string) 
 
 	// 构建应用基础URL
 	appURL := s.buildAppURL()
+	apiVersion := s.cfg.Basic.API.Version
 
 	// 异步发送邮件
 	go func() {
-		// 使用 context.Background() 避免请求上下文被取消
-		_ = s.emailSvc.SendResetPasswordEmail(email, token, user.Username, locale, appURL)
+		_ = s.emailSvc.SendResetPasswordEmail(email, token, user.Username, appURL, apiVersion)
 	}()
 
 	return nil
@@ -66,19 +65,27 @@ func (s *authService) buildAppURL() string {
 
 	host := api.Host
 	if host == "" {
-		host = "localhost"
+		host = server.Host
+		if host == "" {
+			host = "localhost"
+		}
 	}
 
 	port := api.Port
 	if port == 0 {
-		port = server.Port
+		if server.Port != 0 {
+			port = server.Port
+		} else {
+			port = 80
+		}
 	}
 
 	// 构建完整URL
 	baseURL := fmt.Sprintf("%s://%s", protocol, host)
 
-	// 非标准端口才添加端口号
-	if (protocol == "http" && port != 80) || (protocol == "https" && port != 443) {
+	// 优化判断逻辑：非标准端口才添加
+	isStandardPort := (protocol == "http" && port == 80) || (protocol == "https" && port == 443)
+	if !isStandardPort {
 		baseURL = fmt.Sprintf("%s:%d", baseURL, port)
 	}
 
@@ -87,9 +94,17 @@ func (s *authService) buildAppURL() string {
 		baseURL = baseURL + api.Prefix
 	}
 
+	// 调试输出
+	logger.Debugf("built app URL",
+		"protocol", protocol,
+		"host", host,
+		"port", port,
+		"prefix", api.Prefix,
+		"full_url", baseURL,
+	)
+
 	return baseURL
 }
-
 func (s *authService) ResetPassword(ctx context.Context, req *dto.ResetPasswordRequest) error {
 	// 查找令牌
 	user, err := s.userRepo.FindByResetToken(ctx, req.Token)
@@ -121,32 +136,4 @@ func (s *authService) ResetPassword(ctx context.Context, req *dto.ResetPasswordR
 	user.ResetPasswordSentAt = nil
 
 	return s.userRepo.Update(ctx, user)
-}
-
-func (s *authService) ValidateResetToken(ctx context.Context, token string) (bool, error) {
-	user, err := s.userRepo.FindByResetToken(ctx, token)
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return false, nil
-		}
-		return false, err
-	}
-
-	if user.ResetPasswordSentAt == nil {
-		return false, nil
-	}
-	tokenExpiry := s.cfg.Private.JWT.Expire
-	if time.Since(*user.ResetPasswordSentAt) > tokenExpiry {
-		return false, nil
-	}
-
-	return true, nil
-}
-
-func (s *authService) generateResetToken() (string, error) {
-	bytes := make([]byte, 32)
-	if _, err := rand.Read(bytes); err != nil {
-		return "", err
-	}
-	return hex.EncodeToString(bytes), nil
 }

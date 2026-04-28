@@ -15,7 +15,7 @@ type NotificationRepository interface {
 	UnreadCount(userID uint) (int64, error)
 	MarkRead(notiID uint) error
 	// update
-MarkAllRead(userID uint) (int64, error)
+	MarkAllRead(userID uint) (int64, error)
 	BatchMarkRead(userID uint, ids []uint) (int64, error) // 新增批量标记
 
 }

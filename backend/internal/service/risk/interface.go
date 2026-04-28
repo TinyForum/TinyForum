@@ -15,6 +15,12 @@ type RiskService interface {
 	RecordRiskEvent(userID uint, eventType, detail string, ttl time.Duration) error
 	WriteAuditLog(operatorID uint, action model.AuditActionType,
 		targetType string, targetID uint, before, after, reason, ip string) error
+	GetAnonymousRiskLevel(ip string) (model.RiskLevel, error)
+	// ip
+	CheckRateLimitByIP(ctx context.Context, ip string, action ratelimit.Action) (ratelimit.Result, error)
+	RecordRiskEventByIP(ip, eventType, detail string, ttl time.Duration) error
+	WriteAuditLogByIP(ip string, action model.AuditActionType, targetType string,
+		targetID uint, before, after, reason string) error
 }
 
 // RiskService 风控核心服务

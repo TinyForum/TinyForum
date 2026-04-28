@@ -22,26 +22,27 @@ func (s *notificationService) Create(userID uint, senderID *uint, notifType mode
 // List 获取用户通知列表（分页）
 // List 获取通知列表（返回 BO）
 func (s *notificationService) List(userID uint, page, pageSize int) (*bo.NotificationListResult, error) {
-    notifications, total, err := s.notifRepo.ListByUser(userID, page, pageSize)
-    if err != nil {
-        return nil, err
-    }
-    
-    unreadCount, err := s.notifRepo.UnreadCount(userID)
-    if err != nil {
-        return nil, err
-    }
-    
-    return &bo.NotificationListResult{
-        List:        modelsToBOs(notifications),  // 使用转换函数
-        Total:       total,
-        UnreadCount: unreadCount,
-        Page:        page,
-        PageSize:    pageSize,
-    }, nil
+	notifications, total, err := s.notifRepo.ListByUser(userID, page, pageSize)
+	if err != nil {
+		return nil, err
+	}
+
+	unreadCount, err := s.notifRepo.UnreadCount(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &bo.NotificationListResult{
+		List:        modelsToBOs(notifications), // 使用转换函数
+		Total:       total,
+		UnreadCount: unreadCount,
+		Page:        page,
+		PageSize:    pageSize,
+	}, nil
 }
+
 // MarkAllRead 标记所有通知为已读
-func (s *notificationService) MarkAllRead(userID uint) (int64,error) {
+func (s *notificationService) MarkAllRead(userID uint) (int64, error) {
 	return s.notifRepo.MarkAllRead(userID)
 }
 
@@ -51,19 +52,19 @@ func (s *notificationService) UnreadCount(userID uint) (int64, error) {
 }
 
 func (s *notificationService) MarkRead(notificationID uint, userID uint) error {
-    // 1. 查询通知（通过 Repository）
-    notif, err := s.notifRepo.GetByID(notificationID)
-    if err != nil {
-        return errors.New("通知不存在")
-    }
-    
-    // 2. 权限验证
-    if notif.UserID != userID {
-        return errors.New("无权操作此通知")
-    }
-    
-    // 3. 标记已读
-    return s.notifRepo.MarkRead(notificationID)
+	// 1. 查询通知（通过 Repository）
+	notif, err := s.notifRepo.GetByID(notificationID)
+	if err != nil {
+		return errors.New("通知不存在")
+	}
+
+	// 2. 权限验证
+	if notif.UserID != userID {
+		return errors.New("无权操作此通知")
+	}
+
+	// 3. 标记已读
+	return s.notifRepo.MarkRead(notificationID)
 }
 
 // BatchMarkRead 批量标记通知为已读

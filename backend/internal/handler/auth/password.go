@@ -2,6 +2,7 @@
 package auth
 
 import (
+	// "log"
 	"tiny-forum/internal/dto"
 	apperrors "tiny-forum/pkg/errors"
 	"tiny-forum/pkg/response"
@@ -10,15 +11,23 @@ import (
 )
 
 // ForgotPassword 忘记密码
+// @Summary 忘记密码
+// @Description 发送密码重置链接到用户邮箱（出于安全考虑，无论邮箱是否存在都返回成功）
+// @Tags 验证管理
+// @Accept json
+// @Produce json
+// @Param request body dto.ForgotPasswordRequest true "邮箱信息"
+// @Success 200 {object} response.Response{data=object,message=string} "成功（邮箱存在与否均返回此消息）"
+// @Failure 400 {object} response.Response "请求参数错误"
+// @Router /auth/password/forgot [post]
 func (c *AuthHandler) ForgotPassword(ctx *gin.Context) {
 	var req dto.ForgotPasswordRequest
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		response.Error(ctx, apperrors.ErrInternalError)
+		response.Error(ctx, apperrors.ErrInvalidRequest)
 		return
 	}
-
-	locale := ctx.GetHeader("Accept-Language")
+	locale := parseAcceptLanguage(ctx.GetHeader("Accept-Language"))
 	if locale == "" {
 		locale = "en"
 	}
@@ -37,6 +46,14 @@ func (c *AuthHandler) ForgotPassword(ctx *gin.Context) {
 }
 
 // ResetPassword 重置密码
+// ConfirmDeletion godoc
+// @Summary 重置密码
+// @Tags 验证管理
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Success 200 {object} response.Response
+// @Router /auth/password/reset [post]
 func (c *AuthHandler) ResetPassword(ctx *gin.Context) {
 	var req dto.ResetPasswordRequest
 
@@ -57,6 +74,14 @@ func (c *AuthHandler) ResetPassword(ctx *gin.Context) {
 }
 
 // ValidateResetToken 验证重置密码 token
+// ConfirmDeletion godoc
+// @Summary 忘记密码
+// @Tags 验证管理
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Success 200 {object} response.Response
+// @Router /auth/password/validate-token [get]
 func (c *AuthHandler) ValidateResetToken(ctx *gin.Context) {
 	token := ctx.Query("token")
 
@@ -65,7 +90,6 @@ func (c *AuthHandler) ValidateResetToken(ctx *gin.Context) {
 		return
 	}
 
-	// 修改调用方式，传递 context 而不是 gin.Context
 	valid, err := c.authSvc.ValidateResetToken(ctx.Request.Context(), token)
 	if err != nil {
 		response.Error(ctx, apperrors.ErrValidationFailed)

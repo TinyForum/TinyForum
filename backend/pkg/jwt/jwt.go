@@ -2,9 +2,11 @@ package jwt
 
 import (
 	"errors"
+
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 )
 
 // Claims 表示 JWT 中携带的自定义声明。
@@ -41,6 +43,7 @@ func (m *JWTManager) Generate(userID uint, username, role string) (string, error
 		Username: username,
 		Role:     role,
 		RegisteredClaims: jwt.RegisteredClaims{
+			ID:        uuid.New().String(),
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(m.expiration)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 			Issuer:    "tiny-forum",
