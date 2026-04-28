@@ -13,6 +13,14 @@ import {
 } from "lucide-react";
 import { CommunityStats } from "../home/CommunityStats";
 
+// 定义范围数据类型
+interface RangeStat {
+  date: string;
+  new_user: number;
+  new_article: number;
+  new_comment: number;
+}
+
 export function Dashboard({ t }: { t: (key: string) => string }) {
   const { stats, exportData, isLoading } = useStatsData(true);
 
@@ -21,7 +29,7 @@ export function Dashboard({ t }: { t: (key: string) => string }) {
     autoFetch: false,
   });
 
-  // 图表 refs（原有 + 新增）
+  // 图表 refs
   const newUserTrendRef = useRef<HTMLDivElement>(null);
   const newPostTrendRef = useRef<HTMLDivElement>(null);
   const newCommentTrendRef = useRef<HTMLDivElement>(null);
@@ -32,17 +40,20 @@ export function Dashboard({ t }: { t: (key: string) => string }) {
     fetchRangeStats({ type: "all" });
   }, [fetchRangeStats]);
 
-  // ========== 新增：新增用户趋势图 ==========
+  // 新增用户趋势图
   useEffect(() => {
     if (!newUserTrendRef.current || !rangeStats?.length) return;
     const chart = echarts.init(newUserTrendRef.current);
     chart.setOption({
       tooltip: { trigger: "axis" },
-      xAxis: { type: "category", data: rangeStats.map((d) => d.date.slice(5)) },
+      xAxis: {
+        type: "category",
+        data: rangeStats.map((d: RangeStat) => d.date.slice(5)),
+      },
       yAxis: { type: "value", name: t("user_count") },
       series: [
         {
-          data: rangeStats.map((d) => d.new_user),
+          data: rangeStats.map((d: RangeStat) => d.new_user),
           type: "line",
           smooth: true,
           areaStyle: { opacity: 0.2 },
@@ -54,17 +65,20 @@ export function Dashboard({ t }: { t: (key: string) => string }) {
     return () => chart.dispose();
   }, [rangeStats, t]);
 
-  // ========== 新增：新增文章趋势图 ==========
+  // 新增文章趋势图
   useEffect(() => {
     if (!newPostTrendRef.current || !rangeStats?.length) return;
     const chart = echarts.init(newPostTrendRef.current);
     chart.setOption({
       tooltip: { trigger: "axis" },
-      xAxis: { type: "category", data: rangeStats.map((d) => d.date.slice(5)) },
+      xAxis: {
+        type: "category",
+        data: rangeStats.map((d: RangeStat) => d.date.slice(5)),
+      },
       yAxis: { type: "value", name: t("post_count") },
       series: [
         {
-          data: rangeStats.map((d) => d.new_article),
+          data: rangeStats.map((d: RangeStat) => d.new_article),
           type: "line",
           smooth: true,
           areaStyle: { opacity: 0.2 },
@@ -76,17 +90,20 @@ export function Dashboard({ t }: { t: (key: string) => string }) {
     return () => chart.dispose();
   }, [rangeStats, t]);
 
-  // ========== 新增：新增评论趋势图 ==========
+  // 新增评论趋势图
   useEffect(() => {
     if (!newCommentTrendRef.current || !rangeStats?.length) return;
     const chart = echarts.init(newCommentTrendRef.current);
     chart.setOption({
       tooltip: { trigger: "axis" },
-      xAxis: { type: "category", data: rangeStats.map((d) => d.date.slice(5)) },
+      xAxis: {
+        type: "category",
+        data: rangeStats.map((d: RangeStat) => d.date.slice(5)),
+      },
       yAxis: { type: "value", name: t("comment_count") },
       series: [
         {
-          data: rangeStats.map((d) => d.new_comment),
+          data: rangeStats.map((d: RangeStat) => d.new_comment),
           type: "line",
           smooth: true,
           areaStyle: { opacity: 0.2 },
@@ -98,14 +115,19 @@ export function Dashboard({ t }: { t: (key: string) => string }) {
     return () => chart.dispose();
   }, [rangeStats, t]);
 
-  // ========== 新增：综合趋势（文章+评论） ==========
+  // 综合趋势（文章+评论）
   useEffect(() => {
     if (!allTrendRef.current || !rangeStats?.length) return;
     const chart = echarts.init(allTrendRef.current);
-    const totalNew = rangeStats.map((d) => d.new_article + d.new_comment);
+    const totalNew = rangeStats.map(
+      (d: RangeStat) => d.new_article + d.new_comment,
+    );
     chart.setOption({
       tooltip: { trigger: "axis" },
-      xAxis: { type: "category", data: rangeStats.map((d) => d.date.slice(5)) },
+      xAxis: {
+        type: "category",
+        data: rangeStats.map((d: RangeStat) => d.date.slice(5)),
+      },
       yAxis: { type: "value", name: t("total_new_content") },
       series: [
         {
@@ -131,7 +153,7 @@ export function Dashboard({ t }: { t: (key: string) => string }) {
 
   return (
     <div className="space-y-6">
-      {/* 核心指标卡片（原有，保持不变） */}
+      {/* 核心指标卡片 */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="stat bg-base-100 rounded-lg border border-base-300 shadow-sm">
           <div className="stat-figure text-primary">
@@ -184,7 +206,7 @@ export function Dashboard({ t }: { t: (key: string) => string }) {
         </div>
       </div>
 
-      {/* 新增四个趋势图 */}
+      {/* 四个趋势图 */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="card bg-base-100 border border-base-300 shadow-sm">
           <div className="card-body p-4">
@@ -220,10 +242,10 @@ export function Dashboard({ t }: { t: (key: string) => string }) {
         </div>
       </div>
 
-      {/* 社区统计组件（原有） */}
+      {/* 社区统计组件 */}
       <CommunityStats />
 
-      {/* 操作栏（原有） */}
+      {/* 操作栏 */}
       <div className="flex justify-end gap-2">
         <button
           onClick={() => window.location.reload()}

@@ -10,7 +10,7 @@ import {
   GetStatsTrendParams,
   GetStatsRangeParams,
   StatsRangeResponse,
-} from "../types/stats.type";
+} from "@/shared/api/types/stats.type";
 
 export const statsApi = {
   // ── 统计数据管理 ──────────────────────────────────────────────────────────────
