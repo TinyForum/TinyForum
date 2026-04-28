@@ -2,7 +2,7 @@
 # TinyForum 主 Makefile
 # ============================================
 
-.PHONY: help all install build clean test api init-config
+.PHONY: help all install build clean test api init-dev
 
 # 包含各个模块
 # include Makefile.common
@@ -11,7 +11,7 @@
 # include Makefile.bench
 
 # 默认目标
-help:
+main-help:
 	@echo "TinyForum Makefile"
 	@echo ""
 	@echo "Development:"
@@ -41,7 +41,7 @@ help:
 	@echo "  make test          - 运行测试"
 
 # 初始化配置
-init-config:
+init-dev:
 	@echo "🚀 Initializing project..."
 	@bash ./dev-script/start-dev.sh
 
@@ -65,11 +65,11 @@ all: install build
 	@echo "✅ All tasks completed"
 
 # 清理
-clean:
-	@echo "🧹 Cleaning build artifacts..."
-	@cd frontend && rm -rf node_modules .next dist build 2>/dev/null || true
-	@cd backend && rm -rf bin 2>/dev/null || true
-	@echo "✅ Clean complete"
+# clean:
+# 	@echo "🧹 Cleaning build artifacts..."
+# 	@cd frontend && rm -rf node_modules .next dist build 2>/dev/null || true
+# 	@cd backend && rm -rf bin 2>/dev/null || true
+# 	@echo "✅ Clean complete"
 
 # 运行测试
 test:
