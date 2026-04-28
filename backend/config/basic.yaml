@@ -1,44 +1,44 @@
+# basic
 # 服务器配置
 server:
-  port: 8080                    # 服务端口
-  mode: debug                   # 运行模式: debug/release/test
-  read_timeout: 30s             # 读取超时
-  write_timeout: 30s            # 写入超时
-  max_header_bytes: 1048576     # 最大请求头大小 (1MB)
+  port: 8080 # 服务端口
+  mode: debug # 运行模式: debug/release/test
+  read_timeout: 30s # 读取超时
+  write_timeout: 30s # 写入超时
+  max_header_bytes: 1048576 # 最大请求头大小 (1MB)
 
 # API配置
 api:
-  protocol: https               # 协议: http/https
-  host: api.example.com         # API主机
-  port: 443                     # API端口
-  version: v1                   # API版本
-  prefix: /api                  # API路径前缀
+  protocol: https # 协议: http/https
+  host: api.example.com # API主机
+  port: 443 # API端口
+  version: v1 # API版本
+  prefix: /api # API路径前缀
 
 # JWT配置
 jwt:
-  secret: "your-super-secret-jwt-key-change-in-production"  # JWT密钥
-  expire: 24h                    # 访问令牌过期时间
-  refresh_expire: 168h           # 刷新令牌过期时间 (7天)
-  issuer: "tiny-forum"          # 签发者
+  secret: "your-super-secret-jwt-key-change-in-production" # JWT密钥
+  expire: 24h # 访问令牌过期时间
+  refresh_expire: 168h # 刷新令牌过期时间 (7天)
+  issuer: "tiny-forum" # 签发者
 
 # 日志配置
 log:
-  level: info                    # 日志级别: debug/info/warn/error
-  filename: ./logs/app.log       # 日志文件路径
-  max_size: 100                  # 单个日志文件最大大小(MB)
-  max_backups: 10                # 保留的旧日志文件最大数量
-  max_age: 30                    # 保留日志文件的最大天数
-  compress: true                 # 是否压缩旧日志文件
-  console: true                  # 是否输出到控制台
-  json_format: false             # 是否使用JSON格式
-
+  level: info # 日志级别: debug/info/warn/error
+  filename: ./logs/app.log # 日志文件路径
+  max_size: 100 # 单个日志文件最大大小(MB)
+  max_backups: 10 # 保留的旧日志文件最大数量
+  max_age: 30 # 保留日志文件的最大天数
+  compress: true # 是否压缩旧日志文件
+  console: true # 是否输出到控制台
+  json_format: false # 是否使用JSON格式
 
 # 限流配置
 rate_limit:
-  enabled: true                 # 是否启用
-  requests: 100                 # 请求次数
-  duration: 60                  # 时间窗口(秒)
-  burst: 50                     # 突发请求数
+  enabled: true # 是否启用
+  requests: 100 # 请求次数
+  duration: 60 # 时间窗口(秒)
+  burst: 50 # 突发请求数
 
 ollama:
   base_url: http://localhost:11434
@@ -54,7 +54,7 @@ allow_origins:
 
 # 上传配置
 upload:
-  max_size: 10485760  # 10MB，默认
+  max_size: 10485760 # 10MB，默认
   allowed_types:
     - .jpg
     - .jpeg
@@ -64,7 +64,7 @@ upload:
     - .pdf
     - .zip
   avatar:
-    max_size: 2097152   # 2MB
+    max_size: 2097152 # 2MB
     allowed_types:
       - .jpg
       - .jpeg
@@ -73,7 +73,7 @@ upload:
     width: 512
     height: 512
   post_image:
-    max_size: 5242880   # 5MB
+    max_size: 5242880 # 5MB
     allowed_types:
       - .jpg
       - .jpeg
@@ -81,6 +81,6 @@ upload:
       - .gif
       - .webp
   storage:
-    type: local  # local, oss, cos
+    type: local # local, oss, cos
     local_path: ./uploads
     url_prefix: /uploads/

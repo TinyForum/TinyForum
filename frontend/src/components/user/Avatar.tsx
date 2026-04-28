@@ -61,6 +61,17 @@ export default function Avatar({
     return { width: pxSize, height: pxSize };
   }, [size]);
 
+  // 获取图片的实际像素尺寸（用于 Image 组件）
+  const imageSize = useMemo(() => {
+    if (size === "full") {
+      return undefined; // 使用 fill 模式
+    }
+    if (typeof size === "number") {
+      return size;
+    }
+    return SIZE_MAP[size];
+  }, [size]);
+
   // 获取形状样式
   const getShapeStyles = (): string => {
     if (shape === "circle") return "rounded-full";
@@ -108,27 +119,44 @@ export default function Avatar({
     );
   }
 
-  // 判断是否为完整尺寸
+  // 判断是否为完整尺寸（需要 fill 模式）
   const isFullSize = size === "full";
-  const imageWidth = isFullSize ? undefined : (sizeStyle.width as number);
-  const imageHeight = isFullSize ? undefined : (sizeStyle.height as number);
 
   return (
     <div className={`avatar ${className}`}>
       <div
-        className={`overflow-hidden bg-base-200 flex items-center justify-center ${shapeStyle} ${ringStyle}`}
+        className={`relative overflow-hidden bg-base-200 flex items-center justify-center ${shapeStyle} ${ringStyle}`}
         style={sizeStyle}
       >
-        <Image
-          src={avatarUrl}
-          alt={username || "用户头像"}
-          width={imageWidth}
-          height={imageHeight}
-          className="w-full h-full object-cover"
-          onError={handleError}
-          loading="lazy"
-          unoptimized={!avatarUrl.startsWith("/") && !avatarUrl.includes("cdn")}
-        />
+        {isFullSize ? (
+          // 使用 fill 模式（父元素必须有 relative 定位）
+          <Image
+            src={avatarUrl}
+            alt={username || "用户头像"}
+            fill
+            className="object-cover"
+            onError={handleError}
+            loading="lazy"
+            sizes="100%"
+            unoptimized={
+              !avatarUrl.startsWith("/") && !avatarUrl.includes("cdn")
+            }
+          />
+        ) : (
+          // 使用明确的宽高
+          <Image
+            src={avatarUrl}
+            alt={username || "用户头像"}
+            width={imageSize}
+            height={imageSize}
+            className="object-cover"
+            onError={handleError}
+            loading="lazy"
+            unoptimized={
+              !avatarUrl.startsWith("/") && !avatarUrl.includes("cdn")
+            }
+          />
+        )}
       </div>
     </div>
   );

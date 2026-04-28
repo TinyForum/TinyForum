@@ -1,5 +1,5 @@
 import apiClient from "../client";
-import { ApiResponse } from "../types";
+import { ApiResponse } from "@/shared/api/types";
 import {
   // StatsDayResponse,
   StatsTodayInfo,

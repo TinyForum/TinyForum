@@ -1,6 +1,7 @@
 package notification
 
 import (
+	"errors"
 	"tiny-forum/internal/model"
 )
 
@@ -30,4 +31,20 @@ func (s *notificationService) MarkAllRead(userID uint) error {
 // UnreadCount 获取未读通知数量
 func (s *notificationService) UnreadCount(userID uint) (int64, error) {
 	return s.notifRepo.UnreadCount(userID)
+}
+
+func (s *notificationService) MarkRead(notificationID uint, userID uint) error {
+    // 1. 查询通知（通过 Repository）
+    notif, err := s.notifRepo.GetByID(notificationID)
+    if err != nil {
+        return errors.New("通知不存在")
+    }
+    
+    // 2. 权限验证
+    if notif.UserID != userID {
+        return errors.New("无权操作此通知")
+    }
+    
+    // 3. 标记已读
+    return s.notifRepo.MarkRead(notificationID)
 }

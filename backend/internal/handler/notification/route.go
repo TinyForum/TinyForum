@@ -15,6 +15,7 @@ func (h *NotificationHandler) RegisterRoutes(api *gin.RouterGroup, mw *middlewar
 		notifGroup.GET("", h.List)
 		notifGroup.GET("/unread-count", h.UnreadCount)
 		notifGroup.POST("/read-all", h.MarkAllRead)
+		notifGroup.POST("/:id/read", h.MarkRead)
 	}
 
 }

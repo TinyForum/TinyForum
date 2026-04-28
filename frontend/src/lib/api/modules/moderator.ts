@@ -1,5 +1,6 @@
+import { ApiResponse } from "@/shared/api/types";
 import apiClient from "../client";
-import { ApiResponse } from "../types";
+// import { ApiResponse } from "../types";
 
 export interface ApplyModeratorForm {
   reason: string;
