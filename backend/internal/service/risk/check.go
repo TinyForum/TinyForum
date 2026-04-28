@@ -58,26 +58,26 @@ func (s *riskService) GetAnonymousRiskLevel(ip string) (model.RiskLevel, error) 
 // CheckRateLimitByIP 检查匿名用户（未登录）操作频率是否超限
 func (s *riskService) CheckRateLimitByIP(ctx context.Context, ip string, action ratelimit.Action) (ratelimit.Result, error) {
 	log.Printf("[RateLimit] Anonymous user IP: %s, action: %s", ip, action)
-	
+
 	// 未登录用户使用固定的 IP 限流规则
 	quota := getAnonymousQuota(action)
-	
+
 	// 使用 IP 作为标识符，固定使用 normal 等级
 	identifier := fmt.Sprintf("ip:%s", ip)
-	
+
 	return s.limiter.Allow(ctx, identifier, action, ratelimit.RiskNormal, quota)
 }
 
 func getAnonymousQuota(action ratelimit.Action) ratelimit.Quota {
 	switch action {
 	case ratelimit.ActionLogin:
-		return ratelimit.Quota{Limit: 5, Window: 5 * time.Minute}      // 5分钟内最多5次
+		return ratelimit.Quota{Limit: 5, Window: 5 * time.Minute} // 5分钟内最多5次
 	case ratelimit.ActionRegister:
-		return ratelimit.Quota{Limit: 3, Window: 1 * time.Hour}        // 1小时内最多3次
+		return ratelimit.Quota{Limit: 3, Window: 1 * time.Hour} // 1小时内最多3次
 	case ratelimit.ActionGetPost, ratelimit.ActionGetComment:
-		return ratelimit.Quota{Limit: 100, Window: 1 * time.Minute}    // 读取操作宽松
+		return ratelimit.Quota{Limit: 100, Window: 1 * time.Minute} // 读取操作宽松
 	default:
-		return ratelimit.Quota{Limit: 10, Window: time.Minute}         // 默认：每分钟10次
+		return ratelimit.Quota{Limit: 10, Window: time.Minute} // 默认：每分钟10次
 	}
 }
 

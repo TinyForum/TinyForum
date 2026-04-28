@@ -10,7 +10,7 @@ import (
 )
 
 type RateLimiter interface {
-	Allow(ctx context.Context, identifier string, action Action, riskLevel RiskLevel,customQuota ...Quota) (Result, error)
+	Allow(ctx context.Context, identifier string, action Action, riskLevel RiskLevel, customQuota ...Quota) (Result, error)
 	GetQuota(ctx context.Context, userID uint, action Action, riskLevel RiskLevel) (Result, error)
 }
 
