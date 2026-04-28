@@ -50,7 +50,7 @@ export function PointsManager() {
     isSettingScore,
   } = useScoreData();
 
-  const t  = useTranslations("Common");
+  const t  = useTranslations("Admin");
   // 表单状态
   const [userId, setUserId] = useState<string>("");
   const [pointsAmount, setPointsAmount] = useState<number>(0);

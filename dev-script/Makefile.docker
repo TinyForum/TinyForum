@@ -28,7 +28,7 @@ COLOR_CYAN := \033[36m
 .DEFAULT_GOAL := help
 
 # 帮助信息
-help:
+docker-help:
 	@echo "$(COLOR_CYAN)🐳 Docker Compose 管理命令$(COLOR_RESET)"
 	@echo "$(COLOR_GREEN)可用命令：$(COLOR_RESET)"
 	@echo ""

@@ -43,7 +43,7 @@ help:
 # 初始化配置
 init-config:
 	@echo "🚀 Initializing project..."
-	@bash ./start-dev.sh
+	@bash ./dev-script/start-dev.sh
 
 # 安装依赖
 install:
