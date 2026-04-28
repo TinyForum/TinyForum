@@ -2,8 +2,9 @@
  * api/modules/auth.ts
  */
 
+import { ApiResponse, AuthResult, User } from "@/shared/api/types";
 import apiClient from "../client";
-import type { ApiResponse, AuthResult, User } from "../types";
+import ForgotPasswordPage from "@/app/[locale]/auth/forgot-password/page";
 
 export interface RegisterPayload {
   username: string;
@@ -40,23 +41,24 @@ export const authApi = {
 
   // 请求注销账户（软删除）
   deleteAccount: (data?: { confirm: string; password?: string }) =>
-    apiClient.delete<ApiResponse<null>>("/auth/delete-account", {
+    apiClient.delete<ApiResponse<null>>("/auth/account", {
       withCredentials: true,
       data,
     }),
 
   // 取消注销（恢复账户）
   cancelDeletion: () =>
-    apiClient.post<ApiResponse<null>>("/auth/cancel-deletion", null, {
+    apiClient.post<ApiResponse<null>>("/auth/account/restore", null, {
       withCredentials: true,
     }),
 
   // 确认永久删除（硬删除）
   confirmDeletion: (data?: { confirm: string; password?: string }) =>
-    apiClient.delete<ApiResponse<null>>("/auth/confirm-deletion", {
+    apiClient.delete<ApiResponse<null>>("/auth/account/permanent", {
       withCredentials: true,
       data,
     }),
+  // 获取注销状态
   getDeletionStatus: () =>
     apiClient.get<
       ApiResponse<{
@@ -65,7 +67,13 @@ export const authApi = {
         can_restore: boolean;
         remaining_days?: number;
       }>
-    >("/auth/deletion-status", {
+    >("/auth/account/deletion", {
       withCredentials: true,
     }),
+  // 忘记密码
+  forgotPassword: (data: { email: string }) =>
+    apiClient.post<ApiResponse<null>>("/auth/password/forgot", data),
+  // 重置密码
+  resetPassword: (data: { token: string; password: string }) =>
+    apiClient.post<ApiResponse<null>>("/auth/password/reset", data),
 };

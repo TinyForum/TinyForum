@@ -12,3 +12,16 @@ export interface ApiError {
   };
   message?: string;
 }
+
+export interface ApiResponse<T = unknown> {
+  code: number;
+  message: string;
+  data?: T; // 改为可选
+}
+
+export interface PageData<T> {
+  list: T[];
+  total: number;
+  page: number;
+  page_size: number;
+}

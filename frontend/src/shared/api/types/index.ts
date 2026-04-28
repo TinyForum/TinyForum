@@ -1,3 +1,4 @@
+export * from "./basic.type";
 /**
  * api/types/index.ts
  * 所有 API 共用的请求 / 响应类型
@@ -8,18 +9,6 @@ import { UserRoleType } from "@/type/roles.types";
 // ─── 通用包装 ─────────────────────────────────────────────────────────────────
 
 // api/types/index.ts
-export interface ApiResponse<T = unknown> {
-  code: number;
-  message: string;
-  data?: T; // 改为可选
-}
-
-export interface PageData<T> {
-  list: T[];
-  total: number;
-  page: number;
-  page_size: number;
-}
 
 // ─── 枚举 ─────────────────────────────────────────────────────────────────────
 
