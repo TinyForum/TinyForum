@@ -19,15 +19,13 @@ function createClient(config?: AxiosRequestConfig): AxiosInstance {
   instance.interceptors.response.use(
     (res) => res,
     (err: AxiosError) => {
-      if (err.response?.status === 401 && typeof window !== "undefined") {
-        const pathname = window.location.pathname;
-        const isLoginPage = pathname.includes("/auth/login");
-        if (!isLoginPage) {
-          // 提取当前 locale 前缀，保持跳转一致
-          const localeMatch = pathname.match(/^\/(zh-CN|en|ja)/);
-          const locale = localeMatch ? localeMatch[1] : "zh-CN";
-          window.location.href = `/${locale}/auth/login`;
-        }
+      // ✅ 跳过登出接口
+      if (err.config?.url?.includes("/auth/logout")) {
+        return Promise.resolve({ data: { code: 0 } });
+      }
+
+      if (err.response?.status === 401) {
+        window.location.href = `/auth/login`;
       }
       return Promise.reject(err);
     },
