@@ -47,7 +47,9 @@ if command -v psql >/dev/null 2>&1; then
     echo -e "${GREEN}✅ psql found: $(psql --version)${NC}"
 else
     echo -e "${YELLOW}⚠️  psql not found - PostgreSQL client tools not installed${NC}"
-    echo "   Install with: brew install libpq (macOS) or apt-get install postgresql-client (Ubuntu)"
+    echo "   Install with:"
+    echo "      brew install libpq (macOS)"
+    echo "      sudo apt update && sudo apt install postgresql postgresql-contrib (Ubuntu)"    
 fi
 
 echo ""
