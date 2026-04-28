@@ -87,20 +87,20 @@ func (l *Limiter) Allow(ctx context.Context, identifier string, action Action, r
 	// 优先使用自定义配额（匿名用户场景）
 	if len(customQuota) > 0 {
 		quota := customQuota[0]
-		log.Printf("[Limiter] Using custom quota for %s: limit=%d, window=%v", 
+		log.Printf("[Limiter] Using custom quota for %s: limit=%d, window=%v",
 			identifier, quota.Limit, quota.Window)
 		return l.checkAndRecord(ctx, identifier, action, quota)
 	}
-	
+
 	// 已登录用户：使用配置中的配额
 	if level, ok := l.quotas[riskLevel]; ok {
 		if quota, ok := level[action]; ok {
-			log.Printf("[Limiter] Using configured quota for %s: limit=%d, window=%v", 
+			log.Printf("[Limiter] Using configured quota for %s: limit=%d, window=%v",
 				identifier, quota.Limit, quota.Window)
 			return l.checkAndRecord(ctx, identifier, action, quota)
 		}
 	}
-	
+
 	// 未配置则不限流
 	log.Printf("[Limiter] No quota found for %s/%s, allowing request", riskLevel, action)
 	return Result{Allowed: true}, nil

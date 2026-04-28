@@ -16,9 +16,9 @@ import (
 func RateLimitMiddleware(db *gorm.DB, riskSvc riskservice.RiskService, action ratelimit.Action) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// 添加调试日志
-		log.Printf("[RateLimit] Processing request: %s %s, action: %s", 
+		log.Printf("[RateLimit] Processing request: %s %s, action: %s",
 			c.Request.Method, c.Request.URL.Path, action)
-		
+
 		userIDRaw, exists := c.Get(ContextUserID)
 
 		// 情况1：未登录用户，使用IP限流
@@ -54,7 +54,7 @@ func handleAnonymousUser(c *gin.Context, riskSvc riskservice.RiskService, action
 	log.Printf("[RateLimit] IP %s - Allowed: %v, Current: %d, Limit: %d, ResetIn: %.0fs",
 		ip, result.Allowed, result.Current, result.Limit, result.ResetIn)
 
-				resetSeconds := int(result.ResetIn.Seconds())
+	resetSeconds := int(result.ResetIn.Seconds())
 	if resetSeconds < 0 {
 		resetSeconds = 0
 	}
@@ -74,9 +74,9 @@ func handleAnonymousUser(c *gin.Context, riskSvc riskservice.RiskService, action
 }
 
 // handleAuthenticatedUser 处理已登录用户的限流
-func handleAuthenticatedUser(c *gin.Context, db *gorm.DB, riskSvc riskservice.RiskService, 
+func handleAuthenticatedUser(c *gin.Context, db *gorm.DB, riskSvc riskservice.RiskService,
 	action ratelimit.Action, userIDRaw interface{}) {
-	
+
 	userID, ok := userIDRaw.(uint)
 	if !ok {
 		log.Printf("[RateLimit] Invalid user ID type, skipping rate limit")
@@ -112,13 +112,13 @@ func handleAuthenticatedUser(c *gin.Context, db *gorm.DB, riskSvc riskservice.Ri
 	log.Printf("[RateLimit] User %d - Allowed: %v, Current: %d, Limit: %d, ResetIn: %.0fs",
 		userID, result.Allowed, result.Current, result.Limit, result.ResetIn)
 
-		resetSeconds := int(result.ResetIn.Seconds())
+	resetSeconds := int(result.ResetIn.Seconds())
 	if resetSeconds < 0 {
 		resetSeconds = 0
 	}
 	if !result.Allowed {
 		setRateLimitHeaders(c, result)
-		
+
 		// 根据用户信用分显示不同的提示
 		if user.Score < 50 {
 			response.TooManyRequests(c, "您的账号信用分较低，操作频率受限，请提升信用分后再试")
