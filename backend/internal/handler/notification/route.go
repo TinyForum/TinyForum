@@ -12,10 +12,13 @@ import (
 func (h *NotificationHandler) RegisterRoutes(api *gin.RouterGroup, mw *middleware.MiddlewareSet) {
 	notifGroup := api.Group("/notifications", mw.AuthMW())
 	{
-		notifGroup.GET("", h.List)
-		notifGroup.GET("/unread-count", h.UnreadCount)
-		notifGroup.POST("/read-all", h.MarkAllRead)
+		notifGroup.GET("", h.List) // 获取列表
+		notifGroup.GET("/count/unread", h.UnreadCount) // 获取未读数量
 		notifGroup.POST("/:id/read", h.MarkRead)
 	}
+	batchGroup := notifGroup.Group("/batch")
+		{
+			batchGroup.PATCH("/read", h.BatchMarkRead)
+		}
 
 }

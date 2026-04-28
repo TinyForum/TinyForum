@@ -133,6 +133,22 @@ definitions:
     - content
     - post_id
     type: object
+  dto.BatchMarkReadRequest:
+    properties:
+      ids:
+        description: 通知ID列表，为空则标记所有
+        items:
+          type: integer
+        type: array
+    type: object
+  dto.BatchMarkReadResponse:
+    properties:
+      message:
+        type: string
+      updated_count:
+        description: 实际更新的数量
+        type: integer
+    type: object
   dto.CreateAnnouncementRequest:
     properties:
       board_id:
@@ -4827,9 +4843,15 @@ paths:
       summary: 获取通知列表
       tags:
       - 通知管理
-  /notifications/read-all:
+  /notifications/{id}/read:
     post:
-      description: 将当前用户的所有未读通知标记为已读
+      description: 将指定ID的通知标记为已读
+      parameters:
+      - description: 通知ID
+        in: path
+        name: id
+        required: true
+        type: integer
       produces:
       - application/json
       responses:
@@ -4842,6 +4864,58 @@ paths:
                 data:
                   type: object
               type: object
+        "400":
+          description: 无效的通知ID
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "403":
+          description: 无权操作
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: 通知不存在
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 标记单个通知为已读
+      tags:
+      - 通知管理
+  /notifications/batch/read:
+    patch:
+      consumes:
+      - application/json
+      description: 批量将指定ID的通知标记为已读，或不传ID则标记所有为已读
+      parameters:
+      - description: 批量标记请求
+        in: body
+        name: request
+        schema:
+          $ref: '#/definitions/dto.BatchMarkReadRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 标记成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.BatchMarkReadResponse'
+              type: object
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/response.Response'
         "401":
           description: 未授权
           schema:
@@ -4852,10 +4926,10 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - ApiKeyAuth: []
-      summary: 标记所有通知为已读
+      summary: 批量标记通知为已读
       tags:
       - 通知管理
-  /notifications/unread-count:
+  /notifications/count/unread:
     get:
       description: 获取当前用户未读通知的总数
       produces:

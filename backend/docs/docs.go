@@ -4843,21 +4843,34 @@ const docTemplate = `{
                 }
             }
         },
-        "/notifications/read-all": {
-            "post": {
+        "/notifications/batch/read": {
+            "patch": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "将当前用户的所有未读通知标记为已读",
+                "description": "批量将指定ID的通知标记为已读，或不传ID则标记所有为已读",
+                "consumes": [
+                    "application/json"
+                ],
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "通知管理"
                 ],
-                "summary": "标记所有通知为已读",
+                "summary": "批量标记通知为已读",
+                "parameters": [
+                    {
+                        "description": "批量标记请求",
+                        "name": "request",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BatchMarkReadRequest"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "标记成功",
@@ -4870,11 +4883,17 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "type": "object"
+                                            "$ref": "#/definitions/dto.BatchMarkReadResponse"
                                         }
                                     }
                                 }
                             ]
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "401": {
@@ -4892,7 +4911,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/notifications/unread-count": {
+        "/notifications/count/unread": {
             "get": {
                 "security": [
                     {
@@ -4928,6 +4947,82 @@ const docTemplate = `{
                     },
                     "401": {
                         "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/notifications/{id}/read": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "将指定ID的通知标记为已读",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "通知管理"
+                ],
+                "summary": "标记单个通知为已读",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "通知ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "标记成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "无效的通知ID",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "无权操作",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "通知不存在",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -8469,6 +8564,30 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "post_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.BatchMarkReadRequest": {
+            "type": "object",
+            "properties": {
+                "ids": {
+                    "description": "通知ID列表，为空则标记所有",
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
+        "dto.BatchMarkReadResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "updated_count": {
+                    "description": "实际更新的数量",
                     "type": "integer"
                 }
             }
