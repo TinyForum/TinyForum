@@ -2,9 +2,8 @@
 
 import { useDeleteAccountStore } from "@/store/delete";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 
-export default function DangerZone({ user }: { user: any }) {
+export default function DangerZone() {
   const router = useRouter();
   const {
     isModalOpen,
@@ -17,20 +16,7 @@ export default function DangerZone({ user }: { user: any }) {
     resetForm,
   } = useDeleteAccountStore();
 
-  // 监听删除成功，跳转首页
-  useEffect(() => {
-    const checkDeleteSuccess = async () => {
-      const result = await deleteAccount();
-      if (result.success) {
-        router.push("/");
-        router.refresh();
-      }
-    };
-    // 这个 useEffect 需要调整，不应该自动调用
-    // 更好的做法是在 handleDeleteAccount 中处理跳转
-  }, []);
-
-  const handleDeleteAccount = async () => {
+  const handleDeleteAccount = async (): Promise<void> => {
     const result = await deleteAccount();
     if (result.success) {
       router.push("/");
@@ -38,7 +24,7 @@ export default function DangerZone({ user }: { user: any }) {
     }
   };
 
-  const handleCloseModal = () => {
+  const handleCloseModal = (): void => {
     setModalOpen(false);
     resetForm();
   };
@@ -95,7 +81,9 @@ export default function DangerZone({ user }: { user: any }) {
               <input
                 type="text"
                 value={confirmText}
-                onChange={(e) => setConfirmText(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
+                  setConfirmText(e.target.value)
+                }
                 placeholder="输入 DELETE"
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 dark:bg-gray-700 dark:text-white"
                 autoFocus

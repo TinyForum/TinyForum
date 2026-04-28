@@ -4,7 +4,6 @@
 import Link from "next/link";
 import { ArrowUpIcon, ArrowDownIcon } from "lucide-react";
 import {
-  UserCircleIcon,
   CalendarIcon,
   CheckBadgeIcon,
   ChatBubbleLeftRightIcon,

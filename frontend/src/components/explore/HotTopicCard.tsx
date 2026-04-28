@@ -5,7 +5,6 @@ import {
   UserGroupIcon,
   ArrowRightIcon,
   HashtagIcon,
-  FireIcon,
 } from "@heroicons/react/24/outline";
 
 interface HotTopicCardProps {
@@ -17,7 +16,6 @@ interface HotTopicCardProps {
 export function HotTopicCard({
   topic,
   rank,
-  showTodayCount = true,
 }: HotTopicCardProps) {
   // 获取排名样式
   const getRankStyles = (rank: number) => {

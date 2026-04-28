@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { authApi, userApi } from "@/lib/api";
@@ -20,6 +20,7 @@ import {
   Mail,
   History,
 } from "lucide-react";
+import type { User } from "@/lib/api/types";
 
 // 弱密码验证（仅用于提示，不强制）
 const passwordSchema = z
@@ -36,7 +37,14 @@ const passwordSchema = z
 type PasswordForm = z.infer<typeof passwordSchema>;
 
 // 密码强度计算
-function calculatePasswordStrength(password: string) {
+interface PasswordStrength {
+  score: number;
+  level: string;
+  color: string;
+  message: string;
+}
+
+function calculatePasswordStrength(password: string): PasswordStrength {
   if (!password)
     return { score: 0, level: "无", color: "bg-gray-200", message: "" };
 
@@ -71,16 +79,16 @@ function calculatePasswordStrength(password: string) {
 }
 
 interface SecuritySettingsProps {
-  user: any;
+  user: User;
 }
 
 export default function SecuritySettings({ user }: SecuritySettingsProps) {
   const router = useRouter();
-  const [passwordLoading, setPasswordLoading] = useState(false);
-  const [showOldPassword, setShowOldPassword] = useState(false);
-  const [showNewPassword, setShowNewPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [passwordStrength, setPasswordStrength] = useState({
+  const [passwordLoading, setPasswordLoading] = useState<boolean>(false);
+  const [showOldPassword, setShowOldPassword] = useState<boolean>(false);
+  const [showNewPassword, setShowNewPassword] = useState<boolean>(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
+  const [passwordStrength, setPasswordStrength] = useState<PasswordStrength>({
     score: 0,
     level: "无",
     color: "bg-gray-200",
@@ -91,7 +99,7 @@ export default function SecuritySettings({ user }: SecuritySettingsProps) {
     register,
     handleSubmit,
     reset,
-    watch,
+    control,
     formState: { errors, isValid },
   } = useForm<PasswordForm>({
     resolver: zodResolver(passwordSchema),
@@ -103,16 +111,26 @@ export default function SecuritySettings({ user }: SecuritySettingsProps) {
     },
   });
 
-  const newPasswordValue = watch("newPassword");
+  // 使用 useWatch 替代 watch
+  const newPasswordValue = useWatch({
+    control,
+    name: "newPassword",
+    defaultValue: "",
+  });
+
+  const confirmPasswordValue = useWatch({
+    control,
+    name: "confirmPassword",
+    defaultValue: "",
+  });
 
   useEffect(() => {
     setPasswordStrength(calculatePasswordStrength(newPasswordValue || ""));
   }, [newPasswordValue]);
 
-  const onSubmit = async (data: PasswordForm) => {
+  const onSubmit = async (data: PasswordForm): Promise<void> => {
     setPasswordLoading(true);
     try {
-      // 修改这里：将驼峰命名转换为下划线命名
       await userApi.changePassword({
         old_password: data.oldPassword,
         new_password: data.newPassword,
@@ -126,12 +144,17 @@ export default function SecuritySettings({ user }: SecuritySettingsProps) {
         authApi.logout();
         router.push("/auth/login");
       }, 3000);
-    } catch (err) {
+    } catch (err: unknown) {
       toast.error(getErrorMessage(err));
     } finally {
       setPasswordLoading(false);
     }
   };
+
+  // 获取最后登录时间（示例数据，实际应从 API 获取）
+  const lastLoginTime = "今天 14:30";
+  const emailStatus = user?.email ? "已验证" : "未验证";
+
   return (
     <div className="space-y-6">
       {/* 页面标题 */}
@@ -164,7 +187,7 @@ export default function SecuritySettings({ user }: SecuritySettingsProps) {
               </div>
               <div>
                 <p className="text-xs text-base-content/60">最后登录</p>
-                <p className="font-semibold text-sm">今天 14:30</p>
+                <p className="font-semibold text-sm">{lastLoginTime}</p>
               </div>
             </div>
           </div>
@@ -178,7 +201,7 @@ export default function SecuritySettings({ user }: SecuritySettingsProps) {
               </div>
               <div>
                 <p className="text-xs text-base-content/60">邮箱状态</p>
-                <p className="font-semibold text-sm">已验证</p>
+                <p className="font-semibold text-sm">{emailStatus}</p>
               </div>
             </div>
           </div>
@@ -321,9 +344,9 @@ export default function SecuritySettings({ user }: SecuritySettingsProps) {
                   {errors.confirmPassword.message}
                 </p>
               )}
-              {watch("confirmPassword") &&
+              {confirmPasswordValue &&
                 !errors.confirmPassword &&
-                watch("newPassword") === watch("confirmPassword") && (
+                newPasswordValue === confirmPasswordValue && (
                   <p className="text-success text-xs mt-1 flex items-center gap-1">
                     <CheckCircle className="w-3 h-3" />
                     密码匹配

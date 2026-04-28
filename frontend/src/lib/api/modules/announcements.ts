@@ -1,6 +1,6 @@
 // lib/api/modules/announcements.ts
 import apiClient from "../client";
-import type { ApiResponse, PageData } from "../types";
+import type { ApiResponse, } from "../types";
 
 // ============ 类型定义 ============
 

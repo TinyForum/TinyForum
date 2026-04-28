@@ -12,7 +12,6 @@ export default function SearchBar({
   keyword,
   onKeywordChange,
   placeholder,
-  t,
 }: SearchBarProps) {
   return (
     <div className="relative">

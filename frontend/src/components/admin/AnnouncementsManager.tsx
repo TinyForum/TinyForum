@@ -2,20 +2,35 @@
 "use client";
 
 import { useState } from "react";
-import { format, formatISO, isValid, parse, parseISO } from "date-fns";
+import { format, parseISO, isValid } from "date-fns";
 import { zhCN } from "date-fns/locale";
 import toast from "react-hot-toast";
 import { Globe, BookOpen, Megaphone } from "lucide-react";
 import type {
   Announcement,
   AnnouncementType,
+  AnnouncementStatus,
 } from "@/lib/api/modules/announcements";
 import { useAdminAnnouncements } from "@/hooks/admin/useAdminAnnouncements";
 import { useBoard } from "@/hooks/useBoard";
-// import { AnnouncementList } from "./AnnouncementList";
 import { AnnouncementForm } from "./AnnouncementForm";
 import { AnnouncementList } from "./AnnouncementList";
-// import { AnnouncementList } from "./AnnouncementList";
+
+import { CreateAnnouncementPayload } from "@/lib/api/modules/announcements";
+// 类型定义 - 让可选字段真正可选
+interface AnnouncementFormValues {
+  title: string;
+  content: string;
+  summary?: string;
+  cover?: string;
+  type: AnnouncementType;
+  is_pinned: boolean;
+  status: AnnouncementStatus;
+  is_global: boolean;
+  board_id?: number | null;
+  published_at?: string | null;
+  expired_at?: string | null;
+}
 
 // 日期格式化
 const formatDate = (dateStr: string | null): string => {
@@ -25,16 +40,37 @@ const formatDate = (dateStr: string | null): string => {
   return format(date, "yyyy-MM-dd HH:mm", { locale: zhCN });
 };
 
-const formatDateTimeLocal = (
-  value: string | null | undefined,
-): string | null => {
-  if (!value) return null;
-  const date = parse(value, "yyyy-MM-dd'T'HH:mm", new Date());
-  return formatISO(date);
+// 将 ISO 日期转换为 datetime-local 需要的格式
+const toDateTimeLocal = (isoString: string | null | undefined): string => {
+  if (!isoString) return "";
+  try {
+    const date = new Date(isoString);
+    if (isNaN(date.getTime())) return "";
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  } catch {
+    return "";
+  }
+};
+
+// 将 datetime-local 值转换为 ISO 格式
+const fromDateTimeLocal = (localValue: string | null | undefined): string | null => {
+  if (!localValue) return null;
+  try {
+    const date = new Date(localValue);
+    if (isNaN(date.getTime())) return null;
+    return date.toISOString();
+  } catch {
+    return null;
+  }
 };
 
 // 转换公告数据为表单数据
-const announcementToFormValues = (announcement: Announcement) => {
+const announcementToFormValues = (announcement: Announcement): AnnouncementFormValues => {
   return {
     title: announcement.title,
     content: announcement.content,
@@ -45,8 +81,24 @@ const announcementToFormValues = (announcement: Announcement) => {
     status: announcement.status,
     is_global: announcement.is_global,
     board_id: announcement.board_id || null,
-    published_at: announcement.published_at,
-    expired_at: announcement.expired_at,
+    published_at: toDateTimeLocal(announcement.published_at),
+    expired_at: toDateTimeLocal(announcement.expired_at),
+  };
+};
+
+// 转换表单提交数据
+const formValuesToPayload = (values: AnnouncementFormValues): CreateAnnouncementPayload => {
+  return {
+    title: values.title,
+    content: values.content,
+    summary: values.summary || "",
+    cover: values.cover || "",
+    type: values.type,
+    is_pinned: values.is_pinned,
+    is_global: values.is_global,
+    board_id: values.is_global ? null : (values.board_id || null),
+    published_at: fromDateTimeLocal(values.published_at),
+    expired_at: fromDateTimeLocal(values.expired_at),
   };
 };
 
@@ -54,9 +106,8 @@ export function AnnouncementsManager({ t }: { t: (key: string) => string }) {
   const [announcementType, setAnnouncementType] = useState<"global" | "board">(
     "global",
   );
-  const [modalVisible, setModalVisible] = useState(false);
-  const [editingAnnouncement, setEditingAnnouncement] =
-    useState<Announcement | null>(null);
+  const [modalVisible, setModalVisible] = useState<boolean>(false);
+  const [editingAnnouncement, setEditingAnnouncement] = useState<Announcement | null>(null);
 
   const {
     announcements,
@@ -78,18 +129,16 @@ export function AnnouncementsManager({ t }: { t: (key: string) => string }) {
   });
 
   // 过滤公告
-  const filteredAnnouncements = announcements.filter((ann) => {
-    // 先按全局/板块过滤
+  const filteredAnnouncements = announcements.filter((ann: Announcement) => {
     if (announcementType === "global") {
       if (ann.is_global !== true) return false;
     } else {
       if (ann.is_global !== false) return false;
     }
-    // 排除置顶公告（置顶公告单独显示）
     return !ann.is_pinned;
   });
 
-  const filteredPinnedAnnouncements = pinnedAnnouncements.filter((ann) => {
+  const filteredPinnedAnnouncements = pinnedAnnouncements.filter((ann: Announcement) => {
     if (announcementType === "global") {
       return ann.is_global === true;
     } else {
@@ -98,86 +147,22 @@ export function AnnouncementsManager({ t }: { t: (key: string) => string }) {
   });
 
   // 打开创建表单
-  const handleCreate = () => {
+  const handleCreate = (): void => {
     setEditingAnnouncement(null);
     setModalVisible(true);
   };
 
   // 打开编辑表单
-  const handleEdit = (announcement: Announcement) => {
+  const handleEdit = (announcement: Announcement): void => {
     setEditingAnnouncement(announcement);
     setModalVisible(true);
   };
 
   // 提交表单
-  // 将 ISO 日期转换为 datetime-local 需要的格式
-  const toDateTimeLocal = (isoString: string | null | undefined): string => {
-    if (!isoString) return "";
-    try {
-      const date = new Date(isoString);
-      if (isNaN(date.getTime())) return "";
+  const handleFormSubmit = async (values: AnnouncementFormValues): Promise<void> => {
+    const payload = formValuesToPayload(values);
 
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, "0");
-      const day = String(date.getDate()).padStart(2, "0");
-      const hours = String(date.getHours()).padStart(2, "0");
-      const minutes = String(date.getMinutes()).padStart(2, "0");
-
-      return `${year}-${month}-${day}T${hours}:${minutes}`;
-    } catch {
-      return "";
-    }
-  };
-
-  // 将 datetime-local 值转换为 ISO 格式
-  const fromDateTimeLocal = (
-    localValue: string | null | undefined,
-  ): string | null => {
-    if (!localValue) return null;
-    try {
-      const date = new Date(localValue);
-      if (isNaN(date.getTime())) return null;
-      return date.toISOString();
-    } catch {
-      return null;
-    }
-  };
-
-  // 转换公告数据为表单数据
-  const announcementToFormValues = (announcement: Announcement) => {
-    return {
-      title: announcement.title,
-      content: announcement.content,
-      summary: announcement.summary || "",
-      cover: announcement.cover || "",
-      type: announcement.type,
-      is_pinned: announcement.is_pinned,
-      status: announcement.status,
-      is_global: announcement.is_global,
-      board_id: announcement.board_id || null,
-      published_at: toDateTimeLocal(announcement.published_at), // 转换为 datetime-local 格式
-      expired_at: toDateTimeLocal(announcement.expired_at), // 转换为 datetime-local 格式
-    };
-  };
-
-  // 提交表单
-  const handleFormSubmit = async (values: any) => {
-    const payload: any = {
-      title: values.title,
-      content: values.content,
-      summary: values.summary,
-      cover: values.cover,
-      type: values.type,
-      is_pinned: values.is_pinned,
-      is_global: values.is_global,
-      board_id: values.is_global ? null : values.board_id,
-      published_at: fromDateTimeLocal(values.published_at), // 转换回 ISO 格式
-      expired_at: fromDateTimeLocal(values.expired_at), // 转换回 ISO 格式
-    };
-
-    // 不要传 status，只通过 publish 接口修改
-
-    let result;
+    let result: Announcement | null;
     if (editingAnnouncement) {
       result = await updateAnnouncement(editingAnnouncement.id, payload);
     } else {
@@ -192,8 +177,9 @@ export function AnnouncementsManager({ t }: { t: (key: string) => string }) {
       );
     }
   };
+
   // 删除公告
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: number): Promise<void> => {
     if (confirm(t("confirm_delete"))) {
       const success = await deleteAnnouncement(id);
       if (success) toast.success(t("delete_success"));
@@ -201,14 +187,14 @@ export function AnnouncementsManager({ t }: { t: (key: string) => string }) {
   };
 
   // 置顶/取消置顶
-  const handlePin = async (id: number, currentPinned: boolean) => {
+  const handlePin = async (id: number, currentPinned: boolean): Promise<void> => {
     const success = await pinAnnouncement(id, !currentPinned);
     if (success)
       toast.success(!currentPinned ? t("pin_success") : t("unpin_success"));
   };
 
   // 发布公告
-  const handlePublish = async (id: number) => {
+  const handlePublish = async (id: number): Promise<void> => {
     if (confirm(t("confirm_publish"))) {
       const success = await publishAnnouncement(id);
       if (success) toast.success(t("publish_success"));
@@ -216,8 +202,8 @@ export function AnnouncementsManager({ t }: { t: (key: string) => string }) {
   };
 
   // 样式辅助函数
-  const getTypeBadge = (type: AnnouncementType) => {
-    const styles = {
+  const getTypeBadge = (type: AnnouncementType): string => {
+    const styles: Record<AnnouncementType, string> = {
       normal: "badge-info",
       important: "badge-warning",
       emergency: "badge-error",
@@ -226,8 +212,8 @@ export function AnnouncementsManager({ t }: { t: (key: string) => string }) {
     return styles[type] || "badge-info";
   };
 
-  const getTypeText = (type: AnnouncementType) => {
-    const texts = {
+  const getTypeText = (type: AnnouncementType): string => {
+    const texts: Record<AnnouncementType, string> = {
       normal: t("normal"),
       important: t("important"),
       emergency: t("emergency"),
@@ -242,17 +228,16 @@ export function AnnouncementsManager({ t }: { t: (key: string) => string }) {
     return new Date(expiredAt) < new Date();
   };
 
-  const getStatusBadge = (status: string, expiredAt: string | null) => {
+  const getStatusBadge = (status: string, expiredAt: string | null): string => {
     if (status === "draft") return "badge-ghost";
     if (status === "published") {
-      // 已发布的公告，如果过期了显示过期样式
       if (isExpired(expiredAt)) return "badge-error";
       return "badge-success";
     }
     return "badge-ghost";
   };
 
-  const getStatusText = (status: string, expiredAt: string | null) => {
+  const getStatusText = (status: string, expiredAt: string | null): string => {
     if (status === "draft") return t("draft");
     if (status === "published") {
       if (isExpired(expiredAt)) return t("expired");
@@ -270,7 +255,7 @@ export function AnnouncementsManager({ t }: { t: (key: string) => string }) {
   return (
     <div className="space-y-6">
       {/* 头部操作栏 */}
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center flex-wrap gap-2">
         <div className="flex gap-2">
           <button
             onClick={() => setAnnouncementType("global")}
@@ -329,3 +314,5 @@ export function AnnouncementsManager({ t }: { t: (key: string) => string }) {
     </div>
   );
 }
+
+// 需要导入 CreateAnnouncementPayload 类型

@@ -1,12 +1,37 @@
 // hooks/admin/useUsersData.ts
-import { useEffect, useState } from "react";
-import { useAuthStore } from "@/store/auth";
-import { useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { adminApi } from "@/lib/api";
 import toast from "react-hot-toast";
-// import { ResetPasswordRequest } from "@/lib/api/modules/admin";
+import { ApiResponse } from "@/lib/api/types";
+
+// 类型定义
+interface UserListResponse {
+  list: User[];
+  total: number;
+  page: number;
+  page_size: number;
+}
+
+interface User {
+  id: number;
+  username: string;
+  email: string;
+  role: string;
+  is_active: boolean;
+  is_blocked: boolean;
+  // 其他字段
+}
+
+interface ErrorResponse {
+  response?: {
+    data?: {
+      code?: number;
+      message?: string;
+    };
+  };
+  message?: string;
+}
 
 // 用户数据管理 Hook（扩展版）
 export function useUsersData(page: number, keyword: string, enabled: boolean) {
@@ -19,7 +44,7 @@ export function useUsersData(page: number, keyword: string, enabled: boolean) {
     queryFn: () =>
       adminApi
         .listUsers({ page, page_size: 20, keyword })
-        .then((r) => r.data.data),
+        .then((r: { data: ApiResponse<UserListResponse> }) => r.data.data),
     enabled,
   });
 
@@ -56,28 +81,29 @@ export function useUsersData(page: number, keyword: string, enabled: boolean) {
     onError: () => toast.error(t("operation_failed")),
   });
 
-  // 删除用户
+  // 删除用户 - 修复未使用的参数
   const deleteUserMutation = useMutation({
     mutationFn: ({ id }: { id: number }) => adminApi.deleteUser(id),
-    onSuccess: (_, variables) => {
+    onSuccess: () => {  // 移除未使用的 _ 和 variables 参数
       queryClient.invalidateQueries({ queryKey: ["admin-users"] });
       toast.success(t("user_deleted_successfully"));
     },
     onError: () => toast.error(t("delete_failed")),
   });
 
-  // 重置密码（只需要传用户 ID）
+  // 重置密码
   const resetPasswordMutation = useMutation({
     mutationFn: (id: number) => adminApi.resetUserPassword(id),
-    onSuccess: (_, userId) => {
+    onSuccess: () => {  // 移除未使用的 userId 参数
       toast.success(t("password_reset_and_notified"), {
         duration: 5000,
       });
       queryClient.invalidateQueries({ queryKey: ["admin-users"] });
     },
-    onError: (error: any) => {
-      // 根据错误码显示不同的错误信息
-      const errorCode = error?.response?.data?.code;
+    onError: (error: unknown) => {  // 修复 any 类型
+      const err = error as ErrorResponse;
+      const errorCode = err?.response?.data?.code;
+      
       if (errorCode === 20011) {
         toast.error(t("cannot_modify_self"));
       } else if (errorCode === 20012) {
@@ -90,7 +116,11 @@ export function useUsersData(page: number, keyword: string, enabled: boolean) {
     },
   });
 
-  // 包装函数
+  // 包装函数 - 修复未使用的 username 参数
+  const handleDeleteUser = (id: number) => {  // 添加下划线前缀表示未使用
+    deleteUserMutation.mutate({ id });
+  };
+
   const handleToggleActive = (id: number, active: boolean) => {
     toggleActiveMutation.mutate({ id, active });
   };
@@ -101,10 +131,6 @@ export function useUsersData(page: number, keyword: string, enabled: boolean) {
 
   const handleToggleRole = (id: number, role: string) => {
     toggleRoleMutation.mutate({ id, role });
-  };
-
-  const handleDeleteUser = (id: number, username: string) => {
-    deleteUserMutation.mutate({ id });
   };
 
   const handleResetPassword = (id: number) => {

@@ -10,7 +10,6 @@ interface BanUserModalProps {
 }
 
 export function BanUserModal({
-  boardId,
   onBan,
   isBanning,
   t,

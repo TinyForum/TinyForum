@@ -5,10 +5,7 @@ import { useTranslations } from "next-intl";
 import { useAdminAuth } from "@/hooks/admin/useAdminAuth";
 import { useUsersData } from "@/hooks/admin/useUsersData";
 import { usePostsData } from "@/hooks/admin/usePostsData";
-import { useAnnouncementsData } from "@/hooks/admin/useAnnouncementsData";
 import { useQAData } from "@/hooks/admin/useQAData";
-import { useScoreData } from "@/hooks/admin/useScoreData";
-import { useStatsData } from "@/hooks/admin/useStatsData";
 import { AnnouncementsManager } from "@/components/admin/AnnouncementsManager";
 import { AdminSearchBar } from "@/components/admin/AdminSearchBar";
 import { Pagination } from "@/components/admin/Pagination";
@@ -20,6 +17,9 @@ import { UsersTable } from "@/components/admin/UsersTable";
 import { Statistics } from "@/components/admin/Statistics";
 import { ModeratorsTable } from "@/components/admin/ModeratorsTable";
 import { AdminTasks } from "@/components/admin/AdminTasks";
+
+// 导入类型
+import type { User } from "@/lib/api/types";
 
 // ==================== 主组件 ====================
 export default function AdminPage() {
@@ -42,17 +42,8 @@ export default function AdminPage() {
     keyword,
     activeMenu === "posts" && isAdmin,
   );
-  const announcementsData = useAnnouncementsData(
-    activeMenu === "announcements" && isAdmin,
-  );
-  const qaData = useQAData(page, keyword, activeMenu === "qa" && isAdmin);
-
-  // 修复：useScoreData 期望可选的 userId 参数，不是布尔值
-  const pointsData = useScoreData(
-    activeMenu === "points" && isAdmin ? undefined : undefined,
-  );
-
-  const statsData = useStatsData(activeMenu === "statistics" && isAdmin);
+  
+  const qaData = useQAData();
 
   // 处理用户激活/停用
   const handleToggleActive = async (userId: number, active: boolean) => {
@@ -61,26 +52,21 @@ export default function AdminPage() {
 
   // 处理用户封禁/解封
   const handleToggleBlock = async (userId: number, blocked: boolean) => {
-    // 需要确认 usersData 中是否有 toggleBlock 方法
-    // 如果没有，需要添加这个功能到 useUsersData hook 中
     await usersData.toggleBlock?.(userId, blocked);
   };
 
   // 处理用户角色变更
   const handleToggleRole = async (userId: number, role: string) => {
-    // 需要确认 usersData 中是否有 toggleRole 方法
     await usersData.toggleRole?.(userId, role);
   };
 
   // 处理删除用户
-  const handleDeleteUser = async (userId: number, username: string) => {
-    // 需要确认 usersData 中是否有 deleteUser 方法
-    await usersData.deleteUser?.(userId, username);
+  const handleDeleteUser = async (userId: number) => {
+    await usersData.deleteUser?.(userId);
   };
 
   // 处理重置密码
-  const handleResetPassword = async (userId: number, username: string) => {
-    // 需要确认 usersData 中是否有 resetPassword 方法
+  const handleResetPassword = async (userId: number) => {
     await usersData.resetPassword?.(userId);
   };
 
@@ -100,18 +86,15 @@ export default function AdminPage() {
   // 渲染右侧内容
   const renderContent = () => {
     switch (activeMenu) {
-      // MARK: 统计
       case "dashboard":
         return <Dashboard t={t} />;
-      // MARK: 统计
+      
       case "tasks":
         return <AdminTasks />;
 
-      // MARK: 公告
       case "announcements":
         return <AnnouncementsManager t={t} />;
 
-      // MARK: 用户
       case "users":
         return (
           <div className="space-y-4">
@@ -126,7 +109,7 @@ export default function AdminPage() {
               t={t}
             />
             <UsersTable
-              users={usersData.users}
+              users={usersData.users as User[]}
               currentUserId={user?.id}
               onToggleActive={handleToggleActive}
               onToggleBlock={handleToggleBlock}
@@ -137,7 +120,6 @@ export default function AdminPage() {
               isTogglingBlock={usersData.isTogglingBlock || false}
               isDeleting={usersData.isDeleting || false}
               isUpdatingRole={usersData.isUpdatingRole || false}
-              t={t}
             />
             <Pagination
               currentPage={page}
@@ -148,9 +130,8 @@ export default function AdminPage() {
         );
 
       case "moderators_management":
-        return <ModeratorsTable />;
+        return <ModeratorsTable boardId={0}  />;
 
-      // MARK: 帖子
       case "posts":
         return (
           <div className="space-y-4">
@@ -178,7 +159,6 @@ export default function AdminPage() {
           </div>
         );
 
-      // MARK: QA
       case "qa":
         return (
           <div className="space-y-4">
@@ -192,11 +172,9 @@ export default function AdminPage() {
               onPageReset={() => setPage(1)}
               t={t}
             />
-            {/* QA 表格组件 */}
             <div className="card bg-base-100 border border-base-300">
               <div className="card-body">
                 <p className="text-center text-base-content/50">
-                  {/* {t("qa_management_coming")} */}
                   TODO
                 </p>
               </div>
@@ -209,15 +187,12 @@ export default function AdminPage() {
           </div>
         );
 
-      // MARK: 积分
       case "points":
-        return <PointsManager t={t} />;
+        return <PointsManager/>;
 
-      // MARK: 统计
       case "statistics":
-        return <Statistics t={t} />;
+        return <Statistics />;
 
-      // MARK: 设置
       case "settings":
         return (
           <div className="card bg-base-100 border border-base-300">
@@ -237,7 +212,6 @@ export default function AdminPage() {
 
   return (
     <div className="flex h-screen bg-base-100">
-      {/* 左侧业务面板 */}
       <SidebarMenu
         activeMenu={activeMenu}
         onMenuChange={setActiveMenu}
@@ -246,10 +220,8 @@ export default function AdminPage() {
         t={t}
       />
 
-      {/* 右侧内容区域 */}
       <div className="flex-1 overflow-y-auto">
         <div className="p-6">
-          {/* 页面标题 */}
           <div className="mb-6">
             <h1 className="text-2xl font-bold">{t(activeMenu)}</h1>
             <p className="text-sm text-base-content/60 mt-1">
@@ -257,7 +229,6 @@ export default function AdminPage() {
             </p>
           </div>
 
-          {/* 内容 */}
           <div className="min-h-[calc(100vh-120px)]">{renderContent()}</div>
         </div>
       </div>

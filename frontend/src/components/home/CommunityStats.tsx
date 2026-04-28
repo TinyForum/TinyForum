@@ -2,12 +2,26 @@
 import { useStatistics } from "@/hooks/useStatistics";
 import { Sparkles, TrendingUp } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, } from "react";
 import * as echarts from "echarts";
+import { SkeletonItem } from "@/shared/ui/SkeletonItem";
+import { StatItem } from "@/shared/ui/StatItem";
 
 interface CommunityStatsProps {
   className?: string;
 }
+
+// 辅助函数移到组件外部
+const getToday = (): string => {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+};
+
+const getLast7DaysStart = (): string => {
+  const d = new Date();
+  d.setDate(d.getDate() - 6);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+};
 
 export const CommunityStats = ({ className = "" }: CommunityStatsProps) => {
   const t = useTranslations("Sidebar");
@@ -19,7 +33,7 @@ export const CommunityStats = ({ className = "" }: CommunityStatsProps) => {
     fetchRangeStats,
     isLoading,
   } = useStatistics({
-    autoFetch: true, // 自动获取今日统计
+    autoFetch: true,
   });
 
   const chartRef = useRef<HTMLDivElement>(null);
@@ -29,7 +43,7 @@ export const CommunityStats = ({ className = "" }: CommunityStatsProps) => {
     fetchRangeStats({
       start_date: getLast7DaysStart(),
       end_date: getToday(),
-      type: "posts", // 只获取帖子数据，减少传输量
+      type: "posts",
     });
   }, [fetchRangeStats]);
 
@@ -38,12 +52,13 @@ export const CommunityStats = ({ className = "" }: CommunityStatsProps) => {
     if (!chartRef.current || !rangeStats || rangeStats.length === 0) return;
 
     const chart = echarts.init(chartRef.current);
+    
     chart.setOption({
       tooltip: { trigger: "axis", axisPointer: { type: "shadow" } },
       grid: { top: 20, left: 35, right: 5, bottom: 5, containLabel: true },
       xAxis: {
         type: "category",
-        data: rangeStats.map((item) => item.date.slice(5)), // MM-DD
+        data: rangeStats.map((item: { date: string }) => item.date.slice(5)),
         axisLabel: { rotate: 30, fontSize: 10 },
       },
       yAxis: {
@@ -54,7 +69,7 @@ export const CommunityStats = ({ className = "" }: CommunityStatsProps) => {
       },
       series: [
         {
-          data: rangeStats.map((item) => item.new_article),
+          data: rangeStats.map((item: { new_article: number }) => item.new_article),
           type: "line",
           smooth: true,
           lineStyle: { color: "#06b6d4", width: 2 },
@@ -66,34 +81,14 @@ export const CommunityStats = ({ className = "" }: CommunityStatsProps) => {
       ],
     });
 
-    return () => chart.dispose();
+    const handleResize = () => chart.resize();
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      chart.dispose();
+    };
   }, [rangeStats, t]);
-
-  // 辅助函数
-  const getToday = () => {
-    const d = new Date();
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-  };
-  const getLast7DaysStart = () => {
-    const d = new Date();
-    d.setDate(d.getDate() - 6);
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-  };
-
-  // 骨架屏
-  const SkeletonItem = () => (
-    <div className="flex justify-between">
-      <span className="text-muted-foreground">——</span>
-      <span className="font-medium text-muted-foreground/50">——</span>
-    </div>
-  );
-
-  const StatItem = ({ label, value }: { label: string; value: number }) => (
-    <div className="flex justify-between">
-      <span className="text-muted-foreground">{label}</span>
-      <span className="font-medium">{value.toLocaleString()}</span>
-    </div>
-  );
 
   const totalUsers = totalStats?.base_info?.total_user || 0;
   const totalPosts = totalStats?.base_info?.total_article || 0;
@@ -101,7 +96,7 @@ export const CommunityStats = ({ className = "" }: CommunityStatsProps) => {
   const yesterdayActive = dayStats?.active_user || 0;
 
   return (
-    <div className={`rounded-lg border bg-card ${className}`}>
+    <div className={`rounded-lg border bg-card shadow-sm ${className}`}>
       <div className="p-3 border-b">
         <h3 className="font-semibold flex items-center gap-2">
           <Sparkles className="w-4 h-4" />

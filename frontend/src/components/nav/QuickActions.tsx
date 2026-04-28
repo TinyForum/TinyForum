@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { PenSquare, Sparkles, MessageCircleQuestion } from "lucide-react";
+import { PenSquare,  MessageCircleQuestion } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 interface QuickActionsProps {

@@ -1,10 +1,9 @@
 "use client";
 
-import { use, useEffect } from "react";
-import { useState } from "react";
+import { useEffect, useState, use } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { postApi, tagApi } from "@/lib/api";
@@ -13,49 +12,54 @@ import RichEditor from "@/components/post/RichEditor";
 import toast from "react-hot-toast";
 import { getErrorMessage } from "@/lib/utils";
 import { Save, X } from "lucide-react";
+import type { ApiResponse, Tag, Post } from "@/lib/api/types";
 
 const schema = z.object({
-  title: z.string().min(2).max(200),
-  content: z.string().min(10),
-  summary: z.string().max(500).optional(),
-  cover: z.string().url().optional().or(z.literal("")),
+  title: z.string().min(2, "标题至少2个字符").max(200, "标题最多200个字符"),
+  content: z.string().min(10, "内容至少10个字符"),
+  summary: z.string().max(500, "摘要最多500个字符").optional(),
+  cover: z.string().url("请输入有效的图片URL").optional().or(z.literal("")),
   tag_ids: z.array(z.number()),
 });
 
 type EditForm = z.infer<typeof schema>;
+
+interface PostDetailResponse {
+  post: Post;
+}
 
 export default function EditPostPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
+  // 使用 React.use 解析 Promise 参数（Next.js 15 特性）
   const { id } = use(params);
   const postId = Number(id);
   const router = useRouter();
-  const { user, isAuthenticated } = useAuthStore();
+  const { isAuthenticated } = useAuthStore();
   const [loading, setLoading] = useState(false);
 
   const { data: postData } = useQuery({
     queryKey: ["post", postId],
-    queryFn: () => postApi.getById(postId).then((r) => r.data.data),
+    queryFn: () => postApi.getById(postId).then((r: { data: ApiResponse<PostDetailResponse> }) => r.data.data),
   });
 
-  const { data: tags } = useQuery({
+  const { data: tagsData } = useQuery({
     queryKey: ["tags"],
-    queryFn: () => tagApi.list().then((r) => r.data.data),
+    queryFn: () => tagApi.list().then((r: { data: ApiResponse<Tag[]> }) => r.data.data || []),
   });
 
   const {
     register,
     handleSubmit,
     control,
-    watch,
     setValue,
     reset,
     formState: { errors },
   } = useForm<EditForm>({
     resolver: zodResolver(schema),
-    defaultValues: { tag_ids: [] },
+    defaultValues: { tag_ids: [], title: "", content: "", summary: "", cover: "" },
   });
 
   useEffect(() => {
@@ -66,7 +70,7 @@ export default function EditPostPage({
         content: p.content,
         summary: p.summary || "",
         cover: p.cover || "",
-        tag_ids: p.tags?.map((t) => t.id) ?? [],
+        tag_ids: p.tags?.map((t: Tag) => t.id) ?? [],
       });
     }
   }, [postData, reset]);
@@ -75,14 +79,15 @@ export default function EditPostPage({
     if (!isAuthenticated) router.push("/auth/login");
   }, [isAuthenticated, router]);
 
-  const selectedTagIds = watch("tag_ids");
+  // 使用 useWatch 替代 watch
+  const selectedTagIds = useWatch({ control, name: "tag_ids", defaultValue: [] });
 
   const toggleTag = (tagId: number) => {
     const current = selectedTagIds ?? [];
     setValue(
       "tag_ids",
       current.includes(tagId)
-        ? current.filter((id) => id !== tagId)
+        ? current.filter((id: number) => id !== tagId)
         : [...current, tagId],
     );
   };
@@ -112,6 +117,8 @@ export default function EditPostPage({
     );
   }
 
+  const tags = tagsData ?? [];
+
   return (
     <div className="max-w-3xl mx-auto">
       <h1 className="text-2xl font-bold mb-6">编辑帖子</h1>
@@ -138,14 +145,14 @@ export default function EditPostPage({
                 <span className="label-text font-medium">标签</span>
               </label>
               <div className="flex flex-wrap gap-2">
-                {(tags ?? []).map((tag) => {
+                {tags.map((tag: Tag) => {
                   const selected = selectedTagIds?.includes(tag.id);
                   return (
                     <button
                       key={tag.id}
                       type="button"
                       onClick={() => toggleTag(tag.id)}
-                      className={`badge badge-lg cursor-pointer transition-all ${selected ? "ring-2" : "opacity-60"}`}
+                      className={`badge badge-lg cursor-pointer transition-all ${selected ? "ring-2" : "opacity-60 hover:opacity-100"}`}
                       style={{
                         backgroundColor: tag.color + "20",
                         color: tag.color,
@@ -167,8 +174,14 @@ export default function EditPostPage({
               <input
                 {...register("cover")}
                 type="text"
+                placeholder="https://example.com/image.jpg"
                 className="input input-bordered focus:outline-none focus:border-primary"
               />
+              {errors.cover && (
+                <span className="text-error text-sm mt-1">
+                  {errors.cover.message}
+                </span>
+              )}
             </div>
 
             <div className="form-control">
@@ -178,8 +191,14 @@ export default function EditPostPage({
               <textarea
                 {...register("summary")}
                 rows={2}
+                placeholder="简要描述文章内容..."
                 className="textarea textarea-bordered focus:outline-none focus:border-primary resize-none"
               />
+              {errors.summary && (
+                <span className="text-error text-sm mt-1">
+                  {errors.summary.message}
+                </span>
+              )}
             </div>
           </div>
         </div>
@@ -192,7 +211,11 @@ export default function EditPostPage({
             name="content"
             control={control}
             render={({ field }) => (
-              <RichEditor content={field.value} onChange={field.onChange} />
+              <RichEditor
+                content={field.value}
+                onChange={field.onChange}
+                placeholder="请输入帖子内容..."
+              />
             )}
           />
           {errors.content && (

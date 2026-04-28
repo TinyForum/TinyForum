@@ -2,10 +2,11 @@
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
-import { postApi, questionApi } from "@/lib/api";
+import { questionApi } from "@/lib/api";
 import { useAuthStore } from "@/store/auth";
 import { toast } from "react-hot-toast";
-import { CreateQuestionPayload } from "@/lib/api/modules/questions";
+import { CreateQuestionPayload, CreateQuestionResponse } from "@/lib/api/modules/questions";
+import { ApiResponse } from "@/lib/api/types";
 
 export interface AskFormData {
   title: string;
@@ -18,11 +19,22 @@ interface UseQuestionFormProps {
   onSuccess?: (questionId: number) => void;
 }
 
+interface ErrorResponse {
+  response?: {
+    data?: {
+      message?: string;
+    };
+    status?: number;
+  };
+  request?: unknown;
+  message?: string;
+}
+
 export function useQuestionForm({ onSuccess }: UseQuestionFormProps = {}) {
   const router = useRouter();
   const { user } = useAuthStore();
-  const [loading, setLoading] = useState(false);
-  const [content, setContent] = useState("");
+  const [loading, setLoading] = useState<boolean>(false);
+  const [content, setContent] = useState<string>("");
 
   const form = useForm<AskFormData>({
     defaultValues: {
@@ -33,7 +45,7 @@ export function useQuestionForm({ onSuccess }: UseQuestionFormProps = {}) {
   });
 
   const validateForm = useCallback(
-    (data: AskFormData, selectedTags: number[], boardId: number) => {
+    (data: AskFormData, selectedTags: number[], boardId: number): boolean => {
       if (!boardId || boardId === 0) {
         toast.error("请选择板块");
         return false;
@@ -69,8 +81,8 @@ export function useQuestionForm({ onSuccess }: UseQuestionFormProps = {}) {
     [content, user?.score],
   );
 
-  const filterValidTags = useCallback((tagIds: number[]) => {
-    return tagIds.filter((id) => id && id > 0);
+  const filterValidTags = useCallback((tagIds: number[]): number[] => {
+    return tagIds.filter((id: number): boolean => id > 0); // 修复：直接返回 id > 0 的布尔值
   }, []);
 
   const buildRequestData = useCallback(
@@ -95,7 +107,7 @@ export function useQuestionForm({ onSuccess }: UseQuestionFormProps = {}) {
   );
 
   const handleSubmit = useCallback(
-    async (data: AskFormData, selectedTags: number[], boardId: number) => {
+    async (data: AskFormData, selectedTags: number[], boardId: number): Promise<void> => {
       if (!validateForm(data, selectedTags, boardId)) {
         return;
       }
@@ -106,15 +118,15 @@ export function useQuestionForm({ onSuccess }: UseQuestionFormProps = {}) {
       setLoading(true);
 
       try {
-        const response = await questionApi.create(requestData);
+        const response: { data: ApiResponse<CreateQuestionResponse> } = 
+          await questionApi.create(requestData);
         console.log("响应:", response.data);
 
-        const isSuccess =
-          response.data.code === 200 || response.data.code === 0;
+        // 修复：统一使用 code === 0
+        const isSuccess = response.data.code === 0;
 
         if (isSuccess && response.data.data) {
-          const questionId =
-            response.data.data.id || response.data.data.board_id;
+          const questionId = response.data.data.id;
 
           toast.success("问题发布成功！");
 
@@ -129,8 +141,10 @@ export function useQuestionForm({ onSuccess }: UseQuestionFormProps = {}) {
           const errorMessage = response.data.message || "发布失败，请稍后重试";
           toast.error(errorMessage);
         }
-      } catch (error: any) {
-        console.error("发布问题错误:", error);
+      } catch (err: unknown) {
+        console.error("发布问题错误:", err);
+        
+        const error = err as ErrorResponse;
 
         if (error.response) {
           const errorData = error.response.data;
@@ -142,7 +156,7 @@ export function useQuestionForm({ onSuccess }: UseQuestionFormProps = {}) {
             403: errorData?.message || "积分不足或权限不足",
           };
 
-          toast.error(errorMessages[statusCode] || `发布失败 (${statusCode})`);
+          toast.error(errorMessages[statusCode || 0] || `发布失败 (${statusCode})`);
 
           if (statusCode === 401) {
             router.push("/login?redirect=/questions/ask");
@@ -164,7 +178,7 @@ export function useQuestionForm({ onSuccess }: UseQuestionFormProps = {}) {
     content,
     setContent,
     loading,
-    handleSubmit: (selectedTags: number[], boardId: number) =>
+    handleSubmit: (selectedTags: number[], boardId: number): Promise<void> =>
       handleSubmit(form.getValues(), selectedTags, boardId),
   };
 }

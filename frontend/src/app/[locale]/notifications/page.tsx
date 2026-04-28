@@ -6,7 +6,6 @@ import { Notification, notificationApi } from "@/lib/api";
 import { useAuthStore } from "@/store/auth";
 import { useRouter } from "next/navigation";
 import { timeAgo } from "@/lib/utils";
-import Image from "next/image";
 import {
   Bell,
   CheckCheck,

@@ -1,24 +1,40 @@
 // hooks/useBoard.ts
 import { useState, useEffect, useCallback } from "react";
 import { boardApi } from "@/lib/api/modules/boards";
-import type { Board } from "@/lib/api/types";
+import type { Board, ApiResponse } from "@/lib/api/types";
 import { toast } from "react-hot-toast";
 
 interface UseBoardOptions {
-  autoLoad?: boolean; // 是否自动加载
-  page?: number; // 页码
-  pageSize?: number; // 每页数量
+  autoLoad?: boolean;
+  page?: number;
+  pageSize?: number;
+}
+
+interface BoardListResponse {
+  list: Board[];
+  total: number;
+  page: number;
+  page_size: number;
 }
 
 interface UseBoardReturn {
-  boards: Board[]; // 板块列表
-  loading: boolean; // 加载状态
-  error: string | null; // 错误信息
-  total: number; // 总记录数
-  loadBoards: () => Promise<void>; // 手动加载
-  getBoardById: (id: number) => Board | undefined; // 根据ID获取板块
-  getDefaultBoard: () => Board | null; // 获取默认板块
-  refresh: () => Promise<void>; // 刷新数据
+  boards: Board[];
+  loading: boolean;
+  error: string | null;
+  total: number;
+  loadBoards: () => Promise<void>;
+  getBoardById: (id: number) => Board | undefined;
+  getDefaultBoard: () => Board | null;
+  refresh: () => Promise<void>;
+}
+
+interface ErrorResponse {
+  response?: {
+    data?: {
+      message?: string;
+    };
+  };
+  message?: string;
 }
 
 export function useBoard(options: UseBoardOptions = {}): UseBoardReturn {
@@ -29,23 +45,20 @@ export function useBoard(options: UseBoardOptions = {}): UseBoardReturn {
   const [error, setError] = useState<string | null>(null);
   const [total, setTotal] = useState<number>(0);
 
-  const loadBoards = useCallback(async () => {
+  const loadBoards = useCallback(async (): Promise<void> => {
     setLoading(true);
     setError(null);
 
     try {
-      const response = await boardApi.list({ page, page_size: pageSize });
+      const response: { data: ApiResponse<BoardListResponse | Board[]> } = 
+        await boardApi.list({ page, page_size: pageSize });
 
-      // 响应结构: { code: 0, message: "success", data: { list: [], total, page, page_size } }
-      if (response.data.code === 0 || response.data.code === 200) {
+      // 统一使用 code === 0
+      if (response.data.code === 0) {
         const responseData = response.data.data;
 
         // 优先检查分页数据格式 { list: [], total, page, page_size }
-        if (
-          responseData &&
-          "list" in responseData &&
-          Array.isArray(responseData.list)
-        ) {
+        if (responseData && "list" in responseData && Array.isArray(responseData.list)) {
           setBoards(responseData.list);
           setTotal(responseData.total || 0);
           console.log("加载板块成功:", responseData.list.length, "个板块");
@@ -69,9 +82,9 @@ export function useBoard(options: UseBoardOptions = {}): UseBoardReturn {
       } else {
         throw new Error(response.data.message || "加载板块失败");
       }
-    } catch (err: any) {
-      const errorMsg =
-        err.response?.data?.message || err.message || "加载板块失败";
+    } catch (err: unknown) {
+      const errorObj = err as ErrorResponse;
+      const errorMsg = errorObj.response?.data?.message || errorObj.message || "加载板块失败";
       setError(errorMsg);
       console.error("加载板块失败:", err);
       toast.error(errorMsg);
@@ -80,24 +93,24 @@ export function useBoard(options: UseBoardOptions = {}): UseBoardReturn {
     }
   }, [page, pageSize]);
 
-  const refresh = useCallback(async () => {
+  const refresh = useCallback(async (): Promise<void> => {
     await loadBoards();
   }, [loadBoards]);
 
   const getBoardById = useCallback(
     (id: number): Board | undefined => {
-      return boards.find((board) => board.id === id);
+      return boards.find((board: Board): boolean => board.id === id);
     },
     [boards],
   );
 
   const getDefaultBoard = useCallback((): Board | null => {
     if (boards.length === 0) return null;
-    // 返回第一个板块作为默认
     return boards[0];
   }, [boards]);
 
-  useEffect(() => {
+   
+  useEffect((): void => {
     if (autoLoad) {
       loadBoards();
     }

@@ -5,6 +5,7 @@ const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 const nextConfig = {
   output: 'standalone',
   images: {
+    dangerouslyAllowSVG: true,  // 允许 SVG
     remotePatterns: [
       { protocol: 'https', hostname: 'api.dicebear.com' },
       { protocol: 'https', hostname: 'images.unsplash.com' },

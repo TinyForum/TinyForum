@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { User, Bell, Activity, Award, Clock } from "lucide-react";
 
@@ -25,21 +26,26 @@ export function UserProfileCard({
   const t = useTranslations("Sidebar");
 
   return (
-    <div className="rounded-lg border bg-card">
+    <div className="rounded-lg border bg-card shadow-sm hover:shadow-md transition-shadow duration-200">
       <div className="p-4 text-center border-b">
         <div className="relative inline-block">
-          <img
-            src={userProfile.avatar || "/default-avatar.png"}
-            alt={userProfile.username}
-            className="w-16 h-16 rounded-full mx-auto mb-2 object-cover"
-          />
+          <div className="relative w-16 h-16 mx-auto mb-2">
+            <Image
+              src={userProfile.avatar || "/default-avatar.png"}
+              alt={userProfile.username}
+              fill
+              className="rounded-full object-cover"
+              sizes="64px"
+              priority={false}
+            />
+          </div>
           {unreadCount > 0 && (
-            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium shadow-sm">
               {unreadCount > 99 ? "99+" : unreadCount}
             </span>
           )}
         </div>
-        <h3 className="font-semibold">{userProfile.username}</h3>
+        <h3 className="font-semibold text-base">{userProfile.username}</h3>
         <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
           {userProfile.bio || t("no_bio")}
         </p>
@@ -64,7 +70,7 @@ export function UserProfileCard({
         </div>
       </div>
 
-      <div className="p-3 border-t space-y-2">
+      <div className="p-3 border-t space-y-1">
         <Link
           href="/notifications"
           className="flex items-center justify-between p-2 rounded-lg hover:bg-muted transition-colors"
@@ -74,8 +80,8 @@ export function UserProfileCard({
             {t("notifications")}
           </span>
           {unreadCount > 0 && (
-            <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
-              {unreadCount}
+            <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full font-medium">
+              {unreadCount > 99 ? "99+" : unreadCount}
             </span>
           )}
         </Link>

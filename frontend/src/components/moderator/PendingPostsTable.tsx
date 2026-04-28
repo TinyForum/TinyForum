@@ -1,11 +1,34 @@
 // components/moderator/PendingPostsTable.tsx
+
+export interface PendingPost {
+  id: number;
+  title: string;
+  author_name: string;
+  author_id: number;
+  created_at: string;
+  is_pinned: boolean;
+  status: string;
+  type: string;
+  content?: string;
+  summary?: string;
+  cover?: string;
+}
+
+interface ModeratorPermissions {
+  canDeletePost: boolean;
+  canPinPost: boolean;
+  canEditAnyPost: boolean;
+  canManageModerator: boolean;
+  canBanUser: boolean;
+}
+
 interface PendingPostsTableProps {
-  posts: any[];
+  posts: PendingPost[];
   onDelete?: (postId: number) => void;
   onPin?: (postId: number, pin: boolean) => void;
   isDeleting: boolean;
   isPinning: boolean;
-  permissions: any;
+  permissions: ModeratorPermissions;
   t: (key: string) => string;
 }
 
@@ -38,7 +61,7 @@ export function PendingPostsTable({
           </tr>
         </thead>
         <tbody>
-          {posts.map((post) => (
+          {posts.map((post: PendingPost) => (
             <tr key={post.id}>
               <td>{post.title}</td>
               <td>{post.author_name}</td>

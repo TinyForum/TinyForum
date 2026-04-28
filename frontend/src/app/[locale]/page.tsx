@@ -10,18 +10,26 @@ import {
   timelineApi,
   notificationApi,
   questionApi,
-  PostType,
 } from "@/lib/api";
 import { useAuthStore } from "@/store/auth";
-import { useTranslations } from "next-intl";
 import PostFilterBar from "@/components/home/PostFilterBar";
 import PostList from "@/components/home/PostList";
 import LeftSidebar, { FilterType } from "@/components/home/LeftSidebar";
 import RightSidebar from "@/components/home/RightSidebar";
 import { SortBy } from "@/type/posts.types";
-// import { PostType, SortBy } from "@/types";
+import type { Board, Tag,  TimelineEvent,  Post } from "@/lib/api/types";
 import { useLeaderboard } from "@/hooks/useLeaderboard";
-// export type FilterType = "all" | PostType;
+
+// 用户资料类型
+interface UserProfile {
+  id: number;
+  username: string;
+  avatar: string;
+  bio: string;
+  score: number;
+  created_at: string;
+}
+
 export default function HomePage() {
   const { isAuthenticated, user } = useAuthStore();
   const [sortBy, setSortBy] = useState<SortBy>("random");
@@ -29,9 +37,9 @@ export default function HomePage() {
   const [selectedBoard, setSelectedBoard] = useState<number | null>(null);
   const [filterType, setFilterType] = useState<FilterType>("all");
   const [page, setPage] = useState(1);
-  const t = useTranslations("post");
   const { data: leaderboard } = useLeaderboard({ limit: 10 });
-  // 帖子列表 - 根据 postType 选择不同的 API
+
+  // 帖子列表
   const {
     data: postsData,
     isLoading,
@@ -39,64 +47,24 @@ export default function HomePage() {
   } = useQuery({
     queryKey: ["posts", sortBy, selectedTag, selectedBoard, filterType, page],
     queryFn: async () => {
-      // 如果是问答类型，使用专门的 questionApi.getSimple API
-      if (filterType === "question") {
-        const params: any = {
-          page,
-          page_size: 15,
-        };
+      const params: Record<string, unknown> = {
+        page,
+        page_size: 15,
+      };
 
-        // 问答支持的过滤参数
+      if (filterType === "question") {
         if (selectedBoard) {
           params.board_id = selectedBoard;
         }
-
-        // 注意：问答 API 目前不支持标签过滤和排序
-        // 如果后端支持，可以添加：
-        // if (selectedTag) params.tag_id = selectedTag;
-        // if (sortBy === "latest") params.sort = "latest";
-
         const res = await questionApi.getSimple(params);
-        // 将 QuestionSimple 转换为 Post 格式以兼容 PostList 组件
-        const questionList = res.data.data.list;
-        const transformedPosts = questionList.map((q: any) => ({
-          id: q.id,
-          title: q.title,
-          summary: q.summary,
-          content: "",
-          type: "question",
-          status: "published",
-          author_id: q.author_id,
-          view_count: 0,
-          like_count: 0,
-          pin_top: false,
-          board_id: q.board_id,
-          reward_score: q.reward_score,
-          created_at: q.created_at,
-          updated_at: q.updated_at,
-          question: {
-            answer_count: q.answer_count,
-            reward_score: q.reward_score,
-          },
-          author: q.author,
-          board: q.board,
-          tags: q.tags || [],
-        }));
-
+        const data = res.data.data as { list: unknown[]; total: number; page: number; page_size: number } | undefined;
         return {
-          list: transformedPosts,
-          total: res.data.data.total,
-          page: res.data.data.page,
-          page_size: res.data.data.page_size,
+          list: data?.list || [],
+          total: data?.total || 0,
+          page: data?.page || 1,
+          page_size: data?.page_size || 15,
         };
       }
-
-      // 普通帖子、文章使用 list API
-      const params: any = {
-        page,
-        page_size: 15,
-        sort_by: sortBy === "latest" ? "latest" : sortBy,
-      };
 
       if (selectedTag) {
         params.tag_id = selectedTag;
@@ -107,56 +75,62 @@ export default function HomePage() {
       if (filterType !== "all") {
         params.type = filterType;
       }
+      if (sortBy !== "random") {
+        params.sort_by = sortBy === "latest" ? "latest" : sortBy;
+      }
 
       const res = await postApi.list(params);
-      return res.data.data;
+      const data = res.data.data as { list: unknown[]; total: number; page: number; page_size: number } | undefined;
+      return {
+        list: data?.list || [],
+        total: data?.total || 0,
+        page: data?.page || 1,
+        page_size: data?.page_size || 15,
+      };
     },
   });
 
   // 标签列表
   const { data: tags } = useQuery({
     queryKey: ["tags"],
-    queryFn: () => tagApi.list().then((r) => r.data.data),
+    queryFn: () => tagApi.list().then((r) => (r.data.data as Tag[]) || []),
   });
 
   // 板块列表
   const { data: boards } = useQuery({
     queryKey: ["boards-tree"],
-    queryFn: () => boardApi.getTree().then((r) => r.data.data),
+    queryFn: () => boardApi.getTree().then((r) => (r.data.data as Board[]) || []),
   });
-
-  // 用户排行榜
-  // const { data: leaderboard } = useQuery({
-  //   queryKey: ["leaderboard"],
-  //   queryFn: () => userApi.leaderboard(10).then((r) => r.data.data),
-  // });
 
   // 用户信息（已登录时）
   const { data: userProfile } = useQuery({
     queryKey: ["user-profile", user?.id],
-    queryFn: () => userApi.getProfile(user!.id).then((r) => r.data.data),
+    queryFn: () => userApi.getProfile(user!.id).then((r) => r.data.data as UserProfile),
     enabled: isAuthenticated && !!user?.id,
   });
 
   // 未读通知数
   const { data: unreadCount } = useQuery({
     queryKey: ["unread-count"],
-    queryFn: () => notificationApi.unreadCount().then((r) => r.data.data.count),
+    queryFn: () => notificationApi.unreadCount().then((r) => {
+      const data = r.data.data as { count: number } | undefined;
+      return data?.count || 0;
+    }),
     enabled: isAuthenticated,
     refetchInterval: 30000,
   });
 
-  // 时间线事件（已登录时）
+  // 时间线事件
   const { data: timelineEvents } = useQuery({
     queryKey: ["timeline-events"],
     queryFn: () =>
       timelineApi
         .getFollowing({ page: 1, page_size: 5 })
-        .then((r) => r.data.data.list),
+        .then((r) => (r.data.data?.list as TimelineEvent[]) || []),
     enabled: isAuthenticated,
   });
 
-  const posts = postsData?.list ?? [];
+  const posts = (postsData?.list as unknown[] as Post[]) ?? [];
   const total = postsData?.total ?? 0;
   const totalPages = Math.ceil(total / 15);
 
@@ -240,3 +214,4 @@ export default function HomePage() {
     </div>
   );
 }
+

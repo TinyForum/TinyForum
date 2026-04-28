@@ -6,6 +6,26 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { notificationApi } from "@/lib/api";
 import { useTranslations } from "next-intl";
+import { ApiResponse } from "@/lib/api/types";
+
+interface Notification {
+  id: number;
+  content: string;
+  is_read: boolean;
+  created_at: string;
+  user_id: number;
+  sender_id?: number;
+  type: string;
+  target_id?: number;
+  target_type: string;
+}
+
+interface NotificationListResponse {
+  list: Notification[];
+  total: number;
+  page: number;
+  page_size: number;
+}
 
 interface NotificationBellProps {
   unreadCount: number;
@@ -14,18 +34,20 @@ interface NotificationBellProps {
 export default function NotificationBell({
   unreadCount,
 }: NotificationBellProps) {
-  const [isOpen, setIsOpen] = useState(false);
-  const t = useTranslations("Notifications"); // 使用 Notifications 命名空间
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const t = useTranslations("Notifications");
 
   // 获取最新通知预览
   const { data: previewData } = useQuery({
     queryKey: ["notifications", "preview"],
     queryFn: () =>
-      notificationApi.list({ page: 1, page_size: 5 }).then((r) => r.data.data),
+      notificationApi
+        .list({ page: 1, page_size: 5 })
+        .then((r: { data: ApiResponse<NotificationListResponse> }) => r.data.data),
     enabled: isOpen,
   });
 
-  const notifications = previewData?.list || [];
+  const notifications: Notification[] = previewData?.list || [];
 
   return (
     <div className="dropdown dropdown-end">
@@ -63,10 +85,10 @@ export default function NotificationBell({
               <p className="text-sm">{t("no_notifications")}</p>
             </div>
           ) : (
-            notifications.map((notif: any) => (
+            notifications.map((notif: Notification) => (
               <Link
                 key={notif.id}
-                href={`/notifications`}
+                href="/notifications"
                 className={`block p-3 hover:bg-base-200 transition-colors border-b border-base-200 last:border-0 ${
                   !notif.is_read ? "bg-primary/5" : ""
                 }`}

@@ -8,8 +8,8 @@ import type {
   ApiResponse,
   PageData,
   Post,
-  Comment,
-  Question,
+  // Comment,
+  // Question,
   PostType,
 } from "../types";
 

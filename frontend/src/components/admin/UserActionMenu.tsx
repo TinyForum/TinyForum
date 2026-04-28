@@ -1,5 +1,5 @@
 // components/admin/UserActionMenu.tsx
-import { useState, useRef, useEffect, JSX } from "react";
+import { useState, useRef, useEffect, JSX, useCallback } from "react";
 import {
   MoreVertical,
   Trash2,
@@ -10,7 +10,6 @@ import {
   Shield,
   Eye,
   Hammer,
-  UserX,
   Lock,
   Unlock,
   CheckCircle,
@@ -25,6 +24,9 @@ import toast from "react-hot-toast";
 import { User } from "@/lib/api";
 import { UserRoleType } from "@/type/roles.types";
 import { UsersIcon } from "@heroicons/react/24/solid";
+import { useTranslations } from "next-intl";
+
+// 类型定义
 
 interface UserActionMenuProps {
   user: User;
@@ -38,7 +40,6 @@ interface UserActionMenuProps {
   isTogglingBlock: boolean;
   isDeleting?: boolean;
   isUpdatingRole?: boolean;
-  t: (key: string, params?: any) => string;
 }
 
 // 角色配置类型
@@ -47,6 +48,12 @@ interface RoleOption {
   icon: JSX.Element;
   className: string;
   nextRole: UserRoleType;
+}
+
+// 菜单位置类型
+interface MenuPosition {
+  top: number;
+  left: number;
 }
 
 export function UserActionMenu({
@@ -59,13 +66,34 @@ export function UserActionMenu({
   onResetPassword,
   isTogglingActive,
   isTogglingBlock,
-  isDeleting,
-  isUpdatingRole,
-  t,
+  isDeleting = false,
+  isUpdatingRole = false,
 }: UserActionMenuProps) {
-  const [isOpen, setIsOpen] = useState(false);
-  const [showRoleMenu, setShowRoleMenu] = useState(false);
+  const t = useTranslations("Admin");
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [showRoleMenu, setShowRoleMenu] = useState<boolean>(false);
+  const [menuPosition, setMenuPosition] = useState<MenuPosition>({ top: 0, left: 0 });
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // 计算菜单位置
+  const calculateMenuPosition = useCallback((): void => {
+    if (!dropdownRef.current) return;
+    
+    const rect = dropdownRef.current.getBoundingClientRect();
+    const viewportWidth = window.innerWidth;
+    const menuWidth = 208; // min-w-52 = 208px
+    let left = rect.left;
+    
+    // 如果菜单会超出右边界，则向左对齐
+    if (rect.right + menuWidth > viewportWidth) {
+      left = rect.right - menuWidth;
+    }
+    
+    setMenuPosition({
+      top: rect.bottom + 4,
+      left: left,
+    });
+  }, []);
 
   // 点击外部关闭菜单
   useEffect(() => {
@@ -80,7 +108,9 @@ export function UserActionMenu({
     };
 
     if (isOpen) {
+      calculateMenuPosition();
       document.addEventListener("mousedown", handleClickOutside);
+      // 阻止 body 滚动
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "";
@@ -90,7 +120,19 @@ export function UserActionMenu({
       document.removeEventListener("mousedown", handleClickOutside);
       document.body.style.overflow = "";
     };
-  }, [isOpen]);
+  }, [isOpen, calculateMenuPosition]);
+
+  // 监听窗口大小变化重新计算菜单位置
+  useEffect(() => {
+    if (!isOpen) return;
+    
+    const handleResize = () => {
+      calculateMenuPosition();
+    };
+    
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [isOpen, calculateMenuPosition]);
 
   if (isCurrentUser) {
     return (
@@ -133,7 +175,7 @@ export function UserActionMenu({
       };
     } else {
       return {
-        label: t("blocked"),
+        label: t("block"),
         icon: <Lock className="w-4 h-4" />,
         className: "text-error",
         hoverClass: "hover:bg-error/10",
@@ -147,10 +189,7 @@ export function UserActionMenu({
     const currentRole = user.role as UserRoleType;
     const options: RoleOption[] = [];
 
-    // 根据当前角色提供可切换的选项
     switch (currentRole) {
-      // 超级管理员
-      // 降级：管理员
       case "super_admin":
         options.push({
           label: t("role.admin"),
@@ -165,10 +204,6 @@ export function UserActionMenu({
           nextRole: "user",
         });
         break;
-
-      // 管理员
-      // 升级：无
-      // 降级：审核、版主、用户
       case "admin":
         options.push({
           label: t("role.reviewer"),
@@ -189,10 +224,6 @@ export function UserActionMenu({
           nextRole: "user",
         });
         break;
-
-      // 版主
-      // 升级：管理员、审核员
-      // 降级：用户
       case "moderator":
         options.push({
           label: t("role.admin"),
@@ -213,10 +244,6 @@ export function UserActionMenu({
           nextRole: "user",
         });
         break;
-
-      // 审核
-      // 升级：管理员、审核员版主
-      // 降级：用户
       case "reviewer":
         options.push({
           label: t("role.admin"),
@@ -237,10 +264,6 @@ export function UserActionMenu({
           nextRole: "user",
         });
         break;
-
-      // 成员
-      // 升级：管理员、
-      // 降级：用户
       case "member":
         options.push({
           label: t("role.reviewer"),
@@ -254,7 +277,6 @@ export function UserActionMenu({
           className: "text-warning",
           nextRole: "admin",
         });
-
         options.push({
           label: t("role.user"),
           icon: <UserIcon className="w-4 h-4" />,
@@ -262,9 +284,6 @@ export function UserActionMenu({
           nextRole: "user",
         });
         break;
-      // 用户：
-      // 升级：会员
-      // 降级：访客
       case "user":
         options.push({
           label: t("role.member"),
@@ -279,7 +298,6 @@ export function UserActionMenu({
           nextRole: "guest",
         });
         break;
-
       case "guest":
         options.push({
           label: t("role.user"),
@@ -288,9 +306,7 @@ export function UserActionMenu({
           nextRole: "user",
         });
         break;
-
       case "bot":
-        // 机器人一般不切换角色
         break;
     }
 
@@ -310,9 +326,7 @@ export function UserActionMenu({
     };
 
     return {
-      icon: roleIcons[user.role as UserRoleType] || (
-        <UserIcon className="w-4 h-4" />
-      ),
+      icon: roleIcons[user.role as UserRoleType] || <UserIcon className="w-4 h-4" />,
       label: t(`role.${user.role}`),
     };
   };
@@ -364,7 +378,6 @@ export function UserActionMenu({
   return (
     <>
       <div className="relative" ref={dropdownRef}>
-        {/* 触发器按钮 */}
         <button
           className={`btn btn-ghost btn-xs btn-square ${isOpen ? "bg-base-200" : ""}`}
           onClick={() => {
@@ -376,31 +389,15 @@ export function UserActionMenu({
           <MoreVertical className="w-4 h-4" />
         </button>
 
-        {/* 下拉菜单 - 使用 Portal 渲染到 body */}
         {isOpen && (
           <div
             className="fixed z-[9999] min-w-52"
             style={{
-              top: (() => {
-                const rect = dropdownRef.current?.getBoundingClientRect();
-                return rect ? rect.bottom + 4 : 0;
-              })(),
-              left: (() => {
-                const rect = dropdownRef.current?.getBoundingClientRect();
-                const viewportWidth = window.innerWidth;
-                const menuWidth = 208;
-                if (rect) {
-                  if (rect.right + menuWidth > viewportWidth) {
-                    return rect.right - menuWidth;
-                  }
-                  return rect.left;
-                }
-                return 0;
-              })(),
+              top: menuPosition.top,
+              left: menuPosition.left,
             }}
           >
             <div className="menu menu-sm p-1 shadow-xl bg-base-100 rounded-box border border-base-200">
-              {/* 封禁/解封 - 优先级最高的操作 */}
               <div className="menu-item">
                 <button
                   className={`${blockConfig.className} ${blockConfig.hoverClass} gap-2 w-full text-left px-3 py-2 rounded-md`}
@@ -412,7 +409,6 @@ export function UserActionMenu({
                 </button>
               </div>
 
-              {/* 激活/停用 - 仅未封禁时显示 */}
               {!isBlocked && (
                 <div className="menu-item">
                   <button
@@ -426,19 +422,15 @@ export function UserActionMenu({
                 </div>
               )}
 
-              {/* 分隔线 */}
               <div className="divider my-1" />
 
-              {/* 账户设置分组标题 */}
               <div className="menu-title text-xs opacity-50 px-3 py-1">
                 {t("account_settings")}
               </div>
 
-              {/* 角色管理 */}
               {onToggleRole && roleOptions.length > 0 && (
                 <div className="menu-item relative">
                   {showRoleMenu ? (
-                    // 角色子菜单
                     <div className="pl-2 border-l-2 border-base-300 ml-2">
                       <div className="menu-title text-xs opacity-50 px-2 py-1">
                         {t("change_role")}
@@ -462,7 +454,6 @@ export function UserActionMenu({
                       </button>
                     </div>
                   ) : (
-                    // 当前角色显示
                     <button
                       className="text-base-content/70 hover:bg-base-200 gap-2 w-full text-left px-3 py-2 rounded-md"
                       onClick={() => setShowRoleMenu(true)}
@@ -476,7 +467,6 @@ export function UserActionMenu({
                 </div>
               )}
 
-              {/* 重置密码 */}
               {onResetPassword && (
                 <div className="menu-item">
                   <button
@@ -489,7 +479,6 @@ export function UserActionMenu({
                 </div>
               )}
 
-              {/* 发送邮件 */}
               <div className="menu-item">
                 <button
                   className="text-base-content/70 hover:bg-base-200 gap-2 w-full text-left px-3 py-2 rounded-md"
@@ -500,7 +489,6 @@ export function UserActionMenu({
                 </button>
               </div>
 
-              {/* 删除用户 - 危险操作 */}
               {onDeleteUser && (
                 <>
                   <div className="divider my-1" />

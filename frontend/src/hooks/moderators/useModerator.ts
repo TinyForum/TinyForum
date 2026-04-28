@@ -3,15 +3,28 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   moderatorApi,
   ApplyModeratorForm,
-  AddModeratorRequest,
-  UpdatePermissionsRequest,
-  ReviewApplicationRequest,
   BanUserRequest,
   ModeratorBoard,
 } from "@/lib/api/modules/moderator";
 import toast from "react-hot-toast";
 import { useTranslations } from "next-intl";
 import { useAuthStore } from "@/store";
+import { ApiResponse } from "@/lib/api/types";
+
+// ========== 类型定义 ==========
+interface ErrorResponse {
+  response?: {
+    data?: {
+      message?: string;
+    };
+  };
+  message?: string;
+}
+
+interface PinPostParams {
+  postId: number;
+  pinInBoard: boolean;
+}
 
 // ========== 申请相关 ==========
 export function useMyApplications(params?: {
@@ -21,7 +34,7 @@ export function useMyApplications(params?: {
   return useQuery({
     queryKey: ["moderator", "my-applications", params],
     queryFn: () =>
-      moderatorApi.getMyApplications(params).then((r) => r.data.data),
+      moderatorApi.getMyApplications(params).then((r: { data: ApiResponse<unknown> }) => r.data.data),
     staleTime: 60 * 1000,
   });
 }
@@ -39,8 +52,9 @@ export function useApplyModerator(boardId: number) {
         queryKey: ["moderator", "my-applications"],
       });
     },
-    onError: (error: any) => {
-      toast.error(error?.response?.data?.message || t("application_failed"));
+    onError: (error: unknown) => {
+      const err = error as ErrorResponse;
+      toast.error(err?.response?.data?.message || t("application_failed"));
     },
   });
 }
@@ -58,8 +72,9 @@ export function useCancelApplication() {
         queryKey: ["moderator", "my-applications"],
       });
     },
-    onError: (error: any) => {
-      toast.error(error?.response?.data?.message || t("cancel_failed"));
+    onError: (error: unknown) => {
+      const err = error as ErrorResponse;
+      toast.error(err?.response?.data?.message || t("cancel_failed"));
     },
   });
 }
@@ -68,7 +83,7 @@ export function useCancelApplication() {
 export function useModerators(boardId: number, enabled: boolean = true) {
   return useQuery({
     queryKey: ["moderator", "list", boardId],
-    queryFn: () => moderatorApi.getModerators(boardId).then((r) => r.data.data),
+    queryFn: () => moderatorApi.getModerators(boardId).then((r: { data: ApiResponse<unknown> }) => r.data.data),
     enabled: !!boardId && enabled,
   });
 }
@@ -85,8 +100,9 @@ export function useBanUser(boardId: number) {
         queryKey: ["moderator", "bans", boardId],
       });
     },
-    onError: (error: any) => {
-      toast.error(error?.response?.data?.message || t("ban_failed"));
+    onError: (error: unknown) => {
+      const err = error as ErrorResponse;
+      toast.error(err?.response?.data?.message || t("ban_failed"));
     },
   });
 }
@@ -103,8 +119,9 @@ export function useUnbanUser(boardId: number) {
         queryKey: ["moderator", "bans", boardId],
       });
     },
-    onError: (error: any) => {
-      toast.error(error?.response?.data?.message || t("unban_failed"));
+    onError: (error: unknown) => {
+      const err = error as ErrorResponse;
+      toast.error(err?.response?.data?.message || t("unban_failed"));
     },
   });
 }
@@ -119,8 +136,9 @@ export function useDeletePost(boardId: number) {
       toast.success(t("post_deleted"));
       queryClient.invalidateQueries({ queryKey: ["posts", boardId] });
     },
-    onError: (error: any) => {
-      toast.error(error?.response?.data?.message || t("delete_post_failed"));
+    onError: (error: unknown) => {
+      const err = error as ErrorResponse;
+      toast.error(err?.response?.data?.message || t("delete_post_failed"));
     },
   });
 }
@@ -130,32 +148,33 @@ export function usePinPost(boardId: number) {
   const t = useTranslations("moderator");
 
   return useMutation({
-    mutationFn: ({
-      postId,
-      pinInBoard,
-    }: {
-      postId: number;
-      pinInBoard: boolean;
-    }) => moderatorApi.pinPost(boardId, postId, pinInBoard),
-    onSuccess: (_, variables) => {
+    mutationFn: ({ postId, pinInBoard }: PinPostParams) =>
+      moderatorApi.pinPost(boardId, postId, pinInBoard),
+    onSuccess: (_: unknown, variables: PinPostParams) => {
       toast.success(
         variables.pinInBoard ? t("post_pinned") : t("post_unpinned"),
       );
       queryClient.invalidateQueries({ queryKey: ["posts", boardId] });
       queryClient.invalidateQueries({ queryKey: ["post", variables.postId] });
     },
-    onError: (error: any) => {
-      toast.error(error?.response?.data?.message || t("pin_failed"));
+    onError: (error: unknown) => {
+      const err = error as ErrorResponse;
+      toast.error(err?.response?.data?.message || t("pin_failed"));
     },
   });
 }
 
 // ========== 权限检查 ==========
 export function useModeratorPermissions(boardId: number) {
-  const { data: moderators } = useModerators(boardId);
+  const { data: moderators, isLoading } = useModerators(boardId);
   const { user } = useAuthStore();
 
-  const currentModerator = moderators?.find((m) => m.user_id === user?.id);
+  // 确保 moderators 是数组
+  const moderatorsArray = Array.isArray(moderators) ? moderators : [];
+  
+  const currentModerator = moderatorsArray.find(
+    (m: { user_id: number }) => m.user_id === user?.id
+  );
 
   return {
     isModerator: !!currentModerator,
@@ -165,6 +184,7 @@ export function useModeratorPermissions(boardId: number) {
     canManageModerator:
       currentModerator?.permissions?.can_manage_moderator || false,
     canBanUser: currentModerator?.permissions?.can_ban_user || false,
+    isLoading, // 可选：返回加载状态
   };
 }
 
@@ -173,9 +193,8 @@ export function useMyModeratorBoards() {
 
   return useQuery<ModeratorBoard[]>({
     queryKey: ["moderator", "my-boards", user?.id],
-    queryFn: async () => {
+    queryFn: async (): Promise<ModeratorBoard[]> => {
       const response = await moderatorApi.getMyModeratorBoards();
-      // 确保 data 是数组，如果不是则返回空数组
       const data = response.data?.data;
       return Array.isArray(data) ? data : [];
     },

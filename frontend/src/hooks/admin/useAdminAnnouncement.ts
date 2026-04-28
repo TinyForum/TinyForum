@@ -1,15 +1,10 @@
 import { useState, useEffect, useCallback } from "react";
-// import { toast } from "antd";
 import {
   announcementApi,
   type Announcement,
-  type AnnouncementListParams,
-  type AnnouncementListResponse,
-  type CreateAnnouncementPayload,
-  type UpdateAnnouncementPayload,
-  type AnnouncementStatus,
 } from "@/lib/api/modules/announcements";
 import toast from "react-hot-toast";
+import { ApiResponse } from "@/lib/api/types";
 
 // ============ 用于单个公告的 Hook ============
 interface UseAdminAnnouncementOptions {
@@ -35,8 +30,10 @@ export function useAdminAnnouncement(
     async (announcementId: number): Promise<Announcement | null> => {
       setLoading(true);
       try {
-        const response = await announcementApi.getById(announcementId);
-        if (response.data.code === 0) {
+        const response: { data: ApiResponse<Announcement> } = 
+          await announcementApi.getById(announcementId);
+        
+        if (response.data.code === 0 && response.data.data) {
           setAnnouncement(response.data.data);
           return response.data.data;
         } else {
@@ -58,6 +55,7 @@ export function useAdminAnnouncement(
     setAnnouncement(null);
   }, []);
 
+   
   useEffect(() => {
     if (autoLoad && id) {
       fetch(id);

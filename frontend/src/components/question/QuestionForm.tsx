@@ -4,8 +4,6 @@
 import { useForm } from "react-hook-form";
 import { AskFormData } from "@/hooks/useQuestionForm";
 import {
-  DocumentTextIcon,
-  TagIcon,
   InformationCircleIcon,
   ExclamationTriangleIcon,
   CheckCircleIcon,

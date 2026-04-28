@@ -1,10 +1,11 @@
 // components/admin/AnnouncementForm.tsx
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Loader2 } from "lucide-react";
 import { useEffect } from "react";
 import { Modal } from "./Modal";
+import Image from "next/image";
 
 // 表单验证 Schema
 const announcementSchema = z
@@ -63,7 +64,7 @@ export function AnnouncementForm({
     register,
     handleSubmit,
     reset,
-    watch,
+    control,
     setValue,
     formState: { errors },
   } = useForm<AnnouncementFormValues>({
@@ -80,8 +81,10 @@ export function AnnouncementForm({
     },
   });
 
-  const isGlobal = watch("is_global");
-  const selectedBoardId = watch("board_id");
+  // 使用 useWatch 替代 watch
+  const isGlobal = useWatch({ control, name: "is_global" });
+  const selectedBoardId = useWatch({ control, name: "board_id" });
+  const coverUrl = useWatch({ control, name: "cover" });
 
   // 当弹窗打开或 defaultValues 变化时，重置表单
   useEffect(() => {
@@ -99,15 +102,6 @@ export function AnnouncementForm({
       });
     }
   }, [isOpen, defaultValues, reset]);
-
-  // 当 is_global 变化时，清空 board_id
-  const handleGlobalChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const checked = e.target.checked;
-    setValue("is_global", checked);
-    if (checked) {
-      setValue("board_id", null);
-    }
-  };
 
   // 选择板块时，自动设置为非全局
   const handleBoardChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -188,12 +182,14 @@ export function AnnouncementForm({
           {errors.cover && (
             <p className="text-error text-xs mt-1">{errors.cover.message}</p>
           )}
-          {watch("cover") && (
+          {coverUrl && (
             <div className="mt-2">
-              <img
-                src={watch("cover")}
+              <Image
+                src={coverUrl}
                 alt="封面预览"
-                className="w-32 h-32 object-cover rounded-lg border"
+                width={128}
+                height={128}
+                className="object-cover rounded-lg border"
                 onError={(e) => {
                   (e.target as HTMLImageElement).style.display = "none";
                 }}
@@ -224,7 +220,7 @@ export function AnnouncementForm({
             >
               <option value="draft">{t("draft")}</option>
               <option value="published">{t("published")}</option>
-              <option value="expired">{t("archived")}</option>
+              <option value="archived">{t("archived")}</option>
             </select>
           </div>
         </div>

@@ -2,20 +2,26 @@
 
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { userApi, postApi } from "@/lib/api";
+import { userApi, } from "@/lib/api";
 import { useAuthStore } from "@/store/auth";
-import { formatDate } from "@/lib/utils";
 import toast from "react-hot-toast";
 import { useTranslations } from "next-intl";
-import type { PostType, User } from "@/lib/api/types";
+import type {  User, ApiResponse } from "@/lib/api/types";
 import { ProfileSidebar } from "./ProfileSidebar";
 import { ProfileContent } from "./ProfileContent";
 import { UserListModal } from "./UserListModal";
 
+// 类型定义
+interface FollowersResponse {
+  list: User[];
+  total: number;
+  page: number;
+  page_size: number;
+}
+
 export default function UserProfileClient({ userId }: { userId: number }) {
   const { user: currentUser, isAuthenticated } = useAuthStore();
   const queryClient = useQueryClient();
-  const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
   const [showFollowers, setShowFollowers] = useState(false);
   const [showFollowing, setShowFollowing] = useState(false);
   const t = useTranslations("Profile");
@@ -23,7 +29,7 @@ export default function UserProfileClient({ userId }: { userId: number }) {
   // 获取用户资料
   const { data: profile, isLoading } = useQuery({
     queryKey: ["user", userId],
-    queryFn: () => userApi.getProfile(userId).then((r) => r.data.data),
+    queryFn: () => userApi.getProfile(userId).then((r: { data: ApiResponse<User> }) => r.data.data),
   });
 
   // 获取粉丝列表（用于获取粉丝数）
@@ -32,7 +38,7 @@ export default function UserProfileClient({ userId }: { userId: number }) {
     queryFn: () =>
       userApi
         .follwowers(userId, { page: 1, page_size: 1 })
-        .then((r) => r.data.data),
+        .then((r: { data: ApiResponse<FollowersResponse> }) => r.data.data),
   });
 
   // 获取关注列表（用于获取关注数）
@@ -41,7 +47,7 @@ export default function UserProfileClient({ userId }: { userId: number }) {
     queryFn: () =>
       userApi
         .following(userId, { page: 1, page_size: 1 })
-        .then((r) => r.data.data),
+        .then((r: { data: ApiResponse<FollowersResponse> }) => r.data.data),
   });
 
   // 获取粉丝详细列表（弹窗用）
@@ -50,7 +56,7 @@ export default function UserProfileClient({ userId }: { userId: number }) {
     queryFn: () =>
       userApi
         .follwowers(userId, { page: 1, page_size: 100 })
-        .then((r) => r.data.data),
+        .then((r: { data: ApiResponse<FollowersResponse> }) => r.data.data),
     enabled: showFollowers,
   });
 
@@ -60,7 +66,7 @@ export default function UserProfileClient({ userId }: { userId: number }) {
     queryFn: () =>
       userApi
         .following(userId, { page: 1, page_size: 100 })
-        .then((r) => r.data.data),
+        .then((r: { data: ApiResponse<FollowersResponse> }) => r.data.data),
     enabled: showFollowing,
   });
 
@@ -73,7 +79,8 @@ export default function UserProfileClient({ userId }: { userId: number }) {
         page: 1,
         page_size: 100,
       });
-      return res.data.data.list?.some((u) => u.id === userId) ?? false;
+      const data = res.data.data as FollowersResponse;
+      return data.list?.some((u: User) => u.id === userId) ?? false;
     },
     enabled: !!currentUser && currentUser.id !== userId,
   });

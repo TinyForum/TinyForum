@@ -6,6 +6,7 @@ import { Heart, Eye, HeartCrack } from "lucide-react";
 import { useState } from "react";
 import { postApi } from "@/lib/api";
 import type { BoardPostListItem } from "@/lib/api/modules/boards";
+import Image from "next/image";
 
 export function BoardPostCard({ post }: { post: BoardPostListItem }) {
   const [liked, setLiked] = useState(false);
@@ -51,7 +52,7 @@ export function BoardPostCard({ post }: { post: BoardPostListItem }) {
             href={`/users/${post.author_id}`}
             className="flex items-center gap-1.5 hover:text-blue-500 transition-colors"
           >
-            <img
+            <Image
               src="/default-avatar.png" // 使用统一默认头像，或根据 author_id 动态拼接
               alt={post.author_name}
               className="w-5 h-5 rounded-full object-cover"

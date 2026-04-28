@@ -1,6 +1,7 @@
 // hooks/useAnnouncements.ts
 import { announcementApi } from "@/lib/api";
-import { Announcement } from "@/lib/api/modules/announcements";
+import { Announcement, AnnouncementListParams, AnnouncementListResponse } from "@/lib/api/modules/announcements";
+import { ApiResponse } from "@/lib/api/types";
 import { useState, useEffect, useCallback } from "react";
 
 /**
@@ -16,17 +17,18 @@ export function useAnnouncements(boardId?: number) {
   const [announcementsList, setAnnouncementsList] = useState<Announcement[]>(
     [],
   );
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchAnnouncements = useCallback(async () => {
+  const fetchAnnouncements = useCallback(async (): Promise<void> => {
     setIsLoading(true);
     setError(null);
     try {
-      const params: any = {
+      // 使用模块中已定义的类型
+      const params: AnnouncementListParams = {
         page: 1,
         page_size: 20,
-        status: "published", // 只获取已发布的
+        status: "published" as const, // 使用 const assertion 匹配 AnnouncementStatus 类型
       };
 
       // 如果传入了板块ID，获取该板块的公告
@@ -38,11 +40,14 @@ export function useAnnouncements(boardId?: number) {
         params.is_global = true;
       }
 
-      const response = await announcementApi.list(params);
-      console.log("前台公告列表:", response.data.data.list);
+      const response: { data: ApiResponse<AnnouncementListResponse> } = 
+        await announcementApi.list(params);
+      
+      console.log("前台公告列表:", response.data.data?.list);
 
-      setAnnouncementsList(response.data.data.list || []);
-    } catch (err) {
+      // 修复：response.data.data 可能为 undefined
+      setAnnouncementsList(response.data.data?.list || []);
+    } catch (err: unknown) {
       console.error("获取公告失败:", err);
       setError(err instanceof Error ? err.message : "获取公告失败");
     } finally {
@@ -50,7 +55,8 @@ export function useAnnouncements(boardId?: number) {
     }
   }, [boardId]);
 
-  useEffect(() => {
+   
+  useEffect((): void => {
     fetchAnnouncements();
   }, [fetchAnnouncements]);
 

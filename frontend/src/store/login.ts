@@ -2,6 +2,7 @@
 import { create } from "zustand";
 import { authApi } from "@/lib/api";
 import { useAuthStore } from "./auth";
+import { ApiError } from "@/shared/api/types/basic.type";
 
 interface LoginState {
   // 表单数据
@@ -54,17 +55,22 @@ export const useLoginStore = create<LoginState>()((set, get) => ({
     try {
       const response = await authApi.login({ email, password });
 
-      const { user } = response.data.data;
+      // 检查响应数据是否存在
+      if (response.data.data?.user) {
+        const { user } = response.data.data;
+        // 更新全局认证状态
+        useAuthStore.getState().setAuth(user);
+        // 清空表单
+        resetForm();
+        return { success: true };
+      }
 
-      // 更新全局认证状态
-      useAuthStore.getState().setAuth(user);
-
-      // 清空表单
-      resetForm();
-
-      return { success: true };
-    } catch (error: any) {
-      const errorMessage = error?.response?.data?.message || "登录失败，请重试";
+      // 响应格式错误
+      set({ error: "响应数据格式错误" });
+      return { success: false };
+    } catch (err: unknown) {
+      const error = err as ApiError;
+      const errorMessage = error.response?.data?.message || "登录失败，请重试";
       set({ error: errorMessage });
       return { success: false };
     } finally {

@@ -4,9 +4,10 @@ import Link from "next/link";
 import PostCard from "@/components/post/PostCard";
 import { useTranslations } from "next-intl";
 import { useAuthStore } from "@/store/auth";
+import type { Post } from "@/lib/api/types";
 
 interface PostListProps {
-  posts: any[];
+  posts: Post[];
   isLoading: boolean;
   totalPages: number;
   currentPage: number;
@@ -21,7 +22,6 @@ export default function PostList({
   onPageChange,
 }: PostListProps) {
   const { isAuthenticated } = useAuthStore();
-  const t = useTranslations("post");
 
   if (isLoading) {
     return <PostListSkeleton />;
@@ -34,7 +34,7 @@ export default function PostList({
   return (
     <>
       <div className="space-y-3">
-        {posts.map((post) => (
+        {posts.map((post: Post) => (
           <PostCard key={post.id} post={post} />
         ))}
       </div>
@@ -54,7 +54,7 @@ export default function PostList({
 function PostListSkeleton() {
   return (
     <div className="space-y-3">
-      {Array.from({ length: 5 }).map((_, i) => (
+      {Array.from({ length: 5 }).map((_: unknown, i: number) => (
         <div key={i} className="skeleton h-28 w-full rounded-xl" />
       ))}
     </div>
@@ -87,8 +87,8 @@ function Pagination({
   currentPage: number;
   onPageChange: (page: number) => void;
 }) {
-  const getPageNumbers = () => {
-    const pages = [];
+  const getPageNumbers = (): number[] => {
+    const pages: number[] = [];
     const maxVisible = 7;
     const start = Math.max(1, currentPage - Math.floor(maxVisible / 2));
     const end = Math.min(totalPages, start + maxVisible - 1);
@@ -106,14 +106,17 @@ function Pagination({
           className="join-item btn btn-sm"
           disabled={currentPage === 1}
           onClick={() => onPageChange(currentPage - 1)}
+          aria-label="Previous page"
         >
           «
         </button>
-        {getPageNumbers().map((p) => (
+        {getPageNumbers().map((p: number) => (
           <button
             key={p}
             className={`join-item btn btn-sm ${currentPage === p ? "btn-active btn-primary" : ""}`}
             onClick={() => onPageChange(p)}
+            aria-label={`Go to page ${p}`}
+            aria-current={currentPage === p ? "page" : undefined}
           >
             {p}
           </button>
@@ -122,6 +125,7 @@ function Pagination({
           className="join-item btn btn-sm"
           disabled={currentPage === totalPages}
           onClick={() => onPageChange(currentPage + 1)}
+          aria-label="Next page"
         >
           »
         </button>

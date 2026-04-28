@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { announcementApi } from "@/lib/api";
 import { toast } from "react-hot-toast";
@@ -201,7 +201,7 @@ export default function AnnouncementsPage() {
   const [total, setTotal] = useState(0);
   const pageSize = 12;
 
-  const loadAnnouncements = async () => {
+  const loadAnnouncements =  useCallback(async () => {
     setLoading(true);
     try {
       const response = await announcementApi.list({
@@ -211,22 +211,24 @@ export default function AnnouncementsPage() {
       });
 
       if (response.data.code === 0) {
-        setAnnouncements(response.data.data.list || []);
+        if (response.data.data) {
+           setAnnouncements(response.data.data.list || []);
         setTotal(response.data.data.total || 0);
+        }
+       
       } else {
         toast.error(response.data.message || "加载失败");
       }
-    } catch (error: any) {
-      console.error("Failed to load announcements:", error);
-      toast.error(error.response?.data?.message || "加载失败，请稍后重试");
+    } catch  {
+      toast.error( "加载失败，请稍后重试");
     } finally {
       setLoading(false);
     }
-  };
+  },[page]);
 
   useEffect(() => {
     loadAnnouncements();
-  }, [page]);
+  }, [page,loadAnnouncements]);
 
   const totalPages = Math.ceil(total / pageSize);
 

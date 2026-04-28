@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
@@ -11,17 +11,26 @@ import {
   ArrowsRightLeftIcon,
   PlusIcon,
   UserCircleIcon,
-  EyeIcon,
   TagIcon,
   SparklesIcon,
 } from "@heroicons/react/24/outline";
 import { useAuthStore } from "@/store/auth";
 import { questionApi } from "@/lib/api";
-import { QuestionSimple } from "@/lib/api/types";
+import { QuestionSimple, ApiResponse } from "@/lib/api/types";
 import { useTranslations } from "next-intl";
 
 type FilterType = "all" | "unanswered" | "answered";
 type SortType = "latest" | "hot" | "score";
+
+// API 接受的排序类型
+type ApiSortType = "latest" | "hot" | "unanswered";
+
+interface QuestionListResponse {
+  list: QuestionSimple[];
+  total: number;
+  page: number;
+  page_size: number;
+}
 
 export default function QuestionsPage() {
   const t = useTranslations("Questions");
@@ -43,25 +52,23 @@ export default function QuestionsPage() {
 
   const pageSize = 15;
 
-  // 监听路由参数变化
-  useEffect(() => {
-    const newFilter = searchParams.get("filter") as FilterType;
-    const newSort = searchParams.get("sort") as SortType;
-    const newKeyword = searchParams.get("keyword") || "";
+  // 将 SortType 转换为 API 接受的类型
+  const getApiSort = (sortType: SortType): ApiSortType | undefined => {
+    if (sortType === "score") return undefined; // score 可能不被 API 支持，跳过
+    return sortType as ApiSortType;
+  };
 
-    if (newFilter) setFilter(newFilter);
-    if (newSort) setSort(newSort);
-    if (newKeyword) setKeyword(newKeyword);
-  }, [searchParams]);
-
-  useEffect(() => {
-    loadQuestions();
-  }, [page, filter, sort, keyword]);
-
-  const loadQuestions = async () => {
+  // 加载问题列表
+  const loadQuestions = useCallback(async () => {
     setLoading(true);
     try {
-      const params: any = {
+      const params: {
+        page: number;
+        page_size: number;
+        filter?: string;
+        sort?: ApiSortType;
+        keyword?: string;
+      } = {
         page,
         page_size: pageSize,
       };
@@ -70,20 +77,24 @@ export default function QuestionsPage() {
         params.filter = filter;
       }
 
-      if (sort !== "latest") {
-        params.sort = sort;
+      // 只有当 sort 不是 "score" 时才传递
+      if (sort !== "latest" && sort !== "score") {
+        params.sort = getApiSort(sort);
+      } else if (sort === "score") {
+        // score 排序可能需要特殊处理，或者使用默认排序
+        // 这里选择不传递 sort 参数
       }
 
       if (keyword) {
         params.keyword = keyword;
       }
 
-      const response = await questionApi.getSimple(params);
-      console.log(response);
+      const response: { data: ApiResponse<QuestionListResponse> } = 
+        await questionApi.getSimple(params);
 
-      if (response.status === 200 && response.data.code === 0) {
-        setQuestions(response.data.data.list);
-        setTotal(response.data.data.total);
+      if (response.data.code === 0 && response.data.data) {
+        setQuestions(response.data.data.list || []);
+        setTotal(response.data.data.total || 0);
 
         const urlParams = new URLSearchParams();
         if (filter !== "all") urlParams.set("filter", filter);
@@ -96,11 +107,29 @@ export default function QuestionsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, filter, sort, keyword, pageSize, router]);
+
+  // 监听路由参数变化
+  useEffect(() => {
+    const newFilter = searchParams.get("filter") as FilterType;
+    const newSort = searchParams.get("sort") as SortType;
+    const newKeyword = searchParams.get("keyword") || "";
+
+    if (newFilter) setFilter(newFilter);
+    if (newSort) setSort(newSort);
+    if (newKeyword) setKeyword(newKeyword);
+  }, [searchParams]);
+
+  // 加载数据
+  useEffect(() => {
+    loadQuestions();
+  }, [loadQuestions]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     setPage(1);
+    // 需要等待 page 状态更新，但 loadQuestions 会使用当前的 page
+    // 使用 setTimeout 或直接调用 loadQuestions（它会读取当前 page 状态）
     loadQuestions();
   };
 

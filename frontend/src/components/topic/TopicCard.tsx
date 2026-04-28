@@ -16,6 +16,16 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 
+// 类型定义
+interface ErrorResponse {
+  response?: {
+    data?: {
+      message?: string;
+    };
+  };
+  message?: string;
+}
+
 // 话题卡片组件
 export function TopicCard({
   topic,
@@ -25,9 +35,11 @@ export function TopicCard({
   onFollowChange?: () => void;
 }) {
   const router = useRouter();
-  const { isAuthenticated, user } = useAuthStore();
-  const [following, setFollowing] = useState(topic.is_public || false);
-  const [followLoading, setFollowLoading] = useState(false);
+  const { isAuthenticated } = useAuthStore();
+  // 修复：topic.is_public 表示话题是否公开，而不是是否已关注
+  // 应该从 topic 中获取关注状态，或者通过 API 获取
+  const [following, setFollowing] = useState<boolean>(false);
+  const [followLoading, setFollowLoading] = useState<boolean>(false);
 
   const handleFollow = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -51,7 +63,8 @@ export function TopicCard({
         toast.success("已收藏话题");
       }
       onFollowChange?.();
-    } catch (error: any) {
+    } catch (err: unknown) {
+      const error = err as ErrorResponse;
       toast.error(error.response?.data?.message || "操作失败");
     } finally {
       setFollowLoading(false);
@@ -64,6 +77,7 @@ export function TopicCard({
         {/* 话题封面 */}
         {topic.cover && (
           <figure className="relative overflow-hidden">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={topic.cover}
               alt={topic.title}

@@ -1,9 +1,8 @@
 // app/[locale]/explore/page.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/auth";
 import { toast } from "react-hot-toast";
 import {
@@ -11,8 +10,6 @@ import {
   FireIcon,
   ClockIcon,
   ChatBubbleLeftRightIcon,
-  EyeIcon,
-  HeartIcon,
   UserGroupIcon,
   HashtagIcon,
   NewspaperIcon,
@@ -20,14 +17,13 @@ import {
   SparklesIcon,
   ArrowRightIcon,
 } from "@heroicons/react/24/outline";
-import { HeartIcon as HeartSolidIcon } from "@heroicons/react/24/solid";
 import { postApi, tagApi, topicApi, userApi } from "@/lib/api";
-import type { Post, Tag, Topic, User } from "@/lib/api/types";
+import type { Post, Tag, Topic } from "@/lib/api/types";
 import { ActiveUserCard } from "@/components/explore/ActiveUserCard";
 import { HotPostCard } from "@/components/explore/HotPostCard";
 import { HotTagCard } from "@/components/explore/HotTagCard";
 import { HotTopicCard } from "@/components/explore/HotTopicCard";
-import { LeaderboardItemResponse } from "@/lib/api/modules/users";
+import type { LeaderboardItemResponse } from "@/lib/api/modules/users";
 
 // 分类 Tab
 const exploreTabs = [
@@ -62,20 +58,19 @@ const exploreTabs = [
 ];
 
 export default function Explore() {
-  const router = useRouter();
   const { isAuthenticated } = useAuthStore();
   const [activeTab, setActiveTab] = useState("hot");
   const [posts, setPosts] = useState<Post[]>([]);
   const [hotTags, setHotTags] = useState<Tag[]>([]);
   const [hotTopics, setHotTopics] = useState<Topic[]>([]);
-  const [activeUsers, setActiveUsers] = useState<LeaderboardItemResponse[]>();
+  const [activeUsers, setActiveUsers] = useState<LeaderboardItemResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchKeyword, setSearchKeyword] = useState("");
   const [searchResults, setSearchResults] = useState<Post[]>([]);
   const [searching, setSearching] = useState(false);
 
-  // 加载探索数据
-  const loadExploreData = async () => {
+  // 加载探索数据 - 使用 useCallback 包装
+  const loadExploreData = useCallback(async () => {
     setLoading(true);
     try {
       const currentTab = exploreTabs.find((tab) => tab.id === activeTab);
@@ -87,19 +82,20 @@ export default function Explore() {
           userApi.getLeaderboardSimple({ limit: 10 }),
         ]);
 
-      if (postsResponse.data.code === 200) {
+      // 添加安全检查
+      if (postsResponse.data.code === 200 && postsResponse.data.data) {
         setPosts(postsResponse.data.data.list || []);
       }
-      if (tagsResponse.data.code === 200) {
+      if (tagsResponse.data.code === 200 && tagsResponse.data.data) {
         const sortedTags = [...(tagsResponse.data.data || [])].sort(
           (a, b) => (b.post_count || 0) - (a.post_count || 0),
         );
         setHotTags(sortedTags.slice(0, 12));
       }
-      if (topicsResponse.data.code === 200) {
+      if (topicsResponse.data.code === 200 && topicsResponse.data.data) {
         setHotTopics(topicsResponse.data.data.list || []);
       }
-      if (usersResponse.data.code === 200) {
+      if (usersResponse.data.code === 200 && usersResponse.data.data) {
         setActiveUsers(usersResponse.data.data || []);
       }
     } catch (error) {
@@ -108,7 +104,7 @@ export default function Explore() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [activeTab]); // 依赖 activeTab
 
   // 搜索
   const handleSearch = async () => {
@@ -124,7 +120,7 @@ export default function Explore() {
         page: 1,
         page_size: 20,
       });
-      if (response.data.code === 200) {
+      if (response.data.code === 200 && response.data.data) {
         setSearchResults(response.data.data.list || []);
         if (response.data.data.list?.length === 0) {
           toast("未找到相关结果");
@@ -146,7 +142,7 @@ export default function Explore() {
 
   useEffect(() => {
     loadExploreData();
-  }, [activeTab]);
+  }, [loadExploreData]); // 依赖 loadExploreData
 
   const displayPosts = searchKeyword ? searchResults : posts;
 
@@ -378,13 +374,13 @@ export default function Explore() {
                       />
                     ))}
                   </div>
-                ) : activeUsers?.length === 0 ? (
+                ) : activeUsers.length === 0 ? (
                   <p className="text-sm text-base-content/40 text-center py-4">
                     暂无用户
                   </p>
                 ) : (
                   <div className="space-y-2">
-                    {activeUsers?.slice(0, 6).map((user, index) => (
+                    {activeUsers.slice(0, 6).map((user) => (
                       <ActiveUserCard key={user.id} user={user} />
                     ))}
                   </div>

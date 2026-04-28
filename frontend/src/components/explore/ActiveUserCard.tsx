@@ -1,7 +1,6 @@
-import { User } from "@/lib/api";
 import Link from "next/link";
-import { TrophyIcon, UserCircleIcon } from "@heroicons/react/24/outline";
 import { LeaderboardItemResponse } from "@/lib/api/modules/users";
+import Image from "next/image";
 
 // 活跃用户卡片
 interface ActiveUserCardProps {
@@ -56,7 +55,7 @@ export function ActiveUserCard({ user, rank }: ActiveUserCardProps) {
             {user.avatar ? (
               <div className="avatar">
                 <div className="w-10 h-10 rounded-full ring-1 ring-base-200 group-hover:ring-primary transition-all">
-                  <img
+                  <Image
                     src={user.avatar}
                     alt={user.username}
                     className="object-cover"

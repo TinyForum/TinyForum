@@ -9,7 +9,7 @@ import {
   AlertTriangle,
   Settings,
 } from "lucide-react";
-import { useTranslations } from "next-intl";
+// import { useTranslations } from "next-intl";
 // import { SettingsTab } from '@/app/settings/page';
 
 interface SettingsSidebarProps {
@@ -29,7 +29,6 @@ export default function SettingsSidebar({
   activeTab,
   onTabChange,
 }: SettingsSidebarProps) {
-  const t = useTranslations("Settings");
 
   const menuItems: MenuItem[] = [
     {

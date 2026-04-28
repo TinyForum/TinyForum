@@ -61,9 +61,11 @@ export function useAdminAnnouncements(): UseAdminAnnouncementsReturn {
       });
 
       if (response.data.code === 200 || response.data.code === 0) {
-        const list = response.data.data.list || [];
+        // 添加安全检查，确保 response.data.data 存在
+        const data = response.data.data;
+        const list = data?.list || [];
         setAnnouncements(list);
-        setTotal(response.data.data.total || 0);
+        setTotal(data?.total || 0);
         // 筛选置顶公告
         setPinnedAnnouncements(
           list.filter((ann: Announcement) => ann.is_pinned === true),
@@ -85,7 +87,7 @@ export function useAdminAnnouncements(): UseAdminAnnouncementsReturn {
       try {
         const response = await announcementApi.getById(id);
         if (response.data.code === 200 || response.data.code === 0) {
-          return response.data.data;
+          return response.data.data || null;
         }
         toast.error(response.data.message || "获取公告详情失败");
         return null;
@@ -107,7 +109,7 @@ export function useAdminAnnouncements(): UseAdminAnnouncementsReturn {
         if (response.data.code === 200 || response.data.code === 0) {
           toast.success("创建公告成功");
           await fetchAnnouncements();
-          return response.data.data;
+          return response.data.data || null;
         }
         toast.error(response.data.message || "创建公告失败");
         return null;
@@ -134,7 +136,7 @@ export function useAdminAnnouncements(): UseAdminAnnouncementsReturn {
         if (response.data.code === 200 || response.data.code === 0) {
           toast.success("更新公告成功");
           await fetchAnnouncements();
-          return response.data.data;
+          return response.data.data || null;
         }
         toast.error(response.data.message || "更新公告失败");
         return null;
@@ -206,7 +208,7 @@ export function useAdminAnnouncements(): UseAdminAnnouncementsReturn {
       setIsSubmitting(true);
       try {
         const response = await announcementApi.update(id, {
-          expired_at: new Date().toISOString(), // 设置为当前时间，表示立即过期
+          expired_at: new Date().toISOString(),
         });
         if (response.data.code === 200 || response.data.code === 0) {
           toast.success("归档公告成功");
@@ -235,7 +237,6 @@ export function useAdminAnnouncements(): UseAdminAnnouncementsReturn {
           is_pinned: isPinned,
         });
         if (response.data.code === 200 || response.data.code === 0) {
-          // toast.success(isPinned ? "置顶成功" : "取消置顶成功");
           await fetchAnnouncements();
           return true;
         }

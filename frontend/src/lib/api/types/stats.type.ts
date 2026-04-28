@@ -144,11 +144,11 @@ export interface StatsTrendResponse {
 /**
  * API 统一响应格式
  */
-export interface ApiResponse<T = any> {
-  code: number;
-  message: string;
-  data: T;
-}
+// export interface ApiResponse<T = any> {
+//   code: number;
+//   message: string;
+//   data: T;
+// }
 
 // ==================== 请求参数类型 ====================
 

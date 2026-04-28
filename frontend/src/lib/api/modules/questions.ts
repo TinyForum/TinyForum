@@ -20,6 +20,11 @@ export interface QuestionListParams {
   keyword?: string;
 }
 
+// TODO: 修改接口返回类型
+export interface CreateQuestionResponse {
+  id: number;
+  
+}
 export const questionApi = {
   // 获取问题精简列表
   getSimple: (params?: QuestionListParams) =>
