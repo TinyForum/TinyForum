@@ -17,14 +17,23 @@ import { useModeratorBannedUsers } from "@/hooks/moderators/useModeratorBannedUs
 import { useModeratorPosts } from "@/hooks/moderators/useModeratorPosts";
 import { useModeratorReports } from "@/hooks/moderators/useModeratorReports";
 import { Pagination } from "@/components/admin/Pagination";
-import { BannedUser, BannedUsersTable } from "@/components/moderator/BannedUsersTable";
+import {
+  BannedUser,
+  BannedUsersTable,
+} from "@/components/moderator/BannedUsersTable";
 import { BanUserModal } from "@/components/moderator/BanUserModal";
-import { Report, ReportedContentTable } from "@/components/moderator/ReportedContentTable";
+import {
+  Report,
+  ReportedContentTable,
+} from "@/components/moderator/ReportedContentTable";
 import { ModeratorDashboard } from "@/components/moderator/ModeratorDashboard";
 import { ModeratorSidebar } from "@/components/moderator/ModeratorSidebar";
-import { PendingPost, PendingPostsTable } from "@/components/moderator/PendingPostsTable";
+import {
+  PendingPost,
+  PendingPostsTable,
+} from "@/components/moderator/PendingPostsTable";
 import SearchBar from "@/components/nav/SearchBar";
-import type {  ModeratorBoard } from "@/lib/api/modules/moderator";
+import type { ModeratorBoard } from "@/lib/api/modules/moderator";
 export default function ModeratorPage() {
   const t = useTranslations("Moderator");
   const { isCheckingAuth, isModerator } = useModeratorAuth();
@@ -184,7 +193,7 @@ export default function ModeratorPage() {
               placeholder={t("search_posts")}
             />
             <PendingPostsTable
-              posts={postsData.posts as unknown  as PendingPost[]}
+              posts={postsData.posts as unknown as PendingPost[]}
               onDelete={
                 permissions.canDeletePost ? handleDeletePost : undefined
               }

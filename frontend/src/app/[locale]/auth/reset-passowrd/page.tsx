@@ -9,7 +9,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import toast from "react-hot-toast";
 import { Lock, Eye, EyeOff, KeyRound, ArrowLeft } from "lucide-react";
-import {  useLocale } from "next-intl";
+import { useLocale } from "next-intl";
 
 const resetPasswordSchema = z
   .object({
@@ -93,7 +93,7 @@ export default function ResetPasswordPage() {
       } else {
         toast.error(result.error || "密码重置失败");
       }
-    } catch  {
+    } catch {
       toast.error("网络错误，请稍后重试");
     } finally {
       setIsLoading(false);

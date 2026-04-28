@@ -42,7 +42,7 @@ export default function AdminPage() {
     keyword,
     activeMenu === "posts" && isAdmin,
   );
-  
+
   const qaData = useQAData();
 
   // 处理用户激活/停用
@@ -88,7 +88,7 @@ export default function AdminPage() {
     switch (activeMenu) {
       case "dashboard":
         return <Dashboard t={t} />;
-      
+
       case "tasks":
         return <AdminTasks />;
 
@@ -130,7 +130,7 @@ export default function AdminPage() {
         );
 
       case "moderators_management":
-        return <ModeratorsTable boardId={0}  />;
+        return <ModeratorsTable boardId={0} />;
 
       case "posts":
         return (
@@ -174,9 +174,7 @@ export default function AdminPage() {
             />
             <div className="card bg-base-100 border border-base-300">
               <div className="card-body">
-                <p className="text-center text-base-content/50">
-                  TODO
-                </p>
+                <p className="text-center text-base-content/50">TODO</p>
               </div>
             </div>
             <Pagination
@@ -188,7 +186,7 @@ export default function AdminPage() {
         );
 
       case "points":
-        return <PointsManager/>;
+        return <PointsManager />;
 
       case "statistics":
         return <Statistics />;

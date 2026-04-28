@@ -23,8 +23,6 @@ interface UserScoreRecord {
   updated_at?: string;
 }
 
-
-
 // 操作类型
 type OperationType = "add" | "subtract" | "set";
 
@@ -50,7 +48,7 @@ export function PointsManager() {
     isSettingScore,
   } = useScoreData();
 
-  const t  = useTranslations("Admin");
+  const t = useTranslations("Admin");
   // 表单状态
   const [userId, setUserId] = useState<string>("");
   const [pointsAmount, setPointsAmount] = useState<number>(0);
@@ -201,7 +199,9 @@ export function PointsManager() {
           <div className="stat-figure text-primary">
             <Wallet className="w-6 h-6" />
           </div>
-          <div className="stat-title text-base-content/60">{t("total_points_circulation")}</div>
+          <div className="stat-title text-base-content/60">
+            {t("total_points_circulation")}
+          </div>
           <div className="stat-value text-primary text-3xl font-bold">
             {stats.totalPoints.toLocaleString()}
           </div>
@@ -210,7 +210,9 @@ export function PointsManager() {
           <div className="stat-figure text-secondary">
             <TrendingUp className="w-6 h-6" />
           </div>
-          <div className="stat-title text-base-content/60">{t("today_awarded")}</div>
+          <div className="stat-title text-base-content/60">
+            {t("today_awarded")}
+          </div>
           <div className="stat-value text-secondary text-3xl font-bold">
             {stats.todayAwarded.toLocaleString()}
           </div>
@@ -219,15 +221,21 @@ export function PointsManager() {
           <div className="stat-figure text-accent">
             <Gift className="w-6 h-6" />
           </div>
-          <div className="stat-title text-base-content/60">{t("exchange_rate")}</div>
-          <div className="stat-value text-accent text-3xl font-bold">{stats.exchangeRate}</div>
+          <div className="stat-title text-base-content/60">
+            {t("exchange_rate")}
+          </div>
+          <div className="stat-value text-accent text-3xl font-bold">
+            {stats.exchangeRate}
+          </div>
         </div>
       </div>
 
       {/* 操作面板 */}
       <div className="card bg-base-100 border border-base-300 shadow-sm">
         <div className="card-body p-6">
-          <h3 className="font-semibold text-lg mb-4">{t("points_operations")}</h3>
+          <h3 className="font-semibold text-lg mb-4">
+            {t("points_operations")}
+          </h3>
 
           {/* 操作类型选择 */}
           <div className="flex gap-2 mb-4 flex-wrap">
@@ -254,13 +262,15 @@ export function PointsManager() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="form-control">
               <label className="label">
-                <span className="label-text font-medium">{t("user_id_or_username")}</span>
+                <span className="label-text font-medium">
+                  {t("user_id_or_username")}
+                </span>
               </label>
               <input
                 type="text"
                 className="input input-bordered"
                 value={userId}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                   setUserId(e.target.value)
                 }
                 placeholder={t("enter_user_id_or_username")}
@@ -268,13 +278,15 @@ export function PointsManager() {
             </div>
             <div className="form-control">
               <label className="label">
-                <span className="label-text font-medium">{t("points_amount")}</span>
+                <span className="label-text font-medium">
+                  {t("points_amount")}
+                </span>
               </label>
               <input
                 type="number"
                 className="input input-bordered"
                 value={pointsAmount}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                   setPointsAmount(Number(e.target.value))
                 }
                 placeholder={t("enter_points_amount")}
@@ -291,7 +303,7 @@ export function PointsManager() {
               type="text"
               className="input input-bordered"
               value={reason}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 setReason(e.target.value)
               }
               placeholder={t("enter_operation_reason")}
@@ -343,7 +355,9 @@ export function PointsManager() {
       <div className="card bg-base-100 border border-base-300 shadow-sm">
         <div className="card-body p-6">
           <div className="flex justify-between items-center mb-4 flex-wrap gap-2">
-            <h3 className="font-semibold text-lg">{t("recent_points_records")}</h3>
+            <h3 className="font-semibold text-lg">
+              {t("recent_points_records")}
+            </h3>
             <div className="form-control">
               <div className="flex gap-2">
                 <input
@@ -351,7 +365,7 @@ export function PointsManager() {
                   className="input input-bordered input-sm"
                   placeholder={t("search_user")}
                   value={searchKeyword}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                     setSearchKeyword(e.target.value)
                   }
                 />
@@ -401,7 +415,7 @@ export function PointsManager() {
                         </span>
                       </td>
                       <td className="text-xs text-base-content/50">
-                        {record.created_at 
+                        {record.created_at
                           ? new Date(record.created_at).toLocaleDateString()
                           : t("unknown")}
                       </td>

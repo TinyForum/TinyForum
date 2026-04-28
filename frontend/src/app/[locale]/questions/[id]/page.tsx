@@ -173,15 +173,8 @@ export default function QuestionDetailPage() {
 
   const questionId = Number(params.id);
 
-  const {
-    question,
-    answers,
-    answersTotal,
-    liked,
-    loading,
-    refresh,
-    setLiked,
-  } = useQuestionDetail(questionId, );
+  const { question, answers, answersTotal, liked, loading, refresh, setLiked } =
+    useQuestionDetail(questionId);
 
   const handleAcceptAnswer = async (answerId: number) => {
     if (!isAuthenticated) {
@@ -337,8 +330,8 @@ export default function QuestionDetailPage() {
 
           {isAuthenticated ? (
             <div className="bg-base-100 rounded-2xl shadow-sm border border-base-200 overflow-hidden">
-              <AnswerForm 
-                questionId={questionId} 
+              <AnswerForm
+                questionId={questionId}
                 onSuccess={onAnswerCreated}
                 hasAccepted={hasAccepted}
                 rewardScore={0}

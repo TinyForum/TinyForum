@@ -81,7 +81,7 @@ export function ReportManagement() {
             type="number"
             placeholder="板块 ID"
             value={selectedBoardId}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
               setSelectedBoardId(parseInt(e.target.value) || 1)
             }
             className="input input-bordered w-32"
@@ -94,7 +94,7 @@ export function ReportManagement() {
           <select
             className="select select-bordered w-32"
             value={status}
-            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => 
+            onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
               setStatus(e.target.value)
             }
           >
@@ -123,13 +123,15 @@ export function ReportManagement() {
               <div className="space-y-2">
                 <div className="flex justify-between items-center flex-wrap gap-2">
                   <div className="flex gap-2">
-                    <div className={`badge gap-1 ${
-                      report.status === "pending" 
-                        ? "badge-error" 
-                        : report.status === "resolved" 
-                          ? "badge-success" 
-                          : "badge-warning"
-                    }`}>
+                    <div
+                      className={`badge gap-1 ${
+                        report.status === "pending"
+                          ? "badge-error"
+                          : report.status === "resolved"
+                            ? "badge-success"
+                            : "badge-warning"
+                      }`}
+                    >
                       <Flag className="w-3 h-3" />
                       {report.status === "pending" && "待处理"}
                       {report.status === "resolved" && "已处理"}
@@ -143,46 +145,46 @@ export function ReportManagement() {
                     {new Date(report.created_at).toLocaleString()}
                   </span>
                 </div>
-                
+
                 <p className="text-sm">
                   <strong className="text-base-content/70">举报人:</strong>{" "}
                   {report.reporter?.username || `用户${report.reporter_id}`}
                 </p>
-                
+
                 {report.target_title && (
                   <p className="text-sm">
                     <strong className="text-base-content/70">标题:</strong>{" "}
                     {report.target_title}
                   </p>
                 )}
-                
+
                 <p className="text-sm">
                   <strong className="text-base-content/70">被举报内容:</strong>{" "}
                   <span className="line-clamp-2">{report.content_preview}</span>
                 </p>
-                
+
                 <p className="text-sm">
                   <strong className="text-base-content/70">原因:</strong>{" "}
                   {report.reason}
                 </p>
-                
+
                 {report.status === "pending" && (
                   <div className="flex gap-2 mt-2 flex-wrap">
-                    <button 
+                    <button
                       className="btn btn-sm btn-success gap-1"
                       onClick={() => handleResolve(report.id)}
                     >
                       <CheckCircle className="w-4 h-4" />
                       通过
                     </button>
-                    <button 
+                    <button
                       className="btn btn-sm btn-outline gap-1"
                       onClick={() => handleReject(report.id)}
                     >
                       <XCircle className="w-4 h-4" />
                       驳回
                     </button>
-                    <button 
+                    <button
                       className="btn btn-sm btn-error gap-1"
                       onClick={() => handleDeleteContent(report.id)}
                     >
@@ -195,7 +197,7 @@ export function ReportManagement() {
             </div>
           </div>
         ))}
-        
+
         {reportList.length === 0 && (
           <div className="text-center py-12 text-base-content/50">
             <Flag className="w-12 h-12 mx-auto mb-3 opacity-30" />

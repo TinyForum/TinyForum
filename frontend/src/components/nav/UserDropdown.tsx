@@ -168,7 +168,10 @@ export default function UserDropdown({
     user.role === "user";
 
   return (
-    <div className="dropdown dropdown-end user-dropdown-container" ref={dropdownRef}>
+    <div
+      className="dropdown dropdown-end user-dropdown-container"
+      ref={dropdownRef}
+    >
       <div
         tabIndex={0}
         role="button"

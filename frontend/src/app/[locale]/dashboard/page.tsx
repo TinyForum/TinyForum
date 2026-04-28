@@ -37,7 +37,17 @@ export default function DashboardPage() {
       // 普通用户重定向到首页
       router.replace(`/${locale}`);
     }
-  }, [isMember,isModerator,isReviewer,isLoading, isAdmin, isSuperAdmin, , router, locale]);
+  }, [
+    isMember,
+    isModerator,
+    isReviewer,
+    isLoading,
+    isAdmin,
+    isSuperAdmin,
+    ,
+    router,
+    locale,
+  ]);
 
   // 加载中状态
   if (isLoading) {

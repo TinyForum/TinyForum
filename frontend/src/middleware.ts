@@ -32,7 +32,10 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
   let currentLocale: string = pathnameParts[1];
 
   // 验证语言是否有效
-  if (!currentLocale || !routing.locales.includes(currentLocale as "en-US" || "zh-CN")) {
+  if (
+    !currentLocale ||
+    !routing.locales.includes((currentLocale as "en-US") || "zh-CN")
+  ) {
     currentLocale = routing.defaultLocale;
   }
 
@@ -46,7 +49,8 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
     }
   }
 
-  const token: string | undefined = request.cookies.get("tiny_forum_token")?.value;
+  const token: string | undefined =
+    request.cookies.get("tiny_forum_token")?.value;
   const isAuthRoute: boolean = authRoutes.some((route: string) =>
     pathnameWithoutLocale.startsWith(route),
   );
@@ -75,7 +79,6 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
       const { payload }: JWTVerifyResult = await jwtVerify(token, secret);
       const role: string = payload.role as string;
 
-
       console.log("User role:", role);
       console.log("Role allowed:", allowedRoles.includes(role));
 
@@ -83,8 +86,6 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
         console.log("❌ Role not allowed, redirecting to home");
         return NextResponse.redirect(new URL(`/${currentLocale}`, request.url));
       }
-
-
     } catch (error: unknown) {
       console.error("❌ JWT verification failed:", error);
       const response: NextResponse = NextResponse.redirect(
@@ -102,7 +103,7 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
     console.log("17. i18n middleware returned response");
     return intlResponse;
   }
-  
+
   return NextResponse.next();
 }
 

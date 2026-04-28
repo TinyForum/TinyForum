@@ -72,23 +72,26 @@ export function UserActionMenu({
   const t = useTranslations("Admin");
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [showRoleMenu, setShowRoleMenu] = useState<boolean>(false);
-  const [menuPosition, setMenuPosition] = useState<MenuPosition>({ top: 0, left: 0 });
+  const [menuPosition, setMenuPosition] = useState<MenuPosition>({
+    top: 0,
+    left: 0,
+  });
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // 计算菜单位置
   const calculateMenuPosition = useCallback((): void => {
     if (!dropdownRef.current) return;
-    
+
     const rect = dropdownRef.current.getBoundingClientRect();
     const viewportWidth = window.innerWidth;
     const menuWidth = 208; // min-w-52 = 208px
     let left = rect.left;
-    
+
     // 如果菜单会超出右边界，则向左对齐
     if (rect.right + menuWidth > viewportWidth) {
       left = rect.right - menuWidth;
     }
-    
+
     setMenuPosition({
       top: rect.bottom + 4,
       left: left,
@@ -125,11 +128,11 @@ export function UserActionMenu({
   // 监听窗口大小变化重新计算菜单位置
   useEffect(() => {
     if (!isOpen) return;
-    
+
     const handleResize = () => {
       calculateMenuPosition();
     };
-    
+
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, [isOpen, calculateMenuPosition]);
@@ -326,7 +329,9 @@ export function UserActionMenu({
     };
 
     return {
-      icon: roleIcons[user.role as UserRoleType] || <UserIcon className="w-4 h-4" />,
+      icon: roleIcons[user.role as UserRoleType] || (
+        <UserIcon className="w-4 h-4" />
+      ),
       label: t(`role.${user.role}`),
     };
   };

@@ -35,10 +35,10 @@ interface BannedUsersResponse {
 
 // 禁言时长映射
 const DURATION_MAP: Record<string, number> = {
-  "1d": 86400000,      // 1 天
-  "3d": 259200000,     // 3 天
-  "7d": 604800000,     // 7 天
-  "30d": 2592000000,   // 30 天
+  "1d": 86400000, // 1 天
+  "3d": 259200000, // 3 天
+  "7d": 604800000, // 7 天
+  "30d": 2592000000, // 30 天
 };
 
 export function BanManagement() {
@@ -57,7 +57,8 @@ export function BanManagement() {
   const unbanUser = useAdminUnbanUser(selectedBoardId);
 
   // 获取禁言列表
-  const bannedList = (bannedUsers as unknown as BannedUsersResponse)?.list || [];
+  const bannedList =
+    (bannedUsers as unknown as BannedUsersResponse)?.list || [];
 
   const handleBanUser = () => {
     if (!banUserId || !banReason) {
@@ -67,7 +68,9 @@ export function BanManagement() {
 
     let expiresAt: string | undefined;
     if (banDuration && DURATION_MAP[banDuration]) {
-      expiresAt = new Date(Date.now() + DURATION_MAP[banDuration]).toISOString();
+      expiresAt = new Date(
+        Date.now() + DURATION_MAP[banDuration],
+      ).toISOString();
     }
 
     banUser.mutate(
@@ -126,7 +129,7 @@ export function BanManagement() {
               type="number"
               placeholder="板块 ID"
               value={selectedBoardId}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 setSelectedBoardId(parseInt(e.target.value) || 1)
               }
               className="input input-bordered w-32"
@@ -179,11 +182,13 @@ export function BanManagement() {
                   </div>
                   <div className="mt-2 space-y-1">
                     <p className="text-sm text-base-content/70">
-                      <strong className="font-medium">禁言原因:</strong> {ban.reason}
+                      <strong className="font-medium">禁言原因:</strong>{" "}
+                      {ban.reason}
                     </p>
                     {ban.expires_at && (
                       <p className="text-sm text-base-content/50">
-                        <strong>到期时间:</strong> {new Date(ban.expires_at).toLocaleString()}
+                        <strong>到期时间:</strong>{" "}
+                        {new Date(ban.expires_at).toLocaleString()}
                       </p>
                     )}
                     {ban.expires_at === null && (
@@ -192,13 +197,16 @@ export function BanManagement() {
                       </p>
                     )}
                     <p className="text-sm text-base-content/50">
-                      <strong>禁言时间:</strong> {new Date(ban.created_at).toLocaleString()}
+                      <strong>禁言时间:</strong>{" "}
+                      {new Date(ban.created_at).toLocaleString()}
                     </p>
                   </div>
                 </div>
                 <button
                   className="btn btn-ghost btn-sm text-success hover:text-success"
-                  onClick={() => handleUnbanUser(ban.user_id, ban.user?.username)}
+                  onClick={() =>
+                    handleUnbanUser(ban.user_id, ban.user?.username)
+                  }
                   disabled={unbanUser.isPending}
                   title="解除禁言"
                 >
@@ -208,7 +216,7 @@ export function BanManagement() {
             </div>
           </div>
         ))}
-        
+
         {bannedList.length === 0 && (
           <div className="text-center py-12 text-base-content/50">
             <Shield className="w-12 h-12 mx-auto mb-3 opacity-30" />
@@ -238,7 +246,7 @@ export function BanManagement() {
                   type="number"
                   placeholder="用户 ID"
                   value={banUserId}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                     setBanUserId(e.target.value)
                   }
                   className="input input-bordered w-full"
@@ -252,7 +260,7 @@ export function BanManagement() {
                 <textarea
                   placeholder="请输入禁言原因..."
                   value={banReason}
-                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => 
+                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
                     setBanReason(e.target.value)
                   }
                   className="textarea textarea-bordered w-full"
@@ -266,7 +274,7 @@ export function BanManagement() {
                 <select
                   className="select select-bordered w-full"
                   value={banDuration}
-                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => 
+                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
                     setBanDuration(e.target.value)
                   }
                 >
@@ -285,10 +293,7 @@ export function BanManagement() {
               </div>
             </div>
             <div className="modal-action">
-              <button 
-                className="btn" 
-                onClick={() => setIsBanDialogOpen(false)}
-              >
+              <button className="btn" onClick={() => setIsBanDialogOpen(false)}>
                 取消
               </button>
               <button

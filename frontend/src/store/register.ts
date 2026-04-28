@@ -138,7 +138,7 @@ export const useRegisterStore = create<RegisterState>()((set, get) => ({
       return { success: false, message: "响应数据格式错误" };
     } catch (err: unknown) {
       let errorMessage = "注册失败，请重试";
-      const error = err as ApiError;  // ← 使用 ApiError 类型
+      const error = err as ApiError; // ← 使用 ApiError 类型
 
       if (error.response?.data?.errors) {
         const fieldErrors: Record<string, string> = {};

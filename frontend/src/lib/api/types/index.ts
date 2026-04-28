@@ -11,10 +11,8 @@ import { UserRoleType } from "@/type/roles.types";
 export interface ApiResponse<T = unknown> {
   code: number;
   message: string;
-  data?: T;  // 改为可选
+  data?: T; // 改为可选
 }
-
-
 
 export interface PageData<T> {
   list: T[];

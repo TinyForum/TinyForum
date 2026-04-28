@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { useParams,} from "next/navigation";
+import { useParams } from "next/navigation";
 import Link from "next/link";
 import { announcementApi } from "@/lib/api";
 import {
@@ -120,7 +120,7 @@ export default function AnnouncementDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const loadAnnouncement =useCallback(async () => {
+  const loadAnnouncement = useCallback(async () => {
     const id = parseInt(params.id as string);
     if (isNaN(id)) {
       setError("无效的公告ID");
@@ -136,7 +136,6 @@ export default function AnnouncementDetailPage() {
         if (response.data.data) {
           setAnnouncement(response.data.data);
         }
-        
       } else {
         setError(response.data.message || "公告不存在");
       }
@@ -151,11 +150,11 @@ export default function AnnouncementDetailPage() {
     } finally {
       setLoading(false);
     }
-  },[params.id]);
+  }, [params.id]);
 
   useEffect(() => {
     loadAnnouncement();
-  }, [params.id,loadAnnouncement]);
+  }, [params.id, loadAnnouncement]);
 
   const formatDate = (dateStr: string | null, withTime: boolean = true) => {
     if (!dateStr) return "待发布";

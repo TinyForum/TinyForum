@@ -59,7 +59,7 @@ const PERMISSIONS_CONFIG = [
   },
 ];
 
-export function ModeratorsTable({ boardId,  }: ModeratorsTableProps) {
+export function ModeratorsTable({ boardId }: ModeratorsTableProps) {
   const t = useTranslations("Admin");
   const [moderators, setModerators] = useState<Moderator[]>([]);
   const [editingModerator, setEditingModerator] = useState<Moderator | null>(
@@ -197,7 +197,9 @@ export function ModeratorsTable({ boardId,  }: ModeratorsTableProps) {
                 <td>
                   <div className="flex items-center gap-1">
                     {getRoleIcon(moderator.permissions)}
-                    <span className="text-sm">{getRoleName(moderator.permissions)}</span>
+                    <span className="text-sm">
+                      {getRoleName(moderator.permissions)}
+                    </span>
                   </div>
                 </td>
                 <td>
@@ -265,8 +267,7 @@ export function ModeratorsTable({ boardId,  }: ModeratorsTableProps) {
         >
           <div className="modal-box">
             <h3 className="font-bold text-lg mb-4">
-              {t("edit_permissions_for")}{" "}
-              {editingModerator.user?.username}
+              {t("edit_permissions_for")} {editingModerator.user?.username}
             </h3>
             <div className="space-y-3">
               {PERMISSIONS_CONFIG.map((config) => (

@@ -72,7 +72,7 @@ export function AnswerForm({
 
     setSubmitting(true);
     try {
-      const response: { data: ApiResponse<CreateAnswerResponse> } = 
+      const response: { data: ApiResponse<CreateAnswerResponse> } =
         await questionApi.createAnswer(questionId, {
           content: content.trim(),
         });
@@ -181,7 +181,7 @@ export function AnswerForm({
           <>
             <textarea
               value={content}
-              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => 
+              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
                 setContent(e.target.value)
               }
               rows={8}

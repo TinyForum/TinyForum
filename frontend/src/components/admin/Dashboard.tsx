@@ -14,10 +14,10 @@ import {
 import { CommunityStats } from "../home/CommunityStats";
 
 export function Dashboard({ t }: { t: (key: string) => string }) {
-  const { stats,  exportData, isLoading } = useStatsData(true);
+  const { stats, exportData, isLoading } = useStatsData(true);
 
   // 获取范围统计数据（最近30天，type=all）
-  const { rangeStats,  fetchRangeStats } = useStatistics({
+  const { rangeStats, fetchRangeStats } = useStatistics({
     autoFetch: false,
   });
 

@@ -13,7 +13,7 @@ interface LogoutState {
   forceLogout: () => void;
 }
 
-export const useLogoutStore = create<LogoutState>()((set ) => ({
+export const useLogoutStore = create<LogoutState>()((set) => ({
   isLoading: false,
 
   logout: async () => {

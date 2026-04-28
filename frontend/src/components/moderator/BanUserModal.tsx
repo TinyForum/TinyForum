@@ -9,11 +9,7 @@ interface BanUserModalProps {
   t: (key: string) => string;
 }
 
-export function BanUserModal({
-  onBan,
-  isBanning,
-  t,
-}: BanUserModalProps) {
+export function BanUserModal({ onBan, isBanning, t }: BanUserModalProps) {
   const [userId, setUserId] = useState("");
   const [reason, setReason] = useState("");
   const [expiresAt, setExpiresAt] = useState("");

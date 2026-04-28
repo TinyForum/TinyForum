@@ -77,90 +77,89 @@ export default function TopicDetailPage() {
 
   // 加载话题详情
   const loadTopic = useCallback(async () => {
-  try {
-    const response = await topicApi.getById(topicId);
-    if (response.data.code === 0) {
-      // 修复：确保 response.data.data 存在，否则设为 null
-      const data = response.data.data;
-      if (data) {
-        setTopic(data);
+    try {
+      const response = await topicApi.getById(topicId);
+      if (response.data.code === 0) {
+        // 修复：确保 response.data.data 存在，否则设为 null
+        const data = response.data.data;
+        if (data) {
+          setTopic(data);
+        } else {
+          setTopic(null);
+          toast.error("话题不存在");
+        }
       } else {
-        setTopic(null);
-        toast.error("话题不存在");
+        toast.error(response.data.message || "加载失败");
       }
-    } else {
-      toast.error(response.data.message || "加载失败");
+    } catch (err: unknown) {
+      const error = err as ErrorResponse;
+      toast.error(error.response?.data?.message || "加载失败");
     }
-  } catch (err: unknown) {
-    const error = err as ErrorResponse;
-    toast.error(error.response?.data?.message || "加载失败");
-  }
-}, [topicId]);
+  }, [topicId]);
 
+  const loadPosts = useCallback(async () => {
+    try {
+      const response = await topicApi.getPosts(topicId, {
+        page,
+        page_size: pageSize,
+      });
+      if (response.data.code === 0) {
+        const data = response.data.data;
+        const list = data?.list || [];
+        // 修复：正确处理 list 中的每个元素
+        const mappedPosts: Post[] = list
+          .map((item: TopicPostItem) => item.post) // 移除可选链操作符
+          .filter((post: Post | undefined): post is Post => post !== undefined);
 
-const loadPosts = useCallback(async () => {
-  try {
-    const response = await topicApi.getPosts(topicId, {
-      page,
-      page_size: pageSize,
-    });
-    if (response.data.code === 0) {
-      const data = response.data.data;
-      const list = data?.list || [];
-      // 修复：正确处理 list 中的每个元素
-   const mappedPosts: Post[] = list
-  .map((item: TopicPostItem) => item.post)  // 移除可选链操作符
-  .filter((post: Post | undefined): post is Post => post !== undefined);
-
-      setPosts(mappedPosts);
-      setTotal(data?.total || 0);
+        setPosts(mappedPosts);
+        setTotal(data?.total || 0);
+      }
+    } catch (err: unknown) {
+      const error = err as ErrorResponse;
+      toast.error(error.response?.data?.message || "加载失败");
     }
-  } catch (err: unknown) {
-    const error = err as ErrorResponse;
-    toast.error(error.response?.data?.message || "加载失败");
-  }
-}, [topicId, page]);
+  }, [topicId, page]);
 
-// 修复 loadFollowers 函数
-const loadFollowers = useCallback(async () => {
-  try {
-    const response = await topicApi.getFollowers(topicId, {
-      page,
-      page_size: pageSize,
-    });
-    if (response.data.code === 0) {
-      const data = response.data.data;
-      // 修复：直接使用 API 返回的数据，不要求 created_at
-      const list = data?.list || [];
-      setFollowers(list);
-      setTotal(data?.total || 0);
+  // 修复 loadFollowers 函数
+  const loadFollowers = useCallback(async () => {
+    try {
+      const response = await topicApi.getFollowers(topicId, {
+        page,
+        page_size: pageSize,
+      });
+      if (response.data.code === 0) {
+        const data = response.data.data;
+        // 修复：直接使用 API 返回的数据，不要求 created_at
+        const list = data?.list || [];
+        setFollowers(list);
+        setTotal(data?.total || 0);
+      }
+    } catch (err: unknown) {
+      const error = err as ErrorResponse;
+      toast.error(error.response?.data?.message || "加载失败");
     }
-  } catch (err: unknown) {
-    const error = err as ErrorResponse;
-    toast.error(error.response?.data?.message || "加载失败");
-  }
-}, [topicId, page]);
+  }, [topicId, page]);
 
-// 修复 checkFollowStatus 函数
-const checkFollowStatus = useCallback(async () => {
-  if (!user?.id) return;
+  // 修复 checkFollowStatus 函数
+  const checkFollowStatus = useCallback(async () => {
+    if (!user?.id) return;
 
-  try {
-    const response = await topicApi.getFollowers(topicId, {
-      page: 1,
-      page_size: 100,
-    });
-    if (response.data.code === 0) {
-      const data = response.data.data;
-      const isFollowing = (data?.list || []).some(
-        (f: { user_id: number }) => f.user_id === user?.id,
-      );
-      setFollowing(isFollowing);
+    try {
+      const response = await topicApi.getFollowers(topicId, {
+        page: 1,
+        page_size: 100,
+      });
+      if (response.data.code === 0) {
+        const data = response.data.data;
+        const isFollowing = (data?.list || []).some(
+          (f: { user_id: number }) => f.user_id === user?.id,
+        );
+        setFollowing(isFollowing);
+      }
+    } catch (err) {
+      console.error("Failed to check follow status:", err);
     }
-  } catch (err) {
-    console.error("Failed to check follow status:", err);
-  }
-}, [topicId, user?.id]);
+  }, [topicId, user?.id]);
 
   // 关注/取消关注
   const handleFollow = async () => {
@@ -323,7 +322,7 @@ const checkFollowStatus = useCallback(async () => {
           }`}
         >
           {i}
-        </button>
+        </button>,
       );
     }
     return buttons;
@@ -505,7 +504,9 @@ const checkFollowStatus = useCallback(async () => {
                     </button>
                     <div className="join">{renderPaginationButtons()}</div>
                     <button
-                      onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                      onClick={() =>
+                        setPage((p) => Math.min(totalPages, p + 1))
+                      }
                       disabled={page >= totalPages}
                       className="btn btn-outline btn-sm"
                     >
@@ -563,7 +564,9 @@ const checkFollowStatus = useCallback(async () => {
                           </div>
                         </div>
                         {follow.user_id === user?.id && (
-                          <span className="badge badge-primary badge-sm">我</span>
+                          <span className="badge badge-primary badge-sm">
+                            我
+                          </span>
                         )}
                       </div>
                     </div>
@@ -581,7 +584,9 @@ const checkFollowStatus = useCallback(async () => {
                     </button>
                     <div className="join">{renderPaginationButtons()}</div>
                     <button
-                      onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                      onClick={() =>
+                        setPage((p) => Math.min(totalPages, p + 1))
+                      }
                       disabled={page >= totalPages}
                       className="btn btn-outline btn-sm"
                     >

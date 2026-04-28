@@ -40,8 +40,8 @@ export default function TagList({
           <button
             onClick={() => onTagChange(null)}
             className={`badge badge-lg cursor-pointer transition-all duration-200 ${
-              !selectedTag 
-                ? "badge-primary shadow-sm" 
+              !selectedTag
+                ? "badge-primary shadow-sm"
                 : "badge-ghost hover:badge-primary"
             }`}
           >
@@ -110,7 +110,7 @@ function TagButton({ tag, isSelected, onSelect }: TagButtonProps) {
       }}
     >
       {tag.name}
-      <span 
+      <span
         className="ml-1 text-xs opacity-75"
         style={{ color: isSelected ? "inherit" : tag.color }}
       >

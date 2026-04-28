@@ -45,15 +45,11 @@ export default function RightSidebar({
   unreadCount,
   timelineEvents,
 }: RightSidebarProps) {
-
   return (
     <aside className="space-y-4">
       {/* 用户信息卡片 */}
       {isAuthenticated && userProfile ? (
-        <UserProfileCard 
-          userProfile={userProfile} 
-          unreadCount={unreadCount} 
-        />
+        <UserProfileCard userProfile={userProfile} unreadCount={unreadCount} />
       ) : (
         <GuestCard />
       )}

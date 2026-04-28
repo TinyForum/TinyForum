@@ -67,13 +67,22 @@ export default function NewPostPage() {
   // 获取板块列表
   const { data: boardsData, isLoading: boardsLoading } = useQuery({
     queryKey: ["boards"],
-    queryFn: () => boardApi.list().then((r: { data: ApiResponse<BoardListResponse> }) => r.data.data?.list || []),
+    queryFn: () =>
+      boardApi
+        .list()
+        .then(
+          (r: { data: ApiResponse<BoardListResponse> }) =>
+            r.data.data?.list || [],
+        ),
   });
 
   // 获取标签列表
   const { data: tagsData } = useQuery({
     queryKey: ["tags"],
-    queryFn: () => tagApi.list().then((r: { data: ApiResponse<Tag[]> }) => r.data.data || []),
+    queryFn: () =>
+      tagApi
+        .list()
+        .then((r: { data: ApiResponse<Tag[]> }) => r.data.data || []),
   });
 
   const {
@@ -94,8 +103,16 @@ export default function NewPostPage() {
   });
 
   // 使用 useWatch 替代 watch
-  const selectedTagIds = useWatch({ control, name: "tag_ids", defaultValue: [] });
-  const selectedStatus = useWatch({ control, name: "status", defaultValue: "published" });
+  const selectedTagIds = useWatch({
+    control,
+    name: "tag_ids",
+    defaultValue: [],
+  });
+  const selectedStatus = useWatch({
+    control,
+    name: "status",
+    defaultValue: "published",
+  });
 
   const toggleTag = (tagId: number) => {
     const current = selectedTagIds ?? [];

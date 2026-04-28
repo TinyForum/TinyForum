@@ -4,7 +4,7 @@ import { routing } from "@/i18n/routing";
 import { useLocale } from "next-intl";
 import { useRouter, usePathname } from "next/navigation";
 
-type Locale = typeof routing.locales[number];
+type Locale = (typeof routing.locales)[number];
 
 export default function LanguageSwitcher() {
   const locale = useLocale();
@@ -16,7 +16,10 @@ export default function LanguageSwitcher() {
     // 注意：pathname 已经包含了当前的 locale
     const segments = pathname.split("/");
     // 第一个空字符串，第二个是 locale
-    if (segments.length > 1 && routing.locales.includes(segments[1] as Locale)) {
+    if (
+      segments.length > 1 &&
+      routing.locales.includes(segments[1] as Locale)
+    ) {
       segments[1] = newLocale;
     } else {
       // 如果路径中没有 locale，插入 locale

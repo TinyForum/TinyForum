@@ -8,7 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import toast from "react-hot-toast";
 import { Mail, ArrowLeft, Send } from "lucide-react";
-import { useTranslations, } from "next-intl";
+import { useTranslations } from "next-intl";
 
 const forgotPasswordSchema = z.object({
   email: z.string().email("请输入有效的邮箱"),

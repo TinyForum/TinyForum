@@ -29,7 +29,6 @@ export default function SettingsSidebar({
   activeTab,
   onTabChange,
 }: SettingsSidebarProps) {
-
   const menuItems: MenuItem[] = [
     {
       id: "profile",

@@ -50,15 +50,12 @@ export default function BoardDetailPage() {
   });
 
   // 查询帖子列表 - 修复类型问题
-  const {
-    data: postsData,
-    isLoading: loadingPosts,
-  } = useQuery({
+  const { data: postsData, isLoading: loadingPosts } = useQuery({
     queryKey: ["board-posts", slug, page],
     queryFn: async () => {
-      const res = await boardApi.getPostsBySlug(slug, { 
-        page, 
-        page_size: PAGE_SIZE 
+      const res = await boardApi.getPostsBySlug(slug, {
+        page,
+        page_size: PAGE_SIZE,
       });
       // 确保返回的数据不为 undefined
       return res.data.data as PageData<BoardPostListItem>;
@@ -82,7 +79,8 @@ export default function BoardDetailPage() {
   };
 
   // 检查是否为 404 错误
-  const isNotFound = boardError && (boardError as ErrorResponse).response?.status === 404;
+  const isNotFound =
+    boardError && (boardError as ErrorResponse).response?.status === 404;
 
   if (loadingBoard) {
     return <LoadingSkeleton />;

@@ -50,7 +50,7 @@ export function useBoard(options: UseBoardOptions = {}): UseBoardReturn {
     setError(null);
 
     try {
-      const response: { data: ApiResponse<BoardListResponse | Board[]> } = 
+      const response: { data: ApiResponse<BoardListResponse | Board[]> } =
         await boardApi.list({ page, page_size: pageSize });
 
       // 统一使用 code === 0
@@ -58,7 +58,11 @@ export function useBoard(options: UseBoardOptions = {}): UseBoardReturn {
         const responseData = response.data.data;
 
         // 优先检查分页数据格式 { list: [], total, page, page_size }
-        if (responseData && "list" in responseData && Array.isArray(responseData.list)) {
+        if (
+          responseData &&
+          "list" in responseData &&
+          Array.isArray(responseData.list)
+        ) {
           setBoards(responseData.list);
           setTotal(responseData.total || 0);
           console.log("加载板块成功:", responseData.list.length, "个板块");
@@ -84,7 +88,8 @@ export function useBoard(options: UseBoardOptions = {}): UseBoardReturn {
       }
     } catch (err: unknown) {
       const errorObj = err as ErrorResponse;
-      const errorMsg = errorObj.response?.data?.message || errorObj.message || "加载板块失败";
+      const errorMsg =
+        errorObj.response?.data?.message || errorObj.message || "加载板块失败";
       setError(errorMsg);
       console.error("加载板块失败:", err);
       toast.error(errorMsg);
@@ -109,7 +114,6 @@ export function useBoard(options: UseBoardOptions = {}): UseBoardReturn {
     return boards[0];
   }, [boards]);
 
-   
   useEffect((): void => {
     if (autoLoad) {
       loadBoards();

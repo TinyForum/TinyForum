@@ -42,12 +42,18 @@ export default function EditPostPage({
 
   const { data: postData } = useQuery({
     queryKey: ["post", postId],
-    queryFn: () => postApi.getById(postId).then((r: { data: ApiResponse<PostDetailResponse> }) => r.data.data),
+    queryFn: () =>
+      postApi
+        .getById(postId)
+        .then((r: { data: ApiResponse<PostDetailResponse> }) => r.data.data),
   });
 
   const { data: tagsData } = useQuery({
     queryKey: ["tags"],
-    queryFn: () => tagApi.list().then((r: { data: ApiResponse<Tag[]> }) => r.data.data || []),
+    queryFn: () =>
+      tagApi
+        .list()
+        .then((r: { data: ApiResponse<Tag[]> }) => r.data.data || []),
   });
 
   const {
@@ -59,7 +65,13 @@ export default function EditPostPage({
     formState: { errors },
   } = useForm<EditForm>({
     resolver: zodResolver(schema),
-    defaultValues: { tag_ids: [], title: "", content: "", summary: "", cover: "" },
+    defaultValues: {
+      tag_ids: [],
+      title: "",
+      content: "",
+      summary: "",
+      cover: "",
+    },
   });
 
   useEffect(() => {
@@ -80,7 +92,11 @@ export default function EditPostPage({
   }, [isAuthenticated, router]);
 
   // 使用 useWatch 替代 watch
-  const selectedTagIds = useWatch({ control, name: "tag_ids", defaultValue: [] });
+  const selectedTagIds = useWatch({
+    control,
+    name: "tag_ids",
+    defaultValue: [],
+  });
 
   const toggleTag = (tagId: number) => {
     const current = selectedTagIds ?? [];

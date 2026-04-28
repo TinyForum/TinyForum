@@ -427,23 +427,26 @@ export default function Timeline() {
   }, []);
 
   // 取消关注
-  const handleUnsubscribe = useCallback(async (userId: number) => {
-    try {
-      const response = await timelineApi.unsubscribe(userId);
-      if (response.data.code === 0) {
-        toast.success("已取消关注");
-        await loadSubscriptions();
-        if (activeTab === "following") {
-          await loadTimeline();
+  const handleUnsubscribe = useCallback(
+    async (userId: number) => {
+      try {
+        const response = await timelineApi.unsubscribe(userId);
+        if (response.data.code === 0) {
+          toast.success("已取消关注");
+          await loadSubscriptions();
+          if (activeTab === "following") {
+            await loadTimeline();
+          }
+        } else {
+          toast.error(response.data.message || "操作失败");
         }
-      } else {
-        toast.error(response.data.message || "操作失败");
+      } catch (err: unknown) {
+        const error = err as ErrorResponse;
+        toast.error(error.response?.data?.message || "操作失败");
       }
-    } catch (err: unknown) {
-      const error = err as ErrorResponse;
-      toast.error(error.response?.data?.message || "操作失败");
-    }
-  }, [activeTab, loadSubscriptions, loadTimeline]);
+    },
+    [activeTab, loadSubscriptions, loadTimeline],
+  );
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -452,7 +455,14 @@ export default function Timeline() {
     }
     loadTimeline();
     loadSubscriptions();
-  }, [isAuthenticated, router, activeTab, page, loadTimeline, loadSubscriptions]);
+  }, [
+    isAuthenticated,
+    router,
+    activeTab,
+    page,
+    loadTimeline,
+    loadSubscriptions,
+  ]);
 
   if (!isAuthenticated) {
     return null;

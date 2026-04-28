@@ -2,7 +2,7 @@
 import { useStatistics } from "@/hooks/useStatistics";
 import { Sparkles, TrendingUp } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useEffect, useRef, } from "react";
+import { useEffect, useRef } from "react";
 import * as echarts from "echarts";
 import { SkeletonItem } from "@/shared/ui/SkeletonItem";
 import { StatItem } from "@/shared/ui/StatItem";
@@ -52,7 +52,7 @@ export const CommunityStats = ({ className = "" }: CommunityStatsProps) => {
     if (!chartRef.current || !rangeStats || rangeStats.length === 0) return;
 
     const chart = echarts.init(chartRef.current);
-    
+
     chart.setOption({
       tooltip: { trigger: "axis", axisPointer: { type: "shadow" } },
       grid: { top: 20, left: 35, right: 5, bottom: 5, containLabel: true },
@@ -69,7 +69,9 @@ export const CommunityStats = ({ className = "" }: CommunityStatsProps) => {
       },
       series: [
         {
-          data: rangeStats.map((item: { new_article: number }) => item.new_article),
+          data: rangeStats.map(
+            (item: { new_article: number }) => item.new_article,
+          ),
           type: "line",
           smooth: true,
           lineStyle: { color: "#06b6d4", width: 2 },

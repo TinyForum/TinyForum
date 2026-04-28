@@ -146,15 +146,19 @@ export function useStatsData(enabled: boolean = true) {
   const charts = (() => {
     return {
       userGrowthTrend:
-        userTrend?.data?.data?.trend?.map((item: { date: string; count: number }) => ({
-          date: item.date,
-          value: item.count,
-        })) || [],
+        userTrend?.data?.data?.trend?.map(
+          (item: { date: string; count: number }) => ({
+            date: item.date,
+            value: item.count,
+          }),
+        ) || [],
       postTrend:
-        postTrend?.data?.data?.trend?.map((item: { date: string; count: number }) => ({
-          date: item.date,
-          value: item.count,
-        })) || [],
+        postTrend?.data?.data?.trend?.map(
+          (item: { date: string; count: number }) => ({
+            date: item.date,
+            value: item.count,
+          }),
+        ) || [],
     };
   })();
 
