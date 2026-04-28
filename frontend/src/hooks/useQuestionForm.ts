@@ -2,14 +2,14 @@
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
-import { questionApi } from "@/lib/api";
+import { questionApi } from "@/shared/api";
 import { useAuthStore } from "@/store/auth";
 import { toast } from "react-hot-toast";
 import {
   CreateQuestionPayload,
   CreateQuestionResponse,
-} from "@/lib/api/modules/questions";
-import { ApiResponse } from "@/lib/api/types";
+} from "@/shared/api/modules/questions";
+import { ApiResponse } from "@/shared/api/types";
 
 export interface AskFormData {
   title: string;

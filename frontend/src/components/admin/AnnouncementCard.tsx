@@ -2,7 +2,7 @@
 import {
   Announcement,
   AnnouncementType,
-} from "@/lib/api/modules/announcements";
+} from "@/shared/api/modules/announcements";
 import {
   Pin,
   Eye,

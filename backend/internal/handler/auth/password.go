@@ -27,22 +27,26 @@ func (c *AuthHandler) ForgotPassword(ctx *gin.Context) {
 		response.Error(ctx, apperrors.ErrInvalidRequest)
 		return
 	}
+
 	locale := parseAcceptLanguage(ctx.GetHeader("Accept-Language"))
 	if locale == "" {
 		locale = "en"
 	}
 
-	// 修改调用方式，匹配 service 签名
-	if err := c.authSvc.ForgotPassword(ctx.Request.Context(), req.Email, locale); err != nil {
-		response.Success(ctx, gin.H{
-			"message": "If your email is registered, you will receive a password reset link",
-		})
-		return
-	}
+	_ = c.authSvc.ForgotPassword(ctx.Request.Context(), req.Email, ctx.ClientIP(),ctx.Request.UserAgent(),locale)
 
-	response.Success(ctx, gin.H{
-		"message": "If your email is registered, you will receive a password reset link",
+	message := getUnifiedMessage(locale)
+	response.Success(ctx, &dto.ForgotPasswordResponse{
+		Message: message,
 	})
+}
+
+// 辅助函数
+func getUnifiedMessage(locale string) string {
+	if locale == "zh-CN" || locale == "zh" {
+		return "如果您的邮箱已注册，您将收到密码重置链接"
+	}
+	return "If your email is registered, you will receive a password reset link"
 }
 
 // ResetPassword 重置密码

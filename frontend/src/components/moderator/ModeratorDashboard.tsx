@@ -1,6 +1,6 @@
 // components/moderator/ModeratorDashboard.tsx
 
-import { ModeratorBoard } from "@/lib/api/modules/moderator";
+import { ModeratorBoard } from "@/shared/api/modules/moderator";
 
 interface ModeratorPermissions {
   canDeletePost: boolean;

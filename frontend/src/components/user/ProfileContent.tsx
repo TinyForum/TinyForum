@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { postApi } from "@/lib/api";
+import { postApi } from "@/shared/api";
 import PostCard from "@/components/post/PostCard";
 import { useTranslations } from "next-intl";
 import { FileText, MessageSquare, BookOpen, Hash } from "lucide-react";
-import type { PostType } from "@/lib/api/types";
+import type { PostType } from "@/shared/api/types";
 import { ViolationStatus } from "@/components/user/ViolationStatus";
 
 interface ProfileContentProps {

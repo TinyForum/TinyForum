@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { postApi } from "@/lib/api";
+import { postApi } from "@/shared/api";
 import PostCard from "@/components/post/PostCard";
 import { Search } from "lucide-react";
 import { useTranslations } from "next-intl";

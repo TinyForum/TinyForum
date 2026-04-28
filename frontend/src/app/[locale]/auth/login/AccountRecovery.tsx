@@ -4,7 +4,7 @@
 // import { useForm } from 'react-hook-form';
 // import { z } from 'zod';
 // import { zodResolver } from '@hookform/resolvers/zod';
-// import { authApi } from '@/lib/api';
+// import { authApi } from '@/shared/api';
 // import { Mail, Lock, AlertTriangle, RefreshCw, Trash2, CheckCircle } from 'lucide-react';
 // import { useTranslations } from 'next-intl';
 

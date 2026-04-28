@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuthStore } from "@/store/auth";
-import { topicApi } from "@/lib/api/modules/topics";
+import { topicApi } from "@/shared/api/modules/topics";
 import { toast } from "react-hot-toast";
 import {
   ArrowLeftIcon,
@@ -20,7 +20,7 @@ import {
   ShareIcon,
 } from "@heroicons/react/24/outline";
 import { HeartIcon as HeartSolidIcon } from "@heroicons/react/24/solid";
-import type { Topic, Post } from "@/lib/api/types";
+import type { Topic, Post } from "@/shared/api/types";
 import { TopicPostCard } from "@/components/topic/TopicPostCard";
 import Image from "next/image";
 

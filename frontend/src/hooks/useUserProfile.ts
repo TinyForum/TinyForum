@@ -1,6 +1,6 @@
 // hooks/useUserProfile.ts
 import { useQuery } from "@tanstack/react-query";
-import { userApi } from "@/lib/api";
+import { userApi } from "@/shared/api";
 
 export function useUserProfile() {
   const {

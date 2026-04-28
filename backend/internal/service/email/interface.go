@@ -12,7 +12,7 @@ import (
 
 // EmailService 邮件服务接口
 type EmailService interface {
-	SendResetPasswordEmail(to, token, username, appURL, apiVersion string) error // 重置密码
+	SendResetPasswordEmail(to, token, username, appURL, apiVersion,ip,userAgent,locale string) error // 重置密码
 	SendWelcomeEmail(to, username, locale, appURL string) error                  // 欢迎邮件
 	SendVerificationEmail(to, token, username, locale, appURL string) error      // 验证邮件
 	TestConnection(to string) error                                              // 测试连接
@@ -42,6 +42,11 @@ type EmailData struct {
 	AppName      string
 	SupportEmail string
 	SiteURL      string
+	RequestTime string  // 请求时间
+    RequestIP   string  // 请求 IP
+    UserAgent   string  // 用户代理
+    Location    string  // IP 地理位置（可选）
+
 }
 
 // NewEmailService 创建邮件服务实例

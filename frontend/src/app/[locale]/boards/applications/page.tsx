@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/auth";
-import { moderatorApi } from "@/lib/api/modules/moderator";
 import {
   ShieldCheckIcon,
   CheckCircleIcon,
@@ -15,6 +14,7 @@ import {
   ChevronRightIcon,
   ExclamationTriangleIcon,
 } from "@heroicons/react/24/outline";
+import { moderatorApi } from "@/shared/api/modules/moderator";
 
 // 申请状态类型
 type ApplicationStatus = "pending" | "approved" | "rejected" | "canceled";

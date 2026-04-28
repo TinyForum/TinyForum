@@ -6,7 +6,7 @@ import {
   type AnnouncementListParams,
   type CreateAnnouncementPayload,
   type UpdateAnnouncementPayload,
-} from "@/lib/api/modules/announcements";
+} from "@/shared/api/modules/announcements";
 import toast from "react-hot-toast";
 
 // ============ 配置选项 ============

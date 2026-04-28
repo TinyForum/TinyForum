@@ -2,9 +2,9 @@ import { useState, useEffect, useCallback } from "react";
 import {
   announcementApi,
   type Announcement,
-} from "@/lib/api/modules/announcements";
+} from "@/shared/api/modules/announcements";
 import toast from "react-hot-toast";
-import { ApiResponse } from "@/lib/api/types";
+import { ApiResponse } from "@/shared/api/types";
 
 // ============ 用于单个公告的 Hook ============
 interface UseAdminAnnouncementOptions {

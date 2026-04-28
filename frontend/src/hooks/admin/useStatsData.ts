@@ -1,7 +1,7 @@
 // hooks/admin/useStatsData.ts
 
-import { statsApi } from "@/lib/api/modules/stats";
-// import { StatsInfoResp } from "@/lib/api/types/stats.type";
+import { statsApi } from "@/shared/api/modules/stats";
+// import { StatsInfoResp } from "@/shared/api/types/stats.type";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, useEffect, useCallback } from "react";
 

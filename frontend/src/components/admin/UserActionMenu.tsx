@@ -21,7 +21,7 @@ import {
   EyeIcon,
 } from "lucide-react";
 import toast from "react-hot-toast";
-import { User } from "@/lib/api";
+import { User } from "@/shared/api";
 import { UserRoleType } from "@/type/roles.types";
 import { UsersIcon } from "@heroicons/react/24/solid";
 import { useTranslations } from "next-intl";

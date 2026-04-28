@@ -15,7 +15,7 @@ import {
   SparklesIcon,
 } from "@heroicons/react/24/outline";
 import { HeartIcon as HeartSolidIcon } from "@heroicons/react/24/solid";
-import type { Post, Tag } from "@/lib/api/types";
+import type { Post, Tag } from "@/shared/api/types";
 import { formatDistanceToNow } from "date-fns";
 import { zhCN } from "date-fns/locale";
 import { toast } from "react-hot-toast";

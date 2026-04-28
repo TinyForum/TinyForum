@@ -1,8 +1,8 @@
 // hooks/useQuestionDetail.ts
 import { useState, useEffect, useCallback } from "react";
-import type { Post, Comment, ApiResponse } from "@/lib/api/types";
+import type { Post, Comment, ApiResponse } from "@/shared/api/types";
 import { toast } from "react-hot-toast";
-import { questionApi } from "@/lib/api";
+import { questionApi } from "@/shared/api";
 
 // interface UseQuestionDetailOptions {
 //   answerPage?: number;

@@ -1,7 +1,7 @@
 // components/topic/TopicCard.tsx
 "use client";
 
-import { Topic, topicApi } from "@/lib/api";
+import { Topic, topicApi } from "@/shared/api";
 import { useAuthStore } from "@/store/auth";
 import {
   DocumentTextIcon,

@@ -4,7 +4,7 @@ import { RoleBadge } from "@/components/common/RoleBadge";
 import { UserRoleType } from "@/type/roles.types";
 import { Ban, CheckCircle, XCircle } from "lucide-react";
 import { formatDate } from "@/lib/utils";
-import { User } from "@/lib/api";
+import { User } from "@/shared/api";
 import { UserActionMenu } from "./UserActionMenu";
 import { useTranslations } from "next-intl";
 

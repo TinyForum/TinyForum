@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { commentApi } from "@/lib/api";
+import { commentApi } from "@/shared/api";
 import { useAuthStore } from "@/store/auth";
 import CommentItem from "./CommentItem";
 import toast from "react-hot-toast";

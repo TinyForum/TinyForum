@@ -107,7 +107,7 @@ func (s *emailService) sendEmailSync(to, subject, body string) error {
 }
 
 // SendResetPasswordEmail 发送重置密码邮件
-func (s *emailService) SendResetPasswordEmail(to, token, username, appURL, apiVersion string) error {
+func (s *emailService) SendResetPasswordEmail(to, token, username, appURL, apiVersion, ip, userAgent,locale string) error {
 	if !s.enabled {
 		logger.Warn("Email service disabled, skipping password reset email")
 		return nil
@@ -125,6 +125,11 @@ func (s *emailService) SendResetPasswordEmail(to, token, username, appURL, apiVe
 		AppName:      "TinyForum",
 		SupportEmail: "support@tinyforum.com",
 		SiteURL:      appURL,
+ RequestTime: time.Now().Format("2006-01-02 15:04:05"),
+        RequestIP:   ip,
+        UserAgent: userAgent,
+        Location:   locale,
+		
 	}
 
 	// 尝试加载模板
@@ -215,13 +220,36 @@ func (s *emailService) renderTemplate(templateName string, data EmailData) (stri
 
 // buildSimpleResetEmail 构建简单的重置密码邮件
 func (s *emailService) buildSimpleResetEmail(data EmailData) string {
-	return fmt.Sprintf(`
+    // 确保 SupportEmail 有默认值
+    supportEmail := data.SupportEmail
+    if supportEmail == "" {
+        supportEmail = "support@example.com"
+    }
+    
+    // 格式化请求时间
+    requestTime := data.RequestTime
+    if requestTime == "" {
+        requestTime = time.Now().Format("2006-01-02 15:04:05")
+    }
+    
+    // 格式化 IP 和 UserAgent
+    requestIP := data.RequestIP
+    if requestIP == "" {
+        requestIP = "未知"
+    }
+    
+    userAgent := data.UserAgent
+    if userAgent == "" {
+        userAgent = "未知"
+    }
+    
+    return fmt.Sprintf(`
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reset Your Password</title>
+    <title>重置您的密码</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -263,7 +291,15 @@ func (s *emailService) buildSimpleResetEmail(data EmailData) string {
             font-weight: 500;
         }
         .button:hover {
-            background-color: #2563eb;
+            background-color: #ff8c8c;
+        }
+        .info-box {
+            background-color: #f0f9ff;
+            border-left: 4px solid #ff7954;
+            padding: 12px;
+            margin: 16px 0;
+            font-size: 13px;
+            border-radius: 4px;
         }
         .link {
             word-break: break-all;
@@ -290,30 +326,60 @@ func (s *emailService) buildSimpleResetEmail(data EmailData) string {
 <body>
     <div class="container">
         <div class="header">
-            <div class="logo">%s</div>
+            <div class="logo">🔐 %s</div>
         </div>
         <div class="content">
-            <h2>Reset Your Password</h2>
-            <p>Hello <strong>%s</strong>,</p>
-            <p>We received a request to reset your password. Click the button below to create a new password:</p>
+            <h2>重置您的密码</h2>
+            
+            <p>您好，<strong>%s</strong>：</p>
+            
+            <p>我们收到了重置您 <strong>%s</strong> 账户密码的请求。</p>
+            
+            <div class="info-box">
+                <strong>📋 请求详情：</strong><br>
+                • 请求时间：%s<br>
+                • 来源 IP：<code>%s</code><br>
+                • 设备信息：%s
+            </div>
+            
+            <p>点击下面的按钮创建新密码：</p>
+            
             <div style="text-align: center;">
-                <a href="%s" class="button">Reset Password</a>
+                <a href="%s" class="button">重置密码</a>
             </div>
-            <p>Or copy and paste this link into your browser:</p>
+            
+            <p>或者复制以下链接到浏览器：</p>
             <p class="link">%s</p>
+            
             <div class="warning">
-                <strong>⚠️ This link will expire in %s</strong>
+                <strong>⚠️ 此链接将在 %s 后失效</strong><br>
+                如果您没有请求重置密码，请忽略此邮件，您的密码将保持不变。
             </div>
-            <p>If you didn't request this, please ignore this email. Your password will remain unchanged.</p>
+            
+            <p>为了账户安全，请不要将密码告诉任何人。</p>
         </div>
         <div class="footer">
-            <p>&copy; %d %s. All rights reserved.</p>
-            <p>Need help? Contact us at <a href="mailto:%s">%s</a></p>
+            <p>&copy; %d %s. 保留所有权利。</p>
+            <p>需要帮助？请联系 <a href="mailto:%s" style="color: #3b82f6;">%s</a></p>
         </div>
     </div>
 </body>
 </html>
-`, data.AppName, data.Username, data.ResetURL, data.ResetURL, data.ExpiresIn, data.Year, data.AppName, data.SupportEmail, data.SupportEmail)
+`, 
+        data.AppName,      // logo
+        data.Username,     // 用户名
+        data.AppName,      // 应用名称
+        requestTime,       // 请求时间
+        requestIP,         // 来源 IP
+        userAgent,         // 设备信息
+        data.ResetURL,     // 按钮链接
+        data.ResetURL,     // 文本链接
+        data.ExpiresIn,    // 过期时间
+        data.Year,         // 年份
+        data.AppName,      // 版权名称
+        supportEmail,      // 支持邮箱
+        supportEmail,      // 支持邮箱（显示）
+    )
 }
 
 // buildSimpleWelcomeEmail 构建简单的欢迎邮件

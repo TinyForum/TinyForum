@@ -1,4 +1,4 @@
-import { Topic } from "@/lib/api";
+import { Topic } from "@/shared/api";
 import Link from "next/link";
 import {
   ChatBubbleLeftRightIcon,

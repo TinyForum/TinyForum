@@ -1,10 +1,10 @@
 // hooks/admin/useAdminAnnouncements.ts
-import { announcementApi } from "@/lib/api";
+import { announcementApi } from "@/shared/api";
 import {
   Announcement,
   CreateAnnouncementPayload,
   UpdateAnnouncementPayload,
-} from "@/lib/api/modules/announcements";
+} from "@/shared/api/modules/announcements";
 import { useState, useEffect, useCallback } from "react";
 import toast from "react-hot-toast";
 

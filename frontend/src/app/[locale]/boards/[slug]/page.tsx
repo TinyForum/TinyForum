@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
-import { boardApi } from "@/lib/api";
+import { boardApi } from "@/shared/api";
 import { useAuthStore } from "@/store/auth";
 import {
   PlusIcon,
@@ -16,8 +16,8 @@ import {
 } from "@heroicons/react/24/outline";
 import { BoardPostCard } from "@/components/boards/BoardPostCard";
 import { CreateBoardInline } from "@/components/boards/CreateBoardInline";
-// import type { Board, PageData } from "@/lib/api/types";
-import type { BoardPostListItem } from "@/lib/api/modules/boards";
+// import type { Board, PageData } from "@/shared/api/types";
+import type { BoardPostListItem } from "@/shared/api/modules/boards";
 import { Board, PageData } from "@/shared/api/types";
 
 const PAGE_SIZE = 20;

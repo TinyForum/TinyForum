@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { announcementApi } from "@/lib/api";
+import { announcementApi } from "@/shared/api";
 import {
   MegaphoneIcon,
   CalendarIcon,
@@ -15,7 +15,7 @@ import {
   UserIcon,
   AlertTriangleIcon,
 } from "lucide-react";
-import type { Announcement } from "@/lib/api/modules/announcements";
+import type { Announcement } from "@/shared/api/modules/announcements";
 
 // 错误响应类型
 interface ErrorResponse {

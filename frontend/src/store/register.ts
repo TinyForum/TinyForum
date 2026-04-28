@@ -1,8 +1,8 @@
 // store/register.ts
 import { create } from "zustand";
-import { authApi } from "@/lib/api";
 import { useAuthStore } from "./auth";
 import { ApiError } from "@/shared/api/types/basic.type";
+import { authApi } from "@/shared/api";
 
 interface RegisterState {
   username: string;

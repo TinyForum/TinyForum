@@ -4,7 +4,7 @@ import {
   useRemoveModerator,
   useUpdateModeratorPermissions,
 } from "@/hooks/admin/useAdminModerator";
-import { User } from "@/lib/api";
+import { User } from "@/shared/api";
 import { Shield, ShieldAlert, ShieldCheck, Trash2, Edit } from "lucide-react";
 import toast from "react-hot-toast";
 import { useTranslations } from "next-intl";

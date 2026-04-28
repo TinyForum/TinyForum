@@ -52,11 +52,10 @@ func handleAnonymousUser(c *gin.Context, riskSvc riskservice.RiskService, action
 	}
 
 	resetSeconds := max(int(result.ResetIn.Seconds()), 0)
-	
+
 	log.Printf("[RateLimit] IP %s - Allowed: %v, Current: %d, Limit: %d, ResetIn: %ds",
 		ip, result.Allowed, result.Current, result.Limit, resetSeconds)
 
-	
 	if !result.Allowed {
 		setRateLimitHeaders(c, result)
 		response.TooManyRequests(c, fmt.Sprintf("操作过于频繁，请 %d 秒后再试", resetSeconds))

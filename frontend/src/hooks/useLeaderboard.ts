@@ -3,7 +3,7 @@ import {
   LeaderboardRequest,
   LeaderboardItemResponse,
   userApi,
-} from "@/lib/api/modules/users";
+} from "@/shared/api/modules/users";
 import { useQuery, UseQueryOptions } from "@tanstack/react-query";
 
 /**

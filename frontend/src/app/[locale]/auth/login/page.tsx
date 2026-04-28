@@ -11,7 +11,7 @@ import { useLoginStore } from "@/store/login";
 import toast from "react-hot-toast";
 import { Mail, Lock, Eye, EyeOff, LogIn } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
-import { authApi } from "@/lib/api";
+import { authApi } from "@/shared/api";
 
 // 定义删除状态类型
 interface DeletionStatus {

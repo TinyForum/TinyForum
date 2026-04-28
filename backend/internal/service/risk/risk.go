@@ -2,6 +2,7 @@ package risk
 
 import (
 	"context"
+	"fmt"
 	"time"
 	"tiny-forum/internal/infra/ratelimit"
 	"tiny-forum/internal/model"
@@ -53,7 +54,7 @@ func (s *riskService) CheckRateLimit(ctx context.Context, user *model.User, acti
 	if err != nil {
 		return ratelimit.Result{Allowed: true}, nil // 降级放行
 	}
-	return s.limiter.Allow(ctx, string(user.ID), action, toRatelimitLevel(level))
+	return s.limiter.Allow(ctx, fmt.Sprint(user.ID), action, toRatelimitLevel(level))
 }
 
 // RecordRiskEvent 记录一次风险事件（举报成立、命中敏感词等）

@@ -33,7 +33,7 @@ import {
   PendingPostsTable,
 } from "@/components/moderator/PendingPostsTable";
 import SearchBar from "@/components/nav/SearchBar";
-import type { ModeratorBoard } from "@/lib/api/modules/moderator";
+import type { ModeratorBoard } from "@/shared/api/modules/moderator";
 export default function ModeratorPage() {
   const t = useTranslations("Moderator");
   const { isCheckingAuth, isModerator } = useModeratorAuth();

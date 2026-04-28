@@ -4,7 +4,7 @@ import Link from "next/link";
 import PostCard from "@/components/post/PostCard";
 import { useTranslations } from "next-intl";
 import { useAuthStore } from "@/store/auth";
-import type { Post } from "@/lib/api/types";
+import type { Post } from "@/shared/api/types";
 
 interface PostListProps {
   posts: Post[];
