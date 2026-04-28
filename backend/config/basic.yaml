@@ -1,6 +1,7 @@
 # basic
 # 服务器配置
 server:
+  host: 192.168.5.180 # 服务主机
   port: 8080 # 服务端口
   mode: debug # 运行模式: debug/release/test
   read_timeout: 30s # 读取超时
@@ -9,9 +10,9 @@ server:
 
 # API配置
 api:
-  protocol: https # 协议: http/https
-  host: api.example.com # API主机
-  port: 443 # API端口
+  protocol: http # 协议: http/https
+  host: 192.168.5.180 # API主机
+  port: 8080 # API端口
   version: v1 # API版本
   prefix: /api # API路径前缀
 

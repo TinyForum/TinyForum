@@ -19,6 +19,7 @@ import (
 	"tiny-forum/internal/repository/user"
 	"tiny-forum/internal/repository/vote"
 
+	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 )
 
@@ -44,8 +45,8 @@ type Repositories struct {
 }
 
 // NewRepositories 创建所有 Repository 实例
-func NewRepositories(db *gorm.DB) *Repositories {
-	tokenRepo := token.NewTokenRepository(db)
+func NewRepositories(db *gorm.DB, redis *redis.Client) *Repositories {
+	tokenRepo := token.NewTokenRepository(db, redis)
 
 	return &Repositories{
 		Token:        tokenRepo,

@@ -15,6 +15,8 @@ import (
 	"tiny-forum/internal/service/notification"
 	userSvc "tiny-forum/internal/service/user"
 	jwtpkg "tiny-forum/pkg/jwt"
+
+	"github.com/redis/go-redis/v9"
 )
 
 type DeleteAccountInput struct {
@@ -40,6 +42,7 @@ type AuthService interface {
 	CancelDeletion(ctx context.Context, userID uint) error
 	ConfirmDeletion(ctx context.Context, userID uint) error
 	GetDeletionStatus(ctx context.Context, userID uint) (*DeletionStatus, error)
+	RevokeToken(ctx context.Context, jti string) error
 }
 type authService struct {
 	userRepo  user.UserRepository
@@ -50,6 +53,7 @@ type authService struct {
 	cfg       *config.Config
 	tokenRepo token.TokenRepository
 	txManager transaction.TransactionManager
+	redis     *redis.Client
 }
 
 // Repository 定义数据访问接口
@@ -61,17 +65,6 @@ type Repository interface {
 	Create(ctx context.Context, user *model.User) error
 }
 
-// EmailSender 定义邮件发送接口
-type EmailSender interface {
-	SendResetPasswordEmail(ctx context.Context, to, token, username, locale string) error
-	SendWelcomeEmail(ctx context.Context, to, username, locale string) error
-}
-
-// TokenGenerator 定义令牌生成接口
-type TokenGenerator interface {
-	GenerateToken() (string, error)
-}
-
 func NewAuthService(
 	authRepo auth.AuthRepository,
 	userRepo user.UserRepository,
@@ -79,9 +72,11 @@ func NewAuthService(
 	notifSvc notification.NotificationService,
 	emailSvc email.EmailService,
 	cfg *config.Config,
-	tokenRepo token.TokenRepository, // 添加参数
+	tokenRepo token.TokenRepository,
 	txManager transaction.TransactionManager,
+	redis *redis.Client,
 ) AuthService {
+
 	return &authService{
 		authRepo:  authRepo,
 		userRepo:  userRepo,
@@ -91,5 +86,6 @@ func NewAuthService(
 		cfg:       cfg,
 		tokenRepo: tokenRepo,
 		txManager: txManager,
+		redis:     redis,
 	}
 }

@@ -20,6 +20,7 @@ const (
 	CodeNotFound        = 10004
 	CodeTooManyRequests = 10005
 	CodeInternalError   = 10006
+	CodeInvalidRequest  = 10007
 	// 10007-10099 预留
 
 	// ------------------------------------------------------------
@@ -170,6 +171,7 @@ var (
 	ErrNotFound              = &AppError{Code: CodeNotFound, Message: "资源不存在"}
 	ErrTooManyRequests       = &AppError{Code: CodeTooManyRequests, Message: "请求过于频繁，请稍后再试"}
 	ErrInternalError         = &AppError{Code: CodeInternalError, Message: "服务器内部错误"}
+	ErrInvalidRequest        = &AppError{Code: CodeInvalidRequest, Message: "无效的请求"}
 	ErrCodePasswordTooShort  = &AppError{Code: CodePasswordTooShort, Message: "密码长度至少为6位"}
 	ErrCodePasswordSameAsOld = &AppError{Code: CodePasswordSameAsOld, Message: "新密码不能与旧密码相同"}
 	// 用户模块

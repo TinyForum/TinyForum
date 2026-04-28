@@ -25,8 +25,8 @@ type Response struct {
 	Code      int         `json:"code"`
 	Message   string      `json:"message"`
 	Data      interface{} `json:"data,omitempty"`
-	Timestamp int64       `json:"timestamp"`            // 响应时间戳，便于排查
-	RequestID string      `json:"request_id,omitempty"` // 链路追踪ID（可选，需配合中间件）
+	Timestamp int64       `json:"timestamp"`
+	RequestID string      `json:"request_id,omitempty"`
 }
 
 // PageData 分页数据结构

@@ -5,100 +5,12 @@ import (
 	"fmt"
 	"html/template"
 	"path/filepath"
-	"sync"
 	"time"
 
-	"tiny-forum/config"
 	"tiny-forum/pkg/logger"
 
 	"gopkg.in/gomail.v2"
 )
-
-// EmailService 邮件服务接口
-type EmailService interface {
-	SendResetPasswordEmail(to, token, username, locale, appURL string) error
-	SendWelcomeEmail(to, username, locale, appURL string) error
-	SendVerificationEmail(to, token, username, locale, appURL string) error
-	TestConnection(to string) error
-	Close() error
-	IsEnabled() bool
-}
-
-// emailService 邮件服务实现（私有）
-type emailService struct {
-	dialer      *gomail.Dialer
-	from        string
-	fromName    string
-	pool        chan *gomail.Message
-	poolSize    int
-	wg          sync.WaitGroup
-	stopChan    chan struct{}
-	templateDir string
-	enabled     bool
-}
-
-// EmailData 邮件数据
-type EmailData struct {
-	Username     string
-	ResetURL     string
-	ExpiresIn    string
-	Year         int
-	AppName      string
-	SupportEmail string
-	SiteURL      string
-}
-
-// NewEmailService 创建邮件服务实例
-func NewEmailService(cfg *config.EmailConfig) EmailService {
-	if cfg == nil || cfg.Host == "" {
-		logger.Warn("Email service disabled: missing configuration")
-		return &emailService{enabled: false}
-	}
-
-	// 验证必要配置
-	if cfg.Username == "" || cfg.Password == "" {
-		logger.Warn("Email service disabled: missing username or password")
-		return &emailService{enabled: false}
-	}
-
-	// 设置默认端口
-	port := cfg.Port
-	if port == 0 {
-		port = 587
-	}
-
-	// 创建 dialer
-	dialer := gomail.NewDialer(cfg.Host, port, cfg.Username, cfg.Password)
-
-	// 配置 SSL
-	if cfg.SSL {
-		dialer.SSL = true
-	}
-
-	// 设置连接池大小
-	poolSize := cfg.PoolSize
-	if poolSize <= 0 {
-		poolSize = 5
-	}
-
-	service := &emailService{
-		dialer:      dialer,
-		from:        cfg.From,
-		fromName:    cfg.FromName,
-		pool:        make(chan *gomail.Message, poolSize),
-		poolSize:    poolSize,
-		stopChan:    make(chan struct{}),
-		templateDir: "templates/emails",
-		enabled:     true,
-	}
-
-	// 启动邮件发送工作池
-	service.startWorkerPool()
-
-	logger.Info(fmt.Sprintf("Email service initialized: %s:%d", cfg.Host, port))
-
-	return service
-}
 
 // startWorkerPool 启动工作池
 func (s *emailService) startWorkerPool() {
@@ -133,6 +45,12 @@ func (s *emailService) worker() {
 
 // SendEmail 发送邮件（异步）
 func (s *emailService) sendEmail(to, subject, body string) error {
+	logger.Debugf("attempting to send reset email",
+		"to", to,
+		"enabled", s.enabled,
+		// "has_token", token != ""
+	)
+
 	if !s.enabled {
 		logger.Debug("Email service disabled, skipping send")
 		return nil
@@ -189,14 +107,14 @@ func (s *emailService) sendEmailSync(to, subject, body string) error {
 }
 
 // SendResetPasswordEmail 发送重置密码邮件
-func (s *emailService) SendResetPasswordEmail(to, token, username, locale, appURL string) error {
+func (s *emailService) SendResetPasswordEmail(to, token, username, appURL, apiVersion string) error {
 	if !s.enabled {
 		logger.Warn("Email service disabled, skipping password reset email")
 		return nil
 	}
 
 	// 构建重置链接
-	resetURL := fmt.Sprintf("%s/%s/auth/reset-password?token=%s", appURL, locale, token)
+	resetURL := fmt.Sprintf("%s/%s/auth/password/validate-token?token=%s", appURL, apiVersion, token)
 
 	// 准备邮件数据
 	data := EmailData{
@@ -274,23 +192,13 @@ func (s *emailService) SendVerificationEmail(to, token, username, locale, appURL
 
 // renderTemplate 渲染邮件模板
 func (s *emailService) renderTemplate(templateName string, data EmailData) (string, error) {
-	// 尝试多个模板路径
-	templatePaths := []string{
-		filepath.Join(s.templateDir, templateName),
-		filepath.Join("templates", "emails", templateName),
-		filepath.Join("..", "templates", "emails", templateName),
-		filepath.Join("../..", "templates", "emails", templateName),
-	}
 
+	path := filepath.Join(s.templateDir, templateName)
 	var tmpl *template.Template
-	var err error
+	tmpl, err := template.ParseFiles(path)
 
-	for _, path := range templatePaths {
-		tmpl, err = template.ParseFiles(path)
-		if err == nil {
-			logger.Debug(fmt.Sprintf("Loaded email template from: %s", path))
-			break
-		}
+	if err == nil {
+		logger.Debug(fmt.Sprintf("Loaded email template from: %s", path))
 	}
 
 	if err != nil {

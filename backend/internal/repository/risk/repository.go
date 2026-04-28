@@ -16,6 +16,11 @@ type RiskRepository interface {
 	CountPendingByTarget(targetType model.AuditTargetType, targetID uint) (int64, error)
 	AddRiskRecord(record *model.UserRiskRecord) error
 	CountActiveRiskEvents(userID uint) (int64, error)
+
+	// IP相关
+	CountActiveRiskEventsByIP(ip string) (int, error)
+	AddIPRiskRecord(record *model.IPRiskRecord) error
+	IsIPBlocked(ip string) (bool, error)
 }
 type riskRepository struct {
 	db *gorm.DB

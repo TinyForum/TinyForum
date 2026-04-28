@@ -32,7 +32,7 @@ func InitApp(cfg *config.Config) (*App, error) {
 	}
 
 	// 4. 数据仓库层
-	repos := NewRepositories(db)
+	repos := NewRepositories(db, infra.RedisClient)
 
 	// 5. 服务层
 	services := NewServices(cfg, jwtMgr, repos, infra)
@@ -44,7 +44,7 @@ func InitApp(cfg *config.Config) (*App, error) {
 	handlers := NewHandlers(services, helpers.TimeHelpers)
 
 	// 7. 中间件工厂
-	mw := NewMiddlewareSet(jwtMgr, db, services)
+	mw := NewMiddlewareSet(jwtMgr, db, services, repos.Token)
 
 	// 8. Gin 引擎
 	gin.SetMode(cfg.Basic.Server.Mode)

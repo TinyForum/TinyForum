@@ -4,6 +4,7 @@ import (
 	"context"
 	_ "embed"
 	"fmt"
+	"log"
 	"time"
 	"tiny-forum/config"
 
@@ -21,6 +22,12 @@ const (
 	ActionCreateComment Action = "create_comment"
 	ActionSendReport    Action = "send_report"
 	ActionUpdateProfile Action = "update_profile"
+	ActionLogin         Action = "login"
+	ActionRegister      Action = "register"
+	ActionGetPost       Action = "get_post"
+	ActionGetComment    Action = "get_comment"
+	ActionGetUser       Action = "get_user"
+	ActionGetReport     Action = "get_report"
 )
 
 // RiskLevel 用户风险等级
@@ -76,20 +83,32 @@ func buildQuotaTable(riskLevels map[string]map[string]config.QuotaConfig) (map[R
 }
 
 // Allow 实现 RateLimiter 接口
-func (l *Limiter) Allow(ctx context.Context, userID uint, action Action, riskLevel RiskLevel) (Result, error) {
-	// 获取对应的配额
+func (l *Limiter) Allow(ctx context.Context, identifier string, action Action, riskLevel RiskLevel, customQuota ...Quota) (Result, error) {
+	// 优先使用自定义配额（匿名用户场景）
+	if len(customQuota) > 0 {
+		quota := customQuota[0]
+		log.Printf("[Limiter] Using custom quota for %s: limit=%d, window=%v", 
+			identifier, quota.Limit, quota.Window)
+		return l.checkAndRecord(ctx, identifier, action, quota)
+	}
+	
+	// 已登录用户：使用配置中的配额
 	if level, ok := l.quotas[riskLevel]; ok {
 		if quota, ok := level[action]; ok {
-			return l.checkAndRecord(ctx, userID, action, quota)
+			log.Printf("[Limiter] Using configured quota for %s: limit=%d, window=%v", 
+				identifier, quota.Limit, quota.Window)
+			return l.checkAndRecord(ctx, identifier, action, quota)
 		}
 	}
+	
 	// 未配置则不限流
+	log.Printf("[Limiter] No quota found for %s/%s, allowing request", riskLevel, action)
 	return Result{Allowed: true}, nil
 }
 
 // checkAndRecord 执行 Lua 脚本进行原子限流判断与记录
-func (l *Limiter) checkAndRecord(ctx context.Context, userID uint, action Action, quota Quota) (Result, error) {
-	key := fmt.Sprintf("rl:%d:%s", userID, action)
+func (l *Limiter) checkAndRecord(ctx context.Context, identifier string, action Action, quota Quota) (Result, error) {
+	key := fmt.Sprintf("rl:%s:%s", identifier, action)
 	now := time.Now()
 	windowMs := quota.Window.Milliseconds()
 	nowMs := now.UnixMilli()

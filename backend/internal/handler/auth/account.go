@@ -9,13 +9,13 @@ import (
 
 // DeleteAccount godoc
 // @Summary 用户注销账户（软删除）
-// @Tags 用户管理
+// @Tags 验证管理
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
 // @Param request body auth.DeleteAccountInput true "注销请求"
 // @Success 200 {object} response.Response
-// @Router /auth/delete-account [delete]
+// @Router /auth/account [delete]
 func (h *AuthHandler) DeleteAccount(c *gin.Context) {
 	ctx := c.Request.Context()
 
@@ -46,12 +46,12 @@ func (h *AuthHandler) DeleteAccount(c *gin.Context) {
 
 // GetDeletionStatus godoc
 // @Summary 获取注销状态
-// @Tags 用户管理
+// @Tags 验证管理
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
 // @Success 200 {object} response.Response
-// @Router /auth/deletion-status [get]
+// @Router /auth/account/deletion [get]
 func (h *AuthHandler) DeletionStatus(c *gin.Context) {
 	ctx := c.Request.Context()
 
@@ -74,12 +74,12 @@ func (h *AuthHandler) DeletionStatus(c *gin.Context) {
 
 // CancelDeletion godoc
 // @Summary 取消注销账户
-// @Tags 用户管理
+// @Tags 验证管理
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
 // @Success 200 {object} response.Response
-// @Router /auth/cancel-deletion [post]
+// @Router /auth/account/restore [post]
 func (h *AuthHandler) CancelDeletion(c *gin.Context) {
 	ctx := c.Request.Context()
 
@@ -102,12 +102,12 @@ func (h *AuthHandler) CancelDeletion(c *gin.Context) {
 
 // ConfirmDeletion godoc
 // @Summary 确认永久删除账户
-// @Tags 用户管理
+// @Tags 验证管理
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
 // @Success 200 {object} response.Response
-// @Router /auth/confirm-deletion [delete]
+// @Router /auth/account/permanent [delete]
 func (h *AuthHandler) ConfirmDeletion(c *gin.Context) {
 	ctx := c.Request.Context()
 

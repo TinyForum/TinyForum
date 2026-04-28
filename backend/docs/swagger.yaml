@@ -243,6 +243,13 @@ definitions:
       user_id:
         type: integer
     type: object
+  dto.ForgotPasswordRequest:
+    properties:
+      email:
+        type: string
+    required:
+    - email
+    type: object
   dto.LeaderboardUserDetail:
     properties:
       avatar:
@@ -1672,10 +1679,8 @@ definitions:
       message:
         type: string
       request_id:
-        description: 链路追踪ID（可选，需配合中间件）
         type: string
       timestamp:
-        description: 响应时间戳，便于排查
         type: integer
     type: object
   response.ValidationError:
@@ -3443,39 +3448,7 @@ paths:
       summary: 采纳答案
       tags:
       - 回答管理
-  /auth/cancel-deletion:
-    post:
-      consumes:
-      - application/json
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/response.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: 取消注销账户
-      tags:
-      - 用户管理
-  /auth/confirm-deletion:
-    delete:
-      consumes:
-      - application/json
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/response.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: 确认永久删除账户
-      tags:
-      - 用户管理
-  /auth/delete-account:
+  /auth/account:
     delete:
       consumes:
       - application/json
@@ -3497,8 +3470,8 @@ paths:
       - ApiKeyAuth: []
       summary: 用户注销账户（软删除）
       tags:
-      - 用户管理
-  /auth/deletion-status:
+      - 验证管理
+  /auth/account/deletion:
     get:
       consumes:
       - application/json
@@ -3513,7 +3486,39 @@ paths:
       - ApiKeyAuth: []
       summary: 获取注销状态
       tags:
-      - 用户管理
+      - 验证管理
+  /auth/account/permanent:
+    delete:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 确认永久删除账户
+      tags:
+      - 验证管理
+  /auth/account/restore:
+    post:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 取消注销账户
+      tags:
+      - 验证管理
   /auth/login:
     post:
       consumes:
@@ -3559,6 +3564,71 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: 获取当前用户信息
+      tags:
+      - 验证管理
+  /auth/password/forgot:
+    post:
+      consumes:
+      - application/json
+      description: 发送密码重置链接到用户邮箱（出于安全考虑，无论邮箱是否存在都返回成功）
+      parameters:
+      - description: 邮箱信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ForgotPasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功（邮箱存在与否均返回此消息）
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: object
+                message:
+                  type: string
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 忘记密码
+      tags:
+      - 验证管理
+  /auth/password/reset:
+    post:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 重置密码
+      tags:
+      - 验证管理
+  /auth/password/validate-token:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 忘记密码
       tags:
       - 验证管理
   /auth/register:

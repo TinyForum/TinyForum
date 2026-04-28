@@ -9,6 +9,7 @@ import { z } from "zod";
 import toast from "react-hot-toast";
 import { Mail, ArrowLeft, Send } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { authApi } from "@/lib/api";
 
 const forgotPasswordSchema = z.object({
   email: z.string().email("请输入有效的邮箱"),
@@ -34,14 +35,19 @@ export default function ForgotPasswordPage() {
     },
   });
 
-  const onSubmit = async () => {
+  const onSubmit = async (email: string) => {
     setIsLoading(true);
 
     try {
       // TODO: 调用忘记密码 API
-      // const response = await fetch('/api/auth/forgot-password', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
+      const response = authApi.forgotPassword({ email: email });
+      console.log(response);
+      if (response.data === 200) {
+        toast.success("重置密码链接已发送到您的邮箱");
+      }
+      // const response = await fetch("/api/auth/password/forgot", {
+      //   method: "POST",
+      //   headers: { "Content-Type": "application/json" },
       //   body: JSON.stringify({ email: data.email }),
       // });
 

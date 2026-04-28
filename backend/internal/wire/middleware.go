@@ -4,19 +4,21 @@ import (
 	"tiny-forum/internal/infra/ratelimit"
 	"tiny-forum/internal/middleware"
 	"tiny-forum/internal/repository/board"
+	"tiny-forum/internal/repository/token"
 	jwtpkg "tiny-forum/pkg/jwt"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
-// MiddlewareSet 持有中间件需要的依赖，方便统一创建
-
 // NewMiddlewareSet 创建中间件工厂（需要依赖注入）
-// 注意：部分中间件需要运行时传入 boardRepo 或 action，因此返回的是构造函数。
-func NewMiddlewareSet(jwtMgr *jwtpkg.JWTManager, db *gorm.DB, services *Services) *middleware.MiddlewareSet {
+func NewMiddlewareSet(
+	jwtMgr *jwtpkg.JWTManager,
+	db *gorm.DB,
+	services *Services,
+	tokenRepo token.TokenRepository) *middleware.MiddlewareSet {
 	return &middleware.MiddlewareSet{
-		AuthMW:          func() gin.HandlerFunc { return middleware.Auth(jwtMgr) },
+		AuthMW:          func() gin.HandlerFunc { return middleware.Auth(jwtMgr, tokenRepo) },
 		OptionalAuthMW:  func() gin.HandlerFunc { return middleware.OptionalAuth(jwtMgr) },
 		AdminRequiredMW: func() gin.HandlerFunc { return middleware.AdminRequired() },
 		RateLimitMW: func(action ratelimit.Action) gin.HandlerFunc {

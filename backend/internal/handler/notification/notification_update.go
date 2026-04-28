@@ -1,10 +1,10 @@
 package notification
 
 import (
-	"strconv"
-	"tiny-forum/pkg/response"
-	"tiny-forum/internal/dto"
 	"github.com/gin-gonic/gin"
+	"strconv"
+	"tiny-forum/internal/dto"
+	"tiny-forum/pkg/response"
 )
 
 // BatchMarkRead 批量标记通知为已读
@@ -28,10 +28,10 @@ func (h *NotificationHandler) BatchMarkRead(c *gin.Context) {
 	}
 
 	userID := c.GetUint("user_id")
-	
+
 	var updatedCount int64
 	var err error
-	
+
 	if len(req.IDs) == 0 {
 		// 标记所有为已读，直接返回更新的数量
 		updatedCount, err = h.notifSvc.MarkAllRead(userID)
@@ -39,7 +39,7 @@ func (h *NotificationHandler) BatchMarkRead(c *gin.Context) {
 		// 批量标记指定通知
 		updatedCount, err = h.notifSvc.BatchMarkRead(userID, req.IDs)
 	}
-	
+
 	if err != nil {
 		response.InternalError(c, err.Error())
 		return
@@ -50,6 +50,7 @@ func (h *NotificationHandler) BatchMarkRead(c *gin.Context) {
 		UpdatedCount: updatedCount,
 	})
 }
+
 // MarkRead 标记单个通知为已读
 // @Summary 标记单个通知为已读
 // @Description 将指定ID的通知标记为已读
@@ -65,27 +66,27 @@ func (h *NotificationHandler) BatchMarkRead(c *gin.Context) {
 // @Failure 500 {object} response.Response "服务器内部错误"
 // @Router /notifications/{id}/read [post]
 func (h *NotificationHandler) MarkRead(c *gin.Context) {
-    userID := c.GetUint("user_id")
-    notifIDStr := c.Param("id")
-    
-    // 参数验证在 Handler 层
-    notifID, err := strconv.ParseUint(notifIDStr, 10, 64)
-    if err != nil {
-        response.BadRequest(c, "无效的通知ID")
-        return
-    }
-    
-    // 调用 Service 层（传递正确的类型）
-    if err := h.notifSvc.MarkRead(uint(notifID), userID); err != nil {
-        switch err.Error() {
-        case "通知不存在":
-            response.NotFound(c, err.Error())
-        case "无权操作此通知":
-            response.Forbidden(c, err.Error())
-        default:
-            response.InternalError(c, err.Error())
-        }
-        return
-    }
-    response.Success(c, gin.H{"message": "已标记为已读"})
+	userID := c.GetUint("user_id")
+	notifIDStr := c.Param("id")
+
+	// 参数验证在 Handler 层
+	notifID, err := strconv.ParseUint(notifIDStr, 10, 64)
+	if err != nil {
+		response.BadRequest(c, "无效的通知ID")
+		return
+	}
+
+	// 调用 Service 层（传递正确的类型）
+	if err := h.notifSvc.MarkRead(uint(notifID), userID); err != nil {
+		switch err.Error() {
+		case "通知不存在":
+			response.NotFound(c, err.Error())
+		case "无权操作此通知":
+			response.Forbidden(c, err.Error())
+		default:
+			response.InternalError(c, err.Error())
+		}
+		return
+	}
+	response.Success(c, gin.H{"message": "已标记为已读"})
 }
