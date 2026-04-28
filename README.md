@@ -1,4 +1,3 @@
-
 # Tiny Forum
 
 > Go (Gin + GORM) 后端 × Next.js 15.5 (App Router) 前端 × PostgreSQL
@@ -41,7 +40,7 @@ allow_origins:
 
 例如：
 
-我的虚拟机地址是 192.168.5.243，后端默认的端口为 8080，那么修改为：  http://192.168.5.243:8080
+我的虚拟机地址是 192.168.5.243，后端默认的端口为 8080，那么修改为： http://192.168.5.243:8080
 
 #### 构建项目
 
@@ -51,7 +50,7 @@ allow_origins:
 make docker-build
 ```
 
-通过命令查看状态： 
+通过命令查看状态：
 
 ```bash
 make docker-status
@@ -66,7 +65,7 @@ make docker-up
 #### 查看日志
 
 ```bash
-make docker-logs 
+make docker-logs
 ```
 
 访问前端： http://localhost:8080
@@ -95,10 +94,11 @@ make docker-down
 #### 初始化配置
 
 ```bash
-make init-config
+make init-dev
 ```
 
 #### 启动后端
+
 ```bash
 make backend
 ```
@@ -115,13 +115,13 @@ maek frontend
 
 ## 技术栈
 
-| 层 | 技术 |
-|---|---|
-| 后端 | Go 1.26, Gin, GORM, Wire (手动注入), JWT, Zap |
-| 前端 | Next.js 16, TypeScript, Tailwind CSS, DaisyUI, TanStack Query, Zustand, Tiptap |
-| 数据库 | PostgreSQL 16, Redis |
-| 接入 | Nginx（容器部署）|
-| 部署 | Docker + Docker Compose |
+| 层     | 技术                                                                           |
+| ------ | ------------------------------------------------------------------------------ |
+| 后端   | Go 1.26, Gin, GORM, Wire (手动注入), JWT, Zap                                  |
+| 前端   | Next.js 16, TypeScript, Tailwind CSS, DaisyUI, TanStack Query, Zustand, Tiptap |
+| 数据库 | PostgreSQL 16, Redis                                                           |
+| 接入   | Nginx（容器部署）                                                              |
+| 部署   | Docker + Docker Compose                                                        |
 
 ## 功能列表
 
@@ -136,28 +136,35 @@ maek frontend
 - ✅ 个人主页 / 编辑资料
 - ✅ 管理后台（用户管理、封禁、置顶）
 - ✅ 全文搜索（标题 & 内容）
-- ✅ 风控（内容合规、行为风控） 
+- ✅ 风控（内容合规、行为风控）
 
 # 已知 BUG
+
 > 非重要业务问题，暂不修复
 > (修复起来很简单，目前专注实现业务，暂不修复)
+>
 > 1. 页面翻译错乱
 > 2. 导航 UI 重叠
 
 ## 用户信息
+
 1. 注册：需要再次登陆（原因： auth.ts 以及后端的 cookie 没有发送/接收）
 2. 通知：用户无法已读单个通知
 
 ## 问答
+
 1. 提问页面：获取到问题后，点击跳转失败（原因：ID 查询问题，因为 question 实际上也是 post类型的一种，所以需要关联查询 post/id 到 question/post_id）
 
 ## 主页
+
 1. 首页：页面统计信息不正确（原因：页面硬编码，未与数据库同步）
 
 ## 板块
+
 1. 用户可以直接访问创建板块的页面（体验优化）
 
 ## 关于重置用户密码的说明
+
 为了安全，是不应该直接重置用户密码为默认值的，因为用户不一定会更换密码，如果发生数据泄露，用户信息极易倍获取。考虑在生产环境中，使用邮箱获取临时密码，但是需要考虑用户操作一致性 / 安全性。
 
 # 上游依赖
