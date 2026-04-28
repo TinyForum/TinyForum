@@ -10,7 +10,7 @@
 .PHONY: docker-clean docker-backup-db docker-dev docker-tools
 
 # Docker 相关变量
-DOCKER_COMPOSE := docker-compose
+DOCKER_COMPOSE := docker compose
 ENV_FILE := .env
 
 # 启动所有服务
