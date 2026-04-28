@@ -4,6 +4,12 @@ import { useStatsData } from "@/hooks/admin/useStatsData";
 import { Activity, Award, Database, FileText, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+// 定义趋势数据类型
+interface TrendItem {
+  date: string;
+  value: number;
+}
+
 export function Statistics() {
   const { stats, charts, exportData, isLoading } = useStatsData(true);
 
@@ -20,12 +26,14 @@ export function Statistics() {
       tooltip: { trigger: "axis" },
       xAxis: {
         type: "category",
-        data: charts.userGrowthTrend.map((item) => item.date.slice(5)),
+        data: charts.userGrowthTrend.map((item: TrendItem) =>
+          item.date.slice(5),
+        ),
       },
       yAxis: { type: "value", name: t("user_count") },
       series: [
         {
-          data: charts.userGrowthTrend.map((item) => item.value),
+          data: charts.userGrowthTrend.map((item: TrendItem) => item.value),
           type: "line",
           smooth: true,
           areaStyle: { opacity: 0.3 },
@@ -48,12 +56,12 @@ export function Statistics() {
       tooltip: { trigger: "axis" },
       xAxis: {
         type: "category",
-        data: charts.postTrend.map((item) => item.date.slice(5)),
+        data: charts.postTrend.map((item: TrendItem) => item.date.slice(5)),
       },
       yAxis: { type: "value", name: t("post_count") },
       series: [
         {
-          data: charts.postTrend.map((item) => item.value),
+          data: charts.postTrend.map((item: TrendItem) => item.value),
           type: "line",
           smooth: true,
           areaStyle: { opacity: 0.3 },

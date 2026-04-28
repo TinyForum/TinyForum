@@ -9,7 +9,7 @@ import {
   GetStatsTrendParams,
   GetStatsRangeParams, // 新增导入
   StatsRangeResponse, // 新增导入
-} from "@/lib/api/types/stats.type";
+} from "@/shared/api/types/stats.type";
 import { useEffect, useState, useCallback } from "react";
 
 interface UseStatisticsOptions {
