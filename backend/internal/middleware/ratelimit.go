@@ -51,13 +51,12 @@ func handleAnonymousUser(c *gin.Context, riskSvc riskservice.RiskService, action
 		return
 	}
 
-	log.Printf("[RateLimit] IP %s - Allowed: %v, Current: %d, Limit: %d, ResetIn: %.0fs",
-		ip, result.Allowed, result.Current, result.Limit, result.ResetIn)
+	resetSeconds := max(int(result.ResetIn.Seconds()), 0)
+	
+	log.Printf("[RateLimit] IP %s - Allowed: %v, Current: %d, Limit: %d, ResetIn: %ds",
+		ip, result.Allowed, result.Current, result.Limit, resetSeconds)
 
-	resetSeconds := int(result.ResetIn.Seconds())
-	if resetSeconds < 0 {
-		resetSeconds = 0
-	}
+	
 	if !result.Allowed {
 		setRateLimitHeaders(c, result)
 		response.TooManyRequests(c, fmt.Sprintf("操作过于频繁，请 %d 秒后再试", resetSeconds))
@@ -75,7 +74,7 @@ func handleAnonymousUser(c *gin.Context, riskSvc riskservice.RiskService, action
 
 // handleAuthenticatedUser 处理已登录用户的限流
 func handleAuthenticatedUser(c *gin.Context, db *gorm.DB, riskSvc riskservice.RiskService,
-	action ratelimit.Action, userIDRaw interface{}) {
+	action ratelimit.Action, userIDRaw any) {
 
 	userID, ok := userIDRaw.(uint)
 	if !ok {
@@ -109,13 +108,10 @@ func handleAuthenticatedUser(c *gin.Context, db *gorm.DB, riskSvc riskservice.Ri
 		return
 	}
 
-	log.Printf("[RateLimit] User %d - Allowed: %v, Current: %d, Limit: %d, ResetIn: %.0fs",
+	log.Printf("[RateLimit] User %d - Allowed: %v, Current: %d, Limit: %d, ResetIn: %ds",
 		userID, result.Allowed, result.Current, result.Limit, result.ResetIn)
 
-	resetSeconds := int(result.ResetIn.Seconds())
-	if resetSeconds < 0 {
-		resetSeconds = 0
-	}
+	resetSeconds := max(int(result.ResetIn.Seconds()), 0)
 	if !result.Allowed {
 		setRateLimitHeaders(c, result)
 
