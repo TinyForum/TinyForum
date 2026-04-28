@@ -2,6 +2,7 @@ package notification
 
 import (
 	"errors"
+	"tiny-forum/internal/bo"
 	"tiny-forum/internal/model"
 )
 
@@ -19,12 +20,28 @@ func (s *notificationService) Create(userID uint, senderID *uint, notifType mode
 }
 
 // List 获取用户通知列表（分页）
-func (s *notificationService) List(userID uint, page, pageSize int) ([]model.Notification, int64, error) {
-	return s.notifRepo.ListByUser(userID, page, pageSize)
+// List 获取通知列表（返回 BO）
+func (s *notificationService) List(userID uint, page, pageSize int) (*bo.NotificationListResult, error) {
+    notifications, total, err := s.notifRepo.ListByUser(userID, page, pageSize)
+    if err != nil {
+        return nil, err
+    }
+    
+    unreadCount, err := s.notifRepo.UnreadCount(userID)
+    if err != nil {
+        return nil, err
+    }
+    
+    return &bo.NotificationListResult{
+        List:        modelsToBOs(notifications),  // 使用转换函数
+        Total:       total,
+        UnreadCount: unreadCount,
+        Page:        page,
+        PageSize:    pageSize,
+    }, nil
 }
-
 // MarkAllRead 标记所有通知为已读
-func (s *notificationService) MarkAllRead(userID uint) error {
+func (s *notificationService) MarkAllRead(userID uint) (int64,error) {
 	return s.notifRepo.MarkAllRead(userID)
 }
 
@@ -47,4 +64,14 @@ func (s *notificationService) MarkRead(notificationID uint, userID uint) error {
     
     // 3. 标记已读
     return s.notifRepo.MarkRead(notificationID)
+}
+
+// BatchMarkRead 批量标记通知为已读
+func (s *notificationService) BatchMarkRead(userID uint, ids []uint) (int64, error) {
+	if len(ids) == 0 {
+		// 标记所有为已读
+		return s.notifRepo.MarkAllRead(userID)
+	}
+	// 批量标记指定通知
+	return s.notifRepo.BatchMarkRead(userID, ids)
 }

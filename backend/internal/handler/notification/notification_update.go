@@ -3,29 +3,53 @@ package notification
 import (
 	"strconv"
 	"tiny-forum/pkg/response"
-
+	"tiny-forum/internal/dto"
 	"github.com/gin-gonic/gin"
 )
 
-// MarkAllRead 标记所有通知为已读
-// @Summary 标记所有通知为已读
-// @Description 将当前用户的所有未读通知标记为已读
+// BatchMarkRead 批量标记通知为已读
+// @Summary 批量标记通知为已读
+// @Description 批量将指定ID的通知标记为已读，或不传ID则标记所有为已读
 // @Tags 通知管理
+// @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Success 200 {object} response.Response{data=object} "标记成功"
+// @Param request body dto.BatchMarkReadRequest false "批量标记请求"
+// @Success 200 {object} response.Response{data=dto.BatchMarkReadResponse} "标记成功"
+// @Failure 400 {object} response.Response "参数错误"
 // @Failure 401 {object} response.Response "未授权"
 // @Failure 500 {object} response.Response "服务器内部错误"
-// @Router /notifications/read-all [post]
-func (h *NotificationHandler) MarkAllRead(c *gin.Context) {
+// @Router /notifications/batch/read [patch]
+func (h *NotificationHandler) BatchMarkRead(c *gin.Context) {
+	var req dto.BatchMarkReadRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		// 允许空body，表示标记所有
+		req = dto.BatchMarkReadRequest{}
+	}
+
 	userID := c.GetUint("user_id")
-	if err := h.notifSvc.MarkAllRead(userID); err != nil {
+	
+	var updatedCount int64
+	var err error
+	
+	if len(req.IDs) == 0 {
+		// 标记所有为已读，直接返回更新的数量
+		updatedCount, err = h.notifSvc.MarkAllRead(userID)
+	} else {
+		// 批量标记指定通知
+		updatedCount, err = h.notifSvc.BatchMarkRead(userID, req.IDs)
+	}
+	
+	if err != nil {
 		response.InternalError(c, err.Error())
 		return
 	}
-	response.Success(c, gin.H{"message": "已全部标记为已读"})
-}
 
+	response.Success(c, dto.BatchMarkReadResponse{
+		Message:      "标记成功",
+		UpdatedCount: updatedCount,
+	})
+}
 // MarkRead 标记单个通知为已读
 // @Summary 标记单个通知为已读
 // @Description 将指定ID的通知标记为已读
