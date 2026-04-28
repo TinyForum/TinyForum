@@ -1,0 +1,10 @@
+# 忽略敏感配置
+private.yaml
+*.key
+*.pem
+*.crt
+
+# 保留基础配置
+!basic.yaml
+!risk_control.yaml
+!*.example.yaml
