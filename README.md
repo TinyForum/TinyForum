@@ -30,7 +30,7 @@ make docker-help
 
 修改容器配置
 
-在 `backend/config/basic.yaml.compose` 找到：
+在 `backend/config/basic.compose.yaml` 找到：
 
 ```bash
 allow_origins:
