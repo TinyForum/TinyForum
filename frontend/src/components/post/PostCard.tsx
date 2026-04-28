@@ -7,7 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { timeAgo, truncate } from "@/lib/utils";
 import { Eye, Heart, MessageSquare, Pin, Tag, HelpCircle } from "lucide-react";
 import Avatar from "../user/Avatar";
-import { Post, userApi } from "@/lib/api";
+import { Post, userApi, type User } from "@/lib/api";
 
 interface PostCardProps {
   post: Post;
@@ -15,20 +15,22 @@ interface PostCardProps {
 }
 
 export default function PostCard({ post, commentCount }: PostCardProps) {
-  if (!post) return null;
-
+  // 将所有 Hook 调用移到条件判断之前
   // 判断是否为问答帖
-  const isQuestion = post.type === "question";
+  const isQuestion = post?.type === "question";
 
-  // 如果 post.author 不存在，单独获取用户信息
+  // 始终调用 useQuery，但通过 enabled 控制是否执行
   const { data: fetchedAuthor } = useQuery({
-    queryKey: ["user", post.author_id],
+    queryKey: ["user", post?.author_id],
     queryFn: () => userApi.getProfile(post.author_id).then((r) => r.data.data),
-    enabled: !post.author && !!post.author_id, // 只在没有 author 时获取
+    enabled: !!(post && !post.author && post.author_id), // 只在 post 存在且没有 author 时获取
   });
 
+  // 如果 post 不存在，返回 null（在所有 Hook 调用之后）
+  if (!post) return null;
+
   // 使用已有的 author 或获取到的 author
-  const author = post.author || fetchedAuthor;
+  const author = (post.author || fetchedAuthor) as User | undefined;
 
   // 从 post.question 获取问答相关信息
   const rewardScore = post.question?.reward_score || 0;
@@ -36,7 +38,7 @@ export default function PostCard({ post, commentCount }: PostCardProps) {
   const isAccepted = post.question?.accepted_answer_id != null;
 
   // 获取帖子类型显示文本
-  const getPostTypeLabel = () => {
+  const getPostTypeLabel = (): string => {
     switch (post.type) {
       case "question":
         return "问答";
@@ -50,7 +52,7 @@ export default function PostCard({ post, commentCount }: PostCardProps) {
   };
 
   // 获取帖子类型样式
-  const getPostTypeClass = () => {
+  const getPostTypeClass = (): string => {
     switch (post.type) {
       case "question":
         return "badge-primary";
@@ -137,13 +139,13 @@ export default function PostCard({ post, commentCount }: PostCardProps) {
               href={`/posts/${post.id}`}
               className="flex-none hidden sm:block"
             >
-              <div className="w-20 h-16 rounded-lg overflow-hidden">
+              <div className="w-20 h-16 rounded-lg overflow-hidden relative">
                 <Image
                   src={post.cover}
                   alt={post.title}
-                  width={80}
-                  height={64}
-                  className="object-cover w-full h-full"
+                  fill
+                  className="object-cover"
+                  sizes="80px"
                 />
               </div>
             </Link>

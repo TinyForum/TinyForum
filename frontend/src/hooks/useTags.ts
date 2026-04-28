@@ -1,22 +1,25 @@
 // hooks/useTags.ts
 import { useState, useEffect, useCallback } from "react";
 import { tagApi } from "@/lib/api";
-import { Tag } from "@/lib/api/types";
+import { Tag, ApiResponse } from "@/lib/api/types";
 import { toast } from "react-hot-toast";
 
 export function useTags() {
   const [tags, setTags] = useState<Tag[]>([]);
   const [selectedTags, setSelectedTags] = useState<number[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(false);
 
-  const loadTags = useCallback(async () => {
+  const loadTags = useCallback(async (): Promise<void> => {
     setLoading(true);
     try {
-      const response = await tagApi.list();
-      if (response.data.code === 200) {
-        setTags(response.data.data);
+      const response: { data: ApiResponse<Tag[]> } = await tagApi.list();
+      // 修复：后端返回的 code 应该是 0 表示成功，不是 200
+      if (response.data.code === 0) {
+        setTags(response.data.data || []);
+      } else {
+        toast.error(response.data.message || "加载标签失败");
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Failed to load tags:", error);
       toast.error("加载标签失败");
     } finally {
@@ -24,24 +27,24 @@ export function useTags() {
     }
   }, []);
 
-  const toggleTag = useCallback((tagId: number) => {
+  const toggleTag = useCallback((tagId: number): void => {
     if (tagId === 0) {
       toast.error("无效的标签");
       return;
     }
 
-    setSelectedTags((prev) =>
+    setSelectedTags((prev: number[]): number[] =>
       prev.includes(tagId)
-        ? prev.filter((id) => id !== tagId)
+        ? prev.filter((id: number): boolean => id !== tagId)
         : [...prev, tagId],
     );
   }, []);
 
-  const clearSelectedTags = useCallback(() => {
+  const clearSelectedTags = useCallback((): void => {
     setSelectedTags([]);
   }, []);
 
-  useEffect(() => {
+  useEffect((): void => {
     loadTags();
   }, [loadTags]);
 

@@ -13,19 +13,20 @@ import { Mail, Lock, Eye, EyeOff, LogIn } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
 import { authApi } from "@/lib/api";
 
+// 定义删除状态类型
+interface DeletionStatus {
+  is_deleted: boolean;
+  can_restore: boolean;
+  deleted_at?: string;
+  expires_at?: string;
+}
+
 const loginSchema = z.object({
   email: z.string().email("请输入有效的邮箱"),
   password: z.string().min(1, "请输入密码"),
 });
 
 type LoginForm = z.infer<typeof loginSchema>;
-
-interface DeletionStatus {
-  is_deleted: boolean;
-  deleted_at?: string;
-  can_restore: boolean;
-  remaining_days?: number;
-}
 
 export default function LoginPage() {
   const router = useRouter();
@@ -94,7 +95,12 @@ export default function LoginPage() {
   const checkDeletionStatus = async () => {
     try {
       const response = await authApi.getDeletionStatus();
-      const status = response.data.data;
+      const status = response.data.data as DeletionStatus;
+
+      // 添加安全检查，确保 status 存在
+      if (!status) {
+        return false;
+      }
 
       if (status.is_deleted && status.can_restore) {
         setShowRestoreDialog(true);

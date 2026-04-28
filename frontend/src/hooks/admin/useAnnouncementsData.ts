@@ -1,13 +1,11 @@
+// hooks/admin/useAnnouncementsData.ts
 import { useState, useEffect, useCallback } from "react";
-// import { toast } from "antd";
 import {
   announcementApi,
   type Announcement,
   type AnnouncementListParams,
-  type AnnouncementListResponse,
   type CreateAnnouncementPayload,
   type UpdateAnnouncementPayload,
-  type AnnouncementStatus,
 } from "@/lib/api/modules/announcements";
 import toast from "react-hot-toast";
 
@@ -149,14 +147,14 @@ export function useAnnouncementsData(
     [enabled],
   );
 
-  // 根据 ID 获取公告详情
+  // 根据 ID 获取公告详情 - 修复 undefined 类型
   const getAnnouncementById = useCallback(
     async (id: number): Promise<Announcement | null> => {
       try {
         const response = await announcementApi.getById(id);
 
-        if (response.data.code === 0) {
-          return response.data.data;
+        if (response.data.code === 0 && response.data.data) {
+          return response.data.data; // data 存在时返回 Announcement
         } else {
           toast.error(response.data.message || "获取公告详情失败");
           return null;
@@ -170,7 +168,7 @@ export function useAnnouncementsData(
     [],
   );
 
-  // 创建公告
+  // 创建公告 - 修复 undefined 类型
   const createAnnouncement = useCallback(
     async (params: CreateAnnouncementPayload): Promise<Announcement | null> => {
       setSubmitting(true);
@@ -178,7 +176,7 @@ export function useAnnouncementsData(
         const response = await announcementApi.create(params);
 
         console.log("创建公告: ", response);
-        if (response.data.code === 0) {
+        if (response.data.code === 0 && response.data.data) {
           toast.success("创建公告成功");
           await fetchAnnouncements();
           return response.data.data;
@@ -197,7 +195,7 @@ export function useAnnouncementsData(
     [fetchAnnouncements],
   );
 
-  // 更新公告
+  // 更新公告 - 修复 undefined 类型
   const updateAnnouncement = useCallback(
     async (
       id: number,
@@ -207,7 +205,7 @@ export function useAnnouncementsData(
       try {
         const response = await announcementApi.update(id, params);
 
-        if (response.data.code === 0) {
+        if (response.data.code === 0 && response.data.data) {
           toast.success("更新公告成功");
           await fetchAnnouncements();
           // 如果影响置顶状态，刷新置顶列表
@@ -315,7 +313,6 @@ export function useAnnouncementsData(
         const response = await announcementApi.pin(id, pinned);
 
         if (response.data.code === 0) {
-          // toast.success(pinned ? "置顶成功" : "取消置顶成功");
           await fetchAnnouncements();
           await fetchPinnedAnnouncements();
           return true;

@@ -43,7 +43,7 @@ export default function SettingsPage() {
           {activeTab === "security" && <SecuritySettings user={user} />}
           {activeTab === "appearance" && <AppearanceSettings />}
           {activeTab === "notifications" && <NotificationSettings />}
-          {activeTab === "danger" && <DangerZone user={user} />}
+          {activeTab === "danger" && <DangerZone/>}
         </div>
       </div>
     </div>

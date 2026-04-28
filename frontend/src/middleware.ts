@@ -1,5 +1,5 @@
 // src/middleware.ts
-import { jwtVerify } from "jose";
+import { jwtVerify, JWTVerifyResult } from "jose";
 import createMiddleware from "next-intl/middleware";
 import { NextRequest, NextResponse } from "next/server";
 import { routing } from "./i18n/routing";
@@ -8,26 +8,36 @@ import { routing } from "./i18n/routing";
 const intlMiddleware = createMiddleware(routing);
 
 // 需要认证的路由
-const authRoutes = ["/dashboard/admin", "/settings", "/posts/new"];
-// 管理
-const adminRoutes = ["/dashboard/admin"];
-const allowedRoles = ["admin", "super_admin"];
+const authRoutes: string[] = ["/dashboard/admin", "/settings", "/posts/new"];
+// 管理路由
+const adminRoutes: string[] = ["/dashboard/admin"];
+const allowedRoles: string[] = ["admin", "super_admin"];
 
-export async function middleware(request: NextRequest) {
+// JWT Payload 类型定义
+// interface JWTPayload {
+//   id: number;
+//   username: string;
+//   email: string;
+//   role: string;
+//   exp: number;
+//   [key: string]: unknown;
+// }
+
+export async function middleware(request: NextRequest): Promise<NextResponse> {
   // 获取路径
-  let pathname = request.nextUrl.pathname;
+  let pathname: string = request.nextUrl.pathname;
 
   // 提取当前语言（从路径的第一段）
-  const pathnameParts = pathname.split("/");
-  let currentLocale = pathnameParts[1];
+  const pathnameParts: string[] = pathname.split("/");
+  let currentLocale: string = pathnameParts[1];
 
   // 验证语言是否有效
-  if (!currentLocale || !routing.locales.includes(currentLocale as any)) {
+  if (!currentLocale || !routing.locales.includes(currentLocale as "en-US" || "zh-CN")) {
     currentLocale = routing.defaultLocale;
   }
 
   // 去除语言前缀的路径
-  let pathnameWithoutLocale = pathname;
+  let pathnameWithoutLocale: string = pathname;
   for (const locale of routing.locales) {
     console.log("8. Checking locale:", locale);
     if (pathname === `/${locale}` || pathname.startsWith(`/${locale}/`)) {
@@ -36,48 +46,48 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  const token = request.cookies.get("tiny_forum_token")?.value;
-  const isAuthRoute = authRoutes.some((route) =>
+  const token: string | undefined = request.cookies.get("tiny_forum_token")?.value;
+  const isAuthRoute: boolean = authRoutes.some((route: string) =>
     pathnameWithoutLocale.startsWith(route),
   );
-  const isAdminRoute = adminRoutes.some((route) =>
+  const isAdminRoute: boolean = adminRoutes.some((route: string) =>
     pathnameWithoutLocale.startsWith(route),
   );
 
   // 认证路由检查
   if (isAuthRoute && !token) {
-    console.log("9. ❌ No token, redirecting to login");
-    const loginUrl = new URL(`/${currentLocale}/auth/login`, request.url);
+    console.log("❌ No token, redirecting to login");
+    const loginUrl: URL = new URL(`/${currentLocale}/auth/login`, request.url);
     loginUrl.searchParams.set("redirect", pathnameWithoutLocale);
     return NextResponse.redirect(loginUrl);
   }
 
   // 管理员路由验证
   if (isAdminRoute && token) {
-    const jwt = process.env.JWT_SECRET;
+    const jwt: string | undefined = process.env.JWT_SECRET;
     console.log("10. JWT_SECRET exists:", !!jwt);
 
     try {
       if (!jwt) {
         throw new Error("JWT_SECRET is not set");
       }
-      const secret = new TextEncoder().encode(jwt);
-      const { payload } = await jwtVerify(token, secret);
-      const role = payload.role as string;
+      const secret: Uint8Array = new TextEncoder().encode(jwt);
+      const { payload }: JWTVerifyResult = await jwtVerify(token, secret);
+      const role: string = payload.role as string;
 
-      console.log("11. ✅ JWT verified successfully");
-      console.log("12. User role:", role);
-      console.log("13. Role allowed:", allowedRoles.includes(role));
+
+      console.log("User role:", role);
+      console.log("Role allowed:", allowedRoles.includes(role));
 
       if (!allowedRoles.includes(role)) {
-        console.log("14. ❌ Role not allowed, redirecting to home");
+        console.log("❌ Role not allowed, redirecting to home");
         return NextResponse.redirect(new URL(`/${currentLocale}`, request.url));
       }
 
-      console.log("15. ✅ Admin access granted");
-    } catch (error) {
-      console.error("16. ❌ JWT verification failed:", error);
-      const response = NextResponse.redirect(
+
+    } catch (error: unknown) {
+      console.error("❌ JWT verification failed:", error);
+      const response: NextResponse = NextResponse.redirect(
         new URL(`/${currentLocale}/auth/login`, request.url),
       );
       response.cookies.delete("tiny_forum_token");
@@ -86,12 +96,13 @@ export async function middleware(request: NextRequest) {
   }
 
   // 处理 i18n
-  const intlResponse = intlMiddleware(request);
+  const intlResponse: NextResponse | undefined = intlMiddleware(request);
 
   if (intlResponse) {
     console.log("17. i18n middleware returned response");
     return intlResponse;
   }
+  
   return NextResponse.next();
 }
 

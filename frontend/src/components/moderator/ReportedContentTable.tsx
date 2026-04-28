@@ -1,11 +1,32 @@
 // components/moderator/ReportedContentTable.tsx
+
+export interface Report {
+  id: number;
+  target_id: number;
+  target_title: string;
+  reporter_id: number;
+  reporter_name: string;
+  reason: string;
+  target_type: string;
+  status: string;
+  created_at: string;
+}
+
+interface ModeratorPermissions {
+  canDeletePost: boolean;
+  canPinPost: boolean;
+  canEditAnyPost: boolean;
+  canManageModerator: boolean;
+  canBanUser: boolean;
+}
+
 interface ReportedContentTableProps {
-  reports: any[];
+  reports: Report[];
   onDeletePost?: (postId: number) => void;
   onBanUser?: (data: { userId: number; reason: string }) => void;
   isDeleting: boolean;
   isBanning: boolean;
-  permissions: any;
+  permissions: ModeratorPermissions;
   t: (key: string) => string;
 }
 
@@ -38,7 +59,7 @@ export function ReportedContentTable({
           </tr>
         </thead>
         <tbody>
-          {reports.map((report) => (
+          {reports.map((report: Report) => (
             <tr key={report.id}>
               <td>{report.target_title}</td>
               <td>{report.reporter_name}</td>

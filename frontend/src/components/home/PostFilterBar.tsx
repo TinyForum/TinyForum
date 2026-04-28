@@ -5,7 +5,6 @@ import {
   Flame,
   Clock,
   PenSquare,
-  TrendingUp,
   Award,
   RefreshCw,
   Megaphone,

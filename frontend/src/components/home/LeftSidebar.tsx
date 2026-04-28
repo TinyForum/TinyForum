@@ -6,7 +6,6 @@ import Link from "next/link";
 import {
   LayoutDashboard,
   Hash,
-  MessageSquare,
   FileText,
   TrendingUp,
   HelpCircle,
@@ -14,15 +13,13 @@ import {
   ChevronDown,
   ChevronRight,
   Tag,
-  Sparkles,
   PenIcon,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
-import { PostType } from "@/lib/api";
+import { PostType, type Tag as TagType } from "@/lib/api";
 import { useAnnouncements } from "@/hooks/useAnnouncements";
-import { CommunityStats } from "./CommunityStats";
-// import { PostType } from "@/types";
+import type { Announcement } from "@/lib/api/modules/announcements";
 
 export type FilterType = "all" | PostType;
 
@@ -38,7 +35,7 @@ interface Board {
 
 interface LeftSidebarProps {
   boards: Board[];
-  tags: any[];
+  tags: TagType[];
   selectedBoard: number | null;
   selectedTag: number | null;
   filterType: FilterType;
@@ -60,9 +57,9 @@ export default function LeftSidebar({
   const t = useTranslations("Sidebar");
   const [expandedBoards, setExpandedBoards] = useState<Set<number>>(new Set());
   const { announcementsList, isLoading } = useAnnouncements();
-  const displayAnnouncements = announcementsList.slice(0, 3);
+  const displayAnnouncements: Announcement[] = announcementsList.slice(0, 3);
 
-  const toggleBoard = (boardId: number) => {
+  const toggleBoard = (boardId: number): void => {
     const newExpanded = new Set(expandedBoards);
     if (newExpanded.has(boardId)) {
       newExpanded.delete(boardId);
@@ -72,8 +69,8 @@ export default function LeftSidebar({
     setExpandedBoards(newExpanded);
   };
 
-  const renderBoardTree = (boardList: Board[], level = 0) => {
-    return boardList.map((board) => (
+  const renderBoardTree = (boardList: Board[], level: number = 0): React.ReactNode => {
+    return boardList.map((board: Board) => (
       <div key={board.id} style={{ marginLeft: level * 12 }}>
         <button
           onClick={() => {
@@ -100,7 +97,7 @@ export default function LeftSidebar({
               </span>
             )}
             <span className="flex-shrink-0 w-4 h-4">
-              {board.icon || <Hash className="w-4 h-4" />}
+              {board.icon ? <span dangerouslySetInnerHTML={{ __html: board.icon }} /> : <Hash className="w-4 h-4" />}
             </span>
             <span className="truncate">{board.name}</span>
           </div>
@@ -122,7 +119,7 @@ export default function LeftSidebar({
   return (
     <aside className="space-y-4">
       {/* 导航菜单 */}
-      <div className="rounded-lg border bg-card">
+      <div className="rounded-lg border bg-card shadow-sm">
         <div className="p-3 border-b">
           <h3 className="font-semibold flex items-center gap-2">
             <LayoutDashboard className="w-4 h-4" />
@@ -218,7 +215,7 @@ export default function LeftSidebar({
       </div>
 
       {/* 公告栏 */}
-      <div className="rounded-lg border bg-card">
+      <div className="rounded-lg border bg-card shadow-sm">
         <div className="p-3 border-b">
           <h3 className="font-semibold flex items-center gap-2">
             <Megaphone className="w-4 h-4" />
@@ -234,7 +231,7 @@ export default function LeftSidebar({
             </div>
           ) : (
             <>
-              {displayAnnouncements.map((announcement) => (
+              {displayAnnouncements.map((announcement: Announcement) => (
                 <Link
                   key={announcement.id}
                   href={`/announcements/${announcement.id}`}
@@ -256,7 +253,7 @@ export default function LeftSidebar({
 
       {/* 板块列表 */}
       {boards && boards.length > 0 && (
-        <div className="rounded-lg border bg-card">
+        <div className="rounded-lg border bg-card shadow-sm">
           <div className="p-3 border-b">
             <h3 className="font-semibold flex items-center gap-2">
               <Hash className="w-4 h-4" />
@@ -271,7 +268,7 @@ export default function LeftSidebar({
 
       {/* 热门标签 */}
       {tags && tags.length > 0 && (
-        <div className="rounded-lg border bg-card">
+        <div className="rounded-lg border bg-card shadow-sm">
           <div className="p-3 border-b">
             <h3 className="font-semibold flex items-center gap-2">
               <Tag className="w-4 h-4" />
@@ -279,7 +276,7 @@ export default function LeftSidebar({
             </h3>
           </div>
           <div className="p-3 flex flex-wrap gap-2">
-            {tags.slice(0, 15).map((tag) => (
+            {tags.slice(0, 15).map((tag: TagType) => (
               <button
                 key={tag.id}
                 onClick={() => onTagChange(tag.id)}
@@ -296,8 +293,6 @@ export default function LeftSidebar({
           </div>
         </div>
       )}
-
-      {/* 社区统计 */}
     </aside>
   );
 }

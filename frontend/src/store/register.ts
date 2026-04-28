@@ -2,24 +2,19 @@
 import { create } from "zustand";
 import { authApi } from "@/lib/api";
 import { useAuthStore } from "./auth";
+import { ApiError } from "@/shared/api/types/basic.type";
 
 interface RegisterState {
-  // 表单数据
   username: string;
   email: string;
   password: string;
   confirmPassword: string;
   agreeToTerms: boolean;
-
-  // 验证状态
   errors: Record<string, string>;
   isValid: boolean;
-
-  // 状态
   isLoading: boolean;
   serverError: string | null;
 
-  // Actions
   setUsername: (username: string) => void;
   setEmail: (email: string) => void;
   setPassword: (password: string) => void;
@@ -28,16 +23,11 @@ interface RegisterState {
   setServerError: (error: string | null) => void;
   clearErrors: () => void;
   resetForm: () => void;
-
-  // 验证
   validateForm: () => boolean;
-
-  // 注册操作
   register: () => Promise<{ success: boolean; message?: string }>;
 }
 
 export const useRegisterStore = create<RegisterState>()((set, get) => ({
-  // 初始状态
   username: "",
   email: "",
   password: "",
@@ -48,7 +38,6 @@ export const useRegisterStore = create<RegisterState>()((set, get) => ({
   isLoading: false,
   serverError: null,
 
-  // Setters
   setUsername: (username) => {
     set({ username });
     get().validateForm();
@@ -90,12 +79,10 @@ export const useRegisterStore = create<RegisterState>()((set, get) => ({
       serverError: null,
     }),
 
-  // 表单验证
   validateForm: () => {
-    const { username, email, password, confirmPassword, agreeToTerms } = get();
+    const { username, email, password, confirmPassword } = get();
     const errors: Record<string, string> = {};
 
-    // 用户名验证
     if (!username) {
       errors.username = "请输入用户名";
     } else if (username.length < 2) {
@@ -106,14 +93,12 @@ export const useRegisterStore = create<RegisterState>()((set, get) => ({
       errors.username = "用户名只能包含字母、数字、下划线和中文";
     }
 
-    // 邮箱验证
     if (!email) {
       errors.email = "请输入邮箱";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       errors.email = "请输入有效的邮箱地址";
     }
 
-    // 密码验证
     if (!password) {
       errors.password = "请输入密码";
     } else if (password.length < 6) {
@@ -122,23 +107,15 @@ export const useRegisterStore = create<RegisterState>()((set, get) => ({
       errors.password = "密码最多 32 个字符";
     }
 
-    // 确认密码验证
     if (password !== confirmPassword) {
       errors.confirmPassword = "两次输入的密码不一致";
     }
 
-    // 协议验证（可选）
-    // if (!agreeToTerms) {
-    //   errors.agreeToTerms = '请阅读并同意用户协议';
-    // }
-
     const isValid = Object.keys(errors).length === 0;
     set({ errors, isValid });
-
     return isValid;
   },
 
-  // 注册操作
   register: async () => {
     const { username, email, password, validateForm, resetForm } = get();
 
@@ -150,31 +127,30 @@ export const useRegisterStore = create<RegisterState>()((set, get) => ({
 
     try {
       const res = await authApi.register({ username, email, password });
-      const { user } = res.data.data;
 
-      // 更新全局认证状态
-      useAuthStore.getState().setAuth(user);
+      if (res.data.data?.user) {
+        const { user } = res.data.data;
+        useAuthStore.getState().setAuth(user);
+        resetForm();
+        return { success: true, message: "注册成功" };
+      }
 
-      // 清空表单
-      resetForm();
-
-      return {
-        success: true,
-        message: "注册成功",
-      };
-    } catch (error: any) {
+      return { success: false, message: "响应数据格式错误" };
+    } catch (err: unknown) {
       let errorMessage = "注册失败，请重试";
+      const error = err as ApiError;  // ← 使用 ApiError 类型
 
-      // 处理特定字段错误
-      if (error?.response?.data?.errors) {
+      if (error.response?.data?.errors) {
         const fieldErrors: Record<string, string> = {};
-        error.response.data.errors.forEach((err: any) => {
-          fieldErrors[err.field] = err.message;
+        error.response.data.errors.forEach((errItem) => {
+          fieldErrors[errItem.field] = errItem.message;
         });
         set({ errors: fieldErrors });
         errorMessage = "请检查表单填写";
-      } else if (error?.response?.data?.message) {
+      } else if (error.response?.data?.message) {
         errorMessage = error.response.data.message;
+      } else if (error.message) {
+        errorMessage = error.message;
       }
 
       set({ serverError: errorMessage });

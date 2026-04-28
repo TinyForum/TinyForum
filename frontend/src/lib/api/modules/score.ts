@@ -2,11 +2,11 @@ import apiClient from "../client";
 import { ApiResponse } from "../types";
 
 // 设置积分请求参数
-interface SetScoreRequest {
-  operation: "set" | "add" | "subtract";
-  score: number;
-  reason: string;
-}
+// interface SetScoreRequest {
+//   operation: "set" | "add" | "subtract";
+//   score: number;
+//   reason: string;
+// }
 
 // 设置积分响应数据
 interface SetScoreResponse {

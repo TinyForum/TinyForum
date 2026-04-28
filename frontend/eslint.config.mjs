@@ -28,13 +28,23 @@ export default [
       ...react.configs.recommended.rules,
       ...reactHooks.configs.recommended.rules,
       ...typescript.configs.recommended.rules,
-      'react/react-in-jsx-scope': 'off',
-      'react/prop-types': 'off',
+        'react-hooks/set-state-in-effect': 'off',
+        'react/react-in-jsx-scope': 'off',
+      'react/prop-types': 'off'
+      
     },
     settings: {
       react: {
         version: 'detect',
       },
+    },
+  },
+  // 为配置文件禁用特定规则
+  {
+    files: ['*.config.js', '*.config.mjs', '.eslintrc.js'],
+    rules: {
+      '@typescript-eslint/no-require-imports': 'off',
+      '@typescript-eslint/no-var-requires': 'off',
     },
   },
   {

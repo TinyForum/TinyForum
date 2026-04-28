@@ -1,7 +1,7 @@
 import apiClient from "../client";
-import { ApiResponse, PageData } from "../types";
+import { ApiResponse } from "../types";
 import {
-  StatsDayResponse,
+  // StatsDayResponse,
   StatsTodayInfo,
   StatsInfoResp,
   StatsTrendResponse,

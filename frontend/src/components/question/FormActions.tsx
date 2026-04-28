@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import {
   ArrowLeftIcon,
   PaperAirplaneIcon,
-  CheckCircleIcon,
   ExclamationTriangleIcon,
 } from "@heroicons/react/24/outline";
 

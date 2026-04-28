@@ -6,6 +6,24 @@ import { Ban, CheckCircle, XCircle } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 import { User } from "@/lib/api";
 import { UserActionMenu } from "./UserActionMenu";
+import { useTranslations } from "next-intl";
+
+// 翻译函数的类型定义
+
+// 用户表格组件 Props 类型
+interface UsersTableProps {
+  users: User[];
+  currentUserId?: number;
+  onToggleActive: (id: number, active: boolean) => void;
+  onToggleBlock: (id: number, blocked: boolean) => void;
+  onToggleRole?: (id: number, role: string) => void;
+  onDeleteUser?: (id: number, username: string) => void;
+  onResetPassword?: (id: number, username: string) => void;
+  isTogglingActive: boolean;
+  isTogglingBlock: boolean;
+  isDeleting?: boolean;
+  isUpdatingRole?: boolean;
+}
 
 // 用户表格组件
 export function UsersTable({
@@ -18,23 +36,10 @@ export function UsersTable({
   onResetPassword,
   isTogglingActive,
   isTogglingBlock,
-  isDeleting,
-  isUpdatingRole,
-  t,
-}: {
-  users: User[];
-  currentUserId?: number;
-  onToggleActive: (id: number, active: boolean) => void;
-  onToggleBlock: (id: number, blocked: boolean) => void;
-  onToggleRole?: (id: number, role: string) => void;
-  onDeleteUser?: (id: number, username: string) => void;
-  onResetPassword?: (id: number, username: string) => void;
-  isTogglingActive: boolean;
-  isTogglingBlock: boolean;
-  isDeleting?: boolean;
-  isUpdatingRole?: boolean;
-  t: (key: string, params?: any) => string;
-}) {
+  isDeleting = false,
+  isUpdatingRole = false,
+}: UsersTableProps) {
+    const t = useTranslations("Admin");
   if (users.length === 0) {
     return (
       <div className="text-center py-8 text-base-content/60">
@@ -44,9 +49,10 @@ export function UsersTable({
   }
 
   // 获取用户状态显示
-  const getUserStatusBadges = (user: User) => {
-    const badges = [];
+  const getUserStatusBadges = (user: User): React.ReactNode[] => {
+    const badges: React.ReactNode[] = [];
 
+  
     // IsBlocked 优先级最高，如果被封禁，只显示封禁状态
     if (user.is_blocked) {
       badges.push(
@@ -90,7 +96,7 @@ export function UsersTable({
           </tr>
         </thead>
         <tbody>
-          {users.map((user) => {
+          {users.map((user: User) => {
             const isBlocked = user.is_blocked;
 
             return (
@@ -119,7 +125,6 @@ export function UsersTable({
                 </td>
                 <td className="text-sm text-base-content/60">{user.email}</td>
                 <td>
-                  {/* 使用 RoleBadge 组件替换原来的 badge */}
                   <RoleBadge
                     role={user.role as UserRoleType}
                     showIcon
@@ -155,7 +160,6 @@ export function UsersTable({
                     isTogglingBlock={isTogglingBlock}
                     isDeleting={isDeleting}
                     isUpdatingRole={isUpdatingRole}
-                    t={t}
                   />
                 </td>
               </tr>

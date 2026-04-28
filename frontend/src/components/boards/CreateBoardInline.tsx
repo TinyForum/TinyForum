@@ -3,71 +3,93 @@
 import { Board, boardApi } from "@/lib/api";
 import { useAuthStore } from "@/store/auth";
 import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
-import { Link, ArrowLeftIcon, FolderPlusIcon, MailIcon } from "lucide-react";
+import Link from "next/link";
+import { ArrowLeftIcon, FolderPlusIcon, MailIcon } from "lucide-react";
 import { useState } from "react";
 
-export function CreateBoardInline({
-  slug,
-  onCreated,
-}: {
+interface CreateBoardInlineProps {
   slug: string;
   onCreated: (board: Board) => void;
-}) {
+}
+
+interface FormData {
+  name: string;
+  slug: string;
+  description: string;
+}
+
+interface ErrorResponse {
+  response?: {
+    data?: {
+      message?: string;
+    };
+  };
+  message?: string;
+}
+
+export function CreateBoardInline({ slug, onCreated }: CreateBoardInlineProps) {
   const { user } = useAuthStore();
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<FormData>({
     name: "",
     slug: slug,
     description: "",
   });
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState<boolean>(false);
+  const [error, setError] = useState<string>("");
 
   // 申请表单相关状态
-  const [showApplyForm, setShowApplyForm] = useState(false);
-  const [applyReason, setApplyReason] = useState("");
-  const [applySubmitting, setApplySubmitting] = useState(false);
-  const [applySuccess, setApplySuccess] = useState(false);
-  const [applyError, setApplyError] = useState("");
+  const [showApplyForm, setShowApplyForm] = useState<boolean>(false);
+  const [applyReason, setApplyReason] = useState<string>("");
+  const [applySubmitting, setApplySubmitting] = useState<boolean>(false);
+  const [applySuccess, setApplySuccess] = useState<boolean>(false);
+  const [applyError, setApplyError] = useState<string>("");
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-  ) => {
+  ): void => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
     setError("");
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!form.name.trim()) {
-      setError("请填写板块名称");
-      return;
-    }
-    if (!form.slug.trim()) {
-      setError("请填写板块标识");
-      return;
-    }
-    if (!/^[a-z0-9-]+$/.test(form.slug)) {
-      setError("标识只能包含小写字母、数字和连字符");
-      return;
-    }
+const handleSubmit = async (e: React.FormEvent): Promise<void> => {
+  e.preventDefault();
+  if (!form.name.trim()) {
+    setError("请填写板块名称");
+    return;
+  }
+  if (!form.slug.trim()) {
+    setError("请填写板块标识");
+    return;
+  }
+  if (!/^[a-z0-9-]+$/.test(form.slug)) {
+    setError("标识只能包含小写字母、数字和连字符");
+    return;
+  }
 
-    setSubmitting(true);
-    try {
-      const res = await boardApi.create({
-        name: form.name.trim(),
-        slug: form.slug.trim(),
-        description: form.description.trim(),
-      });
+  setSubmitting(true);
+  try {
+    const res = await boardApi.create({
+      name: form.name.trim(),
+      slug: form.slug.trim(),
+      description: form.description.trim(),
+    });
+    
+    // 修复：检查 res.data.data 是否存在
+    if (res.data.data) {
       onCreated(res.data.data);
-    } catch (err: any) {
-      setError(err.response?.data?.message || "创建失败，请稍后重试");
-    } finally {
-      setSubmitting(false);
+    } else {
+      setError("创建成功但未返回板块数据");
     }
-  };
+  } catch (err: unknown) {
+    const error = err as ErrorResponse;
+    setError(error.response?.data?.message || "创建失败，请稍后重试");
+  } finally {
+    setSubmitting(false);
+  }
+};
 
   // 处理申请提交
-  const handleApplySubmit = async (e: React.FormEvent) => {
+  const handleApplySubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
     if (!applyReason.trim()) {
       setApplyError("请填写申请理由");
@@ -79,14 +101,6 @@ export function CreateBoardInline({
 
     try {
       // TODO: 替换为实际的申请API接口
-      // const response = await boardApi.applyCreate({
-      //   slug: slug,
-      //   name: form.name,
-      //   description: form.description,
-      //   reason: applyReason,
-      // });
-
-      // 模拟API调用
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       setApplySuccess(true);
@@ -96,14 +110,15 @@ export function CreateBoardInline({
         setApplySuccess(false);
         setApplyReason("");
       }, 3000);
-    } catch (err: any) {
-      setApplyError(err.response?.data?.message || "提交失败，请稍后重试");
+    } catch (err: unknown) {
+      const error = err as ErrorResponse;
+      setApplyError(error.response?.data?.message || "提交失败，请稍后重试");
     } finally {
       setApplySubmitting(false);
     }
   };
 
-  // 判断是否为管理员（根据你实际的权限字段调整）
+  // 判断是否为管理员
   const isAdmin = user?.role === "admin" || user?.role === "super_admin";
 
   return (
@@ -312,12 +327,13 @@ export function CreateBoardInline({
                   </label>
                   <input
                     value={form.name}
-                    onChange={(e) => setForm({ ...form, name: e.target.value })}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
+                      setForm({ ...form, name: e.target.value })
+                    }
                     type="text"
                     placeholder="请输入板块名称"
-                    // disabled
-                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400"
-                    // className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed"
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed"
+                    disabled
                   />
                 </div>
 
@@ -327,7 +343,7 @@ export function CreateBoardInline({
                   </label>
                   <textarea
                     value={applyReason}
-                    onChange={(e) => {
+                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
                       setApplyReason(e.target.value);
                       setApplyError("");
                     }}

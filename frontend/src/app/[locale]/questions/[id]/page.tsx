@@ -1,4 +1,4 @@
-// app/questions/[id]/page.tsx
+// app/[locale]/questions/[id]/page.tsx
 "use client";
 
 import { useState } from "react";
@@ -13,15 +13,24 @@ import { useAuthStore } from "@/store/auth";
 import { useQuestionDetail } from "@/hooks/useQuestionDetail";
 import { AnswerCard } from "@/components/question/AnswerCard";
 import { toast } from "react-hot-toast";
-import { postApi, questionApi } from "@/lib/api";
+import { postApi } from "@/lib/api";
 import { AnswerForm } from "@/components/question/AnswerForm";
 import { QuestionHeader } from "@/components/question/QuestionHeader";
 import { answerApi } from "@/lib/api/modules/answer";
 import { useTranslations } from "next-intl";
 
+// 错误响应类型
+interface ErrorResponse {
+  response?: {
+    data?: {
+      message?: string;
+    };
+  };
+  message?: string;
+}
+
 // 加载骨架屏组件
 function LoadingSkeleton() {
-  const t = useTranslations("Questions");
   return (
     <div className="min-h-screen bg-gradient-to-b from-base-200 to-base-100">
       <div className="max-w-4xl mx-auto px-4 py-8">
@@ -172,9 +181,7 @@ export default function QuestionDetailPage() {
     loading,
     refresh,
     setLiked,
-    setAnswers,
-    setAnswersTotal,
-  } = useQuestionDetail(questionId, { answerPage, answerPageSize: pageSize });
+  } = useQuestionDetail(questionId, );
 
   const handleAcceptAnswer = async (answerId: number) => {
     if (!isAuthenticated) {
@@ -185,13 +192,14 @@ export default function QuestionDetailPage() {
 
     try {
       const response = await answerApi.acceptAnswer(answerId);
-      if (response.data.code === 200) {
+      if (response.data.code === 0) {
         toast.success(t("answer_accepted"));
         refresh();
       } else {
         toast.error(response.data.message || t("operation_failed"));
       }
-    } catch (error: any) {
+    } catch (err: unknown) {
+      const error = err as ErrorResponse;
       toast.error(error.response?.data?.message || t("operation_failed"));
     }
   };
@@ -205,14 +213,15 @@ export default function QuestionDetailPage() {
 
     try {
       if (liked) {
-        await postApi.like(questionId);
+        await postApi.unlike(questionId);
         setLiked(false);
       } else {
-        await postApi.unlike(questionId);
+        await postApi.like(questionId);
         setLiked(true);
       }
       refresh();
-    } catch (error: any) {
+    } catch (err: unknown) {
+      const error = err as ErrorResponse;
       toast.error(error.response?.data?.message || t("operation_failed"));
     }
   };
@@ -292,7 +301,7 @@ export default function QuestionDetailPage() {
             </div>
           ) : (
             <div className="space-y-4">
-              {answers.map((answer, index) => (
+              {answers.map((answer) => (
                 <AnswerCard
                   key={answer.id}
                   answer={answer}
@@ -328,7 +337,12 @@ export default function QuestionDetailPage() {
 
           {isAuthenticated ? (
             <div className="bg-base-100 rounded-2xl shadow-sm border border-base-200 overflow-hidden">
-              <AnswerForm questionId={questionId} onSuccess={onAnswerCreated} />
+              <AnswerForm 
+                questionId={questionId} 
+                onSuccess={onAnswerCreated}
+                hasAccepted={hasAccepted}
+                rewardScore={0}
+              />
             </div>
           ) : (
             <div className="bg-base-100 rounded-2xl shadow-sm p-8 text-center border border-base-200">

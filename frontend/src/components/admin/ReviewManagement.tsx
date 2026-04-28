@@ -11,8 +11,9 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { adminApi } from "@/lib/api";
-import type { Post, User as ApiUser } from "@/lib/api/types";
+import type { Post } from "@/lib/api/types";
 import DOMPurify from "dompurify";
+import Image from "next/image";
 
 // 扩展 Post 类型以包含风险信息
 interface PostWithRisk extends Post {
@@ -33,14 +34,19 @@ interface PendingPostsResponse {
   total: number;
 }
 
-// 获取待审核帖子列表
+// 获取待审核帖子列表 - 修复返回类型
 const fetchPendingPosts = async (params: {
   page: number;
   page_size: number;
   keyword?: string;
 }): Promise<PendingPostsResponse> => {
   const res = await adminApi.listPendingPosts(params);
-  return res.data.data;
+  // 确保返回的数据结构正确，并处理可能的 undefined
+  const data = res.data.data;
+  return {
+    list: data?.list || [],
+    total: data?.total || 0,
+  };
 };
 
 export function ReviewManagement() {
@@ -51,8 +57,8 @@ export function ReviewManagement() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [reviewNote, setReviewNote] = useState(""); // 审核备注/拒绝原因
 
-  // 查询待审核列表
-  const { data, isLoading, refetch } = useQuery<PendingPostsResponse>({
+  // 查询待审核列表 - 移除泛型，让 TypeScript 自动推断
+  const { data, isLoading, refetch } = useQuery({
     queryKey: ["admin-pending-posts", page, keyword],
     queryFn: () => fetchPendingPosts({ page, page_size: 20, keyword }),
     placeholderData: (prev) => prev,
@@ -186,7 +192,7 @@ export function ReviewManagement() {
                       <span className="text-xs text-gray-400">
                         #{post.author_id}
                       </span>
-                      {post.risk_score && (
+                      {post.risk_score && post.risk_score > 0 && (
                         <span className="badge badge-warning badge-sm">
                           <AlertTriangle className="w-3 h-3 mr-1" />
                           风险分 {post.risk_score}
@@ -317,9 +323,11 @@ export function ReviewManagement() {
                 dangerouslySetInnerHTML={sanitizeHtml(selectedPost.content)}
               />
               {selectedPost.cover && (
-                <img
+                <Image
                   src={selectedPost.cover}
                   alt="封面"
+                  width={200}
+                  height={128}
                   className="mt-2 max-h-32 rounded object-cover"
                 />
               )}

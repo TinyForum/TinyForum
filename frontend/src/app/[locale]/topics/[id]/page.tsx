@@ -1,7 +1,7 @@
 // app/[locale]/topics/[id]/page.tsx (话题详情页)
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuthStore } from "@/store/auth";
@@ -18,11 +18,42 @@ import {
   PlusIcon,
   XMarkIcon,
   ShareIcon,
-  FlagIcon,
 } from "@heroicons/react/24/outline";
 import { HeartIcon as HeartSolidIcon } from "@heroicons/react/24/solid";
-import type { Topic, TopicPost, Post } from "@/lib/api/types";
+import type { Topic, Post } from "@/lib/api/types";
 import { TopicPostCard } from "@/components/topic/TopicPostCard";
+import Image from "next/image";
+
+// 类型定义
+interface ErrorResponse {
+  response?: {
+    data?: {
+      message?: string;
+    };
+  };
+  message?: string;
+}
+
+interface Follower {
+  id: number;
+  user_id: number;
+  topic_id: number;
+  user?: {
+    id: number;
+    username: string;
+    avatar?: string;
+  };
+  // created_at:string// 可能不在返回的数据中
+}
+interface TopicPostItem {
+  id: number;
+  topic_id: number;
+  post_id: number;
+  post?: Post;
+  added_by: number;
+  sort_order: number;
+  // created_at 可能不在 TopicPost 中
+}
 
 export default function TopicDetailPage() {
   const params = useParams();
@@ -30,7 +61,7 @@ export default function TopicDetailPage() {
   const { isAuthenticated, user } = useAuthStore();
   const [topic, setTopic] = useState<Topic | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
-  const [followers, setFollowers] = useState<any[]>([]);
+  const [followers, setFollowers] = useState<Follower[]>([]);
   const [following, setFollowing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"posts" | "followers">("posts");
@@ -45,72 +76,91 @@ export default function TopicDetailPage() {
   const topicId = Number(params.id);
 
   // 加载话题详情
-  const loadTopic = async () => {
-    try {
-      const response = await topicApi.getById(topicId);
-      if (response.data.code === 200) {
-        setTopic(response.data.data);
+  const loadTopic = useCallback(async () => {
+  try {
+    const response = await topicApi.getById(topicId);
+    if (response.data.code === 0) {
+      // 修复：确保 response.data.data 存在，否则设为 null
+      const data = response.data.data;
+      if (data) {
+        setTopic(data);
       } else {
-        toast.error(response.data.message || "加载失败");
+        setTopic(null);
+        toast.error("话题不存在");
       }
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "加载失败");
+    } else {
+      toast.error(response.data.message || "加载失败");
     }
-  };
+  } catch (err: unknown) {
+    const error = err as ErrorResponse;
+    toast.error(error.response?.data?.message || "加载失败");
+  }
+}, [topicId]);
 
-  // 加载话题帖子
-  const loadPosts = async () => {
-    try {
-      const response = await topicApi.getPosts(topicId, {
-        page,
-        page_size: pageSize,
-      });
-      if (response.data.code === 200) {
-        const { list, total: totalCount } = response.data.data;
-        setPosts(list.map((item) => item.post).filter(Boolean) as Post[]);
-        setTotal(totalCount || 0);
-      }
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "加载失败");
+
+const loadPosts = useCallback(async () => {
+  try {
+    const response = await topicApi.getPosts(topicId, {
+      page,
+      page_size: pageSize,
+    });
+    if (response.data.code === 0) {
+      const data = response.data.data;
+      const list = data?.list || [];
+      // 修复：正确处理 list 中的每个元素
+   const mappedPosts: Post[] = list
+  .map((item: TopicPostItem) => item.post)  // 移除可选链操作符
+  .filter((post: Post | undefined): post is Post => post !== undefined);
+
+      setPosts(mappedPosts);
+      setTotal(data?.total || 0);
     }
-  };
+  } catch (err: unknown) {
+    const error = err as ErrorResponse;
+    toast.error(error.response?.data?.message || "加载失败");
+  }
+}, [topicId, page]);
 
-  // 加载关注者
-  const loadFollowers = async () => {
-    try {
-      const response = await topicApi.getFollowers(topicId, {
-        page,
-        page_size: pageSize,
-      });
-      if (response.data.code === 200) {
-        const { list, total: totalCount } = response.data.data;
-        setFollowers(list || []);
-        setTotal(totalCount || 0);
-      }
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "加载失败");
+// 修复 loadFollowers 函数
+const loadFollowers = useCallback(async () => {
+  try {
+    const response = await topicApi.getFollowers(topicId, {
+      page,
+      page_size: pageSize,
+    });
+    if (response.data.code === 0) {
+      const data = response.data.data;
+      // 修复：直接使用 API 返回的数据，不要求 created_at
+      const list = data?.list || [];
+      setFollowers(list);
+      setTotal(data?.total || 0);
     }
-  };
+  } catch (err: unknown) {
+    const error = err as ErrorResponse;
+    toast.error(error.response?.data?.message || "加载失败");
+  }
+}, [topicId, page]);
 
-  // 检查是否关注
-  const checkFollowStatus = async () => {
-    if (!user?.id) return;
+// 修复 checkFollowStatus 函数
+const checkFollowStatus = useCallback(async () => {
+  if (!user?.id) return;
 
-    try {
-      const response = await topicApi.getFollowers(topicId, {
-        page: 1,
-        page_size: 100,
-      });
-      if (response.data.code === 200) {
-        const isFollowing = response.data.data.list.some(
-          (f: any) => f.user_id === user?.id,
-        );
-        setFollowing(isFollowing);
-      }
-    } catch (error) {
-      console.error("Failed to check follow status:", error);
+  try {
+    const response = await topicApi.getFollowers(topicId, {
+      page: 1,
+      page_size: 100,
+    });
+    if (response.data.code === 0) {
+      const data = response.data.data;
+      const isFollowing = (data?.list || []).some(
+        (f: { user_id: number }) => f.user_id === user?.id,
+      );
+      setFollowing(isFollowing);
     }
-  };
+  } catch (err) {
+    console.error("Failed to check follow status:", err);
+  }
+}, [topicId, user?.id]);
 
   // 关注/取消关注
   const handleFollow = async () => {
@@ -126,7 +176,6 @@ export default function TopicDetailPage() {
         await topicApi.unfollow(topicId);
         setFollowing(false);
         toast.success("已取消收藏");
-        // 更新话题的收藏数
         if (topic) {
           setTopic({
             ...topic,
@@ -147,7 +196,8 @@ export default function TopicDetailPage() {
       if (activeTab === "followers") {
         await loadFollowers();
       }
-    } catch (error: any) {
+    } catch (err: unknown) {
+      const error = err as ErrorResponse;
       toast.error(error.response?.data?.message || "操作失败");
     } finally {
       setFollowLoading(false);
@@ -165,19 +215,19 @@ export default function TopicDetailPage() {
     setAddingPost(true);
     try {
       const response = await topicApi.addPost(topicId, { post_id: postIdNum });
-      if (response.data.code === 200) {
+      if (response.data.code === 0) {
         toast.success("帖子已添加到话题");
         setShowAddPostModal(false);
         setPostId("");
         await loadPosts();
-        // 更新话题的帖子数
         if (topic) {
           setTopic({ ...topic, post_count: (topic.post_count || 0) + 1 });
         }
       } else {
         toast.error(response.data.message || "添加失败");
       }
-    } catch (error: any) {
+    } catch (err: unknown) {
+      const error = err as ErrorResponse;
       toast.error(error.response?.data?.message || "添加失败");
     } finally {
       setAddingPost(false);
@@ -190,7 +240,7 @@ export default function TopicDetailPage() {
     try {
       await navigator.clipboard.writeText(url);
       toast.success("链接已复制到剪贴板");
-    } catch (err) {
+    } catch {
       toast.error("复制失败，请手动复制");
     }
   };
@@ -201,7 +251,17 @@ export default function TopicDetailPage() {
         setLoading(false);
       });
     }
-  }, [topicId]);
+  }, [topicId, loadTopic, checkFollowStatus]);
+
+  useEffect(() => {
+    if (activeTab === "posts") {
+      setPage(1);
+      loadPosts();
+    } else {
+      setPage(1);
+      loadFollowers();
+    }
+  }, [activeTab, loadPosts, loadFollowers]);
 
   useEffect(() => {
     if (activeTab === "posts") {
@@ -209,7 +269,7 @@ export default function TopicDetailPage() {
     } else {
       loadFollowers();
     }
-  }, [activeTab, page]);
+  }, [page, activeTab, loadPosts, loadFollowers]);
 
   if (loading && !topic) {
     return (
@@ -235,6 +295,40 @@ export default function TopicDetailPage() {
   const totalPages = Math.ceil(total / pageSize);
   const isCreator = user?.id === topic.creator_id;
 
+  // 生成分页按钮
+  const renderPaginationButtons = () => {
+    const buttons = [];
+    const maxVisible = 5;
+    let startPage = 1;
+    let endPage = totalPages;
+
+    if (totalPages > maxVisible) {
+      if (page <= 3) {
+        endPage = maxVisible;
+      } else if (page >= totalPages - 2) {
+        startPage = totalPages - maxVisible + 1;
+      } else {
+        startPage = page - 2;
+        endPage = page + 2;
+      }
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      buttons.push(
+        <button
+          key={i}
+          onClick={() => setPage(i)}
+          className={`join-item btn btn-outline btn-sm ${
+            page === i ? "btn-primary" : ""
+          }`}
+        >
+          {i}
+        </button>
+      );
+    }
+    return buttons;
+  };
+
   return (
     <div className="min-h-screen bg-base-200 py-8">
       <div className="max-w-4xl mx-auto px-4">
@@ -249,14 +343,16 @@ export default function TopicDetailPage() {
           </Link>
         </div>
 
-        {/* 话题头部 - 使用主题卡片 */}
+        {/* 话题头部 */}
         <div className="card bg-base-100 shadow-lg mb-6 overflow-hidden hover:shadow-xl transition-shadow duration-300">
           {topic.cover && (
             <div className="w-full h-48 relative">
-              <img
+              <Image
                 src={topic.cover}
                 alt={topic.title}
-                className="w-full h-full object-cover"
+                fill
+                className="object-cover"
+                sizes="100vw"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
             </div>
@@ -345,7 +441,7 @@ export default function TopicDetailPage() {
           </div>
         </div>
 
-        {/* Tab 切换 - 使用主题 */}
+        {/* Tab 切换 */}
         <div className="card bg-base-100 shadow-sm mb-6">
           <div className="tabs tabs-boxed p-1">
             <button
@@ -369,180 +465,137 @@ export default function TopicDetailPage() {
           </div>
         </div>
 
-        {/* 内容区域 */}
-        {activeTab === "posts" ? (
-          posts.length === 0 ? (
-            <div className="card bg-base-100 shadow-sm p-12 text-center">
-              <div className="text-6xl mb-4">📝</div>
-              <h3 className="text-lg font-bold text-base-content mb-2">
-                暂无帖子
-              </h3>
-              <p className="text-base-content/60 mb-6">
-                还没有帖子被添加到这个话题
-              </p>
-              {isCreator && (
-                <button
-                  onClick={() => setShowAddPostModal(true)}
-                  className="btn btn-primary"
-                >
-                  添加第一个帖子
-                </button>
-              )}
-            </div>
-          ) : (
-            <>
-              <div className="space-y-3">
-                {posts.map((post) => (
-                  <TopicPostCard key={post.id} post={post} />
-                ))}
-              </div>
-
-              {/* 分页 - 使用 daisyUI */}
-              {totalPages > 1 && (
-                <div className="flex justify-center gap-2 mt-8">
-                  <button
-                    onClick={() => setPage((p) => Math.max(1, p - 1))}
-                    disabled={page === 1}
-                    className="btn btn-outline btn-sm"
-                  >
-                    上一页
-                  </button>
-                  <div className="join">
-                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                      let pageNum;
-                      if (totalPages <= 5) {
-                        pageNum = i + 1;
-                      } else if (page <= 3) {
-                        pageNum = i + 1;
-                      } else if (page >= totalPages - 2) {
-                        pageNum = totalPages - 4 + i;
-                      } else {
-                        pageNum = page - 2 + i;
-                      }
-
-                      return (
-                        <button
-                          key={pageNum}
-                          onClick={() => setPage(pageNum)}
-                          className={`join-item btn btn-outline btn-sm ${
-                            page === pageNum ? "btn-primary" : ""
-                          }`}
-                        >
-                          {pageNum}
-                        </button>
-                      );
-                    })}
-                  </div>
-                  <button
-                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                    disabled={page >= totalPages}
-                    className="btn btn-outline btn-sm"
-                  >
-                    下一页
-                  </button>
-                </div>
-              )}
-            </>
-          )
-        ) : followers.length === 0 ? (
-          <div className="card bg-base-100 shadow-sm p-12 text-center">
-            <div className="text-6xl mb-4">👥</div>
-            <h3 className="text-lg font-bold text-base-content mb-2">
-              暂无收藏者
-            </h3>
-            <p className="text-base-content/60">
-              成为第一个收藏这个话题的人吧！
-            </p>
-          </div>
-        ) : (
+        {/* 内容区域 - 帖子列表 */}
+        {activeTab === "posts" && (
           <>
-            <div className="space-y-3">
-              {followers.map((follow) => (
-                <div
-                  key={follow.id}
-                  className="card bg-base-100 shadow-sm p-4 hover:shadow-md transition-shadow"
-                >
-                  <div className="flex items-center gap-3">
-                    <Link href={`/users/${follow.user_id}`}>
-                      <div className="avatar placeholder">
-                        <div className="w-10 h-10 rounded-full bg-primary/10 text-primary">
-                          <span className="font-medium">
-                            {follow.user?.username?.[0]?.toUpperCase() ||
-                              `U${follow.user_id}`}
-                          </span>
+            {posts.length === 0 ? (
+              <div className="card bg-base-100 shadow-sm p-12 text-center">
+                <div className="text-6xl mb-4">📝</div>
+                <h3 className="text-lg font-bold text-base-content mb-2">
+                  暂无帖子
+                </h3>
+                <p className="text-base-content/60 mb-6">
+                  还没有帖子被添加到这个话题
+                </p>
+                {isCreator && (
+                  <button
+                    onClick={() => setShowAddPostModal(true)}
+                    className="btn btn-primary"
+                  >
+                    添加第一个帖子
+                  </button>
+                )}
+              </div>
+            ) : (
+              <>
+                <div className="space-y-3">
+                  {posts.map((post) => (
+                    <TopicPostCard key={post.id} post={post} />
+                  ))}
+                </div>
+
+                {totalPages > 1 && (
+                  <div className="flex justify-center gap-2 mt-8">
+                    <button
+                      onClick={() => setPage((p) => Math.max(1, p - 1))}
+                      disabled={page === 1}
+                      className="btn btn-outline btn-sm"
+                    >
+                      上一页
+                    </button>
+                    <div className="join">{renderPaginationButtons()}</div>
+                    <button
+                      onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                      disabled={page >= totalPages}
+                      className="btn btn-outline btn-sm"
+                    >
+                      下一页
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
+          </>
+        )}
+
+        {/* 内容区域 - 收藏者列表 */}
+        {activeTab === "followers" && (
+          <>
+            {followers.length === 0 ? (
+              <div className="card bg-base-100 shadow-sm p-12 text-center">
+                <div className="text-6xl mb-4">👥</div>
+                <h3 className="text-lg font-bold text-base-content mb-2">
+                  暂无收藏者
+                </h3>
+                <p className="text-base-content/60">
+                  成为第一个收藏这个话题的人吧！
+                </p>
+              </div>
+            ) : (
+              <>
+                <div className="space-y-3">
+                  {followers.map((follow) => (
+                    <div
+                      key={follow.id}
+                      className="card bg-base-100 shadow-sm p-4 hover:shadow-md transition-shadow"
+                    >
+                      <div className="flex items-center gap-3">
+                        <Link href={`/users/${follow.user_id}`}>
+                          <div className="avatar placeholder">
+                            <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+                              <span className="font-medium">
+                                {follow.user?.username?.[0]?.toUpperCase() ||
+                                  `U${follow.user_id}`}
+                              </span>
+                            </div>
+                          </div>
+                        </Link>
+                        <div className="flex-1">
+                          <Link
+                            href={`/users/${follow.user_id}`}
+                            className="font-medium text-base-content hover:text-primary transition-colors"
+                          >
+                            {follow.user?.username || `用户 ${follow.user_id}`}
+                          </Link>
+                          <div className="text-xs text-base-content/40">
+                            收藏于{" "}
+                            {/* {new Date(follow.created_at).toLocaleDateString()} */}
+                          </div>
                         </div>
-                      </div>
-                    </Link>
-                    <div className="flex-1">
-                      <Link
-                        href={`/users/${follow.user_id}`}
-                        className="font-medium text-base-content hover:text-primary transition-colors"
-                      >
-                        {follow.user?.username || `用户 ${follow.user_id}`}
-                      </Link>
-                      <div className="text-xs text-base-content/40">
-                        收藏于{" "}
-                        {new Date(follow.created_at).toLocaleDateString()}
+                        {follow.user_id === user?.id && (
+                          <span className="badge badge-primary badge-sm">我</span>
+                        )}
                       </div>
                     </div>
-                    {follow.user_id === user?.id && (
-                      <span className="badge badge-primary badge-sm">我</span>
-                    )}
+                  ))}
+                </div>
+
+                {totalPages > 1 && (
+                  <div className="flex justify-center gap-2 mt-8">
+                    <button
+                      onClick={() => setPage((p) => Math.max(1, p - 1))}
+                      disabled={page === 1}
+                      className="btn btn-outline btn-sm"
+                    >
+                      上一页
+                    </button>
+                    <div className="join">{renderPaginationButtons()}</div>
+                    <button
+                      onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                      disabled={page >= totalPages}
+                      className="btn btn-outline btn-sm"
+                    >
+                      下一页
+                    </button>
                   </div>
-                </div>
-              ))}
-            </div>
-
-            {/* 分页 */}
-            {totalPages > 1 && (
-              <div className="flex justify-center gap-2 mt-8">
-                <button
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  disabled={page === 1}
-                  className="btn btn-outline btn-sm"
-                >
-                  上一页
-                </button>
-                <div className="join">
-                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                    let pageNum;
-                    if (totalPages <= 5) {
-                      pageNum = i + 1;
-                    } else if (page <= 3) {
-                      pageNum = i + 1;
-                    } else if (page >= totalPages - 2) {
-                      pageNum = totalPages - 4 + i;
-                    } else {
-                      pageNum = page - 2 + i;
-                    }
-
-                    return (
-                      <button
-                        key={pageNum}
-                        onClick={() => setPage(pageNum)}
-                        className={`join-item btn btn-outline btn-sm ${
-                          page === pageNum ? "btn-primary" : ""
-                        }`}
-                      >
-                        {pageNum}
-                      </button>
-                    );
-                  })}
-                </div>
-                <button
-                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                  disabled={page >= totalPages}
-                  className="btn btn-outline btn-sm"
-                >
-                  下一页
-                </button>
-              </div>
+                )}
+              </>
             )}
           </>
         )}
       </div>
 
-      {/* 添加帖子模态框 - 使用主题 */}
+      {/* 添加帖子模态框 */}
       {showAddPostModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="card bg-base-100 shadow-xl w-full max-w-md">

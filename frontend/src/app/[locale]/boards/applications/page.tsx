@@ -19,28 +19,6 @@ import {
 // 申请状态类型
 type ApplicationStatus = "pending" | "approved" | "rejected" | "canceled";
 
-// 申请状态详情（来自 getApplicationStatus API）
-interface ApplicationStatusDetail {
-  has_application: boolean;
-  application_id?: number;
-  status?: ApplicationStatus;
-  reason?: string;
-  created_at?: string;
-  review_note?: string;
-  reviewer_id?: number;
-  reviewed_at?: string | null;
-  can_cancel: boolean;
-  can_resubmit: boolean;
-  requested_perms?: {
-    delete_post: boolean;
-    pin_post: boolean;
-    edit_any_post: boolean;
-    manage_moderator: boolean;
-    ban_user: boolean;
-  };
-  can_apply: boolean;
-}
-
 // 扩展的申请卡片数据
 interface ExtendedApplication {
   id: number;
@@ -60,6 +38,27 @@ interface ExtendedApplication {
     manage_moderator: boolean;
     ban_user: boolean;
   };
+}
+
+// API 返回的申请数据类型
+interface ApiApplication {
+  id: number;
+  board_id: number;
+  board?: {
+    name: string;
+    slug: string;
+  };
+  reason: string;
+  status: ApplicationStatus;
+  review_note?: string;
+  reviewed_by?: number;
+  created_at: string;
+  reviewed_at?: string | null;
+  req_delete_post?: boolean;
+  req_pin_post?: boolean;
+  req_edit_any_post?: boolean;
+  req_manage_moderator?: boolean;
+  req_ban_user?: boolean;
 }
 
 const STATUS_MAP: Record<
@@ -120,13 +119,16 @@ function StatusBadge({ status }: { status: ApplicationStatus }) {
 function ApplicationCard({
   app,
   onCancel,
+  cancelLoadingId,
 }: {
   app: ExtendedApplication;
   onCancel?: (id: number) => void;
+  cancelLoadingId?: number | null;
 }) {
   const isHandled = app.status !== "pending";
   const hasReviewNote = !!app.review_note;
   const canCancel = app.status === "pending";
+  const isLoading = cancelLoadingId === app.id;
 
   return (
     <div
@@ -226,9 +228,10 @@ function ApplicationCard({
         {canCancel && onCancel && (
           <button
             onClick={() => onCancel(app.id)}
-            className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-red-600 transition-colors"
+            disabled={isLoading}
+            className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            撤销申请
+            {isLoading ? "撤销中..." : "撤销申请"}
           </button>
         )}
         {app.status === "approved" && (
@@ -305,27 +308,15 @@ function ErrorState({ onRetry }: { onRetry: () => void }) {
   );
 }
 
-// 模拟板块数据（实际应从 API 获取）
-const getBoardInfo = (boardId: number) => {
-  // TODO: 替换为实际的板块信息获取逻辑
-  const boardMap: Record<number, { name: string; slug: string }> = {
-    1: { name: "技术交流", slug: "tech" },
-    2: { name: "生活闲聊", slug: "life" },
-  };
-  return (
-    boardMap[boardId] || { name: `板块 #${boardId}`, slug: `board-${boardId}` }
-  );
-};
-
 export default function MyApplicationsPage() {
-  const { isAuthenticated, user } = useAuthStore();
+  const { isAuthenticated } = useAuthStore();
   const router = useRouter();
   const [applications, setApplications] = useState<ExtendedApplication[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
-  const [cancelLoading, setCancelLoading] = useState<number | null>(null);
+  const [cancelLoadingId, setCancelLoadingId] = useState<number | null>(null);
 
   const PAGE_SIZE = 10;
 
@@ -336,8 +327,28 @@ export default function MyApplicationsPage() {
     }
   }, [isAuthenticated, router]);
 
-  // 加载用户的所有申请（通过遍历板块？或者使用专门的用户申请接口）
-  // 注意：这里需要根据实际后端 API 调整
+  // 转换 API 数据为组件需要的格式
+  const transformApplication = (app: ApiApplication): ExtendedApplication => ({
+    id: app.id,
+    board_id: app.board_id,
+    board_name: app.board?.name || `板块 #${app.board_id}`,
+    board_slug: app.board?.slug || `board-${app.board_id}`,
+    reason: app.reason,
+    status: app.status,
+    review_note: app.review_note,
+    reviewer_id: app.reviewed_by,
+    created_at: app.created_at,
+    reviewed_at: app.reviewed_at,
+    requested_perms: {
+      delete_post: app.req_delete_post || false,
+      pin_post: app.req_pin_post || false,
+      edit_any_post: app.req_edit_any_post || false,
+      manage_moderator: app.req_manage_moderator || false,
+      ban_user: app.req_ban_user || false,
+    },
+  });
+
+  // 加载用户的所有申请
   const loadApplications = useCallback(async () => {
     if (!isAuthenticated) return;
 
@@ -351,32 +362,14 @@ export default function MyApplicationsPage() {
       });
 
       if (res?.data?.data) {
-        // 转换为 ExtendedApplication 格式
+        // 使用类型安全的方式转换数据
         const apps: ExtendedApplication[] = (res.data.data.list || []).map(
-          (app) => ({
-            id: app.id,
-            board_id: app.board_id,
-            board_name: app.board?.name || `板块 #${app.board_id}`,
-            board_slug: app.board?.slug || `board-${app.board_id}`,
-            reason: app.reason,
-            status: app.status,
-            review_note: app.review_note,
-            reviewer_id: app.reviewed_by,
-            created_at: app.created_at,
-            reviewed_at: app.reviewed_at,
-            requested_perms: {
-              delete_post: app.req_delete_post,
-              pin_post: app.req_pin_post,
-              edit_any_post: app.req_edit_any_post,
-              manage_moderator: app.req_manage_moderator,
-              ban_user: app.req_ban_user,
-            },
-          }),
+          (app: ApiApplication) => transformApplication(app),
         );
         setApplications(apps);
         setTotal(res.data.data.total);
       }
-    } catch (err) {
+    } catch {
       setError("加载申请记录失败");
     } finally {
       setLoading(false);
@@ -388,16 +381,15 @@ export default function MyApplicationsPage() {
     async (applicationId: number) => {
       if (!confirm("确定要撤销这个申请吗？")) return;
 
-      setCancelLoading(applicationId);
+      setCancelLoadingId(applicationId);
       try {
         await moderatorApi.cancelApplication(applicationId);
-        // 刷新列表
         await loadApplications();
       } catch (err) {
         console.error("撤销失败:", err);
         alert("撤销失败，请重试");
       } finally {
-        setCancelLoading(null);
+        setCancelLoadingId(null);
       }
     },
     [loadApplications],
@@ -455,7 +447,12 @@ export default function MyApplicationsPage() {
         <>
           <div className="space-y-4">
             {applications.map((app) => (
-              <ApplicationCard key={app.id} app={app} onCancel={handleCancel} />
+              <ApplicationCard
+                key={app.id}
+                app={app}
+                onCancel={handleCancel}
+                cancelLoadingId={cancelLoadingId}
+              />
             ))}
           </div>
 

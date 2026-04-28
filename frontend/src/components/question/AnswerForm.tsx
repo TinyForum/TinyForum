@@ -1,7 +1,7 @@
 // components/question/AnswerForm.tsx
 "use client";
 
-import { postApi, questionApi } from "@/lib/api";
+import { questionApi } from "@/lib/api";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
 import {
@@ -12,7 +12,7 @@ import {
   ExclamationTriangleIcon,
   SparklesIcon,
 } from "@heroicons/react/24/outline";
-import { answerApi } from "@/lib/api/modules/answer";
+import { ApiResponse } from "@/lib/api/types";
 
 interface AnswerFormProps {
   questionId: number;
@@ -23,6 +23,21 @@ interface AnswerFormProps {
   onCancel?: () => void;
 }
 
+interface ErrorResponse {
+  response?: {
+    data?: {
+      message?: string;
+    };
+  };
+  message?: string;
+}
+
+interface CreateAnswerResponse {
+  id: number;
+  content: string;
+  created_at: string;
+}
+
 export function AnswerForm({
   questionId,
   questionAuthorId,
@@ -31,15 +46,15 @@ export function AnswerForm({
   onSuccess,
   onCancel,
 }: AnswerFormProps) {
-  const [content, setContent] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-  const [showPreview, setShowPreview] = useState(false);
+  const [content, setContent] = useState<string>("");
+  const [submitting, setSubmitting] = useState<boolean>(false);
+  const [showPreview, setShowPreview] = useState<boolean>(false);
 
-  const contentLength = content.trim().length;
-  const isContentValid = contentLength >= 10;
-  const isContentTooLong = contentLength > 50000;
+  const contentLength: number = content.trim().length;
+  const isContentValid: boolean = contentLength >= 10;
+  const isContentTooLong: boolean = contentLength > 50000;
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (): Promise<void> => {
     if (!content.trim()) {
       toast.error("请输入回答内容");
       return;
@@ -57,15 +72,13 @@ export function AnswerForm({
 
     setSubmitting(true);
     try {
-      const response = await questionApi.createAnswer(questionId, {
-        content: content.trim(),
-      });
+      const response: { data: ApiResponse<CreateAnswerResponse> } = 
+        await questionApi.createAnswer(questionId, {
+          content: content.trim(),
+        });
 
-      if (
-        response.data.code === 200 ||
-        response.data.code === 201 ||
-        response.data.code === 0
-      ) {
+      // 统一使用 code === 0 判断成功
+      if (response.data.code === 0) {
         setContent("");
         setShowPreview(false);
         toast.success("回答发布成功");
@@ -81,8 +94,9 @@ export function AnswerForm({
       } else {
         toast.error(response.data.message || "发布失败");
       }
-    } catch (error: any) {
-      console.error("发布回答失败:", error);
+    } catch (err: unknown) {
+      console.error("发布回答失败:", err);
+      const error = err as ErrorResponse;
       const errorMsg =
         error.response?.data?.message ||
         error.message ||
@@ -167,7 +181,9 @@ export function AnswerForm({
           <>
             <textarea
               value={content}
-              onChange={(e) => setContent(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => 
+                setContent(e.target.value)
+              }
               rows={8}
               placeholder={`写下你的回答...
 

@@ -8,7 +8,7 @@ import type {
   ApiResponse,
   PageData,
   Comment,
-  AnswerVoteResult,
+  // AnswerVoteResult,
   VoteType,
 } from "../types";
 

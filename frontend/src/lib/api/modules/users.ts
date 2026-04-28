@@ -26,6 +26,7 @@ export interface LeaderboardItemResponse {
   avatar: string;
   score: number;
   rank: number;
+  bio: string;
 }
 
 export const userApi = {

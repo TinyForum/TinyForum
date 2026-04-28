@@ -2,6 +2,14 @@
 import { create } from "zustand";
 import { authApi } from "@/lib/api";
 import { useAuthStore } from "./auth";
+import { ApiError } from "@/shared/api/types/basic.type";
+
+interface DeletionStatus {
+  is_deleted: boolean;
+  deleted_at?: string;
+  can_restore: boolean;
+  remaining_days?: number;
+}
 
 interface DeleteAccountState {
   // 表单数据
@@ -14,12 +22,7 @@ interface DeleteAccountState {
   error: string | null;
 
   // 删除状态信息
-  deletionStatus: {
-    is_deleted: boolean;
-    deleted_at?: string;
-    can_restore: boolean;
-    remaining_days?: number;
-  } | null;
+  deletionStatus: DeletionStatus | null;
 
   // Actions
   setConfirmText: (text: string) => void;
@@ -27,13 +30,13 @@ interface DeleteAccountState {
   setModalOpen: (open: boolean) => void;
   setError: (error: string | null) => void;
   resetForm: () => void;
-  setDeletionStatus: (status: any) => void;
+  setDeletionStatus: (status: DeletionStatus | null) => void;
 
   // API 操作
-  deleteAccount: () => Promise<{ success: boolean }>; // 软删除（请求注销）
-  cancelDeletion: () => Promise<{ success: boolean }>; // 取消注销
-  confirmDeletion: () => Promise<{ success: boolean }>; // 永久删除
-  fetchDeletionStatus: () => Promise<void>; // 获取删除状态
+  deleteAccount: () => Promise<{ success: boolean }>;
+  cancelDeletion: () => Promise<{ success: boolean }>;
+  confirmDeletion: () => Promise<{ success: boolean }>;
+  fetchDeletionStatus: () => Promise<void>;
 }
 
 export const useDeleteAccountStore = create<DeleteAccountState>()(
@@ -58,9 +61,12 @@ export const useDeleteAccountStore = create<DeleteAccountState>()(
     fetchDeletionStatus: async () => {
       try {
         const response = await authApi.getDeletionStatus();
-        set({ deletionStatus: response.data.data });
-      } catch (error: any) {
-        console.error("获取删除状态失败:", error);
+        if (response.data.data) {
+          set({ deletionStatus: response.data.data as DeletionStatus });
+        }
+      } catch (err: unknown) {
+        const error = err as ApiError;
+        console.error("获取删除状态失败:", error.response?.data?.message || error.message);
       }
     },
 
@@ -86,9 +92,9 @@ export const useDeleteAccountStore = create<DeleteAccountState>()(
         get().resetForm();
 
         return { success: true };
-      } catch (error: any) {
-        const errorMessage =
-          error?.response?.data?.message || "注销请求失败，请重试";
+      } catch (err: unknown) {
+        const error = err as ApiError;
+        const errorMessage = error.response?.data?.message || "注销请求失败，请重试";
         set({ error: errorMessage });
         return { success: false };
       } finally {
@@ -110,9 +116,9 @@ export const useDeleteAccountStore = create<DeleteAccountState>()(
         get().resetForm();
 
         return { success: true };
-      } catch (error: any) {
-        const errorMessage =
-          error?.response?.data?.message || "取消注销失败，请重试";
+      } catch (err: unknown) {
+        const error = err as ApiError;
+        const errorMessage = error.response?.data?.message || "取消注销失败，请重试";
         set({ error: errorMessage });
         return { success: false };
       } finally {
@@ -142,9 +148,9 @@ export const useDeleteAccountStore = create<DeleteAccountState>()(
         get().resetForm();
 
         return { success: true };
-      } catch (error: any) {
-        const errorMessage =
-          error?.response?.data?.message || "永久删除失败，请重试";
+      } catch (err: unknown) {
+        const error = err as ApiError;
+        const errorMessage = error.response?.data?.message || "永久删除失败，请重试";
         set({ error: errorMessage });
         return { success: false };
       } finally {

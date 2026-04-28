@@ -59,7 +59,8 @@ export function QuestionHeader({
     try {
       await navigator.clipboard.writeText(url);
       toast.success("链接已复制到剪贴板");
-    } catch (err) {
+    } catch {
+      // 捕获错误但不使用 err 变量
       toast.error("复制失败，请手动复制");
     }
   };

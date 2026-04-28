@@ -1,6 +1,18 @@
 // components/moderator/BannedUsersTable.tsx
+
+export interface BannedUser {
+  id: number;
+  user_id: number;
+  username: string;
+  reason: string;
+  created_at: string;
+  expires_at: string | null;
+  board_id: number;
+  banned_by: number;
+}
+
 interface BannedUsersTableProps {
-  users: any[];
+  users: BannedUser[];
   onUnban?: (userId: number) => void;
   isUnbanning: boolean;
   t: (key: string) => string;
@@ -33,10 +45,23 @@ export function BannedUsersTable({
           </tr>
         </thead>
         <tbody>
-          {users.map((user) => (
+          {users.map((user: BannedUser) => (
             <tr key={user.id}>
-              <td>{user.username}</td>
-              <td>{user.reason}</td>
+              <td>
+                <div className="flex items-center gap-2">
+                  <div className="avatar placeholder">
+                    <div className="w-8 h-8 rounded-full bg-error/10 text-error">
+                      <span className="text-xs font-medium">
+                        {user.username?.[0]?.toUpperCase() || "U"}
+                      </span>
+                    </div>
+                  </div>
+                  <span className="font-medium">{user.username}</span>
+                </div>
+              </td>
+              <td className="max-w-xs">
+                <p className="line-clamp-2 text-sm">{user.reason || t("no_reason")}</p>
+              </td>
               <td>{new Date(user.created_at).toLocaleDateString()}</td>
               <td>
                 {user.expires_at
@@ -46,10 +71,13 @@ export function BannedUsersTable({
               <td>
                 {onUnban && (
                   <button
-                    className="btn btn-xs btn-success"
+                    className="btn btn-xs btn-success gap-1"
                     onClick={() => onUnban(user.user_id)}
                     disabled={isUnbanning}
                   >
+                    {isUnbanning ? (
+                      <span className="loading loading-spinner loading-xs" />
+                    ) : null}
                     {t("unban")}
                   </button>
                 )}

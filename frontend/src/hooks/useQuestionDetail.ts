@@ -1,61 +1,72 @@
 // hooks/useQuestionDetail.ts
 import { useState, useEffect, useCallback } from "react";
-import type { Post, Comment } from "@/lib/api/types";
+import type { Post, Comment, ApiResponse } from "@/lib/api/types";
 import { toast } from "react-hot-toast";
-import { postApi, questionApi } from "@/lib/api";
+import { questionApi } from "@/lib/api";
 
-interface UseQuestionDetailOptions {
-  answerPage?: number;
-  answerPageSize?: number;
+// interface UseQuestionDetailOptions {
+//   answerPage?: number;
+//   answerPageSize?: number;
+// }
+
+interface QuestionDetailResponse {
+  post: Post;
+  answers: Comment[];
+  total: number;
 }
 
 export function useQuestionDetail(
   questionId: number,
-  options: UseQuestionDetailOptions = {},
+  // options: UseQuestionDetailOptions = {},
 ) {
-  const { answerPage = 1, answerPageSize = 20 } = options;
+  // const { answerPage = 1, answerPageSize = 20 } = options;
 
   const [question, setQuestion] = useState<Post | null>(null);
   const [answers, setAnswers] = useState<Comment[]>([]);
-  const [answersTotal, setAnswersTotal] = useState(0);
-  const [liked, setLiked] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [answersTotal, setAnswersTotal] = useState<number>(0);
+  const [liked, setLiked] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  const loadQuestion = useCallback(async () => {
+  const loadQuestion = useCallback(async (): Promise<void> => {
     if (!questionId) return;
 
     setLoading(true);
     setError(null);
 
     try {
-      const response = await questionApi.getDetail(questionId);
+      const response: { data: ApiResponse<QuestionDetailResponse> } = 
+        await questionApi.getDetail(questionId);
 
       console.log(response);
-      if (response.data.code === 0 || response.data.code === 0) {
+      
+      if (response.data.code === 0) {
         const data = response.data.data;
-        setQuestion(data.post);
-        setAnswers(data.answers || []);
-        setAnswersTotal(data.total || 0);
-        setLoading(false);
+        if (data) {
+          setQuestion(data.post);
+          setAnswers(data.answers || []);
+          setAnswersTotal(data.total || 0);
+        }
       } else {
         throw new Error(response.data.message || "加载失败");
       }
-    } catch (err: any) {
-      const errorMsg =
-        err.response?.data?.message || err.message || "加载问题失败";
+    } catch (err: unknown) {
+      const errorMsg = 
+        (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 
+        (err as Error)?.message || 
+        "加载问题失败";
       setError(errorMsg);
       toast.error(errorMsg);
     } finally {
       setLoading(false);
     }
-  }, [questionId, answerPage, answerPageSize]);
+  }, [questionId]); // 移除 answerPage 和 answerPageSize
 
-  const refresh = useCallback(() => {
+  const refresh = useCallback((): void => {
     loadQuestion();
   }, [loadQuestion]);
 
-  useEffect(() => {
+  useEffect((): void => {
     loadQuestion();
   }, [loadQuestion]);
 

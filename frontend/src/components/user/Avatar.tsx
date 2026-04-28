@@ -1,5 +1,6 @@
-// src/components/Avatar.tsx
+// src/components/user/Avatar.tsx
 import { useMemo, useState } from "react";
+import Image from "next/image";
 
 interface AvatarProps {
   username?: string;
@@ -15,6 +16,24 @@ interface AvatarProps {
   ringOffsetColor?: string;
 }
 
+// 尺寸映射
+const SIZE_MAP: Record<string, number> = {
+  sm: 32,
+  md: 40,
+  lg: 56,
+};
+
+// 圆角映射
+const ROUNDED_MAP: Record<string, string> = {
+  sm: "rounded-sm",
+  md: "rounded-md",
+  lg: "rounded-lg",
+  xl: "rounded-xl",
+  "2xl": "rounded-2xl",
+  "3xl": "rounded-3xl",
+  full: "rounded-full",
+};
+
 export default function Avatar({
   username,
   avatarUrl,
@@ -28,7 +47,7 @@ export default function Avatar({
   ringOffset = false,
   ringOffsetColor = "base-100",
 }: AvatarProps) {
-  const [hasError, setHasError] = useState(false);
+  const [hasError, setHasError] = useState<boolean>(false);
 
   // 计算尺寸样式
   const sizeStyle = useMemo(() => {
@@ -38,35 +57,23 @@ export default function Avatar({
     if (typeof size === "number") {
       return { width: size, height: size };
     }
-    const sizes = { sm: 32, md: 40, lg: 56 };
-    const pxSize = sizes[size];
+    const pxSize = SIZE_MAP[size];
     return { width: pxSize, height: pxSize };
   }, [size]);
 
   // 获取形状样式
-  const getShapeStyles = () => {
+  const getShapeStyles = (): string => {
     if (shape === "circle") return "rounded-full";
     if (shape === "rounded") {
       if (typeof roundedSize === "number") return `rounded-[${roundedSize}px]`;
-      const roundedSizes = {
-        sm: "rounded-sm",
-        md: "rounded-md",
-        lg: "rounded-lg",
-        xl: "rounded-xl",
-        "2xl": "rounded-2xl",
-        "3xl": "rounded-3xl",
-        full: "rounded-full",
-      };
-      return (
-        roundedSizes[roundedSize as keyof typeof roundedSizes] || "rounded-full"
-      );
+      return ROUNDED_MAP[roundedSize] || "rounded-full";
     }
     if (shape === "square") return "";
     return "";
   };
 
   // 获取环样式
-  const getRingStyles = () => {
+  const getRingStyles = (): string => {
     if (!ring) return "";
     const ringClass = `ring ring-${ringColor}`;
     const ringOffsetClass = ringOffset
@@ -75,7 +82,7 @@ export default function Avatar({
     return `${ringClass} ${ringOffsetClass}`;
   };
 
-  const handleError = () => {
+  const handleError = (): void => {
     if (!hasError) {
       setHasError(true);
       onError?.();
@@ -101,18 +108,26 @@ export default function Avatar({
     );
   }
 
+  // 判断是否为完整尺寸
+  const isFullSize = size === "full";
+  const imageWidth = isFullSize ? undefined : (sizeStyle.width as number);
+  const imageHeight = isFullSize ? undefined : (sizeStyle.height as number);
+
   return (
     <div className={`avatar ${className}`}>
       <div
         className={`overflow-hidden bg-base-200 flex items-center justify-center ${shapeStyle} ${ringStyle}`}
         style={sizeStyle}
       >
-        <img
+        <Image
           src={avatarUrl}
           alt={username || "用户头像"}
+          width={imageWidth}
+          height={imageHeight}
           className="w-full h-full object-cover"
           onError={handleError}
           loading="lazy"
+          unoptimized={!avatarUrl.startsWith("/") && !avatarUrl.includes("cdn")}
         />
       </div>
     </div>

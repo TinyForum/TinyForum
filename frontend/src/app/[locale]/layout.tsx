@@ -4,7 +4,7 @@ import Providers from "@/components/layout/Providers";
 import Navbar from "@/components/layout/Navbar";
 import { NextIntlClientProvider } from "next-intl";
 import { notFound } from "next/navigation";
-import { getTranslations } from "next-intl/server";
+import { getTranslations, getMessages } from "next-intl/server";
 import "../styles/globals.css";
 import AuthProvider from "@/components/providers/AuthProvider";
 
@@ -14,10 +14,15 @@ const firaCode = Fira_Code({
   variable: "--font-fira-code",
 });
 
+// 参数类型
+interface LayoutParams {
+  locale: string;
+}
+
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ locale: string }>;
+  params: Promise<LayoutParams>;
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "site" });
@@ -27,7 +32,7 @@ export async function generateMetadata({
   return {
     title: {
       default: brandName,
-      template: `%s | ${brandName}`, // 方便子页面拼接标题
+      template: `%s | ${brandName}`,
     },
     description: description,
     icons: [
@@ -42,14 +47,14 @@ export default async function RootLayout({
   params,
 }: {
   children: React.ReactNode;
-  params: Promise<{ locale: string }>;
+  params: Promise<LayoutParams>;
 }) {
   const { locale } = await params;
 
   let messages;
   try {
-    messages = (await import(`../../messages/${locale}.json`)).default;
-  } catch (error) {
+    messages = await getMessages({ locale });
+  } catch {
     notFound();
   }
 

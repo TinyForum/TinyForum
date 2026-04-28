@@ -104,29 +104,29 @@ export interface BanRecord {
 }
 
 // 申请状态
-type ApplicationStatus = "pending" | "approved" | "rejected" | "canceled";
+// type ApplicationStatus = "pending" | "approved" | "rejected" | "canceled";
 
 // 申请状态详情
-interface ApplicationStatusDetailResponse {
-  has_application: boolean;
-  application_id?: number;
-  status?: ApplicationStatus;
-  reason?: string;
-  created_at?: string;
-  review_note?: string;
-  reviewer_id?: number;
-  reviewed_at?: string | null;
-  can_cancel: boolean;
-  can_resubmit: boolean;
-  requested_perms?: {
-    delete_post: boolean;
-    pin_post: boolean;
-    edit_any_post: boolean;
-    manage_moderator: boolean;
-    ban_user: boolean;
-  };
-  can_apply: boolean;
-}
+// interface ApplicationStatusDetailResponse {
+//   has_application: boolean;
+//   application_id?: number;
+//   status?: ApplicationStatus;
+//   reason?: string;
+//   created_at?: string;
+//   review_note?: string;
+//   reviewer_id?: number;
+//   reviewed_at?: string | null;
+//   can_cancel: boolean;
+//   can_resubmit: boolean;
+//   requested_perms?: {
+//     delete_post: boolean;
+//     pin_post: boolean;
+//     edit_any_post: boolean;
+//     manage_moderator: boolean;
+//     ban_user: boolean;
+//   };
+//   can_apply: boolean;
+// }
 
 // types/moderator.ts
 export interface ModeratorBoard {

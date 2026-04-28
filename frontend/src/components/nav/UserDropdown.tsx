@@ -3,13 +3,12 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
   User as UserIcon,
   Settings,
   HelpCircle,
   LogOut,
-  LayoutDashboard,
   Sparkles,
   Bookmark,
   MessageCircleQuestion,
@@ -19,11 +18,9 @@ import {
   Eye,
 } from "lucide-react";
 import Avatar from "../user/Avatar";
-import { useAuthStore } from "@/store/auth";
 import { useLogoutStore } from "@/store/logout";
 import toast from "react-hot-toast";
 import { useTranslations } from "next-intl";
-import { useUserProfile } from "@/hooks/useUserProfile";
 import { User } from "@/lib/api";
 
 interface UserDropdownProps {
@@ -40,6 +37,7 @@ export default function UserDropdown({
   const router = useRouter();
   const t = useTranslations("Common");
   const { logout, isLoading } = useLogoutStore();
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   // 内部状态（非受控模式）
   const [internalIsOpen, setInternalIsOpen] = useState(false);
@@ -48,14 +46,17 @@ export default function UserDropdown({
   const isControlled = controlledIsOpen !== undefined;
   const isOpen = isControlled ? controlledIsOpen : internalIsOpen;
 
-  // 更新打开状态
-  const setIsOpen = (newIsOpen: boolean) => {
-    if (isControlled) {
-      onOpenChange?.(newIsOpen);
-    } else {
-      setInternalIsOpen(newIsOpen);
-    }
-  };
+  // 使用 useCallback 稳定化 setIsOpen 函数
+  const setIsOpen = useCallback(
+    (newIsOpen: boolean) => {
+      if (isControlled) {
+        onOpenChange?.(newIsOpen);
+      } else {
+        setInternalIsOpen(newIsOpen);
+      }
+    },
+    [isControlled, onOpenChange],
+  );
 
   // 处理点击外部关闭
   useEffect(() => {
@@ -63,15 +64,14 @@ export default function UserDropdown({
 
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
-      const dropdown = document.querySelector(".user-dropdown-container");
-      if (dropdown && !dropdown.contains(target)) {
+      if (dropdownRef.current && !dropdownRef.current.contains(target)) {
         setIsOpen(false);
       }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [isOpen]);
+  }, [isOpen, setIsOpen]); // 添加 setIsOpen 依赖
 
   // 处理 ESC 键关闭
   useEffect(() => {
@@ -85,7 +85,7 @@ export default function UserDropdown({
 
     document.addEventListener("keydown", handleEsc);
     return () => document.removeEventListener("keydown", handleEsc);
-  }, [isOpen]);
+  }, [isOpen, setIsOpen]); // 添加 setIsOpen 依赖
 
   // 处理登出
   const handleLogout = async () => {
@@ -95,7 +95,8 @@ export default function UserDropdown({
       setIsOpen(false);
       router.push("/");
       router.refresh();
-    } catch (error) {
+    } catch {
+      // 移除未使用的 error 变量
       toast.error(t("logout_failed"));
     }
   };
@@ -107,7 +108,6 @@ export default function UserDropdown({
 
   // 获取后台入口配置
   const getDashboardConfig = () => {
-    console.log("user role: ", user.role, "user role: ", user.role);
     const role = user?.role;
 
     if (role === "admin" || role === "super_admin") {
@@ -157,7 +157,6 @@ export default function UserDropdown({
   };
 
   const dashboardConfig = getDashboardConfig();
-  // console.log("dashboardConfig: ", dashboardConfig);
 
   // 是否有管理权限
   const hasManagementAccess =
@@ -167,9 +166,9 @@ export default function UserDropdown({
     user.role === "moderator" ||
     user.role === "member" ||
     user.role === "user";
-  console.log("hasManagementAccess: ", hasManagementAccess);
+
   return (
-    <div className="dropdown dropdown-end user-dropdown-container">
+    <div className="dropdown dropdown-end user-dropdown-container" ref={dropdownRef}>
       <div
         tabIndex={0}
         role="button"
@@ -255,7 +254,6 @@ export default function UserDropdown({
           <div className="divider my-1"></div>
 
           {/* 版主申请入口 */}
-          {/* TODO: 返回用户是否已经申请 */}
           {user.role && (
             <li onClick={handleMenuClick}>
               <Link href="/boards/applications" className="gap-2">

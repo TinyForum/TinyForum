@@ -2,10 +2,12 @@ import { useEffect, useRef } from "react";
 import * as echarts from "echarts";
 import { useStatsData } from "@/hooks/admin/useStatsData";
 import { Activity, Award, Database, FileText, Users } from "lucide-react";
+import { useTranslations } from "next-intl";
 
-export function Statistics({ t }: { t: (key: string) => string }) {
+export function Statistics() {
   const { stats, charts, exportData, isLoading } = useStatsData(true);
 
+  const t = useTranslations("Admin");
   const userChartRef = useRef<HTMLDivElement>(null);
   const postChartRef = useRef<HTMLDivElement>(null);
 

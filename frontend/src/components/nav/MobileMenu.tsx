@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  User,
   Settings,
   HelpCircle,
   LogOut,
@@ -14,17 +13,25 @@ import {
   Bookmark,
   MessageCircleQuestion,
   LayoutGrid,
+  type LucideIcon,
 } from "lucide-react";
 import Image from "next/image";
 import Avatar from "../user/Avatar";
 import { useTranslations } from "next-intl";
+import type { User as UserType } from "@/lib/api/types";
+
+interface NavItem {
+  key: string;
+  href: string;
+  icon: LucideIcon;
+}
 
 interface MobileMenuProps {
   isOpen: boolean;
   onClose: () => void;
-  navItems: any[];
+  navItems: NavItem[];
   isAuthenticated: boolean;
-  user: any;
+  user: UserType | null;
   onLogout: () => void;
   unreadCount: number;
 }
@@ -40,11 +47,10 @@ export default function MobileMenu({
 }: MobileMenuProps) {
   const pathname = usePathname();
   const t = useTranslations("Nav");
-  // 如果某些文本不在 Nav 命名空间，可以再引入其他翻译，这里为了简洁统一使用 t 并假设已添加对应 key
 
   if (!isOpen) return null;
 
-  const isActive = (href: string) => {
+  const isActive = (href: string): boolean => {
     if (href === "/") return pathname === href;
     return pathname.startsWith(href);
   };
@@ -111,7 +117,7 @@ export default function MobileMenu({
             <div className="text-xs font-semibold text-base-content/50 mb-2 px-3">
               {t("navigation")}
             </div>
-            {navItems.map((item) => {
+            {navItems.map((item: NavItem) => {
               const active = isActive(item.href);
               const Icon = item.icon;
               return (
@@ -210,9 +216,9 @@ export default function MobileMenu({
                   <span>{t("help")}</span>
                 </Link>
 
-                {user?.role === "admin" && (
+                {(user?.role === "admin" || user?.role === "super_admin") && (
                   <Link
-                    href="/admin"
+                    href="/dashboard/admin"
                     onClick={onClose}
                     className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-base-200 transition-colors text-primary"
                   >

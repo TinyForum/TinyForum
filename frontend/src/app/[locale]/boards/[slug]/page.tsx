@@ -2,9 +2,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import Link from "next/link";
-import { useQuery, keepPreviousData } from "@tanstack/react-query"; // 导入 keepPreviousData
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { boardApi } from "@/lib/api";
 import { useAuthStore } from "@/store/auth";
 import {
@@ -17,13 +17,19 @@ import {
 import { BoardPostCard } from "@/components/boards/BoardPostCard";
 import { CreateBoardInline } from "@/components/boards/CreateBoardInline";
 import type { Board, PageData } from "@/lib/api/types";
-import { BoardPostListItem } from "@/lib/api/modules/boards";
+import type { BoardPostListItem } from "@/lib/api/modules/boards";
 
 const PAGE_SIZE = 20;
 
+// 定义错误响应类型
+interface ErrorResponse {
+  response?: {
+    status: number;
+  };
+}
+
 export default function BoardDetailPage() {
   const params = useParams();
-  const router = useRouter();
   const { user } = useAuthStore();
   const slug = params.slug as string;
 
@@ -37,27 +43,31 @@ export default function BoardDetailPage() {
   } = useQuery({
     queryKey: ["board", slug],
     queryFn: () => boardApi.getBySlug(slug).then((res) => res.data.data),
-    retry: (failureCount, error: any) => {
+    retry: (failureCount, error: ErrorResponse) => {
       if (error.response?.status === 404) return false;
       return failureCount < 2;
     },
   });
 
-  // 查询帖子列表 - 添加泛型类型
+  // 查询帖子列表 - 修复类型问题
   const {
     data: postsData,
     isLoading: loadingPosts,
-    error: postsError,
-  } = useQuery<PageData<BoardPostListItem>>({
+  } = useQuery({
     queryKey: ["board-posts", slug, page],
-    queryFn: () =>
-      boardApi
-        .getPostsBySlug(slug, { page, page_size: PAGE_SIZE })
-        .then((res) => res.data.data), // 返回类型应为 PageData<BoardPostListItem>
+    queryFn: async () => {
+      const res = await boardApi.getPostsBySlug(slug, { 
+        page, 
+        page_size: PAGE_SIZE 
+      });
+      // 确保返回的数据不为 undefined
+      return res.data.data as PageData<BoardPostListItem>;
+    },
     enabled: !!board,
-    placeholderData: keepPreviousData, // 替代 keepPreviousData: true
+    placeholderData: keepPreviousData,
   });
 
+  // 安全地访问数据
   const posts = postsData?.list ?? [];
   const total = postsData?.total ?? 0;
   const totalPages = Math.ceil(total / PAGE_SIZE);
@@ -68,11 +78,11 @@ export default function BoardDetailPage() {
   }, [slug]);
 
   const handleBoardCreated = (newBoard: Board) => {
-    // 板块创建成功后的回调（可留空，或使用 router.refresh() 刷新）
     console.log("Board created", newBoard);
   };
 
-  const isNotFound = boardError && (boardError as any).response?.status === 404;
+  // 检查是否为 404 错误
+  const isNotFound = boardError && (boardError as ErrorResponse).response?.status === 404;
 
   if (loadingBoard) {
     return <LoadingSkeleton />;
@@ -111,8 +121,8 @@ export default function BoardDetailPage() {
       ) : (
         <>
           <div className="space-y-3">
-            {posts.map((post) => (
-              <BoardPostCard key={post.id} post={post} /> // 现在 BoardPostCard 应兼容 BoardPostListItem
+            {posts.map((post: BoardPostListItem) => (
+              <BoardPostCard key={post.id} post={post} />
             ))}
           </div>
           {totalPages > 1 && (
@@ -128,18 +138,18 @@ export default function BoardDetailPage() {
   );
 }
 
-// 其余子组件 (BoardHeader, EmptyState, Pagination, LoadingSkeleton, PostsSkeleton) 与之前相同，略...
-
 // 子组件：板块头部
-function BoardHeader({
-  board,
-  slug,
-  user,
-}: {
+interface BoardHeaderProps {
   board: Board;
   slug: string;
-  user: any;
-}) {
+  user: {
+    id: number;
+    username: string;
+    role?: string;
+  } | null;
+}
+
+function BoardHeader({ board, slug, user }: BoardHeaderProps) {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm p-6 mb-6">
       <div className="flex items-start justify-between gap-4">
@@ -232,6 +242,7 @@ function Pagination({
         onClick={() => onPageChange(page - 1)}
         disabled={page === 1}
         className="p-2 rounded-lg border border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+        aria-label="上一页"
       >
         <ChevronLeftIcon className="w-4 h-4" />
       </button>
@@ -243,6 +254,7 @@ function Pagination({
         onClick={() => onPageChange(page + 1)}
         disabled={page >= totalPages}
         className="p-2 rounded-lg border border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+        aria-label="下一页"
       >
         <ChevronRightIcon className="w-4 h-4" />
       </button>
@@ -271,6 +283,7 @@ function LoadingSkeleton() {
   );
 }
 
+// 帖子列表骨架屏
 function PostsSkeleton() {
   return (
     <div className="space-y-3">

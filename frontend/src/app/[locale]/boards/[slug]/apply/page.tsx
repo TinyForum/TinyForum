@@ -91,7 +91,10 @@ export default function ApplyModeratorPage() {
     setLoadingBoard(true);
     try {
       const res = await boardApi.getBySlug(slug);
+      if (res.data.data) {
+        
       setBoard(res.data.data);
+      }
     } catch {
       router.push("/boards");
     } finally {
@@ -161,8 +164,8 @@ export default function ApplyModeratorPage() {
     try {
       await moderatorApi.applyModerator(board.id, formData);
       router.push(`/boards/${slug}?applied=1`);
-    } catch (err: any) {
-      setError(err.response?.data?.message || "提交失败，请稍后重试");
+    } catch {
+      setError( "提交失败，请稍后重试");
     } finally {
       setSubmitting(false);
     }

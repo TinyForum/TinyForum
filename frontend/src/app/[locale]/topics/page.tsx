@@ -1,25 +1,29 @@
 // app/[locale]/topics/page.tsx (话题列表页)
 "use client";
 
-import { useState, useEffect } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, useCallback } from "react";
 import { useAuthStore } from "@/store/auth";
 import { topicApi } from "@/lib/api/modules/topics";
 import { toast } from "react-hot-toast";
 import {
   PlusIcon,
-  HeartIcon,
   UserGroupIcon,
   DocumentTextIcon,
-  CalendarIcon,
-  GlobeAltIcon,
-  LockClosedIcon,
   XMarkIcon,
   FireIcon,
 } from "@heroicons/react/24/outline";
 import type { Topic } from "@/lib/api/types";
 import { TopicCard } from "@/components/topic/TopicCard";
+
+// 错误响应类型
+interface ErrorResponse {
+  response?: {
+    data?: {
+      message?: string;
+    };
+  };
+  message?: string;
+}
 
 // 加载骨架屏组件
 function LoadingSkeleton() {
@@ -124,7 +128,7 @@ function Pagination({
   totalPages: number;
   onPageChange: (page: number) => void;
 }) {
-  const getPageNumbers = () => {
+  const getPageNumbers = (): number[] => {
     const pages: number[] = [];
     const maxVisible = 5;
 
@@ -305,6 +309,7 @@ function CreateTopicModal({
               />
               {form.cover && (
                 <div className="mt-3 rounded-xl overflow-hidden border border-base-200">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={form.cover}
                     alt="封面预览"
@@ -363,8 +368,7 @@ function CreateTopicModal({
 }
 
 export default function TopicsPage() {
-  const router = useRouter();
-  const { isAuthenticated, user } = useAuthStore();
+  const { isAuthenticated } = useAuthStore();
   const [topics, setTopics] = useState<Topic[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -373,24 +377,27 @@ export default function TopicsPage() {
   const pageSize = 20;
 
   // 加载话题列表
-  const loadTopics = async () => {
+  const loadTopics = useCallback(async () => {
     setLoading(true);
     try {
       const response = await topicApi.list({ page, page_size: pageSize });
-      if (response.data.code === 200) {
-        const { list, total: totalCount } = response.data.data;
-        setTopics(list || []);
-        setTotal(totalCount || 0);
+      if (response.data.code === 0) {
+        // 修复：安全地访问 data 属性
+        const data = response.data.data;
+        setTopics(data?.list || []);
+        setTotal(data?.total || 0);
       } else {
         toast.error(response.data.message || "加载失败");
       }
-    } catch (error: any) {
-      console.error("Failed to load topics:", error);
+    } catch (err: unknown) {
+      console.error("Failed to load topics:", err);
+      const error = err as ErrorResponse;
       toast.error(error.response?.data?.message || "加载失败");
     } finally {
       setLoading(false);
     }
-  };
+  }, [page]);
+
 
   // 创建话题
   const handleCreateTopic = async (data: {
@@ -407,23 +414,23 @@ export default function TopicsPage() {
         is_public: data.is_public,
       });
 
-      if (response.data.code === 200 || response.data.code === 201) {
+      if (response.data.code === 0) {
         toast.success("话题创建成功");
         await loadTopics();
-        return Promise.resolve();
       } else {
         toast.error(response.data.message || "创建失败");
-        return Promise.reject();
+        throw new Error(response.data.message);
       }
-    } catch (error: any) {
+    } catch (err: unknown) {
+      const error = err as ErrorResponse;
       toast.error(error.response?.data?.message || "创建失败");
-      return Promise.reject();
+      throw err;
     }
   };
 
   useEffect(() => {
     loadTopics();
-  }, [page]);
+  }, [loadTopics]);
 
   const totalPages = Math.ceil(total / pageSize);
 

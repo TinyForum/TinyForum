@@ -1,10 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useState, useEffect, useCallback } from "react";
+import { useParams,} from "next/navigation";
 import Link from "next/link";
 import { announcementApi } from "@/lib/api";
-import { toast } from "react-hot-toast";
 import {
   MegaphoneIcon,
   CalendarIcon,
@@ -17,6 +16,17 @@ import {
   AlertTriangleIcon,
 } from "lucide-react";
 import type { Announcement } from "@/lib/api/modules/announcements";
+
+// 错误响应类型
+interface ErrorResponse {
+  response?: {
+    status?: number;
+    data?: {
+      message?: string;
+    };
+  };
+  message?: string;
+}
 
 // 公告类型配置 - 使用主题色
 const TYPE_CONFIG: Record<
@@ -106,12 +116,11 @@ function ErrorState({ message }: { message: string }) {
 
 export default function AnnouncementDetailPage() {
   const params = useParams();
-  const router = useRouter();
   const [announcement, setAnnouncement] = useState<Announcement | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const loadAnnouncement = async () => {
+  const loadAnnouncement =useCallback(async () => {
     const id = parseInt(params.id as string);
     if (isNaN(id)) {
       setError("无效的公告ID");
@@ -124,12 +133,16 @@ export default function AnnouncementDetailPage() {
     try {
       const response = await announcementApi.getById(id);
       if (response.data.code === 0) {
-        setAnnouncement(response.data.data);
+        if (response.data.data) {
+          setAnnouncement(response.data.data);
+        }
+        
       } else {
         setError(response.data.message || "公告不存在");
       }
-    } catch (error: any) {
-      console.error("Failed to load announcement:", error);
+    } catch (err: unknown) {
+      console.error("Failed to load announcement:", err);
+      const error = err as ErrorResponse;
       if (error.response?.status === 404) {
         setError("公告不存在");
       } else {
@@ -138,11 +151,11 @@ export default function AnnouncementDetailPage() {
     } finally {
       setLoading(false);
     }
-  };
+  },[params.id]);
 
   useEffect(() => {
     loadAnnouncement();
-  }, [params.id]);
+  }, [params.id,loadAnnouncement]);
 
   const formatDate = (dateStr: string | null, withTime: boolean = true) => {
     if (!dateStr) return "待发布";

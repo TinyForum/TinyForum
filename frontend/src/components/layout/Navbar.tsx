@@ -6,28 +6,19 @@ import { useAuthStore } from "@/store";
 import { notificationApi, timelineApi } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
 import {
-  Bell,
-  PenSquare,
-  Search,
-  LogOut,
-  User,
-  LayoutDashboard,
+
   Trophy,
   Menu,
   Home,
-  TrendingUp,
   Bookmark,
-  Settings,
-  HelpCircle,
-  TelescopeIcon,
+
   Sparkles,
   MessageCircleQuestion,
   LayoutGrid,
   Compass,
 } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, } from "react";
 import Image from "next/image";
-import Avatar from "../user/Avatar";
 import { useTranslations } from "next-intl";
 import LanguageSwitcher from "../LanguageSwitcher";
 import SearchBar from "../nav/SearchBar";
@@ -44,7 +35,6 @@ export default function Navbar() {
   const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const searchInputRef = useRef<HTMLInputElement>(null);
   const [isOpen, setIsOpen] = useState(false);
   const t = useTranslations("Nav");
 
@@ -70,13 +60,7 @@ export default function Navbar() {
   const unreadCount = unreadData?.count ?? 0;
   const timelineUpdateCount = timelineData?.total ?? 0;
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
-      setSearchQuery("");
-    }
-  };
+
 
   const NAV_ITEMS = [
     {

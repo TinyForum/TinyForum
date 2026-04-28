@@ -7,11 +7,14 @@
 import { UserRoleType } from "@/type/roles.types";
 // ─── 通用包装 ─────────────────────────────────────────────────────────────────
 
-export interface ApiResponse<T> {
+// api/types/index.ts
+export interface ApiResponse<T = unknown> {
   code: number;
   message: string;
-  data: T;
+  data?: T;  // 改为可选
 }
+
+
 
 export interface PageData<T> {
   list: T[];

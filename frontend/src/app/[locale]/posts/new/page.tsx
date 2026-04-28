@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { postApi, tagApi, boardApi } from "@/lib/api";
@@ -13,7 +13,7 @@ import { getErrorMessage } from "@/lib/utils";
 import { FileText, Send, X, FolderOpen } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
-import type { Board, PostStatus } from "@/lib/api/types"; // 确保 PostStatus 已导出
+import type { Board, Tag, ApiResponse } from "@/lib/api/types";
 
 // 增强的校验规则：草稿状态下内容最短可为 0，其他状态至少 10 字符
 const postSchema = z
@@ -45,9 +45,16 @@ const postSchema = z
 
 type PostForm = z.infer<typeof postSchema>;
 
+interface BoardListResponse {
+  list: Board[];
+  total: number;
+  page: number;
+  page_size: number;
+}
+
 export default function NewPostPage() {
   const router = useRouter();
-  const { isAuthenticated, user } = useAuthStore();
+  const { isAuthenticated } = useAuthStore();
   const [loading, setLoading] = useState(false);
   const t = useTranslations("posts");
 
@@ -58,22 +65,21 @@ export default function NewPostPage() {
   }, [isAuthenticated, router]);
 
   // 获取板块列表
-  const { data: boards, isLoading: boardsLoading } = useQuery({
+  const { data: boardsData, isLoading: boardsLoading } = useQuery({
     queryKey: ["boards"],
-    queryFn: () => boardApi.list().then((r) => r.data.data.list || []),
+    queryFn: () => boardApi.list().then((r: { data: ApiResponse<BoardListResponse> }) => r.data.data?.list || []),
   });
 
   // 获取标签列表
-  const { data: tags } = useQuery({
+  const { data: tagsData } = useQuery({
     queryKey: ["tags"],
-    queryFn: () => tagApi.list().then((r) => r.data.data),
+    queryFn: () => tagApi.list().then((r: { data: ApiResponse<Tag[]> }) => r.data.data || []),
   });
 
   const {
     register,
     handleSubmit,
     control,
-    watch,
     setValue,
     formState: { errors },
   } = useForm<PostForm>({
@@ -82,20 +88,21 @@ export default function NewPostPage() {
       type: "post",
       board_id: undefined,
       tag_ids: [],
-      status: "published", // 默认发布状态
+      status: "published",
+      content: "",
     },
   });
 
-  const selectedTagIds = watch("tag_ids");
-  const selectedBoardId = watch("board_id");
-  const selectedStatus = watch("status");
+  // 使用 useWatch 替代 watch
+  const selectedTagIds = useWatch({ control, name: "tag_ids", defaultValue: [] });
+  const selectedStatus = useWatch({ control, name: "status", defaultValue: "published" });
 
   const toggleTag = (tagId: number) => {
     const current = selectedTagIds ?? [];
     if (current.includes(tagId)) {
       setValue(
         "tag_ids",
-        current.filter((id) => id !== tagId),
+        current.filter((id: number) => id !== tagId),
       );
     } else if (current.length < 5) {
       setValue("tag_ids", [...current, tagId]);
@@ -116,7 +123,7 @@ export default function NewPostPage() {
       board_id: data.board_id,
       cover: data.cover || undefined,
       summary: data.summary || undefined,
-      status: data.status, // 明确传递状态
+      status: data.status,
     };
     console.log(requestBody);
 
@@ -124,7 +131,12 @@ export default function NewPostPage() {
       const response = await postApi.create(requestBody);
       toast.success(t("publish_success"));
       console.log(response);
-      router.push(`/posts/${response.data.data.id}`);
+      const postId = response.data.data?.id;
+      if (postId) {
+        router.push(`/posts/${postId}`);
+      } else {
+        router.push("/posts");
+      }
     } catch (err) {
       toast.error(getErrorMessage(err));
     } finally {
@@ -134,7 +146,10 @@ export default function NewPostPage() {
 
   if (!isAuthenticated) return null;
 
-  // 状态选项配置（可配合 i18n 使用）
+  const boards = boardsData ?? [];
+  const tags = tagsData ?? [];
+
+  // 状态选项配置
   const statusOptions = [
     { value: "draft", label: "草稿", desc: "仅自己可见，可继续编辑" },
     { value: "published", label: "发布", desc: "直接公开" },
@@ -176,7 +191,7 @@ export default function NewPostPage() {
                 {boardsLoading ? (
                   <option disabled>加载中...</option>
                 ) : (
-                  (boards ?? []).map((board: Board) => (
+                  boards.map((board: Board) => (
                     <option key={board.id} value={board.id}>
                       {board.name}{" "}
                       {board.description ? `- ${board.description}` : ""}
@@ -231,7 +246,7 @@ export default function NewPostPage() {
               </div>
             </div>
 
-            {/* 文章状态 (新增) */}
+            {/* 文章状态 */}
             <div className="form-control">
               <label className="label pb-1">
                 <span className="label-text font-medium">
@@ -292,7 +307,7 @@ export default function NewPostPage() {
                 </span>
               </label>
               <div className="flex flex-wrap gap-2">
-                {(tags ?? []).map((tag) => {
+                {tags.map((tag: Tag) => {
                   const selected = selectedTagIds?.includes(tag.id);
                   return (
                     <button
@@ -370,7 +385,7 @@ export default function NewPostPage() {
           <label className="label pb-2">
             <span className="label-text font-medium text-base">
               {t("post_content")}
-              {watch("status") !== "draft" && (
+              {selectedStatus !== "draft" && (
                 <span className="text-error">*</span>
               )}
             </span>
@@ -410,7 +425,7 @@ export default function NewPostPage() {
             ) : (
               <Send className="w-4 h-4" />
             )}
-            {watch("status") === "draft" ? "保存草稿" : t("publish_post")}
+            {selectedStatus === "draft" ? "保存草稿" : t("publish_post")}
           </button>
         </div>
       </form>

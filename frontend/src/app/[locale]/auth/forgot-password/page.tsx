@@ -2,14 +2,13 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import toast from "react-hot-toast";
 import { Mail, ArrowLeft, Send } from "lucide-react";
-import { useTranslations, useLocale } from "next-intl";
+import { useTranslations, } from "next-intl";
 
 const forgotPasswordSchema = z.object({
   email: z.string().email("请输入有效的邮箱"),
@@ -18,8 +17,6 @@ const forgotPasswordSchema = z.object({
 type ForgotPasswordForm = z.infer<typeof forgotPasswordSchema>;
 
 export default function ForgotPasswordPage() {
-  const router = useRouter();
-  const locale = useLocale();
   const t = useTranslations("Auth");
 
   const [isLoading, setIsLoading] = useState(false);
@@ -37,7 +34,7 @@ export default function ForgotPasswordPage() {
     },
   });
 
-  const onSubmit = async (data: ForgotPasswordForm) => {
+  const onSubmit = async () => {
     setIsLoading(true);
 
     try {
@@ -54,7 +51,7 @@ export default function ForgotPasswordPage() {
       // 假设总是成功（实际应该根据 API 响应判断）
       setIsEmailSent(true);
       toast.success("重置密码链接已发送到您的邮箱");
-    } catch (error) {
+    } catch {
       toast.error("发送失败，请稍后重试");
     } finally {
       setIsLoading(false);
@@ -64,7 +61,7 @@ export default function ForgotPasswordPage() {
   const handleResendEmail = () => {
     const email = getValues("email");
     if (email) {
-      onSubmit({ email });
+      onSubmit();
     }
   };
 

@@ -1,53 +1,63 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { userApi } from "@/lib/api";
 import { useAuthStore } from "@/store/auth";
 import toast from "react-hot-toast";
 import { getErrorMessage } from "@/lib/utils";
-import { Save, AlertCircle, CheckCircle, Camera } from "lucide-react";
+import { Save, AlertCircle, Camera } from "lucide-react";
 import Avatar from "@/components/user/Avatar";
+import type { User } from "@/lib/api/types";
 
+// 注意：User 接口中没有 displayName, location, website 字段
+// 这些可能是扩展字段，或者需要使用其他字段名
 const profileSchema = z.object({
-  bio: z.string().max(500, "个人简介最多500字"),
+  bio: z.string().max(500, "个人简介最多500字").optional().default(""),
   avatar: z.string().url("请输入有效的图片URL").optional().or(z.literal("")),
-  displayName: z.string().optional(),
-  location: z.string().optional(),
-  website: z.string().url("请输入有效的网址").optional().or(z.literal("")),
+  // displayName: z.string().optional().default(""), // User 接口中没有此字段
+  // location: z.string().optional().default(""),   // User 接口中没有此字段
+  // website: z.string().url("请输入有效的网址").optional().or(z.literal("")), // User 接口中没有此字段
 });
 
 type ProfileForm = z.infer<typeof profileSchema>;
 
 interface ProfileSettingsProps {
-  user: any;
+  user: User;
 }
 
 export default function ProfileSettings({ user }: ProfileSettingsProps) {
   const { updateUser } = useAuthStore();
-  const [loading, setLoading] = useState(false);
-  const [avatarError, setAvatarError] = useState(false);
-  const [previewAvatarUrl, setPreviewAvatarUrl] = useState("");
+  const [loading, setLoading] = useState<boolean>(false);
+  const [previewAvatarUrl, setPreviewAvatarUrl] = useState<string>("");
 
   const {
     register,
     handleSubmit,
-    watch,
+    control,
     formState: { errors, isDirty },
   } = useForm<ProfileForm>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
       bio: user?.bio || "",
       avatar: user?.avatar || "",
-      displayName: user?.displayName || "",
-      location: user?.location || "",
-      website: user?.website || "",
     },
   });
 
-  const avatarValue = watch("avatar");
+  // 使用 useWatch 替代 watch
+  const avatarValue = useWatch({
+    control,
+    name: "avatar",
+    defaultValue: "",
+  });
+
+  const bioValue = useWatch({
+    control,
+    name: "bio",
+    defaultValue: "",
+  });
 
   useEffect(() => {
     if (avatarValue && avatarValue !== user?.avatar) {
@@ -57,20 +67,22 @@ export default function ProfileSettings({ user }: ProfileSettingsProps) {
     }
   }, [avatarValue, user?.avatar]);
 
-  const onSubmit = async (data: ProfileForm) => {
+  const onSubmit = async (data: ProfileForm): Promise<void> => {
     setLoading(true);
     try {
       await userApi.updateProfile(data);
-      updateUser(data);
+      // 更新本地用户信息
+      updateUser({ ...user, ...data });
       toast.success("资料已更新");
-      setAvatarError(false);
       setPreviewAvatarUrl("");
-    } catch (err) {
+    } catch (err: unknown) {
       toast.error(getErrorMessage(err));
     } finally {
       setLoading(false);
     }
   };
+
+  const bioLength = bioValue?.length || 0;
 
   return (
     <div className="space-y-6">
@@ -93,7 +105,6 @@ export default function ProfileSettings({ user }: ProfileSettingsProps) {
                     avatarUrl={previewAvatarUrl || user.avatar}
                     username={user.username}
                     shape="square"
-                    onError={() => setAvatarError(true)}
                   />
                 </div>
               </div>
@@ -113,22 +124,6 @@ export default function ProfileSettings({ user }: ProfileSettingsProps) {
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 mt-4">
-            {/* 显示名称 */}
-            <div className="form-control">
-              <label className="label pb-1">
-                <span className="label-text font-medium">显示名称</span>
-                <span className="label-text-alt text-base-content/40">
-                  可选
-                </span>
-              </label>
-              <input
-                {...register("displayName")}
-                type="text"
-                placeholder="您的显示名称"
-                className="input input-bordered focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
-              />
-            </div>
-
             {/* 头像URL */}
             <div className="form-control">
               <label className="label pb-1">
@@ -158,46 +153,6 @@ export default function ProfileSettings({ user }: ProfileSettingsProps) {
               </label>
             </div>
 
-            {/* 所在地 */}
-            <div className="form-control">
-              <label className="label pb-1">
-                <span className="label-text font-medium">所在地</span>
-                <span className="label-text-alt text-base-content/40">
-                  可选
-                </span>
-              </label>
-              <input
-                {...register("location")}
-                type="text"
-                placeholder="城市, 国家"
-                className="input input-bordered focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
-              />
-            </div>
-
-            {/* 个人网站 */}
-            <div className="form-control">
-              <label className="label pb-1">
-                <span className="label-text font-medium">个人网站</span>
-                <span className="label-text-alt text-base-content/40">
-                  可选
-                </span>
-              </label>
-              <input
-                {...register("website")}
-                type="url"
-                placeholder="https://yourwebsite.com"
-                className={`input input-bordered focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all ${errors.website ? "input-error" : ""}`}
-              />
-              {errors.website && (
-                <label className="label pt-1">
-                  <span className="label-text-alt text-error flex items-center gap-1">
-                    <AlertCircle className="w-3 h-3" />
-                    {errors.website.message}
-                  </span>
-                </label>
-              )}
-            </div>
-
             {/* 个人简介 */}
             <div className="form-control">
               <label className="label pb-1">
@@ -225,9 +180,9 @@ export default function ProfileSettings({ user }: ProfileSettingsProps) {
                   支持Markdown格式
                 </span>
                 <span
-                  className={`text-xs ${(watch("bio")?.length || 0) > 450 ? "text-warning" : "text-base-content/40"}`}
+                  className={`text-xs ${bioLength > 450 ? "text-warning" : "text-base-content/40"}`}
                 >
-                  {watch("bio")?.length || 0}/500
+                  {bioLength}/500
                 </span>
               </div>
             </div>

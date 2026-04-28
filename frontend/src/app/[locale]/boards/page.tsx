@@ -29,11 +29,19 @@ export default function BoardsPage() {
     try {
       const res = await boardApi.list({ page, page_size: pageSize });
       const pageData = res.data.data;
-      setBoards(pageData.list || []);
-      setTotal(pageData.total || 0);
+      
+      // 添加安全检查
+      if (pageData) {
+        setBoards(pageData.list || []);
+        setTotal(pageData.total || 0);
+      } else {
+        setBoards([]);
+        setTotal(0);
+      }
     } catch (err) {
       console.error("Failed to load boards:", err);
       setBoards([]);
+      setTotal(0);
     } finally {
       setLoading(false);
     }
@@ -189,7 +197,7 @@ export default function BoardsPage() {
                     未找到相关板块
                   </h3>
                   <p className="text-base-content/60 text-sm mb-4">
-                    没有找到匹配 "{search}" 的板块
+                    {`没有找到匹配 ${search} 的板块`}
                   </p>
                   <button
                     onClick={() => setSearch("")}

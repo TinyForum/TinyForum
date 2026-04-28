@@ -2,6 +2,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useTranslations } from "next-intl";
 import {
   useModeratorPermissions,
@@ -16,18 +17,17 @@ import { useModeratorBannedUsers } from "@/hooks/moderators/useModeratorBannedUs
 import { useModeratorPosts } from "@/hooks/moderators/useModeratorPosts";
 import { useModeratorReports } from "@/hooks/moderators/useModeratorReports";
 import { Pagination } from "@/components/admin/Pagination";
-import { BannedUsersTable } from "@/components/moderator/BannedUsersTable";
+import { BannedUser, BannedUsersTable } from "@/components/moderator/BannedUsersTable";
 import { BanUserModal } from "@/components/moderator/BanUserModal";
-import { ReportedContentTable } from "@/components/moderator/ReportedContentTable";
+import { Report, ReportedContentTable } from "@/components/moderator/ReportedContentTable";
 import { ModeratorDashboard } from "@/components/moderator/ModeratorDashboard";
 import { ModeratorSidebar } from "@/components/moderator/ModeratorSidebar";
-import { PendingPostsTable } from "@/components/moderator/PendingPostsTable";
+import { PendingPost, PendingPostsTable } from "@/components/moderator/PendingPostsTable";
 import SearchBar from "@/components/nav/SearchBar";
-import { ModeratorBoard } from "@/lib/api/modules/moderator";
-
+import type {  ModeratorBoard } from "@/lib/api/modules/moderator";
 export default function ModeratorPage() {
   const t = useTranslations("Moderator");
-  const { isCheckingAuth, isModerator, user } = useModeratorAuth();
+  const { isCheckingAuth, isModerator } = useModeratorAuth();
 
   const [activeMenu, setActiveMenu] = useState("dashboard");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -37,7 +37,7 @@ export default function ModeratorPage() {
 
   // 获取当前用户管理的板块
   const { data: boardsData, isLoading: boardsLoading } = useMyModeratorBoards();
-  const boards: ModeratorBoard[] = boardsData || []; // 明确类型为数组
+  const boards: ModeratorBoard[] = boardsData || [];
 
   // 选择第一个板块作为默认板块
   const currentBoardId =
@@ -137,9 +137,9 @@ export default function ModeratorPage() {
           <p className="text-base-content/60 mb-4">
             {t("no_managed_boards_desc")}
           </p>
-          <a href="/boards/apply" className="btn btn-primary">
+          <Link href="/boards/apply" className="btn btn-primary">
             {t("apply_for_moderator")}
-          </a>
+          </Link>
         </div>
       </div>
     );
@@ -147,7 +147,7 @@ export default function ModeratorPage() {
 
   // 渲染右侧内容
   const renderContent = () => {
-    if (!currentBoardId) {
+    if (!currentBoardId || !currentBoard) {
       return (
         <div className="card bg-base-100 border border-base-300">
           <div className="card-body items-center text-center py-12">
@@ -184,7 +184,7 @@ export default function ModeratorPage() {
               placeholder={t("search_posts")}
             />
             <PendingPostsTable
-              posts={postsData.posts || []}
+              posts={postsData.posts as unknown  as PendingPost[]}
               onDelete={
                 permissions.canDeletePost ? handleDeletePost : undefined
               }
@@ -207,7 +207,7 @@ export default function ModeratorPage() {
         return (
           <div className="space-y-4">
             <ReportedContentTable
-              reports={reportsData.reports || []}
+              reports={reportsData.reports as unknown as Report[]}
               onDeletePost={
                 permissions.canDeletePost ? handleDeletePost : undefined
               }
@@ -240,7 +240,7 @@ export default function ModeratorPage() {
               </div>
             )}
             <BannedUsersTable
-              users={bannedUsersData.users || []}
+              users={bannedUsersData.users as unknown as BannedUser[]}
               onUnban={permissions.canBanUser ? handleUnbanUser : undefined}
               isUnbanning={isUnbanning}
               t={t}
@@ -267,9 +267,9 @@ export default function ModeratorPage() {
         onMenuChange={setActiveMenu}
         collapsed={sidebarCollapsed}
         onCollapsedChange={setSidebarCollapsed}
-        boards={boards} // 传递板块列表
-        currentBoardId={currentBoardId} // 当前选中的板块ID
-        onBoardChange={setSelectedBoardId} // 切换板块的回调
+        boards={boards}
+        currentBoardId={currentBoardId}
+        onBoardChange={setSelectedBoardId}
         permissions={permissions}
         t={t}
       />

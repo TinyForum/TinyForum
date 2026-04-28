@@ -1,19 +1,18 @@
 // app/[locale]/timeline/page.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { useAuthStore } from "@/store/auth";
 import { timelineApi } from "@/lib/api/modules/timeline";
 import { toast } from "react-hot-toast";
 import {
   UserCircleIcon,
-  HeartIcon,
   ChatBubbleLeftRightIcon,
   EyeIcon,
   CalendarIcon,
-  TagIcon,
   ChevronDownIcon,
   ChevronUpIcon,
   UsersIcon,
@@ -21,16 +20,19 @@ import {
   UserPlusIcon,
   HomeIcon,
 } from "@heroicons/react/24/outline";
-import { HeartIcon as HeartSolidIcon } from "@heroicons/react/24/solid";
-import type {
-  TimelineEvent,
-  Subscription,
-  User,
-  Post,
-  Comment,
-} from "@/lib/api/types";
+import type { TimelineEvent, Subscription } from "@/lib/api/types";
 
-// 事件类型配置 - 使用主题色
+// 错误响应类型
+interface ErrorResponse {
+  response?: {
+    data?: {
+      message?: string;
+    };
+  };
+  message?: string;
+}
+
+// 事件类型配置
 const eventTypeConfig: Record<
   string,
   { icon: string; label: string; color: string; bgColor: string }
@@ -119,24 +121,13 @@ function LoadingSkeleton() {
 }
 
 // 时间线事件卡片组件
-function TimelineEventCard({
-  event,
-  currentUserId,
-}: {
-  event: TimelineEvent;
-  currentUserId?: number;
-}) {
-  const [liked, setLiked] = useState(false);
+function TimelineEventCard({ event }: { event: TimelineEvent }) {
   const payload = parsePayload(event.payload);
   const config = eventTypeConfig[event.action] || {
     icon: "📄",
     label: event.action,
     color: "text-base-content/60",
     bgColor: "bg-base-200",
-  };
-
-  const handleLike = async () => {
-    toast.success("功能开发中");
   };
 
   const getTargetUrl = () => {
@@ -153,11 +144,15 @@ function TimelineEventCard({
           {/* 用户头像 */}
           <Link href={`/users/${event.actor_id}`} className="flex-shrink-0">
             {event.actor?.avatar ? (
-              <img
-                src={event.actor.avatar}
-                alt={event.actor.username}
-                className="w-12 h-12 rounded-full object-cover ring-2 ring-primary/20"
-              />
+              <div className="relative w-12 h-12">
+                <Image
+                  src={event.actor.avatar}
+                  alt={event.actor.username}
+                  fill
+                  className="rounded-full object-cover ring-2 ring-primary/20"
+                  sizes="48px"
+                />
+              </div>
             ) : (
               <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
                 <UserCircleIcon className="w-8 h-8 text-primary/60" />
@@ -227,17 +222,6 @@ function TimelineEventCard({
             {/* 操作按钮 */}
             {event.target_type === "post" && (
               <div className="flex items-center gap-4 mt-4 pt-3 border-t border-base-200">
-                <button
-                  onClick={handleLike}
-                  className="flex items-center gap-1.5 text-base-content/50 hover:text-error transition-all duration-200"
-                >
-                  {liked ? (
-                    <HeartSolidIcon className="w-4 h-4 text-error" />
-                  ) : (
-                    <HeartIcon className="w-4 h-4" />
-                  )}
-                  <span className="text-sm">{payload.like_count || 0}</span>
-                </button>
                 <Link
                   href={getTargetUrl()}
                   className="flex items-center gap-1.5 text-base-content/50 hover:text-primary transition-all duration-200"
@@ -256,7 +240,7 @@ function TimelineEventCard({
 
 // 订阅用户卡片组件
 function SubscribeCard({
-  user,
+  user: subUser,
   onUnsubscribe,
 }: {
   user: { id: number; username: string; avatar?: string; bio?: string };
@@ -265,15 +249,19 @@ function SubscribeCard({
   return (
     <div className="flex items-center justify-between p-3 bg-base-200/50 rounded-xl hover:bg-base-200 transition-all duration-200 group">
       <Link
-        href={`/users/${user.id}`}
+        href={`/users/${subUser.id}`}
         className="flex items-center gap-3 flex-1 min-w-0"
       >
-        {user.avatar ? (
-          <img
-            src={user.avatar}
-            alt={user.username}
-            className="w-10 h-10 rounded-full object-cover ring-2 ring-primary/20"
-          />
+        {subUser.avatar ? (
+          <div className="relative w-10 h-10">
+            <Image
+              src={subUser.avatar}
+              alt={subUser.username}
+              fill
+              className="rounded-full object-cover ring-2 ring-primary/20"
+              sizes="40px"
+            />
+          </div>
         ) : (
           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
             <UserCircleIcon className="w-6 h-6 text-primary/60" />
@@ -281,17 +269,17 @@ function SubscribeCard({
         )}
         <div className="flex-1 min-w-0">
           <div className="font-medium text-base-content truncate">
-            {user.username}
+            {subUser.username}
           </div>
-          {user.bio && (
+          {subUser.bio && (
             <div className="text-xs text-base-content/50 truncate">
-              {user.bio}
+              {subUser.bio}
             </div>
           )}
         </div>
       </Link>
       <button
-        onClick={() => onUnsubscribe(user.id)}
+        onClick={() => onUnsubscribe(subUser.id)}
         className="px-3 py-1.5 text-sm text-error/70 hover:text-error hover:bg-error/10 rounded-lg transition-all duration-200 opacity-0 group-hover:opacity-100"
       >
         取消关注
@@ -335,7 +323,7 @@ function Pagination({
   totalPages: number;
   onPageChange: (page: number) => void;
 }) {
-  const getPageNumbers = () => {
+  const getPageNumbers = (): number[] => {
     const pages: number[] = [];
     const maxVisible = 5;
 
@@ -391,7 +379,7 @@ function Pagination({
 
 export default function Timeline() {
   const router = useRouter();
-  const { isAuthenticated, user } = useAuthStore();
+  const { isAuthenticated } = useAuthStore();
   const [events, setEvents] = useState<TimelineEvent[]>([]);
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [loading, setLoading] = useState(true);
@@ -401,7 +389,8 @@ export default function Timeline() {
   const [showSubscriptions, setShowSubscriptions] = useState(false);
   const pageSize = 20;
 
-  const loadTimeline = async () => {
+  // 加载时间线
+  const loadTimeline = useCallback(async () => {
     setLoading(true);
     try {
       const response =
@@ -409,36 +398,39 @@ export default function Timeline() {
           ? await timelineApi.getHome({ page, page_size: pageSize })
           : await timelineApi.getFollowing({ page, page_size: pageSize });
 
-      if (response.data.code === 200) {
-        const { list, total: totalCount } = response.data.data;
-        setEvents(list || []);
-        setTotal(totalCount || 0);
+      if (response.data.code === 0) {
+        const data = response.data.data;
+        setEvents(data?.list || []);
+        setTotal(data?.total || 0);
       } else {
         toast.error(response.data.message || "加载失败");
       }
-    } catch (error: any) {
+    } catch (err: unknown) {
+      const error = err as ErrorResponse;
       console.error("Failed to load timeline:", error);
       toast.error(error.response?.data?.message || "加载失败");
     } finally {
       setLoading(false);
     }
-  };
+  }, [activeTab, page]);
 
-  const loadSubscriptions = async () => {
+  // 加载订阅列表
+  const loadSubscriptions = useCallback(async () => {
     try {
       const response = await timelineApi.getSubscriptions();
-      if (response.data.code === 200) {
+      if (response.data.code === 0) {
         setSubscriptions(response.data.data || []);
       }
-    } catch (error) {
-      console.error("Failed to load subscriptions:", error);
+    } catch (err) {
+      console.error("Failed to load subscriptions:", err);
     }
-  };
+  }, []);
 
-  const handleUnsubscribe = async (userId: number) => {
+  // 取消关注
+  const handleUnsubscribe = useCallback(async (userId: number) => {
     try {
       const response = await timelineApi.unsubscribe(userId);
-      if (response.data.code === 200) {
+      if (response.data.code === 0) {
         toast.success("已取消关注");
         await loadSubscriptions();
         if (activeTab === "following") {
@@ -447,10 +439,11 @@ export default function Timeline() {
       } else {
         toast.error(response.data.message || "操作失败");
       }
-    } catch (error: any) {
+    } catch (err: unknown) {
+      const error = err as ErrorResponse;
       toast.error(error.response?.data?.message || "操作失败");
     }
-  };
+  }, [activeTab, loadSubscriptions, loadTimeline]);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -459,18 +452,13 @@ export default function Timeline() {
     }
     loadTimeline();
     loadSubscriptions();
-  }, [activeTab, page]);
+  }, [isAuthenticated, router, activeTab, page, loadTimeline, loadSubscriptions]);
 
   if (!isAuthenticated) {
     return null;
   }
 
   const totalPages = Math.ceil(total / pageSize);
-  const subscribedUsers = subscriptions.map((sub) => ({
-    id: sub.target_user_id,
-    username: `用户${sub.target_user_id}`,
-    avatar: "",
-  }));
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-base-200 to-base-100">
@@ -489,7 +477,7 @@ export default function Timeline() {
           <p className="text-base-content/60 mt-2">关注你感兴趣的人和内容</p>
         </div>
 
-        {/* Tab 切换 - 优化样式 */}
+        {/* Tab 切换 */}
         <div className="card bg-base-100 shadow-sm mb-6 border border-base-200">
           <div className="flex p-1">
             <button
@@ -571,11 +559,7 @@ export default function Timeline() {
           <>
             <div className="space-y-4">
               {events.map((event) => (
-                <TimelineEventCard
-                  key={event.id}
-                  event={event}
-                  currentUserId={user?.id}
-                />
+                <TimelineEventCard key={event.id} event={event} />
               ))}
             </div>
 
