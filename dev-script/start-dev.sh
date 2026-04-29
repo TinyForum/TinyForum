@@ -357,7 +357,7 @@ setup_postgres() {
 # ============================================
 
 create_private_config() {
-    local config_file="config/private.yaml"
+    local config_file="backend/config/private.yaml"
     
     if [ -f "$config_file" ]; then
         echo -e "${YELLOW}  Private config already exists: $config_file${NC}"
@@ -378,7 +378,7 @@ create_private_config() {
         return 0
     fi
     
-    mkdir -p config
+    mkdir -p backend/config
     cat > "$config_file" << EOF
 # Private Configuration
 # 包含敏感信息，请勿提交到版本控制
@@ -438,14 +438,14 @@ EOF
 }
 
 create_basic_config() {
-    local config_file="config/basic.yaml"
+    local config_file="backend/config/basic.yaml"
     
     if [ -f "$config_file" ]; then
         echo -e "${YELLOW}  Basic config already exists: $config_file${NC}"
         return 0
     fi
     
-    mkdir -p config
+    mkdir -p backend/config
     cat > "$config_file" << 'EOF'
 # Basic Configuration
 # 基础配置，可提交到版本控制
@@ -544,14 +544,14 @@ EOF
 }
 
 create_risk_config() {
-    local config_file="config/risk_control.yaml"
+    local config_file="backend/config/risk_control.yaml"
     
     if [ -f "$config_file" ]; then
         echo -e "${YELLOW}  Risk control config already exists: $config_file${NC}"
         return 0
     fi
     
-    mkdir -p config
+    mkdir -p backend/config
     cat > "$config_file" << 'EOF'
 # Risk Control Configuration
 # 风控配置，可提交到版本控制
@@ -663,7 +663,7 @@ EOF
 }
 
 create_config_example() {
-    local example_file="config/private.example.yaml"
+    local example_file="backend/config/private.example.yaml"
     
     if [ -f "$example_file" ]; then
         echo -e "${YELLOW}  Config example already exists: $example_file${NC}"
@@ -717,7 +717,7 @@ EOF
 }
 
 create_config_gitignore() {
-    local gitignore_file="config/.gitignore"
+    local gitignore_file="backend/config/.gitignore"
     
     if [ -f "$gitignore_file" ]; then
         echo -e "${YELLOW}  Config .gitignore already exists${NC}"
