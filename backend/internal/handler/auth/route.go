@@ -14,17 +14,17 @@ import (
 // RegisterRoutes 注册路由
 // base URL: /api/v1
 // Group URL: /auth
-func (h *AuthHandler) RegisterRoutes(api *gin.RouterGroup, mw *middleware.MiddlewareSet) {
+func (h *AuthHandler) RegisterRoutes(api *gin.RouterGroup, mw middleware.MiddlewareSet) {
 	// 用户排行榜
 	g := api.Group("/auth")
 	{
-		g.POST("/register", mw.RateLimitMW(ratelimit.ActionRegister), h.Register) // 用户注册
-		g.POST("/login", mw.RateLimitMW(ratelimit.ActionLogin), h.Login)          // 用户登录
-		g.POST("/logout", mw.AuthMW(), h.Logout)                                  // 用户登出
+		g.POST("/register", mw.RateLimit(ratelimit.ActionRegister), h.Register) // 用户注册
+		g.POST("/login", mw.RateLimit(ratelimit.ActionLogin), h.Login)          // 用户登录
+		g.POST("/logout", mw.Auth(), h.Logout)                                  // 用户登出
 		// g.GET("/me", mw.AuthMW(), h.Me)                   // 获取当前用户信息(该功能不适合放在 验证业务中)
 
 		// 账号管理
-		accountGroup := g.Group("/account", mw.AuthMW())
+		accountGroup := g.Group("/account", mw.Auth())
 		{
 			// DELETE /auth/account - 软删除账号
 			accountGroup.DELETE("", h.DeleteAccount)

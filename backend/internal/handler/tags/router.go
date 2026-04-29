@@ -9,7 +9,7 @@ import (
 
 // RegisterRoutes 注册路由
 // base URL: /api/v1
-func (h *TagHandler) RegisterRoutes(api *gin.RouterGroup, mw *middleware.MiddlewareSet) {
+func (h *TagHandler) RegisterRoutes(api *gin.RouterGroup, mw middleware.MiddlewareSet) {
 	tagGroup := api.Group("/tags")
 	{
 		// 公开路由
@@ -18,7 +18,7 @@ func (h *TagHandler) RegisterRoutes(api *gin.RouterGroup, mw *middleware.Middlew
 
 		// 需要管理员权限的路由
 		adminGroup := tagGroup.Group("")
-		adminGroup.Use(mw.AuthMW(), mw.AdminRequiredMW())
+		adminGroup.Use(mw.Auth(), mw.AdminRequired())
 		{
 			adminGroup.POST("", h.Create)       // POST /api/v1/tags
 			adminGroup.PUT("/:id", h.Update)    // PUT /api/v1/tags/:id

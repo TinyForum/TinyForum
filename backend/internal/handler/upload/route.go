@@ -16,10 +16,10 @@ func NewUploadHandler(service uploadService.UploadService) *UploadHandler {
 }
 
 // 在路由注册函数中
-func (h *UploadHandler) RegisterRoutes(api *gin.RouterGroup, mw *middleware.MiddlewareSet) {
+func (h *UploadHandler) RegisterRoutes(api *gin.RouterGroup, mw middleware.MiddlewareSet) {
 	// 需要认证的上传接口
 	upload := api.Group("/upload")
-	upload.Use(mw.AuthMW())
+	upload.Use(mw.Auth())
 	{
 		upload.POST("", h.Upload)                 // POST /api/v1/upload - 上传文件
 		upload.GET("/user/files", h.GetUserFiles) // GET /api/v1/upload/user/files - 获取用户文件列表

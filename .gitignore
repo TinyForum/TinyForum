@@ -45,3 +45,5 @@ config.private.yaml
 backend/llm/*.gguf
 dev-script/applogs
 tsconfig.tsbuildinfo
+
+dump.rdb

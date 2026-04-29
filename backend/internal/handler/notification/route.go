@@ -9,8 +9,8 @@ import (
 
 // RegisterRoutes 注册路由
 // base URL: /api/v1
-func (h *NotificationHandler) RegisterRoutes(api *gin.RouterGroup, mw *middleware.MiddlewareSet) {
-	notifGroup := api.Group("/notifications", mw.AuthMW())
+func (h *NotificationHandler) RegisterRoutes(api *gin.RouterGroup, mw middleware.MiddlewareSet) {
+	notifGroup := api.Group("/notifications", mw.Auth())
 	{
 		notifGroup.GET("", h.List)                     // 获取列表
 		notifGroup.GET("/count/unread", h.UnreadCount) // 获取未读数量

@@ -9,21 +9,21 @@ import (
 
 // RegisterRoutes 注册路由
 // base URL: /api/v1
-func (h *PostHandler) RegisterRoutes(api *gin.RouterGroup, mw *middleware.MiddlewareSet) {
+func (h *PostHandler) RegisterRoutes(api *gin.RouterGroup, mw middleware.MiddlewareSet) {
 	postGroup := api.Group("/posts")
 	{
-		postGroup.GET("", mw.OptionalAuthMW(), h.List) // 用户获取帖子列表
-		postGroup.GET("/:id", mw.OptionalAuthMW(), h.GetByID)
+		postGroup.GET("", mw.OptionalAuth(), h.List) // 用户获取帖子列表
+		postGroup.GET("/:id", mw.OptionalAuth(), h.GetByID)
 		postGroup.POST("",
-			mw.AuthMW(),
-			mw.RateLimitMW("create_post"),
-			mw.ContentCheckMW([]string{"title", "content"}),
+			mw.Auth(),
+			mw.RateLimit("create_post"),
+			mw.ContentCheck([]string{"title", "content"}),
 			h.Create,
 		) // 用户发布帖子
-		postGroup.PUT("/:id", mw.AuthMW(), h.Update)
-		postGroup.DELETE("/:id", mw.AuthMW(), h.Delete)
-		postGroup.POST("/:id/like", mw.AuthMW(), h.Like)
-		postGroup.DELETE("/:id/like", mw.AuthMW(), h.Unlike)
+		postGroup.PUT("/:id", mw.Auth(), h.Update)
+		postGroup.DELETE("/:id", mw.Auth(), h.Delete)
+		postGroup.POST("/:id/like", mw.Auth(), h.Like)
+		postGroup.DELETE("/:id/like", mw.Auth(), h.Unlike)
 	}
 
 }
