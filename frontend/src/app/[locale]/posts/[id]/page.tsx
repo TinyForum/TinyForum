@@ -1,7 +1,7 @@
 // src/app/posts/[id]/page.tsx (服务端组件)
 import { Suspense } from "react";
 import PostDetailClient from "./PostDetailClient";
-import CommentSection from "@/components/post/CommentSection";
+import CommentSection from "@/layout/post/CommentSection";
 
 export default async function PostDetailPage({
   params,

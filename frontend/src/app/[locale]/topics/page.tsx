@@ -13,7 +13,7 @@ import {
   FireIcon,
 } from "@heroicons/react/24/outline";
 import type { Topic } from "@/shared/api/types";
-import { TopicCard } from "@/components/topic/TopicCard";
+import { TopicCard } from "@/layout/topic/TopicCard";
 
 // 错误响应类型
 interface ErrorResponse {

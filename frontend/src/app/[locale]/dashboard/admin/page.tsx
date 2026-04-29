@@ -2,22 +2,23 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { useAdminAuth } from "@/hooks/admin/useAdminAuth";
-import { useUsersData } from "@/hooks/admin/useUsersData";
-import { usePostsData } from "@/hooks/admin/usePostsData";
-import { useQAData } from "@/hooks/admin/useQAData";
-import { AnnouncementsManager } from "@/components/admin/AnnouncementsManager";
-import { AdminSearchBar } from "@/components/admin/AdminSearchBar";
-import { Pagination } from "@/components/admin/Pagination";
-import { PointsManager } from "@/components/admin/PointsManager";
-import { PostsTable } from "@/components/admin/PostsTable";
-import { SidebarMenu } from "@/components/admin/SidebarMenu";
-import { Dashboard } from "@/components/admin/Dashboard";
-import { UsersTable } from "@/components/admin/UsersTable";
-import { Statistics } from "@/components/admin/Statistics";
-import { ModeratorsTable } from "@/components/admin/ModeratorsTable";
-import { AdminTasks } from "@/components/admin/AdminTasks";
+
 import { User } from "@/shared/api/types";
+import { AdminSearchBar } from "@/features/admin/components/AdminSearchBar";
+import { AdminTasks } from "@/features/admin/components/AdminTasks";
+import { AnnouncementsManager } from "@/features/admin/components/AnnouncementsManager";
+import { Dashboard } from "@/features/admin/components/Dashboard";
+import { ModeratorsTable } from "@/features/admin/components/ModeratorsTable";
+import { Pagination } from "@/features/admin/components/Pagination";
+import { PointsManager } from "@/features/admin/components/PointsManager";
+import { PostsTable } from "@/features/admin/components/PostsTable";
+import { SidebarMenu } from "@/features/admin/components/SidebarMenu";
+import { Statistics } from "@/features/admin/components/Statistics";
+import { UsersTable } from "@/features/admin/components/UsersTable";
+import { useAdminAuth } from "@/features/admin/hooks/useAdminAuth";
+import { usePostsData } from "@/features/admin/hooks/usePostsData";
+import { useQAData } from "@/features/admin/hooks/useQAData";
+import { useUsersData } from "@/features/admin/hooks/useUsersData";
 
 // 导入类型
 

@@ -1,11 +1,11 @@
 "use client";
 
-import { useLeaderboard } from "@/hooks/useLeaderboard";
 import Link from "next/link";
 import { Trophy, Star, Crown, Medal, TrendingUp, Users } from "lucide-react";
-import Avatar from "@/components/user/Avatar";
 import { useTranslations } from "next-intl";
 import type { LeaderboardItemResponse } from "@/shared/api/modules/users";
+import { useLeaderboard } from "@/features/leader/hooks/useLeaderboard";
+import Avatar from "@/features/user/components/Avatar";
 
 // 加载骨架屏组件
 function LoadingSkeleton() {

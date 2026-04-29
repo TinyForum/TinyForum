@@ -2,7 +2,7 @@
  * api/modules/users.ts
  */
 
-import { UserRoleType } from "@/type/roles.types";
+import { UserRoleType } from "@/shared/type/roles.types";
 import apiClient from "../client";
 import { ApiResponse, PageData, User } from "@/shared/api/types";
 

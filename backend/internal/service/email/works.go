@@ -110,9 +110,9 @@ func (s *emailService) sendEmailSync(to, subject, body string) error {
 func (s *emailService) SendResetPasswordEmail(
 	to string,
 	token string,
-	tokenExpiresIn time.Duration, 
+	tokenExpiresIn time.Duration,
 	username, appURL, apiVersion, ip, userAgent, locale string,
-	) error {
+) error {
 	if !s.enabled {
 		logger.Warn("Email service disabled, skipping password reset email")
 		return nil

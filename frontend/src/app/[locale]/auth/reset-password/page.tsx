@@ -78,7 +78,7 @@ export default function ResetPasswordPage() {
       resetValidation();
       resetResetForm();
     };
-  }, [tokenFromUrl]); // 依赖 tokenFromUrl
+  }, [tokenFromUrl, resetResetForm, resetValidation, validateToken]); // 依赖 tokenFromUrl
 
   // 监听状态变化
   useEffect(() => {

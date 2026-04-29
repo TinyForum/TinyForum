@@ -10,15 +10,16 @@ import {
   ExclamationTriangleIcon,
 } from "@heroicons/react/24/outline";
 import { useAuthStore } from "@/store/auth";
-import { useBoard } from "@/hooks/useBoard";
-import { useQuestionForm } from "@/hooks/useQuestionForm";
-import { useTags } from "@/hooks/useTags";
-import { QuestionForm } from "@/components/question/QuestionForm";
-import { BoardSelector } from "@/components/question/BoardSelector";
-import { TagSelector } from "@/components/question/TagSelector";
-import { RewardScoreInput } from "@/components/question/RewardScoreInput";
-import { FormActions } from "@/components/question/FormActions";
+
 import { useTranslations } from "next-intl";
+import { useBoard } from "@/features/boards/hooks/useBoard";
+import { useQuestionForm } from "@/features/qustion/hooks/useQuestionForm";
+import { useTags } from "@/features/tag/hooks/useTags";
+import { BoardSelector } from "@/layout/question/BoardSelector";
+import { FormActions } from "@/layout/question/FormActions";
+import { QuestionForm } from "@/layout/question/QuestionForm";
+import { RewardScoreInput } from "@/layout/question/RewardScoreInput";
+import { TagSelector } from "@/layout/question/TagSelector";
 
 export default function AskQuestionPage() {
   const t = useTranslations("Questions");

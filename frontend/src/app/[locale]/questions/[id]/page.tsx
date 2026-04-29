@@ -10,14 +10,15 @@ import {
   UserGroupIcon,
 } from "@heroicons/react/24/outline";
 import { useAuthStore } from "@/store/auth";
-import { useQuestionDetail } from "@/hooks/useQuestionDetail";
-import { AnswerCard } from "@/components/question/AnswerCard";
-import { toast } from "react-hot-toast";
-import { postApi } from "@/shared/api";
-import { AnswerForm } from "@/components/question/AnswerForm";
-import { QuestionHeader } from "@/components/question/QuestionHeader";
+
 import { answerApi } from "@/shared/api/modules/answer";
 import { useTranslations } from "next-intl";
+import { useQuestionDetail } from "@/features/qustion/hooks/useQuestionDetail";
+import { AnswerCard } from "@/layout/question/AnswerCard";
+import { AnswerForm } from "@/layout/question/AnswerForm";
+import { QuestionHeader } from "@/layout/question/QuestionHeader";
+import { postApi } from "@/shared/api";
+import toast from "react-hot-toast";
 
 // 错误响应类型
 interface ErrorResponse {

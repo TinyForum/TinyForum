@@ -65,6 +65,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	cookieValue := "tiny_forum_token=" + result.Token +
 		"; Max-Age=604800" + // 7天
 		"; Path=/" +
+		"; Domain=localhost" +
 		"; HttpOnly" +
 		"; SameSite=Strict"
 	if isProduction {
