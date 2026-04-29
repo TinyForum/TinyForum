@@ -1,0 +1,303 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>欢迎加入 {{.AppName}}</title>
+    <style>
+      /* 基础重置 */
+      body {
+        margin: 0;
+        padding: 24px;
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+        line-height: 1.5;
+        background-color: #fef2f2;
+        color: #1f2937;
+      }
+
+      /* 主容器 */
+      .container {
+        max-width: 520px;
+        margin: 0 auto;
+        background: #ffffff;
+        border-radius: 20px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+        overflow: hidden;
+      }
+
+      /* 红色头部 */
+      .header {
+        background: #dc2626;
+        padding: 36px 24px;
+        text-align: center;
+      }
+
+      .header-icon {
+        font-size: 52px;
+        margin-bottom: 8px;
+      }
+
+      .header h1 {
+        color: white;
+        font-size: 26px;
+        font-weight: 600;
+        margin: 0;
+        letter-spacing: -0.3px;
+      }
+
+      .header p {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 15px;
+        margin: 8px 0 0;
+      }
+
+      /* 内容区 */
+      .content {
+        padding: 32px 28px;
+      }
+
+      /* 欢迎语 */
+      .greeting {
+        font-size: 16px;
+        margin-bottom: 16px;
+        color: #374151;
+      }
+
+      .greeting strong {
+        color: #dc2626;
+      }
+
+      /* 简洁信息卡片 */
+      .info-card {
+        background: #fef2f2;
+        border-radius: 12px;
+        padding: 16px 20px;
+        margin: 24px 0;
+        border: 1px solid #fee2e2;
+      }
+
+      .info-card-item {
+        font-size: 14px;
+        color: #4b5563;
+        padding: 6px 0;
+      }
+
+      .info-card-item code {
+        background: #fff5f5;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 13px;
+        color: #dc2626;
+      }
+
+      .status-badge {
+        color: #dc2626;
+        font-weight: 500;
+      }
+
+      /* 功能列表 */
+      .feature-list {
+        margin: 20px 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .feature-list li {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 12px;
+        font-size: 14px;
+        color: #4b5563;
+      }
+
+      .feature-icon {
+        width: 28px;
+        font-size: 16px;
+      }
+
+      /* 按钮 */
+      .btn {
+        display: inline-block;
+        background: #dc2626;
+        color: white !important;
+        text-decoration: none;
+        padding: 12px 32px;
+        border-radius: 40px;
+        font-weight: 600;
+        font-size: 15px;
+        margin: 16px 0 12px;
+        text-align: center;
+        transition: background 0.2s;
+      }
+
+      .btn:hover {
+        background: #b91c1c;
+      }
+
+      .btn-wrapper {
+        text-align: center;
+      }
+
+      /* 备用链接 */
+      .fallback-link {
+        font-size: 12px;
+        text-align: center;
+        margin: 8px 0 20px;
+      }
+
+      .fallback-link a {
+        color: #dc2626;
+        text-decoration: none;
+        word-break: break-all;
+      }
+
+      /* 提示框 */
+      .tip-box {
+        background: #fff7ed;
+        border-radius: 12px;
+        padding: 14px 18px;
+        margin: 24px 0;
+        font-size: 13px;
+        color: #92400e;
+        border: 1px solid #fed7aa;
+      }
+
+      hr {
+        border: none;
+        border-top: 1px solid #f0f0f0;
+        margin: 24px 0 16px;
+      }
+
+      .security-note {
+        font-size: 13px;
+        color: #6b7280;
+        margin: 16px 0 0;
+      }
+
+      /* 页脚 */
+      .footer {
+        background: #fafafa;
+        padding: 20px 24px;
+        text-align: center;
+        font-size: 12px;
+        color: #9ca3af;
+        border-top: 1px solid #f0f0f0;
+      }
+
+      .footer a {
+        color: #dc2626;
+        text-decoration: none;
+      }
+
+      .footer-links {
+        margin: 8px 0;
+      }
+
+      /* 移动端适配 */
+      @media (max-width: 560px) {
+        body {
+          padding: 12px;
+        }
+        .content {
+          padding: 24px 20px;
+        }
+        .header h1 {
+          font-size: 22px;
+        }
+        .btn {
+          display: block;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <!-- 红色头部 -->
+      <div class="header">
+        <div class="header-icon">🎉</div>
+        <h1>欢迎加入 {{.AppName}}</h1>
+        <p>很高兴您成为我们的一员</p>
+      </div>
+
+      <!-- 正文内容 -->
+      <div class="content">
+        <div class="greeting">您好，<strong>{{.Username}}</strong></div>
+
+        <p style="margin: 0 0 16px 0; color: #374151">
+          感谢您注册
+          <strong style="color: #dc2626">{{.AppName}}</strong
+          >！我们非常激动能为您提供高效、安全且愉快的服务体验。
+        </p>
+
+        <!-- 账户信息卡片 -->
+        <div class="info-card">
+          <div class="info-card-item"><strong>📋 账户信息</strong></div>
+          <div class="info-card-item">• 注册时间：{{.SignupTime}}</div>
+          <div class="info-card-item">
+            • 注册 IP：<code>{{.SignupIP}}</code>
+          </div>
+          <div class="info-card-item">
+            • 账户状态：<span class="status-badge">✓ 已验证 / 正常</span>
+          </div>
+        </div>
+
+        <!-- 功能引导 -->
+        <p style="font-weight: 500; margin: 0 0 8px 0; color: #374151">
+          ✨ 现在您可以开始：
+        </p>
+        <ul class="feature-list">
+          <li>
+            <span class="feature-icon">📌</span> 完善个人资料，让其他用户认识您
+          </li>
+          <li>
+            <span class="feature-icon">🔐</span> 绑定多重验证，提升账户安全
+          </li>
+          <li><span class="feature-icon">🚀</span> 探索核心功能与专属服务</li>
+          <li>
+            <span class="feature-icon">💬</span> 参与社区讨论或联系技术支持
+          </li>
+        </ul>
+
+        <!-- 按钮 -->
+        <div class="btn-wrapper">
+          <a href="{{.DashboardURL}}" class="btn">前往仪表盘</a>
+        </div>
+
+        <div class="fallback-link">
+          <a href="{{.DashboardURL}}">{{.DashboardURL}}</a>
+        </div>
+
+        <!-- 温馨提示 -->
+        <div class="tip-box">
+          💡 <strong>快速提示：</strong><br />
+          首次登录后，建议前往“账户安全”开启两步验证。<br />
+          如有任何问题，请联系 <strong>support@{{.Domain}}</strong>
+        </div>
+
+        <hr />
+
+        <div class="security-note">
+          🔒 为了保障您的账户安全，请不要将密码告知他人。<br />
+          我们绝不会通过邮件或电话向您索要密码或验证码。
+        </div>
+      </div>
+
+      <!-- 页脚 -->
+      <div class="footer">
+        <p>© {{.Year}} {{.AppName}} · 保留所有权利</p>
+        <div class="footer-links">
+          <a href="{{.SiteURL}}">{{.SiteURL}}</a> &nbsp;|&nbsp;
+          <a href="{{.PrivacyURL}}">隐私条款</a> &nbsp;|&nbsp;
+          <a href="{{.HelpURL}}">帮助中心</a>
+        </div>
+        <p style="margin-top: 10px">
+          <small>这是一封系统自动发送的欢迎邮件，请勿直接回复。</small>
+        </p>
+      </div>
+    </div>
+  </body>
+</html>

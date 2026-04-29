@@ -107,14 +107,16 @@ func (s *emailService) sendEmailSync(to, subject, body string) error {
 }
 
 // SendResetPasswordEmail 发送重置密码邮件
-func (s *emailService) SendResetPasswordEmail(to, token, username, appURL, apiVersion, ip, userAgent,locale string) error {
+func (s *emailService) SendResetPasswordEmail(to, token, username, appURL, apiVersion, ip, userAgent, locale string) error {
 	if !s.enabled {
 		logger.Warn("Email service disabled, skipping password reset email")
 		return nil
 	}
 
 	// 构建重置链接
-	resetURL := fmt.Sprintf("%s/%s/auth/password/validate-token?token=%s", appURL, apiVersion, token)
+	// resetURL := fmt.Sprintf("%s/%s/auth/password/validate-token?token=%s", appURL, apiVersion, token)
+// http://localhost:3000/zh-CN/auth/reset-password?token=ec2d50e6a812530e3baca78a8b1e0ba405fa4b8932185fd1235a206569cb44a4
+resetURL := fmt.Sprintf("%s/auth/reset-password?token=%s", appURL, token)
 
 	// 准备邮件数据
 	data := EmailData{
@@ -125,11 +127,10 @@ func (s *emailService) SendResetPasswordEmail(to, token, username, appURL, apiVe
 		AppName:      "TinyForum",
 		SupportEmail: "support@tinyforum.com",
 		SiteURL:      appURL,
- RequestTime: time.Now().Format("2006-01-02 15:04:05"),
-        RequestIP:   ip,
-        UserAgent: userAgent,
-        Location:   locale,
-		
+		RequestTime:  time.Now().Format("2006-01-02 15:04:05"),
+		RequestIP:    ip,
+		UserAgent:    userAgent,
+		Location:     locale,
 	}
 
 	// 尝试加载模板
@@ -220,30 +221,30 @@ func (s *emailService) renderTemplate(templateName string, data EmailData) (stri
 
 // buildSimpleResetEmail 构建简单的重置密码邮件
 func (s *emailService) buildSimpleResetEmail(data EmailData) string {
-    // 确保 SupportEmail 有默认值
-    supportEmail := data.SupportEmail
-    if supportEmail == "" {
-        supportEmail = "support@example.com"
-    }
-    
-    // 格式化请求时间
-    requestTime := data.RequestTime
-    if requestTime == "" {
-        requestTime = time.Now().Format("2006-01-02 15:04:05")
-    }
-    
-    // 格式化 IP 和 UserAgent
-    requestIP := data.RequestIP
-    if requestIP == "" {
-        requestIP = "未知"
-    }
-    
-    userAgent := data.UserAgent
-    if userAgent == "" {
-        userAgent = "未知"
-    }
-    
-    return fmt.Sprintf(`
+	// 确保 SupportEmail 有默认值
+	supportEmail := data.SupportEmail
+	if supportEmail == "" {
+		supportEmail = "support@example.com"
+	}
+
+	// 格式化请求时间
+	requestTime := data.RequestTime
+	if requestTime == "" {
+		requestTime = time.Now().Format("2006-01-02 15:04:05")
+	}
+
+	// 格式化 IP 和 UserAgent
+	requestIP := data.RequestIP
+	if requestIP == "" {
+		requestIP = "未知"
+	}
+
+	userAgent := data.UserAgent
+	if userAgent == "" {
+		userAgent = "未知"
+	}
+
+	return fmt.Sprintf(`
 <!DOCTYPE html>
 <html>
 <head>
@@ -365,21 +366,21 @@ func (s *emailService) buildSimpleResetEmail(data EmailData) string {
     </div>
 </body>
 </html>
-`, 
-        data.AppName,      // logo
-        data.Username,     // 用户名
-        data.AppName,      // 应用名称
-        requestTime,       // 请求时间
-        requestIP,         // 来源 IP
-        userAgent,         // 设备信息
-        data.ResetURL,     // 按钮链接
-        data.ResetURL,     // 文本链接
-        data.ExpiresIn,    // 过期时间
-        data.Year,         // 年份
-        data.AppName,      // 版权名称
-        supportEmail,      // 支持邮箱
-        supportEmail,      // 支持邮箱（显示）
-    )
+`,
+		data.AppName,   // logo
+		data.Username,  // 用户名
+		data.AppName,   // 应用名称
+		requestTime,    // 请求时间
+		requestIP,      // 来源 IP
+		userAgent,      // 设备信息
+		data.ResetURL,  // 按钮链接
+		data.ResetURL,  // 文本链接
+		data.ExpiresIn, // 过期时间
+		data.Year,      // 年份
+		data.AppName,   // 版权名称
+		supportEmail,   // 支持邮箱
+		supportEmail,   // 支持邮箱（显示）
+	)
 }
 
 // buildSimpleWelcomeEmail 构建简单的欢迎邮件

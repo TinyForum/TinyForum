@@ -7,7 +7,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import toast from "react-hot-toast";
-import { Mail, ArrowLeft, Send } from "lucide-react";
+import { Mail, ArrowLeft, Send, CheckCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { authApi } from "@/shared/api";
 
@@ -22,12 +22,14 @@ export default function ForgotPasswordPage() {
 
   const [isLoading, setIsLoading] = useState(false);
   const [isEmailSent, setIsEmailSent] = useState(false);
+  const [submittedEmail, setSubmittedEmail] = useState("");
 
   const {
     register,
     handleSubmit,
     formState: { errors },
     getValues,
+    setValue,
   } = useForm<ForgotPasswordForm>({
     resolver: zodResolver(forgotPasswordSchema),
     defaultValues: {
@@ -35,30 +37,27 @@ export default function ForgotPasswordPage() {
     },
   });
 
-  const onSubmit = async (email: string) => {
+  const onSubmit = async (data: ForgotPasswordForm) => {
     setIsLoading(true);
 
     try {
-      // TODO: 调用忘记密码 API
-      const response = authApi.forgotPassword({ email: email });
-      console.log(response);
-      if (response.data === 200) {
-        toast.success("重置密码链接已发送到您的邮箱");
+      // 调用后端 API（始终返回成功，不暴露邮箱是否存在）
+      const response = await authApi.forgotPassword({ email: data.email });
+
+      // 后端始终返回 200，无论邮箱是否存在
+      if (response.data.code === 0 || response.status === 200) {
+        setSubmittedEmail(data.email);
+        setIsEmailSent(true);
+        // 不显示具体的成功消息，使用统一的提示
+        toast.success(t("reset_link_sent") || "重置密码链接已发送");
+      } else {
+        // 理论上不会进入这里，但做个兜底
+        toast.error(t("send_failed") || "发送失败，请稍后重试");
       }
-      // const response = await fetch("/api/auth/password/forgot", {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify({ email: data.email }),
-      // });
-
-      // 模拟 API 调用
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      // 假设总是成功（实际应该根据 API 响应判断）
-      setIsEmailSent(true);
-      toast.success("重置密码链接已发送到您的邮箱");
-    } catch {
-      toast.error("发送失败，请稍后重试");
+    } catch (error) {
+      // 网络错误或其他异常才显示错误
+      console.error("Forgot password error:", error);
+      toast.error(t("network_error") || "网络错误，请稍后重试");
     } finally {
       setIsLoading(false);
     }
@@ -66,8 +65,8 @@ export default function ForgotPasswordPage() {
 
   const handleResendEmail = () => {
     const email = getValues("email");
-    if (email) {
-      onSubmit();
+    if (email && !isLoading) {
+      onSubmit({ email });
     }
   };
 
@@ -81,19 +80,25 @@ export default function ForgotPasswordPage() {
               <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white text-2xl font-black mx-auto mb-4">
                 B
               </div>
-              <h1 className="text-2xl font-bold">{t("forgot_password")}</h1>
+              <h1 className="text-2xl font-bold">
+                {!isEmailSent ? t("forgot_password") : t("check_email")}
+              </h1>
               <p className="text-base-content/50 text-sm mt-1">
-                {isEmailSent ? "请查收邮件重置密码" : "输入邮箱以重置密码"}
+                {!isEmailSent
+                  ? t("forgot_password_desc")
+                  : t("reset_link_sent_desc")}
               </p>
             </div>
 
             {!isEmailSent ? (
               // 表单页面
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                {/* Email */}
+                {/* Email Input */}
                 <div className="form-control">
                   <label className="label pb-1">
-                    <span className="label-text font-medium">{t("email")}</span>
+                    <span className="label-text font-medium">
+                      {t("email_address")}
+                    </span>
                   </label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-base-content/40" />
@@ -101,7 +106,9 @@ export default function ForgotPasswordPage() {
                       {...register("email")}
                       type="email"
                       placeholder="your@email.com"
-                      className={`input input-bordered w-full pl-10 focus:outline-none focus:border-primary ${errors.email ? "input-error" : ""}`}
+                      className={`input input-bordered w-full pl-10 focus:outline-none focus:border-primary ${
+                        errors.email ? "input-error" : ""
+                      }`}
                       autoComplete="email"
                       disabled={isLoading}
                     />
@@ -115,6 +122,11 @@ export default function ForgotPasswordPage() {
                   )}
                 </div>
 
+                {/* Security Note */}
+                <div className="text-xs text-base-content/50 text-center">
+                  <p>{t("security_note")}</p>
+                </div>
+
                 {/* Submit Button */}
                 <button
                   type="submit"
@@ -126,11 +138,11 @@ export default function ForgotPasswordPage() {
                   ) : (
                     <Send className="w-4 h-4" />
                   )}
-                  {isLoading ? "发送中..." : t("send_reset_link")}
+                  {isLoading ? t("sending") : t("send_reset_link")}
                 </button>
 
                 {/* Back to Login */}
-                <div className="text-center">
+                <div className="text-center pt-2">
                   <Link
                     href="/auth/login"
                     className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
@@ -141,47 +153,49 @@ export default function ForgotPasswordPage() {
                 </div>
               </form>
             ) : (
-              // 成功页面
+              // 成功页面（统一消息，不暴露邮箱是否存在）
               <div className="space-y-6">
-                <div className="alert alert-success">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="stroke-current shrink-0 h-6 w-6"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                  <span>重置密码链接已发送到您的邮箱</span>
+                {/* Success Alert */}
+                <div className="alert alert-success bg-success/10 border-success/20">
+                  <CheckCircle className="h-5 w-5 text-success" />
+                  <div className="flex-1">
+                    <span className="font-medium">{t("email_sent")}</span>
+                    <p className="text-sm opacity-90 mt-0.5">
+                      {t("check_your_email")}
+                    </p>
+                  </div>
                 </div>
 
-                <div className="bg-base-200 rounded-lg p-4 text-sm space-y-2">
-                  <p className="text-base-content/70">📧 请检查您的邮箱：</p>
-                  <p className="font-mono font-medium break-all">
-                    {getValues("email")}
+                {/* Instructions */}
+                <div className="bg-base-200 rounded-lg p-5 text-sm space-y-3">
+                  <p className="text-base-content/80 font-medium">
+                    📧 {t("what_to_do_next")}:
                   </p>
-                  <p className="text-base-content/60 text-xs mt-2">
-                    如果没有收到邮件，请检查垃圾邮件箱，或尝试重新发送。
-                  </p>
+                  <ol className="space-y-2 text-base-content/70 list-decimal list-inside">
+                    <li>{t("step1_check_email")}</li>
+                    <li>{t("step2_click_link")}</li>
+                    <li>{t("step3_reset_password")}</li>
+                  </ol>
+                  <div className="mt-3 pt-2 border-t border-base-300">
+                    <p className="text-base-content/60 text-xs">
+                      💡 {t("email_tip")}
+                    </p>
+                  </div>
                 </div>
 
+                {/* Action Buttons */}
                 <div className="flex flex-col gap-3">
                   <button
                     onClick={handleResendEmail}
-                    className="btn btn-outline btn-sm w-full gap-2"
+                    className="btn btn-outline w-full gap-2"
                     disabled={isLoading}
                   >
                     {isLoading ? (
-                      <span className="loading loading-spinner loading-xs" />
+                      <span className="loading loading-spinner loading-sm" />
                     ) : (
-                      <Send className="w-3 h-3" />
+                      <Send className="w-4 h-4" />
                     )}
-                    重新发送邮件
+                    {t("resend_email")}
                   </button>
 
                   <Link

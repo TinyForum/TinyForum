@@ -60,7 +60,7 @@ export function useAdminAnnouncements(): UseAdminAnnouncementsReturn {
         page_size: pageSize,
       });
 
-      if (response.data.code === 200 || response.data.code === 0) {
+      if (response.data.code === 0 || response.data.code === 0) {
         // 添加安全检查，确保 response.data.data 存在
         const data = response.data.data;
         const list = data?.list || [];
@@ -86,7 +86,7 @@ export function useAdminAnnouncements(): UseAdminAnnouncementsReturn {
     async (id: number): Promise<Announcement | null> => {
       try {
         const response = await announcementApi.getById(id);
-        if (response.data.code === 200 || response.data.code === 0) {
+        if (response.data.code === 0 || response.data.code === 0) {
           return response.data.data || null;
         }
         toast.error(response.data.message || "获取公告详情失败");
@@ -106,7 +106,7 @@ export function useAdminAnnouncements(): UseAdminAnnouncementsReturn {
       setIsSubmitting(true);
       try {
         const response = await announcementApi.create(data);
-        if (response.data.code === 200 || response.data.code === 0) {
+        if (response.data.code === 0 || response.data.code === 0) {
           toast.success("创建公告成功");
           await fetchAnnouncements();
           return response.data.data || null;
@@ -133,7 +133,7 @@ export function useAdminAnnouncements(): UseAdminAnnouncementsReturn {
       setIsSubmitting(true);
       try {
         const response = await announcementApi.update(id, data);
-        if (response.data.code === 200 || response.data.code === 0) {
+        if (response.data.code === 0 || response.data.code === 0) {
           toast.success("更新公告成功");
           await fetchAnnouncements();
           return response.data.data || null;
@@ -157,7 +157,7 @@ export function useAdminAnnouncements(): UseAdminAnnouncementsReturn {
       setIsSubmitting(true);
       try {
         const response = await announcementApi.delete(id);
-        if (response.data.code === 200 || response.data.code === 0) {
+        if (response.data.code === 0 || response.data.code === 0) {
           toast.success("删除公告成功");
           await fetchAnnouncements();
           return true;
@@ -184,7 +184,7 @@ export function useAdminAnnouncements(): UseAdminAnnouncementsReturn {
           status: "published",
           published_at: new Date().toISOString(),
         });
-        if (response.data.code === 200 || response.data.code === 0) {
+        if (response.data.code === 0 || response.data.code === 0) {
           toast.success("发布公告成功");
           await fetchAnnouncements();
           return true;
@@ -210,7 +210,7 @@ export function useAdminAnnouncements(): UseAdminAnnouncementsReturn {
         const response = await announcementApi.update(id, {
           expired_at: new Date().toISOString(),
         });
-        if (response.data.code === 200 || response.data.code === 0) {
+        if (response.data.code === 0 || response.data.code === 0) {
           toast.success("归档公告成功");
           await fetchAnnouncements();
           return true;
@@ -236,7 +236,7 @@ export function useAdminAnnouncements(): UseAdminAnnouncementsReturn {
         const response = await announcementApi.update(id, {
           is_pinned: isPinned,
         });
-        if (response.data.code === 200 || response.data.code === 0) {
+        if (response.data.code === 0 || response.data.code === 0) {
           await fetchAnnouncements();
           return true;
         }

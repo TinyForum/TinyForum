@@ -71,11 +71,50 @@ export const authApi = {
   forgotPassword: (data: ForgotPasswordRequest) =>
     apiClient.post<ApiResponse<null>>("/auth/password/forgot", data),
   // 重置密码
-  resetPassword: (data: { token: string; password: string }) =>
-    apiClient.post<ApiResponse<null>>("/auth/password/reset", data),
+  resetPassword: (data: ResetPasswordRequest) =>
+    apiClient.put<ApiResponse<ResetPasswordResponse>>(
+      "/auth/password/reset",
+      data,
+    ),
+  // 通过 token 重置密码
+  resetPasswordWithToken: (data: ResetPasswordWithTokenRequest) =>
+    apiClient.put<ApiResponse<ResetPasswordWithTokenResponse>>(
+      "/auth/password/reset-withtoken",
+      data,
+    ),
+  // 验证token
+  validateToken: (data: ValidateTokenRequest) =>
+    apiClient.get<ApiResponse<ValidateTokenResponse>>(
+      `/auth/password/validate-token?token=${data.token}`,
+    ),
 };
 
 // 请求
 export interface ForgotPasswordRequest {
   email: string;
+}
+
+// 重置密码
+export interface ResetPasswordRequest {
+  password: string;
+}
+// 通过 token 重置密码
+export interface ResetPasswordWithTokenRequest {
+  password: string;
+  token: string;
+}
+export interface ResetPasswordWithTokenResponse {
+  success: boolean;
+}
+export interface ResetPasswordResponse {
+  success: boolean;
+}
+
+// 验证 token
+export interface ValidateTokenRequest {
+  token: string;
+}
+
+export interface ValidateTokenResponse {
+  valid: boolean;
 }

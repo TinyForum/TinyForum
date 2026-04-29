@@ -16,6 +16,7 @@ type RefreshToken struct {
 	UserAgent string         `gorm:"size:500" json:"user_agent"`                      // 设备信息
 	IP        string         `gorm:"size:45" json:"ip"`                               // 登录IP
 	ExpiresAt time.Time      `gorm:"index:idx_expires_at" json:"expires_at"`          // 过期时间
+	IsUsed    bool           `gorm:"default:false" json:"is_used"`                    // 是否已使用
 	CreatedAt time.Time      `json:"created_at"`
 	UpdatedAt time.Time      `json:"updated_at"`
 	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`

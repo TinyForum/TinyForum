@@ -83,19 +83,19 @@ export default function Explore() {
         ]);
 
       // 添加安全检查
-      if (postsResponse.data.code === 200 && postsResponse.data.data) {
+      if (postsresponse.data.code === 0 && postsResponse.data.data) {
         setPosts(postsResponse.data.data.list || []);
       }
-      if (tagsResponse.data.code === 200 && tagsResponse.data.data) {
+      if (tagsresponse.data.code === 0 && tagsResponse.data.data) {
         const sortedTags = [...(tagsResponse.data.data || [])].sort(
           (a, b) => (b.post_count || 0) - (a.post_count || 0),
         );
         setHotTags(sortedTags.slice(0, 12));
       }
-      if (topicsResponse.data.code === 200 && topicsResponse.data.data) {
+      if (topicsresponse.data.code === 0 && topicsResponse.data.data) {
         setHotTopics(topicsResponse.data.data.list || []);
       }
-      if (usersResponse.data.code === 200 && usersResponse.data.data) {
+      if (usersresponse.data.code === 0 && usersResponse.data.data) {
         setActiveUsers(usersResponse.data.data || []);
       }
     } catch (error) {
@@ -120,7 +120,7 @@ export default function Explore() {
         page: 1,
         page_size: 20,
       });
-      if (response.data.code === 200 && response.data.data) {
+      if (response.data.code === 0 && response.data.data) {
         setSearchResults(response.data.data.list || []);
         if (response.data.data.list?.length === 0) {
           toast("未找到相关结果");

@@ -34,12 +34,19 @@ type QuotaConfig struct {
 // ConfigBasic 基础配置（公开配置）
 type ConfigBasic struct {
 	Server       ServerConfig    `mapstructure:"server"`
+	Frontend     FrontendConfig  `mapstructure:"frontend"`
 	API          APIConfig       `mapstructure:"api"`
 	Log          LogConfig       `mapstructure:"log"`
 	RateLimit    RateLimitConfig `mapstructure:"rate_limit"`
 	Ollama       Ollama          `mapstructure:"ollama"`
 	AllowOrigins []string        `mapstructure:"allow_origins"`
 	Upload       UploadConfig    `mapstructure:"upload"`
+}
+type FrontendConfig struct {
+	Protocol string `mapstructure:"protocol"`
+	Host string `mapstructure:"host"`
+	Port int    `mapstructure:"port"`
+
 }
 
 type UploadConfig struct {

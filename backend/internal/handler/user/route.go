@@ -41,8 +41,8 @@ func (h *UserHandler) RegisterRoutes(api *gin.RouterGroup, mw *middleware.Middle
 	me := users.Group("/me")
 	me.Use(mw.AuthMW()) // 所有 /me 操作都需要认证
 	{
-		me.GET("/role", h.GetCurrentUserRole)   // GET /api/v1/users/me/role
-		me.PUT("/profile", h.UpdateProfile)     // PUT /api/v1/users/me/profile
-		me.PATCH("/password", h.ChangePassword) // PATCH /api/v1/users/me/password
+		me.GET("/role", h.GetCurrentUserRole) // GET /api/v1/users/me/role
+		me.PUT("/profile", h.UpdateProfile)   // PUT /api/v1/users/me/profile
+		// me.PATCH("/password", h.ChangePassword) // PATCH /api/v1/users/me/password
 	}
 }

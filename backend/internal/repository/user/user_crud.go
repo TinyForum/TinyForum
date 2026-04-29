@@ -24,14 +24,7 @@ func (r *userRepository) FindByEmail(ctx context.Context, email string) (*model.
 	return &user, nil
 }
 
-func (r *userRepository) FindByResetToken(ctx context.Context, token string) (*model.User, error) {
-	var user model.User
-	err := r.db.WithContext(ctx).Where("reset_password_token = ?", token).First(&user).Error
-	if err != nil {
-		return nil, err
-	}
-	return &user, nil
-}
+
 
 func (r *userRepository) FindByUsername(username string) (*model.User, error) {
 	var user model.User
@@ -103,4 +96,9 @@ func (r *userRepository) FindByEmailUnscoped(ctx context.Context, email string) 
 	var user model.User
 	err := r.db.WithContext(ctx).Unscoped().Where("email = ?", email).First(&user).Error
 	return &user, err
+}
+
+func (r *userRepository) IsUserExistsByEmail(email string) (bool, error) {
+	err := r.db.Model(&model.User{}).Where("email = ?", email).First(&model.User{}).Error
+	return err == nil, nil
 }

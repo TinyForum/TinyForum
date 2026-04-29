@@ -7,7 +7,11 @@ server:
   read_timeout: 30s # 读取超时
   write_timeout: 30s # 写入超时
   max_header_bytes: 1048576 # 最大请求头大小 (1MB)
-
+# 前端
+frontend:
+  protocol: http # 协议: http/https
+  host: 192.168.5.180
+  port: 3000
 # API配置
 api:
   protocol: http # 协议: http/https
@@ -52,6 +56,7 @@ allow_origins:
   - http://localhost:3000
   - http://127.0.0.1:3000
   - http://192.168.5.243:8080
+  - http://192.168.5.180:3000
 
 # 上传配置
 upload:

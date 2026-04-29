@@ -2,6 +2,7 @@ package auth
 
 import (
 	authService "tiny-forum/internal/service/auth"
+	apperrors "tiny-forum/pkg/errors"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -137,4 +138,30 @@ func (h *AuthHandler) ConfirmDeletion(c *gin.Context) {
 	response.Success(c, gin.H{
 		"message": "账户已永久删除",
 	})
+}
+
+// ChangePassword 修改密码（登录后）
+// PUT /api/v1/auth/password
+func (h *AuthHandler) ChangePassword(c *gin.Context) {
+	var req struct {
+		OldPassword     string `json:"old_password" binding:"required"`
+		NewPassword     string `json:"new_password" binding:"required,min=8,max=32"`
+		ConfirmPassword string `json:"confirm_password" binding:"required,eqfield=NewPassword"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.Error(c, apperrors.ErrInvalidRequest)
+		return
+	}
+
+	userID := c.GetUint("user_id")
+
+	// 直接调用 service，所有业务逻辑都在 service 层处理
+	msg, err := h.authSvc.ChangePassword(c.Request.Context(), userID, req.OldPassword, req.NewPassword)
+	if err != nil {
+		response.Error(c, err)
+		return
+	}
+
+	response.Success(c, msg)
 }
