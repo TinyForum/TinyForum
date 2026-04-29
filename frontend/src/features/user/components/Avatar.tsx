@@ -14,16 +14,16 @@ interface AvatarProps {
   ringColor?: string;
   ringOffset?: boolean;
   ringOffsetColor?: string;
+  /** 控制整个组件的层叠等级（默认为 auto） */
+  zIndex?: number | string;
 }
 
-// 尺寸映射
 const SIZE_MAP: Record<string, number> = {
   sm: 32,
   md: 40,
   lg: 56,
 };
 
-// 圆角映射
 const ROUNDED_MAP: Record<string, string> = {
   sm: "rounded-sm",
   md: "rounded-md",
@@ -46,54 +46,38 @@ export default function Avatar({
   ringColor = "primary",
   ringOffset = false,
   ringOffsetColor = "base-100",
+  zIndex = "auto",
 }: AvatarProps) {
-  const [hasError, setHasError] = useState<boolean>(false);
+  const [hasError, setHasError] = useState(false);
 
-  // 计算尺寸样式
   const sizeStyle = useMemo(() => {
-    if (size === "full") {
-      return { width: "100%", height: "100%" };
-    }
-    if (typeof size === "number") {
-      return { width: size, height: size };
-    }
+    if (size === "full") return { width: "100%", height: "100%" };
+    if (typeof size === "number") return { width: size, height: size };
     const pxSize = SIZE_MAP[size];
     return { width: pxSize, height: pxSize };
   }, [size]);
 
-  // 获取图片的实际像素尺寸（用于 Image 组件）
   const imageSize = useMemo(() => {
-    if (size === "full") {
-      return undefined; // 使用 fill 模式
-    }
-    if (typeof size === "number") {
-      return size;
-    }
+    if (size === "full") return undefined;
+    if (typeof size === "number") return size;
     return SIZE_MAP[size];
   }, [size]);
 
-  // 获取形状样式
   const getShapeStyles = (): string => {
     if (shape === "circle") return "rounded-full";
     if (shape === "rounded") {
       if (typeof roundedSize === "number") return `rounded-[${roundedSize}px]`;
       return ROUNDED_MAP[roundedSize] || "rounded-full";
     }
-    if (shape === "square") return "";
     return "";
   };
 
-  // 获取环样式
   const getRingStyles = (): string => {
     if (!ring) return "";
-    const ringClass = `ring ring-${ringColor}`;
-    const ringOffsetClass = ringOffset
-      ? `ring-offset-${ringOffsetColor} ring-offset-2`
-      : "";
-    return `${ringClass} ${ringOffsetClass}`;
+    return `ring ring-${ringColor} ${ringOffset ? `ring-offset-${ringOffsetColor} ring-offset-2` : ""}`;
   };
 
-  const handleError = (): void => {
+  const handleError = () => {
     if (!hasError) {
       setHasError(true);
       onError?.();
@@ -102,11 +86,12 @@ export default function Avatar({
 
   const shapeStyle = getShapeStyles();
   const ringStyle = getRingStyles();
+  const isFullSize = size === "full";
 
-  // 如果没有头像或加载失败，显示占位符
+  // 占位符 / 错误状态
   if (!avatarUrl || hasError) {
     return (
-      <div className={`avatar ${className}`}>
+      <div className={`avatar ${className}`} style={{ zIndex }}>
         <div
           className={`overflow-hidden bg-base-200 flex items-center justify-center ${shapeStyle} ${ringStyle}`}
           style={sizeStyle}
@@ -119,17 +104,15 @@ export default function Avatar({
     );
   }
 
-  // 判断是否为完整尺寸（需要 fill 模式）
-  const isFullSize = size === "full";
-
+  // 正常头像渲染
   return (
-    <div className={`avatar ${className}`}>
-      <div
-        className={`relative overflow-hidden bg-base-200 flex items-center justify-center ${shapeStyle} ${ringStyle}`}
-        style={sizeStyle}
-      >
-        {isFullSize ? (
-          // 使用 fill 模式（父元素必须有 relative 定位）
+    <div className={`avatar ${className}`} style={{ zIndex }}>
+      {isFullSize ? (
+        // fill 模式：必须使用 relative 容器 + fill 图片
+        <div
+          className={`relative overflow-hidden bg-base-200 ${shapeStyle} ${ringStyle}`}
+          style={{ ...sizeStyle, zIndex: 0 }}
+        >
           <Image
             src={avatarUrl}
             alt={username || "用户头像"}
@@ -141,9 +124,15 @@ export default function Avatar({
             unoptimized={
               !avatarUrl.startsWith("/") && !avatarUrl.includes("cdn")
             }
+            style={{ zIndex: -1 }} // 让图片位于容器背景之下，不干扰外部绝对定位元素
           />
-        ) : (
-          // 使用明确的宽高
+        </div>
+      ) : (
+        // 固定尺寸模式：无需 relative，避免创建多余层叠上下文
+        <div
+          className={`overflow-hidden bg-base-200 ${shapeStyle} ${ringStyle}`}
+          style={sizeStyle}
+        >
           <Image
             src={avatarUrl}
             alt={username || "用户头像"}
@@ -156,8 +145,8 @@ export default function Avatar({
               !avatarUrl.startsWith("/") && !avatarUrl.includes("cdn")
             }
           />
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
