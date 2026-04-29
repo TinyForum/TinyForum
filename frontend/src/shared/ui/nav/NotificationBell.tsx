@@ -6,7 +6,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { notificationApi } from "@/shared/api";
 import { useTranslations } from "next-intl";
 import { ApiResponse } from "@/shared/api/types";
-import { Popover, Transition, Dialog } from "@headlessui/react";
+import { Transition, Dialog } from "@headlessui/react";
 import { Fragment, useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 
@@ -45,9 +45,15 @@ export default function NotificationBell({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [position, setPosition] = useState({ top: 0, right: 0 });
+  const [isMounted, setIsMounted] = useState(false); // SSR 守卫
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const popoverRef = useRef<HTMLDivElement>(null);
 
-  // 获取最新通知预览
+  // SSR 守卫：客户端挂载后才允许 Portal 渲染
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   const { data: previewData, refetch } = useQuery({
     queryKey: ["notifications", "preview"],
     queryFn: () =>
@@ -59,7 +65,6 @@ export default function NotificationBell({
     enabled: false,
   });
 
-  // 标记单个通知为已读的 mutation
   const markAsReadMutation = useMutation({
     mutationFn: (notificationId: number) =>
       notificationApi.markRead(notificationId),
@@ -79,7 +84,6 @@ export default function NotificationBell({
 
   const notifications: Notification[] = previewData?.list || [];
 
-  // 更新弹出层位置
   const updatePosition = () => {
     if (buttonRef.current) {
       const rect = buttonRef.current.getBoundingClientRect();
@@ -90,7 +94,6 @@ export default function NotificationBell({
     }
   };
 
-  // 处理打开/关闭
   const handleOpen = () => {
     if (!isOpen) {
       refetch();
@@ -101,21 +104,35 @@ export default function NotificationBell({
     }
   };
 
-  const handleClose = () => {
-    setIsOpen(false);
-  };
+  const handleClose = () => setIsOpen(false);
 
-  // 监听滚动和窗口大小变化，更新位置
+  // 用 mousedown + ref 判断点击是否在弹出层或按钮内，替代透明遮罩
   useEffect(() => {
-    if (isOpen) {
-      updatePosition();
-      window.addEventListener("scroll", updatePosition);
-      window.addEventListener("resize", updatePosition);
-      return () => {
-        window.removeEventListener("scroll", updatePosition);
-        window.removeEventListener("resize", updatePosition);
-      };
-    }
+    if (!isOpen) return;
+
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as Node;
+      const inPopover = popoverRef.current?.contains(target);
+      const inButton = buttonRef.current?.contains(target);
+      if (!inPopover && !inButton) {
+        handleClose();
+      }
+    };
+
+    // mousedown 比 click 更早触发，体验更好，也不会被子元素 stopPropagation 影响
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isOpen]);
+
+  // 滚动 / resize 时同步更新位置
+  useEffect(() => {
+    if (!isOpen) return;
+    window.addEventListener("scroll", updatePosition, true); // capture 模式，捕获所有滚动容器
+    window.addEventListener("resize", updatePosition);
+    return () => {
+      window.removeEventListener("scroll", updatePosition, true);
+      window.removeEventListener("resize", updatePosition);
+    };
   }, [isOpen]);
 
   const formatTime = (dateStr: string) => {
@@ -125,7 +142,6 @@ export default function NotificationBell({
     const diffMins = Math.floor(diffMs / 60000);
     const diffHours = Math.floor(diffMs / 3600000);
     const diffDays = Math.floor(diffMs / 86400000);
-
     if (diffMins < 1) return "刚刚";
     if (diffMins < 60) return `${diffMins}分钟前`;
     if (diffHours < 24) return `${diffHours}小时前`;
@@ -133,8 +149,7 @@ export default function NotificationBell({
     return date.toLocaleDateString();
   };
 
-  // 截取通知内容，最多50字
-  const truncateContent = (content: string, maxLength: number = 50) => {
+  const truncateContent = (content: string, maxLength = 50) => {
     if (content.length <= maxLength) return content;
     return content.substring(0, maxLength) + "...";
   };
@@ -143,16 +158,15 @@ export default function NotificationBell({
     setSelectedNotification(notification);
     setIsModalOpen(true);
     handleClose();
-
     if (!notification.is_read) {
       markAsReadMutation.mutate(notification.id);
     }
   };
 
-  // 弹出层内容
-  const popoverContent = isOpen && (
+  const popoverContent = (
     <div
-      className="fixed z-50 w-[420px] origin-top-right"
+      ref={popoverRef}
+      className="absolute z-50 w-[420px] origin-top-right"
       style={{
         top: `${position.top}px`,
         right: `${position.right}px`,
@@ -166,9 +180,7 @@ export default function NotificationBell({
           </h3>
           {unreadCount > 0 && (
             <button
-              onClick={() => {
-                handleClose();
-              }}
+              onClick={handleClose}
               className="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 hover:underline"
             >
               {t("mark_all_read")}
@@ -187,11 +199,9 @@ export default function NotificationBell({
             notifications.map((notif: Notification) => (
               <div
                 key={notif.id}
-                onClick={() => {
-                  handleNotificationClick(notif);
-                }}
+                onClick={() => handleNotificationClick(notif)}
                 className={`
-                  cursor-pointer p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 
+                  cursor-pointer p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50
                   border-b border-gray-100 dark:border-gray-700 last:border-0
                   transition-colors
                   ${!notif.is_read ? "bg-blue-50/50 dark:bg-blue-900/20" : ""}
@@ -224,7 +234,7 @@ export default function NotificationBell({
         <div className="p-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
           <Link
             href="/notifications"
-            onClick={() => handleClose()}
+            onClick={handleClose}
             className="block text-center text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 hover:underline py-1"
           >
             {t("view_all")}
@@ -240,13 +250,10 @@ export default function NotificationBell({
       <button
         ref={buttonRef}
         onClick={handleOpen}
-        className={`
-          btn btn-ghost btn-sm relative focus:outline-none
-          ${compact ? "btn-square" : "btn-circle"}
-        `}
+        className={`btn btn-ghost btn-sm relative focus:outline-none ${compact ? "btn-square" : "btn-circle"}`}
         aria-label="通知"
       >
-        <Bell className={`w-5 h-5 ${compact ? "" : ""}`} />
+        <Bell className="w-5 h-5" />
         {unreadCount > 0 && (
           <span className="absolute -top-1 -right-1 badge badge-error badge-xs min-w-[16px] h-4 text-[10px] animate-pulse">
             {unreadCount > 99 ? "99+" : unreadCount}
@@ -254,85 +261,87 @@ export default function NotificationBell({
         )}
       </button>
 
-      {/* 使用 Portal 将弹出层渲染到 body */}
-      {typeof document !== "undefined" &&
-        createPortal(popoverContent, document.body)}
+      {/* 弹出层：isMounted 守卫替代 typeof document !== "undefined" */}
+      {isMounted && isOpen && createPortal(popoverContent, document.body)}
 
-      {/* 点击外部关闭 */}
-      {isOpen && <div className="fixed inset-0 z-40" onClick={handleClose} />}
-
-      {/* 通知详情模态框 */}
-      <Transition appear show={isModalOpen} as={Fragment}>
-        <Dialog className="relative z-50" onClose={() => setIsModalOpen(false)}>
-          <Transition.Child
-            as={Fragment}
-            enter="ease-out duration-300"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
-            leave="ease-in duration-200"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-          >
-            <div className="fixed inset-0 bg-black/25" />
-          </Transition.Child>
-
-          <div className="fixed inset-0 overflow-y-auto">
-            <div className="flex min-h-full items-center justify-center p-4">
+      {/* 通知详情模态框：同样用 Portal 挂到 body，防止被父级 stacking context 遮挡 */}
+      {isMounted &&
+        createPortal(
+          <Transition appear show={isModalOpen} as={Fragment}>
+            <Dialog
+              className="relative z-[99999]"
+              onClose={() => setIsModalOpen(false)}
+            >
               <Transition.Child
                 as={Fragment}
                 enter="ease-out duration-300"
-                enterFrom="opacity-0 scale-95"
-                enterTo="opacity-100 scale-100"
+                enterFrom="opacity-0"
+                enterTo="opacity-100"
                 leave="ease-in duration-200"
-                leaveFrom="opacity-100 scale-100"
-                leaveTo="opacity-0 scale-95"
+                leaveFrom="opacity-100"
+                leaveTo="opacity-0"
               >
-                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 p-6 shadow-xl transition-all">
-                  <div className="flex items-center justify-between mb-4">
-                    <Dialog.Title className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                      通知详情
-                    </Dialog.Title>
-                    <button
-                      onClick={() => setIsModalOpen(false)}
-                      className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
-                    >
-                      <X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
-                    </button>
-                  </div>
+                <div className="fixed inset-0 bg-black/40 backdrop-blur-sm" />
+              </Transition.Child>
 
-                  {selectedNotification && (
-                    <div className="space-y-4">
-                      <div className="prose prose-sm max-w-none dark:prose-invert">
-                        <p className="text-base leading-relaxed whitespace-pre-wrap break-words text-gray-700 dark:text-gray-300">
-                          {selectedNotification.content}
-                        </p>
-                      </div>
+              <div className="fixed inset-0 flex items-center justify-center p-4">
+                <Transition.Child
+                  as={Fragment}
+                  enter="ease-out duration-300"
+                  enterFrom="opacity-0 scale-95"
+                  enterTo="opacity-100 scale-100"
+                  leave="ease-in duration-200"
+                  leaveFrom="opacity-100 scale-100"
+                  leaveTo="opacity-0 scale-95"
+                >
+                  <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 p-6 shadow-xl transition-all">
+                    <div className="flex items-center justify-between mb-4">
+                      <Dialog.Title className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                        通知详情
+                      </Dialog.Title>
+                      <button
+                        onClick={() => setIsModalOpen(false)}
+                        className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
+                      >
+                        <X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                      </button>
+                    </div>
 
-                      <div className="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-gray-700">
-                        <div className="text-xs text-gray-400 dark:text-gray-500 space-y-1">
-                          <div>发送时间：{selectedNotification.created_at}</div>
-                          {selectedNotification.type && (
-                            <div>类型：{selectedNotification.type}</div>
+                    {selectedNotification && (
+                      <div className="space-y-4">
+                        <div className="prose prose-sm max-w-none dark:prose-invert">
+                          <p className="text-base leading-relaxed whitespace-pre-wrap break-words text-gray-700 dark:text-gray-300">
+                            {selectedNotification.content}
+                          </p>
+                        </div>
+                        <div className="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-gray-700">
+                          <div className="text-xs text-gray-400 dark:text-gray-500 space-y-1">
+                            <div>
+                              发送时间：{selectedNotification.created_at}
+                            </div>
+                            {selectedNotification.type && (
+                              <div>类型：{selectedNotification.type}</div>
+                            )}
+                          </div>
+                          {selectedNotification.target_id && (
+                            <Link
+                              href={`/${selectedNotification.target_type}/${selectedNotification.target_id}`}
+                              onClick={() => setIsModalOpen(false)}
+                              className="px-3 py-1.5 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                            >
+                              查看详情
+                            </Link>
                           )}
                         </div>
-                        {selectedNotification.target_id && (
-                          <Link
-                            href={`/${selectedNotification.target_type}/${selectedNotification.target_id}`}
-                            onClick={() => setIsModalOpen(false)}
-                            className="px-3 py-1.5 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                          >
-                            查看详情
-                          </Link>
-                        )}
                       </div>
-                    </div>
-                  )}
-                </Dialog.Panel>
-              </Transition.Child>
-            </div>
-          </div>
-        </Dialog>
-      </Transition>
+                    )}
+                  </Dialog.Panel>
+                </Transition.Child>
+              </div>
+            </Dialog>
+          </Transition>,
+          document.body,
+        )}
     </>
   );
 }
