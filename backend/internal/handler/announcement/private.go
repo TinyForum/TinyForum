@@ -3,7 +3,6 @@ package announcement
 import (
 	"strconv"
 
-	apperrors "tiny-forum/pkg/errors"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -17,16 +16,4 @@ func parseAnnouncementID(c *gin.Context) (uint, bool) {
 		return 0, false
 	}
 	return uint(id), true
-}
-
-// 统一处理 service 层错误
-func handleAnnouncementServiceError(c *gin.Context, err error) {
-	switch err {
-	case apperrors.ErrAnnouncementNotFound:
-		response.NotFound(c, err.Error())
-	case apperrors.ErrInvalidPublishTime:
-		response.BadRequest(c, err.Error())
-	default:
-		response.InternalError(c, err.Error())
-	}
 }

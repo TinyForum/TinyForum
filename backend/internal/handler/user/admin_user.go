@@ -36,7 +36,7 @@ func (h *UserHandler) AdminList(c *gin.Context) {
 func (h *UserHandler) AdminSetActive(c *gin.Context) {
 	targetID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.InvalidParams(c, []response.ValidationError{
+		response.ValidationFailed(c, []response.ValidationError{
 			{Field: "id", Message: "无效的用户ID格式"},
 		})
 		return
@@ -59,13 +59,13 @@ func (h *UserHandler) AdminSetActive(c *gin.Context) {
 		IsActive bool `json:"is_active"`
 	}
 	if err := c.ShouldBindJSON(&body); err != nil {
-		response.InvalidParams(c, []response.ValidationError{
+		response.ValidationFailed(c, []response.ValidationError{
 			{Field: "is_active", Message: "is_active 字段必须为布尔值"},
 		})
 		return
 	}
 	if err := h.userSvc.SetActive(uint(targetID), currentID, body.IsActive); err != nil {
-		response.Error(c, err)
+		response.HandleError(c, err)
 		return
 	}
 	response.Success(c, gin.H{
@@ -86,7 +86,7 @@ func (h *UserHandler) AdminSetActive(c *gin.Context) {
 func (h *UserHandler) AdminSetBlocked(c *gin.Context) {
 	targetID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.InvalidParams(c, response.SimpleValidationError("id", "无效的用户ID格式"))
+		response.ValidationFailed(c, response.SimpleValidationError("id", "无效的用户ID格式"))
 		return
 	}
 	currentUserID, exists := c.Get("user_id")
@@ -103,11 +103,11 @@ func (h *UserHandler) AdminSetBlocked(c *gin.Context) {
 		IsBlocked bool `json:"is_blocked"`
 	}
 	if err := c.ShouldBindJSON(&body); err != nil {
-		response.InvalidParams(c, response.SimpleValidationError("is_blocked", "is_blocked 字段必须为布尔值"))
+		response.ValidationFailed(c, response.SimpleValidationError("is_blocked", "is_blocked 字段必须为布尔值"))
 		return
 	}
 	if err := h.userSvc.SetBlocked(uint(targetID), currentID, body.IsBlocked); err != nil {
-		response.Error(c, err)
+		response.HandleError(c, err)
 		return
 	}
 	response.Success(c, gin.H{
@@ -175,11 +175,11 @@ func (h *UserHandler) AdminDeleteUser(c *gin.Context) {
 	}
 	targetID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.InvalidParams(c, response.SimpleValidationError("id", "无效的用户ID格式"))
+		response.ValidationFailed(c, response.SimpleValidationError("id", "无效的用户ID格式"))
 		return
 	}
 	if err := h.userSvc.DeleteUser(operatorUint, uint(targetID)); err != nil {
-		response.Error(c, err)
+		response.HandleError(c, err)
 		return
 	}
 	response.Success(c, gin.H{
@@ -222,12 +222,12 @@ func (h *UserHandler) AdminResetUserPassword(c *gin.Context) {
 	}
 	targetID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.InvalidParams(c, response.SimpleValidationError("id", "无效的用户ID格式"))
+		response.ValidationFailed(c, response.SimpleValidationError("id", "无效的用户ID格式"))
 		return
 	}
 	tempPassword, err := h.userSvc.ResetUserPasswordWithTemp(operatorUint, uint(targetID))
 	if err != nil {
-		response.Error(c, err)
+		response.HandleError(c, err)
 		return
 	}
 	h.sendTempPasswordNotification(uint(targetID), operatorUint, tempPassword)

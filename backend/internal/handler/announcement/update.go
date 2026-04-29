@@ -34,7 +34,7 @@ func (h *AnnouncementHandler) Update(c *gin.Context) {
 	}
 	userID := c.GetUint("user_id")
 	if err := h.service.Update(c.Request.Context(), id, &req, userID); err != nil {
-		handleAnnouncementServiceError(c, err)
+		response.HandleError(c, err)
 		return
 	}
 	response.Success(c, nil)
@@ -61,7 +61,7 @@ func (h *AnnouncementHandler) Publish(c *gin.Context) {
 	}
 	userID := c.GetUint("user_id")
 	if err := h.service.Publish(c.Request.Context(), id, userID); err != nil {
-		handleAnnouncementServiceError(c, err)
+		response.HandleError(c, err)
 		return
 	}
 	response.Success(c, nil)
@@ -88,7 +88,7 @@ func (h *AnnouncementHandler) Archive(c *gin.Context) {
 	}
 	userID := c.GetUint("user_id")
 	if err := h.service.Archive(c.Request.Context(), id, userID); err != nil {
-		handleAnnouncementServiceError(c, err)
+		response.HandleError(c, err)
 		return
 	}
 	response.Success(c, nil)
@@ -123,7 +123,7 @@ func (h *AnnouncementHandler) Pin(c *gin.Context) {
 	}
 	userID := c.GetUint("user_id")
 	if err := h.service.Pin(c.Request.Context(), id, req.Pinned, userID); err != nil {
-		handleAnnouncementServiceError(c, err)
+		response.HandleError(c, err)
 		return
 	}
 	response.Success(c, nil)

@@ -46,7 +46,7 @@ func (h *AuthHandler) RegisterRoutes(api *gin.RouterGroup, mw middleware.Middlew
 			// POST /auth/password/reset - 重置密码
 			passwordGroup.PUT("/reset", h.ResetPassword) // 通过 Token 修改密码
 			// GET /auth/password/validate-token - 验证token
-			passwordGroup.GET("/validate-token", h.ValidateResetToken) 
+			passwordGroup.GET("/validate-token", h.ValidateResetToken)
 			passwordGroup.PUT("/reset-withtoken", h.ResetPasswordWithToken) // 验证 Token 是否有效
 			// GET /auth/password/reset
 			// passwordGroup.GET("/reset", h.ShowResetPage)

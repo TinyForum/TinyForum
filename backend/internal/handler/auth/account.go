@@ -150,7 +150,7 @@ func (h *AuthHandler) ChangePassword(c *gin.Context) {
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		response.Error(c, apperrors.ErrInvalidRequest)
+		response.HandleError(c, apperrors.ErrInvalidRequest)
 		return
 	}
 
@@ -159,7 +159,7 @@ func (h *AuthHandler) ChangePassword(c *gin.Context) {
 	// 直接调用 service，所有业务逻辑都在 service 层处理
 	msg, err := h.authSvc.ChangePassword(c.Request.Context(), userID, req.OldPassword, req.NewPassword)
 	if err != nil {
-		response.Error(c, err)
+		response.HandleError(c, err)
 		return
 	}
 

@@ -120,7 +120,8 @@ func (s *authService) ForgotPassword(ctx context.Context, email, ip, userAgent, 
 	}
 
 	// 保存重置令牌（通常设置过期时间，15 分钟）
-	if err := s.tokenRepo.SaveResetToken(ctx, user.ID, token, 15*time.Minute); err != nil {
+	tokenExpiresIn := 15 * time.Minute
+	if err := s.tokenRepo.SaveResetToken(ctx, user.ID, token, tokenExpiresIn); err != nil {
 		logger.Error("Failed to save reset token", zap.String("error", err.Error()))
 		return nil
 	}
@@ -143,7 +144,7 @@ func (s *authService) ForgotPassword(ctx context.Context, email, ip, userAgent, 
 				logger.Error("Recovered from panic in ForgotPassword goroutine", zap.Any("panic", r))
 			}
 		}()
-		err = s.emailSvc.SendResetPasswordEmail(email, token, user.Username, appURL, apiVersion, ip, userAgent, locale)
+		err = s.emailSvc.SendResetPasswordEmail(email, token, tokenExpiresIn, user.Username, appURL, apiVersion, ip, userAgent, locale)
 		if err != nil {
 			logger.Errorf("failed to send reset password email", "error", err)
 		}
@@ -160,39 +161,39 @@ func (s *authService) buildAppURL(protocol, host string, port int, basePath stri
 	if protocol == "" {
 		protocol = "http"
 	}
-	
+
 	host = strings.TrimSpace(host)
 	if host == "" {
 		host = "localhost"
 	}
-	
+
 	// 处理 basePath：去除首尾斜杠，但保留根路径为空字符串
 	basePath = strings.TrimSpace(basePath)
 	if basePath != "" {
 		basePath = strings.Trim(basePath, "/")
 	}
-	
+
 	// 构建基础 URL
 	var baseURL strings.Builder
-	
+
 	// 添加协议和主机
 	baseURL.WriteString(fmt.Sprintf("%s://%s", protocol, host))
-	
+
 	// 添加端口（非标准端口或明确指定时才添加）
 	isStandardPort := (protocol == "http" && port == 80) || (protocol == "https" && port == 443)
 	hasPort := port > 0
-	
+
 	if hasPort && !isStandardPort {
 		baseURL.WriteString(fmt.Sprintf(":%d", port))
 	}
-	
+
 	// 添加 basePath（如果存在）
 	if basePath != "" {
 		baseURL.WriteString("/" + basePath)
 	}
-	
+
 	fullURL := baseURL.String()
-	
+
 	// 调试输出
 	logger.Debugf("built app URL",
 		"protocol", protocol,
@@ -201,7 +202,7 @@ func (s *authService) buildAppURL(protocol, host string, port int, basePath stri
 		"base_path", basePath,
 		"full_url", fullURL,
 	)
-	
+
 	return fullURL
 }
 
@@ -216,8 +217,6 @@ func (s *authService) ResetPassword(ctx context.Context, req *dto.ResetPasswordR
 		}
 		return err
 	}
-
-
 
 	// 哈希新密码
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
@@ -243,52 +242,52 @@ func (s *authService) ValidateOldPassword(userID uint, oldPassword string) (bool
 	return err == nil, nil
 }
 
-func (s *authService) ResetPasswordWithToken(ctx context.Context, token, newPassword string) error  {
-    logger.Infof("Service: ResetPasswordWithToken called with token: %s", token)
-    
-    // 1. 验证 token 并获取用户
-    user, err := s.authRepo.GetUserByResetToken(ctx, token)
-    if err != nil {
-        if errors.Is(err, apperrors.ErrTokenInvalid) {
-            logger.Infof("Token already used or expired (idempotent response): %s", token)
-            return nil  
-        }
-        // 其他错误才记录 Error
-        logger.Errorf("Failed to get user by token: %v", err)
-        return err
-    }
-    
-    // 2. 检查用户状态
-    if user.DeletedAt.Valid {
-        logger.Warnf("User deleted: %d", user.ID)
-        return apperrors.ErrUserDeleted
-    }
-    if user.IsBlocked {
-        logger.Warnf("User blocked: %d", user.ID)
-        return apperrors.ErrUserBlocked
-    }
-    
-    // 3. 哈希新密码
-    hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
-    if err != nil {
-        logger.Errorf("Failed to hash password: %v", err)
-        return apperrors.ErrInternalError
-    }
-    
-    // 4. 更新用户密码
-    user.Password = string(hashedPassword)
-    if err := s.authRepo.Update(ctx, user); err != nil {
-        logger.Errorf("Failed to update user: %v", err)
-        return apperrors.ErrInternalError
-    }
-    
-    // 5. 删除已使用的 reset token
-    if err := s.authRepo.DeleteResetToken(ctx, token); err != nil {
-        // 删除失败不影响主流程，改为 Warn 级别
-        logger.Warnf("Failed to delete reset token (may already be deleted): %v", err)
-        // 不返回错误
-    }
-    
-    logger.Infof("Password reset successfully for user: %s", user.Email)
-    return nil
+func (s *authService) ResetPasswordWithToken(ctx context.Context, token, newPassword string) error {
+	logger.Infof("Service: ResetPasswordWithToken called with token: %s", token)
+
+	// 1. 验证 token 并获取用户
+	user, err := s.authRepo.GetUserByResetToken(ctx, token)
+	if err != nil {
+		if errors.Is(err, apperrors.ErrTokenInvalid) {
+			logger.Infof("Token already used or expired (idempotent response): %s", token)
+			return nil
+		}
+		// 其他错误才记录 Error
+		logger.Errorf("Failed to get user by token: %v", err)
+		return err
+	}
+
+	// 2. 检查用户状态
+	if user.DeletedAt.Valid {
+		logger.Warnf("User deleted: %d", user.ID)
+		return apperrors.ErrUserDeleted
+	}
+	if user.IsBlocked {
+		logger.Warnf("User blocked: %d", user.ID)
+		return apperrors.ErrUserBlocked
+	}
+
+	// 3. 哈希新密码
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
+	if err != nil {
+		logger.Errorf("Failed to hash password: %v", err)
+		return apperrors.ErrInternalError
+	}
+
+	// 4. 更新用户密码
+	user.Password = string(hashedPassword)
+	if err := s.authRepo.Update(ctx, user); err != nil {
+		logger.Errorf("Failed to update user: %v", err)
+		return apperrors.ErrInternalError
+	}
+
+	// 5. 删除已使用的 reset token
+	if err := s.authRepo.DeleteResetToken(ctx, token); err != nil {
+		// 删除失败不影响主流程，改为 Warn 级别
+		logger.Warnf("Failed to delete reset token (may already be deleted): %v", err)
+		// 不返回错误
+	}
+
+	logger.Infof("Password reset successfully for user: %s", user.Email)
+	return nil
 }

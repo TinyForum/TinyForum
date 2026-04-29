@@ -1,9 +1,11 @@
 package announcement
 
 import (
+	"tiny-forum/pkg/logger"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 // Delete 删除公告
@@ -28,7 +30,12 @@ func (h *AnnouncementHandler) Delete(c *gin.Context) {
 	}
 	userID := c.GetUint("user_id")
 	if err := h.service.Delete(c.Request.Context(), id, userID); err != nil {
-		handleAnnouncementServiceError(c, err)
+		response.HandleError(c, err)
+		logger.Error("delete announcement failed",
+			zap.Uint("id", id),
+			zap.Uint("user_id", userID),
+			zap.Error(err),
+		)
 		return
 	}
 	response.Success(c, nil)

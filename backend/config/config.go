@@ -23,13 +23,10 @@ type ConfigRiskControl struct {
 	RateLimit RateLimitConfig `mapstructure:"rate_limit"` // 风控
 }
 type RateLimitConfig struct {
-	RiskLevels map[string]map[string]QuotaConfig `yaml:"risk_levels"` // 风控等级
-	Enabled     bool     `yaml:"enabled" json:"enabled"`
-    IPWhitelist []string `yaml:"ip_whitelist" json:"ip_whitelist"`
-
+	RiskLevels  map[string]map[string]QuotaConfig `yaml:"risk_levels"` // 风控等级
+	Enabled     bool                              `yaml:"enabled" json:"enabled"`
+	IPWhitelist []string                          `yaml:"ip_whitelist" json:"ip_whitelist"`
 }
-
-
 
 type QuotaConfig struct {
 	Limit  int    `yaml:"limit"`
@@ -49,9 +46,8 @@ type ConfigBasic struct {
 }
 type FrontendConfig struct {
 	Protocol string `mapstructure:"protocol"`
-	Host string `mapstructure:"host"`
-	Port int    `mapstructure:"port"`
-
+	Host     string `mapstructure:"host"`
+	Port     int    `mapstructure:"port"`
 }
 
 type UploadConfig struct {

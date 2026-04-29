@@ -21,6 +21,7 @@ const (
 	CodeTooManyRequests = 10005
 	CodeInternalError   = 10006
 	CodeInvalidRequest  = 10007
+	CodeSystemBusy      = 10008
 	// 10007-10099 预留
 
 	// ------------------------------------------------------------
@@ -54,7 +55,6 @@ const (
 	// 积分 (20060-20079)
 	CodeScoreNotEnough = 20060
 	// 20061-20079 预留
-
 
 	// 封禁 (20080-20099) 注：复用部分角色/权限码，但单独列出方便扩展
 	CodeUserBlocked = 20080
@@ -177,6 +177,7 @@ var (
 	ErrInvalidRequest        = &AppError{Code: CodeInvalidRequest, Message: "无效的请求"}
 	ErrCodePasswordTooShort  = &AppError{Code: CodePasswordTooShort, Message: "密码长度至少为6位"}
 	ErrCodePasswordSameAsOld = &AppError{Code: CodePasswordSameAsOld, Message: "新密码不能与旧密码相同"}
+	ErrSystemBusy            = &AppError{Code: CodeSystemBusy, Message: "系统繁忙，请稍后再试"}
 	// 用户模块
 	ErrUserNotFound          = &AppError{Code: CodeUserNotFound, Message: "用户不存在"}
 	ErrUserExist             = &AppError{Code: CodeUserExist, Message: "用户已存在"}
@@ -194,8 +195,8 @@ var (
 	ErrAlreadyFollow         = &AppError{Code: CodeAlreadyFollow, Message: "已经关注了该用户"}
 	ErrNotFollow             = &AppError{Code: CodeNotFollow, Message: "尚未关注该用户"}
 	ErrScoreNotEnough        = &AppError{Code: CodeScoreNotEnough, Message: "积分不足"}
-	ErrUserBlocked          = &AppError{Code: CodeUserBlocked, Message: "用户已被封禁"}
-	ErrUserDeleted          = &AppError{Code: CodeUserDeleted, Message: "用户已被删除"}
+	ErrUserBlocked           = &AppError{Code: CodeUserBlocked, Message: "用户已被封禁"}
+	ErrUserDeleted           = &AppError{Code: CodeUserDeleted, Message: "用户已被删除"}
 
 	// 封禁相关
 	ErrCannotBlockSelf       = &AppError{Code: CodeCannotModifySelf, Message: "不能封禁自己的账号"}
@@ -211,10 +212,9 @@ var (
 	ErrInvalidToken      = &AppError{Code: CodeUnauthorized, Message: "无效的Token"}
 	ErrRequiredToken     = &AppError{Code: CodeValidation, Message: "需要Token"}
 	ErrRequiredCaptcha   = &AppError{Code: CodeValidation, Message: "需要验证码"}
-	ErrInvalidCaptcha    = &AppError{Code: CodeValidation, Message: "验证码错误"} // 验证码错误
-	ErrValidationFailed  = &AppError{Code: CodeValidation, Message: "验证失败"} // 验证失败
-	ErrTokenInvalid    = &AppError{Code: CodeUnauthorized, Message: "无效的Token"} // 无效的Token
-	
+	ErrInvalidCaptcha    = &AppError{Code: CodeValidation, Message: "验证码错误"}      // 验证码错误
+	ErrValidationFailed  = &AppError{Code: CodeValidation, Message: "验证失败"}       // 验证失败
+	ErrTokenInvalid      = &AppError{Code: CodeUnauthorized, Message: "无效的Token"} // 无效的Token
 
 	// 内容模块 - 帖子
 	ErrPostNotFound = &AppError{Code: CodePostNotFound, Message: "帖子不存在"}

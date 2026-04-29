@@ -29,7 +29,7 @@ func (h *AnnouncementHandler) GetByID(c *gin.Context) {
 
 	announcement, err := h.service.GetByID(c.Request.Context(), id)
 	if err != nil {
-		handleAnnouncementServiceError(c, err)
+		response.HandleError(c, err)
 		return
 	}
 	response.Success(c, announcement)

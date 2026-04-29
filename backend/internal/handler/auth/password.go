@@ -23,7 +23,7 @@ import (
 func (c *AuthHandler) ForgotPassword(ctx *gin.Context) {
 	var req dto.ForgotPasswordRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		response.Error(ctx, apperrors.ErrInvalidRequest)
+		response.HandleError(ctx, apperrors.ErrInvalidRequest)
 		return
 	}
 	locale := parseAcceptLanguage(ctx.GetHeader("Accept-Language"))
@@ -38,7 +38,6 @@ func (c *AuthHandler) ForgotPassword(ctx *gin.Context) {
 	})
 }
 
-
 // ResetPassword 登录用户重置密码
 // ConfirmDeletion godoc
 // @Summary 重置密码
@@ -52,12 +51,12 @@ func (c *AuthHandler) ResetPassword(ctx *gin.Context) {
 	var req dto.ResetPasswordRequest
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		response.Error(ctx, apperrors.ErrInternalError)
+		response.HandleError(ctx, apperrors.ErrInternalError)
 		return
 	}
 
 	if err := c.authSvc.ResetPassword(ctx, &req); err != nil {
-		response.Error(ctx, apperrors.ErrInternalError)
+		response.HandleError(ctx, apperrors.ErrInternalError)
 		return
 	}
 
@@ -79,33 +78,33 @@ func (c *AuthHandler) ResetPassword(ctx *gin.Context) {
 // @Failure 400 {object} response.Response
 // @Router /auth/password/reset [put]
 func (h *AuthHandler) ResetPasswordWithToken(ctx *gin.Context) {
-    logger.Info("=== ResetPasswordWithToken called ===")
-    
-    var req dto.ResetPasswordWithTokenRequest
-    if err := ctx.ShouldBindJSON(&req); err != nil {
-        logger.Errorf("Failed to bind request: %v", err)
-        response.BadRequest(ctx, "Invalid request format")
-        return
-    }
-    
-    // 验证密码
-    if len(req.Password) < 6 {
-        response.BadRequest(ctx, "Password must be at least 6 characters")
-        return
-    }
-    
-    // 调用服务层重置密码
-    err := h.authSvc.ResetPasswordWithToken(ctx.Request.Context(), req.Token, req.Password)
-    if err != nil {
-        logger.Errorf("Reset password failed: %v", err)
-        response.Error(ctx, err)
-        return
-    }
-    
-    response.Success(ctx, gin.H{
-        "message": "Password has been reset successfully",
-        "success": true,
-    })
+	logger.Info("=== ResetPasswordWithToken called ===")
+
+	var req dto.ResetPasswordWithTokenRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		logger.Errorf("Failed to bind request: %v", err)
+		response.BadRequest(ctx, "Invalid request format")
+		return
+	}
+
+	// 验证密码
+	if len(req.Password) < 6 {
+		response.BadRequest(ctx, "Password must be at least 6 characters")
+		return
+	}
+
+	// 调用服务层重置密码
+	err := h.authSvc.ResetPasswordWithToken(ctx.Request.Context(), req.Token, req.Password)
+	if err != nil {
+		logger.Errorf("Reset password failed: %v", err)
+		response.HandleError(ctx, err)
+		return
+	}
+
+	response.Success(ctx, gin.H{
+		"message": "Password has been reset successfully",
+		"success": true,
+	})
 }
 
 // ValidateResetToken 验证重置密码 token
@@ -118,30 +117,30 @@ func (h *AuthHandler) ResetPasswordWithToken(ctx *gin.Context) {
 // @Success 200 {object} response.Response
 // @Router /auth/password/validate-token [get]
 func (h *AuthHandler) ValidateResetToken(ctx *gin.Context) {
-    logger.Info("=== [handler] request validate-token ===")
-    
-    token := ctx.Query("token")
-    if token == "" {
-         response.BadRequest(ctx, "token parameter is required")
-        return
-    }
+	logger.Info("=== [handler] request validate-token ===")
 
-    valid, err := h.authSvc.ValidateResetToken(ctx.Request.Context(), token)
-    if err != nil {
-        logger.Errorf("validate reset token failed: %v", err)
-          response.InternalError(ctx, "failed to validate token")
-        return
-    }
-    
-    if !valid {
-        response.BadRequest(ctx, "token is invalid or has expired")
-        return
-    }
+	token := ctx.Query("token")
+	if token == "" {
+		response.BadRequest(ctx, "token parameter is required")
+		return
+	}
 
-    // 验证成功
-    response.Success(ctx, gin.H{
-        "valid": valid,
-    })
+	valid, err := h.authSvc.ValidateResetToken(ctx.Request.Context(), token)
+	if err != nil {
+		logger.Errorf("validate reset token failed: %v", err)
+		response.InternalError(ctx, "failed to validate token")
+		return
+	}
+
+	if !valid {
+		response.BadRequest(ctx, "token is invalid or has expired")
+		return
+	}
+
+	// 验证成功
+	response.Success(ctx, gin.H{
+		"valid": valid,
+	})
 }
 
 // // TODO: 修复重置密码页面和更改密码页面

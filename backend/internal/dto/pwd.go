@@ -21,14 +21,12 @@ type ValidateTokenResponse struct {
 	Valid bool `json:"valid"`
 }
 
-
-
 type ResetPasswordWithTokenRequest struct {
-    Token    string `json:"token" binding:"required"`
-    Password string `json:"password" binding:"required,min=6"`
+	Token    string `json:"token" binding:"required"`
+	Password string `json:"password" binding:"required,min=6"`
 }
 
 type ResetPasswordWithTokenResponse struct {
-    Success bool   `json:"success"`
-    Message string `json:"message"`
+	Success bool   `json:"success"`
+	Message string `json:"message"`
 }

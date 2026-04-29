@@ -25,7 +25,7 @@ func GetUintParam(c *gin.Context, key string) (uint, bool) {
 func MustGetUintParam(c *gin.Context, key string) (uint, bool) {
 	id, ok := GetUintParam(c, key)
 	if !ok {
-		response.InvalidParams(c, []response.ValidationError{
+		response.ValidationFailed(c, []response.ValidationError{
 			{Field: key, Message: "无效的ID格式"},
 		})
 		return 0, false

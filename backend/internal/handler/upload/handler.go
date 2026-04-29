@@ -44,7 +44,7 @@ func (h *UploadHandler) Upload(c *gin.Context) {
 	// 调用服务上传
 	result, err := h.service.UploadFile(c.Request.Context(), userID.(int64), file, &req)
 	if err != nil {
-		response.Error(c, err)
+		response.HandleError(c, err)
 		return
 	}
 
@@ -95,7 +95,7 @@ func (h *UploadHandler) DeleteFile(c *gin.Context) {
 	}
 
 	if err := h.service.DeleteFile(c.Request.Context(), userID.(int64), fileID); err != nil {
-		response.Error(c, err)
+		response.HandleError(c, err)
 		return
 	}
 
@@ -124,7 +124,7 @@ func (h *UploadHandler) GetUserFiles(c *gin.Context) {
 
 	list, total, err := h.service.GetUserFiles(c.Request.Context(), userID.(int64), fileType, page, pageSize)
 	if err != nil {
-		response.Error(c, err)
+		response.HandleError(c, err)
 		return
 	}
 

@@ -107,7 +107,12 @@ func (s *emailService) sendEmailSync(to, subject, body string) error {
 }
 
 // SendResetPasswordEmail 发送重置密码邮件
-func (s *emailService) SendResetPasswordEmail(to, token, username, appURL, apiVersion, ip, userAgent, locale string) error {
+func (s *emailService) SendResetPasswordEmail(
+	to string,
+	token string,
+	tokenExpiresIn time.Duration, 
+	username, appURL, apiVersion, ip, userAgent, locale string,
+	) error {
 	if !s.enabled {
 		logger.Warn("Email service disabled, skipping password reset email")
 		return nil
@@ -115,14 +120,14 @@ func (s *emailService) SendResetPasswordEmail(to, token, username, appURL, apiVe
 
 	// 构建重置链接
 	// resetURL := fmt.Sprintf("%s/%s/auth/password/validate-token?token=%s", appURL, apiVersion, token)
-// http://localhost:3000/zh-CN/auth/reset-password?token=ec2d50e6a812530e3baca78a8b1e0ba405fa4b8932185fd1235a206569cb44a4
-resetURL := fmt.Sprintf("%s/auth/reset-password?token=%s", appURL, token)
+	// http://localhost:3000/zh-CN/auth/reset-password?token=ec2d50e6a812530e3baca78a8b1e0ba405fa4b8932185fd1235a206569cb44a4
+	resetURL := fmt.Sprintf("%s/auth/reset-password?token=%s", appURL, token)
 
 	// 准备邮件数据
 	data := EmailData{
 		Username:     username,
 		ResetURL:     resetURL,
-		ExpiresIn:    "60 minutes",
+		ExpiresIn:    FormatDuration(tokenExpiresIn),
 		Year:         time.Now().Year(),
 		AppName:      "TinyForum",
 		SupportEmail: "support@tinyforum.com",

@@ -17,7 +17,7 @@ func (h *BoardHandler) RegisterRoutes(api *gin.RouterGroup, mw middleware.Middle
 		boards.GET("/tree", h.GetTree) // GET /api/v1/boards/tree
 
 		// 通过 slug 访问（公开）
-		boards.GET("/slug/:slug", h.GetBoardBySlug)                            // GET /api/v1/boards/slug/:slug
+		boards.GET("/slug/:slug", h.GetBoardBySlug)                          // GET /api/v1/boards/slug/:slug
 		boards.GET("/slug/:slug/posts", mw.OptionalAuth(), h.GetPostsBySlug) // GET /api/v1/boards/slug/:slug/posts
 
 		// 通过 ID 访问（公开）
