@@ -165,6 +165,10 @@ func Error(c *gin.Context, err error) {
 	AppError(c, err)
 }
 
+// TooManyRequests 处理请求过多的错误响应
+// 参数:
+//   c - gin上下文对象，用于HTTP响应
+//   msg - 错误信息，将返回给客户端
 func TooManyRequests(c *gin.Context, msg string) {
-	Fail(c, http.StatusTooManyRequests, 42900, msg) // 自定义业务码 42900
+	Fail(c, http.StatusTooManyRequests, 42900, msg) // 自定义业务码 42900，表示请求过于频繁
 }

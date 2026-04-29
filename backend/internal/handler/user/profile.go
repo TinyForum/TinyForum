@@ -55,40 +55,42 @@ func (h *UserHandler) UpdateProfile(c *gin.Context) {
 	response.Success(c, user)
 }
 
-// ChangePassword 修改密码
-// @Summary 修改密码
-// @Tags 用户管理
-// @Accept json
-// @Produce json
-// @Security ApiKeyAuth
-// @Param body body model.ChangePasswordInput true "密码"
-// @Router /users/password [patch]
-func (h *UserHandler) ChangePassword(c *gin.Context) {
-	userID, exists := c.Get("user_id")
-	if !exists {
-		response.Unauthorized(c, "未登录")
-		return
-	}
-	var input model.ChangePasswordInput
-	if err := c.ShouldBindJSON(&input); err != nil {
-		response.BadRequest(c, "请求参数错误: "+err.Error())
-		return
-	}
-	if input.OldPassword == "" {
-		response.BadRequest(c, "请输入当前密码")
-		return
-	}
-	if input.NewPassword == "" {
-		response.BadRequest(c, "请输入新密码")
-		return
-	}
-	message, err := h.authSvc.ChangePassword(userID.(uint), input.OldPassword, input.NewPassword)
-	if err != nil {
-		response.AppError(c, err)
-		return
-	}
-	response.Success(c, gin.H{"message": message})
-}
+// // ChangePassword 修改密码
+// // @Summary 修改密码
+// // @Tags 用户管理
+// // @Accept json
+// // @Produce json
+// // @Security ApiKeyAuth
+// // @Param body body model.ChangePasswordInput true "密码"
+// // @Router /users/password [patch]
+// //
+// // Deprecated: 使用 AuthHandler 中的 ChangePassword 替代
+// func (h *UserHandler) ChangePassword(c *gin.Context) {
+// 	userID, exists := c.Get("user_id")
+// 	if !exists {
+// 		response.Unauthorized(c, "未登录")
+// 		return
+// 	}
+// 	var input model.ChangePasswordInput
+// 	if err := c.ShouldBindJSON(&input); err != nil {
+// 		response.BadRequest(c, "请求参数错误: "+err.Error())
+// 		return
+// 	}
+// 	if input.OldPassword == "" {
+// 		response.BadRequest(c, "请输入当前密码")
+// 		return
+// 	}
+// 	if input.NewPassword == "" {
+// 		response.BadRequest(c, "请输入新密码")
+// 		return
+// 	}
+// 	message, err := h.authSvc.ChangePassword(c,userID.(uint), input.OldPassword, input.NewPassword)
+// 	if err != nil {
+// 		response.AppError(c, err)
+// 		return
+// 	}
+// 	response.Success(c, gin.H{"message": message})
+// }
 
 // Me godoc
 // @Summary 获取当前用户信息

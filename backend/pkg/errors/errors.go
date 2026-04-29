@@ -55,7 +55,10 @@ const (
 	CodeScoreNotEnough = 20060
 	// 20061-20079 预留
 
+
 	// 封禁 (20080-20099) 注：复用部分角色/权限码，但单独列出方便扩展
+	CodeUserBlocked = 20080
+	CodeUserDeleted = 20081
 	// 20080-20099 预留（用户封禁、注销等）
 
 	// ------------------------------------------------------------
@@ -191,6 +194,8 @@ var (
 	ErrAlreadyFollow         = &AppError{Code: CodeAlreadyFollow, Message: "已经关注了该用户"}
 	ErrNotFollow             = &AppError{Code: CodeNotFollow, Message: "尚未关注该用户"}
 	ErrScoreNotEnough        = &AppError{Code: CodeScoreNotEnough, Message: "积分不足"}
+	ErrUserBlocked          = &AppError{Code: CodeUserBlocked, Message: "用户已被封禁"}
+	ErrUserDeleted          = &AppError{Code: CodeUserDeleted, Message: "用户已被删除"}
 
 	// 封禁相关
 	ErrCannotBlockSelf       = &AppError{Code: CodeCannotModifySelf, Message: "不能封禁自己的账号"}
@@ -206,8 +211,10 @@ var (
 	ErrInvalidToken      = &AppError{Code: CodeUnauthorized, Message: "无效的Token"}
 	ErrRequiredToken     = &AppError{Code: CodeValidation, Message: "需要Token"}
 	ErrRequiredCaptcha   = &AppError{Code: CodeValidation, Message: "需要验证码"}
-	ErrInvalidCaptcha    = &AppError{Code: CodeValidation, Message: "验证码错误"}
-	ErrValidationFailed  = &AppError{Code: CodeValidation, Message: "验证失败"}
+	ErrInvalidCaptcha    = &AppError{Code: CodeValidation, Message: "验证码错误"} // 验证码错误
+	ErrValidationFailed  = &AppError{Code: CodeValidation, Message: "验证失败"} // 验证失败
+	ErrTokenInvalid    = &AppError{Code: CodeUnauthorized, Message: "无效的Token"} // 无效的Token
+	
 
 	// 内容模块 - 帖子
 	ErrPostNotFound = &AppError{Code: CodePostNotFound, Message: "帖子不存在"}

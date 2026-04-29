@@ -10,6 +10,7 @@ import (
 	"tiny-forum/internal/model"
 	userSvc "tiny-forum/internal/service/user"
 	apperrors "tiny-forum/pkg/errors"
+	"tiny-forum/pkg/logger"
 
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
@@ -147,46 +148,61 @@ func (s *authService) RevokeToken(ctx context.Context, rawToken string) error {
 	// 将 JTI 存入黑名单，TTL 与 token 剩余有效期一致，节省存储
 	return s.tokenRepo.RevokeToken(ctx, claims.ID, claims.ExpiresAt.Time)
 }
+func (s *authService) FinduUserEmailByID(userID uint) (string, error) {
+	user := &model.User{}
+	user, err := s.userRepo.FindByID(userID)
+	if err != nil {
+		return "", err
+	}
+	return user.Email, nil
+
+}
 
 // ChangePassword 修改密码
-func (s *authService) ChangePassword(userID uint, oldPassword, newPassword string) (string, error) {
-	ctx := context.Background()
-
-	targetUser, err := s.userRepo.FindByID(userID)
+// ChangePassword 修改密码
+func (s *authService) ChangePassword(ctx context.Context, userID uint, oldPassword, newPassword string) (string, error) {
+	// 1. 获取用户信息
+	user, err := s.userRepo.FindByID(userID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return "", apperrors.Wrapf(apperrors.ErrUserNotFound, "ID: %d", userID)
+			return "", apperrors.ErrUserNotFound
 		}
-		return "", fmt.Errorf("查询目标用户失败: %w", err)
+		return "", fmt.Errorf("查询用户失败: %w", err)
 	}
 
-	if err := bcrypt.CompareHashAndPassword([]byte(targetUser.Password), []byte(oldPassword)); err != nil {
+	// 2. 验证旧密码
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(oldPassword)); err != nil {
 		return "", apperrors.ErrInvalidPassword
 	}
 
-	// 禁止与旧密码相同
+	// 3. 禁止与旧密码相同
 	if oldPassword == newPassword {
 		return "", apperrors.ErrPasswordSameAsOld
 	}
 
-	// 修改密码时同样强制密码强度校验
+	// 4. 密码强度校验
 	if err := validatePasswordStrength(newPassword); err != nil {
 		return "", err
 	}
 
+	// 5. 加密新密码
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
 	if err != nil {
 		return "", fmt.Errorf("密码加密失败: %w", err)
 	}
 
+	// 6. 更新密码
 	if err := s.userRepo.UpdatePassword(ctx, userID, string(hashedPassword)); err != nil {
 		return "", fmt.Errorf("更新密码失败: %w", err)
 	}
 
-	//  修改密码后吊销该用户所有 refresh token，强制其他设备重新登录
-	// （当前 JWT 短期有效，此处清除 refresh token 以实现全端下线）
-	_ = s.tokenRepo.RevokeAllUserTokens(ctx, userID)
+	// 7. 吊销所有 refresh token（强制其他设备下线）
+	if err := s.tokenRepo.RevokeAllUserTokens(ctx, userID); err != nil {
+		// 记录日志但不影响主流程
+		logger.Warnf("警告: 吊销 token 失败: %v", err)
+	}
 
+	// 8. 返回消息（根据密码强度）
 	strength := s.checkPasswordStrength(newPassword)
 	if strength == "weak" {
 		return "密码修改成功，但密码强度较弱，建议使用更复杂的密码", nil

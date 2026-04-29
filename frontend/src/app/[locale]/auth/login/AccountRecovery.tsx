@@ -47,7 +47,7 @@
 //       // 先登录获取 token
 //       const loginResponse = await authApi.login({ email, password });
 
-//       if (loginResponse.data.code === 200) {
+//       if (loginresponse.data.code === 0) {
 //         // 获取删除状态
 //         const statusResponse = await authApi.getDeletionStatus();
 //         setDeletionStatus(statusResponse.data.data);

@@ -32,17 +32,23 @@ type DeletionStatus struct {
 
 // Service 定义业务逻辑接口
 type AuthService interface {
-	ForgotPassword(ctx context.Context, email, ip, userAgent,locale string) error
-	ResetPassword(ctx context.Context, req *dto.ResetPasswordRequest) error
-	ValidateResetToken(ctx context.Context, token string) (bool, error)
-	Login(ctx context.Context, input userSvc.LoginInput) (*AuthResult, error)
-	Register(ctx context.Context, input userSvc.RegisterInput) (*userSvc.AuthResult, error)
-	ChangePassword(userID uint, oldPassword, newPassword string) (string, error)
-	DeleteAccount(ctx context.Context, userID uint, input DeleteAccountInput) error
-	CancelDeletion(ctx context.Context, userID uint) error
-	ConfirmDeletion(ctx context.Context, userID uint) error
-	GetDeletionStatus(ctx context.Context, userID uint) (*DeletionStatus, error)
-	RevokeToken(ctx context.Context, jti string) error
+	ForgotPassword(ctx context.Context, email, ip, userAgent, locale string) error                    // 忘记密码，发送重置密码邮件
+	ResetPassword(ctx context.Context, req *dto.ResetPasswordRequest) error                           // 重置密码
+	ValidateResetToken(ctx context.Context, token string) (bool, error)                               // 验证重置密码token
+	Login(ctx context.Context, input userSvc.LoginInput) (*AuthResult, error)                         // 登录
+	Register(ctx context.Context, input userSvc.RegisterInput) (*userSvc.AuthResult, error)           // 注册
+	ChangePassword(ctx context.Context, userID uint, oldPassword, newPassword string) (string, error) // 修改密码
+	DeleteAccount(ctx context.Context, userID uint, input DeleteAccountInput) error                   // 删除账户
+	CancelDeletion(ctx context.Context, userID uint) error                                            // 取消删除账户
+	ConfirmDeletion(ctx context.Context, userID uint) error                                           // 确认删除账户
+	GetDeletionStatus(ctx context.Context, userID uint) (*DeletionStatus, error)                      // 获取删除账户状态
+	RevokeToken(ctx context.Context, jti string) error                                                // 注销token
+	FinduUserEmailByID(userID uint) (string, error)                                                   // 根据用户ID查找用户邮箱
+	IsUserExist(ctx context.Context, email string) (bool, error)                                      // 检查用户是否存在
+	ValidateOldPassword(userID uint, newPassword string) (bool, error)                                // 验证密码是否合规
+	GetUserEmailByResetToken(ctx context.Context, token string) (string, error)                          // 根据重置密码token获取用户邮箱
+	ResetPasswordWithToken(ctx context.Context, token, newPassword string) error               // 根据重置密码token重置密码
+
 }
 type authService struct {
 	userRepo  user.UserRepository

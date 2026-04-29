@@ -1,0 +1,255 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>验证您的邮箱地址</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+        line-height: 1.5;
+        background: #fafafa;
+        padding: 40px 20px;
+      }
+      .email-card {
+        max-width: 520px;
+        margin: 0 auto;
+        background: #ffffff;
+        border-radius: 20px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
+        overflow: hidden;
+      }
+      .hero {
+        background: #dc2626;
+        padding: 40px 24px;
+        text-align: center;
+      }
+      .hero-icon {
+        font-size: 48px;
+        margin-bottom: 12px;
+      }
+      .hero h1 {
+        color: white;
+        font-size: 26px;
+        font-weight: 600;
+        letter-spacing: -0.3px;
+      }
+      .body-content {
+        padding: 36px 28px 28px;
+      }
+      .greeting {
+        font-size: 16px;
+        color: #1f2937;
+        margin-bottom: 20px;
+      }
+      .greeting strong {
+        color: #dc2626;
+        font-weight: 600;
+      }
+      .desc {
+        color: #4b5563;
+        font-size: 15px;
+        margin-bottom: 24px;
+        line-height: 1.5;
+      }
+      .info-card {
+        background: #fef2f2;
+        border-radius: 16px;
+        padding: 20px;
+        margin: 24px 0;
+        border: 1px solid #fee2e2;
+      }
+      .info-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        font-size: 14px;
+        padding: 8px 0;
+        color: #374151;
+        border-bottom: 1px solid #fecaca;
+      }
+      .info-row:last-child {
+        border-bottom: none;
+      }
+      .info-label {
+        width: 70px;
+        font-weight: 500;
+        color: #991b1b;
+        flex-shrink: 0;
+      }
+      .info-value {
+        flex: 1;
+        word-break: break-all;
+        color: #1f2937;
+      }
+      .btn-container {
+        text-align: center;
+        margin: 28px 0 20px;
+      }
+      .btn-verify {
+        display: inline-block;
+        background: #dc2626;
+        color: white;
+        padding: 12px 32px;
+        font-size: 15px;
+        font-weight: 600;
+        text-decoration: none;
+        border-radius: 40px;
+        transition: background 0.2s;
+        box-shadow: 0 2px 6px rgba(220, 38, 38, 0.2);
+      }
+      .btn-verify:hover {
+        background: #b91c1c;
+      }
+      .fallback-link {
+        background: #f9fafb;
+        border-radius: 12px;
+        padding: 14px;
+        margin: 20px 0;
+        font-size: 12px;
+        color: #6b7280;
+        word-break: break-all;
+        border-left: 3px solid #dc2626;
+      }
+      .fallback-link a {
+        color: #dc2626;
+        text-decoration: none;
+        font-weight: 500;
+      }
+      .benefits {
+        background: #ffffff;
+        border-radius: 14px;
+        padding: 14px 18px;
+        margin: 24px 0 12px;
+        border: 1px solid #f3f4f6;
+        font-size: 13px;
+      }
+      .benefits-title {
+        font-weight: 600;
+        color: #dc2626;
+        margin-bottom: 10px;
+        font-size: 14px;
+      }
+      .benefits-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        list-style: none;
+        padding-left: 0;
+      }
+      .benefits-list li {
+        color: #4b5563;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+      }
+      .benefits-list li::before {
+        content: "✓";
+        color: #dc2626;
+        font-weight: bold;
+      }
+      .note {
+        background: #fffbeb;
+        border-radius: 12px;
+        padding: 14px 18px;
+        margin: 20px 0 8px;
+        font-size: 12px;
+        color: #92400e;
+        border-left: 3px solid #f59e0b;
+      }
+      .footer {
+        background: #fafafa;
+        padding: 20px 28px;
+        text-align: center;
+        font-size: 12px;
+        color: #9ca3af;
+        border-top: 1px solid #f0f0f0;
+      }
+      .footer a {
+        color: #dc2626;
+        text-decoration: none;
+      }
+      @media (max-width: 560px) {
+        body {
+          padding: 20px 12px;
+        }
+        .body-content {
+          padding: 28px 20px 20px;
+        }
+        .hero h1 {
+          font-size: 22px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="email-card">
+      <div class="hero">
+        <div class="hero-icon">📧</div>
+        <h1>验证你的邮箱</h1>
+      </div>
+
+      <div class="body-content">
+        <div class="greeting">你好，<strong>{{.Username}}</strong></div>
+
+        <div class="desc">
+          感谢加入
+          <strong>{{.AppName}}</strong
+          >。点击下方按钮验证邮箱，即可开始使用所有功能。
+        </div>
+
+        <div class="info-card">
+          <div class="info-row">
+            <span class="info-label">📧 邮箱</span>
+            <span class="info-value">{{.Email}}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">🕒 注册</span>
+            <span class="info-value">{{.RegisterTime}}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">🌐 IP</span>
+            <span class="info-value">{{.RequestIP}}</span>
+          </div>
+        </div>
+
+        <div class="btn-container">
+          <a href="{{.VerifyURL}}" class="btn-verify">立即验证邮箱 →</a>
+        </div>
+
+        <div class="fallback-link">
+          🔗 如果按钮无效，复制链接到浏览器：<br />
+          <a href="{{.VerifyURL}}">{{.VerifyURL}}</a>
+        </div>
+
+        <div class="benefits">
+          <div class="benefits-title">✨ 验证后解锁</div>
+          <ul class="benefits-list">
+            <li>完整功能体验</li>
+            <li>找回密码凭证</li>
+            <li>重要通知提醒</li>
+            <li>个性化推荐</li>
+          </ul>
+        </div>
+
+        <div class="note">
+          ⏰ 验证链接有效期 <strong>{{.ExpiresIn}}</strong>。<br />
+          如果你没有注册 {{.AppName}}，请直接忽略这封邮件，账户不会激活。
+        </div>
+      </div>
+
+      <div class="footer">
+        <p>© {{.Year}} {{.AppName}} · 保留所有权利</p>
+        <p><a href="{{.SiteURL}}">{{.SiteURL}}</a></p>
+        <p style="margin-top: 8px">系统邮件，请勿直接回复</p>
+      </div>
+    </div>
+  </body>
+</html>
