@@ -14,7 +14,6 @@ interface AvatarProps {
   ringColor?: string;
   ringOffset?: boolean;
   ringOffsetColor?: string;
-  /** 控制整个组件的层叠等级（默认为 auto） */
   zIndex?: number | string;
 }
 
@@ -104,15 +103,14 @@ export default function Avatar({
     );
   }
 
-  // 正常头像渲染
+  // 正常头像 - 统一使用相对定位容器 + 绝对定位图片（包括固定尺寸），保证完美裁剪
   return (
     <div className={`avatar ${className}`} style={{ zIndex }}>
-      {isFullSize ? (
-        // fill 模式：必须使用 relative 容器 + fill 图片
-        <div
-          className={`relative overflow-hidden bg-base-200 ${shapeStyle} ${ringStyle}`}
-          style={{ ...sizeStyle, zIndex: 0 }}
-        >
+      <div
+        className={`relative overflow-hidden bg-base-200 ${shapeStyle} ${ringStyle}`}
+        style={sizeStyle}
+      >
+        {isFullSize ? (
           <Image
             src={avatarUrl}
             alt={username || "用户头像"}
@@ -124,29 +122,24 @@ export default function Avatar({
             unoptimized={
               !avatarUrl.startsWith("/") && !avatarUrl.includes("cdn")
             }
-            style={{ zIndex: -1 }} // 让图片位于容器背景之下，不干扰外部绝对定位元素
+            // 移除 style={{ zIndex: -1 }}，避免图片被背景色遮挡，同时保证裁剪
           />
-        </div>
-      ) : (
-        // 固定尺寸模式：无需 relative，避免创建多余层叠上下文
-        <div
-          className={`overflow-hidden bg-base-200 ${shapeStyle} ${ringStyle}`}
-          style={sizeStyle}
-        >
+        ) : (
+          // 固定尺寸也使用 fill 模式，但外层 relative 容器已有具体宽高，fill 会自动填充
           <Image
             src={avatarUrl}
             alt={username || "用户头像"}
-            width={imageSize}
-            height={imageSize}
+            fill
             className="object-cover"
             onError={handleError}
             loading="lazy"
+            sizes={`${imageSize}px`}
             unoptimized={
               !avatarUrl.startsWith("/") && !avatarUrl.includes("cdn")
             }
           />
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

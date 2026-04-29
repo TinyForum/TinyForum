@@ -225,7 +225,7 @@ export default function UserDropdown({
   ];
 
   return (
-    <div className="relative bg-primary/10 rounded-lg">
+    <div className="relative ">
       <Menu>
         {({ open }: { open: boolean }) => {
           useEffect(() => {
@@ -235,16 +235,15 @@ export default function UserDropdown({
           return (
             <>
               <MenuButton
-                className="btn btn-ghost btn-circle avatar transition-all duration-200 hover:scale-105 hover:ring-2 hover:ring-primary/30 focus:ring-2 focus:ring-primary/40"
+                className="btn btn-ghost p-0 rounded-full w-12 h-12"
                 aria-label={t("user_menu")}
               >
-                <div className="w-9 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
-                  <Avatar
-                    username={user.username}
-                    avatarUrl={user.avatar}
-                    size="md"
-                  />
-                </div>
+                <Avatar
+                  username={user.username}
+                  avatarUrl={user.avatar}
+                  size="full"
+                  className="h-full w-full"
+                />
               </MenuButton>
 
               <Transition
@@ -257,7 +256,12 @@ export default function UserDropdown({
                 leaveFrom="transform opacity-100 scale-100"
                 leaveTo="transform opacity-0 scale-95"
               >
-                <MenuItems className="absolute right-0 top-full mt-2 w-80 origin-top-right overflow-hidden rounded-2xl bg-white shadow-2xl border border-gray-100 focus:outline-none z-50">
+                <MenuItems
+                  portal
+                  anchor="bottom end"
+                  className="z-[9999] w-80 origin-top-right   overflow-hidden rounded-2xl bg-white shadow-2xl border border-gray-100 focus:outline-none" // 移除 absolute right-0 top-full mt-2
+                  // className="absolute right-0 top-full mt-2"
+                >
                   <div className="max-h-[calc(100vh-6rem)] overflow-y-auto scrollbar-thin scrollbar-thumb-rounded-full scrollbar-thumb-gray-300">
                     <div className="p-2 space-y-1">
                       {menuSections.map((section) => {
@@ -268,7 +272,7 @@ export default function UserDropdown({
                             return (
                               <div
                                 key={section.id}
-                                className="relative mb-2 rounded-xl bg-gradient-to-br from-primary/5 to-base-200/30 p-3"
+                                className="relative mb-2 rounded-xl bg-gradient-to-br from-primary/5 to-base-200/30 p-3 z-50"
                               >
                                 <div className="flex items-center gap-3">
                                   <div className="avatar">
@@ -276,7 +280,7 @@ export default function UserDropdown({
                                       <Avatar
                                         username={user?.username}
                                         avatarUrl={user?.avatar}
-                                        size="md"
+                                        size="lg"
                                       />
                                     </div>
                                   </div>
@@ -289,7 +293,7 @@ export default function UserDropdown({
                                     </p>
                                     {user.role !== "user" && (
                                       <span
-                                        className={`badge badge-xs mt-1.5 ${
+                                        className={`badge badge-xs mt-1.5 p-2 text-white ${
                                           user?.role === "super_admin"
                                             ? "badge-error"
                                             : user?.role === "admin"
