@@ -52,50 +52,47 @@ interface ValidateTokenState {
   resetValidation: () => void;
 }
 
-export const useValidateTokenStore = create<ValidateTokenState>()(
-  (set, get) => ({
-    isValid: null,
-    isLoading: false,
-    error: null,
+export const useValidateTokenStore = create<ValidateTokenState>()((set) => ({
+  isValid: null,
+  isLoading: false,
+  error: null,
 
-    validateToken: async (token: string) => {
-      if (!token) {
-        set({ isValid: false, error: "token is required" });
-        return false;
-      }
+  validateToken: async (token: string) => {
+    if (!token) {
+      set({ isValid: false, error: "token is required" });
+      return false;
+    }
 
-      set({ isLoading: true, error: null });
+    set({ isLoading: true, error: null });
 
-      try {
-        // ✅ 使用修复后的 API 方法
-        const response = await authApi.validateToken({ token: token });
+    try {
+      // ✅ 使用修复后的 API 方法
+      const response = await authApi.validateToken({ token: token });
 
-        // 根据你的后端响应结构调整
-        const isValid = response.data.data?.valid || false;
+      // 根据你的后端响应结构调整
+      const isValid = response.data.data?.valid || false;
 
-        set({
-          isValid,
-          isLoading: false,
-          error: isValid ? null : "Invalid or expired token",
-        });
+      set({
+        isValid,
+        isLoading: false,
+        error: isValid ? null : "Invalid or expired token",
+      });
 
-        return isValid;
-      } catch (err: unknown) {
-        const error = err as ApiError;
-        console.error("Token validation error:", error);
-        set({
-          isValid: false,
-          isLoading: false,
-          error: error.response?.data?.message || "Token validation failed",
-        });
-        return false;
-      }
-    },
+      return isValid;
+    } catch (err: unknown) {
+      const error = err as ApiError;
+      console.error("Token validation error:", error);
+      set({
+        isValid: false,
+        isLoading: false,
+        error: error.response?.data?.message || "Token validation failed",
+      });
+      return false;
+    }
+  },
 
-    resetValidation: () =>
-      set({ isValid: null, isLoading: false, error: null }),
-  }),
-);
+  resetValidation: () => set({ isValid: null, isLoading: false, error: null }),
+}));
 
 // 忘记密码 Store
 export const useForgotPasswordStore = create<ForgotPasswordState>()(
@@ -139,8 +136,8 @@ export const useForgotPasswordStore = create<ForgotPasswordState>()(
         });
 
         return { success: true };
-      } catch (err: unknown) {
-        const error = err as ApiError;
+      } catch {
+        // const error = err as ApiError;
         // 为了安全，即使邮箱不存在也返回成功（防止邮箱枚举攻击）
         set({
           isEmailSent: true, // 总是显示成功，但实际可能没发送

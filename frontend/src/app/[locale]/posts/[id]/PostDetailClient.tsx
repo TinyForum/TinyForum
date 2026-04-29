@@ -6,7 +6,7 @@ import { postApi } from "@/shared/api";
 import { useAuthStore } from "@/store/auth";
 import Image from "next/image";
 import Link from "next/link";
-import { timeAgo, formatDate } from "@/lib/utils";
+import { timeAgo, formatDate } from "@/shared/lib/utils";
 import {
   Eye,
   Heart,
@@ -20,8 +20,8 @@ import {
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
-import Avatar from "@/components/user/Avatar";
 import { useTranslations } from "next-intl";
+import Avatar from "@/features/user/components/Avatar";
 
 export default function PostDetailClient({ postId }: { postId: number }) {
   const router = useRouter();

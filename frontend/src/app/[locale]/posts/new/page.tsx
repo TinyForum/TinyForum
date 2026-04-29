@@ -7,13 +7,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { postApi, tagApi, boardApi } from "@/shared/api";
 import { useAuthStore } from "@/store/auth";
-import RichEditor from "@/components/post/RichEditor";
 import toast from "react-hot-toast";
-import { getErrorMessage } from "@/lib/utils";
+import { getErrorMessage } from "@/shared/lib/utils";
 import { FileText, Send, X, FolderOpen } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import type { Board, Tag, ApiResponse } from "@/shared/api/types";
+import RichEditor from "@/layout/post/RichEditor";
 
 // 增强的校验规则：草稿状态下内容最短可为 0，其他状态至少 10 字符
 const postSchema = z

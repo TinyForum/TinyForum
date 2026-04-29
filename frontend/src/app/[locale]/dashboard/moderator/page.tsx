@@ -4,36 +4,31 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
+import { Pagination } from "@/features/admin/components/Pagination";
+import { BannedUsersTable } from "@/features/moderator/components/BannedUsersTable";
+import { BanUserModal } from "@/features/moderator/components/BanUserModal";
+import { ModeratorDashboard } from "@/features/moderator/components/ModeratorDashboard";
+import { ModeratorSidebar } from "@/features/moderator/components/ModeratorSidebar";
 import {
+  PendingPostsTable,
+  PendingPost,
+} from "@/features/moderator/components/PendingPostsTable";
+import {
+  useMyModeratorBoards,
   useModeratorPermissions,
   useBanUser,
   useUnbanUser,
   useDeletePost,
   usePinPost,
-  useMyModeratorBoards,
-} from "@/hooks/moderators/useModerator";
-import { useModeratorAuth } from "@/hooks/moderators/useModeratorAuth";
-import { useModeratorBannedUsers } from "@/hooks/moderators/useModeratorBannedUsers";
-import { useModeratorPosts } from "@/hooks/moderators/useModeratorPosts";
-import { useModeratorReports } from "@/hooks/moderators/useModeratorReports";
-import { Pagination } from "@/components/admin/Pagination";
-import {
-  BannedUser,
-  BannedUsersTable,
-} from "@/components/moderator/BannedUsersTable";
-import { BanUserModal } from "@/components/moderator/BanUserModal";
-import {
-  Report,
-  ReportedContentTable,
-} from "@/components/moderator/ReportedContentTable";
-import { ModeratorDashboard } from "@/components/moderator/ModeratorDashboard";
-import { ModeratorSidebar } from "@/components/moderator/ModeratorSidebar";
-import {
-  PendingPost,
-  PendingPostsTable,
-} from "@/components/moderator/PendingPostsTable";
-import SearchBar from "@/components/nav/SearchBar";
-import type { ModeratorBoard } from "@/shared/api/modules/moderator";
+} from "@/features/moderator/hooks/useModerator";
+import { useModeratorAuth } from "@/features/moderator/hooks/useModeratorAuth";
+import { useModeratorBannedUsers } from "@/features/moderator/hooks/useModeratorBannedUsers";
+import { useModeratorPosts } from "@/features/moderator/hooks/useModeratorPosts";
+import { useModeratorReports } from "@/features/moderator/hooks/useModeratorReports";
+import SearchBar from "@/layout/nav/SearchBar";
+import { ReportedContentTable } from "@/layout/reviewer/ReportedContentTable";
+import { ModeratorBoard } from "@/shared/api/modules/moderator";
+
 export default function ModeratorPage() {
   const t = useTranslations("Moderator");
   const { isCheckingAuth, isModerator } = useModeratorAuth();
@@ -216,15 +211,14 @@ export default function ModeratorPage() {
         return (
           <div className="space-y-4">
             <ReportedContentTable
-              reports={reportsData.reports as unknown as Report[]}
-              onDeletePost={
+              reports={reportsData.reports || []}
+              onDelete={
                 permissions.canDeletePost ? handleDeletePost : undefined
               }
               onBanUser={permissions.canBanUser ? handleBanUser : undefined}
               isDeleting={isDeleting}
               isBanning={isBanning}
               permissions={permissions}
-              t={t}
             />
             <Pagination
               currentPage={page}
@@ -249,7 +243,7 @@ export default function ModeratorPage() {
               </div>
             )}
             <BannedUsersTable
-              users={bannedUsersData.users as unknown as BannedUser[]}
+              users={bannedUsersData.users}
               onUnban={permissions.canBanUser ? handleUnbanUser : undefined}
               isUnbanning={isUnbanning}
               t={t}

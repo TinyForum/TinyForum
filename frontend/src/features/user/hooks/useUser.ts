@@ -1,0 +1,412 @@
+// hooks/user/useUser.ts
+import { useState, useCallback } from "react";
+import {
+  userApi,
+  UpdateProfilePayload,
+  LeaderboardItemResponse,
+  RoleResponse,
+} from "@/shared/api/modules/users";
+import type { User } from "@/shared/api/types";
+import { toast } from "react-hot-toast";
+
+interface ErrorResponse {
+  response?: {
+    data?: {
+      message?: string;
+    };
+  };
+  message?: string;
+}
+
+// ========== 用户信息相关 ==========
+
+interface UseProfileReturn {
+  user: User | null;
+  loading: boolean;
+  error: string | null;
+  loadProfile: (id: number) => Promise<void>;
+  updateProfile: (data: UpdateProfilePayload) => Promise<boolean>;
+  changePassword: (
+    oldPassword: string,
+    newPassword: string,
+  ) => Promise<boolean>;
+}
+
+export function useProfile(): UseProfileReturn {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const loadProfile = useCallback(async (id: number): Promise<void> => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await userApi.getProfile(id);
+      if (response.data.code === 0 && response.data.data) {
+        setUser(response.data.data);
+      } else {
+        throw new Error(response.data.message || "获取用户信息失败");
+      }
+    } catch (err: unknown) {
+      const errorObj = err as ErrorResponse;
+      const errorMsg =
+        errorObj.response?.data?.message ||
+        errorObj.message ||
+        "获取用户信息失败";
+      setError(errorMsg);
+      toast.error(errorMsg);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const updateProfile = useCallback(
+    async (data: UpdateProfilePayload): Promise<boolean> => {
+      setLoading(true);
+      try {
+        const response = await userApi.updateProfile(data);
+        if (response.data.code === 0 && response.data.data) {
+          setUser(response.data.data);
+          toast.success("资料更新成功");
+          return true;
+        } else {
+          throw new Error(response.data.message || "更新失败");
+        }
+      } catch (err: unknown) {
+        const errorObj = err as ErrorResponse;
+        const errorMsg =
+          errorObj.response?.data?.message || errorObj.message || "更新失败";
+        toast.error(errorMsg);
+        return false;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [],
+  );
+
+  const changePassword = useCallback(
+    async (oldPassword: string, newPassword: string): Promise<boolean> => {
+      setLoading(true);
+      try {
+        const response = await userApi.changePassword({
+          old_password: oldPassword,
+          new_password: newPassword,
+        });
+        if (response.data.code === 0) {
+          toast.success("密码修改成功");
+          return true;
+        } else {
+          throw new Error(response.data.message || "修改失败");
+        }
+      } catch (err: unknown) {
+        const errorObj = err as ErrorResponse;
+        const errorMsg =
+          errorObj.response?.data?.message || errorObj.message || "修改失败";
+        toast.error(errorMsg);
+        return false;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [],
+  );
+
+  return {
+    user,
+    loading,
+    error,
+    loadProfile,
+    updateProfile,
+    changePassword,
+  };
+}
+
+// ========== 用户角色相关 ==========
+
+interface UseUserRoleReturn {
+  role: RoleResponse | null;
+  loading: boolean;
+  error: string | null;
+  loadRole: () => Promise<void>;
+  isAdmin: boolean;
+  isModerator: boolean;
+  isUser: boolean;
+}
+
+export function useUserRole(): UseUserRoleReturn {
+  const [role, setRole] = useState<RoleResponse | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const loadRole = useCallback(async (): Promise<void> => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await userApi.getMeRole();
+      if (response.data.code === 0 && response.data.data) {
+        setRole(response.data.data);
+      } else {
+        throw new Error(response.data.message || "获取角色失败");
+      }
+    } catch (err: unknown) {
+      const errorObj = err as ErrorResponse;
+      const errorMsg =
+        errorObj.response?.data?.message || errorObj.message || "获取角色失败";
+      setError(errorMsg);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  return {
+    role,
+    loading,
+    error,
+    loadRole,
+    isAdmin: role?.role === "admin",
+    isModerator: role?.role === "moderator",
+    isUser: role?.role === "user",
+  };
+}
+
+// ========== 关注相关 ==========
+
+interface UseFollowReturn {
+  following: boolean;
+  loading: boolean;
+  follow: (userId: number) => Promise<boolean>;
+  unfollow: (userId: number) => Promise<boolean>;
+  checkFollowStatus: (userId: number) => Promise<boolean>;
+}
+
+export function useFollow(): UseFollowReturn {
+  const [loading, setLoading] = useState<boolean>(false);
+  const [following, setFollowing] = useState<boolean>(false);
+
+  const follow = useCallback(async (userId: number): Promise<boolean> => {
+    setLoading(true);
+    try {
+      const response = await userApi.follow(userId);
+      if (response.data.code === 0) {
+        setFollowing(true);
+        toast.success("关注成功");
+        return true;
+      } else {
+        throw new Error(response.data.message || "关注失败");
+      }
+    } catch (err: unknown) {
+      const errorObj = err as ErrorResponse;
+      const errorMsg =
+        errorObj.response?.data?.message || errorObj.message || "关注失败";
+      toast.error(errorMsg);
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const unfollow = useCallback(async (userId: number): Promise<boolean> => {
+    setLoading(true);
+    try {
+      const response = await userApi.unfollow(userId);
+      if (response.data.code === 0) {
+        setFollowing(false);
+        toast.success("取消关注成功");
+        return true;
+      } else {
+        throw new Error(response.data.message || "取消关注失败");
+      }
+    } catch (err: unknown) {
+      const errorObj = err as ErrorResponse;
+      const errorMsg =
+        errorObj.response?.data?.message || errorObj.message || "取消关注失败";
+      toast.error(errorMsg);
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const checkFollowStatus = useCallback(
+    async (userId: number): Promise<boolean> => {
+      // 这里需要根据实际情况实现，可能需要单独的状态检查接口
+      // 暂时返回当前状态
+      console.log("check follow status", userId, following);
+      return following;
+    },
+    [following],
+  );
+
+  return {
+    following,
+    loading,
+    follow,
+    unfollow,
+    checkFollowStatus,
+  };
+}
+
+// ========== 排行榜相关 ==========
+
+interface UseLeaderboardReturn {
+  data: LeaderboardItemResponse[];
+  loading: boolean;
+  error: string | null;
+  loadLeaderboard: (simple?: boolean, limit?: number) => Promise<void>;
+}
+
+export function useLeaderboard(): UseLeaderboardReturn {
+  const [data, setData] = useState<LeaderboardItemResponse[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const loadLeaderboard = useCallback(
+    async (simple: boolean = true, limit: number = 100): Promise<void> => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const response = simple
+          ? await userApi.getLeaderboardSimple({ limit })
+          : await userApi.getLeaderboardDetail({ limit });
+
+        if (response.data.code === 0 && response.data.data) {
+          setData(response.data.data);
+        } else {
+          throw new Error(response.data.message || "加载排行榜失败");
+        }
+      } catch (err: unknown) {
+        const errorObj = err as ErrorResponse;
+        const errorMsg =
+          errorObj.response?.data?.message ||
+          errorObj.message ||
+          "加载排行榜失败";
+        setError(errorMsg);
+        toast.error(errorMsg);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [],
+  );
+
+  return {
+    data,
+    loading,
+    error,
+    loadLeaderboard,
+  };
+}
+
+// ========== 粉丝/关注列表 ==========
+
+interface UseFollowListReturn {
+  users: User[];
+  loading: boolean;
+  error: string | null;
+  total: number;
+  page: number;
+  loadFollowers: (
+    userId: number,
+    pageNum?: number,
+    pageSize?: number,
+  ) => Promise<void>;
+  loadFollowing: (
+    userId: number,
+    pageNum?: number,
+    pageSize?: number,
+  ) => Promise<void>;
+}
+
+export function useFollowList(): UseFollowListReturn {
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const [total, setTotal] = useState<number>(0);
+  const [page, setPage] = useState<number>(1);
+
+  const loadFollowers = useCallback(
+    async (
+      userId: number,
+      pageNum: number = 1,
+      pageSize: number = 20,
+    ): Promise<void> => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const response = await userApi.follwowers(userId, {
+          page: pageNum,
+          page_size: pageSize,
+        });
+        if (response.data.code === 0 && response.data.data) {
+          setUsers(response.data.data.list || []);
+          setTotal(response.data.data.total || 0);
+          setPage(response.data.data.page || pageNum);
+        } else {
+          throw new Error(response.data.message || "获取粉丝列表失败");
+        }
+      } catch (err: unknown) {
+        const errorObj = err as ErrorResponse;
+        const errorMsg =
+          errorObj.response?.data?.message ||
+          errorObj.message ||
+          "获取粉丝列表失败";
+        setError(errorMsg);
+        toast.error(errorMsg);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [],
+  );
+
+  const loadFollowing = useCallback(
+    async (
+      userId: number,
+      pageNum: number = 1,
+      pageSize: number = 20,
+    ): Promise<void> => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const response = await userApi.following(userId, {
+          page: pageNum,
+          page_size: pageSize,
+        });
+        if (response.data.code === 0 && response.data.data) {
+          setUsers(response.data.data.list || []);
+          setTotal(response.data.data.total || 0);
+          setPage(response.data.data.page || pageNum);
+        } else {
+          throw new Error(response.data.message || "获取关注列表失败");
+        }
+      } catch (err: unknown) {
+        const errorObj = err as ErrorResponse;
+        const errorMsg =
+          errorObj.response?.data?.message ||
+          errorObj.message ||
+          "获取关注列表失败";
+        setError(errorMsg);
+        toast.error(errorMsg);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [],
+  );
+
+  return {
+    users,
+    loading,
+    error,
+    total,
+    page,
+    loadFollowers,
+    loadFollowing,
+  };
+}

@@ -5,7 +5,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 // import { useCurrentUserProfile } from "@/hooks/useUserProfile";
 import { useLocale } from "next-intl";
-import { useUserProfile } from "@/hooks/useUserProfile";
+import { useUserProfile } from "@/features/user/hooks/useUserProfile";
 
 export default function DashboardPage() {
   const router = useRouter();

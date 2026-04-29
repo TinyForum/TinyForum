@@ -2,12 +2,12 @@
 
 import { useState } from "react";
 import { useAuthStore } from "@/store/auth";
-import SettingsSidebar from "@/components/settings/SettingsSidebar";
-import DangerZone from "@/components/settings/DangerZone";
-import NotificationSettings from "@/components/settings/NotificationSettings";
-import ProfileSettings from "@/components/settings/ProfileSettings";
-import SecuritySettings from "@/components/settings/SecuritySettings";
-import AppearanceSettings from "@/components/settings/AppearanceSettings";
+import AppearanceSettings from "@/layout/settings/AppearanceSettings";
+import DangerZone from "@/layout/settings/DangerZone";
+import NotificationSettings from "@/layout/settings/NotificationSettings";
+import ProfileSettings from "@/layout/settings/ProfileSettings";
+import SecuritySettings from "@/layout/settings/SecuritySettings";
+import SettingsSidebar from "@/layout/settings/SettingsSidebar";
 
 export type SettingsTab =
   | "profile"

@@ -245,7 +245,7 @@ function ApplicationCard({
         )}
         {app.status === "rejected" && (
           <Link
-            href={`/boards/${app.board_slug}/apply-moderator`}
+            href={`/boards/${app.board_slug}/apply`}
             className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors"
           >
             重新申请

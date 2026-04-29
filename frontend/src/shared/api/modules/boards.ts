@@ -3,7 +3,7 @@
  * 板块 + 版主管理 + 禁言管理 + 帖子管理
  */
 
-import { UserRoleType } from "@/type/roles.types";
+import { UserRoleType } from "@/shared/type/roles.types";
 import apiClient from "../client";
 import type {
   ApiResponse,

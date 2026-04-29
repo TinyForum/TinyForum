@@ -204,7 +204,7 @@ export const moderatorApi = {
    */
   applyModerator: (boardId: number, data: ApplyModeratorForm) =>
     apiClient.post<ApiResponse<{ message: string }>>(
-      `/boards/${boardId}/moderators/apply-moderator`,
+      `/boards/${boardId}/moderators/apply`,
       data,
     ),
   /**

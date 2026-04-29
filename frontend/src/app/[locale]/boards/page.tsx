@@ -13,7 +13,7 @@ import {
   FireIcon,
   RectangleGroupIcon,
 } from "@heroicons/react/24/outline";
-import { BoardCard } from "@/components/boards/BoardCard";
+import { BoardCard } from "@/features/boards/components/BoardCard";
 
 export default function BoardsPage() {
   const { user } = useAuthStore();

@@ -1,3 +1,5 @@
+import { UserRoleType } from "@/shared/type/roles.types";
+
 export * from "./basic.type";
 /**
  * api/types/index.ts
@@ -5,7 +7,6 @@ export * from "./basic.type";
  * 从这里统一 re-export，业务层只需 import from '@/api/types'
  */
 
-import { UserRoleType } from "@/type/roles.types";
 // ─── 通用包装 ─────────────────────────────────────────────────────────────────
 
 // api/types/index.ts

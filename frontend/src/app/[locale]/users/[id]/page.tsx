@@ -1,7 +1,7 @@
 // src/app/users/[id]/page.tsx (服务端组件)
 import { Suspense } from "react";
 import { Metadata } from "next";
-import UserProfileClient from "@/components/user/UserProfileClient";
+import UserProfileClient from "@/features/user/components/UserProfileClient";
 export const metadata: Metadata = {
   title: "user",
   description: "User page",

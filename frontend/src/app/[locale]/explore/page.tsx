@@ -18,12 +18,13 @@ import {
   ArrowRightIcon,
 } from "@heroicons/react/24/outline";
 import { postApi, tagApi, topicApi, userApi } from "@/shared/api";
-import { ActiveUserCard } from "@/components/explore/ActiveUserCard";
-import { HotPostCard } from "@/components/explore/HotPostCard";
-import { HotTagCard } from "@/components/explore/HotTagCard";
-import { HotTopicCard } from "@/components/explore/HotTopicCard";
+
 import type { LeaderboardItemResponse } from "@/shared/api/modules/users";
 import { Post, Tag, Topic } from "@/shared/api/types";
+import { ActiveUserCard } from "@/layout/explore/ActiveUserCard";
+import { HotPostCard } from "@/layout/explore/HotPostCard";
+import { HotTagCard } from "@/layout/explore/HotTagCard";
+import { HotTopicCard } from "@/layout/explore/HotTopicCard";
 
 // 分类 Tab
 const exploreTabs = [
@@ -81,21 +82,20 @@ export default function Explore() {
           topicApi.list({ page: 1, page_size: 8 }),
           userApi.getLeaderboardSimple({ limit: 10 }),
         ]);
-
       // 添加安全检查
-      if (postsresponse.data.code === 0 && postsResponse.data.data) {
+      if (postsResponse.data.code === 0 && postsResponse.data.data) {
         setPosts(postsResponse.data.data.list || []);
       }
-      if (tagsresponse.data.code === 0 && tagsResponse.data.data) {
+      if (tagsResponse.data.code === 0 && tagsResponse.data.data) {
         const sortedTags = [...(tagsResponse.data.data || [])].sort(
           (a, b) => (b.post_count || 0) - (a.post_count || 0),
         );
         setHotTags(sortedTags.slice(0, 12));
       }
-      if (topicsresponse.data.code === 0 && topicsResponse.data.data) {
+      if (topicsResponse.data.code === 0 && topicsResponse.data.data) {
         setHotTopics(topicsResponse.data.data.list || []);
       }
-      if (usersresponse.data.code === 0 && usersResponse.data.data) {
+      if (usersResponse.data.code === 0 && usersResponse.data.data) {
         setActiveUsers(usersResponse.data.data || []);
       }
     } catch (error) {

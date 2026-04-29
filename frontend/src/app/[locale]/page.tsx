@@ -12,13 +12,13 @@ import {
   questionApi,
 } from "@/shared/api";
 import { useAuthStore } from "@/store/auth";
-import PostFilterBar from "@/components/home/PostFilterBar";
-import PostList from "@/components/home/PostList";
-import LeftSidebar, { FilterType } from "@/components/home/LeftSidebar";
-import RightSidebar from "@/components/home/RightSidebar";
-import { SortBy } from "@/type/posts.types";
 import type { Board, Tag, TimelineEvent, Post } from "@/shared/api/types";
-import { useLeaderboard } from "@/hooks/useLeaderboard";
+import LeftSidebar, { FilterType } from "@/layout/home/LeftSidebar";
+import { SortBy } from "@/shared/type/posts.types";
+import { useLeaderboard } from "@/features/leader/hooks/useLeaderboard";
+import PostFilterBar from "@/layout/home/PostFilterBar";
+import PostList from "@/layout/home/PostList";
+import RightSidebar from "@/layout/home/RightSidebar";
 
 // 用户资料类型
 interface UserProfile {
@@ -183,7 +183,7 @@ export default function HomePage() {
 
           {/* 中间内容区域 */}
           <div className="flex-1 min-w-0 flex flex-col h-full">
-            <div className="flex-shrink-0 sticky top-0 bg-base-200 z-10 pb-4">
+            <div className="flex-shrink-0 sticky top-0 bg-base-200 pb-4">
               <PostFilterBar
                 sortBy={sortBy}
                 onSortChange={handleSortChange}

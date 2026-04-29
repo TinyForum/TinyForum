@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import { Inter, Fira_Code } from "next/font/google";
-import Providers from "@/components/layout/Providers";
-import Navbar from "@/components/layout/Navbar";
 import { NextIntlClientProvider } from "next-intl";
 import { notFound } from "next/navigation";
 import { getTranslations, getMessages } from "next-intl/server";
 import "../styles/globals.css";
-import AuthProvider from "@/components/providers/AuthProvider";
+import Providers from "@/layout/layout/Providers";
+import AuthProvider from "@/layout/providers/AuthProvider";
+import Navbar from "@/shared/ui/nav/Navbar";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const firaCode = Fira_Code({
@@ -69,7 +69,6 @@ export default async function RootLayout({
             <Providers>
               <div className="flex flex-col h-full">
                 <Navbar />
-                {/* 让 main 负责滚动 */}
                 <main className="flex-1 overflow-y-auto custom-scrollbar">
                   <div className="container mx-auto max-w-7xl px-4 py-6">
                     {children}

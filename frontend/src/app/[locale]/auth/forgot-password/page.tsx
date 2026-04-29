@@ -23,13 +23,13 @@ export default function ForgotPasswordPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isEmailSent, setIsEmailSent] = useState(false);
   const [submittedEmail, setSubmittedEmail] = useState("");
+  console.log(submittedEmail);
 
   const {
     register,
     handleSubmit,
     formState: { errors },
     getValues,
-    setValue,
   } = useForm<ForgotPasswordForm>({
     resolver: zodResolver(forgotPasswordSchema),
     defaultValues: {

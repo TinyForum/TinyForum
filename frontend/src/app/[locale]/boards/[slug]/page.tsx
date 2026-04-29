@@ -14,11 +14,12 @@ import {
   ChevronRightIcon,
   ChatBubbleLeftRightIcon,
 } from "@heroicons/react/24/outline";
-import { BoardPostCard } from "@/components/boards/BoardPostCard";
-import { CreateBoardInline } from "@/components/boards/CreateBoardInline";
+
 // import type { Board, PageData } from "@/shared/api/types";
 import type { BoardPostListItem } from "@/shared/api/modules/boards";
 import { Board, PageData } from "@/shared/api/types";
+import { CreateBoardInline } from "@/features/boards/components/CreateBoardInline";
+import { BoardPostCard } from "@/features/boards/components/BoardPostCard";
 
 const PAGE_SIZE = 20;
 

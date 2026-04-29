@@ -6,7 +6,6 @@ import { notificationApi } from "@/shared/api";
 import type { Notification } from "@/shared/api";
 import { useAuthStore } from "@/store/auth";
 import { useRouter } from "next/navigation";
-import { timeAgo } from "@/lib/utils";
 import {
   Bell,
   CheckCheck,
@@ -16,8 +15,9 @@ import {
   Info,
 } from "lucide-react";
 import toast from "react-hot-toast";
-import Avatar from "@/components/user/Avatar";
 import { useTranslations } from "next-intl";
+import { timeAgo } from "@/shared/lib/utils";
+import Avatar from "@/features/user/components/Avatar";
 
 // 通知图标组件
 const NotifIcon = ({ type }: { type: Notification["type"] }) => {
@@ -133,7 +133,6 @@ export default function NotificationsPage() {
 // 抽取通知卡片组件
 function NotificationCard({
   notification,
-  t,
 }: {
   notification: Notification;
   t: (key: string) => string;

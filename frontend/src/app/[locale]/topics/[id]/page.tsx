@@ -21,8 +21,8 @@ import {
 } from "@heroicons/react/24/outline";
 import { HeartIcon as HeartSolidIcon } from "@heroicons/react/24/solid";
 import type { Topic, Post } from "@/shared/api/types";
-import { TopicPostCard } from "@/components/topic/TopicPostCard";
 import Image from "next/image";
+import { TopicPostCard } from "@/layout/topic/TopicPostCard";
 
 // 类型定义
 interface ErrorResponse {
