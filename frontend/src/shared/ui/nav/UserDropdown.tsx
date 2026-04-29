@@ -451,7 +451,7 @@ export default function UserDropdown({
                       </button>
                       <button
                         type="button"
-                        className="inline-flex justify-center rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500/20 transition"
+                        className="inline-flex justify-center rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500/20 transition z-10"
                         onClick={performLogout}
                       >
                         {t("logout")}
