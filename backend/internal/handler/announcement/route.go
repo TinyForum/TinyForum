@@ -7,7 +7,7 @@ import (
 )
 
 // RegisterRoutes 注册版块相关路由
-func (h *AnnouncementHandler) RegisterRoutes(api *gin.RouterGroup, mw *middleware.MiddlewareSet) {
+func (h *AnnouncementHandler) RegisterRoutes(api *gin.RouterGroup, mw middleware.MiddlewareSet) {
 	announcementGroup := api.Group("/announcements")
 	{
 		announcementGroup.GET("", h.List)

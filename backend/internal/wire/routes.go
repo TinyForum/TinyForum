@@ -15,7 +15,7 @@ import (
 func RegisterRoutes(
 	engine *gin.Engine,
 	handlers *Handlers,
-	mw *middleware.MiddlewareSet,
+	mw middleware.MiddlewareSet,
 	repos *Repositories,
 	cfg *config.Config,
 
@@ -49,7 +49,7 @@ func RegisterRoutes(
 	handlers.Answer.RegisterRoutes(api, mw)
 	handlers.Question.RegisterRoutes(api, mw)
 	handlers.Announcement.RegisterRoutes(api, mw)
-	announcementAdminGroup := api.Group("/admin/announcements", mw.AuthMW(), mw.AdminRequiredMW())
+	announcementAdminGroup := api.Group("/admin/announcements", mw.Auth(), mw.AdminRequired())
 	{
 		announcementAdminGroup.GET("", handlers.Announcement.AdminList)
 		announcementAdminGroup.POST("", handlers.Announcement.Create)
@@ -66,7 +66,7 @@ func RegisterRoutes(
 	// FIXME: 通过上下文判断，而不是路径
 	// MARK: Admin routes
 
-	adminGroup := api.Group("/admin", mw.AuthMW(), mw.AdminRequiredMW())
+	adminGroup := api.Group("/admin", mw.Auth(), mw.AdminRequired())
 	{
 		adminGroup.GET("/users", handlers.User.AdminList)
 		adminGroup.PUT("/users/:id/active", handlers.User.AdminSetActive)

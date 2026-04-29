@@ -1,5 +1,6 @@
 # risk_control
 rate_limit:
+  enabled: true
   risk_levels:
     normal:
       create_post:
@@ -40,3 +41,9 @@ rate_limit:
       update_profile:
         limit: 1
         window: 1h
+  ip_whitelist:
+    - "127.0.0.1"
+    - "::1"
+    - "192.168.1.100"
+    - "10.0.0.0/8"
+    - "172.16.0.0/12"

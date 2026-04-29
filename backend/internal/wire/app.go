@@ -2,6 +2,7 @@ package wire
 
 import (
 	"tiny-forum/config"
+	"tiny-forum/internal/middleware"
 	jwtpkg "tiny-forum/pkg/jwt"
 
 	"github.com/gin-gonic/gin"
@@ -44,8 +45,15 @@ func InitApp(cfg *config.Config) (*App, error) {
 	handlers := NewHandlers(services, helpers.TimeHelpers)
 
 	// 7. 中间件工厂
-	mw := NewMiddlewareSet(jwtMgr, db, services, repos.Token)
-
+	// mw := NewMiddlewareSet(jwtMgr, db, services, repos.Token,&cfg.Basic.RateLimit)
+mw := middleware.NewMiddlewareSet(
+		jwtMgr,
+		db,
+		services.Risk,
+		services.ContentCheck,
+		repos.Token,
+		&cfg.Basic.RateLimit,
+	)
 	// 8. Gin 引擎
 	gin.SetMode(cfg.Basic.Server.Mode)
 	engine := gin.New()

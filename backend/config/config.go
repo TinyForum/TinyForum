@@ -24,7 +24,12 @@ type ConfigRiskControl struct {
 }
 type RateLimitConfig struct {
 	RiskLevels map[string]map[string]QuotaConfig `yaml:"risk_levels"` // 风控等级
+	Enabled     bool     `yaml:"enabled" json:"enabled"`
+    IPWhitelist []string `yaml:"ip_whitelist" json:"ip_whitelist"`
+
 }
+
+
 
 type QuotaConfig struct {
 	Limit  int    `yaml:"limit"`

@@ -7,8 +7,8 @@ import (
 )
 
 // RegisterRoutes 注册版块相关路由
-func (h *TimelineHandler) RegisterRoutes(api *gin.RouterGroup, mw *middleware.MiddlewareSet) {
-	timelineGroup := api.Group("/timeline", mw.AuthMW())
+func (h *TimelineHandler) RegisterRoutes(api *gin.RouterGroup, mw middleware.MiddlewareSet) {
+	timelineGroup := api.Group("/timeline", mw.Auth())
 	{
 		timelineGroup.GET("", h.GetHomeTimeline)
 		timelineGroup.GET("/following", h.GetFollowingTimeline)
