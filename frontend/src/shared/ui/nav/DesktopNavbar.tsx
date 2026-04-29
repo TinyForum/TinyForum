@@ -14,11 +14,6 @@ import { NavItem } from "@/shared/ui/nav/types";
 import UserDropdown from "@/shared/ui/nav/UserDropdown";
 import LanguageSwitcher from "./LanguageSwitcher";
 
-// ─────────────────────────────────────────────
-// 仅在 lg 及以上断点渲染（由父级 Navbar 通过 isDesktop 判断控制）
-// 结构：[Logo + 品牌名] [导航标签] [··弹性搜索··] [右侧操作]
-// ─────────────────────────────────────────────
-
 interface DesktopNavbarProps {
   navItems: NavItem[];
   isAuthenticated: boolean;
@@ -45,7 +40,6 @@ export default function DesktopNavbar({
   const t = useTranslations("Nav");
 
   return (
-    // 父级 Navbar 已通过 isDesktop 保证只在桌面端渲染此组件，无需断点 class
     <div className="flex items-center w-full gap-2">
       {/* ── Logo + 品牌名 ── */}
       <Link
@@ -58,7 +52,7 @@ export default function DesktopNavbar({
             width={32}
             height={32}
             alt="logo"
-            className="brightness-0 invert"
+            className=""
           />
         </div>
         <span className="text-sm">{t("brand")}</span>
@@ -101,7 +95,6 @@ export default function DesktopNavbar({
             {user && (
               <UserDropdown
                 user={user}
-                // isOpen={isUserDropdownOpen}
                 onOpenChange={onUserDropdownOpenChange}
               />
             )}

@@ -286,6 +286,9 @@
   },
 
   "Common": {
+    "confirm_logout": "确定要退出登录吗？",
+    "confirm_logout_message": "退出登录后，您只能作为游客访问，将无法查看个人中心、管理后台等页面。确定要退出吗？",
+    "cancel": "取消",
     "change_role": "更改角色",
     "user_menu": "用户菜单",
     "user_dashboard": "个人中心",

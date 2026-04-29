@@ -205,7 +205,7 @@ export default function HomePage() {
 
           {/* 右侧边栏 */}
           {leaderboard !== undefined && (
-            <div className="lg:w-64 xl:w-72 flex-none overflow-y-auto custom-scrollbar sticky top-6 max-h-[calc(100vh-6rem)]">
+            <div className="lg:w-64 xl:w-72 flex-none overflow-y-auto custom-scrollbar  top-6 max-h-[calc(100vh-6rem)]">
               <RightSidebar
                 isAuthenticated={isAuthenticated}
                 user={user}

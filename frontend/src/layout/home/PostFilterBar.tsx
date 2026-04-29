@@ -121,7 +121,7 @@ export default function PostFilterBar({
   );
 
   return (
-    <div className="flex items-center gap-3 mb-4 bg-base-100 rounded-xl p-3 border border-base-300">
+    <div className="flex items-center gap-3 mb-4 bg-base-100 rounded-xl p-3 border border-base-300 z-10">
       {/* 排序和刷新区域 */}
       <div className="flex items-center gap-2 flex-1 min-w-0">
         {/* 排序组件 */}
