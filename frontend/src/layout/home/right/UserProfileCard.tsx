@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { User, Bell, Activity, Award, Clock } from "lucide-react";
+import Avatar from "@/features/user/components/Avatar";
 
 interface UserProfile {
   id: number;
@@ -30,13 +31,10 @@ export function UserProfileCard({
       <div className="p-4 text-center border-b">
         <div className="relative inline-block">
           <div className="relative w-16 h-16 mx-auto mb-2">
-            <Image
-              src={userProfile.avatar}
-              alt={userProfile.username}
-              fill
-              className="rounded-full object-cover"
-              sizes="64px"
-              priority={false}
+            <Avatar
+              username={userProfile.username}
+              avatarUrl={userProfile.avatar}
+              size="lg"
             />
           </div>
           {unreadCount > 0 && (
