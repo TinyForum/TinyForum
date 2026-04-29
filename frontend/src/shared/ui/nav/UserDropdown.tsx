@@ -366,7 +366,7 @@ export default function UserDropdown({
           ${
             focus && !section.disabled
               ? "bg-red-50 text-red-700 shadow-sm ring-1 ring-red-200"
-              : "text-red-600 hover:bg-red-50 hover:text-red-700 hover:shadow-sm"
+              : "text-red-600 hover:bg-red-50 hover:text-error hover:shadow-sm"
           }
           ${
             section.disabled
@@ -462,7 +462,7 @@ export default function UserDropdown({
               </div>
             </Dialog>
           </Transition>,
-          document.body, // ← 挂载到 body，完全脱离父级 stacking context
+          document.body,
         )}
     </div>
   );
