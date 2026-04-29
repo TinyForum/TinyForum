@@ -27,7 +27,6 @@ type MiddlewareSet interface {
 	CanBanUser(boardRepo board.BoardRepository) gin.HandlerFunc
 	CanDeletePost(boardRepo board.BoardRepository) gin.HandlerFunc
 	CanPinPost(boardRepo board.BoardRepository) gin.HandlerFunc
-
 }
 
 // middlewareSet 私有实现

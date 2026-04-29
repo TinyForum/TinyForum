@@ -44,9 +44,7 @@ func InitApp(cfg *config.Config) (*App, error) {
 	// 6. 控制器层
 	handlers := NewHandlers(services, helpers.TimeHelpers)
 
-	// 7. 中间件工厂
-	// mw := NewMiddlewareSet(jwtMgr, db, services, repos.Token,&cfg.Basic.RateLimit)
-mw := middleware.NewMiddlewareSet(
+	mw := middleware.NewMiddlewareSet(
 		jwtMgr,
 		db,
 		services.Risk,

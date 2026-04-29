@@ -103,16 +103,15 @@ export default function ResetPasswordPage() {
           <div className="card bg-base-100 shadow-xl border border-base-300">
             <div className="card-body p-8 text-center">
               <div className="text-6xl mb-4">🔒</div>
-              <h2 className="text-2xl font-bold mb-2">Invalid Reset Link</h2>
+              <h2 className="text-2xl font-bold mb-2">无效的密码重置链接</h2>
               <p className="text-base-content/70 mb-6">
-                {validationError ||
-                  "This password reset link is invalid or has expired."}
+                {validationError || "这个密码重置链接无效或者已过期。"}
               </p>
               <Link
                 href={`/${locale}/auth/forgot-password`}
                 className="btn btn-primary"
               >
-                Request New Reset Link
+                获取新的密码重置链接
               </Link>
             </div>
           </div>

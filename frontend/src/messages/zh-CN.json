@@ -176,7 +176,7 @@
     "reset_link_sent": "重置链接已发送",
     "send_failed": "发送失败",
     "network_error": "网络错误",
-    "security_note": "为保护账号安全，无论邮箱是否存在，我们都会显示此消息",
+    "security_note": "请确保该邮箱是您注册时使用的邮箱地址，我们将向该邮箱发送重置密码的链接",
     "email_sent": "邮件已发送",
     "check_your_email": "请检查您的邮箱",
     "what_to_do_next": "接下来该怎么做",

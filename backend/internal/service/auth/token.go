@@ -11,7 +11,7 @@ import (
 
 // 验证 token
 func (s *authService) ValidateResetToken(ctx context.Context, token string) (bool, error) {
-	isVaildToken,err := s.authRepo.ValidateResetToken(ctx, token)
+	isVaildToken, err := s.authRepo.ValidateResetToken(ctx, token)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return false, nil
@@ -29,6 +29,6 @@ func (s *authService) generateResetToken() (string, error) {
 	return hex.EncodeToString(bytes), nil
 }
 
-func (s *authService) GetUserEmailByResetToken(ctx context.Context, token string) (string, error)     {
+func (s *authService) GetUserEmailByResetToken(ctx context.Context, token string) (string, error) {
 	return s.authRepo.GetUserEmailByResetToken(ctx, token)
 }

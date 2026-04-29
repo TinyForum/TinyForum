@@ -46,8 +46,8 @@ type AuthService interface {
 	FinduUserEmailByID(userID uint) (string, error)                                                   // 根据用户ID查找用户邮箱
 	IsUserExist(ctx context.Context, email string) (bool, error)                                      // 检查用户是否存在
 	ValidateOldPassword(userID uint, newPassword string) (bool, error)                                // 验证密码是否合规
-	GetUserEmailByResetToken(ctx context.Context, token string) (string, error)                          // 根据重置密码token获取用户邮箱
-	ResetPasswordWithToken(ctx context.Context, token, newPassword string) error               // 根据重置密码token重置密码
+	GetUserEmailByResetToken(ctx context.Context, token string) (string, error)                       // 根据重置密码token获取用户邮箱
+	ResetPasswordWithToken(ctx context.Context, token, newPassword string) error                      // 根据重置密码token重置密码
 
 }
 type authService struct {

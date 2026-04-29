@@ -65,7 +65,7 @@ func (h *PostHandler) Create(c *gin.Context) {
 func (h *PostHandler) GetByID(c *gin.Context) {
 	postID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.InvalidParams(c, []response.ValidationError{
+		response.ValidationFailed(c, []response.ValidationError{
 			{Field: "id", Message: "无效的帖子ID格式"},
 		})
 		return
@@ -81,7 +81,7 @@ func (h *PostHandler) GetByID(c *gin.Context) {
 
 	post, liked, err := h.postSvc.GetByID(uint(postID), viewerUint)
 	if err != nil {
-		response.Error(c, apperrors.Wrapf(apperrors.ErrPostNotFound, "ID: %d", postID))
+		response.HandleError(c, apperrors.Wrapf(apperrors.ErrPostNotFound, "ID: %d", postID))
 		return
 	}
 
