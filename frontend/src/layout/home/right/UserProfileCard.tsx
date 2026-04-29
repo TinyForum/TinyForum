@@ -30,7 +30,7 @@ export function UserProfileCard({
     <div className="rounded-lg border bg-card shadow-sm hover:shadow-md transition-shadow duration-200">
       <div className="p-4 text-center border-b">
         <div className="relative inline-block">
-          <div className="relative w-16 h-16 mx-auto mb-2">
+          <div className="relative w-16 h-16 mx-auto mb-2 z-0">
             <Avatar
               username={userProfile.username}
               avatarUrl={userProfile.avatar}

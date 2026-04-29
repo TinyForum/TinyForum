@@ -54,9 +54,6 @@ export default function RightSidebar({
         <GuestCard />
       )}
 
-      {/* 违规情况（已登录时） */}
-      {/* TODO: 添加违规情况组件 */}
-
       {/* 时间线事件（已登录时） */}
       {isAuthenticated && timelineEvents && timelineEvents.length > 0 && (
         <TimelineEvents timelineEvents={timelineEvents} />
