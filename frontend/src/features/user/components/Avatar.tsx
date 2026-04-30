@@ -96,14 +96,13 @@ export default function Avatar({
           style={sizeStyle}
         >
           <span className="text-sm font-medium">
-            {username?.charAt(0)?.toUpperCase() || "?"}
+            {username?.charAt(0)?.toUpperCase() || "头像加载失败"}
           </span>
         </div>
       </div>
     );
   }
 
-  // 正常头像 - 统一使用相对定位容器 + 绝对定位图片（包括固定尺寸），保证完美裁剪
   return (
     <div className={`avatar ${className}`} style={{ zIndex }}>
       <div
@@ -122,10 +121,8 @@ export default function Avatar({
             unoptimized={
               !avatarUrl.startsWith("/") && !avatarUrl.includes("cdn")
             }
-            // 移除 style={{ zIndex: -1 }}，避免图片被背景色遮挡，同时保证裁剪
           />
         ) : (
-          // 固定尺寸也使用 fill 模式，但外层 relative 容器已有具体宽高，fill 会自动填充
           <Image
             src={avatarUrl}
             alt={username || "用户头像"}

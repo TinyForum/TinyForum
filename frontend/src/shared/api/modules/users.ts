@@ -16,8 +16,8 @@ export interface RoleResponse {
   role: UserRoleType;
 }
 export interface LeaderboardRequest {
-  limit?: number; // 对应 query 参数，可选
-  fields?: string;
+  limit?: number;
+  // fields?: string;
 }
 
 export interface LeaderboardItemResponse {
@@ -49,7 +49,7 @@ export const userApi = {
   unfollow: (id: number) =>
     apiClient.delete<ApiResponse<null>>(`/users/${id}/follow`),
 
-  // 积分排行
+  // 积分排行精简
   getLeaderboardSimple: (params?: LeaderboardRequest) =>
     apiClient.get<ApiResponse<LeaderboardItemResponse[]>>(
       "/users/leaderboard/simple",
@@ -57,6 +57,7 @@ export const userApi = {
         params,
       },
     ),
+  // 积分排行详情
   getLeaderboardDetail: (params?: LeaderboardRequest) =>
     apiClient.get<ApiResponse<LeaderboardItemResponse[]>>(
       "/users/leaderboard/detail",

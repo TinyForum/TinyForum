@@ -1,7 +1,23 @@
 {
   "title": "积分排行",
   "description": "参与讨论、发帖、评论都能获得积分",
-
+  "total_users": "总用户数",
+  "highest_score": "最高积分",
+  "lowest_score": "最低积分",
+  "average_score": "平均积分",
+  "total_score": "总积分",
+  "champion": "冠军",
+  "medal": "奖牌",
+  "medal_count": "奖牌数",
+  "rank": "排名",
+  "score": "积分",
+  "username": "用户名",
+  "avatar": "用户头像",
+  "level": "用户等级",
+  "user_score": "用户积分",
+  "more_users": "更多用户",
   "no_data": "暂无数据",
-  "no_data_description": "还没有用户数据，成为第一个上榜的人吧！"
+  "showing_top_users": "显示前 {count} 名用户",
+  "no_data_description": "还没有用户数据，成为第一个上榜的人吧！",
+  "active_score": "流通积分"
 }
