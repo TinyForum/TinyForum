@@ -40,6 +40,7 @@ type UserService interface {
 	GetUserProfile(targetID, viewerID uint) (*UserProfileResponse, error)
 	GetUserBasicInfo(userID uint) (*model.User, error)
 	GetUserRoleById(userID uint) (string, error)
+	GetGlobalStatsCount(ctx context.Context, userID uint) (*dto.GlobalStatsCount, error)
 }
 type userService struct {
 	repo        userRepo.UserRepository

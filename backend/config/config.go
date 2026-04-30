@@ -141,17 +141,17 @@ type LogConfig struct {
 // DBConfig SQLite 日志数据库配置
 type DBConfig struct {
 	// DSN 数据库文件路径，例如 "./logs/app.db"
-	DSN string 	`mapstructure:"dsn"`
+	DSN string `mapstructure:"dsn"`
 
 	// MaxBuffer 异步写入队列深度，默认 512
 	// 队列满时新日志静默丢弃，不阻塞业务
 	MaxBuffer int `mapstructure:"max_buffer"`
 
 	// BatchSize 单次事务批量写入条数，默认 50
-	BatchSize int 	`mapstructure:"batch_size"`
+	BatchSize int `mapstructure:"batch_size"`
 
 	// FlushEvery 定时强制刷盘间隔，默认 2s
-	FlushEvery time.Duration 	`mapstructure:"flush_every"`
+	FlushEvery time.Duration `mapstructure:"flush_every"`
 
 	// Retention 日志保留天数，0 表示永久保留
 	// 到期表以 DROP TABLE 整表删除，比按行 DELETE 快得多
@@ -235,7 +235,7 @@ func Load(configDir string) (*Config, error) {
 	// 加载基础配置
 	var basicConfig ConfigBasic
 	if err := basicViper.Unmarshal(&basicConfig); err != nil {
-		fmt.Printf("加载基础配置文件失败: %v",err)
+		fmt.Printf("加载基础配置文件失败: %v", err)
 		return nil, err
 	}
 	fmt.Printf("加载基础配置文件成功")
@@ -265,7 +265,7 @@ func Load(configDir string) (*Config, error) {
 		Private:     privateConfig,
 		RiskControl: riskControl,
 	}
-fmt.Println("加载配置文件成功")
+	fmt.Println("加载配置文件成功")
 	cfg.setDefaults()
 	if err := cfg.validate(); err != nil {
 		return nil, err
@@ -432,27 +432,27 @@ func (c *Config) validateDatabase() error {
 
 // ToLoggerConfig 转换为日志配置
 func (c *Config) ToLoggerConfig() LogConfig {
-    cfg := LogConfig{
-        Level:      c.Basic.Log.Level,
-        Filename:   c.Basic.Log.Filename,
-        MaxSize:    c.Basic.Log.MaxSize,
-        MaxBackups: c.Basic.Log.MaxBackups,
-        MaxAge:     c.Basic.Log.MaxAge,
-        Compress:   c.Basic.Log.Compress,
-        Console:    c.Basic.Log.Console,
-        JSONFormat: c.Basic.Log.JSONFormat,
-    }
-    if c.Basic.Log.DB != nil && c.Basic.Log.DB.DSN != "" {
-    
-        cfg.DB = &DBConfig{
-            DSN:        c.Basic.Log.DB.DSN,
-            MaxBuffer:    c.Basic.Log.DB.MaxBuffer,
-            BatchSize:     c.Basic.Log.DB.BatchSize,
-            FlushEvery: c.Basic.Log.DB.FlushEvery,
-            Retention:    c.Basic.Log.DB.Retention,
-        }
-    }
-    return cfg
+	cfg := LogConfig{
+		Level:      c.Basic.Log.Level,
+		Filename:   c.Basic.Log.Filename,
+		MaxSize:    c.Basic.Log.MaxSize,
+		MaxBackups: c.Basic.Log.MaxBackups,
+		MaxAge:     c.Basic.Log.MaxAge,
+		Compress:   c.Basic.Log.Compress,
+		Console:    c.Basic.Log.Console,
+		JSONFormat: c.Basic.Log.JSONFormat,
+	}
+	if c.Basic.Log.DB != nil && c.Basic.Log.DB.DSN != "" {
+
+		cfg.DB = &DBConfig{
+			DSN:        c.Basic.Log.DB.DSN,
+			MaxBuffer:  c.Basic.Log.DB.MaxBuffer,
+			BatchSize:  c.Basic.Log.DB.BatchSize,
+			FlushEvery: c.Basic.Log.DB.FlushEvery,
+			Retention:  c.Basic.Log.DB.Retention,
+		}
+	}
+	return cfg
 }
 
 // GetDSN 获取数据库连接字符串

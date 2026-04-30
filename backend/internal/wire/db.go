@@ -51,39 +51,41 @@ func InitDB(cfg *config.Config) (*gorm.DB, error) {
 	if err := db.AutoMigrate(
 		// 用户
 		&model.RefreshToken{},
-		&model.User{},
-		&model.Follow{},
-		&model.Tag{},
-		&model.Post{},
-		&model.Comment{},
-		&model.Like{},
-		&model.Notification{},
-		&model.SignIn{},
-		&model.Report{},
-		&model.Board{},
-		&model.Moderator{},
-		&model.BoardBan{},
-		&model.ModeratorLog{},
-		&model.Question{},
-		&model.AnswerVote{},
-		&model.TimelineEvent{},
-		&model.UserTimeline{},
-		&model.TimelineSubscription{},
-		&model.Topic{},
-		&model.TopicPost{},
-		&model.TopicFollow{},
-		&model.Announcement{},
-		&model.ModeratorApplication{},
-		&model.Moderator{},
+		&model.User{},                 // 用户
+		&model.Follow{},               // 关注
+		&model.Tag{},                  // 标签
+		&model.Post{},                 // 帖子
+		&model.Comment{},              // 评论
+		&model.Like{},                 // 点赞
+		&model.Notification{},         // 通知
+		&model.SignIn{},               // 登录
+		&model.Report{},               // 举报
+		&model.Board{},                // 板块
+		&model.Moderator{},            // 管理员
+		&model.BoardBan{},             // 禁言
+		&model.ModeratorLog{},         // 管理员日志
+		&model.Question{},             // 问题
+		&model.AnswerVote{},           // 回答投票
+		&model.TimelineEvent{},        // 时间线事件
+		&model.UserTimeline{},         // 用户时间线
+		&model.TimelineSubscription{}, // 时间线订阅
+		&model.Topic{},                // 主题
+		&model.TopicPost{},            // 主题帖子
+		&model.TopicFollow{},          // 主题关注
+		&model.Announcement{},         // 公告
+		&model.ModeratorApplication{}, // 版主申请
+		&model.Moderator{},            // 版主
 		&model.Vote{},
 		// 审计
-		&model.ContentAuditTask{},
-		&model.AuditLog{},
-		&model.UserRiskRecord{},
-		&model.Attachment{},
-		&model.IPRiskRecord{},
-		&model.UserRiskRecord{},
-		&model.BlockedIP{},
+		&model.ContentAuditTask{}, // 内容审核任务
+		&model.AuditLog{},         // 审计日志
+		&model.UserRiskRecord{},   // 用户风险记录
+		&model.Attachment{},       // 附件
+		&model.IPRiskRecord{},     // IP风险记录
+		&model.UserRiskRecord{},   // 用户风险记录
+		&model.BlockedIP{},        // 被封禁IP
+		&model.Violation{},        // 违规
+		&model.Favorite{},         // 收藏
 	); err != nil {
 		return nil, fmt.Errorf("auto migrate failed: %w", err)
 	}

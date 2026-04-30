@@ -97,12 +97,13 @@ func (AuditLog) TableName() string {
 // UserRiskRecord 记录用户风险事件，用于计算当前风险等级
 type UserRiskRecord struct {
 	BaseModel
-	UserID      uint      `gorm:"not null;index" json:"user_id"`
-	EventType   string    `gorm:"type:varchar(50);not null" json:"event_type"` // "report_confirmed" | "sensitive_hit" | "rate_limit_exceeded"
-	EventDetail string    `gorm:"type:text" json:"event_detail"`               // JSON
+	UserID uint `gorm:"not null;index" json:"user_id"` // 用户ID
+	// "report_confirmed" | "sensitive_hit" | "rate_limit_exceeded"
+	EventType   string    `gorm:"type:varchar(50);not null" json:"event_type"` // 事件类型
+	EventDetail string    `gorm:"type:text" json:"event_detail"`               // 事件详情
 	ExpireAt    time.Time `gorm:"not null;index" json:"expire_at"`             // 超过此时间后不计入风险分
 
-	User User `gorm:"foreignKey:UserID" json:"user,omitempty"`
+	User User `gorm:"foreignKey:UserID" json:"user,omitempty"` // 关联用户
 }
 
 func (UserRiskRecord) TableName() string {

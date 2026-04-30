@@ -100,8 +100,6 @@ func (r *tokenRepository) SaveResetToken(ctx context.Context, userID uint, token
 		Token:     token,
 		JTI:       jti,
 		ExpiresAt: time.Now().Add(expiration),
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
 	}
 
 	return r.db.WithContext(ctx).Create(refreshToken).Error

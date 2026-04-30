@@ -27,7 +27,7 @@ func (s *userService) ResetUserPasswordWithTemp(operatorID uint, targetID uint) 
 	targetUser, err := s.repo.FindByID(targetID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return "", apperrors.ErrUserNotFound.WithMessagef( "ID: %d", targetID)
+			return "", apperrors.ErrUserNotFound.WithMessagef("ID: %d", targetID)
 		}
 		return "", fmt.Errorf("查询目标用户失败: %w", err)
 	}
@@ -74,7 +74,7 @@ func (s *userService) ResetUserPassword(operatorID uint, targetID uint, newPassw
 	targetUser, err := s.repo.FindByID(targetID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return apperrors.ErrUserNotFound.WithMessagef( "ID: %d", targetID)
+			return apperrors.ErrUserNotFound.WithMessagef("ID: %d", targetID)
 		}
 		return fmt.Errorf("查询目标用户失败: %w", err)
 	}

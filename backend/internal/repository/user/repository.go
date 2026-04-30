@@ -65,6 +65,7 @@ type UserRepository interface {
 	CountActiveByDateRange(ctx context.Context, startDate, endDate time.Time) (int64, error)                          // 获取指定日期范围内活跃用户总数
 	GetActiveUsersByDateRange(ctx context.Context, startDate, endDate time.Time, limit int) ([]*ActiveUserRow, error) // 获取指定日期范围内活跃用户
 	IsUserExistsByEmail(email string) (bool, error)                                                                   // 检查用户是否存在
+	GetGlobalStatsCount(ctx context.Context, userID uint) (*dto.GlobalStatsCount, error)                              // 获取全局统计信息
 
 }
 

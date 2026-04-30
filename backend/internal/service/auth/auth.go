@@ -181,7 +181,7 @@ func (s *authService) ChangePassword(ctx context.Context, userID uint, oldPasswo
 
 	// 4. 密码强度校验
 	if err := validatePasswordStrength(newPassword); err != nil {
-		return "",err 
+		return "", err
 	}
 
 	// 5. 加密新密码

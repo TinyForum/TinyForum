@@ -9,6 +9,7 @@ import (
 
 	"gorm.io/gorm"
 )
+
 // List 管理员获取用户列表（分页）
 func (s *userService) List(page, pageSize int, keyword string) ([]model.User, int64, error) {
 	return s.repo.List(page, pageSize, keyword)
@@ -21,15 +22,15 @@ func (s *userService) DeleteUser(operatorID uint, targetID uint) error {
 	targetUser, err := s.repo.FindByID(targetID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-    return apperrors.ErrUserNotFound.WithMessagef("Id: %d", targetID)
-}
+			return apperrors.ErrUserNotFound.WithMessagef("Id: %d", targetID)
+		}
 
 		return fmt.Errorf("查询目标用户失败: %w", err)
 	}
 
 	operator, err := s.repo.FindByID(operatorID)
 	if err != nil {
-			return apperrors.ErrUserNotFound.WithMessagef("查询操作者信息失败 Id: %d", operatorID)
+		return apperrors.ErrUserNotFound.WithMessagef("查询操作者信息失败 Id: %d", operatorID)
 	}
 
 	if targetID == operatorID {
@@ -39,7 +40,7 @@ func (s *userService) DeleteUser(operatorID uint, targetID uint) error {
 		return apperrors.ErrCannotModifySuperAdmin.WithMessage("不能删除超级管理员")
 	}
 	if operator.Role != model.RoleSuperAdmin && targetUser.Role == model.RoleAdmin {
-		return  apperrors.ErrInsufficientPermission.WithMessage("只有超级管理员才能删除其他管理员")
+		return apperrors.ErrInsufficientPermission.WithMessage("只有超级管理员才能删除其他管理员")
 	}
 
 	if err := s.repo.SoftDelete(ctx, targetID); err != nil {

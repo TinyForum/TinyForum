@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import { authApi, userAPI } from "@/shared/api";
+import { authApi } from "@/shared/api";
 import { getErrorMessage } from "@/shared/lib/utils";
 
 interface UseChangePasswordOptions {
