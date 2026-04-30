@@ -183,7 +183,7 @@ export default function HomePage() {
 
           {/* 中间内容区域 */}
           <div className="flex-1 min-w-0 flex flex-col h-full">
-            <div className="flex-shrink-0 sticky top-0 bg-base-200 pb-4">
+            <div className="flex-shrink-0 sticky top-0 bg-base-200 pb-4 z-[100]">
               <PostFilterBar
                 sortBy={sortBy}
                 onSortChange={handleSortChange}
@@ -205,7 +205,7 @@ export default function HomePage() {
 
           {/* 右侧边栏 */}
           {leaderboard !== undefined && (
-            <div className="lg:w-64 xl:w-72 flex-none overflow-y-auto custom-scrollbar  top-6 max-h-[calc(100vh-6rem)]">
+            <div className="lg:w-64 xl:w-72 flex-none overflow-y-auto custom-scrollbar sticky top-6 max-h-[calc(100vh-6rem)]">
               <RightSidebar
                 isAuthenticated={isAuthenticated}
                 user={user}

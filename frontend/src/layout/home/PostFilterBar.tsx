@@ -54,13 +54,12 @@ export default function PostFilterBar({
 
   const currentOption = sortOptions.find((opt) => opt.value === sortBy);
 
-  // 桌面端渲染：完整按钮组
   const DesktopView = () => (
-    <div className="flex items-center gap-2 flex-wrap">
+    <div className="join">
       {sortOptions.map((option) => (
         <button
           key={option.value}
-          className={`btn btn-sm gap-1 transition-all duration-200 whitespace-nowrap ${
+          className={`btn btn-sm join-item transition-all duration-200 ${
             sortBy === option.value
               ? "btn-primary shadow-md"
               : "btn-ghost hover:bg-base-200"
@@ -68,15 +67,14 @@ export default function PostFilterBar({
           onClick={() => onSortChange(option.value)}
         >
           {option.icon}
-          <span>{option.label}</span>
+          <span className="hidden sm:inline">{option.label}</span>
         </button>
       ))}
     </div>
   );
 
-  // 移动端渲染：下拉菜单
   const MobileView = () => (
-    <div className="flex items-center gap-2">
+    <div className="dropdown dropdown-end">
       <Menu>
         <MenuButton className="btn btn-sm btn-primary gap-1 whitespace-nowrap">
           {currentOption?.icon}
@@ -92,28 +90,30 @@ export default function PostFilterBar({
           leaveFrom="transform opacity-100 scale-100"
           leaveTo="transform opacity-0 scale-95"
         >
-          <MenuItems className="absolute left-0 mt-2 w-40 origin-top-left rounded-lg bg-base-100 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
-            <div className="py-1">
-              {sortOptions.map((option) => (
-                <Menu.Item key={option.value}>
-                  {({ active }: { active: boolean }) => (
-                    <button
-                      className={`group flex w-full items-center gap-2 px-4 py-2 text-sm
-                        ${active ? "bg-base-200" : ""}
-                        ${sortBy === option.value ? "text-primary font-medium" : "text-base-content"}
-                      `}
-                      onClick={() => onSortChange(option.value)}
-                    >
-                      {option.icon}
-                      {option.label}
-                      {sortBy === option.value && (
-                        <span className="ml-auto">✓</span>
-                      )}
-                    </button>
-                  )}
-                </Menu.Item>
-              ))}
-            </div>
+          <MenuItems className="dropdown-content z-50 mt-2 w-48 rounded-box bg-base-100 p-2 shadow-lg ring-1 ring-base-300 focus:outline-none">
+            {sortOptions.map((option) => (
+              <Menu.Item key={option.value}>
+                {({ active }: { active: boolean }) => (
+                  <button
+                    className={`flex w-full items-center gap-2 rounded-btn px-4 py-2 text-sm transition-colors
+                      ${active ? "bg-base-200" : ""}
+                      ${
+                        sortBy === option.value
+                          ? "text-primary font-medium"
+                          : "text-base-content"
+                      }
+                    `}
+                    onClick={() => onSortChange(option.value)}
+                  >
+                    {option.icon}
+                    {option.label}
+                    {sortBy === option.value && (
+                      <span className="ml-auto text-primary">✓</span>
+                    )}
+                  </button>
+                )}
+              </Menu.Item>
+            ))}
           </MenuItems>
         </Transition>
       </Menu>
@@ -121,9 +121,9 @@ export default function PostFilterBar({
   );
 
   return (
-    <div className="flex items-center gap-3 mb-4 bg-base-100 rounded-xl p-3 border border-base-300 z-10">
+    <div className="relative mb-4 flex items-center gap-3 rounded-box border border-base-300 bg-base-100 p-3 shadow-sm">
       {/* 排序和刷新区域 */}
-      <div className="flex items-center gap-2 flex-1 min-w-0">
+      <div className="flex flex-1 items-center gap-2 min-w-0">
         {/* 排序组件 */}
         {isDesktop ? <DesktopView /> : <MobileView />}
 
@@ -134,13 +134,13 @@ export default function PostFilterBar({
           disabled={isLoading}
           aria-label={t("refresh")}
         >
-          <RefreshCw className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`} />
-          {isDesktop && <span>{t("refresh")}</span>}
+          <RefreshCw className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
+          <span className="hidden sm:inline">{t("refresh")}</span>
         </button>
 
         {/* 统计信息 */}
         {totalCount !== undefined && totalCount > 0 && (
-          <div className="text-xs text-muted-foreground whitespace-nowrap hidden sm:block">
+          <div className="text-xs text-base-content/60 whitespace-nowrap hidden sm:block">
             {isDesktop ? t("total_posts", { count: totalCount }) : totalCount}
           </div>
         )}
@@ -153,10 +153,8 @@ export default function PostFilterBar({
             href="/posts/new"
             className="btn btn-primary btn-sm gap-1 w-full"
           >
-            <PenSquare className="w-4 h-4" />
-            <span className={isDesktop ? "inline" : "hidden sm:inline"}>
-              {t("create")}
-            </span>
+            <PenSquare className="h-4 w-4" />
+            <span className="hidden sm:inline">{t("create")}</span>
           </Link>
         </div>
       )}

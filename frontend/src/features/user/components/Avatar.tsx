@@ -17,13 +17,14 @@ interface AvatarProps {
   zIndex?: number | string;
 }
 
-const SIZE_MAP: Record<string, number> = {
-  sm: 32,
-  md: 40,
-  lg: 56,
+const SIZE_CLASS_MAP: Record<string, string> = {
+  sm: "w-8 h-8",
+  md: "w-10 h-10",
+  lg: "w-14 h-14",
+  full: "w-full h-full",
 };
 
-const ROUNDED_MAP: Record<string, string> = {
+const ROUNDED_CLASS_MAP: Record<string, string> = {
   sm: "rounded-sm",
   md: "rounded-md",
   lg: "rounded-lg",
@@ -49,33 +50,6 @@ export default function Avatar({
 }: AvatarProps) {
   const [hasError, setHasError] = useState(false);
 
-  const sizeStyle = useMemo(() => {
-    if (size === "full") return { width: "100%", height: "100%" };
-    if (typeof size === "number") return { width: size, height: size };
-    const pxSize = SIZE_MAP[size];
-    return { width: pxSize, height: pxSize };
-  }, [size]);
-
-  const imageSize = useMemo(() => {
-    if (size === "full") return undefined;
-    if (typeof size === "number") return size;
-    return SIZE_MAP[size];
-  }, [size]);
-
-  const getShapeStyles = (): string => {
-    if (shape === "circle") return "rounded-full";
-    if (shape === "rounded") {
-      if (typeof roundedSize === "number") return `rounded-[${roundedSize}px]`;
-      return ROUNDED_MAP[roundedSize] || "rounded-full";
-    }
-    return "";
-  };
-
-  const getRingStyles = (): string => {
-    if (!ring) return "";
-    return `ring ring-${ringColor} ${ringOffset ? `ring-offset-${ringOffsetColor} ring-offset-2` : ""}`;
-  };
-
   const handleError = () => {
     if (!hasError) {
       setHasError(true);
@@ -83,59 +57,67 @@ export default function Avatar({
     }
   };
 
-  const shapeStyle = getShapeStyles();
-  const ringStyle = getRingStyles();
-  const isFullSize = size === "full";
+  const getShapeClass = (): string => {
+    if (shape === "circle") return "rounded-full";
+    if (shape === "rounded") {
+      if (typeof roundedSize === "number") return `rounded-[${roundedSize}px]`;
+      return ROUNDED_CLASS_MAP[roundedSize] || "rounded-full";
+    }
+    return "rounded-none";
+  };
 
-  // 占位符 / 错误状态
+  const getRingClass = (): string => {
+    if (!ring) return "";
+    const ringCls = `ring ring-${ringColor}`;
+    const offsetCls = ringOffset
+      ? `ring-offset-${ringOffsetColor} ring-offset-2`
+      : "";
+    return [ringCls, offsetCls].filter(Boolean).join(" ");
+  };
+
+  const shapeClass = getShapeClass();
+  const ringClass = getRingClass();
+  const sizeClass = typeof size !== "number" ? SIZE_CLASS_MAP[size] : "";
+  const inlineSizeStyle =
+    typeof size === "number" ? { width: size, height: size } : undefined;
+
+  // 重要：外层 div 必须是 relative，且内层 div 使用 absolute 填充
+  const wrapperClasses = `relative ${sizeClass} ${className}`.trim();
+  const innerClasses = `absolute inset-0 overflow-hidden bg-base-200 flex items-center justify-center ${shapeClass} ${ringClass}`;
+
+  // 占位符或错误状态
   if (!avatarUrl || hasError) {
     return (
-      <div className={`avatar ${className}`} style={{ zIndex }}>
-        <div
-          className={`overflow-hidden bg-base-200 flex items-center justify-center ${shapeStyle} ${ringStyle}`}
-          style={sizeStyle}
-        >
-          <span className="text-sm font-medium">
-            {username?.charAt(0)?.toUpperCase() || "头像加载失败"}
+      <div className={wrapperClasses} style={{ ...inlineSizeStyle, zIndex }}>
+        <div className={innerClasses}>
+          <span className="text-sm font-medium text-base-content">
+            {username?.charAt(0)?.toUpperCase() || "?"}
           </span>
         </div>
       </div>
     );
   }
 
+  // 正常图片：使用 fill 模式
   return (
-    <div className={`avatar ${className}`} style={{ zIndex }}>
-      <div
-        className={`relative overflow-hidden bg-base-200 ${shapeStyle} ${ringStyle}`}
-        style={sizeStyle}
-      >
-        {isFullSize ? (
-          <Image
-            src={avatarUrl}
-            alt={username || "用户头像"}
-            fill
-            className="object-cover"
-            onError={handleError}
-            loading="lazy"
-            sizes="100%"
-            unoptimized={
-              !avatarUrl.startsWith("/") && !avatarUrl.includes("cdn")
-            }
-          />
-        ) : (
-          <Image
-            src={avatarUrl}
-            alt={username || "用户头像"}
-            fill
-            className="object-cover"
-            onError={handleError}
-            loading="lazy"
-            sizes={`${imageSize}px`}
-            unoptimized={
-              !avatarUrl.startsWith("/") && !avatarUrl.includes("cdn")
-            }
-          />
-        )}
+    <div className={wrapperClasses} style={{ ...inlineSizeStyle, zIndex }}>
+      <div className={innerClasses}>
+        <Image
+          src={avatarUrl}
+          alt={username || "用户头像"}
+          fill
+          className="object-cover"
+          onError={handleError}
+          loading="lazy"
+          sizes={
+            size === "full"
+              ? "100%"
+              : typeof size === "number"
+                ? `${size}px`
+                : "40px"
+          }
+          unoptimized={!avatarUrl.startsWith("/") && !avatarUrl.includes("cdn")}
+        />
       </div>
     </div>
   );

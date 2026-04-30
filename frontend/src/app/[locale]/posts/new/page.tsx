@@ -13,9 +13,8 @@ import { FileText, Send, X, FolderOpen } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import type { Board, Tag, ApiResponse } from "@/shared/api/types";
-import RichEditor from "@/layout/post/RichEditor";
+import RichEditor from "@/layout/common/RichEditor";
 
-// 增强的校验规则：草稿状态下内容最短可为 0，其他状态至少 10 字符
 const postSchema = z
   .object({
     title: z.string().min(2, "标题至少2个字符").max(200, "标题最多200个字符"),
@@ -30,7 +29,6 @@ const postSchema = z
       .default("published"),
   })
   .superRefine((data, ctx) => {
-    // 动态内容校验：非草稿状态内容必须 >= 10 字符
     if (
       data.status !== "draft" &&
       (!data.content || data.content.length < 10)
@@ -56,7 +54,7 @@ export default function NewPostPage() {
   const router = useRouter();
   const { isAuthenticated } = useAuthStore();
   const [loading, setLoading] = useState(false);
-  const t = useTranslations("posts");
+  const t = useTranslations("Post");
 
   useEffect(() => {
     if (!isAuthenticated) {
