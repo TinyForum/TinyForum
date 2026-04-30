@@ -1,0 +1,19 @@
+{
+  "deleted": "评论已删除",
+  "delete_failed": "删除失败",
+  "reply": "回复",
+  "collapse": "收起",
+  "expand": "展开",
+  "replies": "条回复",
+  "delete": "删除",
+  "comment_failed": "评论失败，请稍后重试'",
+  "comments": "评论",
+  "reply_to": "回复给",
+  "cancel": "取消",
+  "write_comment": "写下你的评论...",
+  "send": "发送评论",
+  "please": "请",
+  "login": "登录",
+  "to_comment": "后发表评论",
+  "no_comments": "暂无评论，快来发表第一条评论吧！"
+}

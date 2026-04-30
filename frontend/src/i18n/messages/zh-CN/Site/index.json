@@ -1,0 +1,6 @@
+{
+  "brand": "天方论坛",
+  "description": "一个完全开源的论坛项目，由 Nextjs 和 Gin 构建",
+  "repo": "https://github.com/caoyang2002/TinyForum",
+  "license": "MIT"
+}

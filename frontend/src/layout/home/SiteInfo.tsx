@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 
 export default function SiteInfo() {
-  const t = useTranslations("post");
+  const t = useTranslations("Post");
 
   return (
     <div className="card bg-base-100 border border-base-300 shadow-sm">

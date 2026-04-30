@@ -28,7 +28,7 @@ export default function TagList({
   selectedTag,
   onTagChange,
 }: TagListProps) {
-  const t = useTranslations("post");
+  const t = useTranslations("Post");
 
   return (
     <div className="card bg-base-100 border border-base-300 shadow-sm">

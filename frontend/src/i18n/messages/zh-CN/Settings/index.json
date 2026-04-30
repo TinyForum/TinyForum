@@ -1,0 +1,8 @@
+{
+  "title": "设置",
+  "avatar_image_url": "头像图片 URL",
+  "avatar_image_url_tip": "留空则使用默认头像，支持外部图片链接",
+  "about_me": "个人介绍",
+  "about_me_placeholder": "介绍一下自己吧...",
+  "save": "保存"
+}

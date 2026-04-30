@@ -1,0 +1,23 @@
+{
+  "title": "Profile",
+  "joined": "Joined",
+  "the_questions": "Q&A",
+  "the_topics": "Topics",
+  "no_articles": "No articles yet...",
+  "no_posts": "No posts yet...",
+  "no_questions": "No questions asked yet...",
+  "no_topics": "No topics yet...",
+  "unfollowed": "Unfollowed",
+  "followed": "Followed",
+  "operation_failed": "Operation failed",
+  "user_not_found": "User not found",
+  "administrator": "Administrator",
+  "score": "Score",
+  "followers": "Followers",
+  "following": "Following",
+  "follow": "Follow",
+  "unfollow": "Unfollow",
+  "edit_profile": "Edit profile",
+  "the_posts": "Posts",
+  "the_articles": "Articles"
+}

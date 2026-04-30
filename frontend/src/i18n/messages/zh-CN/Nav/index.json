@@ -1,0 +1,27 @@
+{
+  "score_label": "积分",
+  "navigation": "导航",
+  "quick_actions": "快捷操作",
+  "ask_question": "提问",
+
+  "admin_dashboard": "管理后台",
+
+  "boards": "板块",
+  "brand": "天方论坛",
+  "create_post": "发帖",
+  "search": "搜索",
+  "profile": "个人主页",
+  "leaderboard": "积分排行",
+  "admin": "管理后台",
+  "logout": "退出登陆",
+  "login": "登录",
+  "register": "注册",
+  "home": "首页",
+  "explore": "探索",
+  "settings": "设置",
+  "help": "帮助",
+  "track": "追踪",
+  "questions": "问答",
+  "topics": "话题",
+  "timeline": "时间线"
+}

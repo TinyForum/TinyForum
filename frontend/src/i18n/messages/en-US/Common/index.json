@@ -1,0 +1,32 @@
+{
+  "change_role": "Change role",
+  "profile": "Profile",
+  "my_timeline": "My timeline",
+  "my_topics": "My topics",
+  "my_questions": "My Q&A",
+  "my_moderator_applications": "My moderator applications",
+  "admin_dashboard": "Admin dashboard",
+  "moderator_dashboard": "Moderator dashboard",
+  "reviewer_dashboard": "Reviewer dashboard",
+  "score": "Score",
+  "followers": "Followers",
+  "settings": "Settings",
+  "help_center": "Help center",
+  "logout": "Logout",
+  "logging_out": "Logging out...",
+  "logout_success": "Logged out",
+  "logout_failed": "Logout failed, please try again",
+  "role": {
+    "super_admin": "Super Admin",
+    "admin": "Admin",
+    "moderator": "Moderator",
+    "reviewer": "Reviewer",
+    "member": "Member",
+    "user": "User",
+    "guest": "Guest",
+    "bot": "Bot"
+  },
+  "select_role": "Select role",
+  "back": "Back",
+  "reset_password_notice": "The system will generate a random temporary password and send it to the user via in-app notification, valid for 30 minutes."
+}

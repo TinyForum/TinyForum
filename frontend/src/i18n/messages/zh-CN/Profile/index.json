@@ -1,0 +1,23 @@
+{
+  "title": "个人主页",
+  "joined": "加入时间",
+  "the_questions": "问答",
+  "the_topics": "话题",
+  "no_articles": "TA 还没有发过文章呢...",
+  "no_posts": "TA 还没有发过帖子呢...",
+  "no_questions": "TA 似乎不太需要提问...",
+  "no_topics": "TA 还没有写过专题呢...",
+  "unfollowed": "已经取消关注",
+  "followed": "关注成功",
+  "operation_failed": "操作失败",
+  "user_not_found": "用户不存在",
+  "administrator": "管理员",
+  "score": "积分",
+  "followers": "关注我的人",
+  "following": "我关注的",
+  "follow": "加关注",
+  "unfollow": "移除关注",
+  "edit_profile": "编辑资料",
+  "the_posts": "帖子",
+  "the_articles": "文章"
+}
