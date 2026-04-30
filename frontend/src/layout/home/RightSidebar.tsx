@@ -1,20 +1,11 @@
 "use client";
 
+import { LeaderboardItemResponse } from "@/shared/api/modules/user";
 import { GuestCard } from "./right/GuestCard";
 import { Leaderboard } from "./right/Leaderboard";
 import { TimelineEvents } from "./right/TimelineEvents";
 import { UserProfileCard } from "./right/UserProfileCard";
-import { LeaderboardItemResponse } from "@/shared/api/modules/users";
-import type { User as UserType } from "@/shared/api/types";
-
-interface UserProfile {
-  id: number;
-  username: string;
-  avatar: string;
-  bio: string;
-  score: number;
-  created_at: string;
-}
+import type { User, User as UserType } from "@/shared/api/types";
 
 interface TimelineEvent {
   id: number;
@@ -31,8 +22,7 @@ interface TimelineEvent {
 
 interface RightSidebarProps {
   isAuthenticated: boolean;
-  user: UserType | null;
-  userProfile?: UserProfile;
+  userProfile: User | null;
   leaderboard: LeaderboardItemResponse[];
   unreadCount: number;
   timelineEvents: TimelineEvent[];
@@ -45,6 +35,13 @@ export default function RightSidebar({
   unreadCount,
   timelineEvents,
 }: RightSidebarProps) {
+  console.log("RightSidebar", {
+    isAuthenticated,
+    userProfile,
+    leaderboard,
+    unreadCount,
+    timelineEvents,
+  });
   return (
     <aside className="space-y-4">
       {/* 用户信息卡片 */}

@@ -1,34 +1,76 @@
-// hooks/useUserProfile.ts
-import { useQuery } from "@tanstack/react-query";
-import { userApi } from "@/shared/api";
+// hooks/user/useUserInfo.ts
+import { useState, useCallback } from "react";
+import { UpdateProfilePayload, RoleResponse } from "@/shared/api/modules/user";
+import type { User } from "@/shared/api/types";
+import { toast } from "react-hot-toast";
+import { userApi } from "@/shared/api/modules/user";
 
-export function useUserProfile() {
-  const {
-    data: profile,
-    isLoading,
-    error,
-    refetch,
-  } = useQuery({
-    queryKey: ["current-user-profile"],
-    queryFn: () => userApi.getMeRole().then((r) => r.data.data),
-    staleTime: 5 * 60 * 1000, // 5 分钟内不重新请求
-    retry: 1, // 失败重试 1 次
-  });
+export interface ErrorResponse {
+  response?: { data?: { message?: string } };
+  message?: string;
+}
 
-  return {
-    profile,
-    isLoading,
+// ========== 用户资料 ==========
+interface UseProfileReturn {
+  user: User | null;
+  loading: boolean;
+  error: string | null;
+  loadProfile: (id: number) => Promise<void>;
+  updateProfile: (data: UpdateProfilePayload) => Promise<boolean>;
+}
 
-    error,
-    refetch,
-    // 便捷属性
-    userId: profile?.user_id,
-    role: profile?.role,
-    // 角色判断辅助方法
-    isAdmin: profile?.role === "admin" || profile?.role === "super_admin",
-    isSuperAdmin: profile?.role === "super_admin",
-    isModerator: profile?.role === "moderator",
-    isReviewer: profile?.role === "reviewer",
-    isMember: profile?.role === "member",
-  };
+export function useProfile(): UseProfileReturn {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const loadProfile = useCallback(async (id: number): Promise<void> => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await userApi.getProfile(id);
+      if (response.data.code === 0 && response.data.data) {
+        setUser(response.data.data);
+      } else {
+        throw new Error(response.data.message || "获取用户信息失败");
+      }
+    } catch (err: unknown) {
+      const errorObj = err as ErrorResponse;
+      const errorMsg =
+        errorObj.response?.data?.message ||
+        errorObj.message ||
+        "获取用户信息失败";
+      setError(errorMsg);
+      toast.error(errorMsg);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const updateProfile = useCallback(
+    async (data: UpdateProfilePayload): Promise<boolean> => {
+      setLoading(true);
+      try {
+        const response = await userApi.updateProfile(data);
+        if (response.data.code === 0 && response.data.data) {
+          setUser(response.data.data);
+          toast.success("资料更新成功");
+          return true;
+        } else {
+          throw new Error(response.data.message || "更新失败");
+        }
+      } catch (err: unknown) {
+        const errorObj = err as ErrorResponse;
+        const errorMsg =
+          errorObj.response?.data?.message || errorObj.message || "更新失败";
+        toast.error(errorMsg);
+        return false;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [],
+  );
+
+  return { user, loading, error, loadProfile, updateProfile };
 }

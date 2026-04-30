@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   postApi,
   tagApi,
-  userApi,
+  userAPI,
   boardApi,
   timelineApi,
   notificationApi,
@@ -19,6 +19,7 @@ import { useLeaderboard } from "@/features/leader/hooks/useLeaderboard";
 import PostFilterBar from "@/layout/home/PostFilterBar";
 import PostList from "@/layout/home/PostList";
 import RightSidebar from "@/layout/home/RightSidebar";
+import { useProfile } from "@/features/user/hooks/useUserProfile";
 
 // 用户资料类型
 interface UserProfile {
@@ -108,12 +109,18 @@ export default function HomePage() {
   });
 
   // 用户信息（已登录时）
-  const { data: userProfile } = useQuery({
-    queryKey: ["user-profile", user?.id],
-    queryFn: () =>
-      userApi.getProfile(user!.id).then((r) => r.data.data as UserProfile),
-    enabled: isAuthenticated && !!user?.id,
-  });
+  // const { data: userProfile } = useQuery({
+  //   queryKey: ["user-profile", user?.id],
+  //   queryFn: () =>
+  //     userAPI.getProfile(user!.id).then((r) => r.data.data as UserProfile),
+  //   enabled: isAuthenticated && !!user?.id,
+  // });
+  // const { profile: userProfile, refresh: fetchUserProfile } = useUserProfile(
+  //   user?.id,
+  //   false,
+  // );
+  // // 导入自定义 hooks
+  // const { user  } = useProfile();
 
   // 未读通知数
   const { data: unreadCount } = useQuery({
@@ -208,8 +215,7 @@ export default function HomePage() {
             <div className="lg:w-64 xl:w-72 flex-none overflow-y-auto custom-scrollbar sticky top-6 max-h-[calc(100vh-6rem)]">
               <RightSidebar
                 isAuthenticated={isAuthenticated}
-                user={user}
-                userProfile={userProfile}
+                userProfile={user}
                 leaderboard={leaderboard}
                 unreadCount={unreadCount ?? 0}
                 timelineEvents={timelineEvents ?? []}

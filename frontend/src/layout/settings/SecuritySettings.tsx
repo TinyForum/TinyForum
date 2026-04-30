@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { authApi, userApi } from "@/shared/api";
+import { authApi, userAPI } from "@/shared/api";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { getErrorMessage } from "@/shared/lib/utils";
@@ -132,7 +132,7 @@ export default function SecuritySettings({ user }: SecuritySettingsProps) {
   const onSubmit = async (data: PasswordForm): Promise<void> => {
     setPasswordLoading(true);
     try {
-      await userApi.changePassword({
+      await userAPI.changePassword({
         old_password: data.oldPassword,
         new_password: data.newPassword,
       });

@@ -1,0 +1,40 @@
+// // frontend/src/features/user/hooks/useUserProfile.ts
+// import { useState, useEffect, useCallback } from "react";
+// import type { User } from "@/shared/api/types";
+// import { toast } from "react-hot-toast";
+// import { userApi } from "@/shared/api/modules/user";
+
+// export function useUserProfile(userId?: number, autoLoad = true) {
+//   const [profile, setProfile] = useState<User | null>(null);
+//   const [loading, setLoading] = useState(false);
+
+//   const fetchProfile = useCallback(async () => {
+//     if (!userId) return;
+//     setLoading(true);
+//     try {
+//       const res = await userApi.getProfile(userId);
+//       if (res.data.code === 0) {
+//         setProfile(res.data.data ?? null);
+//       } else {
+//         toast.error(res.data.message || "加载用户资料失败");
+//       }
+//     } catch (error) {
+//       console.error("Failed to fetch user profile:", error);
+//       toast.error("加载用户资料失败");
+//     } finally {
+//       setLoading(false);
+//     }
+//   }, [userId]);
+
+//   useEffect(() => {
+//     if (autoLoad && userId) {
+//       fetchProfile();
+//     }
+//   }, [autoLoad, userId, fetchProfile]);
+
+//   return {
+//     profile,
+//     loading,
+//     refresh: fetchProfile, // 手动刷新方法
+//   };
+// }

@@ -29,7 +29,10 @@ export interface LeaderboardItemResponse {
   bio: string;
 }
 
-export const userApi = {
+/**
+ * @deprecated 使用新的 API
+ */
+export const userAPI = {
   // 获取用户信息
   getProfile: (id: number) => apiClient.get<ApiResponse<User>>(`/users/${id}`),
   // 获取当前用户的角色
