@@ -16,7 +16,7 @@ function PostsContent() {
     ? Number(searchParams.get("tag_id"))
     : undefined;
   const [page, setPage] = useState(1);
-  const t = useTranslations("posts");
+  const t = useTranslations("Post");
 
   const { data, isLoading } = useQuery({
     queryKey: ["posts", "search", keyword, tagId, page],

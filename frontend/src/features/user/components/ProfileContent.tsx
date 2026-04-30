@@ -7,7 +7,7 @@ import { useTranslations } from "next-intl";
 import { FileText, MessageSquare, BookOpen, Hash } from "lucide-react";
 import type { PostType } from "@/shared/api/types";
 import { ViolationStatus } from "./ViolationStatus";
-import PostCard from "@/layout/post/PostCard";
+import PostCard from "@/shared/ui/post/PostCard";
 
 interface ProfileContentProps {
   userId: number;
