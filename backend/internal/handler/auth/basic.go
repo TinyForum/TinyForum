@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"tiny-forum/config"
 	authService "tiny-forum/internal/service/auth"
 )
 
@@ -8,9 +9,9 @@ type AuthHandler struct {
 	// userSvc *userService.UserService
 	authSvc authService.AuthService
 	// jwtMgr  jwt.JWTManager
-	// cfg     *config.Config
+	cfg     *config.Config
 }
 
-func NewAuthHandler(authSvc authService.AuthService) *AuthHandler {
-	return &AuthHandler{authSvc: authSvc}
+func NewAuthHandler(authSvc authService.AuthService,cfg *config.Config) *AuthHandler {
+	return &AuthHandler{authSvc: authSvc,cfg: cfg}
 }
