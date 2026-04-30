@@ -1,0 +1,8 @@
+{
+  "title": "Settings",
+  "avatar_image_url": "Avatar image URL",
+  "avatar_image_url_tip": "Leave empty to use default avatar, external image URLs supported",
+  "about_me": "About me",
+  "about_me_placeholder": "Tell something about yourself...",
+  "save": "Save"
+}

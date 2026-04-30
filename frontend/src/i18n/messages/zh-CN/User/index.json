@@ -1,0 +1,16 @@
+{
+  "user_center": "个人中心",
+  "manage_your_content": "管理你的内容",
+  "total_posts": "总帖子数",
+  "total_comments": "总评论数",
+  "total_favorites": "总收藏数",
+  "unread_notifications": "未读通知数",
+  "registered_at": "注册时间",
+  "my_posts": "我的帖子",
+  "overview": "概览",
+  "my_comments": "我的评论",
+  "favorites": "我的收藏",
+  "notifications": "我的通知",
+  "settings": "设置",
+  "search_my_posts": "搜索我的帖子"
+}

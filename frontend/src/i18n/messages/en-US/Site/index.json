@@ -1,0 +1,6 @@
+{
+  "brand": "Tiny Forum",
+  "description": "A fully open source forum project built with Nextjs and Gin",
+  "repo": "https://github.com/caoyang2002/TinyForum",
+  "license": "MIT"
+}

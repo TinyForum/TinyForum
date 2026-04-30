@@ -33,7 +33,7 @@ export default function PostFilterBar({
   isLoading = false,
   totalCount,
 }: PostFilterBarProps) {
-  const t = useTranslations("post");
+  const t = useTranslations("Post");
   const isDesktop = useMediaQuery("(min-width: 1024px)");
 
   const sortOptions: { value: SortBy; label: string; icon: React.ReactNode }[] =

@@ -27,7 +27,7 @@ export default function PostDetailClient({ postId }: { postId: number }) {
   const router = useRouter();
   const { user, isAuthenticated } = useAuthStore();
   const queryClient = useQueryClient();
-  const t = useTranslations("post");
+  const t = useTranslations("Post");
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["post", postId],

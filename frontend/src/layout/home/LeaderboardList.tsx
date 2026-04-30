@@ -18,7 +18,7 @@ interface LeaderboardListProps {
 }
 
 export default function LeaderboardList({ leaderboard }: LeaderboardListProps) {
-  const t = useTranslations("post");
+  const t = useTranslations("Post");
 
   // 安全检查
   if (!leaderboard || !Array.isArray(leaderboard) || leaderboard.length === 0) {

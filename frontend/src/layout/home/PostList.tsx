@@ -63,7 +63,7 @@ function PostListSkeleton() {
 
 // 空状态组件
 function EmptyPostList({ isAuthenticated }: { isAuthenticated: boolean }) {
-  const t = useTranslations("post");
+  const t = useTranslations("Post");
 
   return (
     <div className="text-center py-20 text-base-content/40">

@@ -1,6 +1,8 @@
 // src/i18n/request.ts
 import { getRequestConfig } from "next-intl/server";
 import { routing } from "./routing";
+import { loadI18nTranslations } from "next-intl-split";
+import path from "path";
 
 type Locale = (typeof routing.locales)[number];
 
@@ -15,8 +17,11 @@ export default getRequestConfig(async ({ requestLocale }) => {
     locale = routing.defaultLocale;
   }
 
+  const messagesDir = path.join(process.cwd(), "src", "i18n", "messages");
   try {
-    const messages = (await import(`../messages/${locale}.json`)).default;
+    const messages = loadI18nTranslations(messagesDir, locale);
+
+    // const messages = (await import(`../messages/${locale}.json`)).default;
 
     return {
       locale,
@@ -36,7 +41,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
     console.error(`Failed to load messages for locale: ${locale}`, error);
     // 尝试加载默认语言
     const defaultMessages = (
-      await import(`../messages/${routing.defaultLocale}.json`)
+      await import(`./messages/${routing.defaultLocale}.json`)
     ).default;
     return {
       locale: routing.defaultLocale,
