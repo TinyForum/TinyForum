@@ -13,7 +13,7 @@ export const notificationApi = {
 
   unreadCount: () =>
     apiClient.get<ApiResponse<{ count: number }>>(
-      "/notifications/unread-count",
+      "/notifications/count/unread",
     ),
 
   // 已读所有

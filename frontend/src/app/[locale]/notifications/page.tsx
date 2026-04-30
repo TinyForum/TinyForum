@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import { notificationApi } from "@/shared/api";
 import type { Notification } from "@/shared/api";
 import { useAuthStore } from "@/store/auth";
@@ -18,6 +17,7 @@ import toast from "react-hot-toast";
 import { useTranslations } from "next-intl";
 import { timeAgo } from "@/shared/lib/utils";
 import Avatar from "@/features/user/components/Avatar";
+import { useNotifications } from "@/features/notification/hooks/useNotification";
 
 // 通知图标组件
 const NotifIcon = ({ type }: { type: Notification["type"] }) => {
@@ -39,8 +39,16 @@ const NotifIcon = ({ type }: { type: Notification["type"] }) => {
 export default function NotificationsPage() {
   const { isAuthenticated } = useAuthStore();
   const router = useRouter();
-  const queryClient = useQueryClient();
   const t = useTranslations("Notifications");
+
+  // 使用通知 hook
+  const { notifications, loading, markAsRead, markAllAsRead, refresh } =
+    useNotifications({
+      pageSize: 50, // 一次性加载较多通知
+      autoLoad: true,
+    });
+
+  const [isMarkingAll, setIsMarkingAll] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -48,31 +56,15 @@ export default function NotificationsPage() {
     }
   }, [isAuthenticated, router]);
 
-  // 获取通知列表
-  const { data, isLoading } = useQuery({
-    queryKey: ["notifications"],
-    queryFn: async () => {
-      const response = await notificationApi.list({ page: 1, page_size: 50 });
-      return response.data.data;
-    },
-    enabled: isAuthenticated,
-  });
-
-  // 全部标记已读
-  const markAllMutation = useMutation({
-    mutationFn: () => notificationApi.markAllRead(),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["notifications"] });
-      queryClient.invalidateQueries({ queryKey: ["notifications", "unread"] });
-      toast.success(t("mark_all_success") || "已全部标记为已读");
-    },
-    onError: () => {
-      toast.error(t("mark_all_error") || "操作失败，请重试");
-    },
-  });
-
-  const notifications: Notification[] = data?.list ?? [];
   const unreadCount = notifications.filter((n) => !n.is_read).length;
+
+  const handleMarkAllRead = async () => {
+    if (isMarkingAll) return;
+    setIsMarkingAll(true);
+    await markAllAsRead();
+    toast.success(t("mark_all_success") || "已全部标记为已读");
+    setIsMarkingAll(false);
+  };
 
   if (!isAuthenticated) {
     return null;
@@ -92,17 +84,17 @@ export default function NotificationsPage() {
         {unreadCount > 0 && (
           <button
             className="btn btn-ghost btn-sm gap-1"
-            onClick={() => markAllMutation.mutate()}
-            disabled={markAllMutation.isPending}
+            onClick={handleMarkAllRead}
+            disabled={isMarkingAll}
           >
             <CheckCheck className="w-4 h-4" />
-            {markAllMutation.isPending ? t("marking") : t("mark_all_read")}
+            {isMarkingAll ? t("marking") : t("mark_all_read")}
           </button>
         )}
       </div>
 
       {/* 加载状态 */}
-      {isLoading ? (
+      {loading ? (
         <div className="space-y-2">
           {Array.from({ length: 5 }).map((_, i) => (
             <div key={i} className="skeleton h-20 w-full rounded-xl" />
@@ -121,7 +113,7 @@ export default function NotificationsPage() {
             <NotificationCard
               key={notification.id}
               notification={notification}
-              t={t}
+              onMarkRead={markAsRead}
             />
           ))}
         </div>
@@ -130,31 +122,25 @@ export default function NotificationsPage() {
   );
 }
 
-// 抽取通知卡片组件
+// 通知卡片组件
 function NotificationCard({
   notification,
+  onMarkRead,
 }: {
   notification: Notification;
-  t: (key: string) => string;
+  onMarkRead: (id: number) => Promise<void>;
 }) {
-  const queryClient = useQueryClient();
+  const t = useTranslations("Notifications");
+  const [isMarking, setIsMarking] = useState(false);
 
-  // 标记单条已读
-  const markReadMutation = useMutation({
-    mutationFn: () => notificationApi.markRead(notification.id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["notifications"] });
-      queryClient.invalidateQueries({ queryKey: ["notifications", "unread"] });
-    },
-  });
-
-  const handleClick = () => {
-    if (!notification.is_read) {
-      markReadMutation.mutate();
+  const handleClick = async () => {
+    if (!notification.is_read && !isMarking) {
+      setIsMarking(true);
+      await onMarkRead(notification.id);
+      setIsMarking(false);
     }
-    // 跳转到相关页面
+    // 跳转到相关页面（根据业务需求打开）
     if (notification.target_id && notification.target_type) {
-      // 根据类型跳转
       // router.push(`/posts/${notification.target_id}`);
     }
   };
