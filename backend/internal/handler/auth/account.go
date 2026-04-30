@@ -150,7 +150,7 @@ func (h *AuthHandler) ChangePassword(c *gin.Context) {
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		 logger.Debugf("ChangePassword bind error: %v", err) 
+		logger.Debugf("ChangePassword bind error: %v", err)
 		response.HandleError(c, apperrors.ErrInvalidRequest)
 		return
 	}

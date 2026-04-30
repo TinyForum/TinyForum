@@ -18,28 +18,28 @@ import (
 
 // Response 统一响应结构
 type Response struct {
-	Code      int         `json:"code"`
-	Message   string      `json:"message"`
-	Data      interface{} `json:"data,omitempty"`
-	Timestamp int64       `json:"timestamp"`
-	RequestID string      `json:"request_id,omitempty"`
-	TraceID   string      `json:"trace_id,omitempty"`
+	Code      int    `json:"code"`
+	Message   string `json:"message"`
+	Data      any    `json:"data,omitempty"`
+	Timestamp int64  `json:"timestamp"`
+	RequestID string `json:"request_id,omitempty"`
+	TraceID   string `json:"trace_id,omitempty"`
 }
 
 // PageData 分页数据结构
 type PageData struct {
-	List     interface{} `json:"list"`
-	Total    int64       `json:"total"`
-	Page     int         `json:"page"`
-	PageSize int         `json:"page_size"`
-	HasMore  bool        `json:"has_more"`
+	List     any   `json:"list"`
+	Total    int64 `json:"total"`
+	Page     int   `json:"page"`
+	PageSize int   `json:"page_size"`
+	HasMore  bool  `json:"has_more"`
 }
 
 // ValidationError 字段校验错误详情（发送给客户端）
 type ValidationError struct {
-	Field   string      `json:"field"`
-	Message string      `json:"message"`
-	Value   interface{} `json:"value,omitempty"`
+	Field   string `json:"field"`
+	Message string `json:"message"`
+	Value   any    `json:"value,omitempty"`
 }
 
 // ========== 响应选项 ==========
@@ -153,9 +153,10 @@ func InternalError(c *gin.Context, msg string) {
 	fail(c, http.StatusInternalServerError, apperrors.CodeInternalError, msg, nil)
 }
 
- func ValidationFailed(c *gin.Context, errs []ValidationError) {
-    fail(c, http.StatusBadRequest, apperrors.CodeValidation, "参数校验失败", errs)
+func ValidationFailed(c *gin.Context, errs []ValidationError) {
+	fail(c, http.StatusBadRequest, apperrors.CodeValidation, "参数校验失败", errs)
 }
+
 // ========== 统一错误处理入口 ==========
 
 // HandleError 统一错误处理入口（推荐在 handler 层统一调用）

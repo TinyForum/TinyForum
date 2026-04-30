@@ -2,6 +2,8 @@ package user
 
 import (
 	"tiny-forum/internal/dto"
+	"tiny-forum/internal/request"
+	"tiny-forum/internal/vo"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -14,10 +16,10 @@ import (
 // @Tags 用户排行榜
 // @Security BearerAuth
 // @Param limit query int false "限制返回数量"
-// @Success 200 {array} dto.SimpleLeaderboardItem
+// @Success 200 {array} vo.SimpleLeaderboardItem
 // @Router /users/leaderboard/simple [get]
 func (h *UserHandler) LeaderboardSimple(c *gin.Context) {
-	var req dto.LeaderboardRequest
+	var req request.LeaderboardRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
 		response.BadRequest(c, "参数错误: "+err.Error())
 		return
@@ -30,9 +32,9 @@ func (h *UserHandler) LeaderboardSimple(c *gin.Context) {
 		return
 	}
 
-	items := make([]dto.SimpleLeaderboardItem, len(users))
+	items := make([]vo.SimpleLeaderboardItem, len(users))
 	for i, u := range users {
-		items[i] = dto.SimpleLeaderboardItem{
+		items[i] = vo.SimpleLeaderboardItem{
 			ID:       u.ID,
 			Username: u.Username,
 			Score:    u.Score,
@@ -50,7 +52,7 @@ func (h *UserHandler) LeaderboardSimple(c *gin.Context) {
 // @Success 200 {array} dto.LeaderboardUserDetail "返回用户排行榜信息"
 // @Router /users/leaderboard/detail [get]
 func (h *UserHandler) LeaderboardDetail(c *gin.Context) {
-	var req dto.LeaderboardRequest
+	var req request.LeaderboardRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
 		response.BadRequest(c, "参数错误: "+err.Error())
 		return

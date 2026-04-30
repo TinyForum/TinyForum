@@ -18,7 +18,7 @@ import (
 func (h *UserHandler) GetProfile(c *gin.Context) {
 	targetID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-	
+
 		response.ValidationFailed(c, []response.ValidationError{
 			{Field: "id", Message: "无效的用户ID格式"},
 		})

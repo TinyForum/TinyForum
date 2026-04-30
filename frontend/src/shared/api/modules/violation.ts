@@ -1,2 +1,2 @@
 // 用户违规
-const violationApi = {};
+export const violationApi = {};

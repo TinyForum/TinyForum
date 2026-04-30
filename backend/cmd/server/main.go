@@ -37,7 +37,6 @@ func main() {
 		log.Fatalf("Failed to init logger: %v", err)
 	}
 
-
 	// 打印配置信息（调试用）
 	printConfigInfo(cfg)
 
@@ -173,7 +172,6 @@ func printConfigError(err error) {
 	// 提供解决建议
 	log.Printf("\n请尝试使用 make init-dev 命令来初始化配置文件\n")
 }
-
 
 // startServer 启动 HTTP 服务器
 func startServer(cfg *config.Config, app *wire.App) {

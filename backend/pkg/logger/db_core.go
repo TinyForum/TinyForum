@@ -53,9 +53,9 @@ func (c *dbCore) Write(entry zapcore.Entry, fields []zapcore.Field) error {
 	fieldsJSON := marshalFields(all)
 
 	sink.write(DBEntry{
-		Time:       entry.Time,
-		Level:      entry.Level.CapitalString(),
-		Caller:     fmt.Sprintf("%s:%d", entry.Caller.File, entry.Caller.Line),
+		Time:   entry.Time,
+		Level:  entry.Level.CapitalString(),
+		Caller: fmt.Sprintf("%s:%d", entry.Caller.File, entry.Caller.Line),
 		// Msg:        entry.Message,
 		Stacktrace: entry.Stack,
 		Fields:     fieldsJSON,

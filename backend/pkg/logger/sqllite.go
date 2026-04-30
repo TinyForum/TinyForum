@@ -15,11 +15,11 @@ import (
 // DBEntry 单条日志记录（与数据库字段一一对应）
 type DBEntry struct {
 	Time       time.Time // RFC3339Nano UTC
-	Level      string // DEBUG / INFO / WARN / ERROR / FATAL
-	Caller     string // file:line
-	Message    string // 日志内容
-	Stacktrace string // 错误堆栈
-	Fields     string // zap 附加字段，JSON 格式
+	Level      string    // DEBUG / INFO / WARN / ERROR / FATAL
+	Caller     string    // file:line
+	Message    string    // 日志内容
+	Stacktrace string    // 错误堆栈
+	Fields     string    // zap 附加字段，JSON 格式
 }
 
 // ─── 数据库表结构 ────────────────────────────────────────────
@@ -67,7 +67,7 @@ var (
 // InitDB 初始化 SQLite 日志数据库。
 // 可在 logger.Init 之前或之后单独调用；若在 Init 之后调用，需重新调用 Init 以接入 dbCore。
 func InitDB(cfg *config.DBConfig) error {
-	fmt.Printf("dsn %v",cfg.DSN)
+	fmt.Printf("dsn %v", cfg.DSN)
 	globalDBMu.Lock()
 	defer globalDBMu.Unlock()
 

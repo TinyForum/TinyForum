@@ -110,15 +110,15 @@ func (c *RoleChangeChecker) checkNotSelf(_ context.Context, req RoleChangeReques
 
 func (c *RoleChangeChecker) checkNewRoleValid(_ context.Context, req RoleChangeRequest) error {
 	if !c.validator.IsValidRole(req.NewRole) {
-		return apperrors.ErrInvalidRole.WithMessagef("无效角色: %s",req.NewRole)
+		return apperrors.ErrInvalidRole.WithMessagef("无效角色: %s", req.NewRole)
 	}
 	return nil
 }
 
 func (c *RoleChangeChecker) checkCanOperateTarget(_ context.Context, req RoleChangeRequest) error {
-	 if !c.validator.CanOperateTarget(req.Operator.Role, req.Target.Role) {
-        return apperrors.ErrInsufficientPermission.WithMessagef("无权操作角色为 %v 的用户", req.Target.Role)
-    }
+	if !c.validator.CanOperateTarget(req.Operator.Role, req.Target.Role) {
+		return apperrors.ErrInsufficientPermission.WithMessagef("无权操作角色为 %v 的用户", req.Target.Role)
+	}
 	return nil
 }
 
