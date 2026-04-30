@@ -1,15 +1,19 @@
-// hooks/admin/useAdminManagePosts.ts
-import { adminApi } from "@/shared/api";
+import { adminPostsApi } from "@/shared/api/modules/admin/post";
+import type { ApiResponse, PageData, Post } from "@/shared/api/types"; // 假设类型从这个路径导出
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import toast from "react-hot-toast";
 
 interface UseAdminManagePostsOptions {
   page: number;
-  pageSize?: number; // 默认 20
+  pageSize?: number;
   keyword?: string;
   enabled?: boolean;
 }
+
+// 定义 listPendingPosts 的返回类型，根据实际 API 结构调整
+// 假设 adminApi.listPendingPosts 返回 Promise<{ data: ApiResponse<PageData<Post>> }>
+type ListPendingPostsResponse = { data: ApiResponse<PageData<Post>> };
 
 export function useAdminManagePosts({
   page,
@@ -20,20 +24,38 @@ export function useAdminManagePosts({
   const queryClient = useQueryClient();
   const t = useTranslations("admin");
 
-  // 获取待审核帖子列表
-  const { data, isLoading, refetch } = useQuery({
+  // 刷新相关查询的辅助函数（先定义，以便在 mutation 的 onSuccess 中使用）
+  const invalidateQueries = () => {
+    queryClient.invalidateQueries({ queryKey: ["admin-pending-posts"] });
+    queryClient.invalidateQueries({ queryKey: ["admin-posts"] });
+  };
+
+  // 获取待审核帖子列表 - 显式指定泛型并修复 res 类型
+  const { data, isLoading, refetch } = useQuery<PageData<Post>, Error>({
     queryKey: ["admin-pending-posts", page, keyword],
-    queryFn: () =>
-      adminApi
-        .listPendingPosts({ page, page_size: pageSize, keyword })
-        .then((res) => res.data.data),
+    queryFn: async () => {
+      const response = (await adminPostsApi.listPendingPosts({
+        page,
+        page_size: pageSize,
+        keyword,
+      })) as ListPendingPostsResponse;
+      // response.data.data 就是 PageData<Post>，如果可能为空则提供默认值
+      return (
+        response.data.data ?? {
+          list: [],
+          total: 0,
+          page: 1,
+          page_size: pageSize,
+        }
+      );
+    },
     enabled,
   });
 
   // 审核通过 Mutation
   const approveMutation = useMutation({
     mutationFn: (params: { id: number; note?: string }) =>
-      adminApi.approvePost(params.id, params.note),
+      adminPostsApi.approvePost(params.id, params.note),
     onSuccess: () => {
       invalidateQueries();
       toast.success(t("approve_success"));
@@ -44,7 +66,7 @@ export function useAdminManagePosts({
   // 审核拒绝 Mutation（可带原因）
   const rejectMutation = useMutation({
     mutationFn: (params: { id: number; reason?: string }) =>
-      adminApi.rejectPost(params.id, params.reason),
+      adminPostsApi.rejectPost(params.id, params.reason),
     onSuccess: () => {
       invalidateQueries();
       toast.success(t("reject_success"));
@@ -56,7 +78,7 @@ export function useAdminManagePosts({
   const batchApproveMutation = useMutation({
     mutationFn: (items: Array<{ id: number; note?: string }>) =>
       Promise.all(
-        items.map((item) => adminApi.approvePost(item.id, item.note)),
+        items.map((item) => adminPostsApi.approvePost(item.id, item.note)),
       ),
     onSuccess: () => {
       invalidateQueries();
@@ -69,7 +91,7 @@ export function useAdminManagePosts({
   const batchRejectMutation = useMutation({
     mutationFn: (items: Array<{ id: number; reason?: string }>) =>
       Promise.all(
-        items.map((item) => adminApi.rejectPost(item.id, item.reason)),
+        items.map((item) => adminPostsApi.rejectPost(item.id, item.reason)),
       ),
     onSuccess: () => {
       invalidateQueries();
@@ -77,12 +99,6 @@ export function useAdminManagePosts({
     },
     onError: () => toast.error(t("operation_failed")),
   });
-
-  // 刷新相关查询
-  const invalidateQueries = () => {
-    queryClient.invalidateQueries({ queryKey: ["admin-pending-posts"] });
-    queryClient.invalidateQueries({ queryKey: ["admin-posts"] });
-  };
 
   // 便捷方法
   const approvePost = (id: number, note?: string) => {
@@ -108,12 +124,10 @@ export function useAdminManagePosts({
     total: data?.total ?? 0,
     isLoading,
     refetch,
-    // 单个操作
     approvePost,
     isApproving: approveMutation.isPending,
     rejectPost,
     isRejecting: rejectMutation.isPending,
-    // 批量操作
     batchApprove,
     isBatchApproving: batchApproveMutation.isPending,
     batchReject,

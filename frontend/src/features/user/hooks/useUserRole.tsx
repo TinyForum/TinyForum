@@ -6,21 +6,24 @@ import { ErrorResponse } from "./useUserProfile";
 // ========== 用户角色 ==========
 interface UseUserRoleReturn {
   role: RoleResponse | null;
-  loading: boolean;
+  isLoading: boolean;
   error: string | null;
   loadRole: () => Promise<void>;
   isAdmin: boolean;
   isModerator: boolean;
   isUser: boolean;
+  isMember: boolean;
+  isSuperAdmin: boolean;
+  isReviewer: boolean;
 }
 
 export function useUserRole(): UseUserRoleReturn {
   const [role, setRole] = useState<RoleResponse | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   const loadRole = useCallback(async (): Promise<void> => {
-    setLoading(true);
+    setIsLoading(true);
     setError(null);
     try {
       const response = await userApi.getMeRole();
@@ -35,17 +38,20 @@ export function useUserRole(): UseUserRoleReturn {
         errorObj.response?.data?.message || errorObj.message || "获取角色失败";
       setError(errorMsg);
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   }, []);
 
   return {
     role,
-    loading,
+    isLoading,
     error,
     loadRole,
     isAdmin: role?.role === "admin",
     isModerator: role?.role === "moderator",
     isUser: role?.role === "user",
+    isMember: role?.role === "member",
+    isSuperAdmin: role?.role === "super_admin",
+    isReviewer: role?.role === "reviewer",
   };
 }

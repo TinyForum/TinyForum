@@ -1,4 +1,5 @@
 // hooks/useAdminModerator.ts
+import { adminModeratorApi } from "@/shared/api/modules/admin/moderator";
 import {
   moderatorApi,
   ReviewApplicationRequest,
@@ -63,7 +64,7 @@ export const useAdminApplications = (params?: ApplicationParams) => {
   return useQuery({
     queryKey: ["admin", "applications", params],
     queryFn: async () => {
-      const res = await moderatorApi.listApplications(params);
+      const res = await adminModeratorApi.listApplications(params);
       return res.data.data;
     },
     enabled: !!params?.status,
@@ -80,7 +81,7 @@ export const useReviewApplication = () => {
     }: {
       applicationId: number;
       data: ReviewApplicationRequest;
-    }) => moderatorApi.reviewApplication(applicationId, data),
+    }) => adminModeratorApi.reviewApplication(applicationId, data),
     onSuccess: () => {
       toast.success("审批成功");
       queryClient.invalidateQueries({ queryKey: ["admin", "applications"] });

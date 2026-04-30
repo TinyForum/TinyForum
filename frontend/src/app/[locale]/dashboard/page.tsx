@@ -5,7 +5,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 // import { useCurrentUserProfile } from "@/hooks/useUserProfile";
 import { useLocale } from "next-intl";
-import { useUserProfile } from "@/features/user/hooks/useUserProfile";
+import { useUserRole } from "@/features/user/hooks/useUserRole";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -17,7 +17,7 @@ export default function DashboardPage() {
     isSuperAdmin,
     isModerator,
     isReviewer,
-  } = useUserProfile();
+  } = useUserRole();
 
   useEffect(() => {
     if (isLoading) return;

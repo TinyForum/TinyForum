@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { notificationApi } from "@/shared/api";
 import type { Notification } from "@/shared/api";
 import { useAuthStore } from "@/store/auth";
 import { useRouter } from "next/navigation";
@@ -42,7 +41,7 @@ export default function NotificationsPage() {
   const t = useTranslations("Notifications");
 
   // 使用通知 hook
-  const { notifications, loading, markAsRead, markAllAsRead, refresh } =
+  const { notifications, loading, markAsRead, markAllAsRead } =
     useNotifications({
       pageSize: 50, // 一次性加载较多通知
       autoLoad: true,
@@ -130,7 +129,6 @@ function NotificationCard({
   notification: Notification;
   onMarkRead: (id: number) => Promise<void>;
 }) {
-  const t = useTranslations("Notifications");
   const [isMarking, setIsMarking] = useState(false);
 
   const handleClick = async () => {

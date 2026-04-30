@@ -10,10 +10,10 @@ import {
   FileText,
   AlertTriangle,
 } from "lucide-react";
-import { adminApi } from "@/shared/api";
 import type { Post } from "@/shared/api/types";
 import DOMPurify from "dompurify";
 import Image from "next/image";
+import { adminPostsApi } from "@/shared/api/modules/admin/post";
 
 // 扩展 Post 类型以包含风险信息
 interface PostWithRisk extends Post {
@@ -40,7 +40,7 @@ const fetchPendingPosts = async (params: {
   page_size: number;
   keyword?: string;
 }): Promise<PendingPostsResponse> => {
-  const res = await adminApi.listPendingPosts(params);
+  const res = await adminPostsApi.listPendingPosts(params);
   // 确保返回的数据结构正确，并处理可能的 undefined
   const data = res.data.data;
   return {
@@ -67,7 +67,7 @@ export function ReviewManagement() {
   // 审核通过 mutation
   const approveMutation = useMutation({
     mutationFn: ({ id, note }: { id: number; note?: string }) =>
-      adminApi.approvePost(id, note),
+      adminPostsApi.approvePost(id, note),
     onSuccess: (_, variables) => {
       toast.success("帖子已通过审核");
       queryClient.invalidateQueries({ queryKey: ["admin-pending-posts"] });
@@ -83,7 +83,7 @@ export function ReviewManagement() {
   // 审核拒绝 mutation
   const rejectMutation = useMutation({
     mutationFn: ({ id, reason }: { id: number; reason?: string }) =>
-      adminApi.rejectPost(id, reason),
+      adminPostsApi.rejectPost(id, reason),
     onSuccess: (_, variables) => {
       toast.success("帖子已拒绝");
       queryClient.invalidateQueries({ queryKey: ["admin-pending-posts"] });

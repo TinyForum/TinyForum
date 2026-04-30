@@ -8,6 +8,7 @@ import {
   type UpdateAnnouncementPayload,
 } from "@/shared/api/modules/announcements";
 import toast from "react-hot-toast";
+import { adminAnnouncementApi } from "@/shared/api/modules/admin/announcements";
 
 // ============ 配置选项 ============
 interface UseAnnouncementsDataOptions {
@@ -173,7 +174,7 @@ export function useAnnouncementsData(
     async (params: CreateAnnouncementPayload): Promise<Announcement | null> => {
       setSubmitting(true);
       try {
-        const response = await announcementApi.create(params);
+        const response = await adminAnnouncementApi.create(params);
 
         console.log("创建公告: ", response);
         if (response.data.code === 0 && response.data.data) {
@@ -203,7 +204,7 @@ export function useAnnouncementsData(
     ): Promise<Announcement | null> => {
       setSubmitting(true);
       try {
-        const response = await announcementApi.update(id, params);
+        const response = await adminAnnouncementApi.update(id, params);
 
         if (response.data.code === 0 && response.data.data) {
           toast.success("更新公告成功");
@@ -232,7 +233,7 @@ export function useAnnouncementsData(
   const deleteAnnouncement = useCallback(
     async (id: number): Promise<boolean> => {
       try {
-        const response = await announcementApi.delete(id);
+        const response = await adminAnnouncementApi.delete(id);
 
         if (response.data.code === 0) {
           toast.success("删除公告成功");
@@ -257,7 +258,7 @@ export function useAnnouncementsData(
     async (id: number): Promise<boolean> => {
       setSubmitting(true);
       try {
-        const response = await announcementApi.publish(id);
+        const response = await adminAnnouncementApi.publish(id);
 
         if (response.data.code === 0) {
           toast.success("发布公告成功");
@@ -284,7 +285,7 @@ export function useAnnouncementsData(
     async (id: number): Promise<boolean> => {
       setSubmitting(true);
       try {
-        const response = await announcementApi.archive(id);
+        const response = await adminAnnouncementApi.archive(id);
 
         if (response.data.code === 0) {
           toast.success("归档公告成功");
@@ -310,7 +311,7 @@ export function useAnnouncementsData(
     async (id: number, pinned: boolean): Promise<boolean> => {
       setSubmitting(true);
       try {
-        const response = await announcementApi.pin(id, pinned);
+        const response = await adminAnnouncementApi.pin(id, pinned);
 
         if (response.data.code === 0) {
           await fetchAnnouncements();

@@ -30,7 +30,7 @@ export interface LeaderboardItemResponse {
 }
 
 /**
- * @deprecated 使用新的 API
+ * @deprecated 使用新的 API: userApi / adminusersApi 此 api 存在调用安全问题
  */
 export const userAPI = {
   // 获取用户信息
@@ -78,18 +78,4 @@ export const userAPI = {
       params,
     }),
   // ── Admin ─────────────────────────────────────────────────────────────────────
-  adminList: (params?: {
-    page?: number;
-    page_size?: number;
-    keyword?: string;
-  }) => apiClient.get<ApiResponse<PageData<User>>>("/admin/users", { params }),
-
-  adminSetActive: (id: number, active: boolean) =>
-    apiClient.put<ApiResponse<null>>(`/admin/users/${id}/active`, { active }),
-
-  adminSetBlocked: (id: number, blocked: boolean) =>
-    apiClient.put<ApiResponse<null>>(`/admin/users/${id}/blocked`, { blocked }),
-
-  adminSetRole: (id: number, role: string) =>
-    apiClient.put<ApiResponse<null>>(`/admin/users/${id}/role`, { role }),
 };

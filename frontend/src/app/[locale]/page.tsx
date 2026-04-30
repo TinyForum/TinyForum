@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   postApi,
   tagApi,
-  userAPI,
   boardApi,
   timelineApi,
   notificationApi,
@@ -19,17 +18,6 @@ import { useLeaderboard } from "@/features/leader/hooks/useLeaderboard";
 import PostFilterBar from "@/layout/home/PostFilterBar";
 import PostList from "@/layout/home/PostList";
 import RightSidebar from "@/layout/home/RightSidebar";
-import { useProfile } from "@/features/user/hooks/useUserProfile";
-
-// 用户资料类型
-interface UserProfile {
-  id: number;
-  username: string;
-  avatar: string;
-  bio: string;
-  score: number;
-  created_at: string;
-}
 
 export default function HomePage() {
   const { isAuthenticated, user } = useAuthStore();

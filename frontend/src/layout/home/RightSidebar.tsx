@@ -5,7 +5,7 @@ import { GuestCard } from "./right/GuestCard";
 import { Leaderboard } from "./right/Leaderboard";
 import { TimelineEvents } from "./right/TimelineEvents";
 import { UserProfileCard } from "./right/UserProfileCard";
-import type { User, User as UserType } from "@/shared/api/types";
+import type { User } from "@/shared/api/types";
 
 interface TimelineEvent {
   id: number;

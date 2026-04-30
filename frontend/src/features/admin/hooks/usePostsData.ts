@@ -1,28 +1,62 @@
-import { adminApi } from "@/shared/api";
+import type { Post, PageData } from "@/shared/api/types";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import toast from "react-hot-toast";
-// 帖子数据管理 Hook
-export function usePostsData(page: number, keyword: string, enabled: boolean) {
+
+// 如果需要，定义 adminApi 响应结构（根据实际情况调整）
+type AdminApiListResponse = { data: ApiResponse<PageData<Post>> };
+// 假设你已有 ApiResponse 类型，如果未导出请从 @/shared/api/types 导入
+import type { ApiResponse } from "@/shared/api/types";
+import { adminPostsApi } from "@/shared/api/modules/admin/post";
+
+interface UsePostsDataReturn {
+  posts: Post[];
+  total: number;
+  isLoading: boolean;
+  togglePin: (id: number) => void;
+  isToggling: boolean;
+}
+
+/**
+ * 管理员帖子数据管理 Hook
+ */
+export function usePostsData(
+  page: number,
+  keyword: string,
+  enabled: boolean,
+): UsePostsDataReturn {
   const queryClient = useQueryClient();
   const t = useTranslations("admin");
+  const queryKey = ["admin-posts", page, keyword] as const;
 
-  const { data, isLoading } = useQuery({
-    queryKey: ["admin-posts", page, keyword],
-    queryFn: () =>
-      adminApi
-        .listPosts({ page, page_size: 20, keyword })
-        .then((r) => r.data.data),
+  // 显式指定泛型：查询返回的类型是 PageData<Post>，错误类型为 Error
+  const { data, isLoading } = useQuery<PageData<Post>, Error>({
+    queryKey,
+    queryFn: async () => {
+      const response = (await adminPostsApi.listPosts({
+        page,
+        page_size: 20,
+        keyword,
+      })) as AdminApiListResponse;
+      // 确保返回有效的 PageData 对象，即使接口异常也不应返回 undefined
+      // 如果后端可能返回空，这里提供默认结构
+      return response.data.data ?? { list: [], total: 0, page, page_size: 20 };
+    },
     enabled,
   });
 
   const togglePinMutation = useMutation({
-    mutationFn: (id: number) => adminApi.togglePin(id),
+    mutationFn: async (id: number) => {
+      await adminPostsApi.togglePin(id);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-posts"] });
       toast.success(t("operation_successful"));
     },
-    onError: () => toast.error(t("operation_failed")),
+    onError: (error: unknown) => {
+      console.error("Toggle pin failed:", error);
+      toast.error(t("operation_failed"));
+    },
   });
 
   const handleTogglePin = (id: number) => {

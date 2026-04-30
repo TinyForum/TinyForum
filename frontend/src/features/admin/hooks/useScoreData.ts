@@ -1,5 +1,5 @@
 // /hooks/admin/useScoreData.ts
-import { scoreApi } from "@/shared/api/modules/score";
+import { adminScoreApi } from "@/shared/api/modules/admin/score";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 export function useScoreData(userId?: string | undefined) {
@@ -9,14 +9,16 @@ export function useScoreData(userId?: string | undefined) {
   const { data: scoreRecords, isLoading: isLoadingRecords } = useQuery({
     queryKey: ["score", "list", userId],
     queryFn: () =>
-      scoreApi.getAllUserScore({ id: userId ? Number(userId) : undefined }),
+      adminScoreApi.getAllUserScore({
+        id: userId ? Number(userId) : undefined,
+      }),
     enabled: true,
   });
 
   // 获取当前用户自己的积分
   const { data: myScore, isLoading: isLoadingMyScore } = useQuery({
     queryKey: ["score", "me"],
-    queryFn: () => scoreApi.getUserScore(),
+    queryFn: () => adminScoreApi.getUserScore(),
   });
 
   // 设置用户积分
@@ -29,7 +31,7 @@ export function useScoreData(userId?: string | undefined) {
       userId: number;
       score: number;
       reason: string;
-    }) => scoreApi.setUserScore(userId, score, reason),
+    }) => adminScoreApi.setUserScore(userId, score, reason),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["score"] });
     },
@@ -45,7 +47,7 @@ export function useScoreData(userId?: string | undefined) {
       userId: number;
       increment: number;
       reason: string;
-    }) => scoreApi.addUserScore(userId, increment, reason),
+    }) => adminScoreApi.addUserScore(userId, increment, reason),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["score"] });
     },
@@ -61,7 +63,7 @@ export function useScoreData(userId?: string | undefined) {
       userId: number;
       decrement: number;
       reason: string;
-    }) => scoreApi.subtractUserScore(userId, decrement, reason),
+    }) => adminScoreApi.subtractUserScore(userId, decrement, reason),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["score"] });
     },

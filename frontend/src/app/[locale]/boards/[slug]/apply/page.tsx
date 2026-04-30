@@ -19,6 +19,7 @@ import {
   moderatorApi,
   ModeratorApplication,
 } from "@/shared/api/modules/moderator";
+import { adminModeratorApi } from "@/shared/api/modules/admin/moderator";
 
 type AppStatus = ModeratorApplication["status"];
 
@@ -106,7 +107,7 @@ export default function ApplyModeratorPage() {
     async (boardId: number) => {
       setCheckingStatus(true);
       try {
-        const res = await moderatorApi.listApplications({
+        const res = await adminModeratorApi.listApplications({
           board_id: boardId,
           page: 1,
           page_size: 100,

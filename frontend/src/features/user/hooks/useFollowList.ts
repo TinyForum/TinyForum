@@ -1,7 +1,6 @@
 // hooks/user/useUserFollow.ts
 import { useState, useCallback } from "react";
 import type { User } from "@/shared/api/types";
-import { LeaderboardItemResponse } from "@/shared/api/modules/user";
 import { toast } from "react-hot-toast";
 import { userApi } from "@/shared/api/modules/user";
 

@@ -149,7 +149,7 @@ export function UserActionMenu({
   const getActiveConfig = () => {
     if (user.is_active) {
       return {
-        label: t("inactivate"),
+        label: t("set_inactive"),
         icon: <XCircle className="w-4 h-4" />,
         className: "text-warning",
         hoverClass: "hover:bg-warning/10",
@@ -157,7 +157,7 @@ export function UserActionMenu({
       };
     } else {
       return {
-        label: t("activate"),
+        label: t("set_active"),
         icon: <CheckCircle className="w-4 h-4" />,
         className: "text-success",
         hoverClass: "hover:bg-success/10",
@@ -170,7 +170,7 @@ export function UserActionMenu({
   const getBlockConfig = () => {
     if (user.is_blocked) {
       return {
-        label: t("unblock"),
+        label: t("set_unblock"),
         icon: <Unlock className="w-4 h-4" />,
         className: "text-success",
         hoverClass: "hover:bg-success/10",
@@ -178,7 +178,7 @@ export function UserActionMenu({
       };
     } else {
       return {
-        label: t("block"),
+        label: t("set_block"),
         icon: <Lock className="w-4 h-4" />,
         className: "text-error",
         hoverClass: "hover:bg-error/10",
