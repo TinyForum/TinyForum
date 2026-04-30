@@ -110,22 +110,21 @@ func (c *RoleChangeChecker) checkNotSelf(_ context.Context, req RoleChangeReques
 
 func (c *RoleChangeChecker) checkNewRoleValid(_ context.Context, req RoleChangeRequest) error {
 	if !c.validator.IsValidRole(req.NewRole) {
-		return apperrors.Wrapf(apperrors.ErrInvalidRole, "无效角色: %s", req.NewRole)
+		return apperrors.ErrInvalidRole.WithMessagef("无效角色: %s",req.NewRole)
 	}
 	return nil
 }
 
 func (c *RoleChangeChecker) checkCanOperateTarget(_ context.Context, req RoleChangeRequest) error {
-	if !c.validator.CanOperateTarget(req.Operator.Role, req.Target.Role) {
-		return apperrors.Wrapf(apperrors.ErrInsufficientPermission,
-			"无权操作角色为 %s 的用户", req.Target.Role)
-	}
+	 if !c.validator.CanOperateTarget(req.Operator.Role, req.Target.Role) {
+        return apperrors.ErrInsufficientPermission.WithMessagef("无权操作角色为 %v 的用户", req.Target.Role)
+    }
 	return nil
 }
 
 func (c *RoleChangeChecker) checkCanAssignRole(_ context.Context, req RoleChangeRequest) error {
 	if !c.validator.CanAssignRole(req.Operator.Role, req.NewRole) {
-		return apperrors.Wrapf(apperrors.ErrInsufficientPermission,
+		return apperrors.ErrInsufficientPermission.WithMessagef(
 			"无权将用户角色设置为 %s", req.NewRole)
 	}
 	return nil
@@ -134,11 +133,11 @@ func (c *RoleChangeChecker) checkCanAssignRole(_ context.Context, req RoleChange
 func (c *RoleChangeChecker) checkAssignPermission(_ context.Context, req RoleChangeRequest) error {
 	perm, ok := roleAssignPermission[req.NewRole]
 	if !ok {
-		return apperrors.Wrapf(apperrors.ErrInsufficientPermission,
+		return apperrors.ErrInsufficientPermission.WithMessagef(
 			"目标角色 %s 不支持分配", req.NewRole)
 	}
 	if !c.validator.HasPermission(req.Operator.Role, perm) {
-		return apperrors.Wrapf(apperrors.ErrInsufficientPermission,
+		return apperrors.ErrInsufficientPermission.WithMessagef(
 			"缺少权限 %s", perm)
 	}
 	return nil

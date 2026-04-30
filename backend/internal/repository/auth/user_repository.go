@@ -72,7 +72,7 @@ func (r *authRepository) GetUserByResetToken(ctx context.Context, token string) 
 
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, apperrors.ErrTokenInvalid
+			return nil, apperrors.ErrInvalidToken
 		}
 		logger.Errorf("Database error: %v", err)
 		return nil, err

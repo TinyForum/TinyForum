@@ -3,6 +3,7 @@ package auth
 import (
 	authService "tiny-forum/internal/service/auth"
 	apperrors "tiny-forum/pkg/errors"
+	"tiny-forum/pkg/logger"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -120,18 +121,18 @@ func (h *AuthHandler) ConfirmDeletion(c *gin.Context) {
 
 	var input authService.DeleteAccountInput
 	if err := c.ShouldBindJSON(&input); err != nil {
-		response.BadRequest(c, "请求参数错误")
+		response.HandleError(c, apperrors.ErrInvalidRequest)
 		return
 	}
 
-	if input.Confirm != "PERMANENT_DELETE" {
-		response.BadRequest(c, "请输入 PERMANENT_DELETE 确认永久删除")
+	if input.Confirm != "DELETE" {
+		response.HandleError(c, apperrors.ErrInvalidConfirmation)
 		return
 	}
 
 	err := h.authSvc.ConfirmDeletion(ctx, userID.(uint))
 	if err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 
@@ -149,6 +150,7 @@ func (h *AuthHandler) ChangePassword(c *gin.Context) {
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
+		 logger.Debugf("ChangePassword bind error: %v", err) 
 		response.HandleError(c, apperrors.ErrInvalidRequest)
 		return
 	}

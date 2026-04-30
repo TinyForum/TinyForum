@@ -248,7 +248,7 @@ func (s *authService) ResetPasswordWithToken(ctx context.Context, token, newPass
 	// 1. 验证 token 并获取用户
 	user, err := s.authRepo.GetUserByResetToken(ctx, token)
 	if err != nil {
-		if errors.Is(err, apperrors.ErrTokenInvalid) {
+		if errors.Is(err, apperrors.ErrInvalidToken) {
 			logger.Infof("Token already used or expired (idempotent response): %s", token)
 			return nil
 		}

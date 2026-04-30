@@ -31,7 +31,7 @@ export function MemberCommentsTable({
         <thead>
           <tr>
             <th>{t("content")}</th>
-            <th>{t("post")}</th>
+            <th>{t("posts")}</th>
             <th>{t("likes")}</th>
             <th>{t("created_at")}</th>
             <th>{t("actions")}</th>

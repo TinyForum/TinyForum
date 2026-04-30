@@ -37,7 +37,7 @@ func (s *userService) GetUserProfile(targetID, viewerID uint) (*UserProfileRespo
 	user, err := s.repo.FindByID(targetID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, apperrors.Wrapf(apperrors.ErrUserNotFound, "ID: %d", targetID)
+			return nil, apperrors.ErrUserNotFound.WithMessagef( "ID: %d", targetID)
 		}
 		return nil, fmt.Errorf("查询用户失败: %w", err)
 	}
