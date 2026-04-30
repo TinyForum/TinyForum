@@ -144,9 +144,8 @@ func (h *AuthHandler) ConfirmDeletion(c *gin.Context) {
 // PUT /api/v1/auth/password
 func (h *AuthHandler) ChangePassword(c *gin.Context) {
 	var req struct {
-		OldPassword     string `json:"old_password" binding:"required"`
-		NewPassword     string `json:"new_password" binding:"required,min=8,max=32"`
-		ConfirmPassword string `json:"confirm_password" binding:"required,eqfield=NewPassword"`
+		OldPassword string `json:"old_password" binding:"required"`
+		NewPassword string `json:"new_password" binding:"required,min=8,max=32"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {

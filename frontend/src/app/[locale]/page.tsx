@@ -15,9 +15,9 @@ import type { Board, Tag, TimelineEvent, Post } from "@/shared/api/types";
 import LeftSidebar, { FilterType } from "@/layout/home/LeftSidebar";
 import { SortBy } from "@/shared/type/posts.types";
 import { useLeaderboard } from "@/features/leader/hooks/useLeaderboard";
-import PostFilterBar from "@/layout/home/PostFilterBar";
-import PostList from "@/layout/home/PostList";
 import RightSidebar from "@/layout/home/RightSidebar";
+import PostFilterBar from "@/layout/home/mid/PostFilterBar";
+import PostList from "@/layout/home/mid/PostList";
 
 export default function HomePage() {
   const { isAuthenticated, user } = useAuthStore();
@@ -178,7 +178,7 @@ export default function HomePage() {
 
           {/* 中间内容区域 */}
           <div className="flex-1 min-w-0 flex flex-col h-full">
-            <div className="flex-shrink-0 sticky top-0 bg-base-200 pb-4 z-[100]">
+            <div className="flex-shrink-0 sticky top-0 bg-base-200 pb-4 z-[10]">
               <PostFilterBar
                 sortBy={sortBy}
                 onSortChange={handleSortChange}
