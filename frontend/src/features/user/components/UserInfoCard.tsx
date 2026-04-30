@@ -3,6 +3,7 @@
 import { User } from "@/shared/api/types";
 import Avatar from "./Avatar";
 import { useTranslations } from "next-intl";
+import { formatDate } from "@/shared/lib/utils";
 
 interface UserInfoCardProps {
   user: User | null;
@@ -22,7 +23,7 @@ export function UserInfoCard({
         <div className="flex items-center gap-4">
           <div className="avatar">
             <div className="w-20 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
-              <Avatar username={user?.username} />
+              <Avatar avatarUrl={user?.avatar} size={"full"} />
             </div>
           </div>
           <div>
@@ -36,8 +37,8 @@ export function UserInfoCard({
                 <span className="badge badge-secondary">{t("moderator")}</span>
               )}
               <span className="badge badge-outline">
-                {t("registered_at")}:{" "}
-                {/* {new Date(user?.created_at).toLocaleDateString()} */}
+                {user?.created_at &&
+                  `${t("registered_at") + ": " + formatDate(user?.created_at)}`}
               </span>
             </div>
           </div>

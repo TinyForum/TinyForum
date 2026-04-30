@@ -105,5 +105,8 @@
   "export_data": "导出数据",
   "refresh": "刷新",
   "settings": "设置",
-  "logout": "退出登录"
+  "logout": "退出登录",
+  "in_current_board": "当前板块",
+  "currently_banned": "当前禁言用户",
+  "awaiting_review": "待审核"
 }

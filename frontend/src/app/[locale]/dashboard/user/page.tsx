@@ -8,11 +8,13 @@ import { FavoritesList } from "@/features/user/components/FavoritesList";
 import { MyCommentsTable } from "@/features/user/components/MyCommentsTable";
 import { MyPostsTable } from "@/features/user/components/MyPostsTable";
 // import { NotificationsList } from "@/features/user/components/NotificationsList";
-import { SettingsPanel } from "@/features/user/components/SettingsPanel";
+import { ViolationPanel } from "@/features/user/components/ViolationPanel";
 import { StatCard } from "@/features/user/components/StatCard";
 import { UserInfoCard } from "@/features/user/components/UserInfoCard";
 import { NotificationsList } from "@/features/user/components/NotificationsList";
 import SearchBar from "@/features/moderator/components/SearchBar";
+import { useAuthStore } from "@/store";
+import { useUserRole } from "@/features/user/hooks/useUserRole";
 
 // 组件导入
 export default function UserDashboardPage() {
@@ -23,6 +25,9 @@ export default function UserDashboardPage() {
 
   // TODO: 从 hooks 获取用户信息
   // const { user } = useCurrentUser();
+  const { user } = useAuthStore();
+  const { isAdmin } = useUserRole();
+  const { isModerator } = useUserRole();
 
   // TODO: 获取各模块数据
   // const { posts, total: postsTotal } = useMyPosts({ page, keyword });
@@ -59,7 +64,7 @@ export default function UserDashboardPage() {
       icon: "🔔",
       badge: stats.unreadNotif,
     },
-    { id: "settings", label: t("settings"), icon: "⚙️" },
+    { id: "violation_records", label: t("violation_records"), icon: "🚫" },
   ];
 
   const renderContent = () => {
@@ -67,7 +72,11 @@ export default function UserDashboardPage() {
       case "overview":
         return (
           <div className="space-y-6">
-            <UserInfoCard user={null} isAdmin={false} isModerator={false} />
+            <UserInfoCard
+              user={user}
+              isAdmin={isAdmin}
+              isModerator={isModerator}
+            />
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <StatCard
                 title={t("total_posts")}
@@ -154,8 +163,8 @@ export default function UserDashboardPage() {
           </div>
         );
 
-      case "settings":
-        return <SettingsPanel />;
+      case "violation_records":
+        return <ViolationPanel />;
 
       default:
         return null;

@@ -1,5 +1,7 @@
 // components/moderator/ReportedContentTable.tsx
 
+import { useTranslations } from "next-intl";
+
 export interface Report {
   id: number;
   target_id: number;
@@ -37,8 +39,8 @@ export function ReportedContentTable({
   isDeleting,
   isBanning,
   permissions,
-  t,
 }: ReportedContentTableProps) {
+  const t = useTranslations("Moderator");
   if (!reports?.length) {
     return (
       <div className="text-center py-8 text-base-content/50">

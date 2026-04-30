@@ -11,7 +11,7 @@ interface ReviewerStatsProps {
 }
 
 export function ReviewerStats({ stats }: ReviewerStatsProps) {
-  const t = useTranslations("Review");
+  const t = useTranslations("Reviewer");
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       <div className="card bg-base-100 border border-base-300">

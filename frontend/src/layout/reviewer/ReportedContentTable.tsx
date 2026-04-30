@@ -38,7 +38,7 @@ export function ReportedContentTable({
   const [showBanModal, setShowBanModal] = useState<number | null>(null);
   const [rejectReason, setRejectReason] = useState("");
   const [showRejectModal, setShowRejectModal] = useState<number | null>(null);
-  const t = useTranslations("Review");
+  const t = useTranslations("Reviewer");
 
   if (reports.length === 0) {
     return (
