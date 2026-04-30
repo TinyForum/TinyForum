@@ -19,9 +19,9 @@ export const useLeaderboard = (
   >,
 ) => {
   return useQuery({
-    queryKey: ["leaderboard", params?.limit, params?.fields],
+    queryKey: ["leaderboard", params?.limit],
     queryFn: async (): Promise<LeaderboardItemResponse[]> => {
-      const { data } = await userApi.getLeaderboardSimple(params);
+      const { data } = await userApi.getLeaderboardDetail(params);
       // 确保返回数组，如果 data.data 为 undefined 则返回空数组
       return data.data || [];
     },

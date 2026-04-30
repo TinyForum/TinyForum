@@ -1,24 +1,17 @@
-// src/components/home/LeaderboardList.tsx
 "use client";
 
 import Link from "next/link";
 import { Trophy, ChevronRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Avatar from "@/features/user/components/Avatar";
-
-interface User {
-  id: string | number;
-  username: string;
-  avatar?: string;
-  score: number;
-}
+import { User } from "@/shared/api";
 
 interface LeaderboardListProps {
   leaderboard: User[];
 }
 
 export default function LeaderboardList({ leaderboard }: LeaderboardListProps) {
-  const t = useTranslations("Post");
+  const t = useTranslations("Leaderboard");
 
   // 安全检查
   if (!leaderboard || !Array.isArray(leaderboard) || leaderboard.length === 0) {
@@ -43,7 +36,7 @@ export default function LeaderboardList({ leaderboard }: LeaderboardListProps) {
         <div className="space-y-2">
           {validUsers.map((user, index) => (
             <LeaderboardItem
-              key={`${user.id}-${index}`} // 组合 key 确保唯一性
+              key={`${user.id}-${index}`}
               user={user}
               rank={index + 1}
             />

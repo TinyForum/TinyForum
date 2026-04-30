@@ -37,18 +37,18 @@ func RegisterRoutes(
 	{
 		api.GET("/health", func(c *gin.Context) { c.JSON(200, "pong") })
 	}
-	handlers.Auth.RegisterRoutes(api, mw)
-	handlers.Tag.RegisterRoutes(api, mw)
-	handlers.Post.RegisterRoutes(api, mw)
-	handlers.Comment.RegisterRoutes(api, mw)
-	handlers.User.RegisterRoutes(api, mw)
-	handlers.Notification.RegisterRoutes(api, mw)
-	handlers.Board.RegisterRoutes(api, mw, repos.Board)
-	handlers.Timeline.RegisterRoutes(api, mw)
-	handlers.Topic.RegisterRoutes(api, mw)
-	handlers.Answer.RegisterRoutes(api, mw)
-	handlers.Question.RegisterRoutes(api, mw)
-	handlers.Announcement.RegisterRoutes(api, mw)
+	handlers.Auth.RegisterRoutes(api, mw)               // 验证路由（权限相关操作，密码）
+	handlers.Tag.RegisterRoutes(api, mw)                // 标签路由
+	handlers.Post.RegisterRoutes(api, mw)               // 帖子路由
+	handlers.Comment.RegisterRoutes(api, mw)            // 评论路由
+	handlers.User.RegisterRoutes(api, mw)               // 用户路由（用户信息、排名）【密码在验证路由】
+	handlers.Notification.RegisterRoutes(api, mw)       // 通知路由
+	handlers.Board.RegisterRoutes(api, mw, repos.Board) // 板块路由
+	handlers.Timeline.RegisterRoutes(api, mw)           // 时间线路由
+	handlers.Topic.RegisterRoutes(api, mw)              // 主题路由
+	handlers.Answer.RegisterRoutes(api, mw)             // 答案路由
+	handlers.Question.RegisterRoutes(api, mw)           // 问题路由
+	handlers.Announcement.RegisterRoutes(api, mw)       // 公告路由
 	announcementAdminGroup := api.Group("/admin/announcements", mw.Auth(), mw.AdminRequired())
 	{
 		announcementAdminGroup.GET("", handlers.Announcement.AdminList)
