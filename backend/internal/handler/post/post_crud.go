@@ -81,7 +81,8 @@ func (h *PostHandler) GetByID(c *gin.Context) {
 
 	post, liked, err := h.postSvc.GetByID(uint(postID), viewerUint)
 	if err != nil {
-		response.HandleError(c, apperrors.Wrapf(apperrors.ErrPostNotFound, "ID: %d", postID))
+		
+		response.HandleError(c, apperrors.ErrPostNotFound.WithMessagef("帖子不存在，ID: %d", postID))
 		return
 	}
 

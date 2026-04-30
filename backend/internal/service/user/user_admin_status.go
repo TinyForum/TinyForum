@@ -18,7 +18,7 @@ func (s *userService) SetBlocked(targetID uint, operatorID uint, isBlocked bool)
 	targetUser, err := s.repo.FindByID(targetID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return apperrors.Wrapf(apperrors.ErrUserNotFound, "ID: %d", targetID)
+			return apperrors.ErrUserNotFound.WithMessagef( "ID: %d", targetID)
 		}
 		return fmt.Errorf("查询目标用户失败: %w", err)
 	}
@@ -29,13 +29,13 @@ func (s *userService) SetBlocked(targetID uint, operatorID uint, isBlocked bool)
 	}
 
 	if targetID == operatorID {
-		return apperrors.Wrap(apperrors.ErrCannotModifySelf, "不能封禁自己的账号")
+		return apperrors.ErrCannotModifySelf.WithMessage( "不能封禁自己的账号")
 	}
 	if targetUser.Role == model.RoleSuperAdmin {
-		return apperrors.Wrap(apperrors.ErrCannotChangeOwnerRole, "不能封禁超级管理员")
+		return apperrors.ErrCannotChangeOwnerRole.WithMessage( "不能封禁超级管理员")
 	}
 	if operator.Role != model.RoleSuperAdmin && targetUser.Role == model.RoleAdmin {
-		return apperrors.Wrap(apperrors.ErrInsufficientPermission, "只有超级管理员才能封禁其他管理员")
+		return apperrors.ErrInsufficientPermission.WithMessage("只有超级管理员才能封禁其他管理员")
 	}
 	if targetUser.IsBlocked == isBlocked {
 		return nil
@@ -61,16 +61,16 @@ func (s *userService) SetActive(targetID uint, operatorID uint, isActive bool) e
 	targetUser, err := s.repo.FindByID(targetID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return apperrors.Wrapf(apperrors.ErrUserNotFound, "ID: %d", targetID)
+			return apperrors.ErrUserNotFound.WithMessagef( "ID: %d", targetID)
 		}
 		return fmt.Errorf("查询目标用户失败: %w", err)
 	}
 
 	if targetID == operatorID && !isActive {
-		return apperrors.Wrap(apperrors.ErrCannotModifySelf, "不能停用自己的账号")
+		return apperrors.ErrCannotModifySelf.WithMessage( "不能停用自己的账号")
 	}
 	if targetUser.Role == model.RoleSuperAdmin && !isActive {
-		return apperrors.Wrap(apperrors.ErrCannotChangeOwnerRole, "不能停用超级管理员")
+		return apperrors.ErrCannotChangeOwnerRole.WithMessage( "不能停用超级管理员")
 	}
 	if targetUser.IsActive == isActive {
 		return nil

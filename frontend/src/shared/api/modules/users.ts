@@ -42,9 +42,6 @@ export const userAPI = {
   updateProfile: (data: UpdateProfilePayload) =>
     apiClient.put<ApiResponse<User>>("/users/profile", data),
 
-  // 更改密码
-  changePassword: (params: { old_password: string; new_password: string }) =>
-    apiClient.patch<ApiResponse<null>>("/users/password", params),
   // 获取用户关注
   follow: (id: number) =>
     apiClient.post<ApiResponse<null>>(`/users/${id}/follow`),

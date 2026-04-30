@@ -3,8 +3,10 @@ package response
 import (
 	"context"
 	"errors"
+	"fmt"
 	"net/http"
 	"time"
+	apperrors "tiny-forum/pkg/errors"
 	"tiny-forum/pkg/logger"
 
 	"github.com/gin-gonic/gin"
@@ -12,25 +14,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// 统一业务错误码定义
-const (
-	CodeSuccess      = 0
-	CodeBadRequest   = 40000
-	CodeUnauthorized = 40100
-	CodeForbidden    = 40300
-	CodeNotFound     = 40400
-	CodeConflict     = 40900
-	CodeTooManyReq   = 42900
-	CodeInternal     = 50000
-
-	// 用户相关错误码 (10000-19999)
-	CodeUserNotFound      = 10001
-	CodeUserExists        = 10002
-	CodePasswordIncorrect = 10003
-
-	// 参数校验相关 (20000-29999)
-	CodeValidationFailed = 20001
-)
+// ========== 响应结构体 ==========
 
 // Response 统一响应结构
 type Response struct {
@@ -51,45 +35,36 @@ type PageData struct {
 	HasMore  bool        `json:"has_more"`
 }
 
-// ValidationError 字段校验错误详情
+// ValidationError 字段校验错误详情（发送给客户端）
 type ValidationError struct {
 	Field   string      `json:"field"`
 	Message string      `json:"message"`
 	Value   interface{} `json:"value,omitempty"`
 }
 
-// Option 响应选项函数
+// ========== 响应选项 ==========
+
+// Option 响应选项函数，用于在构造响应时附加额外字段
 type Option func(*Response)
 
 // WithTraceID 设置追踪ID
 func WithTraceID(traceID string) Option {
-	return func(r *Response) {
-		r.TraceID = traceID
-	}
+	return func(r *Response) { r.TraceID = traceID }
 }
 
-// WithMessage 自定义消息
+// WithMessage 覆盖默认消息
 func WithMessage(msg string) Option {
-	return func(r *Response) {
-		r.Message = msg
-	}
+	return func(r *Response) { r.Message = msg }
 }
 
-// Success 成功响应
-func Success(c *gin.Context, data interface{}, opts ...Option) {
-	resp := Response{
-		Code:      CodeSuccess,
-		Message:   "success",
-		Data:      data,
-		Timestamp: time.Now().Unix(),
-		RequestID: getRequestID(c),
-		TraceID:   getTraceID(c),
-	}
+// ========== 成功响应 ==========
 
-	for _, opt := range opts {
-		opt(&resp)
-	}
-
+// Success 返回成功响应 (HTTP 200)
+func Success(c *gin.Context, data any, opts ...Option) {
+	resp := newResp(c, 0, "success")
+	resp.Code = 0
+	resp.Data = data
+	applyOpts(&resp, opts)
 	c.JSON(http.StatusOK, resp)
 }
 
@@ -110,214 +85,200 @@ func SuccessPage(c *gin.Context, list interface{}, total int64, page, pageSize i
 	})
 }
 
-// Created 创建资源成功响应 (201)
+// Created 创建资源成功响应 (HTTP 201)，同时写入 Location 头
 func Created(c *gin.Context, data interface{}, location string) {
-	c.Header("Location", location)
-	c.JSON(http.StatusCreated, Response{
-		Code:      CodeSuccess,
-		Message:   "created successfully",
-		Data:      data,
-		Timestamp: time.Now().Unix(),
-		RequestID: getRequestID(c),
-		TraceID:   getTraceID(c),
-	})
+	if location != "" {
+		c.Header("Location", location)
+	}
+	resp := newResp(c, 0, "created successfully")
+	resp.Data = data
+	c.JSON(http.StatusCreated, resp)
 }
 
-// NoContent 无内容响应 (204)
+// NoContent 无内容响应 (HTTP 204)
 func NoContent(c *gin.Context) {
 	c.Status(http.StatusNoContent)
 }
 
-// Fail 失败响应（内部使用）
-func Fail(c *gin.Context, httpStatus int, bizCode int, msg string, opts ...Option) {
-	resp := Response{
-		Code:      bizCode,
-		Message:   msg,
-		Timestamp: time.Now().Unix(),
-		RequestID: getRequestID(c),
-		TraceID:   getTraceID(c),
-	}
+// ========== 错误响应（内部基础实现）==========
 
-	for _, opt := range opts {
-		opt(&resp)
+// fail 写入错误响应并终止后续 handler（内部调用）
+func fail(c *gin.Context, httpStatus int, bizCode int, msg string, data interface{}, opts ...Option) {
+	resp := newResp(c, bizCode, msg)
+	if data != nil {
+		resp.Data = data
 	}
-
+	applyOpts(&resp, opts)
 	c.JSON(httpStatus, resp)
-	c.Abort() // 终止后续处理
+	c.Abort()
 }
 
-// ========== 语义化错误响应 ==========
+// ========== 语义化错误响应（直接调用版）==========
 
-// BadRequest 参数错误 (400)
+// BadRequest 参数错误 (HTTP 400)
 func BadRequest(c *gin.Context, msg string) {
-	Fail(c, http.StatusBadRequest, CodeBadRequest, msg)
+	fail(c, http.StatusBadRequest, apperrors.CodeInvalidRequest, msg, nil)
 }
 
-// Unauthorized 未授权 (401)
+// Unauthorized 未授权 (HTTP 401)
 func Unauthorized(c *gin.Context, msg string) {
-	Fail(c, http.StatusUnauthorized, CodeUnauthorized, msg)
+	fail(c, http.StatusUnauthorized, apperrors.CodeUnauthorized, msg, nil)
 }
 
-// Forbidden 权限不足 (403)
+// Forbidden 权限不足 (HTTP 403)
 func Forbidden(c *gin.Context, msg string) {
-	Fail(c, http.StatusForbidden, CodeForbidden, msg)
+	fail(c, http.StatusForbidden, apperrors.CodeForbidden, msg, nil)
 }
 
-// NotFound 资源不存在 (404)
+// NotFound 资源不存在 (HTTP 404)
 func NotFound(c *gin.Context, msg string) {
-	Fail(c, http.StatusNotFound, CodeNotFound, msg)
+	fail(c, http.StatusNotFound, apperrors.CodeNotFound, msg, nil)
 }
 
-// Conflict 资源冲突 (409)
+// Conflict 资源冲突 (HTTP 409)
 func Conflict(c *gin.Context, msg string) {
-	Fail(c, http.StatusConflict, CodeConflict, msg)
+	fail(c, http.StatusConflict, apperrors.CodeInvalidRequest, msg, nil)
 }
 
-// TooManyRequests 请求过于频繁 (429)
+// TooManyRequests 请求过于频繁 (HTTP 429)
 func TooManyRequests(c *gin.Context, msg string) {
-	Fail(c, http.StatusTooManyRequests, CodeTooManyReq, msg)
+	fail(c, http.StatusTooManyRequests, apperrors.CodeTooManyRequests, msg, nil)
 }
 
-// InternalError 内部错误 (500)
+// InternalError 内部错误 (HTTP 500)
 func InternalError(c *gin.Context, msg string) {
 	if msg == "" {
 		msg = "系统繁忙，请稍后再试"
 	}
-	Fail(c, http.StatusInternalServerError, CodeInternal, msg)
+	fail(c, http.StatusInternalServerError, apperrors.CodeInternalError, msg, nil)
 }
 
-// ValidationFailed 参数校验失败
-func ValidationFailed(c *gin.Context, errors []ValidationError) {
-	Fail(c, http.StatusBadRequest, CodeValidationFailed, "参数校验失败", WithMessage("validation failed"))
-	// 通过 Data 字段传递详细错误
-	c.Set("validation_errors", errors)
+ func ValidationFailed(c *gin.Context, errs []ValidationError) {
+    fail(c, http.StatusBadRequest, apperrors.CodeValidation, "参数校验失败", errs)
 }
+// ========== 统一错误处理入口 ==========
 
-// ========== 增强的错误处理 ==========
-
-// AppError 应用错误接口
-type AppError interface {
-	error
-	HTTPStatus() int
-	GetCode() int
-	GetMessage() string
-	GetDetail() interface{}
-}
-
-// HandleError 统一错误处理入口（推荐使用）
+// HandleError 统一错误处理入口（推荐在 handler 层统一调用）
+//
+// 处理优先级：
+//  1. *apperrors.AppError  —— 业务自定义错误，直接映射 HTTP 状态码
+//  2. validator.ValidationErrors —— struct tag 校验失败，展开字段错误
+//  3. context.DeadlineExceeded / context.Canceled —— 超时 / 客户端取消
+//  4. 其他未知错误 —— 记录日志，返回 500
 func HandleError(c *gin.Context, err error) {
 	if err == nil {
 		return
 	}
 
-	// 1. 处理应用自定义错误
-	if appErr, ok := err.(AppError); ok {
+	// 1. 业务错误
+	var appErr *apperrors.AppError
+	if errors.As(err, &appErr) {
 		handleAppError(c, appErr)
 		return
 	}
 
-	// 2. 处理 validator 校验错误
-	if validationErrors, ok := err.(validator.ValidationErrors); ok {
-		handleValidationErrors(c, validationErrors)
+	// 2. validator 校验错误
+	var ve validator.ValidationErrors
+	if errors.As(err, &ve) {
+		handleValidationErrors(c, ve)
 		return
 	}
 
-	// 3. 处理标准库错误类型
+	// 3. 标准库 context 错误
 	switch {
 	case errors.Is(err, context.DeadlineExceeded):
-		Fail(c, http.StatusGatewayTimeout, 50400, "请求超时")
+		fail(c, http.StatusGatewayTimeout, apperrors.CodeSystemBusy, "请求超时", nil)
 		return
 	case errors.Is(err, context.Canceled):
-		// 客户端主动取消，不记录错误日志
+		// 客户端主动取消，不记录错误日志，静默结束
 		c.Status(http.StatusNoContent)
 		c.Abort()
 		return
 	}
 
-	// 4. 兜底处理：记录错误但返回通用信息
-	logger.Error("unhandled error occurred",
+	// 4. 兜底：记录日志，返回通用 500
+	logger.Error("unhandled error",
 		zap.Error(err),
 		zap.String("path", c.Request.URL.Path),
 		zap.String("method", c.Request.Method),
 		zap.String("client_ip", c.ClientIP()),
 	)
-
-	InternalError(c, "") // 使用默认消息
+	InternalError(c, "")
 }
 
-// handleAppError 处理应用错误
-func handleAppError(c *gin.Context, err AppError) {
-	httpStatus := err.HTTPStatus()
-	bizCode := err.GetCode()
-	msg := err.GetMessage()
-	detail := err.GetDetail()
+// ========== 内部处理函数 ==========
 
-	// 根据 HTTP 状态码决定日志级别
+// handleAppError 处理 *apperrors.AppError
+func handleAppError(c *gin.Context, err *apperrors.AppError) {
+	httpStatus := err.HTTPStatus()
+
+	// 按 HTTP 状态级别记录日志
 	switch {
 	case httpStatus >= 500:
-		logger.Error("app server error",
+		logger.Error("server error",
 			zap.Error(err),
 			zap.Int("http_status", httpStatus),
-			zap.Int("biz_code", bizCode),
+			zap.Int("biz_code", err.Code),
 		)
 	case httpStatus >= 400:
-		logger.Warn("app client error",
+		logger.Warn("client error",
 			zap.Error(err),
 			zap.Int("http_status", httpStatus),
-			zap.Int("biz_code", bizCode),
+			zap.Int("biz_code", err.Code),
 			zap.String("path", c.Request.URL.Path),
 		)
 	}
 
-	if detail == nil {
-		Fail(c, httpStatus, bizCode, msg)
-	} else {
-		Fail(c, httpStatus, bizCode, msg, WithMessage(msg))
-		c.Set("error_detail", detail)
-	}
+	// Detail 不为 nil 时一并写入响应体的 data 字段
+	fail(c, httpStatus, err.Code, err.Message, err.Detail)
 }
 
-// handleValidationErrors 处理 validator 校验错误
-func handleValidationErrors(c *gin.Context, err validator.ValidationErrors) {
-	errors := make([]ValidationError, 0, len(err))
-	for _, fe := range err {
-		errors = append(errors, ValidationError{
+// handleValidationErrors 将 validator.ValidationErrors 展开为字段级错误列表
+func handleValidationErrors(c *gin.Context, ve validator.ValidationErrors) {
+	errs := make([]ValidationError, 0, len(ve))
+	for _, fe := range ve {
+		errs = append(errs, ValidationError{
 			Field:   fe.Field(),
-			Message: getValidationMessage(fe),
+			Message: validationMessage(fe),
 			Value:   fe.Value(),
 		})
 	}
-	ValidationFailed(c, errors)
 
 	logger.Warn("validation failed",
 		zap.String("path", c.Request.URL.Path),
-		zap.Any("errors", errors),
+		zap.Any("errors", errs),
 	)
+
+	// 字段错误列表写入 data 字段，方便前端逐字段展示
+	fail(c, http.StatusBadRequest, apperrors.CodeValidation, "参数校验失败", errs)
 }
 
-// ========== 辅助函数 ==========
-
-// getRequestID 获取请求ID
-func getRequestID(c *gin.Context) string {
-	if id := c.GetString("RequestID"); id != "" {
-		return id
+// validationMessage 将 validator tag 转为中文提示
+func validationMessage(fe validator.FieldError) string {
+	switch fe.Tag() {
+	case "required":
+		return fmt.Sprintf("%s 不能为空", fe.Field())
+	case "email":
+		return fmt.Sprintf("%s 格式不正确", fe.Field())
+	case "min":
+		return fmt.Sprintf("%s 最小长度为 %s", fe.Field(), fe.Param())
+	case "max":
+		return fmt.Sprintf("%s 最大长度为 %s", fe.Field(), fe.Param())
+	case "len":
+		return fmt.Sprintf("%s 长度必须为 %s", fe.Field(), fe.Param())
+	case "gte":
+		return fmt.Sprintf("%s 不能小于 %s", fe.Field(), fe.Param())
+	case "lte":
+		return fmt.Sprintf("%s 不能大于 %s", fe.Field(), fe.Param())
+	case "oneof":
+		return fmt.Sprintf("%s 必须是以下值之一: %s", fe.Field(), fe.Param())
+	case "url":
+		return fmt.Sprintf("%s 不是有效的URL", fe.Field())
+	case "numeric":
+		return fmt.Sprintf("%s 必须为数字", fe.Field())
+	default:
+		return fmt.Sprintf("%s 校验失败 (规则: %s)", fe.Field(), fe.Tag())
 	}
-	if id := c.GetHeader("X-Request-ID"); id != "" {
-		return id
-	}
-	return ""
-}
-
-// getTraceID 获取链路追踪ID
-func getTraceID(c *gin.Context) string {
-	if traceID := c.GetString("TraceID"); traceID != "" {
-		return traceID
-	}
-	if traceID := c.GetHeader("X-Trace-ID"); traceID != "" {
-		return traceID
-	}
-	// 如果没有 traceID，可以使用 requestID 作为 fallback
-	return getRequestID(c)
 }
 
 // ========== 中间件 ==========
@@ -341,20 +302,60 @@ func RecoveryMiddleware() gin.HandlerFunc {
 	}
 }
 
-// ErrorHandlerMiddleware 错误处理中间件
+// ErrorHandlerMiddleware 尾部错误处理中间件
+// 若 handler 层通过 c.Error(err) 记录错误而未直接写响应，此中间件负责兜底处理。
 func ErrorHandlerMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Next()
 
-		// 检查是否有未处理的错误
-		if len(c.Errors) > 0 {
-			err := c.Errors.Last().Err
-			// 如果响应已经写入，不再处理
-			if c.Writer.Written() {
-				logger.Warn("response already written, skip error handling", zap.Error(err))
-				return
-			}
-			HandleError(c, err)
+		if len(c.Errors) == 0 {
+			return
 		}
+
+		// 响应已写入时跳过（避免重复写）
+		if c.Writer.Written() {
+			logger.Warn("response already written, skip error handling",
+				zap.Error(c.Errors.Last().Err),
+			)
+			return
+		}
+
+		HandleError(c, c.Errors.Last().Err)
 	}
+}
+
+// ========== 内部辅助函数 ==========
+
+// newResp 构造带公共字段的 Response
+func newResp(c *gin.Context, code int, msg string) Response {
+	return Response{
+		Code:      code,
+		Message:   msg,
+		Timestamp: time.Now().Unix(),
+		RequestID: getRequestID(c),
+		TraceID:   getTraceID(c),
+	}
+}
+
+func applyOpts(r *Response, opts []Option) {
+	for _, opt := range opts {
+		opt(r)
+	}
+}
+
+func getRequestID(c *gin.Context) string {
+	if id := c.GetString("RequestID"); id != "" {
+		return id
+	}
+	return c.GetHeader("X-Request-ID")
+}
+
+func getTraceID(c *gin.Context) string {
+	if id := c.GetString("TraceID"); id != "" {
+		return id
+	}
+	if id := c.GetHeader("X-Trace-ID"); id != "" {
+		return id
+	}
+	return getRequestID(c) // 降级用 RequestID
 }

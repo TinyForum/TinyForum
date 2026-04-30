@@ -159,7 +159,6 @@ func (s *authService) FinduUserEmailByID(userID uint) (string, error) {
 }
 
 // ChangePassword 修改密码
-// ChangePassword 修改密码
 func (s *authService) ChangePassword(ctx context.Context, userID uint, oldPassword, newPassword string) (string, error) {
 	// 1. 获取用户信息
 	user, err := s.userRepo.FindByID(userID)
@@ -172,7 +171,7 @@ func (s *authService) ChangePassword(ctx context.Context, userID uint, oldPasswo
 
 	// 2. 验证旧密码
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(oldPassword)); err != nil {
-		return "", apperrors.ErrInvalidPassword
+		return "", apperrors.ErrInvalidCurrentPassword
 	}
 
 	// 3. 禁止与旧密码相同
@@ -182,7 +181,7 @@ func (s *authService) ChangePassword(ctx context.Context, userID uint, oldPasswo
 
 	// 4. 密码强度校验
 	if err := validatePasswordStrength(newPassword); err != nil {
-		return "", err
+		return "",err 
 	}
 
 	// 5. 加密新密码
@@ -219,7 +218,7 @@ func validatePasswordStrength(password string) error {
 	hasLetter := regexp.MustCompile(`[a-zA-Z]`).MatchString(password)
 	hasDigit := regexp.MustCompile(`[0-9]`).MatchString(password)
 	if !hasLetter || !hasDigit {
-		return errors.New("密码必须同时包含字母和数字")
+		return apperrors.ErrInvalidPassword.WithMessage("密码必须同时包含字母和数字")
 	}
 	return nil
 }

@@ -87,6 +87,9 @@ export const authApi = {
     apiClient.get<ApiResponse<ValidateTokenResponse>>(
       `/auth/password/validate-token?token=${data.token}`,
     ),
+  // 更改密码
+  changePassword: (params: { old_password: string; new_password: string }) =>
+    apiClient.put<ApiResponse<null>>("/auth/account/password", params),
 };
 
 // 请求

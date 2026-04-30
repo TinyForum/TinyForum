@@ -27,7 +27,7 @@ func (s *userService) ResetUserPasswordWithTemp(operatorID uint, targetID uint) 
 	targetUser, err := s.repo.FindByID(targetID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return "", apperrors.Wrapf(apperrors.ErrUserNotFound, "ID: %d", targetID)
+			return "", apperrors.ErrUserNotFound.WithMessagef( "ID: %d", targetID)
 		}
 		return "", fmt.Errorf("查询目标用户失败: %w", err)
 	}
@@ -38,10 +38,10 @@ func (s *userService) ResetUserPasswordWithTemp(operatorID uint, targetID uint) 
 	}
 
 	if targetUser.Role == model.RoleSuperAdmin && operator.Role != model.RoleSuperAdmin {
-		return "", apperrors.Wrap(apperrors.ErrInsufficientPermission, "只有超级管理员才能重置其他超级管理员的密码")
+		return "", apperrors.ErrInsufficientPermission.WithMessage("只有超级管理员才能重置其他超级管理员的密码")
 	}
 	if operator.Role != model.RoleSuperAdmin && targetUser.Role == model.RoleAdmin {
-		return "", apperrors.Wrap(apperrors.ErrInsufficientPermission, "只有超级管理员才能重置其他管理员的密码")
+		return "", apperrors.ErrInsufficientPermission.WithMessage("只有超级管理员才能重置其他管理员的密码")
 	}
 
 	tempPassword, err := generateSecurePassword(tempPasswordLength)
@@ -74,7 +74,7 @@ func (s *userService) ResetUserPassword(operatorID uint, targetID uint, newPassw
 	targetUser, err := s.repo.FindByID(targetID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return apperrors.Wrapf(apperrors.ErrUserNotFound, "ID: %d", targetID)
+			return apperrors.ErrUserNotFound.WithMessagef( "ID: %d", targetID)
 		}
 		return fmt.Errorf("查询目标用户失败: %w", err)
 	}
@@ -85,10 +85,10 @@ func (s *userService) ResetUserPassword(operatorID uint, targetID uint, newPassw
 	}
 
 	if targetUser.Role == model.RoleSuperAdmin && operator.Role != model.RoleSuperAdmin {
-		return apperrors.Wrap(apperrors.ErrInsufficientPermission, "只有超级管理员才能重置其他超级管理员的密码")
+		return apperrors.ErrInsufficientPermission.WithMessage("只有超级管理员才能重置其他超级管理员的密码")
 	}
 	if operator.Role != model.RoleSuperAdmin && targetUser.Role == model.RoleAdmin {
-		return apperrors.Wrap(apperrors.ErrInsufficientPermission, "只有超级管理员才能重置其他管理员的密码")
+		return apperrors.ErrInsufficientPermission.WithMessage("只有超级管理员才能重置其他管理员的密码")
 	}
 
 	if err := s.validatePasswordStrength(newPassword); err != nil {
@@ -128,15 +128,15 @@ func generateSecurePassword(length int) (string, error) {
 // validatePasswordStrength 密码强度校验
 func (s *userService) validatePasswordStrength(password string) error {
 	if len(password) < 6 {
-		return apperrors.Wrap(apperrors.ErrInvalidPassword, "密码长度至少6位")
+		return apperrors.ErrInvalidPassword.WithMessagef("密码长度至少 6 位")
 	}
 	if len(password) > 32 {
-		return apperrors.Wrap(apperrors.ErrInvalidPassword, "密码长度不能超过32位")
+		return apperrors.ErrInvalidPassword.WithMessagef("密码长度不能超过 32 位")
 	}
 	hasDigit := regexp.MustCompile(`[0-9]`).MatchString(password)
 	hasLetter := regexp.MustCompile(`[a-zA-Z]`).MatchString(password)
 	if !hasDigit || !hasLetter {
-		return apperrors.Wrap(apperrors.ErrInvalidPassword, "密码必须包含数字和字母")
+		return apperrors.ErrInvalidPassword.WithMessagef("密码必须包含数字和字母")
 	}
 	return nil
 }

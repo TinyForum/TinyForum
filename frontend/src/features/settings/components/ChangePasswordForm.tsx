@@ -1,11 +1,6 @@
-import { useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { authApi, userAPI } from "@/shared/api";
-import { useRouter } from "next/navigation";
-import toast from "react-hot-toast";
-import { getErrorMessage } from "@/shared/lib/utils";
 import {
   Save,
   KeyRound,
@@ -15,11 +10,13 @@ import {
   CheckCircle,
 } from "lucide-react";
 import { usePasswordStrength } from "@/features/settings/hooks/usePasswordStrength";
-// 修改密码表单的 Schema 和类型
+import { useState } from "react";
+import { useChangePassword } from "@/store/password";
+
 const passwordSchema = z
   .object({
     oldPassword: z.string().min(1, "请输入旧密码"),
-    newPassword: z.string().min(6, "密码长度至少6位"),
+    newPassword: z.string().min(8, "密码长度至少8位"),
     confirmPassword: z.string().min(1, "请确认新密码"),
   })
   .refine((data) => data.newPassword === data.confirmPassword, {
@@ -28,13 +25,13 @@ const passwordSchema = z
   });
 
 type PasswordForm = z.infer<typeof passwordSchema>;
+
 export function ChangePasswordForm() {
-  const router = useRouter();
-  const [passwordLoading, setPasswordLoading] = useState<boolean>(false);
-  const [showOldPassword, setShowOldPassword] = useState<boolean>(false);
-  const [showNewPassword, setShowNewPassword] = useState<boolean>(false);
-  const [showConfirmPassword, setShowConfirmPassword] =
-    useState<boolean>(false);
+  const [showOldPassword, setShowOldPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const { changePassword, isLoading } = useChangePassword();
 
   const {
     register,
@@ -64,24 +61,10 @@ export function ChangePasswordForm() {
   });
   const passwordStrength = usePasswordStrength(newPasswordValue || "");
 
-  const onSubmit = async (data: PasswordForm): Promise<void> => {
-    setPasswordLoading(true);
-    try {
-      await userAPI.changePassword({
-        old_password: data.oldPassword,
-        new_password: data.newPassword,
-      });
-      toast.success("密码修改成功");
+  const onSubmit = async (data: PasswordForm) => {
+    const success = await changePassword(data.oldPassword, data.newPassword);
+    if (success) {
       reset();
-      setTimeout(() => {
-        toast.success("即将退出，请使用新密码重新登录");
-        authApi.logout();
-        router.push("/auth/login");
-      }, 3000);
-    } catch (err: unknown) {
-      toast.error(getErrorMessage(err));
-    } finally {
-      setPasswordLoading(false);
     }
   };
 
@@ -232,14 +215,14 @@ export function ChangePasswordForm() {
           <button
             type="submit"
             className="btn btn-primary w-full gap-2"
-            disabled={passwordLoading || !isValid}
+            disabled={isLoading || !isValid}
           >
-            {passwordLoading ? (
+            {isLoading ? (
               <span className="loading loading-spinner loading-sm" />
             ) : (
               <Save className="w-4 h-4" />
             )}
-            {passwordLoading ? "修改中..." : "修改密码"}
+            {isLoading ? "修改中..." : "修改密码"}
           </button>
         </form>
       </div>
