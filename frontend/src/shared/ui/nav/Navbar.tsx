@@ -159,7 +159,7 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="navbar bg-base-100/95 backdrop-blur-sm shadow-sm sticky top-0 border-b border-base-300 transition-all duration-200">
+      <nav className="z-[20] navbar bg-base-100/95 backdrop-blur-sm shadow-sm sticky top-0 border-b border-base-300 transition-all duration-200">
         <div className="container mx-auto max-w-none px-4 w-full flex items-center">
           {/* JS 级别二选一，不靠 CSS display 切换 */}
           {isDesktop ? (

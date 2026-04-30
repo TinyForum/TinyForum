@@ -16,6 +16,7 @@ interface ViolationRecord {
 
 // Mock 数据 - 实际应从 API 获取
 const mockViolations: ViolationRecord[] = [
+  // TODO: 替换为真实 API 调用
   {
     id: "1",
     reason: "发布广告信息",
@@ -83,7 +84,7 @@ export function ViolationPanel() {
       setAppealModal({ open: false, violationId: "", reason: "" });
       setAppealText("");
       alert(t("appeal_submitted")); // 替换为 toast
-    } catch (error) {
+    } catch {
       alert(t("appeal_failed"));
     }
   };
