@@ -17,7 +17,7 @@ import {
   SparklesIcon,
   ArrowRightIcon,
 } from "@heroicons/react/24/outline";
-import { postApi, tagApi, topicApi, userApi } from "@/shared/api";
+import { postApi, tagApi, topicApi, userAPI } from "@/shared/api";
 
 import type { LeaderboardItemResponse } from "@/shared/api/modules/users";
 import { Post, Tag, Topic } from "@/shared/api/types";
@@ -80,7 +80,7 @@ export default function Explore() {
           postApi.list({ page: 1, page_size: 10, sort_by: currentTab?.sortBy }),
           tagApi.list(),
           topicApi.list({ page: 1, page_size: 8 }),
-          userApi.getLeaderboardSimple({ limit: 10 }),
+          userAPI.getLeaderboardSimple({ limit: 10 }),
         ]);
       // 添加安全检查
       if (postsResponse.data.code === 0 && postsResponse.data.data) {

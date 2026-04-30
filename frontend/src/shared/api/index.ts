@@ -41,7 +41,7 @@ export type {
 export { authApi } from "./modules/auth";
 export { postApi } from "./modules/posts";
 export { commentApi } from "./modules/comments";
-export { userApi } from "./modules/users";
+export { userAPI } from "./modules/users";
 export { tagApi } from "./modules/tags";
 export { notificationApi } from "./modules/notifications";
 export { boardApi } from "./modules/boards";
