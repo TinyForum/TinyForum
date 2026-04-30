@@ -1,5 +1,6 @@
 // hooks/admin/useAdminAnnouncements.ts
 import { announcementApi } from "@/shared/api";
+import { adminAnnouncementApi } from "@/shared/api/modules/admin/announcements";
 import {
   Announcement,
   CreateAnnouncementPayload,
@@ -105,7 +106,7 @@ export function useAdminAnnouncements(): UseAdminAnnouncementsReturn {
     async (data: CreateAnnouncementPayload): Promise<Announcement | null> => {
       setIsSubmitting(true);
       try {
-        const response = await announcementApi.create(data);
+        const response = await adminAnnouncementApi.create(data);
         if (response.data.code === 0 || response.data.code === 0) {
           toast.success("创建公告成功");
           await fetchAnnouncements();
@@ -132,7 +133,7 @@ export function useAdminAnnouncements(): UseAdminAnnouncementsReturn {
     ): Promise<Announcement | null> => {
       setIsSubmitting(true);
       try {
-        const response = await announcementApi.update(id, data);
+        const response = await adminAnnouncementApi.update(id, data);
         if (response.data.code === 0 || response.data.code === 0) {
           toast.success("更新公告成功");
           await fetchAnnouncements();
@@ -156,7 +157,7 @@ export function useAdminAnnouncements(): UseAdminAnnouncementsReturn {
     async (id: number): Promise<boolean> => {
       setIsSubmitting(true);
       try {
-        const response = await announcementApi.delete(id);
+        const response = await adminAnnouncementApi.delete(id);
         if (response.data.code === 0 || response.data.code === 0) {
           toast.success("删除公告成功");
           await fetchAnnouncements();
@@ -180,7 +181,7 @@ export function useAdminAnnouncements(): UseAdminAnnouncementsReturn {
     async (id: number): Promise<boolean> => {
       setIsSubmitting(true);
       try {
-        const response = await announcementApi.update(id, {
+        const response = await adminAnnouncementApi.update(id, {
           status: "published",
           published_at: new Date().toISOString(),
         });
@@ -207,7 +208,7 @@ export function useAdminAnnouncements(): UseAdminAnnouncementsReturn {
     async (id: number): Promise<boolean> => {
       setIsSubmitting(true);
       try {
-        const response = await announcementApi.update(id, {
+        const response = await adminAnnouncementApi.update(id, {
           expired_at: new Date().toISOString(),
         });
         if (response.data.code === 0 || response.data.code === 0) {
@@ -233,7 +234,7 @@ export function useAdminAnnouncements(): UseAdminAnnouncementsReturn {
     async (id: number, isPinned: boolean): Promise<boolean> => {
       setIsSubmitting(true);
       try {
-        const response = await announcementApi.update(id, {
+        const response = await adminAnnouncementApi.update(id, {
           is_pinned: isPinned,
         });
         if (response.data.code === 0 || response.data.code === 0) {

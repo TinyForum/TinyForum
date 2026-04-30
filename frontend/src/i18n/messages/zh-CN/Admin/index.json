@@ -1,5 +1,11 @@
 {
   "password_reset_and_notified": "密码已重置并通过站内通知发送给用户",
+  "no_moderators": "没有版主",
+  "set_block": "封禁",
+  "set_unblock": "解封",
+  "set_active": "激活",
+  "set_inactive": "取消激活",
+
   "tasks": "任务",
   "confirm_reset": "确认重置",
   "change_role": "更改角色",

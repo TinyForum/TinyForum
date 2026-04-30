@@ -1,9 +1,9 @@
 // hooks/admin/useUsersData.ts
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
-import { adminApi } from "@/shared/api";
 import toast from "react-hot-toast";
 import { ApiResponse } from "@/shared/api/types";
+import { adminUsersApi } from "@/shared/api/modules/admin/user";
 
 // 类型定义
 interface UserListResponse {
@@ -42,7 +42,7 @@ export function useUsersData(page: number, keyword: string, enabled: boolean) {
   const { data, isLoading } = useQuery({
     queryKey: ["admin-users", page, keyword],
     queryFn: () =>
-      adminApi
+      adminUsersApi
         .listUsers({ page, page_size: 20, keyword })
         .then((r: { data: ApiResponse<UserListResponse> }) => r.data.data),
     enabled,
@@ -51,7 +51,7 @@ export function useUsersData(page: number, keyword: string, enabled: boolean) {
   // 切换激活状态
   const toggleActiveMutation = useMutation({
     mutationFn: ({ id, active }: { id: number; active: boolean }) =>
-      adminApi.setUserActive(id, active),
+      adminUsersApi.setUserActive(id, active),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-users"] });
       toast.success(t("operation_successful"));
@@ -62,7 +62,7 @@ export function useUsersData(page: number, keyword: string, enabled: boolean) {
   // 切换封禁状态
   const toggleBlockMutation = useMutation({
     mutationFn: ({ id, blocked }: { id: number; blocked: boolean }) =>
-      adminApi.setUserBlocked(id, blocked),
+      adminUsersApi.setUserBlocked(id, blocked),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-users"] });
       toast.success(t("operation_successful"));
@@ -73,7 +73,7 @@ export function useUsersData(page: number, keyword: string, enabled: boolean) {
   // 切换角色
   const toggleRoleMutation = useMutation({
     mutationFn: ({ id, role }: { id: number; role: string }) =>
-      adminApi.setUserRole(id, role),
+      adminUsersApi.setUserRole(id, role),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-users"] });
       toast.success(t("operation_successful"));
@@ -83,7 +83,7 @@ export function useUsersData(page: number, keyword: string, enabled: boolean) {
 
   // 删除用户 - 修复未使用的参数
   const deleteUserMutation = useMutation({
-    mutationFn: ({ id }: { id: number }) => adminApi.deleteUser(id),
+    mutationFn: ({ id }: { id: number }) => adminUsersApi.deleteUser(id),
     onSuccess: () => {
       // 移除未使用的 _ 和 variables 参数
       queryClient.invalidateQueries({ queryKey: ["admin-users"] });
@@ -94,7 +94,7 @@ export function useUsersData(page: number, keyword: string, enabled: boolean) {
 
   // 重置密码
   const resetPasswordMutation = useMutation({
-    mutationFn: (id: number) => adminApi.resetUserPassword(id),
+    mutationFn: (id: number) => adminUsersApi.resetUserPassword(id),
     onSuccess: () => {
       // 移除未使用的 userId 参数
       toast.success(t("password_reset_and_notified"), {

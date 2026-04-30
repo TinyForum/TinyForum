@@ -1,12 +1,5 @@
-import apiClient from "../client";
-import { ApiResponse } from "../types";
-
-// 设置积分请求参数
-// interface SetScoreRequest {
-//   operation: "set" | "add" | "subtract";
-//   score: number;
-//   reason: string;
-// }
+import apiClient from "../../client";
+import { ApiResponse } from "../../types";
 
 // 设置积分响应数据
 interface SetScoreResponse {
@@ -33,13 +26,11 @@ type AllUserScoreResponse = Array<{
   avatar: string;
   score: number;
 }>;
-
 // 查询参数
 interface GetUserScoreParams {
   id?: number; // 用户ID，可选
 }
-
-export const scoreApi = {
+export const adminScoreApi = {
   /**
    * 获取所有用户积分列表
    * @param params - 可选参数，可指定用户ID

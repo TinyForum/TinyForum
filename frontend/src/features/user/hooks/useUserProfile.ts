@@ -1,6 +1,6 @@
 // hooks/user/useUserInfo.ts
 import { useState, useCallback } from "react";
-import { UpdateProfilePayload, RoleResponse } from "@/shared/api/modules/user";
+import { UpdateProfilePayload } from "@/shared/api/modules/user";
 import type { User } from "@/shared/api/types";
 import { toast } from "react-hot-toast";
 import { userApi } from "@/shared/api/modules/user";
@@ -19,7 +19,7 @@ interface UseProfileReturn {
   updateProfile: (data: UpdateProfilePayload) => Promise<boolean>;
 }
 
-export function useProfile(): UseProfileReturn {
+export function useUserProfile(): UseProfileReturn {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
