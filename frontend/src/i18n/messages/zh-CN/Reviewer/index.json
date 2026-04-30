@@ -21,6 +21,7 @@
   "reject": "拒绝",
   "delete": "删除",
   "report": "举报",
+
   "reported_by": "举报人",
   "reason": "原因",
   "reported_content": "被举报内容",

@@ -17,7 +17,7 @@ interface History {
 
 export function ReviewHistoryTable({ historys }: ReviewHistoryTableProps) {
   // TODO: 从 propss 获取数据
-  const t = useTranslations("Review");
+  const t = useTranslations("Reviewer");
 
   if (historys.length === 0) {
     return (

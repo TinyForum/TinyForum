@@ -4,7 +4,7 @@
 import { useTranslations } from "next-intl";
 
 export function ReviewSettings() {
-  const t = useTranslations("Review");
+  const t = useTranslations("Reviewer");
   return (
     <div className="space-y-6">
       <div className="card bg-base-100 border border-base-300">

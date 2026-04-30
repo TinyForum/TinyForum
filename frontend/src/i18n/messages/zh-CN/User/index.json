@@ -12,5 +12,17 @@
   "favorites": "我的收藏",
   "notifications": "我的通知",
   "settings": "设置",
+  "title": "标题",
+  "board": "版块",
+  "comments": "评论",
+  "created_at": "创建时间",
+  "actions": "操作",
+  "no_posts": "没有帖子",
+  "content": "内容",
+  "posts": "帖子",
+  "likes": "点赞",
+  "no_comments": "没有评论",
+  "no_favorites": "没有收藏",
+  "violation_records": "违规记录",
   "search_my_posts": "搜索我的帖子"
 }

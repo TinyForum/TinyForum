@@ -22,6 +22,7 @@
   "logging_out": "退出中...",
   "logout_success": "已退出登录",
   "logout_failed": "退出失败，请重试",
+  "no_notifications": "暂无通知",
 
   "role": {
     "super_admin": "超级管理员",

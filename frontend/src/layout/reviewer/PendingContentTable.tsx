@@ -26,7 +26,7 @@ export function PendingContentTable({
   reviews,
 }: PendingContentTableProps) {
   // TODO: 从 props 获取数据
-  const t = useTranslations("Review");
+  const t = useTranslations("Reviewer");
 
   if (reviews.length === 0) {
     return (
