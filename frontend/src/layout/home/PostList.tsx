@@ -1,7 +1,5 @@
 "use client";
 
-import Link from "next/link";
-import { useTranslations } from "next-intl";
 import { useAuthStore } from "@/store/auth";
 import type { Post } from "@/shared/api/types";
 import { PostListSkeleton } from "@/shared/ui/common/PostListSkeleton";

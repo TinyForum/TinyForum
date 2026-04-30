@@ -40,8 +40,8 @@ type Handlers struct {
 }
 
 // NewHandlers 创建所有 Handler 实例
-func NewHandlers(svc *Services, timeHelpers *timeutil.TimeHelpers ,cfg *config.Config) *Handlers {
-	auth := authHandler.NewAuthHandler(svc.Auth,cfg)
+func NewHandlers(svc *Services, timeHelpers *timeutil.TimeHelpers, cfg *config.Config) *Handlers {
+	auth := authHandler.NewAuthHandler(svc.Auth, cfg)
 	user := userHandler.NewUserHandler(svc.User, svc.Notification, svc.Auth)
 	tag := tagHandler.NewTagHandler(svc.Tag)
 	notification := notificationHandler.NewNotificationHandler(svc.Notification)

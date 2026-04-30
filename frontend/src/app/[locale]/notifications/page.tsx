@@ -40,7 +40,7 @@ export default function NotificationsPage() {
   const { isAuthenticated } = useAuthStore();
   const router = useRouter();
   const queryClient = useQueryClient();
-  const t = useTranslations("notifications");
+  const t = useTranslations("Notifications");
 
   useEffect(() => {
     if (!isAuthenticated) {

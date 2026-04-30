@@ -12,7 +12,7 @@ import toast from "react-hot-toast";
 import { getErrorMessage } from "@/shared/lib/utils";
 import { Save, X } from "lucide-react";
 import type { ApiResponse, Tag, Post } from "@/shared/api/types";
-import RichEditor from "@/layout/post/RichEditor";
+import RichEditor from "@/layout/common/RichEditor";
 
 const schema = z.object({
   title: z.string().min(2, "标题至少2个字符").max(200, "标题最多200个字符"),

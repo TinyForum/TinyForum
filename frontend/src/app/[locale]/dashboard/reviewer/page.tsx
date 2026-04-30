@@ -4,13 +4,13 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Pagination } from "@/features/admin/components/Pagination";
-import SearchBar from "@/layout/nav/SearchBar";
 import { PendingContentTable } from "@/layout/reviewer/PendingContentTable";
 import { ReviewerSidebar } from "@/layout/reviewer/ReviewerSidebar";
 import { ReviewerStats } from "@/layout/reviewer/ReviewerStats";
 import { ReviewHistoryTable } from "@/layout/reviewer/ReviewHistoryTable";
 import { ReviewSettings } from "@/layout/reviewer/ReviewSettings";
 import { ReportedContentTable } from "@/layout/reviewer/ReportedContentTable"; // TODO：应该合并
+import SearchBar from "@/shared/ui/nav/SearchBar";
 // import { ReportedContentTable } from "@/features/moderator/components/ReportedContentTable";
 // 组件导入
 
