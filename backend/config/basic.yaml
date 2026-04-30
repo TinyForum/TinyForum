@@ -37,6 +37,12 @@ log:
   compress: true # 是否压缩旧日志文件
   console: true # 是否输出到控制台
   json_format: false # 是否使用JSON格式
+  db:
+    dsn: ./logs/log.db
+    max_buffer: 1024 # 最大缓冲区大小 (KB)
+    batch_size: 100 # 批量写入大小
+    flush_every: 5s # 每隔多久刷新一次日志
+    retention: 7 # 日志保留时间 (天)
 
 # 限流配置
 rate_limit:

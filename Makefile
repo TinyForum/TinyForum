@@ -7,6 +7,7 @@ include dev-script/Makefile.bench
 include dev-script/Makefile.code
 include dev-script/Makefile.env
 include dev-script/Makefile.cfg
+include dev-script/Makefile.log
 help:
 	@echo "=============="
 	@echo "TinyForum help"
@@ -18,3 +19,4 @@ help:
 	@echo "  make bench-help    - 性能测试帮助 "
 	@echo "  make dev-help      - 环境变量帮助 "
 	@echo "  make cfg-help      - 配置文件帮助 "
+	@echo "  make log-help      - 日志帮助 "

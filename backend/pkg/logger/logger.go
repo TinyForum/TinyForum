@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"time"
+	"tiny-forum/config"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -26,6 +27,10 @@ type Config struct {
 	Compress   bool   // 是否压缩
 	Console    bool   // 是否输出到控制台
 	JSONFormat bool   // 是否使用 JSON 格式
+
+	// DB 可选。非零值时自动初始化 SQLite 日志数据库并接入日志管道。
+	// 若已单独调用过 InitDB，此字段可留空（不会重复初始化）。
+	DB *config.DBConfig
 }
 
 // Init 初始化日志
@@ -75,6 +80,23 @@ func Init(cfg Config) error {
 		consoleSyncer := zapcore.AddSync(os.Stdout)
 		cores = append(cores, zapcore.NewCore(consoleEncoder, consoleSyncer, level))
 	}
+
+	// ── SQLite 数据库输出（可选，非侵入式插入）─────────────────
+	if cfg.DB != nil {
+		if err := InitDB(cfg.DB); err != nil {
+			return fmt.Errorf("初始化 SQLite 日志失败: %w", err)
+		}
+		cores = append(cores, newDBCore(level))
+	} else {
+		// 已通过 InitDB 单独初始化时，同样接入 core
+		globalDBMu.Lock()
+		alreadyInit := globalDB != nil
+		globalDBMu.Unlock()
+		if alreadyInit {
+			cores = append(cores, newDBCore(level))
+		}
+	}
+	// ──────────────────────────────────────────────────────────
 
 	// 合并多个 cores
 	core := zapcore.NewTee(cores...)
@@ -220,7 +242,7 @@ func WithOptions(opts ...zap.Option) *zap.Logger {
 	return Log.WithOptions(opts...)
 }
 
-// Sync 刷新缓冲区
+// Sync 刷新缓冲区（包含 SQLite 缓冲区）
 func Sync() error {
 	if Log != nil {
 		return Log.Sync()
