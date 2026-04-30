@@ -33,9 +33,10 @@ func main() {
 	}
 
 	// 初始化日志
-	if err := logger.Init(cfg.ToLoggerConfig()); err != nil {
+	if err := logger.Init(logger.Config(cfg.ToLoggerConfig())); err != nil {
 		log.Fatalf("Failed to init logger: %v", err)
 	}
+
 
 	// 打印配置信息（调试用）
 	printConfigInfo(cfg)
@@ -48,6 +49,7 @@ func main() {
 
 	// 启动服务器
 	startServer(cfg, app)
+	defer logger.CloseDB()
 }
 
 // loadConfig 加载配置文件
@@ -58,10 +60,12 @@ func loadConfig() (*config.Config, error) {
 	// 检查配置文件是否存在
 	basicConfigPath := filepath.Join(configDir, "basic.yaml")
 	privateConfigPath := filepath.Join(configDir, "private.yaml")
+	riskConfigPath := filepath.Join(configDir, "risk_control.yaml")
 
 	// 检查配置文件
 	printConfigFileStatus(basicConfigPath, "Basic config")
 	printConfigFileStatus(privateConfigPath, "Private config")
+	printConfigFileStatus(riskConfigPath, "Risk control config")
 
 	// 加载配置
 	cfg, err := config.Load(configDir)
@@ -167,32 +171,9 @@ func printConfigError(err error) {
 	log.Printf("\n%v\n", err)
 
 	// 提供解决建议
-	log.Printf("\n💡 Troubleshooting Tips:")
-	log.Printf("   1. Make sure you have a config/basic.yaml file")
-	log.Printf("   2. Check if config/private.yaml exists (optional)")
-	log.Printf("   3. Verify all required fields are filled")
-	log.Printf("\n📝 Quick Setup:")
-	log.Printf("   # Create sample config file")
-	log.Printf("   mkdir -p config")
-	log.Printf("   cat > config/basic.yaml << EOF")
-	log.Printf("   server:")
-	log.Printf("     port: 8080")
-	log.Printf("     mode: debug")
-	log.Printf("   database:")
-	log.Printf("     host: localhost")
-	log.Printf("     port: 5432")
-	log.Printf("     user: postgres")
-	log.Printf("     password: yourpassword")
-	log.Printf("     dbname: tiny_forum")
-	log.Printf("   jwt:")
-	log.Printf("     secret: your-super-secret-key-change-this")
-	log.Printf("   EOF")
-	log.Printf("\n   # Or use environment variables")
-	log.Printf("   export BASIC_JWT_SECRET=\"your-secret-key\"")
-	log.Printf("   export BASIC_DATABASE_HOST=\"localhost\"")
-	log.Printf("   export BASIC_DATABASE_DBNAME=\"tiny_forum\"")
-	log.Printf("%s", "\n"+strings.Repeat("=", 60))
+	log.Printf("\n请尝试使用 make init-dev 命令来初始化配置文件\n")
 }
+
 
 // startServer 启动 HTTP 服务器
 func startServer(cfg *config.Config, app *wire.App) {

@@ -1,0 +1,197 @@
+# ============================================================
+# SQLite 日志查询 Makefile
+# 用法: make <target> [参数]
+# ============================================================
+
+_SELF_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
+_ROOT     := $(abspath $(_SELF_DIR)/..)
+
+# 数据库路径（可根据实际情况修改）
+DB_PATH ?= $(_ROOT)/backend/logs/log.db
+
+# 默认查询条数
+LIMIT ?= 100
+
+# 今天日期，与 Go 分表后缀完全一致：logs_YYYYMMDD
+TODAY := $(shell date -u +%Y%m%d)
+
+# 今天完整表名，供内部引用
+_TABLE_TODAY := logs_$(TODAY)
+
+# 系统 sqlite3 命令
+SQLITE3 := sqlite3
+
+# 颜色输出
+GREEN  := \033[0;32m
+YELLOW := \033[0;33m
+RED    := \033[0;31m
+NC     := \033[0m
+
+# ── 时间戳格式说明 ────────────────────────────────────────────
+# Go 写入格式：RFC3339Nano UTC，例如 2026-05-01T10:00:00.123456789Z
+# SQLite 字符串比较对 ISO8601 格式天然有序，BETWEEN 可直接使用。
+# query-time 的 FROM/TO 支持两种写法：
+#   完整格式：2026-05-01T10:00:00Z
+#   简写格式：2026-05-01 10:00:00（SQLite 会自动识别）
+
+.PHONY: log-help list-tables query-latest query-errors query-today \
+        query-time stats-today search clean-old query
+
+# ── 帮助 ─────────────────────────────────────────────────────
+log-help:
+	@echo "$(GREEN)SQLite 日志查询工具$(NC)"
+	@echo ""
+	@echo "当前配置："
+	@echo "  DB_PATH = $(DB_PATH)"
+	@echo "  TODAY   = $(TODAY)  →  表名: $(_TABLE_TODAY)"
+	@echo "  LIMIT   = $(LIMIT)"
+	@echo ""
+	@echo "可用目标："
+	@echo "  $(YELLOW)make list-tables$(NC)                             列出所有日志分表"
+	@echo "  $(YELLOW)make query-latest$(NC)   [LIMIT=n]               最近 n 条日志（今日表）"
+	@echo "  $(YELLOW)make query-errors$(NC)   [LIMIT=n]               最近 n 条错误日志（今日表）"
+	@echo "  $(YELLOW)make query-today$(NC)    [LEVEL=INFO] [LIMIT=n]  按级别查今日日志"
+	@echo "  $(YELLOW)make query-time$(NC)     FROM=<时间> TO=<时间> [TABLE=logs_YYYYMMDD] [LIMIT=n]"
+	@echo "                                       按时间范围查询（时间格式见下）"
+	@echo "  $(YELLOW)make stats-today$(NC)                             今日日志级别统计"
+	@echo "  $(YELLOW)make search$(NC)         KEYWORD=<关键词> [TABLE=logs_YYYYMMDD] [LIMIT=n]"
+	@echo "                                       在 fields JSON 字段中搜索关键词"
+	@echo "  $(YELLOW)make clean-old$(NC)      DAYS=<天数>              删除 N 天前的旧表"
+	@echo "  $(YELLOW)make query$(NC)          SQL='SELECT …'           执行自定义 SQL"
+	@echo ""
+	@echo "时间格式（FROM/TO）："
+	@echo "  完整：2026-05-01T10:00:00Z"
+	@echo "  简写：2026-05-01 10:00:00"
+	@echo ""
+	@echo "级别取值：DEBUG  INFO  WARN  ERROR  FATAL"
+
+# ── 列出所有日志分表 ──────────────────────────────────────────
+list-tables:
+	@echo "$(GREEN)所有日志分表：$(NC)"
+	@$(SQLITE3) "$(DB_PATH)" \
+		"SELECT name, \
+		        (SELECT COUNT(*) FROM sqlite_master sm2 \
+		         WHERE sm2.name = 'idx_'||substr(m.name,6)||'_ts') AS has_index \
+		 FROM sqlite_master m \
+		 WHERE type='table' AND name LIKE 'logs_%' \
+		 ORDER BY name DESC;" \
+	| awk -F'|' '{printf "  %-20s  index: %s\n", $$1, ($$2=="1"?"yes":"no")}' \
+	|| echo "  （未找到任何日志表）"
+
+# ── 最近 N 条日志（今日表）───────────────────────────────────
+query-latest:
+	@echo "$(GREEN)[$(_TABLE_TODAY)] 最近 $(LIMIT) 条日志$(NC)"
+	@$(SQLITE3) -header -column "$(DB_PATH)" \
+		"SELECT timestamp, level, caller, message, fields \
+		 FROM $(_TABLE_TODAY) \
+		 ORDER BY id DESC \
+		 LIMIT $(LIMIT);"
+
+# ── 最近 N 条错误日志（今日表）──────────────────────────────
+query-errors:
+	@echo "$(GREEN)[$(_TABLE_TODAY)] 最近 $(LIMIT) 条 ERROR 日志$(NC)"
+	@$(SQLITE3) -header -column "$(DB_PATH)" \
+		"SELECT timestamp, level, caller, message, fields \
+		 FROM $(_TABLE_TODAY) \
+		 WHERE level = 'ERROR' \
+		 ORDER BY id DESC \
+		 LIMIT $(LIMIT);"
+
+# ── 按级别查今日日志（LEVEL 默认 INFO）──────────────────────
+# 用法: make query-today LEVEL=ERROR LIMIT=50
+LEVEL ?= INFO
+query-today:
+	@echo "$(GREEN)[$(_TABLE_TODAY)] 最近 $(LIMIT) 条 $(LEVEL) 日志$(NC)"
+	@$(SQLITE3) -header -column "$(DB_PATH)" \
+		"SELECT timestamp, level, caller, message, fields \
+		 FROM $(_TABLE_TODAY) \
+		 WHERE level = '$(LEVEL)' \
+		 ORDER BY id DESC \
+		 LIMIT $(LIMIT);"
+
+# ── 按时间范围查询 ────────────────────────────────────────────
+# 用法: make query-time FROM='2026-05-01T08:00:00Z' TO='2026-05-01T09:00:00Z'
+#       make query-time FROM='2026-05-01 08:00:00' TO='2026-05-01 09:00:00' TABLE=logs_20260501
+# TABLE 默认今日表
+TABLE ?= $(_TABLE_TODAY)
+query-time:
+ifndef FROM
+	$(error 请指定 FROM 参数，例如: make query-time FROM='2026-05-01T08:00:00Z' TO='2026-05-01T09:00:00Z')
+endif
+ifndef TO
+	$(error 请指定 TO 参数，例如: make query-time FROM='2026-05-01T08:00:00Z' TO='2026-05-01T09:00:00Z')
+endif
+	@echo "$(GREEN)[$(TABLE)] $(FROM) → $(TO)  (最多 $(LIMIT) 条)$(NC)"
+	@$(SQLITE3) -header -column "$(DB_PATH)" \
+		"SELECT timestamp, level, caller, message, fields \
+		 FROM $(TABLE) \
+		 WHERE timestamp BETWEEN '$(FROM)' AND '$(TO)' \
+		 ORDER BY timestamp ASC \
+		 LIMIT $(LIMIT);"
+
+# ── 今日日志级别统计 ──────────────────────────────────────────
+stats-today:
+	@echo "$(GREEN)[$(_TABLE_TODAY)] 日志级别统计$(NC)"
+	@$(SQLITE3) -header -column "$(DB_PATH)" \
+		"SELECT level, \
+		        COUNT(*)                                              AS total, \
+		        strftime('%H:00', timestamp)                          AS hour_sample \
+		 FROM $(_TABLE_TODAY) \
+		 GROUP BY level \
+		 ORDER BY total DESC;"
+	@echo ""
+	@echo "$(GREEN)按小时分布（今日）：$(NC)"
+	@$(SQLITE3) -header -column "$(DB_PATH)" \
+		"SELECT strftime('%H:00', timestamp) AS hour, \
+		        level, \
+		        COUNT(*) AS count \
+		 FROM $(_TABLE_TODAY) \
+		 GROUP BY hour, level \
+		 ORDER BY hour ASC, count DESC;"
+
+# ── 在 fields JSON 字段中搜索关键词 ──────────────────────────
+# 用法: make search KEYWORD=user_id TABLE=logs_20260430 LIMIT=50
+# TABLE 默认今日表
+search:
+ifndef KEYWORD
+	$(error 请指定 KEYWORD 参数，例如: make search KEYWORD='user_id')
+endif
+	@echo "$(GREEN)[$(TABLE)] 搜索 fields 包含 '$(KEYWORD)' 的日志（最多 $(LIMIT) 条）$(NC)"
+	@$(SQLITE3) -header -column "$(DB_PATH)" \
+		"SELECT timestamp, level, caller, message, fields \
+		 FROM $(TABLE) \
+		 WHERE fields LIKE '%$(KEYWORD)%' \
+		 ORDER BY id DESC \
+		 LIMIT $(LIMIT);"
+
+# ── 删除 N 天前的旧表 ─────────────────────────────────────────
+# 用法: make clean-old DAYS=30
+# 逻辑与 Go 侧 purgeOldTables 一致：substr(name,6) 取 "YYYYMMDD" 与 cutoff 比较
+clean-old:
+ifndef DAYS
+	$(error 请指定 DAYS 参数，例如: make clean-old DAYS=30)
+endif
+	@echo "$(YELLOW)准备删除 $(DAYS) 天前的日志表…$(NC)"
+	@cutoff=$$(date -u -d "-$(DAYS) days" +%Y%m%d 2>/dev/null \
+	           || date -u -v-$(DAYS)d +%Y%m%d); \
+	 tables=$$($(SQLITE3) "$(DB_PATH)" \
+	   "SELECT name FROM sqlite_master \
+	    WHERE type='table' AND name LIKE 'logs_%' \
+	      AND substr(name,6) < '$$cutoff'"); \
+	 if [ -z "$$tables" ]; then \
+	   echo "  没有需要清理的旧表（cutoff: $$cutoff）"; \
+	 else \
+	   for t in $$tables; do \
+	     echo "  $(RED)删除: $$t$(NC)"; \
+	     $(SQLITE3) "$(DB_PATH)" "DROP TABLE IF EXISTS $$t;"; \
+	   done; \
+	   echo "清理完成"; \
+	 fi
+
+# ── 执行自定义 SQL ────────────────────────────────────────────
+# 用法: make query SQL="SELECT COUNT(*) FROM logs_20260501"
+query:
+ifndef SQL
+	$(error 请指定 SQL 参数，例如: make query SQL="SELECT COUNT(*) FROM $(_TABLE_TODAY)")
+endif
+	@$(SQLITE3) -header -column "$(DB_PATH)" "$(SQL)"

@@ -1,12 +1,12 @@
 package config
 
 import (
+	"fmt"
 	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
 	"tiny-forum/internal/model"
-	"tiny-forum/pkg/logger"
 
 	"github.com/spf13/viper"
 )
@@ -133,6 +133,29 @@ type LogConfig struct {
 	Compress   bool   `mapstructure:"compress"`
 	Console    bool   `mapstructure:"console"`
 	JSONFormat bool   `mapstructure:"json_format"`
+	// DB 可选。非零值时自动初始化 SQLite 日志数据库并接入日志管道。
+	// 若已单独调用过 InitDB，此字段可留空（不会重复初始化）。
+	DB *DBConfig `mapstructure:"db"`
+}
+
+// DBConfig SQLite 日志数据库配置
+type DBConfig struct {
+	// DSN 数据库文件路径，例如 "./logs/app.db"
+	DSN string 	`mapstructure:"dsn"`
+
+	// MaxBuffer 异步写入队列深度，默认 512
+	// 队列满时新日志静默丢弃，不阻塞业务
+	MaxBuffer int `mapstructure:"max_buffer"`
+
+	// BatchSize 单次事务批量写入条数，默认 50
+	BatchSize int 	`mapstructure:"batch_size"`
+
+	// FlushEvery 定时强制刷盘间隔，默认 2s
+	FlushEvery time.Duration 	`mapstructure:"flush_every"`
+
+	// Retention 日志保留天数，0 表示永久保留
+	// 到期表以 DROP TABLE 整表删除，比按行 DELETE 快得多
+	Retention int `mapstructure:"retention"`
 }
 
 // RedisConfig Redis配置
@@ -207,18 +230,22 @@ type WechatOAuthConfig struct {
 // Load 加载配置文件
 func Load(configDir string) (*Config, error) {
 	basicViper, privateViper := newViperInstances(configDir)
+	fmt.Println("开始加载配置文件")
 
 	// 加载基础配置
 	var basicConfig ConfigBasic
 	if err := basicViper.Unmarshal(&basicConfig); err != nil {
+		fmt.Printf("加载基础配置文件失败: %v",err)
 		return nil, err
 	}
+	fmt.Printf("加载基础配置文件成功")
 
 	// 加载私有配置
 	var privateConfig ConfigPrivate
 	if err := privateViper.Unmarshal(&privateConfig); err != nil {
 		privateConfig = ConfigPrivate{}
 	}
+	fmt.Printf("加载私有配置文件成功")
 
 	// 加载风控配置（独立文件）
 	riskViper := viper.New()
@@ -226,6 +253,7 @@ func Load(configDir string) (*Config, error) {
 	riskViper.SetConfigFile(filepath.Join(configDir, "risk_control.yaml"))
 	_ = riskViper.ReadInConfig() // 允许文件不存在
 
+	fmt.Printf("加载风控配置文件成功")
 	var riskControl ConfigRiskControl
 	if err := riskViper.Unmarshal(&riskControl); err != nil {
 		// 解析失败则使用空配置（不阻塞启动）
@@ -237,7 +265,7 @@ func Load(configDir string) (*Config, error) {
 		Private:     privateConfig,
 		RiskControl: riskControl,
 	}
-
+fmt.Println("加载配置文件成功")
 	cfg.setDefaults()
 	if err := cfg.validate(); err != nil {
 		return nil, err
@@ -403,8 +431,28 @@ func (c *Config) validateDatabase() error {
 }
 
 // ToLoggerConfig 转换为日志配置
-func (c *Config) ToLoggerConfig() logger.Config {
-	return logger.Config(c.Basic.Log) // 直接类型转换，字段名相同
+func (c *Config) ToLoggerConfig() LogConfig {
+    cfg := LogConfig{
+        Level:      c.Basic.Log.Level,
+        Filename:   c.Basic.Log.Filename,
+        MaxSize:    c.Basic.Log.MaxSize,
+        MaxBackups: c.Basic.Log.MaxBackups,
+        MaxAge:     c.Basic.Log.MaxAge,
+        Compress:   c.Basic.Log.Compress,
+        Console:    c.Basic.Log.Console,
+        JSONFormat: c.Basic.Log.JSONFormat,
+    }
+    if c.Basic.Log.DB != nil && c.Basic.Log.DB.DSN != "" {
+    
+        cfg.DB = &DBConfig{
+            DSN:        c.Basic.Log.DB.DSN,
+            MaxBuffer:    c.Basic.Log.DB.MaxBuffer,
+            BatchSize:     c.Basic.Log.DB.BatchSize,
+            FlushEvery: c.Basic.Log.DB.FlushEvery,
+            Retention:    c.Basic.Log.DB.Retention,
+        }
+    }
+    return cfg
 }
 
 // GetDSN 获取数据库连接字符串
