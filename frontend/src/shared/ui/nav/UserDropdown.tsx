@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useState } from "react";
 import {
   Dialog,
   DialogPanel,
@@ -38,10 +38,7 @@ interface UserDropdownProps {
   onOpenChange?: (isOpen: boolean) => void;
 }
 
-export default function UserDropdown({
-  user,
-  onOpenChange,
-}: UserDropdownProps) {
+export default function UserDropdown({ user }: UserDropdownProps) {
   const router = useRouter();
   const t = useTranslations("Common");
   const { logout, isLoading } = useLogoutStore();
@@ -67,16 +64,16 @@ export default function UserDropdown({
     }
   };
 
-  const handleLogout = async () => {
-    try {
-      await logout();
-      toast.success(t("logout_success"));
-      router.push("/");
-      router.refresh();
-    } catch {
-      toast.error(t("logout_failed"));
-    }
-  };
+  // const handleLogout = async () => {
+  //   try {
+  //     await logout();
+  //     toast.success(t("logout_success"));
+  //     router.push("/");
+  //     router.refresh();
+  //   } catch {
+  //     toast.error(t("logout_failed"));
+  //   }
+  // };
 
   const getDashboardConfig = () => {
     const role = user?.role;
@@ -228,10 +225,6 @@ export default function UserDropdown({
     <div className="relative ">
       <Menu>
         {({ open }: { open: boolean }) => {
-          useEffect(() => {
-            onOpenChange?.(open);
-          }, [open]);
-
           return (
             <>
               <MenuButton

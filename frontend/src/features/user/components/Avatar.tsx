@@ -1,5 +1,5 @@
 // src/components/user/Avatar.tsx
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
 
 interface AvatarProps {

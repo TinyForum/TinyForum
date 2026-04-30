@@ -42,7 +42,7 @@ func InitApp(cfg *config.Config) (*App, error) {
 	helpers := NewHelpers()
 
 	// 6. 控制器层
-	handlers := NewHandlers(services, helpers.TimeHelpers,cfg)
+	handlers := NewHandlers(services, helpers.TimeHelpers, cfg)
 
 	mw := middleware.NewMiddlewareSet(
 		jwtMgr,

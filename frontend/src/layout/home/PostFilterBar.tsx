@@ -16,64 +16,50 @@ import { useTranslations } from "next-intl";
 import { SortBy } from "@/shared/type/posts.types";
 import { useMediaQuery } from "@/features/common/hooks/useMediaQuery";
 
-interface PostFilterBarProps {
+// --- 独立的子组件 ---
+
+interface DesktopSortViewProps {
+  sortOptions: { value: SortBy; label: string; icon: React.ReactNode }[];
   sortBy: SortBy;
-  onSortChange: (sortBy: SortBy) => void;
-  isAuthenticated: boolean;
-  onRefetch: () => void;
-  isLoading?: boolean;
-  totalCount?: number;
+  onSortChange: (value: SortBy) => void;
 }
 
-export default function PostFilterBar({
+const DesktopSortView = ({
+  sortOptions,
   sortBy,
   onSortChange,
-  isAuthenticated,
-  onRefetch,
-  isLoading = false,
-  totalCount,
-}: PostFilterBarProps) {
-  const t = useTranslations("Post");
-  const isDesktop = useMediaQuery("(min-width: 1024px)");
+}: DesktopSortViewProps) => (
+  <div className="join">
+    {sortOptions.map((option) => (
+      <button
+        key={option.value}
+        className={`btn btn-sm join-item transition-all duration-200 ${
+          sortBy === option.value
+            ? "btn-primary shadow-md"
+            : "btn-ghost hover:bg-base-200"
+        }`}
+        onClick={() => onSortChange(option.value)}
+      >
+        {option.icon}
+        <span className="hidden sm:inline">{option.label}</span>
+      </button>
+    ))}
+  </div>
+);
 
-  const sortOptions: { value: SortBy; label: string; icon: React.ReactNode }[] =
-    [
-      {
-        value: "random",
-        label: t("random"),
-        icon: <Clock className="w-4 h-4" />,
-      },
-      { value: "hot", label: t("hot"), icon: <Flame className="w-4 h-4" /> },
-      { value: "like", label: t("like"), icon: <Award className="w-4 h-4" /> },
-      {
-        value: "latest",
-        label: t("latest"),
-        icon: <Megaphone className="w-4 h-4" />,
-      },
-    ];
+interface MobileSortViewProps {
+  sortOptions: { value: SortBy; label: string; icon: React.ReactNode }[];
+  sortBy: SortBy;
+  onSortChange: (value: SortBy) => void;
+}
 
+const MobileSortView = ({
+  sortOptions,
+  sortBy,
+  onSortChange,
+}: MobileSortViewProps) => {
   const currentOption = sortOptions.find((opt) => opt.value === sortBy);
-
-  const DesktopView = () => (
-    <div className="join">
-      {sortOptions.map((option) => (
-        <button
-          key={option.value}
-          className={`btn btn-sm join-item transition-all duration-200 ${
-            sortBy === option.value
-              ? "btn-primary shadow-md"
-              : "btn-ghost hover:bg-base-200"
-          }`}
-          onClick={() => onSortChange(option.value)}
-        >
-          {option.icon}
-          <span className="hidden sm:inline">{option.label}</span>
-        </button>
-      ))}
-    </div>
-  );
-
-  const MobileView = () => (
+  return (
     <div className="dropdown dropdown-end">
       <Menu>
         <MenuButton className="btn btn-sm btn-primary gap-1 whitespace-nowrap">
@@ -119,13 +105,64 @@ export default function PostFilterBar({
       </Menu>
     </div>
   );
+};
+
+// --- 主组件 ---
+
+interface PostFilterBarProps {
+  sortBy: SortBy;
+  onSortChange: (sortBy: SortBy) => void;
+  isAuthenticated: boolean;
+  onRefetch: () => void;
+  isLoading?: boolean;
+  totalCount?: number;
+}
+
+export default function PostFilterBar({
+  sortBy,
+  onSortChange,
+  isAuthenticated,
+  onRefetch,
+  isLoading = false,
+  totalCount,
+}: PostFilterBarProps) {
+  const t = useTranslations("Post");
+  const isDesktop = useMediaQuery("(min-width: 1024px)");
+
+  const sortOptions: { value: SortBy; label: string; icon: React.ReactNode }[] =
+    [
+      {
+        value: "random",
+        label: t("random"),
+        icon: <Clock className="w-4 h-4" />,
+      },
+      { value: "hot", label: t("hot"), icon: <Flame className="w-4 h-4" /> },
+      { value: "like", label: t("like"), icon: <Award className="w-4 h-4" /> },
+      {
+        value: "latest",
+        label: t("latest"),
+        icon: <Megaphone className="w-4 h-4" />,
+      },
+    ];
 
   return (
     <div className="relative mb-4 flex items-center gap-3 rounded-box border border-base-300 bg-base-100 p-3 shadow-sm">
       {/* 排序和刷新区域 */}
       <div className="flex flex-1 items-center gap-2 min-w-0">
         {/* 排序组件 */}
-        {isDesktop ? <DesktopView /> : <MobileView />}
+        {isDesktop ? (
+          <DesktopSortView
+            sortOptions={sortOptions}
+            sortBy={sortBy}
+            onSortChange={onSortChange}
+          />
+        ) : (
+          <MobileSortView
+            sortOptions={sortOptions}
+            sortBy={sortBy}
+            onSortChange={onSortChange}
+          />
+        )}
 
         {/* 刷新按钮 */}
         <button

@@ -6,9 +6,9 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { notificationApi } from "@/shared/api";
 import { useTranslations } from "next-intl";
 import { ApiResponse } from "@/shared/api/types";
-import { Transition, Dialog } from "@headlessui/react";
 import { Fragment, useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
+import { Dialog, Transition, TransitionChild } from "@headlessui/react";
 
 interface Notification {
   id: number;
@@ -69,15 +69,18 @@ export default function NotificationBell({
     mutationFn: (notificationId: number) =>
       notificationApi.markRead(notificationId),
     onSuccess: () => {
-      queryClient.setQueryData(["notifications", "preview"], (oldData: any) => {
-        if (!oldData) return oldData;
-        return {
-          ...oldData,
-          list: oldData.list.map((n: Notification) =>
-            n.id === selectedNotification?.id ? { ...n, is_read: true } : n,
-          ),
-        };
-      });
+      queryClient.setQueryData(
+        ["notifications", "preview"],
+        (oldData: Notification[]) => {
+          if (!oldData) return oldData;
+          return {
+            ...oldData,
+            list: oldData.map((n: Notification) =>
+              n.id === selectedNotification?.id ? { ...n, is_read: true } : n,
+            ),
+          };
+        },
+      );
       queryClient.invalidateQueries({ queryKey: ["unreadCount"] });
     },
   });
@@ -272,7 +275,7 @@ export default function NotificationBell({
               className="relative z-[99999]"
               onClose={() => setIsModalOpen(false)}
             >
-              <Transition.Child
+              <TransitionChild
                 as={Fragment}
                 enter="ease-out duration-300"
                 enterFrom="opacity-0"
@@ -282,7 +285,7 @@ export default function NotificationBell({
                 leaveTo="opacity-0"
               >
                 <div className="fixed inset-0 bg-black/40 backdrop-blur-sm" />
-              </Transition.Child>
+              </TransitionChild>
 
               <div className="fixed inset-0 flex items-center justify-center p-4">
                 <Transition.Child

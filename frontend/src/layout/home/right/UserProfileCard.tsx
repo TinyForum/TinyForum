@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { User, Bell, Activity, Award, Clock } from "lucide-react";
 import Avatar from "@/features/user/components/Avatar";

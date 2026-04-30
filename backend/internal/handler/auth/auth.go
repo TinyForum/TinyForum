@@ -45,7 +45,6 @@ func (h *AuthHandler) Register(c *gin.Context) {
 // @Router /auth/login [post]
 func (h *AuthHandler) Login(c *gin.Context) {
 
-	
 	ctx := c.Request.Context()
 	var input userService.LoginInput
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -66,7 +65,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	cookieValue := "tiny_forum_token=" + result.Token +
 		"; Max-Age=604800" + // 7天
 		"; Path=/" +
-		"; Domain=" + h.cfg.Basic.Server.Host +  
+		"; Domain=" + h.cfg.Basic.Server.Host +
 		"; HttpOnly" +
 		"; SameSite=Strict"
 	if isProduction {

@@ -11,8 +11,8 @@ import { MyPostsTable } from "@/features/user/components/MyPostsTable";
 import { SettingsPanel } from "@/features/user/components/SettingsPanel";
 import { StatCard } from "@/features/user/components/StatCard";
 import { UserInfoCard } from "@/features/user/components/UserInfoCard";
-import SearchBar from "@/layout/nav/SearchBar";
 import { NotificationsList } from "@/features/user/components/NotificationsList";
+import SearchBar from "@/features/moderator/components/SearchBar";
 
 // 组件导入
 export default function UserDashboardPage() {

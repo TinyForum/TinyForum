@@ -40,7 +40,6 @@ export default function MobileNavbar({
   unreadCount,
   isMobileMenuOpen,
   onMobileMenuToggle,
-  isUserDropdownOpen,
   onUserDropdownOpenChange,
 }: MobileNavbarProps) {
   const t = useTranslations("Nav");
@@ -93,7 +92,7 @@ export default function MobileNavbar({
             {user && (
               <UserDropdown
                 user={user}
-                isOpen={isUserDropdownOpen}
+                // isOpen={isUserDropdownOpen}
                 onOpenChange={onUserDropdownOpenChange}
               />
             )}

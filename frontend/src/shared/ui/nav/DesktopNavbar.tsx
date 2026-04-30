@@ -34,7 +34,6 @@ export default function DesktopNavbar({
   onSearchQueryChange,
   unreadCount,
   timelineUpdateCount,
-  isUserDropdownOpen,
   onUserDropdownOpenChange,
 }: DesktopNavbarProps) {
   const t = useTranslations("Nav");
