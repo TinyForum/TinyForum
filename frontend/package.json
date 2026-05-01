@@ -29,6 +29,7 @@
     "echarts": "^6.0.0",
     "highlight.js": "^11.11.1",
     "jose": "^6.2.2",
+    "js-yaml": "^4.1.1",
     "jsonwebtoken": "^9.0.3",
     "lucide-react": "^0.395.0",
     "marked": "^18.0.0",
