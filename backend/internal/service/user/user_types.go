@@ -17,7 +17,7 @@ type LoginInput struct {
 
 // AuthResult 认证结果
 type AuthResult struct {
-	Token string      `json:"token"`
+	Token string   `json:"token"`
 	User  *po.User `json:"user"`
 }
 

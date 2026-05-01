@@ -23,6 +23,8 @@ import (
 // @Failure 404 {object} response.Response "公告不存在"
 // @Failure 500 {object} response.Response "服务器内部错误"
 // @Router /admin/announcements/{id} [delete]
+//
+// Deprecated: 迁移到 adminHandler.DeleteAnnouncements
 func (h *AnnouncementHandler) Delete(c *gin.Context) {
 	id, ok := parseAnnouncementID(c)
 	if !ok {

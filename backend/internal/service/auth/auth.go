@@ -84,7 +84,7 @@ func (s *authService) Register(ctx context.Context, input userSvc.RegisterInput)
 
 type AuthResult struct {
 	Token          string          `json:"token"`
-	User           *po.User     `json:"user"`
+	User           *po.User        `json:"user"`
 	DeletionStatus *DeletionStatus `json:"deletion_status,omitempty"`
 }
 

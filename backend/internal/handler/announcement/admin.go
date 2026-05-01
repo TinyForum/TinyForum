@@ -28,7 +28,8 @@ import (
 // @Failure 403 {object} response.Response "无权限（非管理员）"
 // @Failure 500 {object} response.Response "服务器内部错误"
 // @Router /admin/announcements/list [get]
-// Deprecated 废弃
+//
+// Deprecated: 迁移到 adminHandler.ListAnnouncements
 func (h *AnnouncementHandler) AdminList(c *gin.Context) {
 	var req query.ListAnnouncements
 	if err := c.ShouldBindQuery(&req); err != nil {

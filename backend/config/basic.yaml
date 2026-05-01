@@ -1,7 +1,7 @@
 # basic
 # 服务器配置
 server:
-  host: 192.168.5.180 # 服务主机
+  host: localhost # 服务主机
   port: 8080 # 服务端口
   mode: debug # 运行模式: debug/release/test
   read_timeout: 30s # 读取超时
@@ -10,22 +10,22 @@ server:
 # 前端
 frontend:
   protocol: http # 协议: http/https
-  host: 192.168.5.180
+  host: localhost
   port: 3000
 # API配置
 api:
   protocol: http # 协议: http/https
-  host: 192.168.5.180 # API主机
+  host: localhost # API主机
   port: 8080 # API端口
   version: v1 # API版本
   prefix: /api # API路径前缀
 
 # JWT配置
-jwt:
-  secret: "your-super-secret-jwt-key-change-in-production" # JWT密钥
-  expire: 24h # 访问令牌过期时间
-  refresh_expire: 168h # 刷新令牌过期时间 (7天)
-  issuer: "tiny-forum" # 签发者
+# jwt:
+#   secret: "your-super-secret-jwt-key-change-in-production" # JWT密钥
+#   expire: 24h # 访问令牌过期时间
+#   refresh_expire: 168h # 刷新令牌过期时间 (7天)
+#   issuer: "tiny-forum" # 签发者
 
 # 日志配置
 log:
