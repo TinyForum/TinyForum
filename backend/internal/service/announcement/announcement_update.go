@@ -30,7 +30,7 @@ func (s *announcementService) Update(ctx context.Context, id uint, req *request.
 		announcement.Cover = *req.Cover
 	}
 	if req.Type != nil {
-		announcement.Type = *req.Type
+		announcement.Type = req.Type
 	}
 	if req.IsPinned != nil {
 		announcement.IsPinned = *req.IsPinned

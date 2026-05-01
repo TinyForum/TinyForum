@@ -18,8 +18,8 @@ import {
 import { useTranslations } from "next-intl";
 import { cn } from "@/shared/lib/utils";
 import { PostType, type Tag as TagType } from "@/shared/api";
-import type { Announcement } from "@/shared/api/modules/announcements";
 import { useAnnouncements } from "@/features/announcements/useAnnouncements";
+import { AnnouncementDO } from "@/shared/api/types/announcement.model";
 
 export type FilterType = "all" | PostType;
 
@@ -57,7 +57,7 @@ export default function LeftSidebar({
   const t = useTranslations("Sidebar");
   const [expandedBoards, setExpandedBoards] = useState<Set<number>>(new Set());
   const { announcementsList, isLoading } = useAnnouncements();
-  const displayAnnouncements: Announcement[] = announcementsList.slice(0, 3);
+  const displayAnnouncements: AnnouncementDO[] = announcementsList.slice(0, 3);
 
   const toggleBoard = (boardId: number): void => {
     const newExpanded = new Set(expandedBoards);
@@ -238,7 +238,7 @@ export default function LeftSidebar({
             </div>
           ) : (
             <>
-              {displayAnnouncements.map((announcement: Announcement) => (
+              {displayAnnouncements.map((announcement: AnnouncementDO) => (
                 <Link
                   key={announcement.id}
                   href={`/announcements/${announcement.id}`}

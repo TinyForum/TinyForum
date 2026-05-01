@@ -1,4 +1,5 @@
-// components/admin/AnnouncementForm.tsx
+"use client";
+
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -6,17 +7,42 @@ import { Loader2 } from "lucide-react";
 import { useEffect } from "react";
 import { Modal } from "./Modal";
 import Image from "next/image";
+import { AnnouncementFormValues } from "@/shared/type/announcement.type";
+import {
+  AnnouncementType,
+  AnnouncementStatus,
+} from "@/shared/api/types/announcement.model";
 
-// 表单验证 Schema
+// 表单验证 Schema - 直接使用数字枚举
 const announcementSchema = z
   .object({
     title: z.string().min(1, "请输入标题").max(200, "标题不能超过200字"),
     content: z.string().min(1, "请输入内容"),
     summary: z.string().max(500, "摘要不能超过500字").optional(),
     cover: z.string().url("请输入有效的URL").optional().or(z.literal("")),
-    type: z.enum(["normal", "important", "emergency", "event"]),
+    type: z.preprocess((val) => {
+      if (typeof val === "string") return parseInt(val, 10);
+      if (typeof val === "number") return val;
+      return undefined;
+    }, z.nativeEnum(AnnouncementType)),
     is_pinned: z.boolean().default(false),
-    status: z.enum(["draft", "published", "archived"]).default("draft"),
+    status: z.preprocess(
+      (val) => {
+        if (typeof val === "string") {
+          if (val === "draft") return AnnouncementStatus.Draft;
+          if (val === "published") return AnnouncementStatus.Published;
+          if (val === "archived") return AnnouncementStatus.Archived;
+          return parseInt(val, 10);
+        }
+        if (typeof val === "number") return val;
+        return undefined;
+      },
+      z
+        .nativeEnum(AnnouncementStatus)
+        .refine((v) => v !== AnnouncementStatus.All, {
+          message: "无效的状态",
+        }),
+    ),
     is_global: z.boolean().default(true),
     board_id: z.number().nullable().optional(),
     published_at: z.string().nullable().optional(),
@@ -34,8 +60,6 @@ const announcementSchema = z
       path: ["expired_at"],
     },
   );
-
-type AnnouncementFormValues = z.infer<typeof announcementSchema>;
 
 interface AnnouncementFormProps {
   isOpen: boolean;
@@ -70,8 +94,8 @@ export function AnnouncementForm({
   } = useForm<AnnouncementFormValues>({
     resolver: zodResolver(announcementSchema),
     defaultValues: {
-      type: "normal",
-      status: "draft",
+      type: AnnouncementType.Normal,
+      status: AnnouncementStatus.Draft,
       is_pinned: false,
       is_global: true,
       cover: "",
@@ -81,7 +105,6 @@ export function AnnouncementForm({
     },
   });
 
-  // 使用 useWatch 替代 watch
   const isGlobal = useWatch({ control, name: "is_global" });
   const selectedBoardId = useWatch({ control, name: "board_id" });
   const coverUrl = useWatch({ control, name: "cover" });
@@ -90,8 +113,8 @@ export function AnnouncementForm({
   useEffect(() => {
     if (isOpen) {
       reset({
-        type: "normal",
-        status: "draft",
+        type: AnnouncementType.Normal,
+        status: AnnouncementStatus.Draft,
         is_pinned: false,
         is_global: true,
         cover: "",
@@ -115,6 +138,7 @@ export function AnnouncementForm({
   };
 
   const handleFormSubmit = async (values: AnnouncementFormValues) => {
+    console.log(values);
     await onSubmit(values);
     // 提交成功后关闭弹窗，表单重置会在下次打开时由 useEffect 处理
   };
@@ -200,28 +224,45 @@ export function AnnouncementForm({
 
         {/* 类型和状态 */}
         <div className="grid grid-cols-2 gap-4">
+          {/* 类型 - 使用数字枚举值 */}
           <div>
             <label className="label text-sm font-medium">{t("type")}</label>
             <select
               className="select select-bordered w-full"
               {...register("type")}
             >
-              <option value="normal">{t("normal")}</option>
-              <option value="important">{t("important")}</option>
-              <option value="emergency">{t("emergency")}</option>
-              <option value="event">{t("event")}</option>
+              <option value={AnnouncementType.Normal}>{t("normal")}</option>
+              <option value={AnnouncementType.Important}>
+                {t("important")}
+              </option>
+              <option value={AnnouncementType.Emergency}>
+                {t("emergency")}
+              </option>
+              <option value={AnnouncementType.Event}>{t("event")}</option>
             </select>
+            {errors.type && (
+              <p className="text-error text-xs mt-1">{errors.type.message}</p>
+            )}
           </div>
+
+          {/* 状态 - 使用数字枚举值，排除 All */}
           <div>
             <label className="label text-sm font-medium">{t("status")}</label>
             <select
               className="select select-bordered w-full"
               {...register("status")}
             >
-              <option value="draft">{t("draft")}</option>
-              <option value="published">{t("published")}</option>
-              <option value="archived">{t("archived")}</option>
+              <option value={AnnouncementStatus.Draft}>{t("draft")}</option>
+              <option value={AnnouncementStatus.Published}>
+                {t("published")}
+              </option>
+              <option value={AnnouncementStatus.Archived}>
+                {t("archived")}
+              </option>
             </select>
+            {errors.status && (
+              <p className="text-error text-xs mt-1">{errors.status.message}</p>
+            )}
           </div>
         </div>
 
@@ -272,7 +313,7 @@ export function AnnouncementForm({
               </label>
               <select
                 className="select select-bordered w-full"
-                value={selectedBoardId || ""}
+                value={selectedBoardId ?? ""}
                 onChange={handleBoardChange}
                 disabled={boardsLoading}
               >

@@ -33,17 +33,17 @@ export interface Post {
   author?: { id: number; username: string };
 }
 
-export interface Announcement {
-  id: number;
-  title: string;
-  content: string;
-  type: "global" | "board";
-  board_id?: number;
-  is_pinned: boolean;
-  created_at: string;
-  created_by: string;
-  expires_at?: string;
-}
+// export interface Announcement {
+//   id: number;
+//   title: string;
+//   content: string;
+//   type: "global" | "board";
+//   board_id?: number;
+//   is_pinned: boolean;
+//   created_at: string;
+//   created_by: string;
+//   expires_at?: string;
+// }
 
 export interface QAItem {
   id: number;

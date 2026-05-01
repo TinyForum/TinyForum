@@ -6,7 +6,7 @@ import { useAuthStore } from "@/store/auth";
 import { authApi } from "@/shared/api";
 import toast from "react-hot-toast";
 import RestoreDialog from "./RestoreDialog";
-import { ApiResponse } from "@/shared/api/types";
+import { ApiResponse } from "@/shared/api/types/basic.model";
 
 interface DeletionStatus {
   is_deleted: boolean;

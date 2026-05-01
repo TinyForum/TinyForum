@@ -36,7 +36,7 @@ func (h *AnnouncementHandler) AdminList(c *gin.Context) {
 		response.BadRequest(c, err.Error())
 		return
 	}
-	allStatus := do.AnnouncementStatus(do.AnnouncementStatusAll)
+	allStatus := do.AnnouncementStatus(do.AnnouncementStatusFilterAll)
 	req.Status = &allStatus
 
 	resp, err := h.service.List(c.Request.Context(), &req)

@@ -23,7 +23,7 @@ func (s *announcementService) Create(ctx context.Context, req *request.CreateAnn
 		BoardID:     req.BoardID,
 		PublishedAt: req.PublishedAt,
 		ExpiredAt:   req.ExpiredAt,
-		Status:      do.AnnouncementStatusDraft,
+		Status:      req.Status,
 		ViewCount:   0,
 		CreatedBy:   userID,
 		UpdatedBy:   userID,

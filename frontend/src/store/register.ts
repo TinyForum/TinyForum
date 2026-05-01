@@ -1,7 +1,7 @@
 // store/register.ts
 import { create } from "zustand";
 import { useAuthStore } from "./auth";
-import { ApiError } from "@/shared/api/types/basic.type";
+import { ApiError } from "@/shared/api/types/basic.model";
 import { authApi } from "@/shared/api";
 
 interface RegisterState {

@@ -1,11 +1,12 @@
 // hooks/useAnnouncements.ts
 import { announcementApi } from "@/shared/api";
 import {
-  Announcement,
+  AnnouncementDO,
   AnnouncementListParams,
+  AnnouncementStatus,
   AnnouncementListResponse,
-} from "@/shared/api/modules/announcements";
-import { ApiResponse } from "@/shared/api/types";
+} from "@/shared/api/types/announcement.model";
+import { ApiResponse } from "@/shared/api/types/basic.model";
 import { useState, useEffect, useCallback } from "react";
 
 /**
@@ -18,7 +19,7 @@ import { useState, useEffect, useCallback } from "react";
  * @param boardId - 可选，板块ID（版主用于获取板块公告）
  */
 export function useAnnouncements(boardId?: number) {
-  const [announcementsList, setAnnouncementsList] = useState<Announcement[]>(
+  const [announcementsList, setAnnouncementsList] = useState<AnnouncementDO[]>(
     [],
   );
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -32,7 +33,7 @@ export function useAnnouncements(boardId?: number) {
       const params: AnnouncementListParams = {
         page: 1,
         page_size: 20,
-        status: "published" as const, // 使用 const assertion 匹配 AnnouncementStatus 类型
+        status: AnnouncementStatus.Published,
       };
 
       // 如果传入了板块ID，获取该板块的公告
