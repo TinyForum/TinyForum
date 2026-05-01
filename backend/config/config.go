@@ -11,14 +11,14 @@ import (
 	"github.com/spf13/viper"
 )
 
-// Config 总配置结构
+// MARK: Config 一级配置结构
 type Config struct {
 	Basic       ConfigBasic       //基础配置
 	Private     ConfigPrivate     // 私有配置
 	RiskControl ConfigRiskControl // 风控配置
 }
 
-// 风控配置
+// =========================================== MARK: 风控配置
 type ConfigRiskControl struct {
 	RateLimit RateLimitConfig `mapstructure:"rate_limit"` // 风控
 }
@@ -32,8 +32,7 @@ type QuotaConfig struct {
 	Limit  int    `yaml:"limit"`
 	Window string `yaml:"window"` // 如 "1h"
 }
-
-// ConfigBasic 基础配置（公开配置）
+// =========================================== MARK: 基础配置
 type ConfigBasic struct {
 	Server       ServerConfig    `mapstructure:"server"`
 	Frontend     FrontendConfig  `mapstructure:"frontend"`
@@ -72,7 +71,7 @@ type APIConfig struct {
 	Prefix   string `mapstructure:"prefix"`
 }
 
-// ConfigPrivate 私有配置（敏感信息）
+// =========================================== MARK: 私有配置
 type ConfigPrivate struct {
 	Database DatabaseConfig `mapstructure:"database"`
 	JWT      JWTConfig      `mapstructure:"jwt"`
@@ -230,22 +229,23 @@ type WechatOAuthConfig struct {
 // Load 加载配置文件
 func Load(configDir string) (*Config, error) {
 	basicViper, privateViper := newViperInstances(configDir)
-	fmt.Println("开始加载配置文件")
+	fmt.Println("开始加载配置文件\n")
 
 	// 加载基础配置
 	var basicConfig ConfigBasic
 	if err := basicViper.Unmarshal(&basicConfig); err != nil {
-		fmt.Printf("加载基础配置文件失败: %v", err)
+		fmt.Printf("加载基础配置文件失败: %v\n", err)
 		return nil, err
 	}
-	fmt.Printf("加载基础配置文件成功")
+	fmt.Printf("加载基础配置文件成功\n")
 
 	// 加载私有配置
 	var privateConfig ConfigPrivate
 	if err := privateViper.Unmarshal(&privateConfig); err != nil {
+		fmt.Printf("加载私有配置文件失败: %v\n",err)
 		privateConfig = ConfigPrivate{}
 	}
-	fmt.Printf("加载私有配置文件成功")
+	fmt.Printf("加载私有配置文件成功\n")
 
 	// 加载风控配置（独立文件）
 	riskViper := viper.New()
@@ -253,7 +253,7 @@ func Load(configDir string) (*Config, error) {
 	riskViper.SetConfigFile(filepath.Join(configDir, "risk_control.yaml"))
 	_ = riskViper.ReadInConfig() // 允许文件不存在
 
-	fmt.Printf("加载风控配置文件成功")
+	fmt.Printf("加载风控配置文件成功\n")
 	var riskControl ConfigRiskControl
 	if err := riskViper.Unmarshal(&riskControl); err != nil {
 		// 解析失败则使用空配置（不阻塞启动）
@@ -265,7 +265,7 @@ func Load(configDir string) (*Config, error) {
 		Private:     privateConfig,
 		RiskControl: riskControl,
 	}
-	fmt.Println("加载配置文件成功")
+	fmt.Println("加载配置文件成功\n")
 	cfg.setDefaults()
 	if err := cfg.validate(); err != nil {
 		return nil, err
@@ -288,7 +288,7 @@ func newViper(prefix, configPath string) *viper.Viper {
 	v.AutomaticEnv()
 	v.SetEnvPrefix(prefix)
 	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
-	_ = v.ReadInConfig() // 忽略错误，允许配置文件不存在
+	_ = v.ReadInConfig() 
 	return v
 }
 
