@@ -32,6 +32,7 @@ type QuotaConfig struct {
 	Limit  int    `yaml:"limit"`
 	Window string `yaml:"window"` // 如 "1h"
 }
+
 // =========================================== MARK: 基础配置
 type ConfigBasic struct {
 	Server       ServerConfig    `mapstructure:"server"`
@@ -242,7 +243,7 @@ func Load(configDir string) (*Config, error) {
 	// 加载私有配置
 	var privateConfig ConfigPrivate
 	if err := privateViper.Unmarshal(&privateConfig); err != nil {
-		fmt.Printf("加载私有配置文件失败: %v\n",err)
+		fmt.Printf("加载私有配置文件失败: %v\n", err)
 		privateConfig = ConfigPrivate{}
 	}
 	fmt.Printf("加载私有配置文件成功\n")
@@ -288,7 +289,7 @@ func newViper(prefix, configPath string) *viper.Viper {
 	v.AutomaticEnv()
 	v.SetEnvPrefix(prefix)
 	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
-	_ = v.ReadInConfig() 
+	_ = v.ReadInConfig()
 	return v
 }
 
