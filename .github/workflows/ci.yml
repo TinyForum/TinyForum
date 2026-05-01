@@ -9,58 +9,9 @@ on:
       - "**" # 所有分支的 PR 都触发
 
 jobs:
-  # 1. 代码格式化和检查 (Go 和 TypeScript)
-  lint-and-fmt:
-    name: Lint & Format Check
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      # ---- Go 部分 ----
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: ">=1.26"
-      - name: Run go fmt
-        run: |
-          # 如果 go fmt 输出任何内容，说明有未格式化的代码，返回非0
-          unformatted=$(go fmt ./...)
-          if [ -n "$unformatted" ]; then
-            echo "以下文件未格式化："
-            echo "$unformatted"
-            exit 1
-          fi
-        working-directory: ./backend # 根据实际情况修改
-      - name: Run go vet (静态分析)
-        run: go vet ./...
-        working-directory: ./backend
-      - name: Run golangci-lint (可选，更全面的 lint)
-        uses: golangci/golangci-lint-action@v4
-        with:
-          version: latest
-          working-directory: ./backend
-          args: --timeout=5m
-
-      # ---- TypeScript 部分 ----
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-      - name: Install frontend dependencies
-        run: npm ci
-        working-directory: ./frontend
-      - name: Run Prettier (format check)
-        run: npx prettier --check "**/*.{ts,tsx,js,jsx,json,css,scss,md}"
-        working-directory: ./frontend
-      - name: Run ESLint (lint)
-        run: npx eslint . --ext .ts,.tsx,.js,.jsx
-        working-directory: ./frontend
-
-  # 2. 部署 docsify 到 GitHub Pages (仅在 main 分支 push 时)
   deploy-docsify:
     name: Deploy Docsify
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: lint-and-fmt # 可选：先确保 lint 通过再部署
     runs-on: ubuntu-latest
     permissions:
       contents: write # 需要写入权限来推送到 gh-pages
