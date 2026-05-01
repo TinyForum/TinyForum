@@ -6,7 +6,6 @@ import {
   getAnnouncementStatusText,
 } from "@/shared/lib/utils/announcement";
 import {
-  Link,
   MegaphoneIcon,
   PinIcon,
   CalendarIcon,
@@ -14,6 +13,7 @@ import {
   FileTextIcon,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import Link from "next/link";
 
 export function AnnouncementCard({
   announcement,
