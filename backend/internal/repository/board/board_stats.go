@@ -3,14 +3,14 @@ package board
 import (
 	"context"
 	"time"
-	"tiny-forum/internal/model/po"
+	"tiny-forum/internal/model/do"
 	statsRepo "tiny-forum/internal/repository/stats"
 )
 
 // Count 统计板块总数
 func (r *boardRepository) Count(ctx context.Context) (int64, error) {
 	var count int64
-	err := r.db.WithContext(ctx).Model(&po.Board{}).Count(&count).Error
+	err := r.db.WithContext(ctx).Model(&do.Board{}).Count(&count).Error
 	return count, err
 }
 
@@ -18,7 +18,7 @@ func (r *boardRepository) Count(ctx context.Context) (int64, error) {
 func (r *boardRepository) CountByDateRange(ctx context.Context, startDate, endDate time.Time) (int64, error) {
 	var count int64
 	err := r.db.WithContext(ctx).
-		Model(&po.Board{}).
+		Model(&do.Board{}).
 		Where("created_at BETWEEN ? AND ?", startDate, endDate).
 		Count(&count).Error
 	return count, err

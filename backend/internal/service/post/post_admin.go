@@ -4,21 +4,21 @@ import (
 	"errors"
 	"fmt"
 
+	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/dto"
-	"tiny-forum/internal/model/po"
 	apperrors "tiny-forum/pkg/errors"
 
 	"gorm.io/gorm"
 )
 
 // AdminList 管理员获取帖子列表
-func (s *postService) AdminList(page, pageSize int, opts dto.PostListOptions) ([]po.Post, int64, error) {
+func (s *postService) AdminList(page, pageSize int, opts dto.PostListOptions) ([]do.Post, int64, error) {
 	return s.postRepo.AdminList(page, pageSize, opts)
 }
 
 // SetStatus 设置帖子状态（暂未完全实现，保留接口）
-func (s *postService) SetStatus(postID uint, status po.PostStatus) error {
-	return s.postRepo.Update(&po.Post{})
+func (s *postService) SetStatus(postID uint, status do.PostStatus) error {
+	return s.postRepo.Update(&do.Post{})
 }
 
 // TogglePin 切换帖子置顶状态
@@ -35,7 +35,7 @@ func (s *postService) TogglePin(postID uint) error {
 }
 
 // 管理员更新审核状态
-func (s *postService) AdminSetReviewPost(postID uint, status po.ModerationStatus) error {
+func (s *postService) AdminSetReviewPost(postID uint, status do.ModerationStatus) error {
 	post, err := s.postRepo.FindByID(postID)
 	if err != nil {
 		return err
@@ -44,6 +44,6 @@ func (s *postService) AdminSetReviewPost(postID uint, status po.ModerationStatus
 		return gorm.ErrRecordNotFound
 	}
 
-	post.ModerationStatus = po.ModerationStatus(status)
+	post.ModerationStatus = do.ModerationStatus(status)
 	return s.postRepo.Update(post)
 }

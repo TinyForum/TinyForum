@@ -3,7 +3,7 @@ package risk
 import (
 	"net/http"
 	"strconv"
-	"tiny-forum/internal/model/po"
+	"tiny-forum/internal/model/do"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -65,7 +65,7 @@ func (h *RiskHandler) ApproveTask(c *gin.Context) {
 	var input resolveTaskInput
 	_ = c.ShouldBindJSON(&input)
 
-	reviewerID := c.GetUint(po.ContextUserID)
+	reviewerID := c.GetUint(do.ContextUserID)
 	if err := h.checkSvc.ResolveTask(uint(taskID), true, reviewerID, input.Note); err != nil {
 		response.InternalError(c, "操作失败")
 		return
@@ -74,7 +74,7 @@ func (h *RiskHandler) ApproveTask(c *gin.Context) {
 	// 记录审计日志
 	ip := c.ClientIP()
 	_ = h.riskSvc.WriteAuditLog(reviewerID,
-		po.AuditActionApproveContent, "audit_task", uint(taskID),
+		do.AuditActionApproveContent, "audit_task", uint(taskID),
 		"pending", "approved", input.Note, ip)
 
 	response.Success(c, nil)
@@ -105,7 +105,7 @@ func (h *RiskHandler) RejectTask(c *gin.Context) {
 		return
 	}
 
-	reviewerID := c.GetUint(po.ContextUserID)
+	reviewerID := c.GetUint(do.ContextUserID)
 	if err := h.checkSvc.ResolveTask(uint(taskID), false, reviewerID, input.Note); err != nil {
 		response.InternalError(c, "操作失败")
 		return
@@ -113,7 +113,7 @@ func (h *RiskHandler) RejectTask(c *gin.Context) {
 
 	ip := c.ClientIP()
 	_ = h.riskSvc.WriteAuditLog(reviewerID,
-		po.AuditActionRejectContent, "audit_task", uint(taskID),
+		do.AuditActionRejectContent, "audit_task", uint(taskID),
 		"pending", "rejected", input.Note, ip)
 
 	response.Success(c, nil)

@@ -1,6 +1,6 @@
 package dto
 
-import "tiny-forum/internal/model/po"
+import "tiny-forum/internal/model/do"
 
 type CreateQuestionRequest struct {
 	Title       string        `json:"title" binding:"required,max=100"`
@@ -10,5 +10,5 @@ type CreateQuestionRequest struct {
 	BoardID     uint          `json:"board_id"`
 	TagIDs      []uint        `json:"tag_ids"`
 	RewardScore int           `json:"reward_score" binding:"min=0,max=100"`
-	Status      po.PostStatus `json:"status"`
+	Status      do.PostStatus `json:"status"`
 }

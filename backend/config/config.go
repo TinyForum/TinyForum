@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"tiny-forum/internal/model/po"
+	"tiny-forum/internal/model/do"
 
 	"github.com/spf13/viper"
 )
@@ -87,7 +87,7 @@ type AdminConfig struct {
 	Username string      `mapstructure:"username"`
 	Email    string      `mapstructure:"email"`
 	Password string      `mapstructure:"password"`
-	Role     po.UserRole `mapstructure:"role"`
+	Role     do.UserRole `mapstructure:"role"`
 	Score    int         `mapstructure:"score"`
 }
 

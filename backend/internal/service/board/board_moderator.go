@@ -5,8 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-
-	"tiny-forum/internal/model/po"
+	"tiny-forum/internal/model/do"
 )
 
 type AddModeratorInput struct {
@@ -30,8 +29,8 @@ type UpdateModeratorPermissionsInput struct {
 }
 
 type ModeratorBoardWithPerms struct {
-	po.Board
-	Permissions po.ModeratorPermissions `json:"permissions"`
+	do.Board
+	Permissions do.ModeratorPermissions `json:"permissions"`
 }
 
 func (s *boardService) AddModerator(_ context.Context, input AddModeratorInput, operatorID uint) error {
@@ -43,11 +42,11 @@ func (s *boardService) AddModerator(_ context.Context, input AddModeratorInput, 
 	if isMod {
 		return errors.New("用户已经是版主")
 	}
-	mod := &po.Moderator{
+	mod := &do.Moderator{
 		UserID:  input.UserID,
 		BoardID: input.BoardID,
 	}
-	if err := mod.SetPermissions(po.ModeratorPermissions{
+	if err := mod.SetPermissions(do.ModeratorPermissions{
 		CanDeletePost:      input.CanDeletePost,
 		CanPinPost:         input.CanPinPost,
 		CanEditAnyPost:     input.CanEditAnyPost,
@@ -62,7 +61,7 @@ func (s *boardService) AddModerator(_ context.Context, input AddModeratorInput, 
 	_ = s.boardRepo.CancelUserApplications(input.UserID, input.BoardID)
 	s.writeLog(operatorID, input.BoardID, "add_moderator", "user", input.UserID, "直接任命版主")
 	boardID := input.BoardID
-	s.notifSvc.Create(user.ID, &operatorID, po.NotifySystem,
+	s.notifSvc.Create(user.ID, &operatorID, do.NotifySystem,
 		"你已被任命为版主", &boardID, "board")
 	return nil
 }
@@ -76,12 +75,12 @@ func (s *boardService) RemoveModerator(_ context.Context, userID, boardID uint, 
 		return fmt.Errorf("移除版主失败: %w", err)
 	}
 	s.writeLog(operatorID, boardID, "remove_moderator", "user", userID, "移除版主")
-	s.notifSvc.Create(userID, &operatorID, po.NotifySystem,
+	s.notifSvc.Create(userID, &operatorID, do.NotifySystem,
 		"你已被移除版主职务", &boardID, "board")
 	return nil
 }
 
-func (s *boardService) GetModerators(boardID uint) ([]po.Moderator, error) {
+func (s *boardService) GetModerators(boardID uint) ([]do.Moderator, error) {
 	return s.boardRepo.GetModerators(boardID)
 }
 
@@ -95,7 +94,7 @@ func (s *boardService) UpdateModeratorPermissions(_ context.Context, input Updat
 		return errors.New("版主记录不存在")
 	}
 	oldPerms, _ := mod.GetPermissions()
-	newPerms := po.ModeratorPermissions{
+	newPerms := do.ModeratorPermissions{
 		CanDeletePost:      input.CanDeletePost,
 		CanPinPost:         input.CanPinPost,
 		CanEditAnyPost:     input.CanEditAnyPost,
@@ -114,7 +113,7 @@ func (s *boardService) UpdateModeratorPermissions(_ context.Context, input Updat
 		fmt.Sprintf("%+v", oldPerms),
 		fmt.Sprintf("%+v", newPerms),
 	)
-	s.notifSvc.Create(input.UserID, &operatorID, po.NotifySystem,
+	s.notifSvc.Create(input.UserID, &operatorID, do.NotifySystem,
 		"你的版主权限已被更新", &input.BoardID, "board")
 	return nil
 }
@@ -134,10 +133,10 @@ func (s *boardService) GetModeratorBoardsWithPermissions(userID uint) ([]Moderat
 	}
 	results := make([]ModeratorBoardWithPerms, len(repoResults))
 	for i, repo := range repoResults {
-		var perms po.ModeratorPermissions
+		var perms do.ModeratorPermissions
 		if repo.Permissions != "" {
 			if err := json.Unmarshal([]byte(repo.Permissions), &perms); err != nil {
-				perms = po.ModeratorPermissions{
+				perms = do.ModeratorPermissions{
 					CanDeletePost:      false,
 					CanPinPost:         false,
 					CanEditAnyPost:     false,

@@ -2,8 +2,7 @@ package topic
 
 import (
 	"errors"
-
-	"tiny-forum/internal/model/po"
+	"tiny-forum/internal/model/do"
 )
 
 type CreateTopicInput struct {
@@ -14,8 +13,8 @@ type CreateTopicInput struct {
 }
 
 // Create 创建专题
-func (s *topicService) Create(creatorID uint, input CreateTopicInput) (*po.Topic, error) {
-	topic := &po.Topic{
+func (s *topicService) Create(creatorID uint, input CreateTopicInput) (*do.Topic, error) {
+	topic := &do.Topic{
 		Title:       input.Title,
 		Description: input.Description,
 		Cover:       input.Cover,
@@ -29,7 +28,7 @@ func (s *topicService) Create(creatorID uint, input CreateTopicInput) (*po.Topic
 }
 
 // Update 更新专题
-func (s *topicService) Update(id uint, input CreateTopicInput) (*po.Topic, error) {
+func (s *topicService) Update(id uint, input CreateTopicInput) (*do.Topic, error) {
 	topic, err := s.topicRepo.FindByID(id)
 	if err != nil {
 		return nil, errors.New("专题不存在")
@@ -57,12 +56,12 @@ func (s *topicService) Delete(id uint, userID uint, isAdmin bool) error {
 }
 
 // GetByID 获取专题详情
-func (s *topicService) GetByID(id uint) (*po.Topic, error) {
+func (s *topicService) GetByID(id uint) (*do.Topic, error) {
 	return s.topicRepo.FindByID(id)
 }
 
 // List 分页获取专题列表
-func (s *topicService) List(page, pageSize int) ([]po.Topic, int64, error) {
+func (s *topicService) List(page, pageSize int) ([]do.Topic, int64, error) {
 	if page < 1 {
 		page = 1
 	}
@@ -74,7 +73,7 @@ func (s *topicService) List(page, pageSize int) ([]po.Topic, int64, error) {
 }
 
 // GetByCreator 获取用户创建的专题列表
-func (s *topicService) GetByCreator(creatorID uint, page, pageSize int) ([]po.Topic, int64, error) {
+func (s *topicService) GetByCreator(creatorID uint, page, pageSize int) ([]do.Topic, int64, error) {
 	if page < 1 {
 		page = 1
 	}

@@ -13,7 +13,7 @@ func (h *AdminHandler) RegisterRoutes(api *gin.RouterGroup, mw middleware.Middle
 		announcementsGroup := adminGroup.Group("/announcements")
 		{
 			announcementsGroup.GET("", h.ListAnnouncements)
-			announcementsGroup.GET("/:id", h.CreateAnnouncement)
+			announcementsGroup.POST("", h.CreateAnnouncement)
 			announcementsGroup.PUT("/:id", h.UpdateAnnouncement)
 			announcementsGroup.DELETE("/:id", h.DeleteAnnouncement)
 			announcementsGroup.POST("/:id/publish", h.PublishAnnouncement)
@@ -29,11 +29,11 @@ func (h *AdminHandler) RegisterRoutes(api *gin.RouterGroup, mw middleware.Middle
 		usersGroup := adminGroup.Group("/users")
 		{
 			usersGroup.GET("", h.ListUsers)
-					usersGroup.PUT("/users/:id/active", h.SetActiveUser)
-						usersGroup.PUT("/users/:id/blocked", h.SetBlockedUser)
-						usersGroup.DELETE("/users/:id/", h.DeleteUser)
-						usersGroup.PUT("/users/:id/role", h.SetRoleUser)
-		
+			usersGroup.PUT("/users/:id/active", h.SetActiveUser)
+			usersGroup.PUT("/users/:id/blocked", h.SetBlockedUser)
+			usersGroup.DELETE("/users/:id/", h.DeleteUser)
+			usersGroup.PUT("/users/:id/role", h.SetRoleUser)
+
 			// adminGroup.PUT("/users/:id/active", handlers.User.AdminSetActive)
 			// adminGroup.PUT("/users/:id/blocked", handlers.User.AdminSetBlocked)
 		}

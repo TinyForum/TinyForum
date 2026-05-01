@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"time"
-	"tiny-forum/internal/model/po"
+	"tiny-forum/internal/model/do"
 
 	"gorm.io/gorm"
 )
@@ -15,7 +15,7 @@ import (
 // - 用户新密码
 // - 用户id
 func (r *authRepository) ValidateResetToken(ctx context.Context, token string) (bool, error) {
-	var refreshToken po.RefreshToken
+	var refreshToken do.RefreshToken
 	err := r.db.WithContext(ctx).
 		Where("token = ?", token).
 		Where("jti LIKE ?", "reset_%").

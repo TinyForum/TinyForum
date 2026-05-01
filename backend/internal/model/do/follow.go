@@ -1,4 +1,4 @@
-package po
+package do
 
 type Follow struct {
 	BaseModel

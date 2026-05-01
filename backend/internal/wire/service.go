@@ -39,7 +39,7 @@ type Services struct {
 	Risk         risk.RiskService
 	ContentCheck check.ContentCheckService
 	Upload       upload.UploadService
-	adminSvc     admin.AdminService
+	admin        admin.AdminService
 }
 
 // NewServices 创建所有 Service 实例
@@ -85,6 +85,6 @@ func NewServices(
 		Risk:         riskSvc,
 		ContentCheck: checkSvc,
 		Upload:       uploadSvc,
-		adminSvc:     adminSvc,
+		admin:        adminSvc,
 	}
 }

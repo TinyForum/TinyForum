@@ -1,16 +1,16 @@
 package tag
 
-import "tiny-forum/internal/model/po"
+import "tiny-forum/internal/model/do"
 
 // FindTagsByPostIDs 批量查询帖子的标签
-func (r *tagRepository) FindTagsByPostIDs(postIDs []uint) (map[uint][]po.Tag, error) {
+func (r *tagRepository) FindTagsByPostIDs(postIDs []uint) (map[uint][]do.Tag, error) {
 	if len(postIDs) == 0 {
-		return make(map[uint][]po.Tag), nil
+		return make(map[uint][]do.Tag), nil
 	}
 
 	type PostTagRelation struct {
 		PostID uint
-		Tag    po.Tag
+		Tag    do.Tag
 	}
 
 	var relations []PostTagRelation
@@ -23,7 +23,7 @@ func (r *tagRepository) FindTagsByPostIDs(postIDs []uint) (map[uint][]po.Tag, er
 		return nil, err
 	}
 
-	tagMap := make(map[uint][]po.Tag)
+	tagMap := make(map[uint][]do.Tag)
 	for _, rel := range relations {
 		tagMap[rel.PostID] = append(tagMap[rel.PostID], rel.Tag)
 	}
@@ -31,8 +31,8 @@ func (r *tagRepository) FindTagsByPostIDs(postIDs []uint) (map[uint][]po.Tag, er
 }
 
 // FindTagsByPostID 查询单个帖子的标签
-func (r *tagRepository) FindTagsByPostID(postID uint) ([]po.Tag, error) {
-	var tags []po.Tag
+func (r *tagRepository) FindTagsByPostID(postID uint) ([]do.Tag, error) {
+	var tags []do.Tag
 	err := r.db.Table("tags").
 		Select("tags.*").
 		Joins("JOIN post_tags ON post_tags.tag_id = tags.id").

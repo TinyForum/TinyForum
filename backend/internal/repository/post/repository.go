@@ -3,8 +3,8 @@ package post
 import (
 	"context"
 	"time"
+	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/dto"
-	"tiny-forum/internal/model/po"
 	statsRepo "tiny-forum/internal/repository/stats"
 
 	"gorm.io/gorm"
@@ -13,11 +13,11 @@ import (
 // PostRepository 帖子数据访问接口
 type PostRepository interface {
 	// 基础 CRUD
-	Create(post *po.Post) error
-	FindByID(id uint) (*po.Post, error)
-	Update(post *po.Post) error
+	Create(post *do.Post) error
+	FindByID(id uint) (*do.Post, error)
+	Update(post *do.Post) error
 	Delete(id uint) error
-	List(page, pageSize int, opts dto.PostListOptions) ([]po.Post, int64, error)
+	List(page, pageSize int, opts dto.PostListOptions) ([]do.Post, int64, error)
 
 	// 互动
 	IncrViewCount(id uint) error
@@ -27,21 +27,21 @@ type PostRepository interface {
 	IsLiked(userID, postID uint) bool
 
 	// 管理
-	AdminList(page, pageSize int, opts dto.PostListOptions) ([]po.Post, int64, error)
+	AdminList(page, pageSize int, opts dto.PostListOptions) ([]do.Post, int64, error)
 
 	// 板块相关
-	GetByBoardID(boardID uint, limit, offset int) ([]po.Post, int64, error)
+	GetByBoardID(boardID uint, limit, offset int) ([]do.Post, int64, error)
 
 	// 问答相关
-	GetQuestions(limit, offset int) ([]po.Post, int64, error)
-	GetUnansweredQuestions(limit, offset int) ([]po.Post, int64, error)
+	GetQuestions(limit, offset int) ([]do.Post, int64, error)
+	GetUnansweredQuestions(limit, offset int) ([]do.Post, int64, error)
 
 	// 置顶
 	TogglePinInBoard(postID uint, pin bool) error
 
 	// 事务
-	CreateWithTx(tx *gorm.DB, post *po.Post) error
-	AddTags(tx *gorm.DB, post *po.Post, tagIDs []uint) error
+	CreateWithTx(tx *gorm.DB, post *do.Post) error
+	AddTags(tx *gorm.DB, post *do.Post, tagIDs []uint) error
 
 	// 统计
 	Count(ctx context.Context) (int64, error)

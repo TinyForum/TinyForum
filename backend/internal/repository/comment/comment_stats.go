@@ -3,7 +3,7 @@ package comment
 import (
 	"context"
 	"time"
-	"tiny-forum/internal/model/po"
+	"tiny-forum/internal/model/do"
 
 	"gorm.io/gorm"
 )
@@ -11,14 +11,14 @@ import (
 // CountByPost 统计帖子的评论总数
 func (r *commentRepository) CountByPost(postID uint) (int64, error) {
 	var count int64
-	err := r.db.Model(&po.Comment{}).Where("post_id = ?", postID).Count(&count).Error
+	err := r.db.Model(&do.Comment{}).Where("post_id = ?", postID).Count(&count).Error
 	return count, err
 }
 
 // Count 统计所有评论总数
 func (r *commentRepository) Count(ctx context.Context) (int64, error) {
 	var count int64
-	err := r.db.WithContext(ctx).Model(&po.Comment{}).Count(&count).Error
+	err := r.db.WithContext(ctx).Model(&do.Comment{}).Count(&count).Error
 	return count, err
 }
 
@@ -26,7 +26,7 @@ func (r *commentRepository) Count(ctx context.Context) (int64, error) {
 func (r *commentRepository) CountByDateRange(ctx context.Context, startDate, endDate time.Time) (int64, error) {
 	var count int64
 	err := r.db.WithContext(ctx).
-		Model(&po.Comment{}).
+		Model(&do.Comment{}).
 		Where("created_at BETWEEN ? AND ?", startDate, endDate).
 		Count(&count).Error
 	return count, err
@@ -34,12 +34,12 @@ func (r *commentRepository) CountByDateRange(ctx context.Context, startDate, end
 
 // IncrLikeCount 增加/减少评论的点赞数
 func (r *commentRepository) IncrLikeCount(id uint, delta int) error {
-	return r.db.Model(&po.Comment{}).Where("id = ?", id).
+	return r.db.Model(&do.Comment{}).Where("id = ?", id).
 		UpdateColumn("like_count", gorm.Expr("like_count + ?", delta)).Error
 }
 
 // UpdateVoteCount 更新评论的投票数（用于问答答案）
 func (r *commentRepository) UpdateVoteCount(commentID uint, voteCount int) error {
-	return r.db.Model(&po.Comment{}).Where("id = ?", commentID).
+	return r.db.Model(&do.Comment{}).Where("id = ?", commentID).
 		Update("vote_count", voteCount).Error
 }

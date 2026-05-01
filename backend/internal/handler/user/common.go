@@ -2,7 +2,7 @@ package user
 
 import (
 	"fmt"
-	"tiny-forum/internal/model/po"
+	"tiny-forum/internal/model/do"
 
 	"github.com/gin-gonic/gin"
 )
@@ -19,14 +19,13 @@ func getViewerID(c *gin.Context) uint {
 
 // handleRoleError 统一处理角色变更错误
 
-
 // sendTempPasswordNotification 发送临时密码通知（内部辅助）
 func (h *UserHandler) sendTempPasswordNotification(targetID, operatorID uint, tempPassword string) {
 	message := fmt.Sprintf(
 		"管理员已重置您的密码。临时密码为：%s，有效期 30 分钟，请尽快登录并修改密码，以防被盗。",
 		tempPassword,
 	)
-	h.notifSvc.Create(targetID, &operatorID, po.NotifySystem, message, nil, "")
+	h.notifSvc.Create(targetID, &operatorID, do.NotifySystem, message, nil, "")
 }
 
 // ── 共享请求/响应结构体 ────────────────────────────────────────────────
@@ -34,8 +33,6 @@ func (h *UserHandler) sendTempPasswordNotification(targetID, operatorID uint, te
 // LeaderboardRequest 排行榜请求参数
 
 // LeaderboardResponse 排行榜响应
-
-
 
 // AdminSetScoreRequest 管理员设置积分请求
 type AdminSetScoreRequest struct {

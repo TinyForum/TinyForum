@@ -4,8 +4,8 @@ import (
 	"errors"
 	"strconv"
 
+	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/dto"
-	"tiny-forum/internal/model/po"
 	apperrors "tiny-forum/pkg/errors"
 	"tiny-forum/pkg/response"
 
@@ -16,13 +16,13 @@ import (
 // AdminList 管理员获取帖子列表
 // @Summary 管理员获取帖子列表
 // @Description 管理员分页获取所有帖子列表，支持关键词搜索
-// @Tags 管理接口
+// @Tags 管理员后台
 // @Produce json
 // @Security ApiKeyAuth
 // @Param page query int false "页码" default(1)
 // @Param page_size query int false "每页数量" default(20)
 // @Param keyword query string false "搜索关键词"
-// @Success 200 {object} response.Response{data=response.PageData{list=[]model.Post}} "获取成功"
+// @Success 200 {object} response.Response{data=response.PageData{list=[]do.Post}} "获取成功"
 // @Failure 401 {object} response.Response "未授权"
 // @Failure 403 {object} response.Response "无权限"
 // @Failure 500 {object} response.Response "服务器内部错误"
@@ -32,7 +32,7 @@ func (h *PostHandler) AdminList(c *gin.Context) {
 	pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "20"))
 	keyword := c.Query("keyword")
 	opts := dto.PostListOptions{
-		// Status:  model.PostStatusPending, // 关键：只查待审核
+		// Status:  do.PostStatusPending, // 关键：只查待审核
 		Keyword: keyword,
 		// 可按需添加其他筛选，如作者、标签等
 	}
@@ -47,7 +47,7 @@ func (h *PostHandler) AdminList(c *gin.Context) {
 // AdminTogglePin 管理员切换帖子置顶状态
 // @Summary 切换帖子置顶状态
 // @Description 管理员切换指定帖子的置顶状态
-// @Tags 管理接口
+// @Tags 管理员后台
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path int true "帖子ID"
@@ -85,7 +85,7 @@ func (h *PostHandler) AdminTogglePin(c *gin.Context) {
 // @Param page query int false "页码" default(1)
 // @Param page_size query int false "每页数量" default(20)
 // @Param keyword query string false "搜索关键词"
-// @Success 200 {object} response.Response{data=response.PageData{list=[]model.Post}} "获取成功"
+// @Success 200 {object} response.Response{data=response.PageData{list=[]do.Post}} "获取成功"
 // @Failure 401 {object} response.Response "未授权"
 // @Failure 403 {object} response.Response "无权限"
 // @Failure 500 {object} response.Response "服务器内部错误"
@@ -96,8 +96,8 @@ func (h *PostHandler) AdminGetModerationRequire(c *gin.Context) {
 	keyword := c.Query("keyword")
 
 	opts := dto.PostListOptions{
-		// Status:  model.PostStatusPending,
-		ModerationStatus: po.ModerationStatusPending,
+		// Status:  do.PostStatusPending,
+		ModerationStatus: do.ModerationStatusPending,
 		Keyword:          keyword,
 	}
 
@@ -130,7 +130,7 @@ func (h *PostHandler) AdminApprovePost(c *gin.Context) {
 		return
 	}
 
-	if err := h.postSvc.AdminSetReviewPost(uint(postID), po.ModerationStatusApproved); err != nil {
+	if err := h.postSvc.AdminSetReviewPost(uint(postID), do.ModerationStatusApproved); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			response.NotFound(c, "帖子不存在")
 		} else {
@@ -173,7 +173,7 @@ func (h *PostHandler) AdminRejectPost(c *gin.Context) {
 	}
 	_ = c.ShouldBindJSON(&req)
 
-	if err := h.postSvc.AdminSetReviewPost(uint(postID), po.ModerationStatusRejected); err != nil {
+	if err := h.postSvc.AdminSetReviewPost(uint(postID), do.ModerationStatusRejected); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			response.NotFound(c, "帖子不存在")
 		} else {

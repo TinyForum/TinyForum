@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"tiny-forum/config"
-	"tiny-forum/internal/model/po"
+	"tiny-forum/internal/model/do"
 	"tiny-forum/pkg/logger"
 
 	"golang.org/x/crypto/bcrypt"
@@ -28,7 +28,7 @@ func CreateSuperAdmin(db *gorm.DB, config *config.AdminConfig) error {
 	}
 
 	// 检查是否已存在
-	var existingUser po.User
+	var existingUser do.User
 	result := db.Where("email = ? OR username = ?", config.Email, config.Username).First(&existingUser)
 
 	if result.Error == nil {
@@ -47,7 +47,7 @@ func CreateSuperAdmin(db *gorm.DB, config *config.AdminConfig) error {
 	}
 
 	// 创建管理员
-	admin := &po.User{
+	admin := &do.User{
 		Username:  config.Username,
 		Email:     config.Email,
 		Password:  string(hashedPassword),

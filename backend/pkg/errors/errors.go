@@ -250,21 +250,21 @@ var (
 	ErrCannotBlockAdmin       = New(CodeInsufficientPermission, "只有超级管理员才能封禁其他管理员")
 
 	// func handleRoleError(c *gin.Context, err error) {
-// 	switch {
-// 	case errors.Is(err, gorm.ErrRecordNotFound):
-// 		response.NotFound(c, "用户不存在")
-// 	case errors.Is(err, apperrors.ErrInvalidRole):
-// 		response.BadRequest(c, "无效的角色类型")
-// 	case errors.Is(err, apperrors.ErrCannotModifySelf):
-// 		response.Forbidden(c, "不能修改自己的角色")
-// 	case errors.Is(err, apperrors.ErrCannotChangeOwnerRole):
-// 		response.Forbidden(c, "不能修改超级管理员的角色")
-// 	case errors.Is(err, apperrors.ErrInsufficientPermission):
-// 		response.Forbidden(c, "权限不足："+err.Error())
-// 	default:
-// 		response.InternalError(c, "设置角色失败: "+err.Error())
-// 	}
-// }
+	// 	switch {
+	// 	case errors.Is(err, gorm.ErrRecordNotFound):
+	// 		response.NotFound(c, "用户不存在")
+	// 	case errors.Is(err, apperrors.ErrInvalidRole):
+	// 		response.BadRequest(c, "无效的角色类型")
+	// 	case errors.Is(err, apperrors.ErrCannotModifySelf):
+	// 		response.Forbidden(c, "不能修改自己的角色")
+	// 	case errors.Is(err, apperrors.ErrCannotChangeOwnerRole):
+	// 		response.Forbidden(c, "不能修改超级管理员的角色")
+	// 	case errors.Is(err, apperrors.ErrInsufficientPermission):
+	// 		response.Forbidden(c, "权限不足："+err.Error())
+	// 	default:
+	// 		response.InternalError(c, "设置角色失败: "+err.Error())
+	// 	}
+	// }
 
 	// 密码校验
 	ErrPasswordNotMatch  = New(CodeUnauthorized, "密码不匹配")
@@ -335,5 +335,3 @@ var (
 	ErrFileTypeInvalid = New(CodeFileTypeInvalid, "不支持的文件类型")
 	ErrUploadFailed    = New(CodeUploadFailed, "文件上传失败")
 )
-
-

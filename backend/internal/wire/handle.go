@@ -58,6 +58,7 @@ func NewHandlers(svc *Services, timeHelpers *timeutil.TimeHelpers, cfg *config.C
 	stats := statsHandler.NewStatsHandler(svc.Stats, timeHelpers)
 	risk := riskhandler.NewRiskHandler(svc.ContentCheck, svc.Risk)
 	upload := uploadHandler.NewUploadHandler(svc.Upload)
+	admin := adminHandler.NewAdminHandler(svc.admin)
 
 	return &Handlers{
 		Auth:         auth,
@@ -75,5 +76,6 @@ func NewHandlers(svc *Services, timeHelpers *timeutil.TimeHelpers, cfg *config.C
 		Stats:        stats,
 		Risk:         risk,
 		Upload:       upload,
+		Admin:        admin,
 	}
 }

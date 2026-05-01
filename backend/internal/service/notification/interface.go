@@ -2,12 +2,12 @@ package notification
 
 import (
 	"tiny-forum/internal/model/bo"
-	"tiny-forum/internal/model/po"
+	"tiny-forum/internal/model/do"
 	notificationRepo "tiny-forum/internal/repository/notification"
 )
 
 type NotificationService interface {
-	Create(userID uint, senderID *uint, notifType po.NotificationType, content string, targetID *uint, targetType string)
+	Create(userID uint, senderID *uint, notifType do.NotificationType, content string, targetID *uint, targetType string)
 	List(userID uint, page, pageSize int) (*bo.NotificationListResult, error)
 	MarkAllRead(userID uint) (int64, error)
 	MarkRead(userID uint, notifID uint) error

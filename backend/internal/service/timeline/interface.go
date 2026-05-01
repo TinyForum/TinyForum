@@ -1,7 +1,7 @@
 package timeline
 
 import (
-	"tiny-forum/internal/model/po"
+	"tiny-forum/internal/model/do"
 	commentRepo "tiny-forum/internal/repository/comment"
 	postRepo "tiny-forum/internal/repository/post"
 	timelineRepo "tiny-forum/internal/repository/timeline"
@@ -10,11 +10,11 @@ import (
 
 type TimelineService interface {
 	CreateEvent(input CreateEventInput) error
-	GetHomeTimeline(userID uint, page, pageSize int) ([]po.TimelineEvent, int64, error)
-	GetFollowingTimeline(userID uint, page, pageSize int) ([]po.TimelineEvent, int64, error)
+	GetHomeTimeline(userID uint, page, pageSize int) ([]do.TimelineEvent, int64, error)
+	GetFollowingTimeline(userID uint, page, pageSize int) ([]do.TimelineEvent, int64, error)
 	Subscribe(subscriberID, targetUserID uint) error
 	Unsubscribe(subscriberID, targetUserID uint) error
-	GetSubscriptions(subscriberID uint) ([]po.TimelineSubscription, error)
+	GetSubscriptions(subscriberID uint) ([]do.TimelineSubscription, error)
 	IsSubscribed(subscriberID, targetUserID uint) (bool, error)
 }
 type timelineService struct {

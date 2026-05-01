@@ -73,7 +73,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		cookieValue += "; Secure"
 	}
 	log.Printf("JWT secret used for signing: %s", h.cfg.Private.JWT.Secret)
-log.Printf("JWT secret length: %d", len(h.cfg.Private.JWT.Secret))
+	log.Printf("JWT secret length: %d", len(h.cfg.Private.JWT.Secret))
 
 	c.Header("Set-Cookie", cookieValue)
 
