@@ -17,11 +17,10 @@ import (
 	gormlogger "gorm.io/gorm/logger"
 )
 
-
 func InitDB(cfg *config.Config) (*gorm.DB, error) {
-	 dsn := buildDSN(&cfg.Private.Database)
-	fmt.Printf("DSN config: %v\n",dsn)
-	fmt.Printf("DBname: %v\n",cfg.Private.Database.DBName)
+	dsn := buildDSN(&cfg.Private.Database)
+	fmt.Printf("DSN config: %v\n", dsn)
+	fmt.Printf("DBname: %v\n", cfg.Private.Database.DBName)
 	logLevel := gormlogger.Silent
 	if cfg.Basic.Server.Mode == "debug" {
 		logLevel = gormlogger.Info
