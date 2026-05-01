@@ -2,15 +2,15 @@ package validator
 
 import (
 	"context"
-	"tiny-forum/internal/model"
+	"tiny-forum/internal/model/po"
 	apperrors "tiny-forum/pkg/errors"
 )
 
 type roleValidator struct {
 	// 角色等级映射
-	roleLevel map[model.UserRole]int
+	roleLevel map[po.UserRole]int
 	// 角色权限映射
-	rolePermissions map[model.UserRole]map[model.Permission]bool
+	rolePermissions map[po.UserRole]map[po.Permission]bool
 }
 
 type RoleChangeChecker struct {
@@ -19,55 +19,55 @@ type RoleChangeChecker struct {
 
 func NewRoleValidator() RoleValidator {
 	// 定义角色等级（数字越大等级越高）
-	roleLevel := map[model.UserRole]int{
-		model.RoleUser:       1,
-		model.RoleMember:     2,
-		model.RoleBot:        2,
-		model.RoleReviewer:   3,
-		model.RoleModerator:  4,
-		model.RoleAdmin:      5,
-		model.RoleSuperAdmin: 6,
+	roleLevel := map[po.UserRole]int{
+		po.RoleUser:       1,
+		po.RoleMember:     2,
+		po.RoleBot:        2,
+		po.RoleReviewer:   3,
+		po.RoleModerator:  4,
+		po.RoleAdmin:      5,
+		po.RoleSuperAdmin: 6,
 	}
 
 	// 定义每个角色拥有的权限
-	rolePermissions := map[model.UserRole]map[model.Permission]bool{
-		model.RoleUser: {
+	rolePermissions := map[po.UserRole]map[po.Permission]bool{
+		po.RoleUser: {
 			// 普通用户无分配权限
 		},
-		model.RoleMember: {
+		po.RoleMember: {
 			// 成员用户无分配权限
 		},
-		model.RoleBot: {
+		po.RoleBot: {
 			// Bot用户无分配权限
 		},
-		model.RoleReviewer: {
+		po.RoleReviewer: {
 			// 审核员可以分配普通用户和成员角色
-			model.PermAssignRoleUser:   true,
-			model.PermAssignRoleMember: true,
+			po.PermAssignRoleUser:   true,
+			po.PermAssignRoleMember: true,
 		},
-		model.RoleModerator: {
+		po.RoleModerator: {
 			// 版主可以分配普通用户、成员和审核员角色
-			model.PermAssignRoleUser:     true,
-			model.PermAssignRoleMember:   true,
-			model.PermAssignRoleReviewer: true,
+			po.PermAssignRoleUser:     true,
+			po.PermAssignRoleMember:   true,
+			po.PermAssignRoleReviewer: true,
 		},
-		model.RoleAdmin: {
+		po.RoleAdmin: {
 			// 管理员可以分配普通用户、成员、审核员、版主和Bot角色
-			model.PermAssignRoleUser:      true,
-			model.PermAssignRoleMember:    true,
-			model.PermAssignRoleReviewer:  true,
-			model.PermAssignRoleModerator: true,
-			model.PermAssignRoleBot:       true,
+			po.PermAssignRoleUser:      true,
+			po.PermAssignRoleMember:    true,
+			po.PermAssignRoleReviewer:  true,
+			po.PermAssignRoleModerator: true,
+			po.PermAssignRoleBot:       true,
 		},
-		model.RoleSuperAdmin: {
+		po.RoleSuperAdmin: {
 			// 超级管理员可以分配所有角色
-			model.PermAssignRoleUser:       true,
-			model.PermAssignRoleMember:     true,
-			model.PermAssignRoleReviewer:   true,
-			model.PermAssignRoleModerator:  true,
-			model.PermAssignRoleBot:        true,
-			model.PermAssignRoleAdmin:      true,
-			model.PermAssignRoleSuperAdmin: true,
+			po.PermAssignRoleUser:       true,
+			po.PermAssignRoleMember:     true,
+			po.PermAssignRoleReviewer:   true,
+			po.PermAssignRoleModerator:  true,
+			po.PermAssignRoleBot:        true,
+			po.PermAssignRoleAdmin:      true,
+			po.PermAssignRoleSuperAdmin: true,
 		},
 	}
 
@@ -79,9 +79,9 @@ func NewRoleValidator() RoleValidator {
 
 // 角色更改请求
 type RoleChangeRequest struct {
-	Operator *model.User
-	Target   *model.User
-	NewRole  model.UserRole
+	Operator *po.User
+	Target   *po.User
+	NewRole  po.UserRole
 }
 
 // Check 执行全部权限校验，返回第一个不满足的错误
@@ -143,25 +143,25 @@ func (c *RoleChangeChecker) checkAssignPermission(_ context.Context, req RoleCha
 	return nil
 }
 
-var roleAssignPermission = map[model.UserRole]model.Permission{
-	model.RoleUser:       model.PermAssignRoleUser,
-	model.RoleMember:     model.PermAssignRoleMember,
-	model.RoleModerator:  model.PermAssignRoleModerator,
-	model.RoleReviewer:   model.PermAssignRoleReviewer,
-	model.RoleBot:        model.PermAssignRoleBot,
-	model.RoleAdmin:      model.PermAssignRoleAdmin,
-	model.RoleSuperAdmin: model.PermAssignRoleSuperAdmin,
+var roleAssignPermission = map[po.UserRole]po.Permission{
+	po.RoleUser:       po.PermAssignRoleUser,
+	po.RoleMember:     po.PermAssignRoleMember,
+	po.RoleModerator:  po.PermAssignRoleModerator,
+	po.RoleReviewer:   po.PermAssignRoleReviewer,
+	po.RoleBot:        po.PermAssignRoleBot,
+	po.RoleAdmin:      po.PermAssignRoleAdmin,
+	po.RoleSuperAdmin: po.PermAssignRoleSuperAdmin,
 }
 
 // IsValidRole 检查角色是否有效
-func (v *roleValidator) IsValidRole(role model.UserRole) bool {
+func (v *roleValidator) IsValidRole(role po.UserRole) bool {
 	_, exists := v.roleLevel[role]
 	return exists
 }
 
 // CanOperateTarget 检查操作者是否有权限操作目标用户
 // 规则：操作者等级必须高于目标用户等级
-func (v *roleValidator) CanOperateTarget(operator, target model.UserRole) bool {
+func (v *roleValidator) CanOperateTarget(operator, target po.UserRole) bool {
 	operatorLevel, operatorExists := v.roleLevel[operator]
 	targetLevel, targetExists := v.roleLevel[target]
 
@@ -175,7 +175,7 @@ func (v *roleValidator) CanOperateTarget(operator, target model.UserRole) bool {
 
 // CanAssignRole 检查操作者是否有权限分配目标角色
 // 规则：操作者等级必须大于等于目标角色等级（不能给自己分配同级或更高级别）
-func (v *roleValidator) CanAssignRole(operator, target model.UserRole) bool {
+func (v *roleValidator) CanAssignRole(operator, target po.UserRole) bool {
 	operatorLevel, operatorExists := v.roleLevel[operator]
 	targetLevel, targetExists := v.roleLevel[target]
 
@@ -189,7 +189,7 @@ func (v *roleValidator) CanAssignRole(operator, target model.UserRole) bool {
 }
 
 // HasPermission 检查角色是否拥有特定权限
-func (v *roleValidator) HasPermission(role model.UserRole, perm model.Permission) bool {
+func (v *roleValidator) HasPermission(role po.UserRole, perm po.Permission) bool {
 	perms, exists := v.rolePermissions[role]
 	if !exists {
 		return false
@@ -203,19 +203,19 @@ func (v *roleValidator) HasPermission(role model.UserRole, perm model.Permission
 // 可选：添加一些辅助方法
 
 // GetRoleLevel 获取角色等级
-func (v *roleValidator) GetRoleLevel(role model.UserRole) (int, bool) {
+func (v *roleValidator) GetRoleLevel(role po.UserRole) (int, bool) {
 	level, exists := v.roleLevel[role]
 	return level, exists
 }
 
 // GetRolePermissions 获取角色的所有权限
-func (v *roleValidator) GetRolePermissions(role model.UserRole) []model.Permission {
+func (v *roleValidator) GetRolePermissions(role po.UserRole) []po.Permission {
 	perms, exists := v.rolePermissions[role]
 	if !exists {
-		return []model.Permission{}
+		return []po.Permission{}
 	}
 
-	result := make([]model.Permission, 0, len(perms))
+	result := make([]po.Permission, 0, len(perms))
 	for perm := range perms {
 		result = append(result, perm)
 	}
@@ -223,7 +223,7 @@ func (v *roleValidator) GetRolePermissions(role model.UserRole) []model.Permissi
 }
 
 // CanModifyRole 综合检查是否可以修改角色（包含所有规则）
-func (v *roleValidator) CanModifyRole(operator, currentRole, newRole model.UserRole) bool {
+func (v *roleValidator) CanModifyRole(operator, currentRole, newRole po.UserRole) bool {
 	// 检查是否可以操作目标
 	if !v.CanOperateTarget(operator, currentRole) {
 		return false

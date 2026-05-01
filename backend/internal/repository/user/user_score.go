@@ -3,31 +3,31 @@ package user
 import (
 	"errors"
 	"fmt"
-	"tiny-forum/internal/model"
+	"tiny-forum/internal/model/po"
 
 	"gorm.io/gorm"
 )
 
 func (r *userRepository) GetScoreById(userID uint) (int, error) {
-	var user model.User
-	err := r.db.Model(&model.User{}).Select("score").Where("id = ?", userID).First(&user).Error
+	var user po.User
+	err := r.db.Model(&po.User{}).Select("score").Where("id = ?", userID).First(&user).Error
 	return user.Score, err
 }
 
 func (r *userRepository) GetUsersScoreTotal() (int, error) {
 	var totalScore int64
-	err := r.db.Model(&model.User{}).Select("COALESCE(SUM(score), 0)").Scan(&totalScore).Error
+	err := r.db.Model(&po.User{}).Select("COALESCE(SUM(score), 0)").Scan(&totalScore).Error
 	return int(totalScore), err
 }
 
-func (r *userRepository) GetEveryoneUsersScore() ([]model.User, error) {
-	var users []model.User
-	err := r.db.Model(&model.User{}).Select("id, score").Find(&users).Error
+func (r *userRepository) GetEveryoneUsersScore() ([]po.User, error) {
+	var users []po.User
+	err := r.db.Model(&po.User{}).Select("id, score").Find(&users).Error
 	return users, err
 }
 
 func (r *userRepository) AddScore(userID uint, score int) error {
-	return r.db.Model(&model.User{}).Where("id = ?", userID).
+	return r.db.Model(&po.User{}).Where("id = ?", userID).
 		UpdateColumn("score", gorm.Expr("score + ?", score)).Error
 }
 
@@ -35,7 +35,7 @@ func (r *userRepository) DeductScore(tx *gorm.DB, userID uint, score int) error 
 	if score <= 0 {
 		return nil
 	}
-	var user model.User
+	var user po.User
 	if err := tx.Where("id = ?", userID).First(&user).Error; err != nil {
 		return errors.New("用户不存在")
 	}
@@ -55,7 +55,7 @@ func (r *userRepository) SetScoreById(id uint, score int) error {
 	if score > 999999 {
 		return errors.New("积分超出最大限制")
 	}
-	result := r.db.Model(&model.User{}).
+	result := r.db.Model(&po.User{}).
 		Where("id = ?", id).
 		Update("score", score)
 	if result.Error != nil {

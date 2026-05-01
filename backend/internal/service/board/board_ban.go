@@ -4,7 +4,7 @@ import (
 	"errors"
 	"time"
 
-	"tiny-forum/internal/model"
+	"tiny-forum/internal/model/po"
 )
 
 type BanUserInput struct {
@@ -23,7 +23,7 @@ func (s *boardService) BanUser(input BanUserInput, bannerID uint) error {
 	if isBanned {
 		return errors.New("用户已被禁言")
 	}
-	ban := &model.BoardBan{
+	ban := &po.BoardBan{
 		UserID:    input.UserID,
 		BoardID:   input.BoardID,
 		BannedBy:  bannerID,
@@ -33,7 +33,7 @@ func (s *boardService) BanUser(input BanUserInput, bannerID uint) error {
 	if err := s.boardRepo.BanUser(ban); err != nil {
 		return err
 	}
-	s.notifSvc.Create(user.ID, &bannerID, model.NotifySystem,
+	s.notifSvc.Create(user.ID, &bannerID, po.NotifySystem,
 		"你在板块中被禁言", &input.BoardID, "board")
 	return nil
 }

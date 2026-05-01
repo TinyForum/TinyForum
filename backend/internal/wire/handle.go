@@ -2,6 +2,7 @@ package wire
 
 import (
 	"tiny-forum/config"
+	adminHandler "tiny-forum/internal/handler/admin"
 	announcementHandler "tiny-forum/internal/handler/announcement"
 	answerHandler "tiny-forum/internal/handler/answer"
 	authHandler "tiny-forum/internal/handler/auth"
@@ -37,6 +38,7 @@ type Handlers struct {
 	Stats        *statsHandler.StatsHandler
 	Risk         *riskhandler.RiskHandler
 	Upload       *uploadHandler.UploadHandler
+	Admin        *adminHandler.AdminHandler
 }
 
 // NewHandlers 创建所有 Handler 实例

@@ -1,10 +1,11 @@
 package notification
 
 import (
-	"github.com/gin-gonic/gin"
 	"strconv"
-	"tiny-forum/internal/dto"
+	"tiny-forum/internal/model/dto"
 	"tiny-forum/pkg/response"
+
+	"github.com/gin-gonic/gin"
 )
 
 // BatchMarkRead 批量标记通知为已读

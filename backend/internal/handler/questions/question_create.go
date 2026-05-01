@@ -6,8 +6,8 @@ import (
 	"io"
 	"net/http"
 
-	"tiny-forum/internal/dto"
-	"tiny-forum/internal/model"
+	"tiny-forum/internal/model/dto"
+	"tiny-forum/internal/model/po"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -46,7 +46,7 @@ func (h *QuestionHandler) CreateQuestion(c *gin.Context) {
 		return
 	}
 	if input.Status == "" {
-		input.Status = model.PostStatusPublished
+		input.Status = po.PostStatusPublished
 	}
 
 	userID, exists := c.Get("user_id")

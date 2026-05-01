@@ -3,16 +3,16 @@ package announcement
 import (
 	"context"
 	"time"
-	"tiny-forum/internal/dto"
-	"tiny-forum/internal/model"
+	"tiny-forum/internal/model/dto"
+	"tiny-forum/internal/model/po"
 )
 
-func (s *announcementService) Create(ctx context.Context, req *dto.CreateAnnouncementRequest, userID uint) (*model.Announcement, error) {
+func (s *announcementService) Create(ctx context.Context, req *dto.CreateAnnouncementRequest, userID uint) (*po.Announcement, error) {
 	if err := s.validateTime(req.PublishedAt, req.ExpiredAt); err != nil {
 		return nil, err
 	}
 	now := time.Now()
-	announcement := &model.Announcement{
+	announcement := &po.Announcement{
 		Title:       req.Title,
 		Content:     req.Content,
 		Summary:     req.Summary,
@@ -23,7 +23,7 @@ func (s *announcementService) Create(ctx context.Context, req *dto.CreateAnnounc
 		BoardID:     req.BoardID,
 		PublishedAt: req.PublishedAt,
 		ExpiredAt:   req.ExpiredAt,
-		Status:      model.AnnouncementStatusDraft,
+		Status:      po.AnnouncementStatusDraft,
 		ViewCount:   0,
 		CreatedBy:   userID,
 		UpdatedBy:   userID,

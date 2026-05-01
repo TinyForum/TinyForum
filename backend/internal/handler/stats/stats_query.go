@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 	"time"
-	"tiny-forum/internal/dto"
+	"tiny-forum/internal/model/dto"
 	"tiny-forum/pkg/response"
 
 	// "tiny-forum/pkg/utils"
@@ -21,7 +21,7 @@ import (
 // @Security ApiKeyAuth
 // @Param date query string false "日期 (格式: 2006-01-02)" default(今天)
 // @Param type query string false "统计类型" Enums(users, posts, comments, all) default(all)
-// @Success 200 {object} response.Response{data=model.StatsTodayInfo}
+// @Success 200 {object} response.Response{data=po.StatsTodayInfo}
 // @Failure 400 {object} response.Response
 // @Failure 500 {object} response.Response
 // @Router /statistics/day [get]
@@ -67,7 +67,7 @@ func (h *StatsHandler) GetStatsDay(c *gin.Context) {
 // @Param start_date query string false "开始日期 (格式: 2006-01-02，默认30天前)"
 // @Param end_date   query string false "结束日期 (格式: 2006-01-02，默认今天)"
 // @Param type       query string false "统计类型" Enums(users, posts, comments, all) default(all)
-// @Success 200 {object} response.Response{data=model.StatsInfoResp}
+// @Success 200 {object} response.Response{data=po.StatsInfoResp}
 // @Failure 400 {object} response.Response
 // @Failure 500 {object} response.Response
 // @Router /statistics/total [get]
@@ -117,7 +117,7 @@ func (h *StatsHandler) GetStatsTotal(c *gin.Context) {
 // @Param end_date   query string false "结束日期 (格式: 2006-01-02，默认今天)"
 // @Param type       query string true  "统计类型" Enums(users, posts, comments)
 // @Param interval   query string false "统计粒度" Enums(day, week, month) default(day)
-// @Success 200 {object} response.Response{data=model.StatsTrendResponse}
+// @Success 200 {object} response.Response{data=po.StatsTrendResponse}
 // @Failure 400 {object} response.Response
 // @Failure 500 {object} response.Response
 // @Router /statistics/trend [get]

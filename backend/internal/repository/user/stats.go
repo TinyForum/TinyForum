@@ -2,8 +2,8 @@ package user
 
 import (
 	"context"
-	"tiny-forum/internal/dto"
-	"tiny-forum/internal/model"
+	"tiny-forum/internal/model/dto"
+	"tiny-forum/internal/model/po"
 
 	"golang.org/x/sync/errgroup"
 )
@@ -15,7 +15,7 @@ func (r *userRepository) GetGlobalStatsCount(ctx context.Context, userID uint) (
 	)
 	eg.Go(func() error {
 		var count int64
-		if err := r.db.WithContext(ctx).Model(&model.Post{}).Count(&count).Error; err != nil {
+		if err := r.db.WithContext(ctx).Model(&po.Post{}).Count(&count).Error; err != nil {
 			return err
 		}
 		stats.TotalPosts = int(count)
@@ -25,7 +25,7 @@ func (r *userRepository) GetGlobalStatsCount(ctx context.Context, userID uint) (
 	// 总评论数
 	eg.Go(func() error {
 		var count int64
-		if err := r.db.WithContext(ctx).Model(&model.Comment{}).Count(&count).Error; err != nil {
+		if err := r.db.WithContext(ctx).Model(&po.Comment{}).Count(&count).Error; err != nil {
 			return err
 		}
 		stats.TotalComments = int(count)
@@ -34,7 +34,7 @@ func (r *userRepository) GetGlobalStatsCount(ctx context.Context, userID uint) (
 
 	eg.Go(func() error {
 		var count int64
-		if err := r.db.WithContext(ctx).Model(&model.Favorite{}).Count(&count).Error; err != nil {
+		if err := r.db.WithContext(ctx).Model(&po.Favorite{}).Count(&count).Error; err != nil {
 			return err
 		}
 		stats.TotalComments = int(count)
@@ -42,7 +42,7 @@ func (r *userRepository) GetGlobalStatsCount(ctx context.Context, userID uint) (
 	})
 	eg.Go(func() error {
 		var count int64
-		if err := r.db.WithContext(ctx).Model(&model.Violation{}).Count(&count).Error; err != nil {
+		if err := r.db.WithContext(ctx).Model(&po.Violation{}).Count(&count).Error; err != nil {
 			return err
 		}
 		stats.TotalComments = int(count)

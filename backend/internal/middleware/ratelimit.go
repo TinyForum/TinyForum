@@ -9,7 +9,7 @@ import (
 	"strings"
 	"tiny-forum/config"
 	"tiny-forum/internal/infra/ratelimit"
-	"tiny-forum/internal/model"
+	"tiny-forum/internal/model/po"
 	riskservice "tiny-forum/internal/service/risk"
 	"tiny-forum/pkg/response"
 
@@ -108,7 +108,7 @@ func (m *RateLimitMiddleware) handleAuthenticatedUser(c *gin.Context, action rat
 
 	log.Printf("[RateLimit] Authenticated user, UserID: %d, action: %s", userID, action)
 
-	var user model.User
+	var user po.User
 	if err := m.db.Select("id, score, is_blocked, created_at").First(&user, userID).Error; err != nil {
 		log.Printf("[RateLimit] User not found: %d, error: %v, fallback to IP rate limit", userID, err)
 		m.handleAnonymousUser(c, action)

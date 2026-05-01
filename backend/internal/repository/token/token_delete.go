@@ -3,7 +3,7 @@ package token
 import (
 	"context"
 	"time"
-	"tiny-forum/internal/model"
+	"tiny-forum/internal/model/po"
 
 	"gorm.io/gorm"
 )
@@ -12,28 +12,28 @@ import (
 func (r *tokenRepository) DeleteByUserID(ctx context.Context, userID uint) error {
 	return r.db.WithContext(ctx).
 		Where("user_id = ?", userID).
-		Delete(&model.RefreshToken{}).Error
+		Delete(&po.RefreshToken{}).Error
 }
 
 // DeleteByToken 删除单个 Token（单设备登出）
 func (r *tokenRepository) DeleteByToken(ctx context.Context, token string) error {
 	return r.db.WithContext(ctx).
 		Where("token = ?", token).
-		Delete(&model.RefreshToken{}).Error
+		Delete(&po.RefreshToken{}).Error
 }
 
 // DeleteByJTI 根据 JTI 精确撤销
 func (r *tokenRepository) DeleteByJTI(ctx context.Context, jti string) error {
 	return r.db.WithContext(ctx).
 		Where("jti = ?", jti).
-		Delete(&model.RefreshToken{}).Error
+		Delete(&po.RefreshToken{}).Error
 }
 
 // DeleteExpired 清理过期的 Token（建议用定时任务每天执行）
 func (r *tokenRepository) DeleteExpired(ctx context.Context) (int64, error) {
 	result := r.db.WithContext(ctx).
 		Where("expires_at <= ?", time.Now()).
-		Delete(&model.RefreshToken{})
+		Delete(&po.RefreshToken{})
 	return result.RowsAffected, result.Error
 }
 
@@ -41,9 +41,9 @@ func (r *tokenRepository) DeleteExpired(ctx context.Context) (int64, error) {
 func (r *tokenRepository) DeleteByUserIDExcept(ctx context.Context, userID uint, keepToken string) error {
 	return r.db.WithContext(ctx).
 		Where("user_id = ? AND token != ?", userID, keepToken).
-		Delete(&model.RefreshToken{}).Error
+		Delete(&po.RefreshToken{}).Error
 }
 
 func (r *tokenRepository) DeleteByUserIDWithTx(ctx context.Context, tx *gorm.DB, userID uint) error {
-	return tx.WithContext(ctx).Where("user_id = ?", userID).Delete(&model.RefreshToken{}).Error
+	return tx.WithContext(ctx).Where("user_id = ?", userID).Delete(&po.RefreshToken{}).Error
 }

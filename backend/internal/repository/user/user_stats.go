@@ -3,19 +3,19 @@ package user
 import (
 	"context"
 	"time"
-	"tiny-forum/internal/model"
+	"tiny-forum/internal/model/po"
 )
 
 func (r *userRepository) Count(ctx context.Context) (int64, error) {
 	var count int64
-	err := r.db.WithContext(ctx).Model(&model.User{}).Count(&count).Error
+	err := r.db.WithContext(ctx).Model(&po.User{}).Count(&count).Error
 	return count, err
 }
 
 func (r *userRepository) CountByDateRange(ctx context.Context, startDate, endDate time.Time) (int64, error) {
 	var count int64
 	err := r.db.WithContext(ctx).
-		Model(&model.User{}).
+		Model(&po.User{}).
 		Where("created_at BETWEEN ? AND ?", startDate, endDate).
 		Count(&count).Error
 	return count, err

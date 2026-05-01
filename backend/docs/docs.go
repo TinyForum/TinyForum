@@ -56,7 +56,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/model.Announcement"
+                                            "$ref": "#/definitions/po.Announcement"
                                         }
                                     }
                                 }
@@ -1779,7 +1779,7 @@ const docTemplate = `{
                                                 "list": {
                                                     "type": "array",
                                                     "items": {
-                                                        "$ref": "#/definitions/model.Announcement"
+                                                        "$ref": "#/definitions/po.Announcement"
                                                     }
                                                 },
                                                 "page": {
@@ -1848,7 +1848,7 @@ const docTemplate = `{
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/model.Announcement"
+                                                "$ref": "#/definitions/po.Announcement"
                                             }
                                         }
                                     }
@@ -1899,7 +1899,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/model.Announcement"
+                                            "$ref": "#/definitions/po.Announcement"
                                         }
                                     }
                                 }
@@ -1961,7 +1961,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/model.Comment"
+                                            "$ref": "#/definitions/po.Comment"
                                         }
                                     }
                                 }
@@ -2102,7 +2102,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/model.Comment"
+                                            "$ref": "#/definitions/po.Comment"
                                         }
                                     }
                                 }
@@ -2929,7 +2929,7 @@ const docTemplate = `{
                                                         "list": {
                                                             "type": "array",
                                                             "items": {
-                                                                "$ref": "#/definitions/model.Board"
+                                                                "$ref": "#/definitions/po.Board"
                                                             }
                                                         }
                                                     }
@@ -2989,7 +2989,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/model.Board"
+                                            "$ref": "#/definitions/po.Board"
                                         }
                                     }
                                 }
@@ -3140,7 +3140,7 @@ const docTemplate = `{
                                                         "list": {
                                                             "type": "array",
                                                             "items": {
-                                                                "$ref": "#/definitions/model.ModeratorApplication"
+                                                                "$ref": "#/definitions/po.ModeratorApplication"
                                                             }
                                                         }
                                                     }
@@ -3244,7 +3244,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/model.Board"
+                                            "$ref": "#/definitions/po.Board"
                                         }
                                     }
                                 }
@@ -3372,7 +3372,7 @@ const docTemplate = `{
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/model.BoardTree"
+                                                "$ref": "#/definitions/po.BoardTree"
                                             }
                                         }
                                     }
@@ -3420,7 +3420,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/model.Board"
+                                            "$ref": "#/definitions/po.Board"
                                         }
                                     }
                                 }
@@ -3490,7 +3490,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/model.Board"
+                                            "$ref": "#/definitions/po.Board"
                                         }
                                     }
                                 }
@@ -3813,7 +3813,7 @@ const docTemplate = `{
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/model.Moderator"
+                                                "$ref": "#/definitions/po.Moderator"
                                             }
                                         }
                                     }
@@ -4475,7 +4475,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/model.Comment"
+                                            "$ref": "#/definitions/po.Comment"
                                         }
                                     }
                                 }
@@ -4552,7 +4552,7 @@ const docTemplate = `{
                                                         "list": {
                                                             "type": "array",
                                                             "items": {
-                                                                "$ref": "#/definitions/model.Comment"
+                                                                "$ref": "#/definitions/po.Comment"
                                                             }
                                                         }
                                                     }
@@ -6017,7 +6017,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/model.StatsTodayInfo"
+                                            "$ref": "#/definitions/po.StatsTodayInfo"
                                         }
                                     }
                                 }
@@ -6189,7 +6189,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/model.StatsInfoResp"
+                                            "$ref": "#/definitions/po.StatsInfoResp"
                                         }
                                     }
                                 }
@@ -7013,7 +7013,7 @@ const docTemplate = `{
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/model.User"
+                                                "$ref": "#/definitions/po.User"
                                             }
                                         }
                                     }
@@ -7084,7 +7084,7 @@ const docTemplate = `{
                                                         "list": {
                                                             "type": "array",
                                                             "items": {
-                                                                "$ref": "#/definitions/model.Topic"
+                                                                "$ref": "#/definitions/po.Topic"
                                                             }
                                                         }
                                                     }
@@ -7144,7 +7144,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/model.Topic"
+                                            "$ref": "#/definitions/po.Topic"
                                         }
                                     }
                                 }
@@ -7227,7 +7227,7 @@ const docTemplate = `{
                                                         "list": {
                                                             "type": "array",
                                                             "items": {
-                                                                "$ref": "#/definitions/model.Topic"
+                                                                "$ref": "#/definitions/po.Topic"
                                                             }
                                                         }
                                                     }
@@ -7285,7 +7285,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/model.Topic"
+                                            "$ref": "#/definitions/po.Topic"
                                         }
                                     }
                                 }
@@ -7353,7 +7353,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/model.Topic"
+                                            "$ref": "#/definitions/po.Topic"
                                         }
                                     }
                                 }
@@ -7700,7 +7700,7 @@ const docTemplate = `{
                                                         "list": {
                                                             "type": "array",
                                                             "items": {
-                                                                "$ref": "#/definitions/model.User"
+                                                                "$ref": "#/definitions/po.User"
                                                             }
                                                         }
                                                     }
@@ -8596,16 +8596,16 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "permissions": {
-                    "$ref": "#/definitions/model.ModeratorPermissions"
+                    "$ref": "#/definitions/po.ModeratorPermissions"
                 },
                 "post_count": {
                     "type": "integer"
                 },
                 "post_role": {
-                    "$ref": "#/definitions/model.UserRole"
+                    "$ref": "#/definitions/po.UserRole"
                 },
                 "reply_role": {
-                    "$ref": "#/definitions/model.UserRole"
+                    "$ref": "#/definitions/po.UserRole"
                 },
                 "slug": {
                     "type": "string"
@@ -8623,7 +8623,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "view_role": {
-                    "$ref": "#/definitions/model.UserRole"
+                    "$ref": "#/definitions/po.UserRole"
                 }
             }
         },
@@ -8731,7 +8731,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "status": {
-                    "$ref": "#/definitions/model.AnnouncementStatus"
+                    "$ref": "#/definitions/po.AnnouncementStatus"
                 },
                 "summary": {
                     "type": "string"
@@ -8750,7 +8750,7 @@ const docTemplate = `{
                     ],
                     "allOf": [
                         {
-                            "$ref": "#/definitions/model.AnnouncementType"
+                            "$ref": "#/definitions/po.AnnouncementType"
                         }
                     ]
                 }
@@ -8924,7 +8924,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "type": {
-                    "$ref": "#/definitions/model.AnnouncementType"
+                    "$ref": "#/definitions/po.AnnouncementType"
                 }
             }
         },
@@ -8971,7 +8971,7 @@ const docTemplate = `{
                 "ActionSignIn"
             ]
         },
-        "model.ActiveUserDetail": {
+        "po.ActiveUserDetail": {
             "type": "object",
             "properties": {
                 "article_count": {
@@ -9000,7 +9000,7 @@ const docTemplate = `{
                 }
             }
         },
-        "model.Announcement": {
+        "po.Announcement": {
             "type": "object",
             "properties": {
                 "board_id": {
@@ -9045,7 +9045,7 @@ const docTemplate = `{
                     "description": "状态",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/model.AnnouncementStatus"
+                            "$ref": "#/definitions/po.AnnouncementStatus"
                         }
                     ]
                 },
@@ -9061,7 +9061,7 @@ const docTemplate = `{
                     "description": "公告类型",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/model.AnnouncementType"
+                            "$ref": "#/definitions/po.AnnouncementType"
                         }
                     ]
                 },
@@ -9078,7 +9078,7 @@ const docTemplate = `{
                 }
             }
         },
-        "model.AnnouncementStatus": {
+        "po.AnnouncementStatus": {
             "type": "string",
             "enum": [
                 "all",
@@ -9105,7 +9105,7 @@ const docTemplate = `{
                 "AnnouncementStatusArchived"
             ]
         },
-        "model.AnnouncementType": {
+        "po.AnnouncementType": {
             "type": "string",
             "enum": [
                 "normal",
@@ -9132,7 +9132,7 @@ const docTemplate = `{
                 "AnnouncementTypeEvent"
             ]
         },
-        "model.ApplicationStatus": {
+        "po.ApplicationStatus": {
             "type": "string",
             "enum": [
                 "pending",
@@ -9186,7 +9186,7 @@ const docTemplate = `{
                 }
             }
         },
-        "model.Board": {
+        "po.Board": {
             "type": "object",
             "properties": {
                 "cover": {
@@ -9214,10 +9214,10 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "post_role": {
-                    "$ref": "#/definitions/model.UserRole"
+                    "$ref": "#/definitions/po.UserRole"
                 },
                 "reply_role": {
-                    "$ref": "#/definitions/model.UserRole"
+                    "$ref": "#/definitions/po.UserRole"
                 },
                 "slug": {
                     "type": "string"
@@ -9235,17 +9235,17 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "view_role": {
-                    "$ref": "#/definitions/model.UserRole"
+                    "$ref": "#/definitions/po.UserRole"
                 }
             }
         },
-        "model.BoardTree": {
+        "po.BoardTree": {
             "type": "object",
             "properties": {
                 "children": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/model.BoardTree"
+                        "$ref": "#/definitions/po.BoardTree"
                     }
                 },
                 "cover": {
@@ -9270,10 +9270,10 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "post_role": {
-                    "$ref": "#/definitions/model.UserRole"
+                    "$ref": "#/definitions/po.UserRole"
                 },
                 "reply_role": {
-                    "$ref": "#/definitions/model.UserRole"
+                    "$ref": "#/definitions/po.UserRole"
                 },
                 "slug": {
                     "type": "string"
@@ -9288,7 +9288,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "view_role": {
-                    "$ref": "#/definitions/model.UserRole"
+                    "$ref": "#/definitions/po.UserRole"
                 }
             }
         },
@@ -9307,11 +9307,11 @@ const docTemplate = `{
                 }
             }
         },
-        "model.Comment": {
+        "po.Comment": {
             "type": "object",
             "properties": {
                 "author": {
-                    "$ref": "#/definitions/model.User"
+                    "$ref": "#/definitions/po.User"
                 },
                 "author_id": {
                     "type": "integer"
@@ -9335,7 +9335,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "parent": {
-                    "$ref": "#/definitions/model.Comment"
+                    "$ref": "#/definitions/po.Comment"
                 },
                 "parent_id": {
                     "type": "integer"
@@ -9346,14 +9346,14 @@ const docTemplate = `{
                 "replies": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/model.Comment"
+                        "$ref": "#/definitions/po.Comment"
                     }
                 },
                 "status": {
                     "description": "新增审核状态",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/model.CommentStatus"
+                            "$ref": "#/definitions/po.CommentStatus"
                         }
                     ]
                 },
@@ -9365,7 +9365,7 @@ const docTemplate = `{
                 }
             }
         },
-        "model.CommentStatus": {
+        "po.CommentStatus": {
             "type": "string",
             "enum": [
                 "visible",
@@ -9388,7 +9388,7 @@ const docTemplate = `{
                 "CommentStatusHidden"
             ]
         },
-        "model.HotArticleItem": {
+        "po.HotArticleItem": {
             "type": "object",
             "properties": {
                 "author_id": {
@@ -9489,11 +9489,11 @@ const docTemplate = `{
                 "ModerationStatusRejected"
             ]
         },
-        "model.Moderator": {
+        "po.Moderator": {
             "type": "object",
             "properties": {
                 "board": {
-                    "$ref": "#/definitions/model.Board"
+                    "$ref": "#/definitions/po.Board"
                 },
                 "board_id": {
                     "type": "integer"
@@ -9511,18 +9511,18 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "user": {
-                    "$ref": "#/definitions/model.User"
+                    "$ref": "#/definitions/po.User"
                 },
                 "user_id": {
                     "type": "integer"
                 }
             }
         },
-        "model.ModeratorApplication": {
+        "po.ModeratorApplication": {
             "type": "object",
             "properties": {
                 "board": {
-                    "$ref": "#/definitions/model.Board"
+                    "$ref": "#/definitions/po.Board"
                 },
                 "board_id": {
                     "type": "integer"
@@ -9557,27 +9557,27 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "reviewer": {
-                    "$ref": "#/definitions/model.User"
+                    "$ref": "#/definitions/po.User"
                 },
                 "reviewer_id": {
                     "description": "审批人（管理员）",
                     "type": "integer"
                 },
                 "status": {
-                    "$ref": "#/definitions/model.ApplicationStatus"
+                    "$ref": "#/definitions/po.ApplicationStatus"
                 },
                 "updated_at": {
                     "type": "string"
                 },
                 "user": {
-                    "$ref": "#/definitions/model.User"
+                    "$ref": "#/definitions/po.User"
                 },
                 "user_id": {
                     "type": "integer"
                 }
             }
         },
-        "model.ModeratorPermissions": {
+        "po.ModeratorPermissions": {
             "type": "object",
             "properties": {
                 "can_ban_user": {
@@ -9613,7 +9613,7 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "sender": {
-                    "$ref": "#/definitions/model.User"
+                    "$ref": "#/definitions/po.User"
                 },
                 "sender_id": {
                     "type": "integer"
@@ -10041,7 +10041,7 @@ const docTemplate = `{
                     "description": "关联",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/model.User"
+                            "$ref": "#/definitions/po.User"
                         }
                     ]
                 },
@@ -10049,7 +10049,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "board": {
-                    "$ref": "#/definitions/model.Board"
+                    "$ref": "#/definitions/po.Board"
                 },
                 "board_id": {
                     "type": "integer"
@@ -10151,7 +10151,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "accepted_answer": {
-                    "$ref": "#/definitions/model.Comment"
+                    "$ref": "#/definitions/po.Comment"
                 },
                 "accepted_answer_id": {
                     "type": "integer"
@@ -10264,14 +10264,14 @@ const docTemplate = `{
                 }
             }
         },
-        "model.StatsActiveUserInfo": {
+        "po.StatsActiveUserInfo": {
             "type": "object",
             "properties": {
                 "list": {
                     "description": "今日活跃用户列表（最多N条）",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/model.ActiveUserDetail"
+                        "$ref": "#/definitions/po.ActiveUserDetail"
                     }
                 },
                 "total": {
@@ -10280,7 +10280,7 @@ const docTemplate = `{
                 }
             }
         },
-        "model.StatsIllegalInfo": {
+        "po.StatsIllegalInfo": {
             "type": "object",
             "properties": {
                 "article_cnt": {
@@ -10305,7 +10305,7 @@ const docTemplate = `{
                 }
             }
         },
-        "model.StatsInfo": {
+        "po.StatsInfo": {
             "type": "object",
             "properties": {
                 "total_article": {
@@ -10330,14 +10330,14 @@ const docTemplate = `{
                 }
             }
         },
-        "model.StatsInfoResp": {
+        "po.StatsInfoResp": {
             "type": "object",
             "properties": {
                 "active_user_info": {
                     "description": "今日活跃用户信息",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/model.StatsActiveUserInfo"
+                            "$ref": "#/definitions/po.StatsActiveUserInfo"
                         }
                     ]
                 },
@@ -10345,7 +10345,7 @@ const docTemplate = `{
                     "description": "基础统计信息",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/model.StatsInfo"
+                            "$ref": "#/definitions/po.StatsInfo"
                         }
                     ]
                 },
@@ -10353,7 +10353,7 @@ const docTemplate = `{
                     "description": "今日热门文章列表",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/model.HotArticleItem"
+                        "$ref": "#/definitions/po.HotArticleItem"
                     }
                 },
                 "hot_boards": {
@@ -10367,7 +10367,7 @@ const docTemplate = `{
                     "description": "今日违规信息",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/model.StatsIllegalInfo"
+                            "$ref": "#/definitions/po.StatsIllegalInfo"
                         }
                     ]
                 },
@@ -10379,13 +10379,13 @@ const docTemplate = `{
                     "description": "今日统计信息",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/model.StatsTodayInfo"
+                            "$ref": "#/definitions/po.StatsTodayInfo"
                         }
                     ]
                 }
             }
         },
-        "model.StatsTodayInfo": {
+        "po.StatsTodayInfo": {
             "type": "object",
             "properties": {
                 "active_user": {
@@ -10475,7 +10475,7 @@ const docTemplate = `{
                     "$ref": "#/definitions/model.ActionType"
                 },
                 "actor": {
-                    "$ref": "#/definitions/model.User"
+                    "$ref": "#/definitions/po.User"
                 },
                 "actor_id": {
                     "type": "integer"
@@ -10502,14 +10502,14 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "user": {
-                    "$ref": "#/definitions/model.User"
+                    "$ref": "#/definitions/po.User"
                 },
                 "user_id": {
                     "type": "integer"
                 }
             }
         },
-        "model.Topic": {
+        "po.Topic": {
             "type": "object",
             "properties": {
                 "cover": {
@@ -10519,7 +10519,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "creator": {
-                    "$ref": "#/definitions/model.User"
+                    "$ref": "#/definitions/po.User"
                 },
                 "creator_id": {
                     "type": "integer"
@@ -10578,7 +10578,7 @@ const docTemplate = `{
                 }
             }
         },
-        "model.User": {
+        "po.User": {
             "type": "object",
             "properties": {
                 "avatar": {
@@ -10619,7 +10619,7 @@ const docTemplate = `{
                     "description": "用户的角色，默认为普通用户",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/model.UserRole"
+                            "$ref": "#/definitions/po.UserRole"
                         }
                     ]
                 },
@@ -10636,7 +10636,7 @@ const docTemplate = `{
                 }
             }
         },
-        "model.UserRole": {
+        "po.UserRole": {
             "type": "string",
             "enum": [
                 "guest",
@@ -11027,7 +11027,7 @@ const docTemplate = `{
                     "description": "用户的角色，默认为普通用户",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/model.UserRole"
+                            "$ref": "#/definitions/po.UserRole"
                         }
                     ]
                 },

@@ -2,13 +2,13 @@ package timeline
 
 import (
 	"encoding/json"
-	"tiny-forum/internal/model"
+	"tiny-forum/internal/model/po"
 )
 
 type CreateEventInput struct {
 	UserID     uint
 	ActorID    uint
-	Action     model.ActionType
+	Action     po.ActionType
 	TargetID   uint
 	TargetType string
 	Payload    interface{}
@@ -18,7 +18,7 @@ type CreateEventInput struct {
 func (s *timelineService) CreateEvent(input CreateEventInput) error {
 	payloadJSON, _ := json.Marshal(input.Payload)
 
-	event := &model.TimelineEvent{
+	event := &po.TimelineEvent{
 		UserID:     input.UserID,
 		ActorID:    input.ActorID,
 		Action:     input.Action,

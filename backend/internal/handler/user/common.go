@@ -3,7 +3,7 @@ package user
 import (
 	"errors"
 	"fmt"
-	"tiny-forum/internal/model"
+	"tiny-forum/internal/model/po"
 	apperrors "tiny-forum/pkg/errors"
 	"tiny-forum/pkg/response"
 
@@ -45,7 +45,7 @@ func (h *UserHandler) sendTempPasswordNotification(targetID, operatorID uint, te
 		"管理员已重置您的密码。临时密码为：%s，有效期 30 分钟，请尽快登录并修改密码，以防被盗。",
 		tempPassword,
 	)
-	h.notifSvc.Create(targetID, &operatorID, model.NotifySystem, message, nil, "")
+	h.notifSvc.Create(targetID, &operatorID, po.NotifySystem, message, nil, "")
 }
 
 // ── 共享请求/响应结构体 ────────────────────────────────────────────────

@@ -3,25 +3,25 @@ package moderator
 import (
 	"context"
 	"errors"
-	"tiny-forum/internal/model"
+	"tiny-forum/internal/model/po"
 
 	"gorm.io/gorm"
 )
 
-func (r *moderatorRepository) Create(ctx context.Context, moderator *model.Moderator) error {
+func (r *moderatorRepository) Create(ctx context.Context, moderator *po.Moderator) error {
 	return r.db.WithContext(ctx).Create(moderator).Error
 }
 
-func (r *moderatorRepository) Update(ctx context.Context, moderator *model.Moderator) error {
+func (r *moderatorRepository) Update(ctx context.Context, moderator *po.Moderator) error {
 	return r.db.WithContext(ctx).Save(moderator).Error
 }
 
 func (r *moderatorRepository) Delete(ctx context.Context, id uint) error {
-	return r.db.WithContext(ctx).Delete(&model.Moderator{}, id).Error
+	return r.db.WithContext(ctx).Delete(&po.Moderator{}, id).Error
 }
 
-func (r *moderatorRepository) GetByID(ctx context.Context, id uint) (*model.Moderator, error) {
-	var moderator model.Moderator
+func (r *moderatorRepository) GetByID(ctx context.Context, id uint) (*po.Moderator, error) {
+	var moderator po.Moderator
 	err := r.db.WithContext(ctx).
 		Preload("User").
 		Preload("Board").

@@ -4,14 +4,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"tiny-forum/internal/model"
+	"tiny-forum/internal/model/po"
 	apperrors "tiny-forum/pkg/errors"
 
 	"gorm.io/gorm"
 )
 
 // List 管理员获取用户列表（分页）
-func (s *userService) List(page, pageSize int, keyword string) ([]model.User, int64, error) {
+func (s *userService) List(page, pageSize int, keyword string) ([]po.User, int64, error) {
 	return s.repo.List(page, pageSize, keyword)
 }
 
@@ -36,10 +36,10 @@ func (s *userService) DeleteUser(operatorID uint, targetID uint) error {
 	if targetID == operatorID {
 		return apperrors.ErrCannotModifySelf.WithMessage("不能删除自己的账号")
 	}
-	if targetUser.Role == model.RoleSuperAdmin {
+	if targetUser.Role == po.RoleSuperAdmin {
 		return apperrors.ErrCannotModifySuperAdmin.WithMessage("不能删除超级管理员")
 	}
-	if operator.Role != model.RoleSuperAdmin && targetUser.Role == model.RoleAdmin {
+	if operator.Role != po.RoleSuperAdmin && targetUser.Role == po.RoleAdmin {
 		return apperrors.ErrInsufficientPermission.WithMessage("只有超级管理员才能删除其他管理员")
 	}
 

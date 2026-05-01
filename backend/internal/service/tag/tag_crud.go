@@ -1,7 +1,7 @@
 package tag
 
 import (
-	"tiny-forum/internal/model"
+	"tiny-forum/internal/model/po"
 )
 
 type CreateTagInput struct {
@@ -10,12 +10,12 @@ type CreateTagInput struct {
 	Color       string `json:"color"`
 }
 
-func (s *tagService) Create(input CreateTagInput) (*model.Tag, error) {
+func (s *tagService) Create(input CreateTagInput) (*po.Tag, error) {
 	color := input.Color
 	if color == "" {
 		color = "#6366f1"
 	}
-	tag := &model.Tag{
+	tag := &po.Tag{
 		Name:        input.Name,
 		Description: input.Description,
 		Color:       color,
@@ -26,14 +26,14 @@ func (s *tagService) Create(input CreateTagInput) (*model.Tag, error) {
 	return tag, nil
 }
 
-func (s *tagService) List() ([]model.Tag, error) {
+func (s *tagService) List() ([]po.Tag, error) {
 	return s.tagRepo.List()
 }
-func (s *tagService) Get(id uint) (*model.Tag, error) {
+func (s *tagService) Get(id uint) (*po.Tag, error) {
 	return s.tagRepo.FindByID(id)
 }
 
-func (s *tagService) Update(id uint, input CreateTagInput) (*model.Tag, error) {
+func (s *tagService) Update(id uint, input CreateTagInput) (*po.Tag, error) {
 	tag, err := s.tagRepo.FindByID(id)
 	if err != nil {
 		return nil, err

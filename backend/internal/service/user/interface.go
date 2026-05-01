@@ -2,9 +2,9 @@ package user
 
 import (
 	"context"
-	"tiny-forum/internal/dto"
 	"tiny-forum/internal/infra/validator"
-	"tiny-forum/internal/model"
+	"tiny-forum/internal/model/dto"
+	"tiny-forum/internal/model/po"
 	userRepo "tiny-forum/internal/repository/user"
 	"tiny-forum/internal/service/notification"
 	jwtpkg "tiny-forum/pkg/jwt"
@@ -12,7 +12,7 @@ import (
 
 type UserService interface {
 	// admin crud
-	List(page, pageSize int, keyword string) ([]model.User, int64, error)
+	List(page, pageSize int, keyword string) ([]po.User, int64, error)
 	DeleteUser(operatorID uint, targetID uint) error
 	// admin password
 	ResetUserPasswordWithTemp(operatorID uint, targetID uint) (string, error)
@@ -29,16 +29,16 @@ type UserService interface {
 	// follow
 	Follow(followerID, followingID uint) error
 	Unfollow(followerID, followingID uint) error
-	GetFollowers(userID uint, page, pageSize int) ([]model.User, int64, error)
-	GetFollowing(userID uint, page, pageSize int) ([]model.User, int64, error)
+	GetFollowers(userID uint, page, pageSize int) ([]po.User, int64, error)
+	GetFollowing(userID uint, page, pageSize int) ([]po.User, int64, error)
 	// leaderboard
 	GetSimpleLeaderboardData(ctx context.Context, limit int) ([]dto.LeaderboardUserSimple, error)
 	GetDetailLeaderboardData(ctx context.Context, limit int) ([]dto.LeaderboardUserDetail, error)
 	// profile
-	GetProfile(userID uint) (*model.User, error)
-	UpdateProfile(userID uint, input model.UpdateProfileInput) error
+	GetProfile(userID uint) (*po.User, error)
+	UpdateProfile(userID uint, input po.UpdateProfileInput) error
 	GetUserProfile(targetID, viewerID uint) (*UserProfileResponse, error)
-	GetUserBasicInfo(userID uint) (*model.User, error)
+	GetUserBasicInfo(userID uint) (*po.User, error)
 	GetUserRoleById(userID uint) (string, error)
 	GetGlobalStatsCount(ctx context.Context, userID uint) (*dto.GlobalStatsCount, error)
 }

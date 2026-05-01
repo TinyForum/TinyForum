@@ -5,12 +5,12 @@ import (
 	"errors"
 	"fmt"
 	"time"
-	"tiny-forum/internal/model"
+	"tiny-forum/internal/model/po"
 )
 
 func (r *userRepository) UpdateBlocked(ctx context.Context, userID uint, isBlocked bool) error {
 	result := r.db.WithContext(ctx).
-		Model(&model.User{}).
+		Model(&po.User{}).
 		Where("id = ?", userID).
 		Update("is_blocked", isBlocked)
 	if result.Error != nil {
@@ -27,7 +27,7 @@ func (r *userRepository) UpdateBlocked(ctx context.Context, userID uint, isBlock
 
 func (r *userRepository) UpdateActive(ctx context.Context, userID uint, isActive bool) error {
 	result := r.db.WithContext(ctx).
-		Model(&model.User{}).
+		Model(&po.User{}).
 		Where("id = ?", userID).
 		Update("is_active", isActive)
 	if result.Error != nil {
@@ -41,7 +41,7 @@ func (r *userRepository) UpdateActive(ctx context.Context, userID uint, isActive
 
 func (r *userRepository) UpdateRole(ctx context.Context, userID uint, role string) error {
 	result := r.db.WithContext(ctx).
-		Model(&model.User{}).
+		Model(&po.User{}).
 		Where("id = ?", userID).
 		Update("role", role)
 	if result.Error != nil {
@@ -56,7 +56,7 @@ func (r *userRepository) UpdateRole(ctx context.Context, userID uint, role strin
 func (r *userRepository) SoftDelete(ctx context.Context, userID uint) error {
 	_ = r.tokenRepo.DeleteByUserID(ctx, userID)
 	result := r.db.WithContext(ctx).
-		Model(&model.User{}).
+		Model(&po.User{}).
 		Where("id = ?", userID).
 		Update("deleted_at", time.Now())
 	if result.Error != nil {
@@ -71,7 +71,7 @@ func (r *userRepository) SoftDelete(ctx context.Context, userID uint) error {
 func (r *userRepository) HardDelete(ctx context.Context, userID uint) error {
 	result := r.db.WithContext(ctx).
 		Unscoped().
-		Delete(&model.User{}, userID)
+		Delete(&po.User{}, userID)
 	if result.Error != nil {
 		return fmt.Errorf("硬删除用户失败: %w", result.Error)
 	}
@@ -83,7 +83,7 @@ func (r *userRepository) HardDelete(ctx context.Context, userID uint) error {
 
 func (r *userRepository) UpdatePassword(ctx context.Context, userID uint, hashedPassword string) error {
 	result := r.db.WithContext(ctx).
-		Model(&model.User{}).
+		Model(&po.User{}).
 		Where("id = ?", userID).
 		Update("password", hashedPassword)
 	if result.Error != nil {
@@ -102,7 +102,7 @@ func (r *userRepository) InvalidateUserTokens(ctx context.Context, userID uint) 
 
 func (r *userRepository) RestoreDeleted(ctx context.Context, userID uint) error {
 	result := r.db.WithContext(ctx).
-		Model(&model.User{}).
+		Model(&po.User{}).
 		Where("id = ?", userID).
 		Update("deleted_at", nil)
 	if result.Error != nil {
@@ -120,7 +120,7 @@ func (r *userRepository) SetTempPasswordFlag(ctx context.Context, userID uint, i
 		"temp_password_expire": expireAt,
 	}
 	result := r.db.WithContext(ctx).
-		Model(&model.User{}).
+		Model(&po.User{}).
 		Where("id = ?", userID).
 		Updates(updates)
 	if result.Error != nil {
@@ -131,7 +131,7 @@ func (r *userRepository) SetTempPasswordFlag(ctx context.Context, userID uint, i
 
 func (r *userRepository) ClearTempPasswordFlag(ctx context.Context, userID uint) error {
 	return r.db.WithContext(ctx).
-		Model(&model.User{}).
+		Model(&po.User{}).
 		Where("id = ?", userID).
 		Updates(map[string]interface{}{
 			"is_temp_password":     false,
@@ -144,7 +144,7 @@ func (r *userRepository) BatchUpdateBlocked(ctx context.Context, userIDs []uint,
 		return 0, nil
 	}
 	result := r.db.WithContext(ctx).
-		Model(&model.User{}).
+		Model(&po.User{}).
 		Where("id IN ?", userIDs).
 		Update("is_blocked", isBlocked)
 	return result.RowsAffected, result.Error

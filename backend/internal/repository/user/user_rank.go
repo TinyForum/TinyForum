@@ -2,8 +2,8 @@ package user
 
 import (
 	"context"
-	"tiny-forum/internal/dto"
-	"tiny-forum/internal/model"
+	"tiny-forum/internal/model/dto"
+	"tiny-forum/internal/model/po"
 )
 
 /*
@@ -12,13 +12,13 @@ import (
 - @Param ctx 上下文
 - @Param limit 获取的用户数量
 - @Param excludeBlocked 是否排除被拉黑的
-- @Return []model.User 用户列表
+- @Return []po.User 用户列表
 - @Return user,error 错误信息
 *
 */
 func (r *userRepository) GetTopScoreUsersSimple(ctx context.Context, limit int, excludeBlocked bool) ([]dto.LeaderboardUserSimple, error) {
 	var users []dto.LeaderboardUserSimple
-	db := r.db.WithContext(ctx).Model(&model.User{}).
+	db := r.db.WithContext(ctx).Model(&po.User{}).
 		Where("score IS NOT NULL").
 		Select("id", "username", "avatar", "score").
 		Order("score DESC").
@@ -34,7 +34,7 @@ func (r *userRepository) GetTopScoreUsersSimple(ctx context.Context, limit int, 
 func (r *userRepository) GetTopScoreUsersDetail(ctx context.Context, limit int, excludeBlocked bool) ([]dto.LeaderboardUserDetail, error) {
 
 	var users []dto.LeaderboardUserDetail
-	db := r.db.WithContext(ctx).Model(&model.User{}).
+	db := r.db.WithContext(ctx).Model(&po.User{}).
 		Where("score IS NOT NULL").
 		Select("id", "username", "avatar", "score", "email", "role").
 		Order("score DESC").
