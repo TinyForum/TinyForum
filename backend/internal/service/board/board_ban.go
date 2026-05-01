@@ -3,8 +3,7 @@ package board
 import (
 	"errors"
 	"time"
-
-	"tiny-forum/internal/model/po"
+	"tiny-forum/internal/model/do"
 )
 
 type BanUserInput struct {
@@ -23,7 +22,7 @@ func (s *boardService) BanUser(input BanUserInput, bannerID uint) error {
 	if isBanned {
 		return errors.New("用户已被禁言")
 	}
-	ban := &po.BoardBan{
+	ban := &do.BoardBan{
 		UserID:    input.UserID,
 		BoardID:   input.BoardID,
 		BannedBy:  bannerID,
@@ -33,7 +32,7 @@ func (s *boardService) BanUser(input BanUserInput, bannerID uint) error {
 	if err := s.boardRepo.BanUser(ban); err != nil {
 		return err
 	}
-	s.notifSvc.Create(user.ID, &bannerID, po.NotifySystem,
+	s.notifSvc.Create(user.ID, &bannerID, do.NotifySystem,
 		"你在板块中被禁言", &input.BoardID, "board")
 	return nil
 }

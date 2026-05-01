@@ -2,8 +2,8 @@ package announcement
 
 import (
 	"strconv"
-	"tiny-forum/internal/model/po"
-	"tiny-forum/internal/model/query"
+	"tiny-forum/internal/model/do"
+	"tiny-forum/internal/model/request"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -16,7 +16,7 @@ import (
 // @Accept json
 // @Produce json
 // @Param id path int true "公告ID"
-// @Success 200 {object} response.Response{data=po.Announcement} "获取成功"
+// @Success 200 {object} response.Response{data=do.Announcement} "获取成功"
 // @Failure 400 {object} response.Response "无效的公告ID"
 // @Failure 404 {object} response.Response "公告不存在"
 // @Failure 500 {object} response.Response "服务器内部错误"
@@ -44,18 +44,18 @@ func (h *AnnouncementHandler) GetByID(c *gin.Context) {
 // @Param page query int false "页码" default(1)
 // @Param page_size query int false "每页数量" default(10)
 // @Param board_id query int false "版块ID（可选）"
-// @Success 200 {object} response.Response{data=object{list=[]po.Announcement,total=int,page=int,pageSize=int}} "获取成功"
+// @Success 200 {object} response.Response{data=object{list=[]do.Announcement,total=int,page=int,pageSize=int}} "获取成功"
 // @Failure 400 {object} response.Response "请求参数错误"
 // @Failure 500 {object} response.Response "服务器内部错误"
 // @Router /announcements [get]
 func (h *AnnouncementHandler) List(c *gin.Context) {
-	var req query.ListAnnouncements
+	var req request.ListAnnouncements
 	if err := c.ShouldBindQuery(&req); err != nil {
 		response.BadRequest(c, err.Error())
 		return
 	}
 	// 强制只查已发布
-	published := po.AnnouncementStatusPublished
+	published := do.AnnouncementStatusPublished
 	req.Status = &published
 
 	resp, err := h.service.List(c.Request.Context(), &req)
@@ -73,7 +73,7 @@ func (h *AnnouncementHandler) List(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param board_id query int false "版块ID（可选）"
-// @Success 200 {object} response.Response{data=[]po.Announcement} "获取成功"
+// @Success 200 {object} response.Response{data=[]do.Announcement} "获取成功"
 // @Failure 500 {object} response.Response "服务器内部错误"
 // @Router /announcements/pinned [get]
 func (h *AnnouncementHandler) GetPinned(c *gin.Context) {

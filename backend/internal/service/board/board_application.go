@@ -5,8 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"time"
-
-	"tiny-forum/internal/model/po"
+	"tiny-forum/internal/model/do"
 )
 
 type ApplicationStatusDetail struct {
@@ -35,7 +34,7 @@ type ReviewApplicationInput struct {
 	CanBanUser         *bool  `json:"can_ban_user"`
 }
 
-func (s *boardService) ApplyModerator(input po.ApplyModeratorInput) error {
+func (s *boardService) ApplyModerator(input do.ApplyModeratorInput) error {
 	isMod, _ := s.boardRepo.IsModerator(input.UserID, input.BoardID)
 	if isMod {
 		return errors.New("你已经是该板块的版主")
@@ -47,11 +46,11 @@ func (s *boardService) ApplyModerator(input po.ApplyModeratorInput) error {
 	if existing != nil {
 		return errors.New("你已有一条待审核的申请，请等待管理员处理")
 	}
-	app := &po.ModeratorApplication{
+	app := &do.ModeratorApplication{
 		UserID:             input.UserID,
 		BoardID:            input.BoardID,
 		Reason:             input.Reason,
-		Status:             po.ApplicationPending,
+		Status:             do.ApplicationPending,
 		ReqDeletePost:      input.ReqDeletePost,
 		ReqPinPost:         input.ReqPinPost,
 		ReqEditAnyPost:     input.ReqEditAnyPost,
@@ -72,14 +71,14 @@ func (s *boardService) CancelApplication(applicationID, userID uint) error {
 	if app.UserID != userID {
 		return errors.New("无权操作此申请")
 	}
-	if app.Status != po.ApplicationPending {
+	if app.Status != do.ApplicationPending {
 		return errors.New("只能撤销待审核的申请")
 	}
-	app.Status = po.ApplicationCanceled
+	app.Status = do.ApplicationCanceled
 	return s.boardRepo.UpdateApplication(app)
 }
 
-func (s *boardService) GetUserApplications(userID uint, page, pageSize int) ([]po.ModeratorApplication, int64, error) {
+func (s *boardService) GetUserApplications(userID uint, page, pageSize int) ([]do.ModeratorApplication, int64, error) {
 	if page <= 0 {
 		page = 1
 	}
@@ -94,13 +93,13 @@ func (s *boardService) ReviewApplication(_ context.Context, input ReviewApplicat
 	if err != nil || app == nil {
 		return errors.New("申请不存在")
 	}
-	if app.Status != po.ApplicationPending {
+	if app.Status != do.ApplicationPending {
 		return errors.New("该申请已被处理")
 	}
 	if input.Approve {
-		app.Status = po.ApplicationApproved
+		app.Status = do.ApplicationApproved
 	} else {
-		app.Status = po.ApplicationRejected
+		app.Status = do.ApplicationRejected
 	}
 	app.ReviewerID = &reviewerID
 	app.ReviewNote = input.ReviewNote
@@ -108,20 +107,20 @@ func (s *boardService) ReviewApplication(_ context.Context, input ReviewApplicat
 		return fmt.Errorf("更新申请状态失败: %w", err)
 	}
 	if !input.Approve {
-		s.notifSvc.Create(app.UserID, &reviewerID, po.NotifySystem,
+		s.notifSvc.Create(app.UserID, &reviewerID, do.NotifySystem,
 			fmt.Sprintf("你的版主申请已被拒绝：%s", input.ReviewNote), &app.BoardID, "board")
 		return nil
 	}
 	isMod, _ := s.boardRepo.IsModerator(app.UserID, app.BoardID)
 	if !isMod {
-		perms := po.ModeratorPermissions{
+		perms := do.ModeratorPermissions{
 			CanDeletePost:      boolVal(input.CanDeletePost, app.ReqDeletePost),
 			CanPinPost:         boolVal(input.CanPinPost, app.ReqPinPost),
 			CanEditAnyPost:     boolVal(input.CanEditAnyPost, app.ReqEditAnyPost),
 			CanManageModerator: boolVal(input.CanManageModerator, app.ReqManageModerator),
 			CanBanUser:         boolVal(input.CanBanUser, app.ReqBanUser),
 		}
-		mod := &po.Moderator{UserID: app.UserID, BoardID: app.BoardID}
+		mod := &do.Moderator{UserID: app.UserID, BoardID: app.BoardID}
 		if err := mod.SetPermissions(perms); err != nil {
 			return fmt.Errorf("权限序列化失败: %w", err)
 		}
@@ -130,12 +129,12 @@ func (s *boardService) ReviewApplication(_ context.Context, input ReviewApplicat
 		}
 		s.writeLog(reviewerID, app.BoardID, "approve_application", "user", app.UserID, "审批申请通过")
 	}
-	s.notifSvc.Create(app.UserID, &reviewerID, po.NotifySystem,
+	s.notifSvc.Create(app.UserID, &reviewerID, do.NotifySystem,
 		"恭喜！你的版主申请已通过", &app.BoardID, "board")
 	return nil
 }
 
-func (s *boardService) ListApplications(boardID *uint, status po.ApplicationStatus, page, pageSize int) ([]po.ModeratorApplication, int64, error) {
+func (s *boardService) ListApplications(boardID *uint, status do.ApplicationStatus, page, pageSize int) ([]do.ModeratorApplication, int64, error) {
 	if page < 1 {
 		page = 1
 	}

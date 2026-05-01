@@ -2,21 +2,20 @@ package admin
 
 import (
 	"context"
-	"tiny-forum/internal/model/dto"
-	"tiny-forum/internal/model/po"
-	"tiny-forum/internal/model/query"
+	"tiny-forum/internal/model/do"
+	"tiny-forum/internal/model/request"
 	"tiny-forum/internal/model/vo"
 )
 
-func (s *adminService) ListAnnouncements(ctx context.Context, req *query.ListAnnouncements) (*vo.ListAnnouncements, error) {
+func (s *adminService) ListAnnouncements(ctx context.Context, req *request.ListAnnouncements) (*vo.ListAnnouncements, error) {
 	return s.announcementSvc.List(ctx, req)
 }
 
-func (s *adminService) CreateAnnouncement(ctx context.Context, req *dto.CreateAnnouncementRequest, userID uint) (*po.Announcement, error) {
+func (s *adminService) CreateAnnouncement(ctx context.Context, req *request.CreateAnnouncement, userID uint) (*do.Announcement, error) {
 	return s.announcementSvc.Create(ctx, req, userID)
 }
 
-func (s *adminService) UpdateAnnouncement(ctx context.Context, id uint, req *dto.UpdateAnnouncementRequest, userID uint) error {
+func (s *adminService) UpdateAnnouncement(ctx context.Context, id uint, req *request.UpdateAnnouncement, userID uint) error {
 	return s.announcementSvc.Update(ctx, id, req, userID)
 }
 func (s *adminService) DeleteAnnouncement(ctx context.Context, id uint, userID uint) error {

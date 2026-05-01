@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"tiny-forum/internal/infra/sensitive"
-	"tiny-forum/internal/model/po"
+	"tiny-forum/internal/model/do"
 )
 
 // CheckResult 内容检测结果
@@ -50,12 +50,12 @@ func (s *contentCheckService) CreateAuditTaskForPost(postID uint, triggerType st
 	meta, _ := json.Marshal(map[string]interface{}{
 		"hit_words": hitWords,
 	})
-	task := &po.ContentAuditTask{
-		TargetType:  po.AuditTargetPost,
+	task := &do.ContentAuditTask{
+		TargetType:  do.AuditTargetPost,
 		TargetID:    postID,
 		TriggerType: triggerType,
 		TriggerMeta: string(meta),
-		Status:      po.ModerationStatusPending,
+		Status:      do.ModerationStatusPending,
 	}
 	return s.repo.CreateAuditTask(task)
 }
@@ -65,12 +65,12 @@ func (s *contentCheckService) CreateAuditTaskForComment(commentID uint, triggerT
 	meta, _ := json.Marshal(map[string]interface{}{
 		"hit_words": hitWords,
 	})
-	task := &po.ContentAuditTask{
-		TargetType:  po.AuditTargetComment,
+	task := &do.ContentAuditTask{
+		TargetType:  do.AuditTargetComment,
 		TargetID:    commentID,
 		TriggerType: triggerType,
 		TriggerMeta: string(meta),
-		Status:      po.ModerationStatusPending,
+		Status:      do.ModerationStatusPending,
 	}
 	return s.repo.CreateAuditTask(task)
 }
@@ -79,13 +79,13 @@ func (s *contentCheckService) CreateAuditTaskForComment(commentID uint, triggerT
 // 当某内容的 pending 举报数达到阈值时，自动创建审核任务并将内容状态改为 pending
 // 返回是否触发了聚合
 func (s *contentCheckService) HandleReportAggregate(
-	targetType po.AuditTargetType, targetID uint,
+	targetType do.AuditTargetType, targetID uint,
 ) (triggered bool, err error) {
 	count, err := s.repo.CountPendingByTarget(targetType, targetID)
 	if err != nil {
 		return false, err
 	}
-	if count < po.ReportAggregateThreshold {
+	if count < do.ReportAggregateThreshold {
 		return false, nil
 	}
 
@@ -93,12 +93,12 @@ func (s *contentCheckService) HandleReportAggregate(
 	meta, _ := json.Marshal(map[string]interface{}{
 		"report_count": count,
 	})
-	task := &po.ContentAuditTask{
+	task := &do.ContentAuditTask{
 		TargetType:  targetType,
 		TargetID:    targetID,
 		TriggerType: "report_aggregate",
 		TriggerMeta: string(meta),
-		Status:      po.ModerationStatusPending,
+		Status:      do.ModerationStatusPending,
 	}
 	if err = s.repo.CreateAuditTask(task); err != nil {
 		return false, fmt.Errorf("create audit task: %w", err)
@@ -107,15 +107,15 @@ func (s *contentCheckService) HandleReportAggregate(
 }
 
 // GetListPendingTasks 获取待审核任务列表
-func (s *contentCheckService) GetListPendingTasks(limit, offset int) ([]po.ContentAuditTask, int64, error) {
+func (s *contentCheckService) GetListPendingTasks(limit, offset int) ([]do.ContentAuditTask, int64, error) {
 	return s.repo.ListPendingTasks(limit, offset)
 }
 
 // ResolveTask 处理审核任务
 func (s *contentCheckService) ResolveTask(taskID uint, approved bool, reviewerID uint, note string) error {
-	status := po.ModerationStatusApproved
+	status := do.ModerationStatusApproved
 	if !approved {
-		status = po.ModerationStatusRejected
+		status = do.ModerationStatusRejected
 	}
 	return s.repo.UpdateTaskStatus(taskID, status, reviewerID, note)
 }

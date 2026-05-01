@@ -2,23 +2,23 @@ package announcement
 
 import (
 	"context"
-	"tiny-forum/internal/model/po"
-	"tiny-forum/internal/model/query"
+	"tiny-forum/internal/model/do"
+	"tiny-forum/internal/model/request"
 
 	"gorm.io/gorm"
 )
 
 // AnnouncementRepository 公告仓库接口
 type AnnouncementRepository interface {
-	Create(ctx context.Context, announcement *po.Announcement) error
-	Update(ctx context.Context, announcement *po.Announcement) error
+	Create(ctx context.Context, announcement *do.Announcement) error
+	Update(ctx context.Context, announcement *do.Announcement) error
 	Delete(ctx context.Context, id uint) error
-	GetByID(ctx context.Context, id uint) (*po.Announcement, error)
-	List(ctx context.Context, req *query.ListAnnouncements) ([]po.Announcement, int64, error)
-	GetPinned(ctx context.Context, boardID *uint) ([]po.Announcement, error)
+	GetByID(ctx context.Context, id uint) (*do.Announcement, error)
+	List(ctx context.Context, req *request.ListAnnouncements) ([]do.Announcement, int64, error)
+	GetPinned(ctx context.Context, boardID *uint) ([]do.Announcement, error)
 	IncrementViewCount(ctx context.Context, id uint) error
 	BatchDelete(ctx context.Context, ids []uint) error
-	UpdateStatus(ctx context.Context, id uint, status po.AnnouncementStatus) error
+	UpdateStatus(ctx context.Context, id uint, status do.AnnouncementStatus) error
 }
 
 // AnnouncementListRequest 列表查询参数
@@ -26,8 +26,8 @@ type AnnouncementRepository interface {
 // 	Page      int
 // 	PageSize  int
 // 	BoardID   *uint
-// 	Type      *po.AnnouncementType
-// 	Status    *po.AnnouncementStatus
+// 	Type      *do.AnnouncementType
+// 	Status    *do.AnnouncementStatus
 // 	IsPinned  *bool
 // 	IsGlobal  *bool
 // 	Keyword   string

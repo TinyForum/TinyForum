@@ -1,28 +1,26 @@
 package board
 
-import (
-	"tiny-forum/internal/model/po"
-)
+import "tiny-forum/internal/model/do"
 
 // AddModerator 添加版主
-func (r *boardRepository) AddModerator(mod *po.Moderator) error {
+func (r *boardRepository) AddModerator(mod *do.Moderator) error {
 	return r.db.Create(mod).Error
 }
 
 // UpdateModerator 更新版主权限
-func (r *boardRepository) UpdateModerator(mod *po.Moderator) error {
+func (r *boardRepository) UpdateModerator(mod *do.Moderator) error {
 	return r.db.Save(mod).Error
 }
 
 // RemoveModerator 移除版主
 func (r *boardRepository) RemoveModerator(userID, boardID uint) error {
 	return r.db.Where("user_id = ? AND board_id = ?", userID, boardID).
-		Delete(&po.Moderator{}).Error
+		Delete(&do.Moderator{}).Error
 }
 
 // FindModeratorByUserAndBoard 根据用户和板块查询版主记录
-func (r *boardRepository) FindModeratorByUserAndBoard(userID, boardID uint) (*po.Moderator, error) {
-	var mod po.Moderator
+func (r *boardRepository) FindModeratorByUserAndBoard(userID, boardID uint) (*do.Moderator, error) {
+	var mod do.Moderator
 	err := r.db.Where("user_id = ? AND board_id = ?", userID, boardID).
 		Preload("User").
 		First(&mod).Error
@@ -33,8 +31,8 @@ func (r *boardRepository) FindModeratorByUserAndBoard(userID, boardID uint) (*po
 }
 
 // GetModerators 获取板块的所有版主
-func (r *boardRepository) GetModerators(boardID uint) ([]po.Moderator, error) {
-	var mods []po.Moderator
+func (r *boardRepository) GetModerators(boardID uint) ([]do.Moderator, error) {
+	var mods []do.Moderator
 	err := r.db.Where("board_id = ?", boardID).
 		Preload("User").
 		Order("id ASC").
@@ -45,23 +43,23 @@ func (r *boardRepository) GetModerators(boardID uint) ([]po.Moderator, error) {
 // IsModerator 判断用户是否为版主
 func (r *boardRepository) IsModerator(userID, boardID uint) (bool, error) {
 	var count int64
-	err := r.db.Model(&po.Moderator{}).
+	err := r.db.Model(&do.Moderator{}).
 		Where("user_id = ? AND board_id = ?", userID, boardID).
 		Count(&count).Error
 	return count > 0, err
 }
 
 // CreateModeratorLog 创建版主操作日志
-func (r *boardRepository) CreateModeratorLog(log *po.ModeratorLog) error {
+func (r *boardRepository) CreateModeratorLog(log *do.ModeratorLog) error {
 	return r.db.Create(log).Error
 }
 
 // GetModeratorLogs 获取版主操作日志
-func (r *boardRepository) GetModeratorLogs(boardID uint, limit, offset int) ([]po.ModeratorLog, int64, error) {
-	var logs []po.ModeratorLog
+func (r *boardRepository) GetModeratorLogs(boardID uint, limit, offset int) ([]do.ModeratorLog, int64, error) {
+	var logs []do.ModeratorLog
 	var total int64
 
-	query := r.db.Model(&po.ModeratorLog{}).Where("board_id = ?", boardID)
+	query := r.db.Model(&do.ModeratorLog{}).Where("board_id = ?", boardID)
 	query.Count(&total)
 	err := query.Offset(offset).Limit(limit).
 		Preload("Moderator").
@@ -72,7 +70,7 @@ func (r *boardRepository) GetModeratorLogs(boardID uint, limit, offset int) ([]p
 
 // ModeratorBoardInfo 用户管理的板块信息（含权限）
 type ModeratorBoardInfo struct {
-	po.Board
+	do.Board
 	Permissions string `gorm:"column:permissions" json:"permissions"`
 }
 

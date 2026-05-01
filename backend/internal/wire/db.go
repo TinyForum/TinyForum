@@ -6,7 +6,7 @@ import (
 
 	"tiny-forum/config"
 	adminInit "tiny-forum/init"
-	"tiny-forum/internal/model/po"
+	"tiny-forum/internal/model/do"
 
 	"tiny-forum/pkg/logger"
 
@@ -36,42 +36,42 @@ func InitDB(cfg *config.Config) (*gorm.DB, error) {
 	// Auto migrate all models
 	if err := db.AutoMigrate(
 		// 用户
-		&po.RefreshToken{},
-		&po.User{},                 // 用户
-		&po.Follow{},               // 关注
-		&po.Tag{},                  // 标签
-		&po.Post{},                 // 帖子
-		&po.Comment{},              // 评论
-		&po.Like{},                 // 点赞
-		&po.Notification{},         // 通知
-		&po.SignIn{},               // 登录
-		&po.Report{},               // 举报
-		&po.Board{},                // 板块
-		&po.Moderator{},            // 管理员
-		&po.BoardBan{},             // 禁言
-		&po.ModeratorLog{},         // 管理员日志
-		&po.Question{},             // 问题
-		&po.AnswerVote{},           // 回答投票
-		&po.TimelineEvent{},        // 时间线事件
-		&po.UserTimeline{},         // 用户时间线
-		&po.TimelineSubscription{}, // 时间线订阅
-		&po.Topic{},                // 主题
-		&po.TopicPost{},            // 主题帖子
-		&po.TopicFollow{},          // 主题关注
-		&po.Announcement{},         // 公告
-		&po.ModeratorApplication{}, // 版主申请
-		&po.Moderator{},            // 版主
-		&po.Vote{},
+		&do.RefreshToken{},
+		&do.User{},                 // 用户
+		&do.Follow{},               // 关注
+		&do.Tag{},                  // 标签
+		&do.Post{},                 // 帖子
+		&do.Comment{},              // 评论
+		&do.Like{},                 // 点赞
+		&do.Notification{},         // 通知
+		&do.SignIn{},               // 登录
+		&do.Report{},               // 举报
+		&do.Board{},                // 板块
+		&do.Moderator{},            // 管理员
+		&do.BoardBan{},             // 禁言
+		&do.ModeratorLog{},         // 管理员日志
+		&do.Question{},             // 问题
+		&do.AnswerVote{},           // 回答投票
+		&do.TimelineEvent{},        // 时间线事件
+		&do.UserTimeline{},         // 用户时间线
+		&do.TimelineSubscription{}, // 时间线订阅
+		&do.Topic{},                // 主题
+		&do.TopicPost{},            // 主题帖子
+		&do.TopicFollow{},          // 主题关注
+		&do.Announcement{},         // 公告
+		&do.ModeratorApplication{}, // 版主申请
+		&do.Moderator{},            // 版主
+		&do.Vote{},
 		// 审计
-		&po.ContentAuditTask{}, // 内容审核任务
-		&po.AuditLog{},         // 审计日志
-		&po.UserRiskRecord{},   // 用户风险记录
-		&po.Attachment{},       // 附件
-		&po.IPRiskRecord{},     // IP风险记录
-		&po.UserRiskRecord{},   // 用户风险记录
-		&po.BlockedIP{},        // 被封禁IP
-		&po.Violation{},        // 违规
-		&po.Favorite{},         // 收藏
+		&do.ContentAuditTask{}, // 内容审核任务
+		&do.AuditLog{},         // 审计日志
+		&do.UserRiskRecord{},   // 用户风险记录
+		&do.Attachment{},       // 附件
+		&do.IPRiskRecord{},     // IP风险记录
+		&do.UserRiskRecord{},   // 用户风险记录
+		&do.BlockedIP{},        // 被封禁IP
+		&do.Violation{},        // 违规
+		&do.Favorite{},         // 收藏
 	); err != nil {
 		return nil, fmt.Errorf("auto migrate failed: %w", err)
 	}

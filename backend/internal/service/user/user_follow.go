@@ -2,7 +2,7 @@ package user
 
 import (
 	"errors"
-	"tiny-forum/internal/model/po"
+	"tiny-forum/internal/model/do"
 )
 
 // Follow 关注用户
@@ -15,7 +15,7 @@ func (s *userService) Follow(followerID, followingID uint) error {
 	}
 	following, _ := s.repo.FindByID(followingID)
 	if following != nil {
-		s.notifSvc.Create(followingID, &followerID, po.NotifyFollow,
+		s.notifSvc.Create(followingID, &followerID, do.NotifyFollow,
 			following.Username+" 关注了你", nil, "")
 	}
 	return nil
@@ -27,11 +27,11 @@ func (s *userService) Unfollow(followerID, followingID uint) error {
 }
 
 // GetFollowers 获取粉丝列表
-func (s *userService) GetFollowers(userID uint, page, pageSize int) ([]po.User, int64, error) {
+func (s *userService) GetFollowers(userID uint, page, pageSize int) ([]do.User, int64, error) {
 	return s.repo.GetFollowers(userID, page, pageSize)
 }
 
 // GetFollowing 获取关注列表
-func (s *userService) GetFollowing(userID uint, page, pageSize int) ([]po.User, int64, error) {
+func (s *userService) GetFollowing(userID uint, page, pageSize int) ([]do.User, int64, error) {
 	return s.repo.GetFollowing(userID, page, pageSize)
 }

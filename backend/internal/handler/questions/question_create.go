@@ -6,8 +6,8 @@ import (
 	"io"
 	"net/http"
 
+	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/dto"
-	"tiny-forum/internal/model/po"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -21,7 +21,7 @@ import (
 // @Produce json
 // @Security ApiKeyAuth
 // @Param body body dto.CreateQuestionRequest true "问答信息"
-// @Success 200 {object} response.Response{data=model.QuestionResponse} "创建成功"
+// @Success 200 {object} response.Response{data=do.QuestionResponse} "创建成功"
 // @Failure 400 {object} response.Response "请求参数错误"
 // @Failure 401 {object} response.Response "未授权"
 // @Failure 403 {object} response.Response "积分不足"
@@ -46,7 +46,7 @@ func (h *QuestionHandler) CreateQuestion(c *gin.Context) {
 		return
 	}
 	if input.Status == "" {
-		input.Status = po.PostStatusPublished
+		input.Status = do.PostStatusPublished
 	}
 
 	userID, exists := c.Get("user_id")

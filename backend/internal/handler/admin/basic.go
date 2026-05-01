@@ -6,6 +6,6 @@ type AdminHandler struct {
 	service admin.AdminService
 }
 
-func NewAnnouncementHandler(svc admin.AdminService) *AdminHandler {
+func NewAdminHandler(svc admin.AdminService) *AdminHandler {
 	return &AdminHandler{service: svc}
 }

@@ -1,5 +1,5 @@
-// internal/model/vote.go
-package po
+// internal/model/po/po/vote.go
+package do
 
 import "time"
 

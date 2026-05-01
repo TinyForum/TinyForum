@@ -1,7 +1,7 @@
 package announcement
 
 import (
-	"tiny-forum/internal/model/dto"
+	"tiny-forum/internal/model/request"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -29,7 +29,7 @@ func (h *AnnouncementHandler) Update(c *gin.Context) {
 	if !ok {
 		return
 	}
-	var req dto.UpdateAnnouncementRequest
+	var req request.UpdateAnnouncement
 	if err := c.ShouldBindJSON(&req); err != nil {
 		response.BadRequest(c, err.Error())
 		return

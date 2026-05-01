@@ -2,7 +2,7 @@ package dto
 
 import (
 	"time"
-	"tiny-forum/internal/model/po"
+	"tiny-forum/internal/model/do"
 )
 
 // PostListOptions 帖子列表查询选项
@@ -12,8 +12,8 @@ type PostListOptions struct {
 	PostType         string
 	Keyword          string
 	SortBy           string
-	Status           po.PostStatus
-	ModerationStatus po.ModerationStatus
+	Status           do.PostStatus
+	ModerationStatus do.ModerationStatus
 }
 
 // GetStatsDay 获取每日统计数据

@@ -2,12 +2,11 @@ package comment
 
 import (
 	"errors"
-
-	"tiny-forum/internal/model/po"
+	"tiny-forum/internal/model/do"
 )
 
 // VoteAnswer 投票回答（支持 up/down）
-func (s *commentService) VoteAnswer(answerID uint, userID uint, voteType int) (*po.Comment, error) {
+func (s *commentService) VoteAnswer(answerID uint, userID uint, voteType int) (*do.Comment, error) {
 	comment, err := s.commentRepo.FindByID(answerID)
 	if err != nil {
 		return nil, errors.New("回答不存在")
@@ -46,7 +45,7 @@ func (s *commentService) VoteAnswer(answerID uint, userID uint, voteType int) (*
 }
 
 // RemoveVote 取消投票
-func (s *commentService) RemoveVote(answerID uint, userID uint) (*po.Comment, error) {
+func (s *commentService) RemoveVote(answerID uint, userID uint) (*do.Comment, error) {
 	comment, err := s.commentRepo.FindByID(answerID)
 	if err != nil {
 		return nil, errors.New("回答不存在")

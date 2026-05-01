@@ -3,21 +3,20 @@ package announcement
 import (
 	"context"
 	"time"
-	"tiny-forum/internal/model/dto"
-	"tiny-forum/internal/model/po"
-	"tiny-forum/internal/model/query"
+	"tiny-forum/internal/model/do"
+	"tiny-forum/internal/model/request"
 	"tiny-forum/internal/model/vo"
 	announcementRepo "tiny-forum/internal/repository/announcement"
 	apperrors "tiny-forum/pkg/errors"
 )
 
 type AnnouncementService interface {
-	Create(ctx context.Context, req *dto.CreateAnnouncementRequest, userID uint) (*po.Announcement, error)
-	Update(ctx context.Context, id uint, req *dto.UpdateAnnouncementRequest, userID uint) error
+	Create(ctx context.Context, req *request.CreateAnnouncement, userID uint) (*do.Announcement, error)
+	Update(ctx context.Context, id uint, req *request.UpdateAnnouncement, userID uint) error
 	Delete(ctx context.Context, id uint, userID uint) error
-	GetByID(ctx context.Context, id uint) (*po.Announcement, error)
-	List(ctx context.Context, req *query.ListAnnouncements) (*vo.ListAnnouncements, error)
-	GetPinned(ctx context.Context, boardID *uint) ([]po.Announcement, error)
+	GetByID(ctx context.Context, id uint) (*do.Announcement, error)
+	List(ctx context.Context, req *request.ListAnnouncements) (*vo.ListAnnouncements, error)
+	GetPinned(ctx context.Context, boardID *uint) ([]do.Announcement, error)
 	Publish(ctx context.Context, id uint, userID uint) error
 	Archive(ctx context.Context, id uint, userID uint) error
 	Pin(ctx context.Context, id uint, pinned bool, userID uint) error

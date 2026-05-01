@@ -2,21 +2,21 @@ package board
 
 import (
 	"errors"
-	"tiny-forum/internal/model/po"
+	"tiny-forum/internal/model/do"
 
 	"gorm.io/gorm"
 )
 
 // CreateApplication 创建版主申请
-func (r *boardRepository) CreateApplication(app *po.ModeratorApplication) error {
+func (r *boardRepository) CreateApplication(app *do.ModeratorApplication) error {
 	return r.db.Create(app).Error
 }
 
 // FindPendingApplication 查找用户在某板块的待审核申请
-func (r *boardRepository) FindPendingApplication(userID, boardID uint) (*po.ModeratorApplication, error) {
-	var app po.ModeratorApplication
+func (r *boardRepository) FindPendingApplication(userID, boardID uint) (*do.ModeratorApplication, error) {
+	var app do.ModeratorApplication
 	err := r.db.Where("user_id = ? AND board_id = ? AND status = ?",
-		userID, boardID, po.ApplicationPending).First(&app).Error
+		userID, boardID, do.ApplicationPending).First(&app).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, nil
 	}
@@ -24,8 +24,8 @@ func (r *boardRepository) FindPendingApplication(userID, boardID uint) (*po.Mode
 }
 
 // GetApplicationByID 根据 ID 获取申请
-func (r *boardRepository) GetApplicationByID(id uint) (*po.ModeratorApplication, error) {
-	var app po.ModeratorApplication
+func (r *boardRepository) GetApplicationByID(id uint) (*do.ModeratorApplication, error) {
+	var app do.ModeratorApplication
 	err := r.db.Preload("User").Preload("Board").Preload("Reviewer").
 		First(&app, id).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -35,11 +35,11 @@ func (r *boardRepository) GetApplicationByID(id uint) (*po.ModeratorApplication,
 }
 
 // GetApplicationsByUserID 获取用户的所有申请记录
-func (r *boardRepository) GetApplicationsByUserID(userID uint, page, pageSize int) ([]po.ModeratorApplication, int64, error) {
-	var applications []po.ModeratorApplication
+func (r *boardRepository) GetApplicationsByUserID(userID uint, page, pageSize int) ([]do.ModeratorApplication, int64, error) {
+	var applications []do.ModeratorApplication
 	var total int64
 
-	query := r.db.Model(&po.ModeratorApplication{}).Where("user_id = ?", userID)
+	query := r.db.Model(&do.ModeratorApplication{}).Where("user_id = ?", userID)
 
 	if err := query.Count(&total).Error; err != nil {
 		return nil, 0, err
@@ -55,8 +55,8 @@ func (r *boardRepository) GetApplicationsByUserID(userID uint, page, pageSize in
 }
 
 // GetLatestApplicationByUserAndBoard 获取用户在某板块的最新申请
-func (r *boardRepository) GetLatestApplicationByUserAndBoard(userID, boardID uint) (*po.ModeratorApplication, error) {
-	var app po.ModeratorApplication
+func (r *boardRepository) GetLatestApplicationByUserAndBoard(userID, boardID uint) (*do.ModeratorApplication, error) {
+	var app do.ModeratorApplication
 	err := r.db.Where("user_id = ? AND board_id = ?", userID, boardID).
 		Order("created_at DESC").
 		First(&app).Error
@@ -70,20 +70,20 @@ func (r *boardRepository) GetLatestApplicationByUserAndBoard(userID, boardID uin
 }
 
 // UpdateApplication 更新申请状态
-func (r *boardRepository) UpdateApplication(app *po.ModeratorApplication) error {
+func (r *boardRepository) UpdateApplication(app *do.ModeratorApplication) error {
 	return r.db.Save(app).Error
 }
 
 // ListApplications 分页列出申请（可按板块和状态过滤）
 func (r *boardRepository) ListApplications(
 	boardID *uint,
-	status po.ApplicationStatus,
+	status do.ApplicationStatus,
 	page, pageSize int,
-) ([]po.ModeratorApplication, int64, error) {
-	var apps []po.ModeratorApplication
+) ([]do.ModeratorApplication, int64, error) {
+	var apps []do.ModeratorApplication
 	var total int64
 
-	query := r.db.Model(&po.ModeratorApplication{})
+	query := r.db.Model(&do.ModeratorApplication{})
 	if boardID != nil {
 		query = query.Where("board_id = ?", *boardID)
 	}
@@ -106,7 +106,7 @@ func (r *boardRepository) ListApplications(
 
 // CancelUserApplications 撤销用户在某板块的所有 pending 申请
 func (r *boardRepository) CancelUserApplications(userID, boardID uint) error {
-	return r.db.Model(&po.ModeratorApplication{}).
-		Where("user_id = ? AND board_id = ? AND status = ?", userID, boardID, po.ApplicationPending).
-		Update("status", po.ApplicationCanceled).Error
+	return r.db.Model(&do.ModeratorApplication{}).
+		Where("user_id = ? AND board_id = ? AND status = ?", userID, boardID, do.ApplicationPending).
+		Update("status", do.ApplicationCanceled).Error
 }

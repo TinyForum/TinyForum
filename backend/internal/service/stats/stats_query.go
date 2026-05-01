@@ -5,17 +5,17 @@ import (
 	"fmt"
 	"time"
 
+	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/dto"
-	"tiny-forum/internal/model/po"
 )
 
 // GetStatsByDate 获取指定日期的统计数据
-func (s *statsService) GetStatsByDate(ctx context.Context, date time.Time, statsType string) (*po.StatsTodayInfo, error) {
+func (s *statsService) GetStatsByDate(ctx context.Context, date time.Time, statsType string) (*do.StatsTodayInfo, error) {
 	startOfDay := time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, date.Location())
 	endOfDay := time.Date(date.Year(), date.Month(), date.Day(), 23, 59, 59, 999999999, date.Location())
 
 	// 统一返回完整结构
-	info := &po.StatsTodayInfo{}
+	info := &do.StatsTodayInfo{}
 
 	var err error
 	switch statsType {
@@ -43,9 +43,9 @@ func (s *statsService) GetStatsByDate(ctx context.Context, date time.Time, stats
 }
 
 // GetTotalStats 获取指定时间范围的汇总统计数据
-func (s *statsService) GetTotalStats(ctx context.Context, startDate, endDate time.Time, statsType string) (*po.StatsInfoResp, error) {
+func (s *statsService) GetTotalStats(ctx context.Context, startDate, endDate time.Time, statsType string) (*do.StatsInfoResp, error) {
 	fmt.Printf("GetTotalStats: start_date=%s, end_date=%s, stats_type=%s", startDate, endDate, statsType)
-	resp := &po.StatsInfoResp{StatTime: time.Now()}
+	resp := &do.StatsInfoResp{StatTime: time.Now()}
 	baseInfo, err := s.getBaseInfo(ctx)
 	if err != nil {
 		return nil, err
@@ -57,19 +57,19 @@ func (s *statsService) GetTotalStats(ctx context.Context, startDate, endDate tim
 		if err != nil {
 			return nil, err
 		}
-		resp.TodayInfo = &po.StatsTodayInfo{NewUser: count}
+		resp.TodayInfo = &do.StatsTodayInfo{NewUser: count}
 	case "posts":
 		count, err := s.postRepo.CountByDateRange(ctx, startDate, endDate)
 		if err != nil {
 			return nil, err
 		}
-		resp.TodayInfo = &po.StatsTodayInfo{NewArticle: count}
+		resp.TodayInfo = &do.StatsTodayInfo{NewArticle: count}
 	case "comments":
 		count, err := s.commentRepo.CountByDateRange(ctx, startDate, endDate)
 		if err != nil {
 			return nil, err
 		}
-		resp.TodayInfo = &po.StatsTodayInfo{NewComment: count}
+		resp.TodayInfo = &do.StatsTodayInfo{NewComment: count}
 	default: // "all"
 		todayInfo, err := s.getRangeStats(ctx, startDate, endDate)
 		if err != nil {
@@ -93,9 +93,9 @@ func (s *statsService) GetTotalStats(ctx context.Context, startDate, endDate tim
 }
 
 // GetTrendStats 获取趋势统计数据（按 day / week / month 粒度）
-func (s *statsService) GetTrendStats(ctx context.Context, startDate, endDate time.Time, statsType, intervals string) ([]*po.TrendData, error) {
+func (s *statsService) GetTrendStats(ctx context.Context, startDate, endDate time.Time, statsType, intervals string) ([]*do.TrendData, error) {
 	dates := generateDateRange(startDate, endDate, intervals)
-	trendData := make([]*po.TrendData, 0, len(dates))
+	trendData := make([]*do.TrendData, 0, len(dates))
 	for _, date := range dates {
 		var count int64
 		var err error
@@ -112,7 +112,7 @@ func (s *statsService) GetTrendStats(ctx context.Context, startDate, endDate tim
 		if err != nil {
 			continue
 		}
-		trendData = append(trendData, &po.TrendData{
+		trendData = append(trendData, &do.TrendData{
 			Date:  date.Format("2006-01-02"),
 			Count: count,
 		})

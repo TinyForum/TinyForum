@@ -2,9 +2,8 @@ package admin
 
 import (
 	"errors"
-	"tiny-forum/internal/model/dto"
-	"tiny-forum/internal/model/po"
-	"tiny-forum/internal/model/query"
+	"tiny-forum/internal/model/do"
+	"tiny-forum/internal/model/request"
 	apperrors "tiny-forum/pkg/errors"
 	"tiny-forum/pkg/logger"
 	"tiny-forum/pkg/response"
@@ -20,20 +19,20 @@ import (
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param body body dto.ListAnnouncementRequest true "公告信息"
-// @Success 200 {object} response.Response{data=po.Announcement} "创建成功"
+// @Param body body request.ListAnnouncements true "公告信息"
+// @Success 200 {object} response.Response{data=do.Announcement} "创建成功"
 // @Failure 400 {object} response.Response "请求参数错误"
 // @Failure 401 {object} response.Response "未授权"
 // @Failure 403 {object} response.Response "无权限（非管理员）"
 // @Failure 500 {object} response.Response "服务器内部错误"
 // @Router /admin/announcements/list [get]
 func (h *AdminHandler) ListAnnouncements(c *gin.Context) {
-	var req query.ListAnnouncements
+	var req request.ListAnnouncements
 	if err := c.ShouldBindQuery(&req); err != nil {
 		response.BadRequest(c, err.Error())
 		return
 	}
-	allStatus := po.AnnouncementStatus(po.AnnouncementStatusAll)
+	allStatus := do.AnnouncementStatus(do.AnnouncementStatusAll)
 	req.Status = &allStatus
 
 	resp, err := h.service.ListAnnouncements(c.Request.Context(), &req)
@@ -60,27 +59,34 @@ func (h *AdminHandler) ListAnnouncements(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param body body dto.CreateAnnouncementRequest true "公告信息"
-// @Success 200 {object} response.Response{data=po.Announcement} "创建成功"
+// @Param body body request.CreateAnnouncement true "公告信息"
+// @Success 200 {object} response.Response{data=do.Announcement} "创建成功"
 // @Failure 400 {object} response.Response "请求参数错误"
 // @Failure 401 {object} response.Response "未授权"
 // @Failure 403 {object} response.Response "无权限（非管理员）"
 // @Failure 500 {object} response.Response "服务器内部错误"
 // @Router /admin/announcements [post]
-//
-// Deprecated: 迁移到 adminHandler.CreateAnnouncements
 func (h *AdminHandler) CreateAnnouncement(c *gin.Context) {
-	var req dto.CreateAnnouncementRequest
+	userID := c.GetUint("user_id")
+	var req request.CreateAnnouncement
 	if err := c.ShouldBindJSON(&req); err != nil {
+		logger.Errorf("绑定请求失败: user: %d result error: %v",userID,err)
 		response.BadRequest(c, err.Error())
 		return
 	}
-	userID := c.GetUint("user_id")
+	logger.Infof("用户请求创建公告: user: %d request: %v",userID,req)
+	
+
+	
+		
 	announcement, err := h.service.CreateAnnouncement(c.Request.Context(), &req, userID)
+	
 	if err != nil {
+		logger.Errorf("创建公告失败: user: %d result: %v",userID,err)
 		response.InternalError(c, err.Error())
 		return
 	}
+	logger.Infof("创建公告: user: %d result: %v",userID,announcement.ID)
 	response.Success(c, announcement)
 }
 
@@ -104,7 +110,7 @@ func (h *AdminHandler) UpdateAnnouncement(c *gin.Context) {
 	if !ok {
 		return
 	}
-	var req dto.UpdateAnnouncementRequest
+	var req request.UpdateAnnouncement
 	if err := c.ShouldBindJSON(&req); err != nil {
 		response.BadRequest(c, err.Error())
 		return
@@ -219,8 +225,6 @@ func (h *AdminHandler) ArchiveAnnouncement(c *gin.Context) {
 // @Failure 404 {object} response.Response "公告不存在"
 // @Failure 500 {object} response.Response "服务器内部错误"
 // @Router /admin/announcements/{id}/pin [put]
-//
-// Deprecated: 迁移到 adminHandler.PinAnnouncements
 func (h *AdminHandler) PinAnnouncement(c *gin.Context) {
 	id, ok := parseAnnouncementID(c)
 	if !ok {

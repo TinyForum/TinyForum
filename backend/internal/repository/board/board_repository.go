@@ -3,20 +3,20 @@ package board
 import (
 	"errors"
 	"fmt"
+	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/dto"
-	"tiny-forum/internal/model/po"
 
 	"gorm.io/gorm"
 )
 
 // Create 创建板块
-func (r *boardRepository) Create(board *po.Board) error {
+func (r *boardRepository) Create(board *do.Board) error {
 	if board.ParentID != nil && *board.ParentID == 0 {
 		board.ParentID = nil
 	}
 	return r.db.Transaction(func(tx *gorm.DB) error {
 		if board.ParentID != nil && *board.ParentID != 0 {
-			var parent po.Board
+			var parent do.Board
 			if err := tx.First(&parent, *board.ParentID).Error; err != nil {
 				if errors.Is(err, gorm.ErrRecordNotFound) {
 					return fmt.Errorf("父板块不存在: id=%d", *board.ParentID)
@@ -29,26 +29,26 @@ func (r *boardRepository) Create(board *po.Board) error {
 }
 
 // Update 更新板块
-func (r *boardRepository) Update(board *po.Board) error {
+func (r *boardRepository) Update(board *do.Board) error {
 	return r.db.Save(board).Error
 }
 
 // Delete 删除板块
 func (r *boardRepository) Delete(id uint) (int64, error) {
-	result := r.db.Where("id = ?", id).Delete(&po.Board{})
+	result := r.db.Where("id = ?", id).Delete(&do.Board{})
 	return result.RowsAffected, result.Error
 }
 
 // FindByID 根据 ID 查找板块
-func (r *boardRepository) FindByID(id uint) (*po.Board, error) {
-	var board po.Board
+func (r *boardRepository) FindByID(id uint) (*do.Board, error) {
+	var board do.Board
 	err := r.db.Preload("Parent").First(&board, id).Error
 	return &board, err
 }
 
 // FindBySlug 根据 slug 查找板块
-func (r *boardRepository) FindBySlug(slug string) (*po.Board, error) {
-	var board po.Board
+func (r *boardRepository) FindBySlug(slug string) (*do.Board, error) {
+	var board do.Board
 	err := r.db.Where("slug = ?", slug).First(&board).Error
 	return &board, err
 }
@@ -88,19 +88,19 @@ func (r *boardRepository) GetPostsBySlug(slug string, page, pageSize int) ([]*dt
 }
 
 // List 分页获取板块列表
-func (r *boardRepository) List(limit, offset int) ([]po.Board, int64, error) {
-	var boards []po.Board
+func (r *boardRepository) List(limit, offset int) ([]do.Board, int64, error) {
+	var boards []do.Board
 	var total int64
 
-	query := r.db.Model(&po.Board{})
+	query := r.db.Model(&do.Board{})
 	query.Count(&total)
 	err := query.Offset(offset).Limit(limit).Order("sort_order ASC, id ASC").Find(&boards).Error
 	return boards, total, err
 }
 
 // GetTree 获取板块树形结构
-func (r *boardRepository) GetTree() ([]po.Board, error) {
-	var boards []po.Board
+func (r *boardRepository) GetTree() ([]do.Board, error) {
+	var boards []do.Board
 	err := r.db.Where("parent_id IS NULL").
 		Preload("Children", func(db *gorm.DB) *gorm.DB {
 			return db.Order("sort_order ASC, id ASC")
@@ -112,18 +112,18 @@ func (r *boardRepository) GetTree() ([]po.Board, error) {
 
 // IncrementPostCount 增加板块帖子计数
 func (r *boardRepository) IncrementPostCount(boardID uint, delta int) error {
-	return r.db.Model(&po.Board{}).Where("id = ?", boardID).
+	return r.db.Model(&do.Board{}).Where("id = ?", boardID).
 		UpdateColumn("post_count", gorm.Expr("post_count + ?", delta)).Error
 }
 
 // IncrementThreadCount 增加板块主题计数
 func (r *boardRepository) IncrementThreadCount(boardID uint) error {
-	return r.db.Model(&po.Board{}).Where("id = ?", boardID).
+	return r.db.Model(&do.Board{}).Where("id = ?", boardID).
 		UpdateColumn("thread_count", gorm.Expr("thread_count + 1")).Error
 }
 
 // IncrementTodayCount 增加板块今日计数
 func (r *boardRepository) IncrementTodayCount(boardID uint) error {
-	return r.db.Model(&po.Board{}).Where("id = ?", boardID).
+	return r.db.Model(&do.Board{}).Where("id = ?", boardID).
 		UpdateColumn("today_count", gorm.Expr("today_count + 1")).Error
 }

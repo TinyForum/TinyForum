@@ -3,8 +3,8 @@ package post
 import (
 	"strconv"
 
+	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/dto"
-	"tiny-forum/internal/model/po"
 	postService "tiny-forum/internal/service/post"
 	apperrors "tiny-forum/pkg/errors"
 	"tiny-forum/pkg/response"
@@ -20,7 +20,7 @@ import (
 // @Produce json
 // @Security ApiKeyAuth
 // @Param body body post.CreatePostInput true "帖子信息"
-// @Success 200 {object} response.Response{data=model.Post} "创建成功"
+// @Success 200 {object} response.Response{data=do.Post} "创建成功"
 // @Failure 400 {object} response.Response "请求参数错误"
 // @Failure 401 {object} response.Response "未授权"
 // @Failure 500 {object} response.Response "服务器内部错误"
@@ -40,7 +40,7 @@ func (h *PostHandler) Create(c *gin.Context) {
 		return
 	}
 	if input.Status == "" {
-		input.Status = po.PostStatusPublished
+		input.Status = do.PostStatusPublished
 	}
 
 	post, err := h.postSvc.Create(c, authorID, input)
@@ -103,7 +103,7 @@ func (h *PostHandler) GetByID(c *gin.Context) {
 // @Param type query string false "帖子类型" Enums(post, question)
 // @Param author_id query int false "作者ID"
 // @Param tag_id query int false "标签ID"
-// @Success 200 {object} response.Response{data=response.PageData{list=[]model.Post}} "获取成功"
+// @Success 200 {object} response.Response{data=response.PageData{list=[]do.Post}} "获取成功"
 // @Failure 500 {object} response.Response "服务器内部错误"
 // @Router /posts [get]
 func (h *PostHandler) List(c *gin.Context) {
@@ -150,7 +150,7 @@ func (h *PostHandler) List(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Param id path int true "帖子ID"
 // @Param body body post.UpdatePostInput true "帖子信息"
-// @Success 200 {object} response.Response{data=model.Post} "更新成功"
+// @Success 200 {object} response.Response{data=do.Post} "更新成功"
 // @Failure 400 {object} response.Response "请求参数错误"
 // @Failure 401 {object} response.Response "未授权"
 // @Failure 403 {object} response.Response "无权限"

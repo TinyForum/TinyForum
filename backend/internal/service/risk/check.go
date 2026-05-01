@@ -8,7 +8,7 @@ import (
 	"log"
 	"time"
 	"tiny-forum/internal/infra/ratelimit"
-	"tiny-forum/internal/model/po"
+	"tiny-forum/internal/model/do"
 )
 
 // type riskService struct {
@@ -20,39 +20,39 @@ import (
 // type RiskRepository interface {
 // 	// 现有方法
 // 	CountActiveRiskEvents(userID uint) (int, error)
-// 	AddRiskRecord(record *po.UserRiskRecord) error
-// 	CreateAuditLog(log *po.AuditLog) error
+// 	AddRiskRecord(record *do.UserRiskRecord) error
+// 	CreateAuditLog(log *do.AuditLog) error
 
 // 	// 新增方法
 // 	CountActiveRiskEventsByIP(ip string) (int, error)
-// 	AddIPRiskRecord(record *po.IPRiskRecord) error
+// 	AddIPRiskRecord(record *do.IPRiskRecord) error
 // 	IsIPBlocked(ip string) (bool, error)
 // }
 
 // GetAnonymousRiskLevel 获取匿名用户（未登录）的风险等级
-func (s *riskService) GetAnonymousRiskLevel(ip string) (po.RiskLevel, error) {
+func (s *riskService) GetAnonymousRiskLevel(ip string) (do.RiskLevel, error) {
 	// 可选：检查IP是否被封锁
 	// isBlocked, err := s.repo.IsIPBlocked(ip)
 	// if err != nil {
-	//     return po.RiskLevelNormal, err
+	//     return do.RiskLevelNormal, err
 	// }
 	// if isBlocked {
-	//     return po.RiskLevelBlocked, nil
+	//     return do.RiskLevelBlocked, nil
 	// }
 
 	// 统计IP的活跃风险事件数
 	activeEvents, err := s.repo.CountActiveRiskEventsByIP(ip)
 	if err != nil {
-		return po.RiskLevelNormal, err
+		return do.RiskLevelNormal, err
 	}
 
 	// 活跃风险事件 >= 3 则限制
 	if activeEvents >= 3 {
-		return po.RiskLevelRestrict, nil
+		return do.RiskLevelRestrict, nil
 	}
 
 	// 匿名用户默认为正常等级
-	return po.RiskLevelNormal, nil
+	return do.RiskLevelNormal, nil
 }
 
 // CheckRateLimitByIP 检查匿名用户（未登录）操作频率是否超限
@@ -83,7 +83,7 @@ func getAnonymousQuota(action ratelimit.Action) ratelimit.Quota {
 
 // RecordRiskEventByIP 记录基于IP的风险事件
 func (s *riskService) RecordRiskEventByIP(ip, eventType, detail string, ttl time.Duration) error {
-	record := &po.IPRiskRecord{
+	record := &do.IPRiskRecord{
 		IP:          ip,
 		EventType:   eventType,
 		EventDetail: detail,
@@ -93,9 +93,9 @@ func (s *riskService) RecordRiskEventByIP(ip, eventType, detail string, ttl time
 }
 
 // WriteAuditLogByIP 写入基于IP的操作审计日志
-func (s *riskService) WriteAuditLogByIP(ip string, action po.AuditActionType,
+func (s *riskService) WriteAuditLogByIP(ip string, action do.AuditActionType,
 	targetType string, targetID uint, before, after, reason string) error {
-	log := &po.AuditLog{
+	log := &do.AuditLog{
 		OperatorIP: ip, // 需要在 AuditLog 模型中添加 OperatorIP 字段
 		Action:     action,
 		TargetType: targetType,

@@ -1,4 +1,4 @@
-package po
+package do
 
 // FavoriteStatus 收藏状态
 type FavoriteStatus int8

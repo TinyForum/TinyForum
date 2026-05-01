@@ -90,7 +90,7 @@ func (h *QuestionHandler) GetQuestionDetail(c *gin.Context) {
 // @Param filter query string false "过滤条件" Enums(all, unanswered, answered)
 // @Param sort query string false "排序方式" Enums(latest, hot, score)
 // @Param keyword query string false "关键词搜索"
-// @Success 200 {object} response.Response{data=response.PageData{list=[]model.QuestionListResponse}}
+// @Success 200 {object} response.Response{data=response.PageData{list=[]do.QuestionListResponse}}
 // @Failure 500 {object} response.Response
 // @Router /questions/simple [get]
 func (h *QuestionHandler) GetQuestionSimple(c *gin.Context) {

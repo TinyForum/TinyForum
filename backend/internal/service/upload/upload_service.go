@@ -15,8 +15,8 @@ import (
 
 	"github.com/disintegration/imaging"
 
+	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/dto"
-	"tiny-forum/internal/model/po"
 	"tiny-forum/pkg/logger"
 )
 
@@ -166,7 +166,7 @@ func (s *service) UploadFile(ctx context.Context, userID int64, fileHeader *mult
 	}
 
 	// 5. 保存到数据库
-	attachment := &po.Attachment{
+	attachment := &do.Attachment{
 		FileID:       fileID,
 		UserID:       userID,
 		PostID:       req.PostID,

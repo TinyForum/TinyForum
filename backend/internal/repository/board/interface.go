@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
+	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/dto"
-	"tiny-forum/internal/model/po"
 	"tiny-forum/internal/repository/stats"
 	statsRepo "tiny-forum/internal/repository/stats"
 
@@ -14,42 +14,42 @@ import (
 
 type BoardRepository interface {
 	// apply
-	CreateApplication(app *po.ModeratorApplication) error
-	FindPendingApplication(userID, boardID uint) (*po.ModeratorApplication, error)
-	GetApplicationByID(id uint) (*po.ModeratorApplication, error)
-	GetApplicationsByUserID(userID uint, page, pageSize int) ([]po.ModeratorApplication, int64, error)
-	GetLatestApplicationByUserAndBoard(userID, boardID uint) (*po.ModeratorApplication, error)
-	UpdateApplication(app *po.ModeratorApplication) error
+	CreateApplication(app *do.ModeratorApplication) error
+	FindPendingApplication(userID, boardID uint) (*do.ModeratorApplication, error)
+	GetApplicationByID(id uint) (*do.ModeratorApplication, error)
+	GetApplicationsByUserID(userID uint, page, pageSize int) ([]do.ModeratorApplication, int64, error)
+	GetLatestApplicationByUserAndBoard(userID, boardID uint) (*do.ModeratorApplication, error)
+	UpdateApplication(app *do.ModeratorApplication) error
 	ListApplications(
 		boardID *uint,
-		status po.ApplicationStatus,
+		status do.ApplicationStatus,
 		page, pageSize int,
-	) ([]po.ModeratorApplication, int64, error)
+	) ([]do.ModeratorApplication, int64, error)
 	CancelUserApplications(userID, boardID uint) error
 	// ban
-	BanUser(ban *po.BoardBan) error
+	BanUser(ban *do.BoardBan) error
 	UnbanUser(userID, boardID uint) error
 	IsBanned(userID, boardID uint) (bool, error)
-	GetBan(userID, boardID uint) (*po.BoardBan, error)
+	GetBan(userID, boardID uint) (*do.BoardBan, error)
 	// moderator
-	AddModerator(mod *po.Moderator) error
-	UpdateModerator(mod *po.Moderator) error
+	AddModerator(mod *do.Moderator) error
+	UpdateModerator(mod *do.Moderator) error
 	RemoveModerator(userID, boardID uint) error
-	FindModeratorByUserAndBoard(userID, boardID uint) (*po.Moderator, error)
-	GetModerators(boardID uint) ([]po.Moderator, error)
+	FindModeratorByUserAndBoard(userID, boardID uint) (*do.Moderator, error)
+	GetModerators(boardID uint) ([]do.Moderator, error)
 	IsModerator(userID, boardID uint) (bool, error)
-	CreateModeratorLog(log *po.ModeratorLog) error
-	GetModeratorLogs(boardID uint, limit, offset int) ([]po.ModeratorLog, int64, error)
+	CreateModeratorLog(log *do.ModeratorLog) error
+	GetModeratorLogs(boardID uint, limit, offset int) ([]do.ModeratorLog, int64, error)
 	GetModeratorBoardsWithPermissions(userID uint) ([]ModeratorBoardInfo, error)
 	// repo
-	Create(board *po.Board) error
-	Update(board *po.Board) error
+	Create(board *do.Board) error
+	Update(board *do.Board) error
 	Delete(id uint) (int64, error)
-	FindByID(id uint) (*po.Board, error)
-	FindBySlug(slug string) (*po.Board, error)
+	FindByID(id uint) (*do.Board, error)
+	FindBySlug(slug string) (*do.Board, error)
 	GetPostsBySlug(slug string, page, pageSize int) ([]*dto.GetBoardPostsResponse, int64, error)
-	List(limit, offset int) ([]po.Board, int64, error)
-	GetTree() ([]po.Board, error)
+	List(limit, offset int) ([]do.Board, int64, error)
+	GetTree() ([]do.Board, error)
 	IncrementPostCount(boardID uint, delta int) error
 	IncrementThreadCount(boardID uint) error
 	IncrementTodayCount(boardID uint) error

@@ -2,7 +2,7 @@ package user
 
 import (
 	"strconv"
-	"tiny-forum/internal/model/query"
+	"tiny-forum/internal/model/request"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -10,7 +10,7 @@ import (
 
 // AdminList 管理员获取用户列表
 // @Summary 管理员获取用户列表
-// @Tags 管理接口
+// @Tags 管理员后台
 // @Produce json
 // @Security ApiKeyAuth
 // @Router /admin/users [get]
@@ -29,7 +29,7 @@ func (h *UserHandler) AdminList(c *gin.Context) {
 }
 
 // @Summary 管理员设置用户状态
-// @Tags 管理接口
+// @Tags 管理员后台
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -81,7 +81,7 @@ func (h *UserHandler) AdminSetActive(c *gin.Context) {
 
 // AdminSetBlocked 设置用户封禁状态
 // @Summary 管理员封禁/解封用户
-// @Tags 管理接口
+// @Tags 管理员后台
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -125,12 +125,12 @@ func (h *UserHandler) AdminSetBlocked(c *gin.Context) {
 
 // AdminSetRole 设置用户角色
 // @Summary 管理员设置用户角色
-// @Tags 管理接口
+// @Tags 管理员后台
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path int true "用户ID"
-// @Param body body SetUserRoleRequest true "角色信息"
+// @Param body body query.SetUserRoleRequest true "角色信息"
 // @Success 200 {object} response.Response
 // @Router /admin/users/{id}/role [put]
 //
@@ -146,7 +146,7 @@ func (h *UserHandler) AdminSetRole(c *gin.Context) {
 		response.BadRequest(c, "无效的用户ID")
 		return
 	}
-	var body query.SetUserRoleRequest
+	var body request.SetUserRoleRequest
 	if err := c.ShouldBindJSON(&body); err != nil {
 		response.BadRequest(c, "请求参数错误: "+err.Error())
 		return
@@ -166,7 +166,7 @@ func (h *UserHandler) AdminSetRole(c *gin.Context) {
 
 // AdminDeleteUser 管理员删除用户
 // @Summary 管理员删除用户
-// @Tags 管理接口
+// @Tags 管理员后台
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -209,7 +209,7 @@ func (h *UserHandler) AdminDeleteUser(c *gin.Context) {
 // @Description **权限要求**：
 // @Description - 超级管理员：可重置任何用户
 // @Description - 普通管理员：只能重置普通用户，不能重置管理员和超级管理员
-// @Tags 管理接口
+// @Tags 管理员后台
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth

@@ -3,7 +3,7 @@ package board
 import (
 	"strconv"
 
-	"tiny-forum/internal/model/po"
+	"tiny-forum/internal/model/do"
 	boardService "tiny-forum/internal/service/board"
 	"tiny-forum/pkg/response"
 
@@ -18,7 +18,7 @@ import (
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path int true "板块ID"
-// @Param body body model.ApplyModeratorInput true "申请信息"
+// @Param body body do.ApplyModeratorInput true "申请信息"
 // @Success 200 {object} response.Response{data=object} "申请提交成功"
 // @Failure 400 {object} response.Response "请求参数错误或板块ID无效"
 // @Failure 401 {object} response.Response "未授权"
@@ -31,7 +31,7 @@ func (h *BoardHandler) ApplyModerator(c *gin.Context) {
 		return
 	}
 
-	var input po.ApplyModeratorInput
+	var input do.ApplyModeratorInput
 	if err := c.ShouldBindJSON(&input); err != nil {
 		response.BadRequest(c, err.Error())
 		return
@@ -85,7 +85,7 @@ func (h *BoardHandler) CancelApplication(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Param page query int false "页码" default(1)
 // @Param page_size query int false "每页数量" default(20)
-// @Success 200 {object} response.Response{data=response.PageData{list=[]po.ModeratorApplication}} "申请列表"
+// @Success 200 {object} response.Response{data=response.PageData{list=[]do.ModeratorApplication}} "申请列表"
 // @Failure 401 {object} response.Response "未授权"
 // @Router /boards/moderators/applications [get]
 func (h *BoardHandler) GetUserApplications(c *gin.Context) {
@@ -191,7 +191,7 @@ func (h *BoardHandler) ListApplications(c *gin.Context) {
 		boardID = &uid
 	}
 
-	status := po.ApplicationStatus(c.Query("status")) // 空串 = 不过滤
+	status := do.ApplicationStatus(c.Query("status")) // 空串 = 不过滤
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "20"))
 

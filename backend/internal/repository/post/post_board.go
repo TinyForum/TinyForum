@@ -1,15 +1,13 @@
 package post
 
-import (
-	"tiny-forum/internal/model/po"
-)
+import "tiny-forum/internal/model/do"
 
-func (r *postRepository) GetByBoardID(boardID uint, limit, offset int) ([]po.Post, int64, error) {
-	var posts []po.Post
+func (r *postRepository) GetByBoardID(boardID uint, limit, offset int) ([]do.Post, int64, error) {
+	var posts []do.Post
 	var total int64
 
-	query := r.db.Model(&po.Post{}).
-		Where("board_id = ? AND status = ?", boardID, po.PostStatusPublished)
+	query := r.db.Model(&do.Post{}).
+		Where("board_id = ? AND status = ?", boardID, do.PostStatusPublished)
 
 	query.Count(&total)
 
@@ -24,6 +22,6 @@ func (r *postRepository) GetByBoardID(boardID uint, limit, offset int) ([]po.Pos
 }
 
 func (r *postRepository) TogglePinInBoard(postID uint, pin bool) error {
-	return r.db.Model(&po.Post{}).Where("id = ?", postID).
+	return r.db.Model(&do.Post{}).Where("id = ?", postID).
 		Update("pin_in_board", pin).Error
 }

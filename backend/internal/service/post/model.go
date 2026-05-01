@@ -1,6 +1,6 @@
 package post
 
-import "tiny-forum/internal/model/po"
+import "tiny-forum/internal/model/do"
 
 type CreatePostInput struct {
 	Title   string        `json:"title" binding:"required,min=2,max=200"`
@@ -10,7 +10,7 @@ type CreatePostInput struct {
 	Type    string        `json:"type"`
 	BoardID uint          `json:"board_id" binding:"required"`
 	TagIDs  []uint        `json:"tag_ids"`
-	Status  po.PostStatus `json:"status"`
+	Status  do.PostStatus `json:"status"`
 }
 
 type UpdatePostInput struct {
