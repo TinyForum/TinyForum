@@ -230,7 +230,7 @@ type WechatOAuthConfig struct {
 // Load 加载配置文件
 func Load(configDir string) (*Config, error) {
 	basicViper, privateViper := newViperInstances(configDir)
-	fmt.Println("开始加载配置文件\n")
+	fmt.Println("开始加载配置文件")
 
 	// 加载基础配置
 	var basicConfig ConfigBasic
@@ -266,7 +266,7 @@ func Load(configDir string) (*Config, error) {
 		Private:     privateConfig,
 		RiskControl: riskControl,
 	}
-	fmt.Println("加载配置文件成功\n")
+	fmt.Println("加载配置文件成功")
 	cfg.setDefaults()
 	if err := cfg.validate(); err != nil {
 		return nil, err

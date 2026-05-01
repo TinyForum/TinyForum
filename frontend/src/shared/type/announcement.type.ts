@@ -1,6 +1,5 @@
 import {
   AnnouncementType,
-  AnnouncementStatus,
   CreateAnnouncementStatus,
 } from "../api/types/announcement.model";
 
