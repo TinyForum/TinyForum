@@ -20,7 +20,7 @@ func (r *announcementRepository) List(ctx context.Context, req *request.ListAnno
 		query = query.Where("type = ?", *req.Type)
 	}
 	if req.Status != nil {
-		if *req.Status != StatusAll {
+		if *req.Status != do.AnnouncementStatus(do.AnnouncementStatusFilterAll) {
 			query = query.Where("status = ?", *req.Status)
 		}
 	}
@@ -41,7 +41,7 @@ func (r *announcementRepository) List(ctx context.Context, req *request.ListAnno
 	}
 
 	shouldFilterTime := req.Status == nil ||
-		(req.Status != nil && *req.Status == StatusPublished)
+		(req.Status != nil && *req.Status == do.AnnouncementStatusPublished)
 
 	if shouldFilterTime {
 		query = query.Where("published_at <= ?", time.Now())

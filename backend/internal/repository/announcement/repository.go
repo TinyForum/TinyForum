@@ -36,12 +36,12 @@ type AnnouncementRepository interface {
 // }
 
 // 状态常量（用于查询过滤）
-const (
-	StatusAll       = "all"
-	StatusDraft     = "draft"
-	StatusPublished = "published"
-	StatusExpired   = "expired"
-)
+// const (
+// 	StatusAll       = "all"
+// 	StatusDraft     = "draft"
+// 	StatusPublished = "published"
+// 	StatusExpired   = "expired"
+// )
 
 // announcementRepository 实现
 type announcementRepository struct {

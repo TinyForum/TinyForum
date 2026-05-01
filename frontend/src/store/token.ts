@@ -1,7 +1,7 @@
 // store/password-reset.ts
 import { create } from "zustand";
 import { authApi } from "@/shared/api";
-import { ApiError } from "@/shared/api/types/basic.type";
+import { ApiError } from "@/shared/api/types/basic.model";
 
 interface ForgotPasswordState {
   // 表单数据

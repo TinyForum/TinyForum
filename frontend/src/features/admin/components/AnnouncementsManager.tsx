@@ -2,111 +2,25 @@
 "use client";
 
 import { useState } from "react";
-import { format, parseISO, isValid } from "date-fns";
-import { zhCN } from "date-fns/locale";
 import toast from "react-hot-toast";
 import { Globe, BookOpen, Megaphone } from "lucide-react";
-import type {
-  Announcement,
-  AnnouncementType,
-  AnnouncementStatus,
-} from "@/shared/api/modules/announcements";
+
 import { AnnouncementForm } from "./AnnouncementForm";
 import { AnnouncementList } from "./AnnouncementList";
 
-import { CreateAnnouncementPayload } from "@/shared/api/modules/announcements";
 import { useAdminAnnouncements } from "../hooks/useAdminAnnouncements";
 import { useBoard } from "@/features/boards/hooks/useBoard";
-// 类型定义 - 让可选字段真正可选
-interface AnnouncementFormValues {
-  title: string;
-  content: string;
-  summary?: string;
-  cover?: string;
-  type: AnnouncementType;
-  is_pinned: boolean;
-  status: AnnouncementStatus;
-  is_global: boolean;
-  board_id?: number | null;
-  published_at?: string | null;
-  expired_at?: string | null;
-}
-
-// 日期格式化
-const formatDate = (dateStr: string | null): string => {
-  if (!dateStr) return "未发布";
-  const date = parseISO(dateStr);
-  if (!isValid(date)) return "无效日期";
-  return format(date, "yyyy-MM-dd HH:mm", { locale: zhCN });
-};
-
-// 将 ISO 日期转换为 datetime-local 需要的格式
-const toDateTimeLocal = (isoString: string | null | undefined): string => {
-  if (!isoString) return "";
-  try {
-    const date = new Date(isoString);
-    if (isNaN(date.getTime())) return "";
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    const hours = String(date.getHours()).padStart(2, "0");
-    const minutes = String(date.getMinutes()).padStart(2, "0");
-    return `${year}-${month}-${day}T${hours}:${minutes}`;
-  } catch {
-    return "";
-  }
-};
-
-// 将 datetime-local 值转换为 ISO 格式
-const fromDateTimeLocal = (
-  localValue: string | null | undefined,
-): string | null => {
-  if (!localValue) return null;
-  try {
-    const date = new Date(localValue);
-    if (isNaN(date.getTime())) return null;
-    return date.toISOString();
-  } catch {
-    return null;
-  }
-};
-
-// 转换公告数据为表单数据
-const announcementToFormValues = (
-  announcement: Announcement,
-): AnnouncementFormValues => {
-  return {
-    title: announcement.title,
-    content: announcement.content,
-    summary: announcement.summary || "",
-    cover: announcement.cover || "",
-    type: announcement.type,
-    is_pinned: announcement.is_pinned,
-    status: announcement.status,
-    is_global: announcement.is_global,
-    board_id: announcement.board_id || null,
-    published_at: toDateTimeLocal(announcement.published_at),
-    expired_at: toDateTimeLocal(announcement.expired_at),
-  };
-};
-
-// 转换表单提交数据
-const formValuesToPayload = (
-  values: AnnouncementFormValues,
-): CreateAnnouncementPayload => {
-  return {
-    title: values.title,
-    content: values.content,
-    summary: values.summary || "",
-    cover: values.cover || "",
-    type: values.type,
-    is_pinned: values.is_pinned,
-    is_global: values.is_global,
-    board_id: values.is_global ? null : values.board_id || null,
-    published_at: fromDateTimeLocal(values.published_at),
-    expired_at: fromDateTimeLocal(values.expired_at),
-  };
-};
+import {
+  getAnnouncementStatusBadge,
+  getAnnouncementStatusText,
+  getAnnouncementTypeBadge,
+  getAnnouncementTypeText,
+} from "@/shared/lib/utils/announcement";
+import { AnnouncementFormValues } from "@/shared/type/announcement.type";
+import { formValuesToPayload } from "@/shared/lib/helpers/formValuesToPayload";
+import { formatDate } from "@/shared/lib/format/formatDate";
+import { announcementToFormValues } from "@/shared/lib/helpers/announcementToFormValues";
+import { AnnouncementDO } from "@/shared/api/types/announcement.model";
 
 export function AnnouncementsManager({ t }: { t: (key: string) => string }) {
   const [announcementType, setAnnouncementType] = useState<"global" | "board">(
@@ -114,7 +28,7 @@ export function AnnouncementsManager({ t }: { t: (key: string) => string }) {
   );
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [editingAnnouncement, setEditingAnnouncement] =
-    useState<Announcement | null>(null);
+    useState<AnnouncementDO | null>(null);
 
   const {
     announcements,
@@ -136,7 +50,7 @@ export function AnnouncementsManager({ t }: { t: (key: string) => string }) {
   });
 
   // 过滤公告
-  const filteredAnnouncements = announcements.filter((ann: Announcement) => {
+  const filteredAnnouncements = announcements.filter((ann: AnnouncementDO) => {
     if (announcementType === "global") {
       if (ann.is_global !== true) return false;
     } else {
@@ -146,7 +60,7 @@ export function AnnouncementsManager({ t }: { t: (key: string) => string }) {
   });
 
   const filteredPinnedAnnouncements = pinnedAnnouncements.filter(
-    (ann: Announcement) => {
+    (ann: AnnouncementDO) => {
       if (announcementType === "global") {
         return ann.is_global === true;
       } else {
@@ -162,7 +76,7 @@ export function AnnouncementsManager({ t }: { t: (key: string) => string }) {
   };
 
   // 打开编辑表单
-  const handleEdit = (announcement: Announcement): void => {
+  const handleEdit = (announcement: AnnouncementDO): void => {
     setEditingAnnouncement(announcement);
     setModalVisible(true);
   };
@@ -172,8 +86,9 @@ export function AnnouncementsManager({ t }: { t: (key: string) => string }) {
     values: AnnouncementFormValues,
   ): Promise<void> => {
     const payload = formValuesToPayload(values);
+    console.log(payload);
 
-    let result: Announcement | null;
+    let result: AnnouncementDO | null;
     if (editingAnnouncement) {
       result = await updateAnnouncement(editingAnnouncement.id, payload);
     } else {
@@ -215,51 +130,6 @@ export function AnnouncementsManager({ t }: { t: (key: string) => string }) {
     }
   };
 
-  // 样式辅助函数
-  const getTypeBadge = (type: AnnouncementType): string => {
-    const styles: Record<AnnouncementType, string> = {
-      normal: "badge-info",
-      important: "badge-warning",
-      emergency: "badge-error",
-      event: "badge-success",
-    };
-    return styles[type] || "badge-info";
-  };
-
-  const getTypeText = (type: AnnouncementType): string => {
-    const texts: Record<AnnouncementType, string> = {
-      normal: t("normal"),
-      important: t("important"),
-      emergency: t("emergency"),
-      event: t("event"),
-    };
-    return texts[type] || type;
-  };
-
-  // 判断公告是否过期
-  const isExpired = (expiredAt: string | null): boolean => {
-    if (!expiredAt) return false;
-    return new Date(expiredAt) < new Date();
-  };
-
-  const getStatusBadge = (status: string, expiredAt: string | null): string => {
-    if (status === "draft") return "badge-ghost";
-    if (status === "published") {
-      if (isExpired(expiredAt)) return "badge-error";
-      return "badge-success";
-    }
-    return "badge-ghost";
-  };
-
-  const getStatusText = (status: string, expiredAt: string | null): string => {
-    if (status === "draft") return t("draft");
-    if (status === "published") {
-      if (isExpired(expiredAt)) return t("expired");
-      return t("published");
-    }
-    return status;
-  };
-
   // 转换板块数据为表单需要的格式
   const boardOptions = boards.map((board) => ({
     id: board.id,
@@ -294,10 +164,10 @@ export function AnnouncementsManager({ t }: { t: (key: string) => string }) {
         announcements={filteredAnnouncements}
         pinnedAnnouncements={filteredPinnedAnnouncements}
         isLoading={isLoading}
-        getTypeBadge={getTypeBadge}
-        getTypeText={getTypeText}
-        getStatusBadge={getStatusBadge}
-        getStatusText={getStatusText}
+        getTypeBadge={getAnnouncementTypeBadge}
+        getTypeText={getAnnouncementTypeText}
+        getStatusBadge={getAnnouncementStatusBadge}
+        getStatusText={getAnnouncementStatusText}
         formatDate={formatDate}
         onEdit={handleEdit}
         onDelete={handleDelete}
@@ -328,5 +198,3 @@ export function AnnouncementsManager({ t }: { t: (key: string) => string }) {
     </div>
   );
 }
-
-// 需要导入 CreateAnnouncementPayload 类型

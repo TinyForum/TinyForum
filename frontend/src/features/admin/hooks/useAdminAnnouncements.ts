@@ -2,17 +2,19 @@
 import { announcementApi } from "@/shared/api";
 import { adminAnnouncementApi } from "@/shared/api/modules/admin/announcements";
 import {
-  Announcement,
+  AnnouncementDO,
+  AnnouncementStatus,
   CreateAnnouncementPayload,
   UpdateAnnouncementPayload,
-} from "@/shared/api/modules/announcements";
+} from "@/shared/api/types/announcement.model";
+
 import { useState, useEffect, useCallback } from "react";
 import toast from "react-hot-toast";
 
 interface UseAdminAnnouncementsReturn {
   // 数据
-  announcements: Announcement[];
-  pinnedAnnouncements: Announcement[];
+  announcements: AnnouncementDO[];
+  pinnedAnnouncements: AnnouncementDO[];
   total: number;
 
   // 状态
@@ -27,14 +29,14 @@ interface UseAdminAnnouncementsReturn {
 
   // 操作方法
   refetch: () => Promise<void>;
-  getAnnouncementById: (id: number) => Promise<Announcement | null>;
+  getAnnouncementById: (id: number) => Promise<AnnouncementDO | null>;
   createAnnouncement: (
     data: CreateAnnouncementPayload,
-  ) => Promise<Announcement | null>;
+  ) => Promise<AnnouncementDO | null>;
   updateAnnouncement: (
     id: number,
     data: UpdateAnnouncementPayload,
-  ) => Promise<Announcement | null>;
+  ) => Promise<AnnouncementDO | null>;
   deleteAnnouncement: (id: number) => Promise<boolean>;
   publishAnnouncement: (id: number) => Promise<boolean>;
   archiveAnnouncement: (id: number) => Promise<boolean>;
@@ -42,9 +44,9 @@ interface UseAdminAnnouncementsReturn {
 }
 
 export function useAdminAnnouncements(): UseAdminAnnouncementsReturn {
-  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+  const [announcements, setAnnouncements] = useState<AnnouncementDO[]>([]);
   const [pinnedAnnouncements, setPinnedAnnouncements] = useState<
-    Announcement[]
+    AnnouncementDO[]
   >([]);
   const [total, setTotal] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -69,7 +71,7 @@ export function useAdminAnnouncements(): UseAdminAnnouncementsReturn {
         setTotal(data?.total || 0);
         // 筛选置顶公告
         setPinnedAnnouncements(
-          list.filter((ann: Announcement) => ann.is_pinned === true),
+          list.filter((ann: AnnouncementDO) => ann.is_pinned === true),
         );
       } else {
         toast.error(response.data.message || "获取公告列表失败");
@@ -84,7 +86,7 @@ export function useAdminAnnouncements(): UseAdminAnnouncementsReturn {
 
   // 根据 ID 获取公告详情
   const getAnnouncementById = useCallback(
-    async (id: number): Promise<Announcement | null> => {
+    async (id: number): Promise<AnnouncementDO | null> => {
       try {
         const response = await announcementApi.getById(id);
         if (response.data.code === 0 || response.data.code === 0) {
@@ -103,9 +105,10 @@ export function useAdminAnnouncements(): UseAdminAnnouncementsReturn {
 
   // 创建公告
   const createAnnouncement = useCallback(
-    async (data: CreateAnnouncementPayload): Promise<Announcement | null> => {
+    async (data: CreateAnnouncementPayload): Promise<AnnouncementDO | null> => {
       setIsSubmitting(true);
       try {
+        console.log("创建公告:", data);
         const response = await adminAnnouncementApi.create(data);
         if (response.data.code === 0 || response.data.code === 0) {
           toast.success("创建公告成功");
@@ -130,7 +133,7 @@ export function useAdminAnnouncements(): UseAdminAnnouncementsReturn {
     async (
       id: number,
       data: UpdateAnnouncementPayload,
-    ): Promise<Announcement | null> => {
+    ): Promise<AnnouncementDO | null> => {
       setIsSubmitting(true);
       try {
         const response = await adminAnnouncementApi.update(id, data);
@@ -182,7 +185,7 @@ export function useAdminAnnouncements(): UseAdminAnnouncementsReturn {
       setIsSubmitting(true);
       try {
         const response = await adminAnnouncementApi.update(id, {
-          status: "published",
+          status: AnnouncementStatus.Published,
           published_at: new Date().toISOString(),
         });
         if (response.data.code === 0 || response.data.code === 0) {

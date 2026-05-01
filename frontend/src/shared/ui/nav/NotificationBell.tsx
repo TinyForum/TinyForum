@@ -5,10 +5,10 @@ import { Bell, X } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { notificationApi } from "@/shared/api";
 import { useTranslations } from "next-intl";
-import { ApiResponse } from "@/shared/api/types";
 import { Fragment, useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { Dialog, Transition, TransitionChild } from "@headlessui/react";
+import { ApiResponse } from "@/shared/api/types/basic.model";
 
 interface Notification {
   id: number;

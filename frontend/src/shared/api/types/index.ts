@@ -1,6 +1,6 @@
 import { UserRoleType } from "@/shared/type/roles.types";
 
-export * from "./basic.type";
+export * from "./basic.model";
 /**
  * api/types/index.ts
  * 所有 API 共用的请求 / 响应类型

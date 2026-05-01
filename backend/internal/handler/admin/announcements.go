@@ -32,7 +32,7 @@ func (h *AdminHandler) ListAnnouncements(c *gin.Context) {
 		response.BadRequest(c, err.Error())
 		return
 	}
-	allStatus := do.AnnouncementStatus(do.AnnouncementStatusAll)
+	allStatus := do.AnnouncementStatus(do.AnnouncementStatusFilterAll)
 	req.Status = &allStatus
 
 	resp, err := h.service.ListAnnouncements(c.Request.Context(), &req)
@@ -70,23 +70,20 @@ func (h *AdminHandler) CreateAnnouncement(c *gin.Context) {
 	userID := c.GetUint("user_id")
 	var req request.CreateAnnouncement
 	if err := c.ShouldBindJSON(&req); err != nil {
-		logger.Errorf("绑定请求失败: user: %d result error: %v",userID,err)
-		response.BadRequest(c, err.Error())
+		logger.Errorf("绑定请求失败: user: %d result error: %v", userID, err)
+		response.BadRequest(c, apperrors.ErrInvalidRequest.Message)
 		return
 	}
-	logger.Infof("用户请求创建公告: user: %d request: %v",userID,req)
-	
+	logger.Infof("用户请求创建公告: user: %d request: %v", userID, req)
 
-	
-		
 	announcement, err := h.service.CreateAnnouncement(c.Request.Context(), &req, userID)
-	
+
 	if err != nil {
-		logger.Errorf("创建公告失败: user: %d result: %v",userID,err)
-		response.InternalError(c, err.Error())
+		logger.Errorf("创建公告失败: user: %d result: %v", userID, err)
+		response.InternalError(c,apperrors.ErrInternalError.Message)
 		return
 	}
-	logger.Infof("创建公告: user: %d result: %v",userID,announcement.ID)
+	logger.Infof("创建公告: user: %d result: %v", userID, announcement.ID)
 	response.Success(c, announcement)
 }
 
