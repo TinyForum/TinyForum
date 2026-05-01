@@ -84,11 +84,11 @@ type ConfigPrivate struct {
 
 // AdminConfig 管理员配置
 type AdminConfig struct {
-	Username string         `mapstructure:"username"`
-	Email    string         `mapstructure:"email"`
-	Password string         `mapstructure:"password"`
+	Username string      `mapstructure:"username"`
+	Email    string      `mapstructure:"email"`
+	Password string      `mapstructure:"password"`
 	Role     po.UserRole `mapstructure:"role"`
-	Score    int            `mapstructure:"score"`
+	Score    int         `mapstructure:"score"`
 }
 
 // ServerConfig 服务器配置

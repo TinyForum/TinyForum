@@ -21,6 +21,8 @@ import (
 // @Failure 403 {object} response.Response "无权限（非管理员）"
 // @Failure 500 {object} response.Response "服务器内部错误"
 // @Router /admin/announcements [post]
+//
+// Deprecated: 迁移到 adminHandler.CreateAnnouncements
 func (h *AnnouncementHandler) Create(c *gin.Context) {
 	var req dto.CreateAnnouncementRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
