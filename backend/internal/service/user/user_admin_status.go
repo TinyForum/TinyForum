@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"tiny-forum/internal/infra/validator"
-	"tiny-forum/internal/model/po"
+	"tiny-forum/internal/model/do"
 	apperrors "tiny-forum/pkg/errors"
 
 	"gorm.io/gorm"
@@ -31,10 +31,10 @@ func (s *userService) SetBlocked(targetID uint, operatorID uint, isBlocked bool)
 	if targetID == operatorID {
 		return apperrors.ErrCannotModifySelf.WithMessage("不能封禁自己的账号")
 	}
-	if targetUser.Role == po.RoleSuperAdmin {
+	if targetUser.Role == do.RoleSuperAdmin {
 		return apperrors.ErrCannotChangeOwnerRole.WithMessage("不能封禁超级管理员")
 	}
-	if operator.Role != po.RoleSuperAdmin && targetUser.Role == po.RoleAdmin {
+	if operator.Role != do.RoleSuperAdmin && targetUser.Role == do.RoleAdmin {
 		return apperrors.ErrInsufficientPermission.WithMessage("只有超级管理员才能封禁其他管理员")
 	}
 	if targetUser.IsBlocked == isBlocked {
@@ -69,7 +69,7 @@ func (s *userService) SetActive(targetID uint, operatorID uint, isActive bool) e
 	if targetID == operatorID && !isActive {
 		return apperrors.ErrCannotModifySelf.WithMessage("不能停用自己的账号")
 	}
-	if targetUser.Role == po.RoleSuperAdmin && !isActive {
+	if targetUser.Role == do.RoleSuperAdmin && !isActive {
 		return apperrors.ErrCannotChangeOwnerRole.WithMessage("不能停用超级管理员")
 	}
 	if targetUser.IsActive == isActive {
@@ -95,8 +95,8 @@ func (s *userService) SetActive(targetID uint, operatorID uint, isActive bool) e
 // SetRole 变更用户角色
 func (s *userService) SetRole(operatorID, targetID uint, newRole string) error {
 	ctx := context.Background()
-	targetRole := po.UserRole(newRole)
-	if !po.IsValidRole(targetRole) {
+	targetRole := do.UserRole(newRole)
+	if !do.IsValidRole(targetRole) {
 		return fmt.Errorf("%w: %s", apperrors.ErrInvalidRole, newRole)
 	}
 

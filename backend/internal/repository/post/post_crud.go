@@ -1,16 +1,16 @@
 package post
 
 import (
+	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/dto"
-	"tiny-forum/internal/model/po"
 )
 
-func (r *postRepository) Create(post *po.Post) error {
+func (r *postRepository) Create(post *do.Post) error {
 	return r.db.Create(post).Error
 }
 
-func (r *postRepository) FindByID(id uint) (*po.Post, error) {
-	var post po.Post
+func (r *postRepository) FindByID(id uint) (*do.Post, error) {
+	var post do.Post
 	err := r.db.Preload("Author").Preload("Tags").First(&post, id).Error
 	if err != nil {
 		return nil, err
@@ -18,28 +18,28 @@ func (r *postRepository) FindByID(id uint) (*po.Post, error) {
 	return &post, nil
 }
 
-func (r *postRepository) Update(post *po.Post) error {
+func (r *postRepository) Update(post *do.Post) error {
 	return r.db.Save(post).Error
 }
 
 func (r *postRepository) Delete(id uint) error {
-	return r.db.Delete(&po.Post{}, id).Error
+	return r.db.Delete(&do.Post{}, id).Error
 }
 
 // 获取文章列表
 // 查询 published + approved
-func (r *postRepository) List(page, pageSize int, opts dto.PostListOptions) ([]po.Post, int64, error) {
-	var posts []po.Post
+func (r *postRepository) List(page, pageSize int, opts dto.PostListOptions) ([]do.Post, int64, error) {
+	var posts []do.Post
 	var total int64
 
-	query := r.db.Model(&po.Post{})
+	query := r.db.Model(&do.Post{})
 
 	// 用户感知状态过滤
 	if opts.Status != "" {
 		query = query.Where("post_status = ?", opts.Status)
 	} else {
 		// 默认只查询已发布的
-		query = query.Where("post_status = ?", po.PostStatusPublished)
+		query = query.Where("post_status = ?", do.PostStatusPublished)
 	}
 
 	// 风控状态过滤
@@ -47,7 +47,7 @@ func (r *postRepository) List(page, pageSize int, opts dto.PostListOptions) ([]p
 		query = query.Where("moderation_status = ?", opts.ModerationStatus)
 	} else {
 		// 默认只查询已审核通过的
-		query = query.Where("moderation_status = ?", po.ModerationStatusApproved)
+		query = query.Where("moderation_status = ?", do.ModerationStatusApproved)
 	}
 	if opts.AuthorID > 0 {
 		query = query.Where("author_id = ?", opts.AuthorID)
@@ -80,11 +80,11 @@ func (r *postRepository) List(page, pageSize int, opts dto.PostListOptions) ([]p
 	return posts, total, err
 }
 
-func (r *postRepository) AdminList(page, pageSize int, opts dto.PostListOptions) ([]po.Post, int64, error) {
-	var posts []po.Post
+func (r *postRepository) AdminList(page, pageSize int, opts dto.PostListOptions) ([]do.Post, int64, error) {
+	var posts []do.Post
 	var total int64
 
-	query := r.db.Model(&po.Post{})
+	query := r.db.Model(&do.Post{})
 
 	// 状态过滤：不设默认，只有传入时才过滤（后台需要看所有状态）
 	if opts.Status != "" {

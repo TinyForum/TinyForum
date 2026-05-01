@@ -33,11 +33,12 @@ function loadConfig(): ConfigShape {
       return {} as ConfigShape;
     }
     return config;
-  } catch (err: any) {
-    if (err.code === "ENOENT") {
+  } catch (err) {
+    const error = err as { code?: string; message?: string };
+    if (error.code === "ENOENT") {
       console.warn(`⚠️ 配置文件 ${configPath} 不存在，将使用默认配置。`);
     } else {
-      console.error(`❌ 读取配置文件 ${configPath} 失败: ${err.message}`);
+      console.error(`❌ 读取配置文件 ${configPath} 失败: ${error.message}`);
     }
     return {} as ConfigShape;
   }
@@ -90,10 +91,11 @@ async function checkBackendReachable(url: string): Promise<void> {
     await fetch(url, { method: "HEAD", signal: controller.signal });
     clearTimeout(timeoutId);
     console.log(`✅ 后端服务检测正常: ${url}`);
-  } catch (err: any) {
+  } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : String(err);
     console.warn(
       `⚠️ 无法连接到后端服务 ${url}，请确保后端已启动。\n` +
-        `   错误信息: ${err.message || err.code || "未知错误"}`,
+        `   错误信息: ${errorMessage}`,
     );
   }
 }

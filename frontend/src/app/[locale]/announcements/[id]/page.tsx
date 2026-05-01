@@ -15,7 +15,7 @@ import {
   UserIcon,
   AlertTriangleIcon,
 } from "lucide-react";
-import type { Announcement } from "@/shared/api/modules/announcements";
+import { AnnouncementDO } from "@/shared/api/types/announcement.model";
 
 // 错误响应类型
 interface ErrorResponse {
@@ -116,7 +116,7 @@ function ErrorState({ message }: { message: string }) {
 
 export default function AnnouncementDetailPage() {
   const params = useParams();
-  const [announcement, setAnnouncement] = useState<Announcement | null>(null);
+  const [announcement, setAnnouncement] = useState<AnnouncementDO | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

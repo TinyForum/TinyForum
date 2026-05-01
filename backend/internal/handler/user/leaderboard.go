@@ -2,7 +2,7 @@ package user
 
 import (
 	"tiny-forum/internal/model/dto"
-	"tiny-forum/internal/model/query"
+	"tiny-forum/internal/model/request"
 	"tiny-forum/internal/model/vo"
 	"tiny-forum/pkg/response"
 
@@ -19,13 +19,13 @@ import (
 // @Success 200 {array} vo.SimpleLeaderboardItem
 // @Router /users/leaderboard/simple [get]
 func (h *UserHandler) LeaderboardSimple(c *gin.Context) {
-	var req query.LeaderboardRequest
+	var req request.LeaderboardRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
 		response.BadRequest(c, "参数错误: "+err.Error())
 		return
 	}
 
-	// 调用 service 获取原始数据（返回 po.User 切片或自定义结构）
+	// 调用 service 获取原始数据（返回 do.User 切片或自定义结构）
 	users, err := h.userSvc.GetSimpleLeaderboardData(c.Request.Context(), req.Limit)
 	if err != nil {
 		response.InternalError(c, err.Error())
@@ -52,7 +52,7 @@ func (h *UserHandler) LeaderboardSimple(c *gin.Context) {
 // @Success 200 {array} dto.LeaderboardUserDetail "返回用户排行榜信息"
 // @Router /users/leaderboard/detail [get]
 func (h *UserHandler) LeaderboardDetail(c *gin.Context) {
-	var req query.LeaderboardRequest
+	var req request.LeaderboardRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
 		response.BadRequest(c, "参数错误: "+err.Error())
 		return

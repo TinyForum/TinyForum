@@ -1,20 +1,20 @@
 package timeline
 
 import (
-	"tiny-forum/internal/model/po"
+	"tiny-forum/internal/model/do"
 
 	"gorm.io/gorm"
 )
 
 // UpdateLastRead 更新用户某个时间线的最后阅读时间
 func (r *timelineRepository) UpdateLastRead(userID uint, timelineType string) error {
-	var userTimeline po.UserTimeline
+	var userTimeline do.UserTimeline
 
 	err := r.db.Where("user_id = ? AND timeline_type = ?", userID, timelineType).
 		First(&userTimeline).Error
 
 	if err == gorm.ErrRecordNotFound {
-		userTimeline = po.UserTimeline{
+		userTimeline = do.UserTimeline{
 			UserID:       userID,
 			TimelineType: timelineType,
 		}
@@ -25,8 +25,8 @@ func (r *timelineRepository) UpdateLastRead(userID uint, timelineType string) er
 }
 
 // GetLastRead 获取用户某个时间线的最后阅读时间
-func (r *timelineRepository) GetLastRead(userID uint, timelineType string) (*po.UserTimeline, error) {
-	var userTimeline po.UserTimeline
+func (r *timelineRepository) GetLastRead(userID uint, timelineType string) (*do.UserTimeline, error) {
+	var userTimeline do.UserTimeline
 	err := r.db.Where("user_id = ? AND timeline_type = ?", userID, timelineType).
 		First(&userTimeline).Error
 	return &userTimeline, err

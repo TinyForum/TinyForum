@@ -1,7 +1,7 @@
 package announcement
 
 import (
-	"tiny-forum/internal/model/dto"
+	"tiny-forum/internal/model/request"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -22,12 +22,14 @@ import (
 // @Failure 404 {object} response.Response "公告不存在"
 // @Failure 500 {object} response.Response "服务器内部错误"
 // @Router /admin/announcements/{id} [put]
+//
+// Deprecated: 迁移到 adminHandler.UpdateAnnouncements
 func (h *AnnouncementHandler) Update(c *gin.Context) {
 	id, ok := parseAnnouncementID(c)
 	if !ok {
 		return
 	}
-	var req dto.UpdateAnnouncementRequest
+	var req request.UpdateAnnouncement
 	if err := c.ShouldBindJSON(&req); err != nil {
 		response.BadRequest(c, err.Error())
 		return
@@ -54,6 +56,8 @@ func (h *AnnouncementHandler) Update(c *gin.Context) {
 // @Failure 404 {object} response.Response "公告不存在"
 // @Failure 500 {object} response.Response "服务器内部错误"
 // @Router /admin/announcements/{id}/publish [post]
+//
+// Deprecated: 迁移到 adminHandler.PublishAnnouncements
 func (h *AnnouncementHandler) Publish(c *gin.Context) {
 	id, ok := parseAnnouncementID(c)
 	if !ok {
@@ -81,6 +85,8 @@ func (h *AnnouncementHandler) Publish(c *gin.Context) {
 // @Failure 404 {object} response.Response "公告不存在"
 // @Failure 500 {object} response.Response "服务器内部错误"
 // @Router /admin/announcements/{id}/archive [post]
+//
+// Deprecated: 迁移到 adminHandler.ArchiveAnnouncements
 func (h *AnnouncementHandler) Archive(c *gin.Context) {
 	id, ok := parseAnnouncementID(c)
 	if !ok {
@@ -109,6 +115,8 @@ func (h *AnnouncementHandler) Archive(c *gin.Context) {
 // @Failure 404 {object} response.Response "公告不存在"
 // @Failure 500 {object} response.Response "服务器内部错误"
 // @Router /admin/announcements/{id}/pin [put]
+//
+// Deprecated: 迁移到 adminHandler.PinAnnouncements
 func (h *AnnouncementHandler) Pin(c *gin.Context) {
 	id, ok := parseAnnouncementID(c)
 	if !ok {

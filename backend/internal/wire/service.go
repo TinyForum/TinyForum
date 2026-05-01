@@ -2,6 +2,7 @@ package wire
 
 import (
 	"tiny-forum/config"
+	"tiny-forum/internal/service/admin"
 	"tiny-forum/internal/service/announcement"
 	"tiny-forum/internal/service/auth"
 	"tiny-forum/internal/service/board"
@@ -38,6 +39,7 @@ type Services struct {
 	Risk         risk.RiskService
 	ContentCheck check.ContentCheckService
 	Upload       upload.UploadService
+	admin        admin.AdminService
 }
 
 // NewServices 创建所有 Service 实例
@@ -47,7 +49,6 @@ func NewServices(
 	repos *Repositories,
 	infra *Infra,
 ) *Services {
-	// 风险服务（先创建，因为其他服务可能依赖）
 	riskSvc := risk.NewRiskService(repos.Risk, infra.RateLimiter)
 	checkSvc := check.NewContentCheckService(repos.Risk, infra.SensitiveFilter)
 
@@ -66,8 +67,7 @@ func NewServices(
 	emailSvc := email.NewEmailService(&cfg.Private.Email)
 	authSvc := auth.NewAuthService(repos.Auth, repos.User, jwtMgr, notifSvc, emailSvc, cfg, repos.Token, repos.Transaction, infra.RedisClient)
 	uploadSvc := upload.NewUploadService(repos.Upload, cfg.Basic.Upload)
-
-	// 辅助
+	adminSvc := admin.NewAdminService(announcementSvc, userSvc)
 
 	return &Services{
 		User:         userSvc,
@@ -85,5 +85,6 @@ func NewServices(
 		Risk:         riskSvc,
 		ContentCheck: checkSvc,
 		Upload:       uploadSvc,
+		admin:        adminSvc,
 	}
 }

@@ -4,22 +4,22 @@ import (
 	"context"
 	"time"
 	"tiny-forum/internal/infra/ratelimit"
-	"tiny-forum/internal/model/po"
+	"tiny-forum/internal/model/do"
 	riskrepo "tiny-forum/internal/repository/risk"
 )
 
 type RiskService interface {
-	GetAuditLogs(targetType string, targetID uint, limit int) ([]po.AuditLog, error)
-	GetUserRiskLevel(user *po.User) (po.RiskLevel, error)
-	CheckRateLimit(ctx context.Context, user *po.User, action ratelimit.Action) (ratelimit.Result, error)
+	GetAuditLogs(targetType string, targetID uint, limit int) ([]do.AuditLog, error)
+	GetUserRiskLevel(user *do.User) (do.RiskLevel, error)
+	CheckRateLimit(ctx context.Context, user *do.User, action ratelimit.Action) (ratelimit.Result, error)
 	RecordRiskEvent(userID uint, eventType, detail string, ttl time.Duration) error
-	WriteAuditLog(operatorID uint, action po.AuditActionType,
+	WriteAuditLog(operatorID uint, action do.AuditActionType,
 		targetType string, targetID uint, before, after, reason, ip string) error
-	GetAnonymousRiskLevel(ip string) (po.RiskLevel, error)
+	GetAnonymousRiskLevel(ip string) (do.RiskLevel, error)
 	// ip
 	CheckRateLimitByIP(ctx context.Context, ip string, action ratelimit.Action) (ratelimit.Result, error)
 	RecordRiskEventByIP(ip, eventType, detail string, ttl time.Duration) error
-	WriteAuditLogByIP(ip string, action po.AuditActionType, targetType string,
+	WriteAuditLogByIP(ip string, action do.AuditActionType, targetType string,
 		targetID uint, before, after, reason string) error
 }
 

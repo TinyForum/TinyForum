@@ -1,7 +1,7 @@
 package comment
 
 import (
-	"tiny-forum/internal/model/po"
+	"tiny-forum/internal/model/do"
 	commentRepo "tiny-forum/internal/repository/comment"
 	postRepo "tiny-forum/internal/repository/post"
 	userRepo "tiny-forum/internal/repository/user"
@@ -14,21 +14,21 @@ type CommentService interface {
 	MarkAsAnswer(commentID, userID uint, isAdmin bool, isAnswer bool) error
 	UnacceptAnswer(answerID, userID uint, isAdmin bool) error
 	// create
-	Create(authorID uint, input CreateCommentInput) (*po.Comment, error)
-	CreateAnswer(authorID uint, input CreateCommentInput) (*po.Comment, error)
+	Create(authorID uint, input CreateCommentInput) (*do.Comment, error)
+	CreateAnswer(authorID uint, input CreateCommentInput) (*do.Comment, error)
 	// delete
 	Delete(commentID, userID uint, isAdmin bool) error
 	DeleteAnswer(commentID, userID uint, isAdmin bool) error
 	// query
-	List(postID uint, page, pageSize int) ([]po.Comment, int64, error)
+	List(postID uint, page, pageSize int) ([]do.Comment, int64, error)
 	GetCommentCount(postID uint) (int64, error)
-	GetAnswerByID(commentID uint) (*po.Comment, error)
-	GetAnswersByPostID(postID uint, page, pageSize int, sortBy string) ([]po.Comment, int64, error)
+	GetAnswerByID(commentID uint) (*do.Comment, error)
+	GetAnswersByPostID(postID uint, page, pageSize int, sortBy string) ([]do.Comment, int64, error)
 	GetAnswerVoteCount(commentID uint) (int, error)
 	GetVoteStatistics(answerID uint) (upCount, downCount int, err error)
 	// vote
-	VoteAnswer(answerID uint, userID uint, voteType int) (*po.Comment, error)
-	RemoveVote(answerID uint, userID uint) (*po.Comment, error)
+	VoteAnswer(answerID uint, userID uint, voteType int) (*do.Comment, error)
+	RemoveVote(answerID uint, userID uint) (*do.Comment, error)
 	GetUserVoteStatus(answerID uint, userID uint) (int, error)
 }
 

@@ -5,8 +5,8 @@ import (
 	"context"
 	"time"
 	"tiny-forum/config"
+	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/dto"
-	"tiny-forum/internal/model/po"
 	"tiny-forum/internal/repository/auth"
 	"tiny-forum/internal/repository/token"
 	"tiny-forum/internal/repository/transaction"
@@ -64,11 +64,11 @@ type authService struct {
 
 // Repository 定义数据访问接口
 type Repository interface {
-	FindByEmail(ctx context.Context, email string) (*po.User, error)
-	FindByResetToken(ctx context.Context, token string) (*po.User, error)
-	FindByID(ctx context.Context, id uint) (*po.User, error)
-	Update(ctx context.Context, user *po.User) error
-	Create(ctx context.Context, user *po.User) error
+	FindByEmail(ctx context.Context, email string) (*do.User, error)
+	FindByResetToken(ctx context.Context, token string) (*do.User, error)
+	FindByID(ctx context.Context, id uint) (*do.User, error)
+	Update(ctx context.Context, user *do.User) error
+	Create(ctx context.Context, user *do.User) error
 }
 
 func NewAuthService(

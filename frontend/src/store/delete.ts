@@ -2,7 +2,7 @@
 import { create } from "zustand";
 import { authApi } from "@/shared/api";
 import { useAuthStore } from "./auth";
-import { ApiError } from "@/shared/api/types/basic.type";
+import { ApiError } from "@/shared/api/types/basic.model";
 
 interface DeletionStatus {
   is_deleted: boolean;

@@ -1,102 +1,20 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import Link from "next/link";
 import { announcementApi } from "@/shared/api";
 import { toast } from "react-hot-toast";
 import {
   MegaphoneIcon,
-  CalendarIcon,
-  EyeIcon,
   PinIcon,
   FileTextIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
 } from "lucide-react";
-import type { Announcement } from "@/shared/api/modules/announcements";
-
-// 公告类型配置 - 使用主题色
-const TYPE_CONFIG: Record<string, { color: string; label: string }> = {
-  normal: { color: "bg-primary/10 text-primary", label: "普通" },
-  important: { color: "bg-secondary/10 text-secondary", label: "重要" },
-  emergency: { color: "bg-error/10 text-error", label: "紧急" },
-  event: { color: "bg-accent/10 text-accent", label: "活动" },
-};
-
-// 获取公告类型样式
-function getTypeConfig(type: string) {
-  return TYPE_CONFIG[type] || TYPE_CONFIG.normal;
-}
-
-// 公告卡片组件
-function AnnouncementCard({ announcement }: { announcement: Announcement }) {
-  const typeConfig = getTypeConfig(announcement.type);
-
-  // 格式化时间
-  const formatDate = (dateStr: string | null) => {
-    if (!dateStr) return "待发布";
-    return new Date(dateStr).toLocaleDateString("zh-CN", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    });
-  };
-
-  return (
-    <Link href={`/announcements/${announcement.id}`}>
-      <div className="group bg-base-100 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 p-5 border border-base-200 hover:border-primary/20 cursor-pointer">
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-3 flex-wrap">
-              <MegaphoneIcon className="w-4 h-4 text-primary" />
-              <span
-                className={`text-xs px-2.5 py-0.5 rounded-full font-medium ${typeConfig.color}`}
-              >
-                {typeConfig.label}
-              </span>
-              {announcement.is_pinned && (
-                <span className="text-xs px-2.5 py-0.5 rounded-full bg-warning/10 text-warning flex items-center gap-1 font-medium">
-                  <PinIcon className="w-3 h-3" />
-                  置顶
-                </span>
-              )}
-              {announcement.status === "draft" && (
-                <span className="text-xs px-2.5 py-0.5 rounded-full bg-neutral/10 text-neutral-content/60">
-                  草稿
-                </span>
-              )}
-            </div>
-            <h3 className="font-semibold text-base-content text-lg mb-2 line-clamp-1 group-hover:text-primary transition-colors">
-              {announcement.title}
-            </h3>
-            <p className="text-sm text-base-content/60 line-clamp-2 mb-4">
-              {announcement.summary ||
-                announcement.content?.replace(/<[^>]*>/g, "").slice(0, 150)}
-            </p>
-            <div className="flex items-center gap-4 text-xs text-base-content/40">
-              <div className="flex items-center gap-1.5">
-                <CalendarIcon className="w-3.5 h-3.5" />
-                {formatDate(
-                  announcement.published_at || announcement.created_at,
-                )}
-              </div>
-              <div className="flex items-center gap-1.5">
-                <EyeIcon className="w-3.5 h-3.5" />
-                {announcement.view_count || 0} 次浏览
-              </div>
-              {announcement.board && (
-                <div className="flex items-center gap-1.5">
-                  <FileTextIcon className="w-3.5 h-3.5" />
-                  {announcement.board.name}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-    </Link>
-  );
-}
+import { AnnouncementCard } from "@/features/announcements/components/AnnouncementCard";
+import {
+  AnnouncementDO,
+  AnnouncementStatus,
+} from "@/shared/api/types/announcement.model";
 
 // 分页组件
 function Pagination({
@@ -195,7 +113,7 @@ function EmptyState() {
 }
 
 export default function AnnouncementsPage() {
-  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+  const [announcements, setAnnouncements] = useState<AnnouncementDO[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
@@ -207,7 +125,7 @@ export default function AnnouncementsPage() {
       const response = await announcementApi.list({
         page,
         page_size: pageSize,
-        status: "published",
+        status: AnnouncementStatus.Published,
       });
 
       if (response.data.code === 0) {

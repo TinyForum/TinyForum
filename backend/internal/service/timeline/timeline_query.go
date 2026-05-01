@@ -1,9 +1,9 @@
 package timeline
 
-import "tiny-forum/internal/model/po"
+import "tiny-forum/internal/model/do"
 
 // GetHomeTimeline 获取首页时间线（推荐/综合）
-func (s *timelineService) GetHomeTimeline(userID uint, page, pageSize int) ([]po.TimelineEvent, int64, error) {
+func (s *timelineService) GetHomeTimeline(userID uint, page, pageSize int) ([]do.TimelineEvent, int64, error) {
 	if page < 1 {
 		page = 1
 	}
@@ -16,7 +16,7 @@ func (s *timelineService) GetHomeTimeline(userID uint, page, pageSize int) ([]po
 }
 
 // GetFollowingTimeline 获取关注时间线（仅关注用户的内容）
-func (s *timelineService) GetFollowingTimeline(userID uint, page, pageSize int) ([]po.TimelineEvent, int64, error) {
+func (s *timelineService) GetFollowingTimeline(userID uint, page, pageSize int) ([]do.TimelineEvent, int64, error) {
 	if page < 1 {
 		page = 1
 	}

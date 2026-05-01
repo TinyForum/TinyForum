@@ -1,14 +1,14 @@
 // hooks/admin/useAnnouncementsData.ts
 import { useState, useEffect, useCallback } from "react";
-import {
-  announcementApi,
-  type Announcement,
-  type AnnouncementListParams,
-  type CreateAnnouncementPayload,
-  type UpdateAnnouncementPayload,
-} from "@/shared/api/modules/announcements";
-import toast from "react-hot-toast";
 import { adminAnnouncementApi } from "@/shared/api/modules/admin/announcements";
+import { announcementApi } from "@/shared/api";
+import {
+  AnnouncementListParams,
+  AnnouncementDO,
+  CreateAnnouncementPayload,
+  UpdateAnnouncementPayload,
+} from "@/shared/api/types/announcement.model";
+import toast from "react-hot-toast";
 
 // ============ 配置选项 ============
 interface UseAnnouncementsDataOptions {
@@ -20,8 +20,8 @@ interface UseAnnouncementsDataOptions {
 // ============ Hook 返回值类型 ============
 interface UseAnnouncementsDataReturn {
   // 数据状态
-  announcements: Announcement[];
-  pinnedAnnouncements: Announcement[];
+  announcements: AnnouncementDO[];
+  pinnedAnnouncements: AnnouncementDO[];
   total: number;
   loading: boolean;
   submitting: boolean;
@@ -35,14 +35,14 @@ interface UseAnnouncementsDataReturn {
   // 操作方法
   fetchAnnouncements: (params?: AnnouncementListParams) => Promise<void>;
   fetchPinnedAnnouncements: (boardId?: number) => Promise<void>;
-  getAnnouncementById: (id: number) => Promise<Announcement | null>;
+  getAnnouncementById: (id: number) => Promise<AnnouncementDO | null>;
   createAnnouncement: (
     params: CreateAnnouncementPayload,
-  ) => Promise<Announcement | null>;
+  ) => Promise<AnnouncementDO | null>;
   updateAnnouncement: (
     id: number,
     params: UpdateAnnouncementPayload,
-  ) => Promise<Announcement | null>;
+  ) => Promise<AnnouncementDO | null>;
   deleteAnnouncement: (id: number) => Promise<boolean>;
   publishAnnouncement: (id: number) => Promise<boolean>;
   archiveAnnouncement: (id: number) => Promise<boolean>;
@@ -63,9 +63,9 @@ export function useAnnouncementsData(
   const { defaultParams = {}, autoLoadPinned = true } = options || {};
 
   // 数据状态
-  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+  const [announcements, setAnnouncements] = useState<AnnouncementDO[]>([]);
   const [pinnedAnnouncements, setPinnedAnnouncements] = useState<
-    Announcement[]
+    AnnouncementDO[]
   >([]);
   const [total, setTotal] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
@@ -150,7 +150,7 @@ export function useAnnouncementsData(
 
   // 根据 ID 获取公告详情 - 修复 undefined 类型
   const getAnnouncementById = useCallback(
-    async (id: number): Promise<Announcement | null> => {
+    async (id: number): Promise<AnnouncementDO | null> => {
       try {
         const response = await announcementApi.getById(id);
 
@@ -171,7 +171,9 @@ export function useAnnouncementsData(
 
   // 创建公告 - 修复 undefined 类型
   const createAnnouncement = useCallback(
-    async (params: CreateAnnouncementPayload): Promise<Announcement | null> => {
+    async (
+      params: CreateAnnouncementPayload,
+    ): Promise<AnnouncementDO | null> => {
       setSubmitting(true);
       try {
         const response = await adminAnnouncementApi.create(params);
@@ -201,7 +203,7 @@ export function useAnnouncementsData(
     async (
       id: number,
       params: UpdateAnnouncementPayload,
-    ): Promise<Announcement | null> => {
+    ): Promise<AnnouncementDO | null> => {
       setSubmitting(true);
       try {
         const response = await adminAnnouncementApi.update(id, params);

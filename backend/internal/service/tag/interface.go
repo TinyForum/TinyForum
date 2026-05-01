@@ -1,15 +1,15 @@
 package tag
 
 import (
-	"tiny-forum/internal/model/po"
+	"tiny-forum/internal/model/do"
 	tagRepo "tiny-forum/internal/repository/tag"
 )
 
 type TagService interface {
-	Create(input CreateTagInput) (*po.Tag, error)
-	List() ([]po.Tag, error)
-	Get(id uint) (*po.Tag, error)
-	Update(id uint, input CreateTagInput) (*po.Tag, error)
+	Create(input CreateTagInput) (*do.Tag, error)
+	List() ([]do.Tag, error)
+	Get(id uint) (*do.Tag, error)
+	Update(id uint, input CreateTagInput) (*do.Tag, error)
 	Delete(id uint) error
 }
 type tagService struct {

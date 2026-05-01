@@ -3,12 +3,12 @@ package notification
 import (
 	"errors"
 	"tiny-forum/internal/model/bo"
-	"tiny-forum/internal/model/po"
+	"tiny-forum/internal/model/do"
 )
 
 // Create 创建通知（忽略错误，不返回 error 保持原有行为）
-func (s *notificationService) Create(userID uint, senderID *uint, notifType po.NotificationType, content string, targetID *uint, targetType string) {
-	n := &po.Notification{
+func (s *notificationService) Create(userID uint, senderID *uint, notifType do.NotificationType, content string, targetID *uint, targetType string) {
+	n := &do.Notification{
 		UserID:     userID,
 		SenderID:   senderID,
 		Type:       notifType,

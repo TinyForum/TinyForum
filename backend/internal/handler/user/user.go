@@ -53,11 +53,11 @@ package user
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param body body model.UpdateProfileInput true "资料"
+// @Param body body do.UpdateProfileInput true "资料"
 // @Router /users/profile [put]
 // func (h *UserHandler) UpdateProfile(c *gin.Context) {
 // 	userID := c.GetUint("user_id")
-// 	var input model.UpdateProfileInput
+// 	var input do.UpdateProfileInput
 // 	if err := c.ShouldBindJSON(&input); err != nil {
 // 		response.BadRequest(c, err.Error())
 // 		return
@@ -196,7 +196,7 @@ package user
 // 	if req.Fields != "" {
 // 		// 预构建白名单 map（建议在 model 包中定义为全局变量，避免每次请求重新构建）
 // 		allowedMap := make(map[string]bool)
-// 		for _, f := range po.UserPublicFields {
+// 		for _, f := range do.UserPublicFields {
 // 			allowedMap[f] = true
 // 		}
 
@@ -393,11 +393,11 @@ package user
 // 	})
 // }
 
-// ── 管理接口 ─────────────────────────────────────────────────────────────────
+// ── 管理员后台 ─────────────────────────────────────────────────────────────────
 
 // // AdminList 管理员获取用户列表
 // // @Summary 管理员获取用户列表
-// // @Tags 管理接口
+// // @Tags 管理员后台
 // // @Produce json
 // // @Security ApiKeyAuth
 // // @Router /admin/users [get]
@@ -414,7 +414,7 @@ package user
 // }
 
 // @Summary 管理员设置用户状态
-// @Tags 管理接口
+// @Tags 管理员后台
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -476,7 +476,7 @@ package user
 
 // AdminSetBlocked 设置用户封禁状态
 // @Summary 管理员封禁/解封用户
-// @Tags 管理接口
+// @Tags 管理员后台
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -534,7 +534,7 @@ package user
 
 // AdminSetRole 设置用户角色
 // @Summary 管理员设置用户角色
-// @Tags 管理接口
+// @Tags 管理员后台
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -576,7 +576,7 @@ package user
 
 // AdminDeleteUser 管理员删除用户
 // @Summary 管理员删除用户
-// @Tags 管理接口
+// @Tags 管理员后台
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -632,7 +632,7 @@ package user
 // @Description **权限要求**：
 // @Description - 超级管理员：可重置任何用户
 // @Description - 普通管理员：只能重置普通用户，不能重置管理员和超级管理员
-// @Tags 管理接口
+// @Tags 管理员后台
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -700,7 +700,7 @@ package user
 // @Description - **add**：在现有积分基础上增加指定分数<br>
 // @Description - **subtract**：从现有积分中扣除指定分数<br>
 // @Description 积分范围限制为 0 ~ 999999，且操作后积分不能为负数或超出上限。
-// @Tags 管理接口
+// @Tags 管理员后台
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -815,7 +815,7 @@ package user
 // AdminGetUserScore 获取用户积分
 // @Summary 获取用户积分
 // @Description 获取指定用户积分，不传id则获取所有用户积分列表
-// @Tags 管理接口
+// @Tags 管理员后台
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth

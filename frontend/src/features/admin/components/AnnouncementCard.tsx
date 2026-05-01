@@ -1,8 +1,8 @@
-// components/admin/AnnouncementCard.tsx
 import {
-  Announcement,
+  AnnouncementDO,
   AnnouncementType,
-} from "@/shared/api/modules/announcements";
+  AnnouncementStatus,
+} from "@/shared/api/types/announcement.model";
 import {
   Pin,
   Eye,
@@ -15,13 +15,20 @@ import {
 
 // ==================== 类型定义 ====================
 interface AnnouncementCardProps {
-  announcement: Announcement;
-  getTypeBadge: (type: AnnouncementType) => string;
-  getTypeText: (type: AnnouncementType) => string;
-  getStatusBadge: (status: string, expiredAt: string | null) => string;
-  getStatusText: (status: string, expiredAt: string | null) => string;
+  announcement: AnnouncementDO;
+  getTypeBadge: (type: AnnouncementType, t: (key: string) => string) => string;
+  getTypeText: (type: AnnouncementType, t: (key: string) => string) => string;
+  getStatusBadge: (
+    status: AnnouncementStatus,
+    expiredAt: string | null,
+  ) => string;
+  getStatusText: (
+    status: AnnouncementStatus,
+    expiredAt: string | null,
+    t: (key: string) => string,
+  ) => string;
   formatDate: (date: string | null) => string;
-  onEdit: (ann: Announcement) => void;
+  onEdit: (ann: AnnouncementDO) => void;
   onDelete: (id: number) => void;
   onPin: (id: number, currentPinned: boolean) => void;
   onPublish: (id: number) => void;
@@ -34,8 +41,8 @@ const isExpired = (expiredAt: string | null): boolean => {
   return new Date(expiredAt) < new Date();
 };
 
-const isDraft = (status: string): boolean => {
-  return status === "draft";
+const isDraft = (status: AnnouncementStatus): boolean => {
+  return status === AnnouncementStatus.Draft;
 };
 
 // ==================== 公告卡片组件 ====================
@@ -75,9 +82,9 @@ export function AnnouncementCard({
             <div className="flex items-center gap-2 mb-2 flex-wrap">
               {/* 类型标签 */}
               <span
-                className={`badge badge-sm ${getTypeBadge(announcement.type)}`}
+                className={`badge badge-sm ${getTypeBadge(announcement.type, t)}`}
               >
-                {getTypeText(announcement.type)}
+                {getTypeText(announcement.type, t)}
               </span>
 
               {/* 置顶标签 */}
@@ -92,7 +99,7 @@ export function AnnouncementCard({
               <span
                 className={`badge badge-sm ${getStatusBadge(announcement.status, announcement.expired_at)}`}
               >
-                {getStatusText(announcement.status, announcement.expired_at)}
+                {getStatusText(announcement.status, announcement.expired_at, t)}
               </span>
 
               {/* 浏览量 */}

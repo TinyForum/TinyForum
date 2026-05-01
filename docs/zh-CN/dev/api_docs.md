@@ -38,12 +38,12 @@
 
 ##### Responses
 
-| Code | Description    | Schema                                                                                                                                                           |
-| ---- | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 200  | 获取成功       | [response.Response](#responseresponse-model) & { **"data"**: [response.PageData](#responsepagedata-model) & { **"list"**: [ [model.Post](#modelpost-model) ] } } |
-| 401  | 未授权         | [response.Response](#responseresponse-model)                                                                                                                     |
-| 403  | 无权限         | [response.Response](#responseresponse-model)                                                                                                                     |
-| 500  | 服务器内部错误 | [response.Response](#responseresponse-model)                                                                                                                     |
+| Code | Description    | Schema                                                                                                                                                        |
+| ---- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 200  | 获取成功       | [response.Response](#responseresponse-model) & { **"data"**: [response.PageData](#responsepagedata-model) & { **"list"**: [ [po.Post](#modelpost-model) ] } } |
+| 401  | 未授权         | [response.Response](#responseresponse-model)                                                                                                                  |
+| 403  | 无权限         | [response.Response](#responseresponse-model)                                                                                                                  |
+| 500  | 服务器内部错误 | [response.Response](#responseresponse-model)                                                                                                                  |
 
 ##### Security
 
@@ -469,11 +469,11 @@
 
 ##### Responses
 
-| Code | Description    | Schema                                                                                                                                                           |
-| ---- | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 200  | 获取成功       | [response.Response](#responseresponse-model) & { **"data"**: [response.PageData](#responsepagedata-model) & { **"list"**: [ [model.Post](#modelpost-model) ] } } |
-| 400  | 无效的板块ID   | [response.Response](#responseresponse-model)                                                                                                                     |
-| 500  | 服务器内部错误 | [response.Response](#responseresponse-model)                                                                                                                     |
+| Code | Description    | Schema                                                                                                                                                        |
+| ---- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 200  | 获取成功       | [response.Response](#responseresponse-model) & { **"data"**: [response.PageData](#responsepagedata-model) & { **"list"**: [ [po.Post](#modelpost-model) ] } } |
+| 400  | 无效的板块ID   | [response.Response](#responseresponse-model)                                                                                                                  |
+| 500  | 服务器内部错误 | [response.Response](#responseresponse-model)                                                                                                                  |
 
 ---
 
@@ -1016,11 +1016,11 @@
 
 ##### Responses
 
-| Code | Description    | Schema                                                                                                                                                                           |
-| ---- | -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 200  | 获取成功       | [response.Response](#responseresponse-model) & { **"data"**: [response.PageData](#responsepagedata-model) & { **"list"**: [ [model.Notification](#modelnotification-model) ] } } |
-| 401  | 未授权         | [response.Response](#responseresponse-model)                                                                                                                                     |
-| 500  | 服务器内部错误 | [response.Response](#responseresponse-model)                                                                                                                                     |
+| Code | Description    | Schema                                                                                                                                                                        |
+| ---- | -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 200  | 获取成功       | [response.Response](#responseresponse-model) & { **"data"**: [response.PageData](#responsepagedata-model) & { **"list"**: [ [po.Notification](#modelnotification-model) ] } } |
+| 401  | 未授权         | [response.Response](#responseresponse-model)                                                                                                                                  |
+| 500  | 服务器内部错误 | [response.Response](#responseresponse-model)                                                                                                                                  |
 
 ##### Security
 
@@ -1108,10 +1108,10 @@
 
 ##### Responses
 
-| Code | Description    | Schema                                                                                                                                                           |
-| ---- | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 200  | 获取成功       | [response.Response](#responseresponse-model) & { **"data"**: [response.PageData](#responsepagedata-model) & { **"list"**: [ [model.Post](#modelpost-model) ] } } |
-| 500  | 服务器内部错误 | [response.Response](#responseresponse-model)                                                                                                                     |
+| Code | Description    | Schema                                                                                                                                                        |
+| ---- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 200  | 获取成功       | [response.Response](#responseresponse-model) & { **"data"**: [response.PageData](#responsepagedata-model) & { **"list"**: [ [po.Post](#modelpost-model) ] } } |
+| 500  | 服务器内部错误 | [response.Response](#responseresponse-model)                                                                                                                  |
 
 #### POST
 
@@ -1131,12 +1131,12 @@
 
 ##### Responses
 
-| Code | Description    | Schema                                                                                        |
-| ---- | -------------- | --------------------------------------------------------------------------------------------- |
-| 200  | 创建成功       | [response.Response](#responseresponse-model) & { **"data"**: [model.Post](#modelpost-model) } |
-| 400  | 请求参数错误   | [response.Response](#responseresponse-model)                                                  |
-| 401  | 未授权         | [response.Response](#responseresponse-model)                                                  |
-| 500  | 服务器内部错误 | [response.Response](#responseresponse-model)                                                  |
+| Code | Description    | Schema                                                                                     |
+| ---- | -------------- | ------------------------------------------------------------------------------------------ |
+| 200  | 创建成功       | [response.Response](#responseresponse-model) & { **"data"**: [po.Post](#modelpost-model) } |
+| 400  | 请求参数错误   | [response.Response](#responseresponse-model)                                               |
+| 401  | 未授权         | [response.Response](#responseresponse-model)                                               |
+| 500  | 服务器内部错误 | [response.Response](#responseresponse-model)                                               |
 
 ##### Security
 
@@ -1195,13 +1195,13 @@
 
 ##### Responses
 
-| Code | Description  | Schema                                                                                        |
-| ---- | ------------ | --------------------------------------------------------------------------------------------- |
-| 200  | 更新成功     | [response.Response](#responseresponse-model) & { **"data"**: [model.Post](#modelpost-model) } |
-| 400  | 请求参数错误 | [response.Response](#responseresponse-model)                                                  |
-| 401  | 未授权       | [response.Response](#responseresponse-model)                                                  |
-| 403  | 无权限       | [response.Response](#responseresponse-model)                                                  |
-| 404  | 帖子不存在   | [response.Response](#responseresponse-model)                                                  |
+| Code | Description  | Schema                                                                                     |
+| ---- | ------------ | ------------------------------------------------------------------------------------------ |
+| 200  | 更新成功     | [response.Response](#responseresponse-model) & { **"data"**: [po.Post](#modelpost-model) } |
+| 400  | 请求参数错误 | [response.Response](#responseresponse-model)                                               |
+| 401  | 未授权       | [response.Response](#responseresponse-model)                                               |
+| 403  | 无权限       | [response.Response](#responseresponse-model)                                               |
+| 404  | 帖子不存在   | [response.Response](#responseresponse-model)                                               |
 
 ##### Security
 
@@ -1321,10 +1321,10 @@
 
 ##### Responses
 
-| Code | Description    | Schema                                                                                          |
-| ---- | -------------- | ----------------------------------------------------------------------------------------------- |
-| 200  | 获取成功       | [response.Response](#responseresponse-model) & { **"data"**: [ [model.Tag](#modeltag-model) ] } |
-| 500  | 服务器内部错误 | [response.Response](#responseresponse-model)                                                    |
+| Code | Description    | Schema                                                                                       |
+| ---- | -------------- | -------------------------------------------------------------------------------------------- |
+| 200  | 获取成功       | [response.Response](#responseresponse-model) & { **"data"**: [ [po.Tag](#modeltag-model) ] } |
+| 500  | 服务器内部错误 | [response.Response](#responseresponse-model)                                                 |
 
 #### POST
 
@@ -1344,13 +1344,13 @@
 
 ##### Responses
 
-| Code | Description    | Schema                                                                                      |
-| ---- | -------------- | ------------------------------------------------------------------------------------------- |
-| 200  | 创建成功       | [response.Response](#responseresponse-model) & { **"data"**: [model.Tag](#modeltag-model) } |
-| 400  | 请求参数错误   | [response.Response](#responseresponse-model)                                                |
-| 401  | 未授权         | [response.Response](#responseresponse-model)                                                |
-| 403  | 无权限         | [response.Response](#responseresponse-model)                                                |
-| 500  | 服务器内部错误 | [response.Response](#responseresponse-model)                                                |
+| Code | Description    | Schema                                                                                   |
+| ---- | -------------- | ---------------------------------------------------------------------------------------- |
+| 200  | 创建成功       | [response.Response](#responseresponse-model) & { **"data"**: [po.Tag](#modeltag-model) } |
+| 400  | 请求参数错误   | [response.Response](#responseresponse-model)                                             |
+| 401  | 未授权         | [response.Response](#responseresponse-model)                                             |
+| 403  | 无权限         | [response.Response](#responseresponse-model)                                             |
+| 500  | 服务器内部错误 | [response.Response](#responseresponse-model)                                             |
 
 ##### Security
 
@@ -1379,14 +1379,14 @@
 
 ##### Responses
 
-| Code | Description                | Schema                                                                                      |
-| ---- | -------------------------- | ------------------------------------------------------------------------------------------- |
-| 200  | 更新成功                   | [response.Response](#responseresponse-model) & { **"data"**: [model.Tag](#modeltag-model) } |
-| 400  | 请求参数错误或无效的标签ID | [response.Response](#responseresponse-model)                                                |
-| 401  | 未授权                     | [response.Response](#responseresponse-model)                                                |
-| 403  | 无权限                     | [response.Response](#responseresponse-model)                                                |
-| 404  | 标签不存在                 | [response.Response](#responseresponse-model)                                                |
-| 500  | 服务器内部错误             | [response.Response](#responseresponse-model)                                                |
+| Code | Description                | Schema                                                                                   |
+| ---- | -------------------------- | ---------------------------------------------------------------------------------------- |
+| 200  | 更新成功                   | [response.Response](#responseresponse-model) & { **"data"**: [po.Tag](#modeltag-model) } |
+| 400  | 请求参数错误或无效的标签ID | [response.Response](#responseresponse-model)                                             |
+| 401  | 未授权                     | [response.Response](#responseresponse-model)                                             |
+| 403  | 无权限                     | [response.Response](#responseresponse-model)                                             |
+| 404  | 标签不存在                 | [response.Response](#responseresponse-model)                                             |
+| 500  | 服务器内部错误             | [response.Response](#responseresponse-model)                                             |
 
 ##### Security
 
@@ -1450,11 +1450,11 @@
 
 ##### Responses
 
-| Code | Description    | Schema                                                                                                                                                                             |
-| ---- | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 200  | 获取成功       | [response.Response](#responseresponse-model) & { **"data"**: [response.PageData](#responsepagedata-model) & { **"list"**: [ [model.TimelineEvent](#modeltimelineevent-model) ] } } |
-| 401  | 未授权         | [response.Response](#responseresponse-model)                                                                                                                                       |
-| 500  | 服务器内部错误 | [response.Response](#responseresponse-model)                                                                                                                                       |
+| Code | Description    | Schema                                                                                                                                                                          |
+| ---- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 200  | 获取成功       | [response.Response](#responseresponse-model) & { **"data"**: [response.PageData](#responsepagedata-model) & { **"list"**: [ [po.TimelineEvent](#modeltimelineevent-model) ] } } |
+| 401  | 未授权         | [response.Response](#responseresponse-model)                                                                                                                                    |
+| 500  | 服务器内部错误 | [response.Response](#responseresponse-model)                                                                                                                                    |
 
 ##### Security
 
@@ -1483,11 +1483,11 @@
 
 ##### Responses
 
-| Code | Description    | Schema                                                                                                                                                                             |
-| ---- | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 200  | 获取成功       | [response.Response](#responseresponse-model) & { **"data"**: [response.PageData](#responsepagedata-model) & { **"list"**: [ [model.TimelineEvent](#modeltimelineevent-model) ] } } |
-| 401  | 未授权         | [response.Response](#responseresponse-model)                                                                                                                                       |
-| 500  | 服务器内部错误 | [response.Response](#responseresponse-model)                                                                                                                                       |
+| Code | Description    | Schema                                                                                                                                                                          |
+| ---- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 200  | 获取成功       | [response.Response](#responseresponse-model) & { **"data"**: [response.PageData](#responsepagedata-model) & { **"list"**: [ [po.TimelineEvent](#modeltimelineevent-model) ] } } |
+| 401  | 未授权         | [response.Response](#responseresponse-model)                                                                                                                                    |
+| 500  | 服务器内部错误 | [response.Response](#responseresponse-model)                                                                                                                                    |
 
 ##### Security
 
@@ -1945,11 +1945,11 @@
 
 ##### Responses
 
-| Code | Description    | Schema                                                                                                                                                           |
-| ---- | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 200  | 获取成功       | [response.Response](#responseresponse-model) & { **"data"**: [response.PageData](#responsepagedata-model) & { **"list"**: [ [model.Post](#modelpost-model) ] } } |
-| 400  | 无效的专题ID   | [response.Response](#responseresponse-model)                                                                                                                     |
-| 500  | 服务器内部错误 | [response.Response](#responseresponse-model)                                                                                                                     |
+| Code | Description    | Schema                                                                                                                                                        |
+| ---- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 200  | 获取成功       | [response.Response](#responseresponse-model) & { **"data"**: [response.PageData](#responsepagedata-model) & { **"list"**: [ [po.Post](#modelpost-model) ] } } |
+| 400  | 无效的专题ID   | [response.Response](#responseresponse-model)                                                                                                                  |
+| 500  | 服务器内部错误 | [response.Response](#responseresponse-model)                                                                                                                  |
 
 #### POST
 
@@ -2357,64 +2357,64 @@
 | user                 | [po.User](#modeluser-model)   |             | No       |
 | user_id              | integer                       |             | No       |
 
-#### model.Notification Model
+#### po.Notification Model
 
-| Name        | Type                                                   | Description | Required |
-| ----------- | ------------------------------------------------------ | ----------- | -------- |
-| content     | string                                                 |             | No       |
-| created_at  | string                                                 |             | No       |
-| id          | integer                                                |             | No       |
-| is_read     | boolean                                                |             | No       |
-| sender      | [po.User](#modeluser-model)                            |             | No       |
-| sender_id   | integer                                                |             | No       |
-| target_id   | integer                                                |             | No       |
-| target_type | string                                                 |             | No       |
-| type        | [model.NotificationType](#modelnotificationtype-model) |             | No       |
-| updated_at  | string                                                 |             | No       |
-| user_id     | integer                                                |             | No       |
+| Name        | Type                                                | Description | Required |
+| ----------- | --------------------------------------------------- | ----------- | -------- |
+| content     | string                                              |             | No       |
+| created_at  | string                                              |             | No       |
+| id          | integer                                             |             | No       |
+| is_read     | boolean                                             |             | No       |
+| sender      | [po.User](#modeluser-model)                         |             | No       |
+| sender_id   | integer                                             |             | No       |
+| target_id   | integer                                             |             | No       |
+| target_type | string                                              |             | No       |
+| type        | [po.NotificationType](#modelnotificationtype-model) |             | No       |
+| updated_at  | string                                              |             | No       |
+| user_id     | integer                                             |             | No       |
 
-#### model.NotificationType Model
+#### po.NotificationType Model
 
-| Name                   | Type   | Description | Required |
-| ---------------------- | ------ | ----------- | -------- |
-| model.NotificationType | string |             |          |
+| Name                | Type   | Description | Required |
+| ------------------- | ------ | ----------- | -------- |
+| po.NotificationType | string |             |          |
 
-#### model.Post Model
+#### po.Post Model
 
-| Name         | Type                                       | Description            | Required |
-| ------------ | ------------------------------------------ | ---------------------- | -------- |
-| author       | [po.User](#modeluser-model)                |                        | No       |
-| author_id    | integer                                    |                        | No       |
-| board        | [po.Board](#modelboard-model)              | 新增                   | No       |
-| board_id     | integer                                    | 新增                   | No       |
-| content      | string                                     |                        | No       |
-| cover        | string                                     |                        | No       |
-| created_at   | string                                     |                        | No       |
-| id           | integer                                    |                        | No       |
-| is_question  | boolean                                    | 新增：标记是否为问答帖 | No       |
-| like_count   | integer                                    |                        | No       |
-| pin_in_board | boolean                                    | 新增                   | No       |
-| pin_top      | boolean                                    |                        | No       |
-| question     | [model.Question](#modelquestion-model)     | 新增                   | No       |
-| status       | [model.PostStatus](#modelpoststatus-model) |                        | No       |
-| summary      | string                                     |                        | No       |
-| tags         | [ [model.Tag](#modeltag-model) ]           |                        | No       |
-| title        | string                                     |                        | No       |
-| type         | [model.PostType](#modelposttype-model)     |                        | No       |
-| updated_at   | string                                     |                        | No       |
-| view_count   | integer                                    |                        | No       |
+| Name         | Type                                    | Description            | Required |
+| ------------ | --------------------------------------- | ---------------------- | -------- |
+| author       | [po.User](#modeluser-model)             |                        | No       |
+| author_id    | integer                                 |                        | No       |
+| board        | [po.Board](#modelboard-model)           | 新增                   | No       |
+| board_id     | integer                                 | 新增                   | No       |
+| content      | string                                  |                        | No       |
+| cover        | string                                  |                        | No       |
+| created_at   | string                                  |                        | No       |
+| id           | integer                                 |                        | No       |
+| is_question  | boolean                                 | 新增：标记是否为问答帖 | No       |
+| like_count   | integer                                 |                        | No       |
+| pin_in_board | boolean                                 | 新增                   | No       |
+| pin_top      | boolean                                 |                        | No       |
+| question     | [model.Question](#modelquestion-model)  | 新增                   | No       |
+| status       | [po.PostStatus](#modelpoststatus-model) |                        | No       |
+| summary      | string                                  |                        | No       |
+| tags         | [ [po.Tag](#modeltag-model) ]           |                        | No       |
+| title        | string                                  |                        | No       |
+| type         | [po.PostType](#modelposttype-model)     |                        | No       |
+| updated_at   | string                                  |                        | No       |
+| view_count   | integer                                 |                        | No       |
 
-#### model.PostStatus Model
+#### po.PostStatus Model
 
-| Name             | Type   | Description | Required |
-| ---------------- | ------ | ----------- | -------- |
-| model.PostStatus | string |             |          |
+| Name          | Type   | Description | Required |
+| ------------- | ------ | ----------- | -------- |
+| po.PostStatus | string |             |          |
 
-#### model.PostType Model
+#### po.PostType Model
 
-| Name           | Type   | Description | Required |
-| -------------- | ------ | ----------- | -------- |
-| model.PostType | string |             |          |
+| Name        | Type   | Description | Required |
+| ----------- | ------ | ----------- | -------- |
+| po.PostType | string |             |          |
 
 #### model.Question Model
 
@@ -2425,12 +2425,12 @@
 | answer_count       | integer                           |             | No       |
 | created_at         | string                            |             | No       |
 | id                 | integer                           |             | No       |
-| post               | [model.Post](#modelpost-model)    |             | No       |
+| post               | [po.Post](#modelpost-model)       |             | No       |
 | post_id            | integer                           |             | No       |
 | reward_score       | integer                           |             | No       |
 | updated_at         | string                            |             | No       |
 
-#### model.Tag Model
+#### po.Tag Model
 
 | Name        | Type    | Description | Required |
 | ----------- | ------- | ----------- | -------- |
@@ -2442,7 +2442,7 @@
 | post_count  | integer |             | No       |
 | updated_at  | string  |             | No       |
 
-#### model.TimelineEvent Model
+#### po.TimelineEvent Model
 
 | Name        | Type                                       | Description | Required |
 | ----------- | ------------------------------------------ | ----------- | -------- |

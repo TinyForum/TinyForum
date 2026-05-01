@@ -16,7 +16,7 @@ import (
 // @Description - **add**：在现有积分基础上增加指定分数<br>
 // @Description - **subtract**：从现有积分中扣除指定分数<br>
 // @Description 积分范围限制为 0 ~ 999999，且操作后积分不能为负数或超出上限。
-// @Tags 管理接口
+// @Tags 管理员后台
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -83,7 +83,7 @@ func (h *UserHandler) AdminSetScore(c *gin.Context) {
 // AdminGetUserScore 获取用户积分
 // @Summary 获取用户积分
 // @Description 获取指定用户积分，不传id则获取所有用户积分列表
-// @Tags 管理接口
+// @Tags 管理员后台
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth

@@ -1,7 +1,7 @@
 package announcement
 
 import (
-	"tiny-forum/internal/model/dto"
+	"tiny-forum/internal/model/request"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -15,14 +15,16 @@ import (
 // @Produce json
 // @Security ApiKeyAuth
 // @Param body body dto.CreateAnnouncementRequest true "公告信息"
-// @Success 200 {object} response.Response{data=po.Announcement} "创建成功"
+// @Success 200 {object} response.Response{data=do.Announcement} "创建成功"
 // @Failure 400 {object} response.Response "请求参数错误"
 // @Failure 401 {object} response.Response "未授权"
 // @Failure 403 {object} response.Response "无权限（非管理员）"
 // @Failure 500 {object} response.Response "服务器内部错误"
 // @Router /admin/announcements [post]
+//
+// Deprecated: 迁移到 adminHandler.CreateAnnouncements
 func (h *AnnouncementHandler) Create(c *gin.Context) {
-	var req dto.CreateAnnouncementRequest
+	var req request.CreateAnnouncement
 	if err := c.ShouldBindJSON(&req); err != nil {
 		response.BadRequest(c, err.Error())
 		return

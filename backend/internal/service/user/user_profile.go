@@ -3,19 +3,19 @@ package user
 import (
 	"errors"
 	"fmt"
-	"tiny-forum/internal/model/po"
+	"tiny-forum/internal/model/do"
 	apperrors "tiny-forum/pkg/errors"
 
 	"gorm.io/gorm"
 )
 
 // GetProfile 获取自己的资料（简化）
-func (s *userService) GetProfile(userID uint) (*po.User, error) {
+func (s *userService) GetProfile(userID uint) (*do.User, error) {
 	return s.repo.FindByID(userID)
 }
 
 // UpdateProfile 更新个人资料
-func (s *userService) UpdateProfile(userID uint, input po.UpdateProfileInput) error {
+func (s *userService) UpdateProfile(userID uint, input do.UpdateProfileInput) error {
 	fields := map[string]interface{}{}
 	if input.Bio != "" {
 		fields["bio"] = input.Bio
@@ -56,7 +56,7 @@ func (s *userService) GetUserProfile(targetID, viewerID uint) (*UserProfileRespo
 }
 
 // GetUserBasicInfo 获取用户基本信息
-func (s *userService) GetUserBasicInfo(userID uint) (*po.User, error) {
+func (s *userService) GetUserBasicInfo(userID uint) (*do.User, error) {
 	return s.repo.GetUserBasicInfoById(userID)
 }
 

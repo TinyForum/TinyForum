@@ -2,8 +2,7 @@ package comment
 
 import (
 	"errors"
-
-	"tiny-forum/internal/model/po"
+	"tiny-forum/internal/model/do"
 )
 
 type CreateCommentInput struct {
@@ -13,7 +12,7 @@ type CreateCommentInput struct {
 }
 
 // Create 创建普通评论
-func (s *commentService) Create(authorID uint, input CreateCommentInput) (*po.Comment, error) {
+func (s *commentService) Create(authorID uint, input CreateCommentInput) (*do.Comment, error) {
 	post, err := s.postRepo.FindByID(input.PostID)
 	if err != nil {
 		return nil, errors.New("帖子不存在")
@@ -24,7 +23,7 @@ func (s *commentService) Create(authorID uint, input CreateCommentInput) (*po.Co
 			return nil, err
 		}
 	}
-	comment := &po.Comment{
+	comment := &do.Comment{
 		Content:  input.Content,
 		PostID:   input.PostID,
 		AuthorID: authorID,
@@ -38,14 +37,14 @@ func (s *commentService) Create(authorID uint, input CreateCommentInput) (*po.Co
 	_ = s.userRepo.AddScore(authorID, 3)
 
 	if post.AuthorID != authorID {
-		s.notifSvc.Create(post.AuthorID, &authorID, po.NotifyComment,
+		s.notifSvc.Create(post.AuthorID, &authorID, do.NotifyComment,
 			"有人评论了你的帖子《"+post.Title+"》", &input.PostID, "post")
 	}
 
 	if input.ParentID != nil {
 		parent, err := s.commentRepo.FindByID(*input.ParentID)
 		if err == nil && parent.AuthorID != authorID {
-			s.notifSvc.Create(parent.AuthorID, &authorID, po.NotifyReply,
+			s.notifSvc.Create(parent.AuthorID, &authorID, do.NotifyReply,
 				"有人回复了你的评论", input.ParentID, "comment")
 		}
 	}
@@ -54,7 +53,7 @@ func (s *commentService) Create(authorID uint, input CreateCommentInput) (*po.Co
 }
 
 // CreateAnswer 创建回答（仅限问答帖）
-func (s *commentService) CreateAnswer(authorID uint, input CreateCommentInput) (*po.Comment, error) {
+func (s *commentService) CreateAnswer(authorID uint, input CreateCommentInput) (*do.Comment, error) {
 	post, err := s.postRepo.FindByID(input.PostID)
 	if err != nil {
 		return nil, errors.New("帖子不存在")
@@ -63,7 +62,7 @@ func (s *commentService) CreateAnswer(authorID uint, input CreateCommentInput) (
 		return nil, errors.New("该帖子不是问答类型，请使用普通评论")
 	}
 
-	comment := &po.Comment{
+	comment := &do.Comment{
 		Content:  input.Content,
 		PostID:   input.PostID,
 		AuthorID: authorID,
@@ -78,7 +77,7 @@ func (s *commentService) CreateAnswer(authorID uint, input CreateCommentInput) (
 	_ = s.userRepo.AddScore(authorID, 2)
 
 	if post.AuthorID != authorID {
-		s.notifSvc.Create(post.AuthorID, &authorID, po.NotifyComment,
+		s.notifSvc.Create(post.AuthorID, &authorID, do.NotifyComment,
 			"有人回答了你的问题《"+post.Title+"》", &input.PostID, "post")
 	}
 

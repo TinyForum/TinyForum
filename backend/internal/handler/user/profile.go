@@ -2,7 +2,7 @@ package user
 
 import (
 	"strconv"
-	"tiny-forum/internal/model/po"
+	"tiny-forum/internal/model/do"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -39,11 +39,11 @@ func (h *UserHandler) GetProfile(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param body body model.UpdateProfileInput true "资料"
+// @Param body body do.UpdateProfileInput true "资料"
 // @Router /users/profile [put]
 func (h *UserHandler) UpdateProfile(c *gin.Context) {
 	userID := c.GetUint("user_id")
-	var input po.UpdateProfileInput
+	var input do.UpdateProfileInput
 	if err := c.ShouldBindJSON(&input); err != nil {
 		response.BadRequest(c, err.Error())
 		return

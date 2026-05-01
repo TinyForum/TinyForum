@@ -3,7 +3,7 @@ package board
 import (
 	"fmt"
 	"regexp"
-	"tiny-forum/internal/model/po"
+	"tiny-forum/internal/model/do"
 )
 
 // validateSlug 校验 slug 格式
@@ -20,15 +20,15 @@ func validateSlug(slug string) error {
 
 // validateRoles 校验 ViewRole / PostRole / ReplyRole 是否合法
 func validateRoles(roles ...string) error {
-	valid := map[po.UserRole]bool{
-		po.RoleGuest:     true,
-		po.RoleUser:      true,
-		po.RoleMember:    true,
-		po.RoleModerator: true,
-		po.RoleAdmin:     true,
+	valid := map[do.UserRole]bool{
+		do.RoleGuest:     true,
+		do.RoleUser:      true,
+		do.RoleMember:    true,
+		do.RoleModerator: true,
+		do.RoleAdmin:     true,
 	}
 	for _, r := range roles {
-		if r != "" && !valid[po.UserRole(r)] {
+		if r != "" && !valid[do.UserRole(r)] {
 			return fmt.Errorf("无效的角色值: %s", r)
 		}
 	}
@@ -45,7 +45,7 @@ func boolVal(ptr *bool, fallback bool) bool {
 
 // writeLog 记录版主操作日志（忽略错误）
 func (s *boardService) writeLog(moderatorID, boardID uint, action, targetType string, targetID uint, reason string) {
-	log := &po.ModeratorLog{
+	log := &do.ModeratorLog{
 		ModeratorID: moderatorID,
 		BoardID:     boardID,
 		Action:      action,
@@ -58,7 +58,7 @@ func (s *boardService) writeLog(moderatorID, boardID uint, action, targetType st
 
 // writeLogWithValues 同 writeLog，额外写入 OldValue / NewValue
 func (s *boardService) writeLogWithValues(moderatorID, boardID uint, action, targetType string, targetID uint, reason, oldValue, newValue string) {
-	log := &po.ModeratorLog{
+	log := &do.ModeratorLog{
 		ModeratorID: moderatorID,
 		BoardID:     boardID,
 		Action:      action,
