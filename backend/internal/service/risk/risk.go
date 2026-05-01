@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 	"tiny-forum/internal/infra/ratelimit"
-	"tiny-forum/internal/model"
+	"tiny-forum/internal/model/po"
 )
 
 // GetUserRiskLevel 计算用户当前风险等级
@@ -14,34 +14,34 @@ import (
 //  2. 活跃风险事件 >= 3 → restrict
 //  3. score < 50 或 注册不足7天 → observe
 //  4. 其他 → normal
-func (s *riskService) GetUserRiskLevel(user *model.User) (model.RiskLevel, error) {
+func (s *riskService) GetUserRiskLevel(user *po.User) (po.RiskLevel, error) {
 	if user.IsBlocked {
-		return model.RiskLevelBlocked, nil
+		return po.RiskLevelBlocked, nil
 	}
 
 	activeEvents, err := s.repo.CountActiveRiskEvents(user.ID)
 	if err != nil {
-		return model.RiskLevelNormal, err
+		return po.RiskLevelNormal, err
 	}
 	if activeEvents >= 3 {
-		return model.RiskLevelRestrict, nil
+		return po.RiskLevelRestrict, nil
 	}
 
 	isNewUser := time.Since(user.CreatedAt) < 7*24*time.Hour
 	isLowScore := user.Score < 50
 	if isNewUser || isLowScore {
-		return model.RiskLevelObserve, nil
+		return po.RiskLevelObserve, nil
 	}
 
-	return model.RiskLevelNormal, nil
+	return po.RiskLevelNormal, nil
 }
 
-// toRatelimitLevel 将 model.RiskLevel 转换为 ratelimit 包的类型（避免循环依赖）
-func toRatelimitLevel(level model.RiskLevel) ratelimit.RiskLevel {
+// toRatelimitLevel 将 po.RiskLevel 转换为 ratelimit 包的类型（避免循环依赖）
+func toRatelimitLevel(level po.RiskLevel) ratelimit.RiskLevel {
 	switch level {
-	case model.RiskLevelRestrict:
+	case po.RiskLevelRestrict:
 		return ratelimit.RiskRestrict
-	case model.RiskLevelObserve:
+	case po.RiskLevelObserve:
 		return ratelimit.RiskObserve
 	default:
 		return ratelimit.RiskNormal
@@ -49,7 +49,7 @@ func toRatelimitLevel(level model.RiskLevel) ratelimit.RiskLevel {
 }
 
 // CheckRateLimit 检查用户操作频率是否超限
-func (s *riskService) CheckRateLimit(ctx context.Context, user *model.User, action ratelimit.Action) (ratelimit.Result, error) {
+func (s *riskService) CheckRateLimit(ctx context.Context, user *po.User, action ratelimit.Action) (ratelimit.Result, error) {
 	level, err := s.GetUserRiskLevel(user)
 	if err != nil {
 		return ratelimit.Result{Allowed: true}, nil // 降级放行
@@ -60,7 +60,7 @@ func (s *riskService) CheckRateLimit(ctx context.Context, user *model.User, acti
 // RecordRiskEvent 记录一次风险事件（举报成立、命中敏感词等）
 // ttl: 该事件计入风险分的有效期
 func (s *riskService) RecordRiskEvent(userID uint, eventType, detail string, ttl time.Duration) error {
-	record := &model.UserRiskRecord{
+	record := &po.UserRiskRecord{
 		UserID:      userID,
 		EventType:   eventType,
 		EventDetail: detail,
@@ -70,9 +70,9 @@ func (s *riskService) RecordRiskEvent(userID uint, eventType, detail string, ttl
 }
 
 // WriteAuditLog 写入操作审计日志
-func (s *riskService) WriteAuditLog(operatorID uint, action model.AuditActionType,
+func (s *riskService) WriteAuditLog(operatorID uint, action po.AuditActionType,
 	targetType string, targetID uint, before, after, reason, ip string) error {
-	log := &model.AuditLog{
+	log := &po.AuditLog{
 		OperatorID: operatorID,
 		Action:     action,
 		TargetType: targetType,

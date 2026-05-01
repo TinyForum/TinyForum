@@ -4,14 +4,14 @@ import (
 	"context"
 	"errors"
 	"time"
-	"tiny-forum/internal/model"
+	"tiny-forum/internal/model/po"
 
 	"gorm.io/gorm"
 )
 
 // ListByUserID 获取用户的所有登录设备（仅未过期的）
-func (r *tokenRepository) ListByUserID(ctx context.Context, userID uint) ([]model.RefreshToken, error) {
-	var tokens []model.RefreshToken
+func (r *tokenRepository) ListByUserID(ctx context.Context, userID uint) ([]po.RefreshToken, error) {
+	var tokens []po.RefreshToken
 	err := r.db.WithContext(ctx).
 		Where("user_id = ? AND expires_at > ?", userID, time.Now()).
 		Order("created_at DESC").
@@ -23,7 +23,7 @@ func (r *tokenRepository) ListByUserID(ctx context.Context, userID uint) ([]mode
 func (r *tokenRepository) CountByUserID(ctx context.Context, userID uint) (int64, error) {
 	var count int64
 	err := r.db.WithContext(ctx).
-		Model(&model.RefreshToken{}).
+		Model(&po.RefreshToken{}).
 		Where("user_id = ? AND expires_at > ?", userID, time.Now()).
 		Count(&count).Error
 	return count, err
@@ -32,7 +32,7 @@ func (r *tokenRepository) CountByUserID(ctx context.Context, userID uint) (int64
 // internal/repository/token/token_crud.go
 
 func (r *tokenRepository) GetRefreshTokenTTL(ctx context.Context, jti string) (time.Duration, error) {
-	var refreshToken model.RefreshToken
+	var refreshToken po.RefreshToken
 
 	err := r.db.WithContext(ctx).
 		Where("jti = ? AND expires_at > ?", jti, time.Now()).

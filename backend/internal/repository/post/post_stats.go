@@ -3,7 +3,7 @@ package post
 import (
 	"context"
 	"time"
-	"tiny-forum/internal/model"
+	"tiny-forum/internal/model/po"
 	"tiny-forum/internal/repository/stats"
 )
 
@@ -22,14 +22,14 @@ import (
 
 func (r *postRepository) Count(ctx context.Context) (int64, error) {
 	var count int64
-	err := r.db.WithContext(ctx).Model(&model.Post{}).Count(&count).Error
+	err := r.db.WithContext(ctx).Model(&po.Post{}).Count(&count).Error
 	return count, err
 }
 
 func (r *postRepository) CountByDateRange(ctx context.Context, startDate, endDate time.Time) (int64, error) {
 	var count int64
 	err := r.db.WithContext(ctx).
-		Model(&model.Post{}).
+		Model(&po.Post{}).
 		Where("created_at BETWEEN ? AND ?", startDate, endDate).
 		Count(&count).Error
 	return count, err

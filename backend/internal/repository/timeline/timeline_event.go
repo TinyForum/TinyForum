@@ -1,20 +1,18 @@
 package timeline
 
-import (
-	"tiny-forum/internal/model"
-)
+import "tiny-forum/internal/model/po"
 
 // CreateEvent 创建时间线事件
-func (r *timelineRepository) CreateEvent(event *model.TimelineEvent) error {
+func (r *timelineRepository) CreateEvent(event *po.TimelineEvent) error {
 	return r.db.Create(event).Error
 }
 
 // GetUserTimeline 获取用户时间线（包含用户自己的事件和与自己相关的事件）
-func (r *timelineRepository) GetUserTimeline(userID uint, limit, offset int) ([]model.TimelineEvent, int64, error) {
-	var events []model.TimelineEvent
+func (r *timelineRepository) GetUserTimeline(userID uint, limit, offset int) ([]po.TimelineEvent, int64, error) {
+	var events []po.TimelineEvent
 	var total int64
 
-	query := r.db.Model(&model.TimelineEvent{}).
+	query := r.db.Model(&po.TimelineEvent{}).
 		Where("user_id = ? OR actor_id = ?", userID, userID)
 
 	query.Count(&total)
@@ -29,15 +27,15 @@ func (r *timelineRepository) GetUserTimeline(userID uint, limit, offset int) ([]
 }
 
 // GetFollowingTimeline 获取关注用户的时间线（仅关注用户的事件）
-func (r *timelineRepository) GetFollowingTimeline(userID uint, limit, offset int) ([]model.TimelineEvent, int64, error) {
-	var events []model.TimelineEvent
+func (r *timelineRepository) GetFollowingTimeline(userID uint, limit, offset int) ([]po.TimelineEvent, int64, error) {
+	var events []po.TimelineEvent
 	var total int64
 
 	subQuery := r.db.Table("timeline_subscriptions").
 		Select("target_user_id").
 		Where("subscriber_id = ? AND target_type = ? AND is_active = ?", userID, "user", true)
 
-	query := r.db.Model(&model.TimelineEvent{}).
+	query := r.db.Model(&po.TimelineEvent{}).
 		Where("user_id IN (?)", subQuery)
 
 	query.Count(&total)
@@ -52,8 +50,8 @@ func (r *timelineRepository) GetFollowingTimeline(userID uint, limit, offset int
 }
 
 // GetEventByTarget 根据目标类型和目标ID查询时间线事件
-func (r *timelineRepository) GetEventByTarget(targetType string, targetID uint) ([]model.TimelineEvent, error) {
-	var events []model.TimelineEvent
+func (r *timelineRepository) GetEventByTarget(targetType string, targetID uint) ([]po.TimelineEvent, error) {
+	var events []po.TimelineEvent
 	err := r.db.Where("target_type = ? AND target_id = ?", targetType, targetID).
 		Find(&events).Error
 	return events, err

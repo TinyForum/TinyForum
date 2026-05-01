@@ -4,14 +4,14 @@ import (
 	"context"
 	"fmt"
 	"time"
-	"tiny-forum/internal/model"
+	"tiny-forum/internal/model/po"
 
 	"github.com/google/uuid"
 )
 
 // Create 创建 RefreshToken
-func (r *tokenRepository) Create(ctx context.Context, userID uint, token string, expiresAt time.Time, userAgent, ip string) (*model.RefreshToken, error) {
-	rt := &model.RefreshToken{
+func (r *tokenRepository) Create(ctx context.Context, userID uint, token string, expiresAt time.Time, userAgent, ip string) (*po.RefreshToken, error) {
+	rt := &po.RefreshToken{
 		UserID:    userID,
 		Token:     token,
 		JTI:       uuid.New().String(),
@@ -27,8 +27,8 @@ func (r *tokenRepository) Create(ctx context.Context, userID uint, token string,
 }
 
 // FindByToken 根据 Token 查找（仅返回未过期的）
-func (r *tokenRepository) FindByToken(ctx context.Context, token string) (*model.RefreshToken, error) {
-	var rt model.RefreshToken
+func (r *tokenRepository) FindByToken(ctx context.Context, token string) (*po.RefreshToken, error) {
+	var rt po.RefreshToken
 	err := r.db.WithContext(ctx).
 		Where("token = ? AND expires_at > ?", token, time.Now()).
 		First(&rt).Error
@@ -39,8 +39,8 @@ func (r *tokenRepository) FindByToken(ctx context.Context, token string) (*model
 }
 
 // FindByJTI 根据 JTI 查找
-func (r *tokenRepository) FindByJTI(ctx context.Context, jti string) (*model.RefreshToken, error) {
-	var rt model.RefreshToken
+func (r *tokenRepository) FindByJTI(ctx context.Context, jti string) (*po.RefreshToken, error) {
+	var rt po.RefreshToken
 	err := r.db.WithContext(ctx).
 		Where("jti = ?", jti).
 		First(&rt).Error
@@ -51,8 +51,8 @@ func (r *tokenRepository) FindByJTI(ctx context.Context, jti string) (*model.Ref
 }
 
 // FindByUserID 查找用户的所有有效令牌
-func (r *tokenRepository) FindByUserID(ctx context.Context, userID uint) ([]*model.RefreshToken, error) {
-	var tokens []*model.RefreshToken
+func (r *tokenRepository) FindByUserID(ctx context.Context, userID uint) ([]*po.RefreshToken, error) {
+	var tokens []*po.RefreshToken
 	err := r.db.WithContext(ctx).
 		Where("user_id = ? AND expires_at > ?", userID, time.Now()).
 		Find(&tokens).Error
@@ -62,7 +62,7 @@ func (r *tokenRepository) FindByUserID(ctx context.Context, userID uint) ([]*mod
 // Revoke 撤销令牌（软删除或标记过期）
 func (r *tokenRepository) Revoke(ctx context.Context, tokenID uint) error {
 	return r.db.WithContext(ctx).
-		Model(&model.RefreshToken{}).
+		Model(&po.RefreshToken{}).
 		Where("id = ?", tokenID).
 		Update("expires_at", time.Now()).Error
 }
@@ -70,7 +70,7 @@ func (r *tokenRepository) Revoke(ctx context.Context, tokenID uint) error {
 // RevokeAllByUserID 撤销用户的所有令牌
 func (r *tokenRepository) RevokeAllByUserID(ctx context.Context, userID uint) error {
 	return r.db.WithContext(ctx).
-		Model(&model.RefreshToken{}).
+		Model(&po.RefreshToken{}).
 		Where("user_id = ? AND expires_at > ?", userID, time.Now()).
 		Update("expires_at", time.Now()).Error
 }
@@ -78,7 +78,7 @@ func (r *tokenRepository) RevokeAllByUserID(ctx context.Context, userID uint) er
 // RevokeByJTI 根据 JTI 撤销令牌
 func (r *tokenRepository) RevokeByJTI(ctx context.Context, jti string) error {
 	return r.db.WithContext(ctx).
-		Model(&model.RefreshToken{}).
+		Model(&po.RefreshToken{}).
 		Where("jti = ? AND expires_at > ?", jti, time.Now()).
 		Update("expires_at", time.Now()).Error
 }
@@ -87,7 +87,7 @@ func (r *tokenRepository) RevokeByJTI(ctx context.Context, jti string) error {
 func (r *tokenRepository) CleanExpired(ctx context.Context) error {
 	return r.db.WithContext(ctx).
 		Where("expires_at <= ?", time.Now()).
-		Delete(&model.RefreshToken{}).Error
+		Delete(&po.RefreshToken{}).Error
 }
 
 func (r *tokenRepository) SaveResetToken(ctx context.Context, userID uint, token string, expiration time.Duration) error {
@@ -95,7 +95,7 @@ func (r *tokenRepository) SaveResetToken(ctx context.Context, userID uint, token
 	jti := generateJTI()
 
 	// 创建重置令牌（复用 RefreshToken 模型）
-	refreshToken := &model.RefreshToken{
+	refreshToken := &po.RefreshToken{
 		UserID:    userID,
 		Token:     token,
 		JTI:       jti,

@@ -17,7 +17,7 @@ import (
 // @Produce json
 // @Security ApiKeyAuth
 // @Param body body comment.CreateCommentInput true "评论信息"
-// @Success 200 {object} response.Response{data=model.Comment} "创建成功"
+// @Success 200 {object} response.Response{data=po.Comment} "创建成功"
 // @Failure 400 {object} response.Response "请求参数错误"
 // @Failure 401 {object} response.Response "未授权"
 // @Router /comments [post]
@@ -44,7 +44,7 @@ func (h *CommentHandler) Create(c *gin.Context) {
 // @Param post_id path int true "帖子ID"
 // @Param page query int false "页码" default(1)
 // @Param page_size query int false "每页数量" default(20)
-// @Success 200 {object} response.Response{data=response.PageData{list=[]model.Comment}} "获取成功"
+// @Success 200 {object} response.Response{data=response.PageData{list=[]po.Comment}} "获取成功"
 // @Failure 400 {object} response.Response "无效的帖子ID"
 // @Failure 500 {object} response.Response "服务器内部错误"
 // @Router /comments/post/{post_id} [get]

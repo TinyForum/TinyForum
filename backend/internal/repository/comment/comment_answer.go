@@ -1,16 +1,16 @@
 package comment
 
-import "tiny-forum/internal/model"
+import "tiny-forum/internal/model/po"
 
 // MarkAsAccepted 标记评论为已采纳答案
 func (r *commentRepository) MarkAsAccepted(commentID uint) error {
-	return r.db.Model(&model.Comment{}).Where("id = ?", commentID).
+	return r.db.Model(&po.Comment{}).Where("id = ?", commentID).
 		Update("is_accepted", true).Error
 }
 
 // MarkAsAnswer 标记/取消标记评论为答案
 func (r *commentRepository) MarkAsAnswer(commentID uint, isAnswer bool) error {
-	return r.db.Model(&model.Comment{}).Where("id = ?", commentID).
+	return r.db.Model(&po.Comment{}).Where("id = ?", commentID).
 		Update("is_answer", isAnswer).Error
 }
 
@@ -25,7 +25,7 @@ func (r *commentRepository) UnacceptAnswer(commentID uint) error {
 	}()
 
 	// 1. 更新评论的 is_accepted 字段
-	if err := tx.Model(&model.Comment{}).
+	if err := tx.Model(&po.Comment{}).
 		Where("id = ?", commentID).
 		Update("is_accepted", false).Error; err != nil {
 		tx.Rollback()
@@ -34,7 +34,7 @@ func (r *commentRepository) UnacceptAnswer(commentID uint) error {
 
 	// 2. 如果有单独的 Question 表存储 accepted_answer_id，也需要更新
 	// 这里假设 Comment 表有 PostID，而 Post 表可能有 accepted_answer_id
-	if err := tx.Model(&model.Post{}).
+	if err := tx.Model(&po.Post{}).
 		Where("accepted_answer_id = ?", commentID).
 		Update("accepted_answer_id", nil).Error; err != nil {
 		tx.Rollback()
@@ -45,8 +45,8 @@ func (r *commentRepository) UnacceptAnswer(commentID uint) error {
 }
 
 // GetAcceptedAnswer 获取问题已接受的答案
-func (r *commentRepository) GetAcceptedAnswer(postID uint) (*model.Comment, error) {
-	var comment model.Comment
+func (r *commentRepository) GetAcceptedAnswer(postID uint) (*po.Comment, error) {
+	var comment po.Comment
 	err := r.db.Where("post_id = ? AND is_accepted = ?", postID, true).
 		First(&comment).Error
 	if err != nil {

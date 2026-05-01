@@ -196,7 +196,7 @@ package user
 // 	if req.Fields != "" {
 // 		// 预构建白名单 map（建议在 model 包中定义为全局变量，避免每次请求重新构建）
 // 		allowedMap := make(map[string]bool)
-// 		for _, f := range model.UserPublicFields {
+// 		for _, f := range po.UserPublicFields {
 // 			allowedMap[f] = true
 // 		}
 

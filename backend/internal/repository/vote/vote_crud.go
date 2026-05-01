@@ -2,7 +2,7 @@ package vote
 
 import (
 	"errors"
-	"tiny-forum/internal/model"
+	"tiny-forum/internal/model/po"
 
 	"gorm.io/gorm"
 )
@@ -16,7 +16,7 @@ func (r *voteRepository) CreateOrUpdateVote(commentID, userID uint, value int) e
 		}
 	}()
 
-	var existingVote model.Vote
+	var existingVote po.Vote
 	err := tx.Where("comment_id = ? AND user_id = ?", commentID, userID).
 		First(&existingVote).Error
 
@@ -33,14 +33,14 @@ func (r *voteRepository) CreateOrUpdateVote(commentID, userID uint, value int) e
 			tx.Rollback()
 			return err
 		}
-		if err := tx.Model(&model.Comment{}).
+		if err := tx.Model(&po.Comment{}).
 			Where("id = ?", commentID).
 			UpdateColumn("vote_count", gorm.Expr("vote_count + ?", diff)).Error; err != nil {
 			tx.Rollback()
 			return err
 		}
 	} else {
-		vote := &model.Vote{
+		vote := &po.Vote{
 			UserID:    userID,
 			CommentID: commentID,
 			Value:     value,
@@ -49,7 +49,7 @@ func (r *voteRepository) CreateOrUpdateVote(commentID, userID uint, value int) e
 			tx.Rollback()
 			return err
 		}
-		if err := tx.Model(&model.Comment{}).
+		if err := tx.Model(&po.Comment{}).
 			Where("id = ?", commentID).
 			UpdateColumn("vote_count", gorm.Expr("vote_count + ?", value)).Error; err != nil {
 			tx.Rollback()
@@ -69,7 +69,7 @@ func (r *voteRepository) RemoveVote(commentID, userID uint) error {
 		}
 	}()
 
-	var vote model.Vote
+	var vote po.Vote
 	if err := tx.Where("comment_id = ? AND user_id = ?", commentID, userID).
 		First(&vote).Error; err != nil {
 		tx.Rollback()
@@ -81,7 +81,7 @@ func (r *voteRepository) RemoveVote(commentID, userID uint) error {
 		return err
 	}
 
-	if err := tx.Model(&model.Comment{}).
+	if err := tx.Model(&po.Comment{}).
 		Where("id = ?", commentID).
 		UpdateColumn("vote_count", gorm.Expr("vote_count - ?", vote.Value)).Error; err != nil {
 		tx.Rollback()

@@ -5,27 +5,27 @@ import (
 	"context"
 	"errors"
 	"time"
-	"tiny-forum/internal/model"
+	"tiny-forum/internal/model/po"
 	apperrors "tiny-forum/pkg/errors"
 	"tiny-forum/pkg/logger"
 
 	"gorm.io/gorm"
 )
 
-func (r *authRepository) FindByEmail(ctx context.Context, email string) (*model.User, error) {
-	var user model.User
+func (r *authRepository) FindByEmail(ctx context.Context, email string) (*po.User, error) {
+	var user po.User
 	err := r.db.WithContext(ctx).Where("email = ?", email).First(&user).Error
 	return &user, err
 }
 
 // FindByResetToken 根据 token 查找有效的重置密码记录
-func (r *authRepository) FindByResetToken(ctx context.Context, token string) (*model.RefreshToken, error) {
+func (r *authRepository) FindByResetToken(ctx context.Context, token string) (*po.RefreshToken, error) {
 	logger.Info("=== FindByResetToken ===")
 	if token == "" {
 		return nil, errors.New("token is empty")
 	}
 
-	var refreshToken model.RefreshToken
+	var refreshToken po.RefreshToken
 
 	// 添加安全验证条件
 	err := r.db.WithContext(ctx).
@@ -51,7 +51,7 @@ func (r *authRepository) FindByResetToken(ctx context.Context, token string) (*m
 // GetUserByResetToken 直接返回用户信息
 // internal/repository/auth/user_repository.go
 
-func (r *authRepository) GetUserByResetToken(ctx context.Context, token string) (*model.User, error) {
+func (r *authRepository) GetUserByResetToken(ctx context.Context, token string) (*po.User, error) {
 	logger.Infof("=== GetUserByResetToken ===")
 	logger.Infof("Token: %s", token)
 
@@ -60,7 +60,7 @@ func (r *authRepository) GetUserByResetToken(ctx context.Context, token string) 
 	}
 
 	// 先查询 refresh_token
-	var resetToken model.RefreshToken
+	var resetToken po.RefreshToken
 
 	// 查询 token
 	err := r.db.WithContext(ctx).
@@ -81,7 +81,7 @@ func (r *authRepository) GetUserByResetToken(ctx context.Context, token string) 
 	logger.Infof("Found reset token: UserID=%d, ExpiresAt=%v", resetToken.UserID, resetToken.ExpiresAt)
 
 	// 然后查询用户
-	var user model.User
+	var user po.User
 	err = r.db.WithContext(ctx).
 		Where("id = ?", resetToken.UserID).
 		Where("deleted_at IS NULL").
@@ -142,7 +142,7 @@ func (r *authRepository) MarkTokenAsUsed(ctx context.Context, tokenID uint) erro
 	now := time.Now()
 
 	result := r.db.WithContext(ctx).
-		Model(&model.RefreshToken{}).
+		Model(&po.RefreshToken{}).
 		Where("id = ?", tokenID).
 		Updates(map[string]interface{}{
 			"used":       true,
@@ -167,7 +167,7 @@ func (r *authRepository) DeleteExpiredResetTokens(ctx context.Context) error {
 	result := r.db.WithContext(ctx).
 		Where("expires_at < ?", time.Now()).
 		Where("jti LIKE ?", "reset_%").
-		Delete(&model.RefreshToken{})
+		Delete(&po.RefreshToken{})
 
 	if result.Error != nil {
 		return result.Error
@@ -179,10 +179,10 @@ func (r *authRepository) DeleteExpiredResetTokens(ctx context.Context) error {
 	return nil
 }
 
-func (r *authRepository) Update(ctx context.Context, user *model.User) error {
+func (r *authRepository) Update(ctx context.Context, user *po.User) error {
 	return r.db.WithContext(ctx).Save(user).Error
 }
 
-func (r *authRepository) Save(ctx context.Context, user *model.User) error {
+func (r *authRepository) Save(ctx context.Context, user *po.User) error {
 	return r.db.WithContext(ctx).Create(user).Error
 }

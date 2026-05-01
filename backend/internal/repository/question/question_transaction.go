@@ -2,14 +2,14 @@ package question
 
 import (
 	"errors"
-	"tiny-forum/internal/dto"
-	"tiny-forum/internal/model"
+	"tiny-forum/internal/model/dto"
+	"tiny-forum/internal/model/po"
 
 	"gorm.io/gorm"
 )
 
 // CreateWithTransaction 使用事务创建问答（包括帖子、标签、积分扣减）
-func (r *questionRepository) CreateWithTransaction(userID uint, input dto.CreateQuestionRequest) (*model.QuestionResponse, error) {
+func (r *questionRepository) CreateWithTransaction(userID uint, input dto.CreateQuestionRequest) (*po.QuestionResponse, error) {
 	tx := r.db.Begin()
 	defer func() {
 		if r := recover(); r != nil {
@@ -18,14 +18,14 @@ func (r *questionRepository) CreateWithTransaction(userID uint, input dto.Create
 	}()
 
 	// 1. 创建帖子
-	post := &model.Post{
+	post := &po.Post{
 		Title:      input.Title,
 		Content:    input.Content,
 		Summary:    input.Summary,
 		Cover:      input.Cover,
 		BoardID:    input.BoardID,
 		AuthorID:   userID,
-		Type:       model.PostTypeQuestion,
+		Type:       po.PostTypeQuestion,
 		PostStatus: input.Status,
 	}
 	if err := tx.Create(post).Error; err != nil {
@@ -35,7 +35,7 @@ func (r *questionRepository) CreateWithTransaction(userID uint, input dto.Create
 
 	// 2. 关联标签
 	if len(input.TagIDs) > 0 {
-		var tags []model.Tag
+		var tags []po.Tag
 		if err := tx.Where("id IN ?", input.TagIDs).Find(&tags).Error; err != nil {
 			tx.Rollback()
 			return nil, err
@@ -48,7 +48,7 @@ func (r *questionRepository) CreateWithTransaction(userID uint, input dto.Create
 
 	// 3. 扣减积分
 	if input.RewardScore > 0 {
-		var user model.User
+		var user po.User
 		if err := tx.Where("id = ?", userID).First(&user).Error; err != nil {
 			tx.Rollback()
 			return nil, err
@@ -64,7 +64,7 @@ func (r *questionRepository) CreateWithTransaction(userID uint, input dto.Create
 	}
 
 	// 4. 创建问答记录
-	question := &model.Question{
+	question := &po.Question{
 		PostID:      post.ID,
 		RewardScore: input.RewardScore,
 		AnswerCount: 0,
@@ -78,7 +78,7 @@ func (r *questionRepository) CreateWithTransaction(userID uint, input dto.Create
 		return nil, err
 	}
 
-	return &model.QuestionResponse{
+	return &po.QuestionResponse{
 		ID:          question.ID,
 		PostID:      post.ID,
 		Title:       post.Title,

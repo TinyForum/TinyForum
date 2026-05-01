@@ -4,24 +4,24 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"tiny-forum/internal/model"
+	"tiny-forum/internal/model/po"
 
 	"gorm.io/gorm"
 )
 
-func (r *moderatorRepository) UpdatePermissions(ctx context.Context, moderatorID uint, permissions model.Permission) error {
+func (r *moderatorRepository) UpdatePermissions(ctx context.Context, moderatorID uint, permissions po.Permission) error {
 	permsJSON, err := json.Marshal(permissions)
 	if err != nil {
 		return err
 	}
 	return r.db.WithContext(ctx).
-		Model(&model.Moderator{}).
+		Model(&po.Moderator{}).
 		Where("id = ?", moderatorID).
 		Update("permissions", permsJSON).Error
 }
 
 func (r *moderatorRepository) HasPermission(ctx context.Context, userID, boardID uint, permission string) (bool, error) {
-	var moderator model.Moderator
+	var moderator po.Moderator
 	err := r.db.WithContext(ctx).
 		Where("user_id = ? AND board_id = ?", userID, boardID).
 		First(&moderator).Error

@@ -2,14 +2,14 @@ package moderator
 
 import (
 	"context"
-	"tiny-forum/internal/model"
+	"tiny-forum/internal/model/po"
 )
 
-func (r *moderatorRepository) List(ctx context.Context, page, pageSize int, boardID *uint) ([]model.Moderator, int64, error) {
-	var moderators []model.Moderator
+func (r *moderatorRepository) List(ctx context.Context, page, pageSize int, boardID *uint) ([]po.Moderator, int64, error) {
+	var moderators []po.Moderator
 	var total int64
 
-	query := r.db.WithContext(ctx).Model(&model.Moderator{})
+	query := r.db.WithContext(ctx).Model(&po.Moderator{})
 
 	if boardID != nil {
 		query = query.Where("board_id = ?", *boardID)

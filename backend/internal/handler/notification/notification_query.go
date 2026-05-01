@@ -1,7 +1,7 @@
 package notification
 
 import (
-	"tiny-forum/internal/dto"
+	"tiny-forum/internal/model/dto"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"

@@ -2,7 +2,7 @@ package user
 
 import (
 	"context"
-	"tiny-forum/internal/dto"
+	"tiny-forum/internal/model/dto"
 )
 
 func (s *userService) GetGlobalStatsCount(ctx context.Context, userID uint) (*dto.GlobalStatsCount, error) {
