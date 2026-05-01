@@ -50,25 +50,26 @@ func RegisterRoutes(
 	handlers.Question.RegisterRoutes(api, mw)           // 问题路由
 	handlers.Announcement.RegisterRoutes(api, mw)       // 公告路由
 	handlers.Stats.RegisterRoutes(api, mw)              // 统计信息
+	handlers.Admin.RegisterRoutes(api, mw)              // 管理员路由
 
 	// 管理员路由（语义化，便于前端判断权限）
 	// MARK: Admin routes
-	announcementAdminGroup := api.Group("/admin/announcements", mw.Auth(), mw.AdminRequired())
-	{
-		announcementAdminGroup.GET("", handlers.Announcement.AdminList)
-		announcementAdminGroup.POST("", handlers.Announcement.Create)
-		announcementAdminGroup.PUT("/:id", handlers.Announcement.Update)
-		announcementAdminGroup.DELETE("/:id", handlers.Announcement.Delete)
-		announcementAdminGroup.POST("/:id/publish", handlers.Announcement.Publish)
-		announcementAdminGroup.POST("/:id/archive", handlers.Announcement.Archive)
-		announcementAdminGroup.PUT("/:id/pin", handlers.Announcement.Pin)
-	}
+	// announcementAdminGroup := api.Group("/admin/announcements", mw.Auth(), mw.AdminRequired())
+	// {
+	// announcementAdminGroup.GET("", handlers.Announcement.AdminList)
+	// announcementAdminGroup.POST("", handlers.Announcement.Create)
+	// announcementAdminGroup.PUT("/:id", handlers.Announcement.Update)
+	// announcementAdminGroup.DELETE("/:id", handlers.Announcement.Delete)
+	// announcementAdminGroup.POST("/:id/publish", handlers.Announcement.Publish)
+	// announcementAdminGroup.POST("/:id/archive", handlers.Announcement.Archive)
+	// announcementAdminGroup.PUT("/:id/pin", handlers.Announcement.Pin)
+	// }
 	adminGroup := api.Group("/admin", mw.Auth(), mw.AdminRequired())
 	{
-		adminGroup.GET("/users", handlers.User.AdminList)
-		adminGroup.PUT("/users/:id/active", handlers.User.AdminSetActive)
-		adminGroup.PUT("/users/:id/blocked", handlers.User.AdminSetBlocked)
-		adminGroup.DELETE("/users/:id/", handlers.User.AdminDeleteUser)
+		// adminGroup.GET("/users", handlers.User.AdminList)
+		// adminGroup.PUT("/users/:id/active", handlers.User.AdminSetActive)
+		// adminGroup.PUT("/users/:id/blocked", handlers.User.AdminSetBlocked)
+		// adminGroup.DELETE("/users/:id/", handlers.User.AdminDeleteUser)
 		adminGroup.PUT("/users/:id/role", handlers.User.AdminSetRole)
 		adminGroup.POST("/users/:id/reset-password", handlers.User.AdminResetUserPassword)
 		adminGroup.GET("/users/score", handlers.User.AdminGetUserScore)

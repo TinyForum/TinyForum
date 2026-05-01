@@ -163,6 +163,8 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
     console.log(`\n🔐 Admin route verification:`);
     console.log(`  JWT_SECRET exists: ${!!jwt}`);
     console.log(`  Token length: ${finalToken?.length}`);
+    console.log(`🔐 JWT_SECRET from env: "${process.env.JWT_SECRET}"`);
+    console.log(`🔐 JWT_SECRET length: ${process.env.JWT_SECRET?.length}`);
 
     try {
       if (!jwt) {

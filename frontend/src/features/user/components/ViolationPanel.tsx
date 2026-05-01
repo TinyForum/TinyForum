@@ -1,18 +1,10 @@
 // components/user/ViolationPanel.tsx
 "use client";
 
+import { getViolationStatusBadge } from "@/shared/lib/utils/violation";
+import { ViolationRecord } from "@/shared/type/violation.type";
 import { useTranslations } from "next-intl";
 import { useState, useEffect } from "react";
-
-// 违规记录类型定义
-interface ViolationRecord {
-  id: string;
-  reason: string; // 违规原因
-  date: string; // 违规时间
-  status: "pending" | "appealing" | "resolved" | "rejected";
-  punishment: string; // 处罚措施（如“禁言3天”、“警告”）
-  appealDeadline?: string; // 申诉截止时间
-}
 
 // Mock 数据 - 实际应从 API 获取
 const mockViolations: ViolationRecord[] = [
@@ -89,27 +81,6 @@ export function ViolationPanel() {
     }
   };
 
-  const getStatusBadge = (status: ViolationRecord["status"]) => {
-    switch (status) {
-      case "pending":
-        return (
-          <span className="badge badge-warning">{t("status_pending")}</span>
-        );
-      case "appealing":
-        return (
-          <span className="badge badge-info">{t("status_appealing")}</span>
-        );
-      case "resolved":
-        return (
-          <span className="badge badge-success">{t("status_resolved")}</span>
-        );
-      case "rejected":
-        return (
-          <span className="badge badge-error">{t("status_rejected")}</span>
-        );
-    }
-  };
-
   const canAppeal = (record: ViolationRecord) => {
     if (record.status !== "pending") return false;
     if (record.appealDeadline && new Date(record.appealDeadline) < new Date())
@@ -153,7 +124,7 @@ export function ViolationPanel() {
                       <td>{record.reason}</td>
                       <td>{record.date}</td>
                       <td>{record.punishment}</td>
-                      <td>{getStatusBadge(record.status)}</td>
+                      <td>{getViolationStatusBadge(record.status, t)}</td>
                       <td>
                         {canAppeal(record) ? (
                           <button

@@ -4,18 +4,18 @@ import (
 	"errors"
 
 	"tiny-forum/internal/middleware"
+	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/dto"
-	"tiny-forum/internal/model/po"
 
 	"github.com/gin-gonic/gin"
 )
 
 // Create 创建帖子
-func (s *postService) Create(ctx *gin.Context, authorID uint, input CreatePostInput) (*po.Post, error) {
+func (s *postService) Create(ctx *gin.Context, authorID uint, input CreatePostInput) (*do.Post, error) {
 	// 1. 帖子类型校验
-	postType := po.PostType(input.Type)
+	postType := do.PostType(input.Type)
 	if postType == "" || !postType.IsValid() {
-		postType = po.PostTypePost
+		postType = do.PostTypePost
 	}
 
 	// 2. 板块校验
@@ -40,20 +40,20 @@ func (s *postService) Create(ctx *gin.Context, authorID uint, input CreatePostIn
 	allHitWords = append(allHitWords, replaceHitWords...)
 
 	// 5. 确定审核状态（优先级：屏蔽 > 待审 > 替换 > 安全）
-	var moderationStatus po.ModerationStatus
+	var moderationStatus do.ModerationStatus
 	switch {
 	case shadowed:
-		moderationStatus = po.ModerationStatusRejected
+		moderationStatus = do.ModerationStatusRejected
 	case reviewRequired:
-		moderationStatus = po.ModerationStatusPending
+		moderationStatus = do.ModerationStatusPending
 	case replaced:
-		moderationStatus = po.ModerationStatusApproved
+		moderationStatus = do.ModerationStatusApproved
 	default:
-		moderationStatus = po.ModerationStatusApproved
+		moderationStatus = do.ModerationStatusApproved
 	}
 
 	// 6. 构建帖子对象
-	post := &po.Post{
+	post := &do.Post{
 		Title:            input.Title,
 		Content:          input.Content,
 		Summary:          input.Summary,
@@ -62,12 +62,12 @@ func (s *postService) Create(ctx *gin.Context, authorID uint, input CreatePostIn
 		AuthorID:         authorID,
 		BoardID:          board.ID,
 		ModerationStatus: moderationStatus,
-		PostStatus:       po.PostStatus(input.Status),
+		PostStatus:       do.PostStatus(input.Status),
 	}
 
 	// 7. 处理标签
 	if len(input.TagIDs) > 0 {
-		tags := make([]po.Tag, 0, len(input.TagIDs))
+		tags := make([]do.Tag, 0, len(input.TagIDs))
 		for _, id := range input.TagIDs {
 			tag, err := s.tagRepo.FindByID(id)
 			if err == nil {
@@ -107,7 +107,7 @@ func (s *postService) Create(ctx *gin.Context, authorID uint, input CreatePostIn
 }
 
 // Update 更新帖子
-func (s *postService) Update(postID, userID uint, isAdmin bool, input UpdatePostInput) (*po.Post, error) {
+func (s *postService) Update(postID, userID uint, isAdmin bool, input UpdatePostInput) (*do.Post, error) {
 	post, err := s.postRepo.FindByID(postID)
 	if err != nil {
 		return nil, errors.New("帖子不存在")
@@ -128,7 +128,7 @@ func (s *postService) Update(postID, userID uint, isAdmin bool, input UpdatePost
 		post.Cover = input.Cover
 	}
 	if len(input.TagIDs) > 0 {
-		var tags []po.Tag
+		var tags []do.Tag
 		for _, id := range input.TagIDs {
 			tag, err := s.tagRepo.FindByID(id)
 			if err == nil {
@@ -156,7 +156,7 @@ func (s *postService) Delete(postID, userID uint, isAdmin bool) error {
 }
 
 // GetByID 获取帖子详情（含点赞状态）
-func (s *postService) GetByID(postID, viewerID uint) (*po.Post, bool, error) {
+func (s *postService) GetByID(postID, viewerID uint) (*do.Post, bool, error) {
 	post, err := s.postRepo.FindByID(postID)
 	if err != nil {
 		return nil, false, errors.New("帖子不存在")
@@ -170,6 +170,6 @@ func (s *postService) GetByID(postID, viewerID uint) (*po.Post, bool, error) {
 }
 
 // List 获取帖子列表（支持筛选）
-func (s *postService) List(page, pageSize int, opts dto.PostListOptions) ([]po.Post, int64, error) {
+func (s *postService) List(page, pageSize int, opts dto.PostListOptions) ([]do.Post, int64, error) {
 	return s.postRepo.List(page, pageSize, opts)
 }

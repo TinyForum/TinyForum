@@ -50,6 +50,7 @@ func (m *JWTManager) Generate(userID uint, username, role string) (string, error
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
 	return token.SignedString(m.secret)
 }
 

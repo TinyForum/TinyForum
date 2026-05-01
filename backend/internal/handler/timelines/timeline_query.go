@@ -16,7 +16,7 @@ import (
 // @Security ApiKeyAuth
 // @Param page query int false "页码" default(1)
 // @Param page_size query int false "每页数量" default(20)
-// @Success 200 {object} response.Response{data=response.PageData{list=[]model.TimelineEvent}} "获取成功"
+// @Success 200 {object} response.Response{data=response.PageData{list=[]do.TimelineEvent}} "获取成功"
 // @Failure 401 {object} response.Response "未授权"
 // @Failure 500 {object} response.Response "服务器内部错误"
 // @Router /timeline/home [get]
@@ -41,7 +41,7 @@ func (h *TimelineHandler) GetHomeTimeline(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Param page query int false "页码" default(1)
 // @Param page_size query int false "每页数量" default(20)
-// @Success 200 {object} response.Response{data=response.PageData{list=[]model.TimelineEvent}} "获取成功"
+// @Success 200 {object} response.Response{data=response.PageData{list=[]do.TimelineEvent}} "获取成功"
 // @Failure 401 {object} response.Response "未授权"
 // @Failure 500 {object} response.Response "服务器内部错误"
 // @Router /timeline/following [get]

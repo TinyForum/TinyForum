@@ -3,15 +3,15 @@ package announcement
 import (
 	"context"
 	"time"
-	"tiny-forum/internal/model/po"
-	"tiny-forum/internal/model/query"
+	"tiny-forum/internal/model/do"
+	"tiny-forum/internal/model/request"
 )
 
-func (r *announcementRepository) List(ctx context.Context, req *query.ListAnnouncements) ([]po.Announcement, int64, error) {
-	var announcements []po.Announcement
+func (r *announcementRepository) List(ctx context.Context, req *request.ListAnnouncements) ([]do.Announcement, int64, error) {
+	var announcements []do.Announcement
 	var total int64
 
-	query := r.db.WithContext(ctx).Model(&po.Announcement{})
+	query := r.db.WithContext(ctx).Model(&do.Announcement{})
 
 	if req.BoardID != nil {
 		query = query.Where("board_id = ? OR (board_id IS NULL AND is_global = ?)", *req.BoardID, true)
@@ -20,7 +20,7 @@ func (r *announcementRepository) List(ctx context.Context, req *query.ListAnnoun
 		query = query.Where("type = ?", *req.Type)
 	}
 	if req.Status != nil {
-		if *req.Status != StatusAll {
+		if *req.Status != do.AnnouncementStatus(do.AnnouncementStatusFilterAll) {
 			query = query.Where("status = ?", *req.Status)
 		}
 	}
@@ -41,7 +41,7 @@ func (r *announcementRepository) List(ctx context.Context, req *query.ListAnnoun
 	}
 
 	shouldFilterTime := req.Status == nil ||
-		(req.Status != nil && *req.Status == StatusPublished)
+		(req.Status != nil && *req.Status == do.AnnouncementStatusPublished)
 
 	if shouldFilterTime {
 		query = query.Where("published_at <= ?", time.Now())
@@ -65,11 +65,11 @@ func (r *announcementRepository) List(ctx context.Context, req *query.ListAnnoun
 	return announcements, total, err
 }
 
-func (r *announcementRepository) GetPinned(ctx context.Context, boardID *uint) ([]po.Announcement, error) {
-	var announcements []po.Announcement
+func (r *announcementRepository) GetPinned(ctx context.Context, boardID *uint) ([]do.Announcement, error) {
+	var announcements []do.Announcement
 	query := r.db.WithContext(ctx).
 		Where("is_pinned = ?", true).
-		Where("status = ?", po.AnnouncementStatusPublished).
+		Where("status = ?", do.AnnouncementStatusPublished).
 		Where("published_at <= ?", time.Now()).
 		Where("expired_at IS NULL OR expired_at > ?", time.Now())
 

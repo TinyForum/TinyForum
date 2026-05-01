@@ -1,21 +1,30 @@
 // components/admin/AnnouncementList.tsx
+
 import {
-  Announcement,
+  AnnouncementDO,
   AnnouncementType,
-} from "@/shared/api/modules/announcements";
-import { AnnouncementCard } from "./AnnouncementCard";
+  AnnouncementStatus,
+} from "@/shared/api/types/announcement.model";
 import { Loader2, Pin } from "lucide-react";
+import { AnnouncementCard } from "./AnnouncementCard";
 
 interface AnnouncementListProps {
-  announcements: Announcement[];
-  pinnedAnnouncements: Announcement[];
+  announcements: AnnouncementDO[];
+  pinnedAnnouncements: AnnouncementDO[];
   isLoading: boolean;
-  getTypeBadge: (type: AnnouncementType) => string;
-  getTypeText: (type: AnnouncementType) => string;
-  getStatusBadge: (status: string, expiredAt: string | null) => string; // 修改：增加第二个参数
-  getStatusText: (status: string, expiredAt: string | null) => string; // 修改：增加第二个参数
+  getTypeBadge: (type: AnnouncementType, t: (key: string) => string) => string;
+  getTypeText: (type: AnnouncementType, t: (key: string) => string) => string;
+  getStatusBadge: (
+    status: AnnouncementStatus,
+    expiredAt: string | null,
+  ) => string;
+  getStatusText: (
+    status: AnnouncementStatus,
+    expiredAt: string | null,
+    t: (key: string) => string,
+  ) => string;
   formatDate: (date: string | null) => string;
-  onEdit: (ann: Announcement) => void;
+  onEdit: (ann: AnnouncementDO) => void;
   onDelete: (id: number) => void;
   onPin: (id: number, currentPinned: boolean) => void;
   onPublish: (id: number) => void;

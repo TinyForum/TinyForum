@@ -1,10 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
-import {
-  announcementApi,
-  type Announcement,
-} from "@/shared/api/modules/announcements";
+import { announcementApi } from "@/shared/api/modules/announcements";
 import toast from "react-hot-toast";
 import { ApiResponse } from "@/shared/api/types";
+import { AnnouncementDO } from "@/shared/api/types/announcement.model";
 
 // ============ 用于单个公告的 Hook ============
 interface UseAdminAnnouncementOptions {
@@ -12,9 +10,9 @@ interface UseAdminAnnouncementOptions {
 }
 
 interface UseAnnouncementReturn {
-  announcement: Announcement | null;
+  announcement: AnnouncementDO | null;
   loading: boolean;
-  fetch: (id: number) => Promise<Announcement | null>;
+  fetch: (id: number) => Promise<AnnouncementDO | null>;
   clear: () => void;
 }
 
@@ -23,14 +21,14 @@ export function useAdminAnnouncement(
   options?: UseAdminAnnouncementOptions,
 ): UseAnnouncementReturn {
   const { autoLoad = true } = options || {};
-  const [announcement, setAnnouncement] = useState<Announcement | null>(null);
+  const [announcement, setAnnouncement] = useState<AnnouncementDO | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
   const fetch = useCallback(
-    async (announcementId: number): Promise<Announcement | null> => {
+    async (announcementId: number): Promise<AnnouncementDO | null> => {
       setLoading(true);
       try {
-        const response: { data: ApiResponse<Announcement> } =
+        const response: { data: ApiResponse<AnnouncementDO> } =
           await announcementApi.getById(announcementId);
 
         if (response.data.code === 0 && response.data.data) {

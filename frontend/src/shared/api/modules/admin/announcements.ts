@@ -1,10 +1,10 @@
 import apiClient from "../../client";
-import { ApiResponse } from "../../types";
 import {
-  Announcement,
   CreateAnnouncementPayload,
+  AnnouncementDO,
   UpdateAnnouncementPayload,
-} from "../announcements";
+} from "../../types/announcement.model";
+import { ApiResponse } from "../../types/basic.model";
 
 export const adminAnnouncementApi = {
   /**
@@ -13,7 +13,7 @@ export const adminAnnouncementApi = {
    * @returns 创建的公告
    */
   create: (data: CreateAnnouncementPayload) =>
-    apiClient.post<ApiResponse<Announcement>>("/admin/announcements", data),
+    apiClient.post<ApiResponse<AnnouncementDO>>("/admin/announcements", data),
 
   /**
    * 更新公告
@@ -22,7 +22,7 @@ export const adminAnnouncementApi = {
    * @returns 更新的公告
    */
   update: (id: number, data: UpdateAnnouncementPayload) =>
-    apiClient.put<ApiResponse<Announcement>>(
+    apiClient.put<ApiResponse<AnnouncementDO>>(
       `/admin/announcements/${id}`,
       data,
     ),

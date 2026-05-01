@@ -3,13 +3,13 @@ package announcement
 import (
 	"context"
 	"errors"
-	"tiny-forum/internal/model/dto"
+	"tiny-forum/internal/model/request"
 	apperrors "tiny-forum/pkg/errors"
 
 	"gorm.io/gorm"
 )
 
-func (s *announcementService) Update(ctx context.Context, id uint, req *dto.UpdateAnnouncementRequest, userID uint) error {
+func (s *announcementService) Update(ctx context.Context, id uint, req *request.UpdateAnnouncement, userID uint) error {
 	announcement, err := s.repo.GetByID(ctx, id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -30,7 +30,7 @@ func (s *announcementService) Update(ctx context.Context, id uint, req *dto.Upda
 		announcement.Cover = *req.Cover
 	}
 	if req.Type != nil {
-		announcement.Type = *req.Type
+		announcement.Type = req.Type
 	}
 	if req.IsPinned != nil {
 		announcement.IsPinned = *req.IsPinned

@@ -2,36 +2,36 @@ package comment
 
 import (
 	"errors"
-	"tiny-forum/internal/model/po"
+	"tiny-forum/internal/model/do"
 
 	"gorm.io/gorm"
 )
 
 // Create 创建评论
-func (r *commentRepository) Create(comment *po.Comment) error {
+func (r *commentRepository) Create(comment *do.Comment) error {
 	return r.db.Create(comment).Error
 }
 
 // FindByID 根据 ID 获取评论（预加载作者）
-func (r *commentRepository) FindByID(id uint) (*po.Comment, error) {
-	var comment po.Comment
+func (r *commentRepository) FindByID(id uint) (*do.Comment, error) {
+	var comment do.Comment
 	err := r.db.Preload("Author").First(&comment, id).Error
 	return &comment, err
 }
 
 // Update 更新评论
-func (r *commentRepository) Update(comment *po.Comment) error {
+func (r *commentRepository) Update(comment *do.Comment) error {
 	return r.db.Save(comment).Error
 }
 
 // Delete 删除评论
 func (r *commentRepository) Delete(id uint) error {
-	return r.db.Delete(&po.Comment{}, id).Error
+	return r.db.Delete(&do.Comment{}, id).Error
 }
 
 // ValidateParentComment 验证父评论是否属于同一帖子
 func (r *commentRepository) ValidateParentComment(parentID uint, postID uint) error {
-	var comment po.Comment
+	var comment do.Comment
 	err := r.db.Where("id = ? AND post_id = ?", parentID, postID).First(&comment).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {

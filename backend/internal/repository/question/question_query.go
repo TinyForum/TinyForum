@@ -1,13 +1,13 @@
 package question
 
 import (
-	"tiny-forum/internal/model/po"
+	"tiny-forum/internal/model/do"
 	"tiny-forum/pkg/logger"
 )
 
 // FindSimple 获取问题精简列表（旧版，保留兼容）
-func (r *questionRepository) FindSimple(pageSize, offset int, boardID *uint) ([]po.QuestionListResponse, int64, error) {
-	var questions []po.QuestionListResponse
+func (r *questionRepository) FindSimple(pageSize, offset int, boardID *uint) ([]do.QuestionListResponse, int64, error) {
+	var questions []do.QuestionListResponse
 	var total int64
 	logger.Info("[Repository] FindSimple")
 
@@ -52,7 +52,7 @@ func (r *questionRepository) FindSimpleQuestions(pageSize, offset int, boardID *
 	logger.Info("[Repository] FindSimpleQuestions")
 
 	// 使用 Model 代替 Table，并预先构建基础查询
-	db := r.db.Model(&po.Question{}).
+	db := r.db.Model(&do.Question{}).
 		Joins("LEFT JOIN posts ON posts.id = questions.post_id"). // JOIN 需保留原生 SQL
 		Where("posts.deleted_at IS NULL").                        // 软删除条件（posts 表）
 		Where("posts.post_status = ?", "published")               // 帖子状态条件

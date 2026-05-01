@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"log"
 	"os"
 	userService "tiny-forum/internal/service/user"
 	"tiny-forum/pkg/response"
@@ -65,12 +66,15 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	cookieValue := "tiny_forum_token=" + result.Token +
 		"; Max-Age=604800" + // 7天
 		"; Path=/" +
-		"; Domain=" + h.cfg.Basic.Server.Host +
+		// "; Domain=" + h.cfg.Basic.Server.Host +
 		"; HttpOnly" +
-		"; SameSite=Strict"
+		"; SameSite=Lax"
 	if isProduction {
 		cookieValue += "; Secure"
 	}
+	log.Printf("JWT secret used for signing: %s", h.cfg.Private.JWT.Secret)
+	log.Printf("JWT secret length: %d", len(h.cfg.Private.JWT.Secret))
+
 	c.Header("Set-Cookie", cookieValue)
 
 	// 响应体只返回用户信息，不暴露 token

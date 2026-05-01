@@ -12,11 +12,8 @@ export { default as apiClient } from "./client";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 export type {
-  ApiResponse,
-  PageData,
   PostType,
   PostStatus,
-  // UserRole,
   VoteType,
   NotificationType,
   User,

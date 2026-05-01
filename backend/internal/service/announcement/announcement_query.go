@@ -3,15 +3,15 @@ package announcement
 import (
 	"context"
 	"errors"
-	"tiny-forum/internal/model/po"
-	"tiny-forum/internal/model/query"
+	"tiny-forum/internal/model/do"
+	"tiny-forum/internal/model/request"
 	"tiny-forum/internal/model/vo"
 	apperrors "tiny-forum/pkg/errors"
 
 	"gorm.io/gorm"
 )
 
-func (s *announcementService) GetByID(ctx context.Context, id uint) (*po.Announcement, error) {
+func (s *announcementService) GetByID(ctx context.Context, id uint) (*do.Announcement, error) {
 	announcement, err := s.repo.GetByID(ctx, id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -23,14 +23,14 @@ func (s *announcementService) GetByID(ctx context.Context, id uint) (*po.Announc
 	return announcement, nil
 }
 
-func (s *announcementService) List(ctx context.Context, req *query.ListAnnouncements) (*vo.ListAnnouncements, error) {
+func (s *announcementService) List(ctx context.Context, req *request.ListAnnouncements) (*vo.ListAnnouncements, error) {
 	if req.Page <= 0 {
 		req.Page = 1
 	}
 	if req.PageSize <= 0 {
 		req.PageSize = 20
 	}
-	repoReq := &query.ListAnnouncements{
+	repoReq := &request.ListAnnouncements{
 
 		Page:      req.Page,
 		PageSize:  req.PageSize,
@@ -55,6 +55,6 @@ func (s *announcementService) List(ctx context.Context, req *query.ListAnnouncem
 	}, nil
 }
 
-func (s *announcementService) GetPinned(ctx context.Context, boardID *uint) ([]po.Announcement, error) {
+func (s *announcementService) GetPinned(ctx context.Context, boardID *uint) ([]do.Announcement, error) {
 	return s.repo.GetPinned(ctx, boardID)
 }

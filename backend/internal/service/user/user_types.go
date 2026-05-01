@@ -1,6 +1,6 @@
 package user
 
-import "tiny-forum/internal/model/po"
+import "tiny-forum/internal/model/do"
 
 // RegisterInput 注册请求
 type RegisterInput struct {
@@ -17,13 +17,13 @@ type LoginInput struct {
 
 // AuthResult 认证结果
 type AuthResult struct {
-	Token string      `json:"token"`
-	User  *po.User `json:"user"`
+	Token string   `json:"token"`
+	User  *do.User `json:"user"`
 }
 
 // UserProfileResponse 用户资料响应（含关注统计）
 type UserProfileResponse struct {
-	*po.User
+	*do.User
 	FollowerCount  int64 `json:"follower_count"`
 	FollowingCount int64 `json:"following_count"`
 	IsFollowing    bool  `json:"is_following"`

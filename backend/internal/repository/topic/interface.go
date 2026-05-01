@@ -1,7 +1,7 @@
 package topic
 
 import (
-	"tiny-forum/internal/model/po"
+	"tiny-forum/internal/model/do"
 
 	"gorm.io/gorm"
 )
@@ -13,21 +13,21 @@ type TopicRepository interface {
 	IncrementFollowerCount(topicID uint) error
 	DecrementFollowerCount(topicID uint) error
 	// curd
-	Create(topic *po.Topic) error
-	Update(topic *po.Topic) error
+	Create(topic *do.Topic) error
+	Update(topic *do.Topic) error
 	Delete(id uint) error
-	FindByID(id uint) (*po.Topic, error)
-	List(limit, offset int) ([]po.Topic, int64, error)
-	GetByCreator(creatorID uint, limit, offset int) ([]po.Topic, int64, error)
+	FindByID(id uint) (*do.Topic, error)
+	List(limit, offset int) ([]do.Topic, int64, error)
+	GetByCreator(creatorID uint, limit, offset int) ([]do.Topic, int64, error)
 	// follow
-	Follow(follow *po.TopicFollow) error
+	Follow(follow *do.TopicFollow) error
 	Unfollow(userID, topicID uint) error
 	IsFollowing(userID, topicID uint) (bool, error)
-	GetFollowers(topicID uint, limit, offset int) ([]po.TopicFollow, int64, error)
+	GetFollowers(topicID uint, limit, offset int) ([]do.TopicFollow, int64, error)
 	// post
-	AddPost(topicPost *po.TopicPost) error
+	AddPost(topicPost *do.TopicPost) error
 	RemovePost(topicID, postID uint) error
-	GetTopicPosts(topicID uint, limit, offset int) ([]po.TopicPost, int64, error)
+	GetTopicPosts(topicID uint, limit, offset int) ([]do.TopicPost, int64, error)
 	UpdatePostOrder(topicID, postID uint, sortOrder int) error
 }
 type topicRepository struct {

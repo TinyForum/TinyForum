@@ -2,7 +2,7 @@ package check
 
 import (
 	"tiny-forum/internal/infra/sensitive"
-	"tiny-forum/internal/model/po"
+	"tiny-forum/internal/model/do"
 	riskrepo "tiny-forum/internal/repository/risk"
 )
 
@@ -11,8 +11,8 @@ type ContentCheckService interface {
 	CheckText(text string) CheckResult
 	CreateAuditTaskForPost(postID uint, triggerType string, hitWords []string) error
 	CreateAuditTaskForComment(commentID uint, triggerType string, hitWords []string) error
-	HandleReportAggregate(targetType po.AuditTargetType, targetID uint) (triggered bool, err error)
-	GetListPendingTasks(limit, offset int) ([]po.ContentAuditTask, int64, error)
+	HandleReportAggregate(targetType do.AuditTargetType, targetID uint) (triggered bool, err error)
+	GetListPendingTasks(limit, offset int) ([]do.ContentAuditTask, int64, error)
 	ResolveTask(taskID uint, approved bool, reviewerID uint, note string) error
 }
 

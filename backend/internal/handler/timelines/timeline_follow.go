@@ -76,7 +76,7 @@ func (h *TimelineHandler) Unsubscribe(c *gin.Context) {
 // @Tags 时间线管理
 // @Produce json
 // @Security ApiKeyAuth
-// @Success 200 {object} response.Response{data=[]po.User} "获取成功"
+// @Success 200 {object} response.Response{data=[]do.User} "获取成功"
 // @Failure 401 {object} response.Response "未授权"
 // @Failure 500 {object} response.Response "服务器内部错误"
 // @Router /timeline/subscriptions [get]

@@ -2,7 +2,7 @@ package comment
 
 import (
 	"errors"
-	"tiny-forum/internal/model/po"
+	"tiny-forum/internal/model/do"
 )
 
 // MarkAsAnswer 标记/取消标记为答案
@@ -48,7 +48,7 @@ func (s *commentService) UnacceptAnswer(answerID, userID uint, isAdmin bool) err
 	}
 	// 可选：扣除积分并发送通知
 	if post.AuthorID != userID {
-		s.notifSvc.Create(answer.AuthorID, &userID, po.NotifyAcceptCancel,
+		s.notifSvc.Create(answer.AuthorID, &userID, do.NotifyAcceptCancel,
 			"你的答案在问题《"+post.Title+"》中被取消接受", &answer.PostID, "post")
 	}
 	return nil
