@@ -101,7 +101,7 @@ func (h *TopicHandler) IsFollowing(c *gin.Context) {
 // @Param id path int true "话题ID"
 // @Param page query int false "页码" default(1)
 // @Param page_size query int false "每页数量" default(20)
-// @Success 200 {object} response.Response{data=response.PageData{list=[]model.User}} "获取成功"
+// @Success 200 {object} response.Response{data=response.PageData{list=[]po.User}} "获取成功"
 // @Failure 400 {object} response.Response "无效的话题ID"
 // @Failure 500 {object} response.Response "服务器内部错误"
 // @Router /topics/{id}/followers [get]

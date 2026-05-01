@@ -1,9 +1,9 @@
 package user
 
 import (
-	"tiny-forum/internal/dto"
-	"tiny-forum/internal/query"
-	"tiny-forum/internal/vo"
+	"tiny-forum/internal/model/dto"
+	"tiny-forum/internal/model/query"
+	"tiny-forum/internal/model/vo"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -25,7 +25,7 @@ func (h *UserHandler) LeaderboardSimple(c *gin.Context) {
 		return
 	}
 
-	// 调用 service 获取原始数据（返回 model.User 切片或自定义结构）
+	// 调用 service 获取原始数据（返回 po.User 切片或自定义结构）
 	users, err := h.userSvc.GetSimpleLeaderboardData(c.Request.Context(), req.Limit)
 	if err != nil {
 		response.InternalError(c, err.Error())

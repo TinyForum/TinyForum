@@ -1,7 +1,7 @@
 package timeline
 
 import (
-	"tiny-forum/internal/model"
+	"tiny-forum/internal/model/po"
 )
 
 // Subscribe 关注用户
@@ -10,7 +10,7 @@ func (s *timelineService) Subscribe(subscriberID, targetUserID uint) error {
 	if err != nil {
 		return err
 	}
-	sub := &model.TimelineSubscription{
+	sub := &po.TimelineSubscription{
 		SubscriberID: subscriberID,
 		TargetUserID: targetUserID,
 		TargetType:   "user",
@@ -25,7 +25,7 @@ func (s *timelineService) Unsubscribe(subscriberID, targetUserID uint) error {
 }
 
 // GetSubscriptions 获取关注列表
-func (s *timelineService) GetSubscriptions(subscriberID uint) ([]model.TimelineSubscription, error) {
+func (s *timelineService) GetSubscriptions(subscriberID uint) ([]po.TimelineSubscription, error) {
 	return s.timelineRepo.GetSubscriptions(subscriberID)
 }
 

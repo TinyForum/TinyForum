@@ -7,7 +7,7 @@ import (
 	"regexp"
 	"strings"
 	"time"
-	"tiny-forum/internal/model"
+	"tiny-forum/internal/model/po"
 	userSvc "tiny-forum/internal/service/user"
 	apperrors "tiny-forum/pkg/errors"
 	"tiny-forum/pkg/logger"
@@ -62,18 +62,18 @@ func (s *authService) Register(ctx context.Context, input userSvc.RegisterInput)
 		return nil, err
 	}
 
-	user := &model.User{
+	user := &po.User{
 		Username: input.Username,
 		Email:    input.Email,
 		Password: string(hashed),
-		Role:     model.RoleUser,
+		Role:     po.RoleUser,
 		Avatar:   avatarURL(input.Username),
 	}
 	if err := s.userRepo.Create(user); err != nil {
 		return nil, err
 	}
 
-	s.notifSvc.Create(user.ID, nil, model.NotifySystem, "欢迎加入 Tiny Forum！", nil, "")
+	s.notifSvc.Create(user.ID, nil, po.NotifySystem, "欢迎加入 Tiny Forum！", nil, "")
 
 	token, err := s.jwtMgr.Generate(user.ID, user.Username, string(user.Role))
 	if err != nil {
@@ -84,7 +84,7 @@ func (s *authService) Register(ctx context.Context, input userSvc.RegisterInput)
 
 type AuthResult struct {
 	Token          string          `json:"token"`
-	User           *model.User     `json:"user"`
+	User           *po.User     `json:"user"`
 	DeletionStatus *DeletionStatus `json:"deletion_status,omitempty"`
 }
 
@@ -149,7 +149,7 @@ func (s *authService) RevokeToken(ctx context.Context, rawToken string) error {
 	return s.tokenRepo.RevokeToken(ctx, claims.ID, claims.ExpiresAt.Time)
 }
 func (s *authService) FinduUserEmailByID(userID uint) (string, error) {
-	user := &model.User{}
+	user := &po.User{}
 	user, err := s.userRepo.FindByID(userID)
 	if err != nil {
 		return "", err

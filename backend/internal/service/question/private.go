@@ -2,7 +2,7 @@ package question
 
 import (
 	"errors"
-	"tiny-forum/internal/dto"
+	"tiny-forum/internal/model/dto"
 )
 
 // validateCreateQuestion 验证创建问答的输入

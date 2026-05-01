@@ -3,7 +3,7 @@ package announcement
 import (
 	"context"
 	"errors"
-	"tiny-forum/internal/dto"
+	"tiny-forum/internal/model/dto"
 	apperrors "tiny-forum/pkg/errors"
 
 	"gorm.io/gorm"

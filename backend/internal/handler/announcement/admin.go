@@ -2,8 +2,8 @@ package announcement
 
 import (
 	"errors"
-	"tiny-forum/internal/dto"
-	"tiny-forum/internal/model"
+	"tiny-forum/internal/model/po"
+	"tiny-forum/internal/model/query"
 	apperrors "tiny-forum/pkg/errors"
 	"tiny-forum/pkg/logger"
 	"tiny-forum/pkg/response"
@@ -22,19 +22,20 @@ import (
 // @Produce json
 // @Security ApiKeyAuth
 // @Param body body dto.ListAnnouncementRequest true "公告信息"
-// @Success 200 {object} response.Response{data=model.Announcement} "创建成功"
+// @Success 200 {object} response.Response{data=po.Announcement} "创建成功"
 // @Failure 400 {object} response.Response "请求参数错误"
 // @Failure 401 {object} response.Response "未授权"
 // @Failure 403 {object} response.Response "无权限（非管理员）"
 // @Failure 500 {object} response.Response "服务器内部错误"
 // @Router /admin/announcements/list [get]
+// Deprecated 废弃
 func (h *AnnouncementHandler) AdminList(c *gin.Context) {
-	var req dto.ListAnnouncementRequest
+	var req query.ListAnnouncements
 	if err := c.ShouldBindQuery(&req); err != nil {
 		response.BadRequest(c, err.Error())
 		return
 	}
-	allStatus := model.AnnouncementStatus(model.AnnouncementStatusAll)
+	allStatus := po.AnnouncementStatus(po.AnnouncementStatusAll)
 	req.Status = &allStatus
 
 	resp, err := h.service.List(c.Request.Context(), &req)

@@ -3,7 +3,7 @@ package user
 import (
 	"context"
 	"fmt"
-	"tiny-forum/internal/dto"
+	"tiny-forum/internal/model/dto"
 )
 
 // 返回排行榜原始数据（按积分降序，过滤被封禁用户）

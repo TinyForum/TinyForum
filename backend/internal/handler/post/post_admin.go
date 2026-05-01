@@ -4,8 +4,8 @@ import (
 	"errors"
 	"strconv"
 
-	"tiny-forum/internal/dto"
-	"tiny-forum/internal/model"
+	"tiny-forum/internal/model/dto"
+	"tiny-forum/internal/model/po"
 	apperrors "tiny-forum/pkg/errors"
 	"tiny-forum/pkg/response"
 
@@ -97,7 +97,7 @@ func (h *PostHandler) AdminGetModerationRequire(c *gin.Context) {
 
 	opts := dto.PostListOptions{
 		// Status:  model.PostStatusPending,
-		ModerationStatus: model.ModerationStatusPending,
+		ModerationStatus: po.ModerationStatusPending,
 		Keyword:          keyword,
 	}
 
@@ -130,7 +130,7 @@ func (h *PostHandler) AdminApprovePost(c *gin.Context) {
 		return
 	}
 
-	if err := h.postSvc.AdminSetReviewPost(uint(postID), model.ModerationStatusApproved); err != nil {
+	if err := h.postSvc.AdminSetReviewPost(uint(postID), po.ModerationStatusApproved); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			response.NotFound(c, "帖子不存在")
 		} else {
@@ -173,7 +173,7 @@ func (h *PostHandler) AdminRejectPost(c *gin.Context) {
 	}
 	_ = c.ShouldBindJSON(&req)
 
-	if err := h.postSvc.AdminSetReviewPost(uint(postID), model.ModerationStatusRejected); err != nil {
+	if err := h.postSvc.AdminSetReviewPost(uint(postID), po.ModerationStatusRejected); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			response.NotFound(c, "帖子不存在")
 		} else {

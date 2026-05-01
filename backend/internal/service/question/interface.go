@@ -1,8 +1,8 @@
 package question
 
 import (
-	"tiny-forum/internal/dto"
-	"tiny-forum/internal/model"
+	"tiny-forum/internal/model/dto"
+	"tiny-forum/internal/model/po"
 	commentRepo "tiny-forum/internal/repository/comment"
 	postRepo "tiny-forum/internal/repository/post"
 	questionRepo "tiny-forum/internal/repository/question"
@@ -17,12 +17,12 @@ type QuestionService interface {
 	AcceptAnswer(postID, commentID uint, userID uint) error
 	VoteAnswer(userID uint, input VoteAnswerInput) (*VoteAnswerResult, error)
 	GetAnswerVoteStatus(userID, commentID uint) (map[string]interface{}, error)
-	GetQuestionWithAnswers(postID uint, page, pageSize int) (*model.Question, []model.Comment, int64, error)
+	GetQuestionWithAnswers(postID uint, page, pageSize int) (*po.Question, []po.Comment, int64, error)
 	// crud
-	CreateQuestion(userID uint, input dto.CreateQuestionRequest) (*model.QuestionResponse, error)
-	GetQuestionDetail(questionID uint) (*model.QuestionResponse, error)
-	GetQuestionsList(page, pageSize int, unanswered bool) ([]model.Post, int64, error)
-	GetQuestionByID(questionID uint) (*model.Question, error)
+	CreateQuestion(userID uint, input dto.CreateQuestionRequest) (*po.QuestionResponse, error)
+	GetQuestionDetail(questionID uint) (*po.QuestionResponse, error)
+	GetQuestionsList(page, pageSize int, unanswered bool) ([]po.Post, int64, error)
+	GetQuestionByID(questionID uint) (*po.Question, error)
 	// simple
 	GetQuestionSimpleList(pageSize, offset int, boardID *uint, filter, sort, keyword string) ([]QuestionSimpleResponse, int64, error)
 	GetQuestionSimpleByID(questionID uint) (*QuestionSimpleResponse, error)

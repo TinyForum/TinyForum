@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"tiny-forum/internal/model"
+	"tiny-forum/internal/model/po"
 	apperrors "tiny-forum/pkg/errors"
 )
 
@@ -51,7 +51,7 @@ func (s *questionService) AcceptAnswer(postID, commentID uint, userID uint) erro
 	if question.RewardScore > 0 {
 		s.userRepo.AddScore(comment.AuthorID, question.RewardScore)
 	}
-	s.notifSvc.Create(comment.AuthorID, &userID, model.NotifySystem,
+	s.notifSvc.Create(comment.AuthorID, &userID, po.NotifySystem,
 		"你的回答被采纳为最佳答案", &postID, "post")
 	return nil
 }
@@ -87,7 +87,7 @@ func (s *questionService) VoteAnswer(userID uint, input VoteAnswerInput) (*VoteA
 			result.VoteType = input.VoteType
 		}
 	} else {
-		vote := &model.AnswerVote{
+		vote := &po.AnswerVote{
 			UserID:    userID,
 			CommentID: input.CommentID,
 			VoteType:  input.VoteType,
@@ -103,7 +103,7 @@ func (s *questionService) VoteAnswer(userID uint, input VoteAnswerInput) (*VoteA
 	result.VoteCount = voteCount
 	result.Action = action
 	if action != "removed" {
-		s.notifSvc.Create(comment.AuthorID, &userID, model.NotifyLike,
+		s.notifSvc.Create(comment.AuthorID, &userID, po.NotifyLike,
 			"有人给你的答案投票了", &input.CommentID, "comment")
 	}
 	return &result, nil
@@ -128,7 +128,7 @@ func (s *questionService) GetAnswerVoteStatus(userID, commentID uint) (map[strin
 }
 
 // GetQuestionWithAnswers 获取问题及其回答（分页）
-func (s *questionService) GetQuestionWithAnswers(postID uint, page, pageSize int) (*model.Question, []model.Comment, int64, error) {
+func (s *questionService) GetQuestionWithAnswers(postID uint, page, pageSize int) (*po.Question, []po.Comment, int64, error) {
 	question, err := s.questionRepo.FindByPostID(postID)
 	if err != nil {
 		return nil, nil, 0, err

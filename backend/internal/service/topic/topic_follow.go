@@ -3,7 +3,7 @@ package topic
 import (
 	"errors"
 
-	"tiny-forum/internal/model"
+	"tiny-forum/internal/model/po"
 )
 
 // Follow 关注专题
@@ -16,7 +16,7 @@ func (s *topicService) Follow(userID, topicID uint) error {
 	if isFollowing {
 		return errors.New("已经关注过了")
 	}
-	follow := &model.TopicFollow{
+	follow := &po.TopicFollow{
 		UserID:  userID,
 		TopicID: topicID,
 	}
@@ -44,7 +44,7 @@ func (s *topicService) IsFollowing(userID, topicID uint) (bool, error) {
 }
 
 // GetFollowers 获取专题的关注者列表
-func (s *topicService) GetFollowers(topicID uint, page, pageSize int) ([]model.TopicFollow, int64, error) {
+func (s *topicService) GetFollowers(topicID uint, page, pageSize int) ([]po.TopicFollow, int64, error) {
 	if page < 1 {
 		page = 1
 	}

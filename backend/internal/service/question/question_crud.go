@@ -3,15 +3,14 @@ package question
 import (
 	"errors"
 	"fmt"
-
-	"tiny-forum/internal/dto"
-	"tiny-forum/internal/model"
+	"tiny-forum/internal/model/dto"
+	"tiny-forum/internal/model/po"
 
 	"gorm.io/gorm"
 )
 
 // CreateQuestion 创建问答帖
-func (s *questionService) CreateQuestion(userID uint, input dto.CreateQuestionRequest) (*model.QuestionResponse, error) {
+func (s *questionService) CreateQuestion(userID uint, input dto.CreateQuestionRequest) (*po.QuestionResponse, error) {
 	if err := s.validateCreateQuestion(input); err != nil {
 		return nil, err
 	}
@@ -23,7 +22,7 @@ func (s *questionService) CreateQuestion(userID uint, input dto.CreateQuestionRe
 }
 
 // GetQuestionDetail 获取问答帖详情
-func (s *questionService) GetQuestionDetail(questionID uint) (*model.QuestionResponse, error) {
+func (s *questionService) GetQuestionDetail(questionID uint) (*po.QuestionResponse, error) {
 	question, err := s.questionRepo.FindByID(questionID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -31,7 +30,7 @@ func (s *questionService) GetQuestionDetail(questionID uint) (*model.QuestionRes
 		}
 		return nil, fmt.Errorf("查询问答失败: %w", err)
 	}
-	return &model.QuestionResponse{
+	return &po.QuestionResponse{
 		ID:               question.ID,
 		PostID:           question.PostID,
 		Title:            question.Post.Title,
@@ -50,7 +49,7 @@ func (s *questionService) GetQuestionDetail(questionID uint) (*model.QuestionRes
 }
 
 // GetQuestionsList 获取问答帖列表（支持只看未回答）
-func (s *questionService) GetQuestionsList(page, pageSize int, unanswered bool) ([]model.Post, int64, error) {
+func (s *questionService) GetQuestionsList(page, pageSize int, unanswered bool) ([]po.Post, int64, error) {
 	if page < 1 {
 		page = 1
 	}
@@ -65,6 +64,6 @@ func (s *questionService) GetQuestionsList(page, pageSize int, unanswered bool) 
 }
 
 // GetQuestionByID 根据 ID 获取 Question 模型（不含 Post 详情）
-func (s *questionService) GetQuestionByID(questionID uint) (*model.Question, error) {
+func (s *questionService) GetQuestionByID(questionID uint) (*po.Question, error) {
 	return s.questionRepo.FindByID(questionID)
 }

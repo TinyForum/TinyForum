@@ -3,7 +3,7 @@ package topic
 import (
 	"errors"
 
-	"tiny-forum/internal/model"
+	"tiny-forum/internal/model/po"
 )
 
 type AddPostToTopicInput struct {
@@ -25,7 +25,7 @@ func (s *topicService) AddPostToTopic(input AddPostToTopicInput, userID uint) er
 	if err != nil {
 		return errors.New("帖子不存在")
 	}
-	topicPost := &model.TopicPost{
+	topicPost := &po.TopicPost{
 		TopicID:   input.TopicID,
 		PostID:    input.PostID,
 		SortOrder: input.SortOrder,
@@ -36,7 +36,7 @@ func (s *topicService) AddPostToTopic(input AddPostToTopicInput, userID uint) er
 	}
 	_ = s.topicRepo.IncrementPostCount(input.TopicID)
 	if post.AuthorID != userID {
-		s.notifSvc.Create(post.AuthorID, &userID, model.NotifySystem,
+		s.notifSvc.Create(post.AuthorID, &userID, po.NotifySystem,
 			"你的帖子被收录到专题《"+topic.Title+"》", &input.TopicID, "topic")
 	}
 	return nil
@@ -58,7 +58,7 @@ func (s *topicService) RemovePostFromTopic(topicID, postID uint, userID uint) er
 }
 
 // GetTopicPosts 获取专题下的帖子列表（分页）
-func (s *topicService) GetTopicPosts(topicID uint, page, pageSize int) ([]model.TopicPost, int64, error) {
+func (s *topicService) GetTopicPosts(topicID uint, page, pageSize int) ([]po.TopicPost, int64, error) {
 	if page < 1 {
 		page = 1
 	}

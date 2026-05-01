@@ -2,21 +2,21 @@ package user
 
 import (
 	"context"
-	"tiny-forum/internal/model"
+	"tiny-forum/internal/model/po"
 )
 
-func (r *userRepository) Create(user *model.User) error {
+func (r *userRepository) Create(user *po.User) error {
 	return r.db.Create(user).Error
 }
 
-func (r *userRepository) FindByID(id uint) (*model.User, error) {
-	var user model.User
+func (r *userRepository) FindByID(id uint) (*po.User, error) {
+	var user po.User
 	err := r.db.First(&user, id).Error
 	return &user, err
 }
 
-func (r *userRepository) FindByEmail(ctx context.Context, email string) (*model.User, error) {
-	var user model.User
+func (r *userRepository) FindByEmail(ctx context.Context, email string) (*po.User, error) {
+	var user po.User
 	err := r.db.WithContext(ctx).Where("email = ?", email).First(&user).Error
 	if err != nil {
 		return nil, err
@@ -24,24 +24,24 @@ func (r *userRepository) FindByEmail(ctx context.Context, email string) (*model.
 	return &user, nil
 }
 
-func (r *userRepository) FindByUsername(username string) (*model.User, error) {
-	var user model.User
+func (r *userRepository) FindByUsername(username string) (*po.User, error) {
+	var user po.User
 	err := r.db.Where("username = ?", username).First(&user).Error
 	return &user, err
 }
 
-func (r *userRepository) Update(ctx context.Context, user *model.User) error {
+func (r *userRepository) Update(ctx context.Context, user *po.User) error {
 	return r.db.Save(user).Error
 }
 
 func (r *userRepository) UpdateFields(id uint, fields map[string]interface{}) error {
-	return r.db.Model(&model.User{}).Where("id = ?", id).Updates(fields).Error
+	return r.db.Model(&po.User{}).Where("id = ?", id).Updates(fields).Error
 }
 
-func (r *userRepository) List(page, pageSize int, keyword string) ([]model.User, int64, error) {
-	var users []model.User
+func (r *userRepository) List(page, pageSize int, keyword string) ([]po.User, int64, error) {
+	var users []po.User
 	var total int64
-	query := r.db.Model(&model.User{})
+	query := r.db.Model(&po.User{})
 	if keyword != "" {
 		query = query.Where("username LIKE ? OR email LIKE ?", "%"+keyword+"%", "%"+keyword+"%")
 	}
@@ -53,24 +53,24 @@ func (r *userRepository) List(page, pageSize int, keyword string) ([]model.User,
 	return users, total, err
 }
 
-func (r *userRepository) FindByIDs(ids []uint) ([]model.User, error) {
+func (r *userRepository) FindByIDs(ids []uint) ([]po.User, error) {
 	if len(ids) == 0 {
-		return []model.User{}, nil
+		return []po.User{}, nil
 	}
-	var users []model.User
+	var users []po.User
 	err := r.db.Where("id IN ?", ids).Find(&users).Error
 	return users, err
 }
 
-func (r *userRepository) GetUserBasicInfo(id uint) (*model.User, error) {
-	var user model.User
+func (r *userRepository) GetUserBasicInfo(id uint) (*po.User, error) {
+	var user po.User
 	err := r.db.Select("id, username, avatar").First(&user, id).Error
 	return &user, err
 }
 
-func (r *userRepository) GetUserBasicInfoById(userID uint) (*model.User, error) {
-	var user model.User
-	err := r.db.Model(&model.User{}).
+func (r *userRepository) GetUserBasicInfoById(userID uint) (*po.User, error) {
+	var user po.User
+	err := r.db.Model(&po.User{}).
 		Select("id, username, role").
 		Where("id = ?", userID).
 		First(&user).Error
@@ -79,7 +79,7 @@ func (r *userRepository) GetUserBasicInfoById(userID uint) (*model.User, error) 
 
 func (r *userRepository) GetUserRoleById(userID uint) (string, error) {
 	var role string
-	err := r.db.Model(&model.User{}).
+	err := r.db.Model(&po.User{}).
 		Select("role").
 		Where("id = ?", userID).
 		Scan(&role).Error
@@ -90,13 +90,13 @@ func (r *userRepository) GetUserRoleById(userID uint) (string, error) {
 }
 
 // FindByEmailUnscoped 查找用户（包括已软删除的）
-func (r *userRepository) FindByEmailUnscoped(ctx context.Context, email string) (*model.User, error) {
-	var user model.User
+func (r *userRepository) FindByEmailUnscoped(ctx context.Context, email string) (*po.User, error) {
+	var user po.User
 	err := r.db.WithContext(ctx).Unscoped().Where("email = ?", email).First(&user).Error
 	return &user, err
 }
 
 func (r *userRepository) IsUserExistsByEmail(email string) (bool, error) {
-	err := r.db.Model(&model.User{}).Where("email = ?", email).First(&model.User{}).Error
+	err := r.db.Model(&po.User{}).Where("email = ?", email).First(&po.User{}).Error
 	return err == nil, nil
 }

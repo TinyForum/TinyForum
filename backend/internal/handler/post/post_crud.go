@@ -3,8 +3,8 @@ package post
 import (
 	"strconv"
 
-	"tiny-forum/internal/dto"
-	"tiny-forum/internal/model"
+	"tiny-forum/internal/model/dto"
+	"tiny-forum/internal/model/po"
 	postService "tiny-forum/internal/service/post"
 	apperrors "tiny-forum/pkg/errors"
 	"tiny-forum/pkg/response"
@@ -40,7 +40,7 @@ func (h *PostHandler) Create(c *gin.Context) {
 		return
 	}
 	if input.Status == "" {
-		input.Status = model.PostStatusPublished
+		input.Status = po.PostStatusPublished
 	}
 
 	post, err := h.postSvc.Create(c, authorID, input)

@@ -2,18 +2,18 @@ package question
 
 import (
 	"time"
-	"tiny-forum/internal/dto"
-	"tiny-forum/internal/model"
+	"tiny-forum/internal/model/dto"
+	"tiny-forum/internal/model/po"
 
 	"gorm.io/gorm"
 )
 
 type QuestionRepository interface {
 	// CRUD
-	Create(question *model.Question) error
-	Update(question *model.Question) error
-	FindByID(id uint) (*model.Question, error)
-	FindByPostID(postID uint) (*model.Question, error)
+	Create(question *po.Question) error
+	Update(question *po.Question) error
+	FindByID(id uint) (*po.Question, error)
+	FindByPostID(postID uint) (*po.Question, error)
 	IncrementAnswerCount(postID uint) error
 	SetAcceptedAnswer(postID, commentID uint) error
 	UpdateCommentVoteCount(commentID uint, voteCount int) error
@@ -21,17 +21,17 @@ type QuestionRepository interface {
 	UpdateAcceptedAnswer(questionID uint, answerID uint) error
 
 	// transaction
-	CreateWithTransaction(userID uint, input dto.CreateQuestionRequest) (*model.QuestionResponse, error)
+	CreateWithTransaction(userID uint, input dto.CreateQuestionRequest) (*po.QuestionResponse, error)
 
 	// about vote
-	CreateAnswerVote(vote *model.AnswerVote) error
-	UpdateAnswerVote(vote *model.AnswerVote) error
+	CreateAnswerVote(vote *po.AnswerVote) error
+	UpdateAnswerVote(vote *po.AnswerVote) error
 	DeleteAnswerVote(userID, commentID uint) error
-	FindAnswerVote(userID, commentID uint) (*model.AnswerVote, error)
+	FindAnswerVote(userID, commentID uint) (*po.AnswerVote, error)
 	GetAnswerVoteCount(commentID uint) (int, error)
 
 	// query
-	FindSimple(pageSize, offset int, boardID *uint) ([]model.QuestionListResponse, int64, error)
+	FindSimple(pageSize, offset int, boardID *uint) ([]po.QuestionListResponse, int64, error)
 	FindSimpleQuestions(pageSize, offset int, boardID *uint, filter, sort, keyword string) ([]QuestionSimpleData, int64, error)
 	FindQuestionSimpleByID(questionID uint) (*QuestionSimpleData, error)
 }

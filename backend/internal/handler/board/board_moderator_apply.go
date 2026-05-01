@@ -3,7 +3,7 @@ package board
 import (
 	"strconv"
 
-	"tiny-forum/internal/model"
+	"tiny-forum/internal/model/po"
 	boardService "tiny-forum/internal/service/board"
 	"tiny-forum/pkg/response"
 
@@ -31,7 +31,7 @@ func (h *BoardHandler) ApplyModerator(c *gin.Context) {
 		return
 	}
 
-	var input model.ApplyModeratorInput
+	var input po.ApplyModeratorInput
 	if err := c.ShouldBindJSON(&input); err != nil {
 		response.BadRequest(c, err.Error())
 		return
@@ -85,7 +85,7 @@ func (h *BoardHandler) CancelApplication(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Param page query int false "页码" default(1)
 // @Param page_size query int false "每页数量" default(20)
-// @Success 200 {object} response.Response{data=response.PageData{list=[]model.ModeratorApplication}} "申请列表"
+// @Success 200 {object} response.Response{data=response.PageData{list=[]po.ModeratorApplication}} "申请列表"
 // @Failure 401 {object} response.Response "未授权"
 // @Router /boards/moderators/applications [get]
 func (h *BoardHandler) GetUserApplications(c *gin.Context) {
@@ -191,7 +191,7 @@ func (h *BoardHandler) ListApplications(c *gin.Context) {
 		boardID = &uid
 	}
 
-	status := model.ApplicationStatus(c.Query("status")) // 空串 = 不过滤
+	status := po.ApplicationStatus(c.Query("status")) // 空串 = 不过滤
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "20"))
 

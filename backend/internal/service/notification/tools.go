@@ -3,12 +3,12 @@
 package notification
 
 import (
-	"tiny-forum/internal/bo"
-	"tiny-forum/internal/model"
+	"tiny-forum/internal/model/bo"
+	"tiny-forum/internal/model/po"
 )
 
 // modelToBO 单个 Model 转 BO
-func modelToBO(notif *model.Notification) *bo.NotificationBO {
+func modelToBO(notif *po.Notification) *bo.NotificationBO {
 	if notif == nil {
 		return nil
 	}
@@ -35,7 +35,7 @@ func modelToBO(notif *model.Notification) *bo.NotificationBO {
 }
 
 // modelsToBOs 批量 Model 转 BO
-func modelsToBOs(notifications []model.Notification) []*bo.NotificationBO {
+func modelsToBOs(notifications []po.Notification) []*bo.NotificationBO {
 	bos := make([]*bo.NotificationBO, 0, len(notifications))
 	for i := range notifications {
 		bos = append(bos, modelToBO(&notifications[i]))

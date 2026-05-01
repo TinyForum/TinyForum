@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"sync"
 	"time"
-	"tiny-forum/internal/model"
+	"tiny-forum/internal/model/po"
 
 	"golang.org/x/sync/errgroup"
 )
@@ -81,9 +81,9 @@ func generateDateRange(start, end time.Time, interval string) []time.Time {
 }
 
 // getBaseInfo 并行获取各维度总量
-func (s *statsService) getBaseInfo(ctx context.Context) (*model.StatsInfo, error) {
+func (s *statsService) getBaseInfo(ctx context.Context) (*po.StatsInfo, error) {
 	var wg sync.WaitGroup
-	var info model.StatsInfo
+	var info po.StatsInfo
 	var err1, err2, err3, err4, err5 error
 	wg.Add(5)
 	go func() { defer wg.Done(); info.TotalUser, err1 = s.userRepo.Count(ctx) }()
@@ -111,8 +111,8 @@ func (s *statsService) getBaseInfo(ctx context.Context) (*model.StatsInfo, error
 }
 
 // getRangeStats 并行获取时间段内各维度增量，单项失败不中断整体
-func (s *statsService) getRangeStats(ctx context.Context, startDate, endDate time.Time) (*model.StatsTodayInfo, error) {
-	var info model.StatsTodayInfo
+func (s *statsService) getRangeStats(ctx context.Context, startDate, endDate time.Time) (*po.StatsTodayInfo, error) {
+	var info po.StatsTodayInfo
 	g, ctx := errgroup.WithContext(ctx)
 
 	// 新增用户
@@ -182,41 +182,41 @@ func (s *statsService) getRangeStats(ctx context.Context, startDate, endDate tim
 }
 
 // getIllegalInfo 获取违规统计（基于 reports 表）
-func (s *statsService) getIllegalInfo(_ context.Context, _, _ time.Time) (*model.StatsIllegalInfo, error) {
+func (s *statsService) getIllegalInfo(_ context.Context, _, _ time.Time) (*po.StatsIllegalInfo, error) {
 	// TODO: 注入 ReportRepository 后按 target_type 分组统计
-	return &model.StatsIllegalInfo{}, nil
+	return &po.StatsIllegalInfo{}, nil
 }
 
 // getActiveUserInfo 获取活跃用户列表及发帖/评论数
-func (s *statsService) getActiveUserInfo(ctx context.Context, startDate, endDate time.Time, limit int) (*model.StatsActiveUserInfo, error) {
+func (s *statsService) getActiveUserInfo(ctx context.Context, startDate, endDate time.Time, limit int) (*po.StatsActiveUserInfo, error) {
 	users, err := s.userRepo.GetActiveUsersByDateRange(ctx, startDate, endDate, limit)
 	if err != nil {
 		return nil, err
 	}
-	list := make([]*model.ActiveUserDetail, 0, len(users))
+	list := make([]*po.ActiveUserDetail, 0, len(users))
 	for _, u := range users {
-		list = append(list, &model.ActiveUserDetail{
+		list = append(list, &po.ActiveUserDetail{
 			UserID:       int64(u.ID),
 			Username:     u.Username,
 			Avatar:       u.Avatar,
 			LastActiveAt: time.Now(),
 		})
 	}
-	return &model.StatsActiveUserInfo{
+	return &po.StatsActiveUserInfo{
 		Total: int64(len(list)),
 		List:  list,
 	}, nil
 }
 
 // getHotArticles 获取热门文章列表
-func (s *statsService) getHotArticles(ctx context.Context, startDate, endDate time.Time, limit int) ([]*model.HotArticleItem, error) {
+func (s *statsService) getHotArticles(ctx context.Context, startDate, endDate time.Time, limit int) ([]*po.HotArticleItem, error) {
 	rows, err := s.postRepo.GetHotArticlesByDateRange(ctx, startDate, endDate, limit)
 	if err != nil {
 		return nil, err
 	}
-	list := make([]*model.HotArticleItem, 0, len(rows))
+	list := make([]*po.HotArticleItem, 0, len(rows))
 	for _, a := range rows {
-		list = append(list, &model.HotArticleItem{
+		list = append(list, &po.HotArticleItem{
 			ID:           a.ID,
 			Title:        a.Title,
 			BoardID:      a.BoardID,
@@ -233,14 +233,14 @@ func (s *statsService) getHotArticles(ctx context.Context, startDate, endDate ti
 }
 
 // getHotBoards 获取热门板块列表
-func (s *statsService) getHotBoards(ctx context.Context, startDate, endDate time.Time, limit int) ([]*model.HotBoardItem, error) {
+func (s *statsService) getHotBoards(ctx context.Context, startDate, endDate time.Time, limit int) ([]*po.HotBoardItem, error) {
 	rows, err := s.boardRepo.GetHotBoardsByDateRange(ctx, startDate, endDate, limit)
 	if err != nil {
 		return nil, err
 	}
-	list := make([]*model.HotBoardItem, 0, len(rows))
+	list := make([]*po.HotBoardItem, 0, len(rows))
 	for _, b := range rows {
-		list = append(list, &model.HotBoardItem{
+		list = append(list, &po.HotBoardItem{
 			ID:           b.ID,
 			Name:         b.Name,
 			Icon:         b.Icon,

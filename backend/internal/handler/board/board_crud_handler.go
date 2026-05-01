@@ -4,7 +4,7 @@ import (
 	"errors"
 	"strconv"
 
-	"tiny-forum/internal/dto"
+	"tiny-forum/internal/model/dto"
 	boardService "tiny-forum/internal/service/board"
 	"tiny-forum/pkg/response"
 
@@ -20,7 +20,7 @@ import (
 // @Produce json
 // @Security ApiKeyAuth
 // @Param body body board.CreateBoardInput true "板块信息"
-// @Success 200 {object} response.Response{data=model.Board} "创建成功"
+// @Success 200 {object} response.Response{data=po.Board} "创建成功"
 // @Failure 400 {object} response.Response "请求参数错误"
 // @Failure 401 {object} response.Response "未授权"
 // @Failure 403 {object} response.Response "无权限"
@@ -48,7 +48,7 @@ func (h *BoardHandler) Create(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Param id path int true "板块ID" minimum(1) example(1)
 // @Param body body board.CreateBoardInput true "板块信息"
-// @Success 200 {object} response.Response{data=model.Board} "更新成功"
+// @Success 200 {object} response.Response{data=po.Board} "更新成功"
 // @Failure 400 {object} response.Response "请求参数错误或板块ID无效"
 // @Failure 401 {object} response.Response "未授权"
 // @Failure 403 {object} response.Response "无权限"
@@ -105,7 +105,7 @@ func (h *BoardHandler) Delete(c *gin.Context) {
 // @Tags 板块管理
 // @Produce json
 // @Param id path int true "板块ID"
-// @Success 200 {object} response.Response{data=model.Board} "获取成功"
+// @Success 200 {object} response.Response{data=po.Board} "获取成功"
 // @Failure 400 {object} response.Response "无效的板块ID"
 // @Failure 404 {object} response.Response "板块不存在"
 // @Router /boards/{id} [get]
@@ -129,7 +129,7 @@ func (h *BoardHandler) GetByID(c *gin.Context) {
 // @Tags 板块管理
 // @Produce json
 // @Param slug path string true "板块标识符"
-// @Success 200 {object} response.Response{data=model.Board} "获取成功"
+// @Success 200 {object} response.Response{data=po.Board} "获取成功"
 // @Failure 404 {object} response.Response "板块不存在"
 // @Router /boards/slug/{slug} [get]
 func (h *BoardHandler) GetBoardBySlug(c *gin.Context) {
@@ -149,7 +149,7 @@ func (h *BoardHandler) GetBoardBySlug(c *gin.Context) {
 // @Produce json
 // @Param page query int false "页码" default(1)
 // @Param page_size query int false "每页数量" default(20)
-// @Success 200 {object} response.Response{data=response.PageData{list=[]model.Board}} "获取成功"
+// @Success 200 {object} response.Response{data=response.PageData{list=[]po.Board}} "获取成功"
 // @Failure 500 {object} response.Response "服务器内部错误"
 // @Router /boards [get]
 func (h *BoardHandler) List(c *gin.Context) {
@@ -168,7 +168,7 @@ func (h *BoardHandler) List(c *gin.Context) {
 // @Description 获取所有板块的树形层级结构
 // @Tags 板块管理
 // @Produce json
-// @Success 200 {object} response.Response{data=[]model.BoardTree} "获取成功"
+// @Success 200 {object} response.Response{data=[]po.BoardTree} "获取成功"
 // @Failure 500 {object} response.Response "服务器内部错误"
 // @Router /boards/tree [get]
 func (h *BoardHandler) GetTree(c *gin.Context) {

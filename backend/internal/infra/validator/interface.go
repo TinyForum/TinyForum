@@ -2,14 +2,14 @@ package validator
 
 // 验证器
 import (
-	"tiny-forum/internal/model"
+	"tiny-forum/internal/model/po"
 )
 
 type RoleValidator interface {
-	IsValidRole(role model.UserRole) bool
-	CanOperateTarget(operator, target model.UserRole) bool
-	CanAssignRole(operator, target model.UserRole) bool
-	HasPermission(role model.UserRole, perm model.Permission) bool
+	IsValidRole(role po.UserRole) bool
+	CanOperateTarget(operator, target po.UserRole) bool
+	CanAssignRole(operator, target po.UserRole) bool
+	HasPermission(role po.UserRole, perm po.Permission) bool
 }
 
 // 创建角色变更校验器

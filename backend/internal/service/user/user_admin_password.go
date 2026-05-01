@@ -8,7 +8,7 @@ import (
 	"math/big"
 	"regexp"
 	"time"
-	"tiny-forum/internal/model"
+	"tiny-forum/internal/model/po"
 	apperrors "tiny-forum/pkg/errors"
 
 	"golang.org/x/crypto/bcrypt"
@@ -37,10 +37,10 @@ func (s *userService) ResetUserPasswordWithTemp(operatorID uint, targetID uint) 
 		return "", fmt.Errorf("查询操作者信息失败: %w", err)
 	}
 
-	if targetUser.Role == model.RoleSuperAdmin && operator.Role != model.RoleSuperAdmin {
+	if targetUser.Role == po.RoleSuperAdmin && operator.Role != po.RoleSuperAdmin {
 		return "", apperrors.ErrInsufficientPermission.WithMessage("只有超级管理员才能重置其他超级管理员的密码")
 	}
-	if operator.Role != model.RoleSuperAdmin && targetUser.Role == model.RoleAdmin {
+	if operator.Role != po.RoleSuperAdmin && targetUser.Role == po.RoleAdmin {
 		return "", apperrors.ErrInsufficientPermission.WithMessage("只有超级管理员才能重置其他管理员的密码")
 	}
 
@@ -84,10 +84,10 @@ func (s *userService) ResetUserPassword(operatorID uint, targetID uint, newPassw
 		return fmt.Errorf("查询操作者信息失败: %w", err)
 	}
 
-	if targetUser.Role == model.RoleSuperAdmin && operator.Role != model.RoleSuperAdmin {
+	if targetUser.Role == po.RoleSuperAdmin && operator.Role != po.RoleSuperAdmin {
 		return apperrors.ErrInsufficientPermission.WithMessage("只有超级管理员才能重置其他超级管理员的密码")
 	}
-	if operator.Role != model.RoleSuperAdmin && targetUser.Role == model.RoleAdmin {
+	if operator.Role != po.RoleSuperAdmin && targetUser.Role == po.RoleAdmin {
 		return apperrors.ErrInsufficientPermission.WithMessage("只有超级管理员才能重置其他管理员的密码")
 	}
 

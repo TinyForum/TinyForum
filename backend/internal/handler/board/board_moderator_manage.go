@@ -108,7 +108,7 @@ func (h *BoardHandler) RemoveModerator(c *gin.Context) {
 // @Tags 版主管理
 // @Produce json
 // @Param id path int true "板块ID"
-// @Success 200 {object} response.Response{data=[]model.Moderator} "获取成功"
+// @Success 200 {object} response.Response{data=[]po.Moderator} "获取成功"
 // @Failure 400 {object} response.Response "无效的板块ID"
 // @Failure 500 {object} response.Response "服务器内部错误"
 // @Router /boards/{id}/moderators [get]

@@ -4,8 +4,8 @@ import (
 	"errors"
 	"fmt"
 
-	"tiny-forum/internal/dto"
-	"tiny-forum/internal/model"
+	"tiny-forum/internal/model/dto"
+	"tiny-forum/internal/model/po"
 	apperrors "tiny-forum/pkg/errors"
 )
 
@@ -22,7 +22,7 @@ type CreateBoardInput struct {
 	ReplyRole   string `json:"reply_role"`
 }
 
-func (s *boardService) Create(input CreateBoardInput) (*model.Board, error) {
+func (s *boardService) Create(input CreateBoardInput) (*po.Board, error) {
 	if input.ParentID != nil && *input.ParentID != 0 {
 		parent, err := s.boardRepo.FindByID(*input.ParentID)
 		if err != nil || parent == nil || parent.ID == 0 {
@@ -42,7 +42,7 @@ func (s *boardService) Create(input CreateBoardInput) (*model.Board, error) {
 		return nil, err
 	}
 
-	board := &model.Board{
+	board := &po.Board{
 		Name:        input.Name,
 		Slug:        input.Slug,
 		Description: input.Description,
@@ -50,18 +50,18 @@ func (s *boardService) Create(input CreateBoardInput) (*model.Board, error) {
 		Cover:       input.Cover,
 		ParentID:    input.ParentID,
 		SortOrder:   input.SortOrder,
-		ViewRole:    model.UserRole(input.ViewRole),
-		PostRole:    model.UserRole(input.PostRole),
-		ReplyRole:   model.UserRole(input.ReplyRole),
+		ViewRole:    po.UserRole(input.ViewRole),
+		PostRole:    po.UserRole(input.PostRole),
+		ReplyRole:   po.UserRole(input.ReplyRole),
 	}
 	if board.ViewRole == "" {
-		board.ViewRole = model.RoleUser
+		board.ViewRole = po.RoleUser
 	}
 	if board.PostRole == "" {
-		board.PostRole = model.RoleUser
+		board.PostRole = po.RoleUser
 	}
 	if board.ReplyRole == "" {
-		board.ReplyRole = model.RoleUser
+		board.ReplyRole = po.RoleUser
 	}
 
 	if err := s.boardRepo.Create(board); err != nil {
@@ -70,7 +70,7 @@ func (s *boardService) Create(input CreateBoardInput) (*model.Board, error) {
 	return s.boardRepo.FindByID(board.ID)
 }
 
-func (s *boardService) Update(id uint, input CreateBoardInput) (*model.Board, error) {
+func (s *boardService) Update(id uint, input CreateBoardInput) (*po.Board, error) {
 	board, err := s.boardRepo.FindByID(id)
 	if err != nil {
 		return nil, errors.New("板块不存在")
@@ -93,9 +93,9 @@ func (s *boardService) Update(id uint, input CreateBoardInput) (*model.Board, er
 	board.Cover = input.Cover
 	board.ParentID = input.ParentID
 	board.SortOrder = input.SortOrder
-	board.ViewRole = model.UserRole(input.ViewRole)
-	board.PostRole = model.UserRole(input.PostRole)
-	board.ReplyRole = model.UserRole(input.ReplyRole)
+	board.ViewRole = po.UserRole(input.ViewRole)
+	board.PostRole = po.UserRole(input.PostRole)
+	board.ReplyRole = po.UserRole(input.ReplyRole)
 
 	if err := s.boardRepo.Update(board); err != nil {
 		return nil, err
@@ -114,11 +114,11 @@ func (s *boardService) Delete(id uint) error {
 	return nil
 }
 
-func (s *boardService) GetByID(id uint) (*model.Board, error) {
+func (s *boardService) GetByID(id uint) (*po.Board, error) {
 	return s.boardRepo.FindByID(id)
 }
 
-func (s *boardService) GetBoardBySlug(slug string) (*model.Board, error) {
+func (s *boardService) GetBoardBySlug(slug string) (*po.Board, error) {
 	return s.boardRepo.FindBySlug(slug)
 }
 
@@ -127,7 +127,7 @@ func (s *boardService) GetPostsBySlug(slug string, page, pageSize int) ([]*dto.G
 	return s.boardRepo.GetPostsBySlug(slug, page, pageSize)
 }
 
-func (s *boardService) List(page, pageSize int) ([]model.Board, int64, error) {
+func (s *boardService) List(page, pageSize int) ([]po.Board, int64, error) {
 	if page < 1 {
 		page = 1
 	}
@@ -138,11 +138,11 @@ func (s *boardService) List(page, pageSize int) ([]model.Board, int64, error) {
 	return s.boardRepo.List(pageSize, offset)
 }
 
-func (s *boardService) GetTree() ([]model.Board, error) {
+func (s *boardService) GetTree() ([]po.Board, error) {
 	return s.boardRepo.GetTree()
 }
 
-func (s *boardService) GetPosts(boardID uint, page, pageSize int) ([]model.Post, int64, error) {
+func (s *boardService) GetPosts(boardID uint, page, pageSize int) ([]po.Post, int64, error) {
 	if page < 1 {
 		page = 1
 	}
