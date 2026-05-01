@@ -3,13 +3,13 @@ package moderator
 import (
 	"context"
 	"errors"
-	"tiny-forum/internal/model"
+	"tiny-forum/internal/model/po"
 
 	"gorm.io/gorm"
 )
 
-func (r *moderatorRepository) GetByUserAndBoard(ctx context.Context, userID, boardID uint) (*model.Moderator, error) {
-	var moderator model.Moderator
+func (r *moderatorRepository) GetByUserAndBoard(ctx context.Context, userID, boardID uint) (*po.Moderator, error) {
+	var moderator po.Moderator
 	err := r.db.WithContext(ctx).
 		Where("user_id = ? AND board_id = ?", userID, boardID).
 		First(&moderator).Error
@@ -22,8 +22,8 @@ func (r *moderatorRepository) GetByUserAndBoard(ctx context.Context, userID, boa
 	return &moderator, nil
 }
 
-func (r *moderatorRepository) GetByBoard(ctx context.Context, boardID uint) ([]model.Moderator, error) {
-	var moderators []model.Moderator
+func (r *moderatorRepository) GetByBoard(ctx context.Context, boardID uint) ([]po.Moderator, error) {
+	var moderators []po.Moderator
 	err := r.db.WithContext(ctx).
 		Preload("User").
 		Where("board_id = ?", boardID).
@@ -31,8 +31,8 @@ func (r *moderatorRepository) GetByBoard(ctx context.Context, boardID uint) ([]m
 	return moderators, err
 }
 
-func (r *moderatorRepository) GetByUser(ctx context.Context, userID uint) ([]model.Moderator, error) {
-	var moderators []model.Moderator
+func (r *moderatorRepository) GetByUser(ctx context.Context, userID uint) ([]po.Moderator, error) {
+	var moderators []po.Moderator
 	err := r.db.WithContext(ctx).
 		Preload("Board").
 		Where("user_id = ?", userID).
@@ -43,7 +43,7 @@ func (r *moderatorRepository) GetByUser(ctx context.Context, userID uint) ([]mod
 func (r *moderatorRepository) Exists(ctx context.Context, userID, boardID uint) (bool, error) {
 	var count int64
 	err := r.db.WithContext(ctx).
-		Model(&model.Moderator{}).
+		Model(&po.Moderator{}).
 		Where("user_id = ? AND board_id = ?", userID, boardID).
 		Count(&count).Error
 	return count > 0, err

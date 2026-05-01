@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"time"
-	"tiny-forum/internal/model"
+	"tiny-forum/internal/model/po"
 
 	"gorm.io/gorm"
 )
@@ -15,7 +15,7 @@ import (
 
 // FindUserByResetToken 通过 reset token 查找对应 user ID（自动过滤已过期、已使用）
 func (r *tokenRepository) FindUserByResetToken(ctx context.Context, token string) (uint, error) {
-	var resetToken model.RefreshToken
+	var resetToken po.RefreshToken
 	err := r.db.WithContext(ctx).
 		Where("token = ? AND expires_at > ? AND used = ?", token, time.Now(), false).
 		First(&resetToken).Error
@@ -35,7 +35,7 @@ func (r *tokenRepository) DeleteResetToken(ctx context.Context, token string) er
 	// 方案1: 物理删除
 	return r.db.WithContext(ctx).
 		Where("token = ?", token).
-		Delete(&model.RefreshToken{}).Error
+		Delete(&po.RefreshToken{}).Error
 
 	// 方案2: 标记为已使用（推荐，便于审计）
 	// return r.db.WithContext(ctx).
@@ -51,7 +51,7 @@ func (r *tokenRepository) DeleteResetToken(ctx context.Context, token string) er
 // MarkResetTokenAsUsed 标记 token 为已使用（软删除，防止重放）
 func (r *tokenRepository) MarkResetTokenAsUsed(ctx context.Context, token string) error {
 	return r.db.WithContext(ctx).
-		Model(&model.RefreshToken{}).
+		Model(&po.RefreshToken{}).
 		Where("token = ?", token).
 		Updates(map[string]interface{}{
 			"used":       true,
@@ -110,7 +110,7 @@ func (r *tokenRepository) IsTokenRevoked(ctx context.Context, jti string) (bool,
 // RevokeAllUserTokens 吊销某用户的所有 token（改密/删号后全端下线）
 func (r *tokenRepository) RevokeAllUserTokens(ctx context.Context, userID uint) error {
 	// 1. 获取用户所有有效的 refresh token
-	var tokens []model.RefreshToken
+	var tokens []po.RefreshToken
 	err := r.db.WithContext(ctx).
 		Where("user_id = ? AND expires_at > ?", userID, time.Now()).
 		Find(&tokens).Error
@@ -137,12 +137,12 @@ func (r *tokenRepository) RevokeAllUserTokens(ctx context.Context, userID uint) 
 	// 4. 删除数据库中的记录（或标记为已撤销）
 	return r.db.WithContext(ctx).
 		Where("user_id = ?", userID).
-		Delete(&model.RefreshToken{}).Error
+		Delete(&po.RefreshToken{}).Error
 }
 
 // GetUserActiveTokens 获取用户所有活跃 token（用于设备管理）
-func (r *tokenRepository) GetUserActiveTokens(ctx context.Context, userID uint) ([]model.RefreshToken, error) {
-	var tokens []model.RefreshToken
+func (r *tokenRepository) GetUserActiveTokens(ctx context.Context, userID uint) ([]po.RefreshToken, error) {
+	var tokens []po.RefreshToken
 	err := r.db.WithContext(ctx).
 		Where("user_id = ? AND expires_at > ?", userID, time.Now()).
 		Order("created_at DESC").
@@ -154,7 +154,7 @@ func (r *tokenRepository) GetUserActiveTokens(ctx context.Context, userID uint) 
 // RevokeTokenByJTI 根据 JTI 吊销单个 token
 func (r *tokenRepository) RevokeTokenByJTI(ctx context.Context, jti string) error {
 	// 先查询 token 信息
-	var token model.RefreshToken
+	var token po.RefreshToken
 	err := r.db.WithContext(ctx).
 		Where("jti = ?", jti).
 		First(&token).Error
@@ -177,7 +177,7 @@ func (r *tokenRepository) RevokeTokenByJTI(ctx context.Context, jti string) erro
 	// 删除数据库记录
 	return r.db.WithContext(ctx).
 		Where("jti = ?", jti).
-		Delete(&model.RefreshToken{}).Error
+		Delete(&po.RefreshToken{}).Error
 }
 
 // CleanExpiredBlacklist 清理过期的黑名单记录（可选，Redis 会自动过期）

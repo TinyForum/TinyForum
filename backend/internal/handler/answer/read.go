@@ -18,7 +18,7 @@ import (
 // @Accept json
 // @Produce json
 // @Param id path int true "回答ID"
-// @Success 200 {object} response.Response{data=model.Comment} "获取成功"
+// @Success 200 {object} response.Response{data=po.Comment} "获取成功"
 // @Failure 400 {object} response.Response "请求参数错误"
 // @Failure 404 {object} response.Response "回答不存在"
 // @Router /answers/{id} [get]

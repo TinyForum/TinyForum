@@ -1,25 +1,25 @@
 package timeline
 
 import (
-	"tiny-forum/internal/model"
+	"tiny-forum/internal/model/po"
 
 	"gorm.io/gorm"
 )
 
 type TimelineRepository interface {
 	// event
-	CreateEvent(event *model.TimelineEvent) error
-	GetUserTimeline(userID uint, limit, offset int) ([]model.TimelineEvent, int64, error)
-	GetFollowingTimeline(userID uint, limit, offset int) ([]model.TimelineEvent, int64, error)
-	GetEventByTarget(targetType string, targetID uint) ([]model.TimelineEvent, error)
+	CreateEvent(event *po.TimelineEvent) error
+	GetUserTimeline(userID uint, limit, offset int) ([]po.TimelineEvent, int64, error)
+	GetFollowingTimeline(userID uint, limit, offset int) ([]po.TimelineEvent, int64, error)
+	GetEventByTarget(targetType string, targetID uint) ([]po.TimelineEvent, error)
 	// subscription
-	Subscribe(sub *model.TimelineSubscription) error
+	Subscribe(sub *po.TimelineSubscription) error
 	Unsubscribe(subscriberID, targetUserID uint) error
-	GetSubscriptions(subscriberID uint) ([]model.TimelineSubscription, error)
+	GetSubscriptions(subscriberID uint) ([]po.TimelineSubscription, error)
 	IsSubscribed(subscriberID, targetUserID uint) (bool, error)
 	// user
 	UpdateLastRead(userID uint, timelineType string) error
-	GetLastRead(userID uint, timelineType string) (*model.UserTimeline, error)
+	GetLastRead(userID uint, timelineType string) (*po.UserTimeline, error)
 }
 
 type timelineRepository struct {

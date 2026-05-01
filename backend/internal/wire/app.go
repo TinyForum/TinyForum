@@ -15,7 +15,6 @@ type App struct {
 	Cfg    *config.Config
 }
 
-// InitApp 是原来的入口函数，现在调用各个模块进行组装
 func InitApp(cfg *config.Config) (*App, error) {
 	// 1. 数据库
 	db, err := InitDB(cfg)
@@ -44,6 +43,7 @@ func InitApp(cfg *config.Config) (*App, error) {
 	// 6. 控制器层
 	handlers := NewHandlers(services, helpers.TimeHelpers, cfg)
 
+	// 7. 中间件层
 	mw := middleware.NewMiddlewareSet(
 		jwtMgr,
 		db,

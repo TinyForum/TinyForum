@@ -1,17 +1,17 @@
 package comment
 
 import (
-	"tiny-forum/internal/model"
+	"tiny-forum/internal/model/po"
 
 	"gorm.io/gorm"
 )
 
 // ListByPost 获取帖子的顶级评论（带分页和子评论预加载）
-func (r *commentRepository) ListByPost(postID uint, page, pageSize int) ([]model.Comment, int64, error) {
-	var comments []model.Comment
+func (r *commentRepository) ListByPost(postID uint, page, pageSize int) ([]po.Comment, int64, error) {
+	var comments []po.Comment
 	var total int64
 
-	query := r.db.Model(&model.Comment{}).Where("post_id = ? AND parent_id IS NULL", postID)
+	query := r.db.Model(&po.Comment{}).Where("post_id = ? AND parent_id IS NULL", postID)
 	if err := query.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
@@ -30,11 +30,11 @@ func (r *commentRepository) ListByPost(postID uint, page, pageSize int) ([]model
 }
 
 // GetAnswersByPostID 获取帖子的所有答案（按采纳、投票、创建时间排序）
-func (r *commentRepository) GetAnswersByPostID(postID uint, limit, offset int) ([]model.Comment, int64, error) {
-	var comments []model.Comment
+func (r *commentRepository) GetAnswersByPostID(postID uint, limit, offset int) ([]po.Comment, int64, error) {
+	var comments []po.Comment
 	var total int64
 
-	query := r.db.Model(&model.Comment{}).
+	query := r.db.Model(&po.Comment{}).
 		Where("post_id = ? AND is_answer = ?", postID, true)
 	query.Count(&total)
 
@@ -47,11 +47,11 @@ func (r *commentRepository) GetAnswersByPostID(postID uint, limit, offset int) (
 }
 
 // GetAnswersByPostIDOrderByNewest 按最新排序获取答案
-func (r *commentRepository) GetAnswersByPostIDOrderByNewest(postID uint, limit, offset int) ([]model.Comment, int64, error) {
-	var comments []model.Comment
+func (r *commentRepository) GetAnswersByPostIDOrderByNewest(postID uint, limit, offset int) ([]po.Comment, int64, error) {
+	var comments []po.Comment
 	var total int64
 
-	query := r.db.Model(&model.Comment{}).
+	query := r.db.Model(&po.Comment{}).
 		Where("post_id = ? AND is_answer = ?", postID, true)
 	query.Count(&total)
 
@@ -64,11 +64,11 @@ func (r *commentRepository) GetAnswersByPostIDOrderByNewest(postID uint, limit, 
 }
 
 // GetAnswersByPostIDOrderByOldest 按最早排序获取答案
-func (r *commentRepository) GetAnswersByPostIDOrderByOldest(postID uint, limit, offset int) ([]model.Comment, int64, error) {
-	var comments []model.Comment
+func (r *commentRepository) GetAnswersByPostIDOrderByOldest(postID uint, limit, offset int) ([]po.Comment, int64, error) {
+	var comments []po.Comment
 	var total int64
 
-	query := r.db.Model(&model.Comment{}).
+	query := r.db.Model(&po.Comment{}).
 		Where("post_id = ? AND is_answer = ?", postID, true)
 	query.Count(&total)
 

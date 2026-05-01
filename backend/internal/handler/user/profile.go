@@ -2,7 +2,7 @@ package user
 
 import (
 	"strconv"
-	"tiny-forum/internal/model"
+	"tiny-forum/internal/model/po"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -43,7 +43,7 @@ func (h *UserHandler) GetProfile(c *gin.Context) {
 // @Router /users/profile [put]
 func (h *UserHandler) UpdateProfile(c *gin.Context) {
 	userID := c.GetUint("user_id")
-	var input model.UpdateProfileInput
+	var input po.UpdateProfileInput
 	if err := c.ShouldBindJSON(&input); err != nil {
 		response.BadRequest(c, err.Error())
 		return

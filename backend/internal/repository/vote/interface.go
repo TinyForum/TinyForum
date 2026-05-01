@@ -1,7 +1,7 @@
 package vote
 
 import (
-	"tiny-forum/internal/model"
+	"tiny-forum/internal/model/po"
 
 	"gorm.io/gorm"
 )
@@ -13,7 +13,7 @@ type VoteRepository interface {
 	// query
 	GetUserVote(commentID, userID uint) (int, error)
 	GetVoteCount(commentID uint) (int, error)
-	GetVoteUsers(commentID uint, voteType int) ([]model.User, error)
+	GetVoteUsers(commentID uint, voteType int) ([]po.User, error)
 }
 
 type voteRepository struct {

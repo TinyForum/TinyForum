@@ -6,7 +6,7 @@ import (
 	"os"
 	"strings"
 	"tiny-forum/config"
-	"tiny-forum/internal/dto"
+	"tiny-forum/internal/model/dto"
 	uploadRepo "tiny-forum/internal/repository/upload"
 )
 

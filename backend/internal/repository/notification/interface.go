@@ -1,17 +1,17 @@
 package notification
 
 import (
-	"tiny-forum/internal/model"
+	"tiny-forum/internal/model/po"
 
 	"gorm.io/gorm"
 )
 
 type NotificationRepository interface {
 	// create
-	Create(n *model.Notification) error
+	Create(n *po.Notification) error
 	// query
-	ListByUser(userID uint, page, pageSize int) ([]model.Notification, int64, error)
-	GetByID(id uint) (*model.Notification, error)
+	ListByUser(userID uint, page, pageSize int) ([]po.Notification, int64, error)
+	GetByID(id uint) (*po.Notification, error)
 	UnreadCount(userID uint) (int64, error)
 	MarkRead(notiID uint) error
 	// update

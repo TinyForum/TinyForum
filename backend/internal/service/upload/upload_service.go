@@ -5,7 +5,6 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"fmt"
-	"github.com/disintegration/imaging"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -13,9 +12,11 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
-	"tiny-forum/internal/dto"
-	"tiny-forum/internal/model"
 
+	"github.com/disintegration/imaging"
+
+	"tiny-forum/internal/model/dto"
+	"tiny-forum/internal/model/po"
 	"tiny-forum/pkg/logger"
 )
 
@@ -165,7 +166,7 @@ func (s *service) UploadFile(ctx context.Context, userID int64, fileHeader *mult
 	}
 
 	// 5. 保存到数据库
-	attachment := &model.Attachment{
+	attachment := &po.Attachment{
 		FileID:       fileID,
 		UserID:       userID,
 		PostID:       req.PostID,

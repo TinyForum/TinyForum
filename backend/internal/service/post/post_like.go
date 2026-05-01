@@ -1,7 +1,7 @@
 package post
 
 import (
-	"tiny-forum/internal/model"
+	"tiny-forum/internal/model/po"
 )
 
 // Like 点赞帖子
@@ -13,7 +13,7 @@ func (s *postService) Like(userID, postID uint) error {
 	_ = s.userRepo.AddScore(userID, 2)
 	post, _ := s.postRepo.FindByID(postID)
 	if post != nil && post.AuthorID != userID {
-		s.notifSvc.Create(post.AuthorID, &userID, model.NotifyLike,
+		s.notifSvc.Create(post.AuthorID, &userID, po.NotifyLike,
 			"有人点赞了你的帖子《"+post.Title+"》", &postID, "post")
 	}
 	return nil

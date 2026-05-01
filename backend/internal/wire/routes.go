@@ -49,6 +49,10 @@ func RegisterRoutes(
 	handlers.Answer.RegisterRoutes(api, mw)             // 答案路由
 	handlers.Question.RegisterRoutes(api, mw)           // 问题路由
 	handlers.Announcement.RegisterRoutes(api, mw)       // 公告路由
+	handlers.Stats.RegisterRoutes(api, mw)              // 统计信息
+
+	// 管理员路由（语义化，便于前端判断权限）
+	// MARK: Admin routes
 	announcementAdminGroup := api.Group("/admin/announcements", mw.Auth(), mw.AdminRequired())
 	{
 		announcementAdminGroup.GET("", handlers.Announcement.AdminList)
@@ -59,13 +63,6 @@ func RegisterRoutes(
 		announcementAdminGroup.POST("/:id/archive", handlers.Announcement.Archive)
 		announcementAdminGroup.PUT("/:id/pin", handlers.Announcement.Pin)
 	}
-
-	// MARK: Statistics routes
-	handlers.Stats.RegisterRoutes(api, mw)
-
-	// FIXME: 通过上下文判断，而不是路径
-	// MARK: Admin routes
-
 	adminGroup := api.Group("/admin", mw.Auth(), mw.AdminRequired())
 	{
 		adminGroup.GET("/users", handlers.User.AdminList)

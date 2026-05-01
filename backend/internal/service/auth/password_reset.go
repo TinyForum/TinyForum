@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 	"time"
-	"tiny-forum/internal/dto"
+	"tiny-forum/internal/model/dto"
 	apperrors "tiny-forum/pkg/errors"
 	"tiny-forum/pkg/logger"
 

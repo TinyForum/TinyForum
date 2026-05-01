@@ -1,11 +1,11 @@
 package comment
 
 import (
-	"tiny-forum/internal/model"
+	"tiny-forum/internal/model/po"
 )
 
 // List 获取评论列表（分页）
-func (s *commentService) List(postID uint, page, pageSize int) ([]model.Comment, int64, error) {
+func (s *commentService) List(postID uint, page, pageSize int) ([]po.Comment, int64, error) {
 	return s.commentRepo.ListByPost(postID, page, pageSize)
 }
 
@@ -15,12 +15,12 @@ func (s *commentService) GetCommentCount(postID uint) (int64, error) {
 }
 
 // GetAnswerByID 获取回答详情
-func (s *commentService) GetAnswerByID(commentID uint) (*model.Comment, error) {
+func (s *commentService) GetAnswerByID(commentID uint) (*po.Comment, error) {
 	return s.commentRepo.FindByID(commentID)
 }
 
 // GetAnswersByPostID 获取帖子的所有答案（支持排序）
-func (s *commentService) GetAnswersByPostID(postID uint, page, pageSize int, sortBy string) ([]model.Comment, int64, error) {
+func (s *commentService) GetAnswersByPostID(postID uint, page, pageSize int, sortBy string) ([]po.Comment, int64, error) {
 	if page < 1 {
 		page = 1
 	}

@@ -1,7 +1,7 @@
 package announcement
 
 import (
-	"tiny-forum/internal/dto"
+	"tiny-forum/internal/model/dto"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -15,7 +15,7 @@ import (
 // @Produce json
 // @Security ApiKeyAuth
 // @Param body body dto.CreateAnnouncementRequest true "公告信息"
-// @Success 200 {object} response.Response{data=model.Announcement} "创建成功"
+// @Success 200 {object} response.Response{data=po.Announcement} "创建成功"
 // @Failure 400 {object} response.Response "请求参数错误"
 // @Failure 401 {object} response.Response "未授权"
 // @Failure 403 {object} response.Response "无权限（非管理员）"
