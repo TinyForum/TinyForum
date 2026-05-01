@@ -28,7 +28,7 @@ export interface AnnouncementDO {
   summary: string;
   cover: string;
   type: AnnouncementType;
-  status: AnnouncementStatus;
+  status: CreateAnnouncementStatus;
   is_pinned: boolean;
   is_global: boolean;
   board_id: number | null;

@@ -80,7 +80,7 @@ func (h *AdminHandler) CreateAnnouncement(c *gin.Context) {
 
 	if err != nil {
 		logger.Errorf("创建公告失败: user: %d result: %v", userID, err)
-		response.InternalError(c,apperrors.ErrInternalError.Message)
+		response.InternalError(c, apperrors.ErrInternalError.Message)
 		return
 	}
 	logger.Infof("创建公告: user: %d result: %v", userID, announcement.ID)
