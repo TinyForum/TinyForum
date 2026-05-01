@@ -34,7 +34,7 @@ func main() {
 
 	// 初始化日志
 	if err := logger.Init(logger.Config(cfg.ToLoggerConfig())); err != nil {
-		log.Fatalf("Failed to init logger: %v", err)
+		log.Fatalf("Failed to init logger: %v\n", err)
 	}
 
 	// 打印配置信息（调试用）
@@ -43,7 +43,7 @@ func main() {
 	// 初始化应用（数据库 + 路由）
 	app, err := wire.InitApp(cfg)
 	if err != nil {
-		logger.Fatal(fmt.Sprintf("Failed to initialize app: %v", err))
+		logger.Fatal(fmt.Sprintf("Failed to initialize app: %v\n", err))
 	}
 
 	// 启动服务器
@@ -69,7 +69,7 @@ func loadConfig() (*config.Config, error) {
 	// 加载配置
 	cfg, err := config.Load(configDir)
 	if err != nil {
-		return nil, fmt.Errorf("failed to load config from '%s' directory", configDir)
+		return nil, fmt.Errorf("failed to load config from '%s' directory\n", configDir)
 	}
 
 	// 验证并提示配置问题
@@ -83,10 +83,10 @@ func loadConfig() (*config.Config, error) {
 // printConfigFileStatus 打印配置文件状态
 func printConfigFileStatus(filePath, configName string) {
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
-		log.Printf("ℹ️  %s file not found: %s", configName, filePath)
-		log.Printf("   → Using environment variables or defaults for this configuration")
+		log.Printf("ℹ️  %s file not found: %s\n", configName, filePath)
+		log.Printf("   → Using environment variables or defaults for this configuration\n")
 	} else {
-		log.Printf("✓ %s file found: %s", configName, filePath)
+		log.Printf("✓ %s file found: %s\n", configName, filePath)
 	}
 }
 

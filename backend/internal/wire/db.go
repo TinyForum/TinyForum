@@ -7,12 +7,6 @@ import (
 	"tiny-forum/config"
 	adminInit "tiny-forum/init"
 
-	// handler
-
-	// repository
-
-	// service
-
 	"tiny-forum/internal/model"
 	"tiny-forum/pkg/logger"
 
@@ -23,18 +17,11 @@ import (
 	gormlogger "gorm.io/gorm/logger"
 )
 
-func InitDB(cfg *config.Config) (*gorm.DB, error) {
-	dsn := fmt.Sprintf(
-		"host=%s user=%s password=%s dbname=%s port=%d sslmode=%s TimeZone=%s",
-		cfg.Private.Database.Host,
-		cfg.Private.Database.User,
-		cfg.Private.Database.Password,
-		cfg.Private.Database.DBName,
-		cfg.Private.Database.Port,
-		cfg.Private.Database.SSLMode,
-		cfg.Private.Database.TimeZone,
-	)
 
+func InitDB(cfg *config.Config) (*gorm.DB, error) {
+	 dsn := buildDSN(&cfg.Private.Database)
+	fmt.Printf("DSN config: %v\n",dsn)
+	fmt.Printf("DBname: %v\n",cfg.Private.Database.DBName)
 	logLevel := gormlogger.Silent
 	if cfg.Basic.Server.Mode == "debug" {
 		logLevel = gormlogger.Info
