@@ -37,10 +37,11 @@ Testing database connection...
 
 All services are ready! 🎉
 ```
-根据 Database 显示的信息修改 `backend/config/config.yaml` 文件
+
+根据 Database 显示的信息修改 `backend/config/xxxx.yaml` 文件
 
 > 在 mac 上，一般是 mac 的用户名为数据库用户名，psql 允许无密码连接
- 
+
 您也可以创建指定的用户
 
 ```sql
@@ -81,5 +82,3 @@ make backend
 ```bash
 make docs # 生成文档()
 ```
-
-
