@@ -1,8 +1,8 @@
 // hooks/user/useUserFollow.ts
 import { useState, useCallback } from "react";
-import type { User } from "@/shared/api/types";
 import { toast } from "react-hot-toast";
 import { userApi } from "@/shared/api/modules/user";
+import { UserDO } from "@/shared/api/types/user.model";
 
 interface ErrorResponse {
   response?: { data?: { message?: string } };
@@ -11,7 +11,7 @@ interface ErrorResponse {
 
 // ========== 粉丝/关注列表（分页） ==========
 interface UseFollowListReturn {
-  users: User[];
+  users: UserDO[];
   loading: boolean;
   error: string | null;
   total: number;
@@ -29,7 +29,7 @@ interface UseFollowListReturn {
 }
 
 export function useFollowList(): UseFollowListReturn {
-  const [users, setUsers] = useState<User[]>([]);
+  const [users, setUsers] = useState<UserDO[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [total, setTotal] = useState<number>(0);

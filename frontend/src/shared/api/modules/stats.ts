@@ -1,7 +1,5 @@
 import apiClient from "../client";
-import { ApiResponse } from "@/shared/api/types";
 import {
-  // StatsDayResponse,
   StatsTodayInfo,
   StatsInfoResp,
   StatsTrendResponse,
@@ -11,6 +9,7 @@ import {
   GetStatsRangeParams,
   StatsRangeResponse,
 } from "@/shared/api/types/stats.type";
+import { ApiResponse } from "../types/basic.model";
 
 export const statsApi = {
   // ── 统计数据管理 ──────────────────────────────────────────────────────────────

@@ -2,8 +2,9 @@
  * api/modules/notifications.ts
  */
 
-import { ApiResponse, Notification, PageData } from "@/shared/api/types";
 import apiClient from "../client";
+import { Notification } from "../types";
+import { ApiResponse, PageData } from "../types/basic.model";
 
 export const notificationApi = {
   list: (params?: { page?: number; page_size?: number }) =>

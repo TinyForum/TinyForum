@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { Board, boardApi } from "@/shared/api";
 import { useAuthStore } from "@/store/auth";
 import {
   MagnifyingGlassIcon,
@@ -14,6 +13,8 @@ import {
   RectangleGroupIcon,
 } from "@heroicons/react/24/outline";
 import { BoardCard } from "@/features/boards/components/BoardCard";
+import { boardApi } from "@/shared/api";
+import { Board } from "@/shared/api/types/board.model";
 
 export default function BoardsPage() {
   const { user } = useAuthStore();

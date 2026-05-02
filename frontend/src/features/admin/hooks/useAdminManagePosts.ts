@@ -1,5 +1,6 @@
+import { Post } from "@/shared/api";
 import { adminPostsApi } from "@/shared/api/modules/admin/post";
-import type { ApiResponse, PageData, Post } from "@/shared/api/types"; // 假设类型从这个路径导出
+import { ApiResponse, PageData } from "@/shared/api/types/basic.model";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import toast from "react-hot-toast";

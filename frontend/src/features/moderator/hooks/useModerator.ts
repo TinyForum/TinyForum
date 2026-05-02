@@ -9,7 +9,7 @@ import {
 import toast from "react-hot-toast";
 import { useTranslations } from "next-intl";
 import { useAuthStore } from "@/store";
-import { ApiResponse } from "@/shared/api/types";
+import { ApiResponse } from "@/shared/api/types/basic.model";
 
 // ========== 类型定义 ==========
 interface ErrorResponse {

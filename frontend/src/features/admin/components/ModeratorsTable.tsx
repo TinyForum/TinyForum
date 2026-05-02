@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from "react";
-import { Moderator, User } from "@/shared/api";
 import { Shield, ShieldAlert, ShieldCheck, Trash2, Edit } from "lucide-react";
 import toast from "react-hot-toast";
 import { useTranslations } from "next-intl";
@@ -8,6 +7,7 @@ import {
   useRemoveModerator,
   useUpdateModeratorPermissions,
 } from "../hooks/useAdminModerator";
+import { Moderator } from "@/shared/api/modules/moderator";
 
 // 类型定义
 interface ModeratorPermission {

@@ -2,7 +2,6 @@
 "use client";
 
 import Link from "next/link";
-import { Board } from "@/shared/api";
 import {
   ChatBubbleLeftRightIcon,
   FireIcon,
@@ -10,6 +9,7 @@ import {
   ArrowRightIcon,
   DocumentTextIcon,
 } from "@heroicons/react/24/outline";
+import { Board } from "@/shared/api/types/board.model";
 
 interface BoardCardProps {
   board: Board;

@@ -6,14 +6,15 @@ import { userAPI } from "@/shared/api";
 import { useAuthStore } from "@/store/auth";
 import toast from "react-hot-toast";
 import { useTranslations } from "next-intl";
-import type { User, ApiResponse } from "@/shared/api/types";
 import { ProfileSidebar } from "./ProfileSidebar";
 import { ProfileContent } from "./ProfileContent";
 import { UserListModal } from "./UserListModal";
+import { UserDO } from "@/shared/api/types/user.model";
+import { ApiResponse } from "@/shared/api/types/basic.model";
 
 // 类型定义
 interface FollowersResponse {
-  list: User[];
+  list: UserDO[];
   total: number;
   page: number;
   page_size: number;
@@ -32,7 +33,7 @@ export default function UserProfileClient({ userId }: { userId: number }) {
     queryFn: () =>
       userAPI
         .getProfile(userId)
-        .then((r: { data: ApiResponse<User> }) => r.data.data),
+        .then((r: { data: ApiResponse<UserDO> }) => r.data.data),
   });
 
   // 获取粉丝列表（用于获取粉丝数）
@@ -83,7 +84,7 @@ export default function UserProfileClient({ userId }: { userId: number }) {
         page_size: 100,
       });
       const data = res.data.data as FollowersResponse;
-      return data.list?.some((u: User) => u.id === userId) ?? false;
+      return data.list?.some((u: UserDO) => u.id === userId) ?? false;
     },
     enabled: !!currentUser && currentUser.id !== userId,
   });

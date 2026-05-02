@@ -1,14 +1,11 @@
-import type { Post, PageData } from "@/shared/api/types";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import toast from "react-hot-toast";
-
-// 如果需要，定义 adminApi 响应结构（根据实际情况调整）
-type AdminApiListResponse = { data: ApiResponse<PageData<Post>> };
-// 假设你已有 ApiResponse 类型，如果未导出请从 @/shared/api/types 导入
-import type { ApiResponse } from "@/shared/api/types";
 import { adminPostsApi } from "@/shared/api/modules/admin/post";
+import { Post } from "@/shared/api";
+import { ApiResponse, PageData } from "@/shared/api/types/basic.model";
 
+type AdminApiListResponse = { data: ApiResponse<PageData<Post>> };
 interface UsePostsDataReturn {
   posts: Post[];
   total: number;

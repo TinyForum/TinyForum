@@ -1,14 +1,13 @@
 // src/lib/api/modules/questions.ts
 import apiClient from "../client";
 import type {
-  ApiResponse,
-  PageData,
   QuestionSimple,
   Question,
   Post,
   Comment,
   QuestionResponse,
 } from "../types";
+import { ApiResponse, PageData } from "../types/basic.model";
 import { AnswerListParams } from "./answer";
 
 export interface QuestionListParams {
@@ -25,34 +24,60 @@ export interface CreateQuestionResponse {
   id: number;
 }
 export const questionApi = {
-  // 获取问题精简列表
+  /**
+   * 获取问题精简列表
+   * @param params
+   * @returns
+   */
   getSimple: (params?: QuestionListParams) =>
     apiClient.get<ApiResponse<PageData<QuestionSimple>>>("/questions/simple", {
       params,
     }),
 
-  // 获取问题列表
+  /**
+   * 获取问题列表
+   * @param params
+   * @returns
+   */
   getList: (params?: QuestionListParams) =>
     apiClient.get<ApiResponse<PageData<Question>>>("/questions/list", {
       params,
     }),
 
-  // 获取问题详情
+  /**
+   * 获取问题详情
+   * @param id
+   * @returns
+   */
   getDetail: (id: number) =>
     apiClient.get<ApiResponse<QuestionResponse>>(`/questions/detail/${id}`),
 
-  // 创建问题
+  /**
+   * 创建问题
+   * @param data
+   * @returns
+   */
   create: (data: CreateQuestionPayload) =>
     apiClient.post<ApiResponse<Post>>("/questions/create", data),
 
-  // 获取问题的答案列表
+  /**
+   * 获取问题的答案列表
+   * @param questionId
+   * @param params
+   * @returns
+   */
   getAnswers: (questionId: number, params?: AnswerListParams) =>
     apiClient.get<ApiResponse<PageData<Comment>>>(
       `/questions/${questionId}/answers`,
       { params },
     ),
 
-  // 创建答案
+  /**
+   * 创建答案
+   * @param questionId
+   * @param data
+   * @returns
+   */
   createAnswer: (questionId: number, data: { content: string }) =>
     apiClient.post<ApiResponse<Comment>>(
       `/questions/${questionId}/answers`,
@@ -60,7 +85,9 @@ export const questionApi = {
     ),
 };
 
-// 创建问题的请求体
+/**
+ * 创建问题的请求体
+ */
 export interface CreateQuestionPayload {
   title: string;
   content: string;

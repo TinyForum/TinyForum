@@ -4,7 +4,8 @@
  */
 
 import apiClient from "../../client";
-import { ApiResponse, PageData, User } from "../../types";
+import { ApiResponse, PageData } from "../../types/basic.model";
+import { UserDO } from "../../types/user.model";
 
 // ========== 类型定义 ==========
 export interface ResetPasswordResponse {
@@ -21,7 +22,8 @@ export const adminUsersApi = {
     page?: number;
     page_size?: number;
     keyword?: string;
-  }) => apiClient.get<ApiResponse<PageData<User>>>("/admin/users", { params }),
+  }) =>
+    apiClient.get<ApiResponse<PageData<UserDO>>>("/admin/users", { params }),
 
   /** 设置用户激活状态 */
   setUserActive: (id: number, isActive: boolean) =>

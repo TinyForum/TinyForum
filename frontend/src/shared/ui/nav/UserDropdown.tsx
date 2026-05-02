@@ -29,12 +29,12 @@ import {
 import { useLogoutStore } from "@/store/logout";
 import toast from "react-hot-toast";
 import { useTranslations } from "next-intl";
-import { User } from "@/shared/api";
 import Avatar from "@/features/user/components/Avatar";
 import { createPortal } from "react-dom";
+import { UserDO } from "@/shared/api/types/user.model";
 
 interface UserDropdownProps {
-  user: User;
+  user: UserDO;
   onOpenChange?: (isOpen: boolean) => void;
 }
 

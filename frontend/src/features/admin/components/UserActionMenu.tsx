@@ -21,15 +21,15 @@ import {
   EyeIcon,
 } from "lucide-react";
 import toast from "react-hot-toast";
-import { User } from "@/shared/api";
 import { UsersIcon } from "@heroicons/react/24/solid";
 import { useTranslations } from "next-intl";
 import { UserRoleType } from "@/shared/type/roles.types";
+import { UserDO } from "@/shared/api/types/user.model";
 
 // 类型定义
 
 interface UserActionMenuProps {
-  user: User;
+  user: UserDO;
   isCurrentUser: boolean;
   onToggleActive: (id: number, active: boolean) => void;
   onToggleBlock: (id: number, blocked: boolean) => void;

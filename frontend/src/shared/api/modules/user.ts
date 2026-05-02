@@ -4,8 +4,9 @@
  */
 
 import apiClient from "../client";
-import { ApiResponse, PageData, User } from "@/shared/api/types";
 import { UserRoleType } from "@/shared/type/roles.types";
+import { UserDO } from "../types/user.model";
+import { ApiResponse, PageData } from "../types/basic.model";
 
 // ========== 请求/响应类型 ==========
 export interface UpdateProfilePayload {
@@ -35,14 +36,15 @@ export interface LeaderboardItemResponse {
 export const userApi = {
   // ---------- 用户公开信息 ----------
   /** 获取指定用户公开资料 (无需登录) */
-  getProfile: (id: number) => apiClient.get<ApiResponse<User>>(`/users/${id}`),
+  getProfile: (id: number) =>
+    apiClient.get<ApiResponse<UserDO>>(`/users/${id}`),
 
   /** 获取当前用户的角色 (需登录) */
   getMeRole: () => apiClient.get<ApiResponse<RoleResponse>>("/users/me/role"),
 
   /** 更新当前用户资料 (需登录) */
   updateProfile: (data: UpdateProfilePayload) =>
-    apiClient.put<ApiResponse<User>>("/users/me/profile", data),
+    apiClient.put<ApiResponse<UserDO>>("/users/me/profile", data),
 
   // ---------- 关注/取关 ----------
   /** 关注用户 (需登录) */
@@ -71,13 +73,13 @@ export const userApi = {
   // ---------- 粉丝/关注列表 ----------
   /** 获取用户的粉丝列表 (分页) */
   getFollowers: (id: number, params?: { page?: number; page_size?: number }) =>
-    apiClient.get<ApiResponse<PageData<User>>>(`/users/${id}/followers`, {
+    apiClient.get<ApiResponse<PageData<UserDO>>>(`/users/${id}/followers`, {
       params,
     }),
 
   /** 获取用户关注的列表 (分页) */
   getFollowing: (id: number, params?: { page?: number; page_size?: number }) =>
-    apiClient.get<ApiResponse<PageData<User>>>(`/users/${id}/following`, {
+    apiClient.get<ApiResponse<PageData<UserDO>>>(`/users/${id}/following`, {
       params,
     }),
 };

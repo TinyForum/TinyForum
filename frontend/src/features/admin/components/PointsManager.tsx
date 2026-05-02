@@ -9,9 +9,9 @@ import {
   RefreshCw,
 } from "lucide-react";
 import Image from "next/image";
-import { ApiResponse } from "@/shared/api/types";
 import { useTranslations } from "next-intl";
 import { useScoreData } from "../hooks/useScoreData";
+import { ApiResponse } from "@/shared/api/types/basic.model";
 
 // 类型定义
 interface UserScoreRecord {

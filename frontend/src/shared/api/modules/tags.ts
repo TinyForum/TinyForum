@@ -3,7 +3,8 @@
  */
 
 import apiClient from "../client";
-import type { ApiResponse, Tag } from "../types";
+import { Tag } from "../types";
+import { ApiResponse } from "../types/basic.model";
 
 export interface CreateTagPayload {
   name: string;

@@ -1,5 +1,6 @@
 import apiClient from "../../client";
-import { ApiResponse, PageData, Post } from "../../types";
+import { Post } from "../../types";
+import { ApiResponse, PageData } from "../../types/basic.model";
 
 export const adminPostsApi = {
   // ── 帖子管理 ──────────────────────────────────────────────────────────────

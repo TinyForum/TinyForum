@@ -23,8 +23,6 @@ export default function UserDashboardPage() {
   const [keyword, setKeyword] = useState("");
   const [page, setPage] = useState(1);
 
-  // TODO: 从 hooks 获取用户信息
-  // const { user } = useCurrentUser();
   const { user } = useAuthStore();
   const { isAdmin } = useUserRole();
   const { isModerator } = useUserRole();
@@ -37,10 +35,11 @@ export default function UserDashboardPage() {
 
   // TODO: 统计数据
   const stats = {
-    posts: 0,
-    comments: 0,
-    favorites: 0,
-    unreadNotif: 0,
+    posts: -1,
+    comments: -1,
+    favorites: -1,
+    unreadNotif: -1,
+    violations: -1,
   };
 
   const tabs = [
@@ -98,7 +97,7 @@ export default function UserDashboardPage() {
               />
               <StatCard
                 title={t("unread_notifications")}
-                value={stats.unreadNotif}
+                value={stats.violations}
                 icon="🔔"
                 color="text-warning"
               />
