@@ -1,8 +1,10 @@
 package post
 
 import (
+	"context"
 	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/dto"
+	"tiny-forum/internal/model/request"
 )
 
 func (r *postRepository) Create(post *do.Post) error {
@@ -26,6 +28,7 @@ func (r *postRepository) Delete(id uint) error {
 	return r.db.Delete(&do.Post{}, id).Error
 }
 
+// MARK: list
 // 获取文章列表
 // 查询 published + approved
 func (r *postRepository) List(page, pageSize int, opts dto.PostListOptions) ([]do.Post, int64, error) {
@@ -76,6 +79,52 @@ func (r *postRepository) List(page, pageSize int, opts dto.PostListOptions) ([]d
 	err := query.Preload("Author").Preload("Tags").
 		Order(orderExpr).
 		Offset(offset).Limit(pageSize).
+		Find(&posts).Error
+	return posts, total, err
+}
+
+func (r *postRepository) ListUserPosts(ctx context.Context, req request.GetUserPostsRequest, userID uint, orderBy string) ([]do.Post, int64, error) {
+	db := r.db.WithContext(ctx).Model(&do.Post{}).Where("author_id = ?", userID)
+
+	// 状态过滤
+	if req.Status != "" {
+		db = db.Where("post_status = ?", req.Status)
+	}
+	if req.ModerationStatus != "" {
+		db = db.Where("moderation_status = ?", req.ModerationStatus)
+	}
+	// 标签过滤（JOIN）
+	if req.Tag != "" {
+		db = db.Joins("JOIN post_tags ON post_tags.post_id = posts.id").
+			Joins("JOIN tags ON tags.id = post_tags.tag_id").
+			Where("tags.name = ?", req.Tag)
+	}
+	// 板块过滤
+	if req.BoardName != "" {
+		db = db.Joins("JOIN boards ON boards.id = posts.board_id").
+			Where("boards.name = ?", req.BoardName)
+	}
+	// 关键词搜索
+	if req.Keyword != "" {
+		pattern := "%" + req.Keyword + "%"
+		db = db.Where("title LIKE ? OR content LIKE ?", pattern, pattern)
+	}
+
+	// 总数统计
+	var total int64
+	if err := db.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+	if total == 0 {
+		return []do.Post{}, 0, nil
+	}
+
+	// 直接使用传入的排序表达式（已由 Service 层保证安全）
+	var posts []do.Post
+	err := db.Preload("Tags").Preload("Board").
+		Order(orderBy).
+		Offset(req.Offset()).
+		Limit(req.PageSize).
 		Find(&posts).Error
 	return posts, total, err
 }

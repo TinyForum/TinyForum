@@ -37,7 +37,15 @@ export function usePostsData(
       })) as AdminApiListResponse;
       // 确保返回有效的 PageData 对象，即使接口异常也不应返回 undefined
       // 如果后端可能返回空，这里提供默认结构
-      return response.data.data ?? { list: [], total: 0, page, page_size: 20 };
+      return (
+        response.data.data ?? {
+          list: [],
+          total: 0,
+          page,
+          page_size: 20,
+          has_more: false,
+        }
+      );
     },
     enabled,
   });

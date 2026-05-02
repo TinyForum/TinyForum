@@ -23,6 +23,8 @@
   "likes": "点赞",
   "no_comments": "没有评论",
   "no_favorites": "没有收藏",
-  "violation_records": "违规记录",
+  "violation": "违规记录",
+  "total_likes": "总点赞数",
+  "total_violations": "总违规数",
   "search_my_posts": "搜索我的帖子"
 }

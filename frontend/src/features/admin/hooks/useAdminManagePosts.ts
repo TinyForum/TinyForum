@@ -1,6 +1,6 @@
 import { Post } from "@/shared/api";
 import { adminPostsApi } from "@/shared/api/modules/admin/post";
-import { ApiResponse, PageData } from "@/shared/api/types/basic.model";
+import { PageData } from "@/shared/api/types/basic.model";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import toast from "react-hot-toast";
@@ -12,10 +12,6 @@ interface UseAdminManagePostsOptions {
   enabled?: boolean;
 }
 
-// 定义 listPendingPosts 的返回类型，根据实际 API 结构调整
-// 假设 adminApi.listPendingPosts 返回 Promise<{ data: ApiResponse<PageData<Post>> }>
-type ListPendingPostsResponse = { data: ApiResponse<PageData<Post>> };
-
 export function useAdminManagePosts({
   page,
   pageSize = 20,
@@ -25,35 +21,37 @@ export function useAdminManagePosts({
   const queryClient = useQueryClient();
   const t = useTranslations("admin");
 
-  // 刷新相关查询的辅助函数（先定义，以便在 mutation 的 onSuccess 中使用）
   const invalidateQueries = () => {
     queryClient.invalidateQueries({ queryKey: ["admin-pending-posts"] });
     queryClient.invalidateQueries({ queryKey: ["admin-posts"] });
   };
 
-  // 获取待审核帖子列表 - 显式指定泛型并修复 res 类型
-  const { data, isLoading, refetch } = useQuery<PageData<Post>, Error>({
+  // 获取待审核帖子列表
+  const { data, isLoading, refetch } = useQuery<PageData<Post>>({
     queryKey: ["admin-pending-posts", page, keyword],
-    queryFn: async () => {
-      const response = (await adminPostsApi.listPendingPosts({
+    queryFn: async (): Promise<PageData<Post>> => {
+      const response = await adminPostsApi.listPendingPosts({
         page,
         page_size: pageSize,
         keyword,
-      })) as ListPendingPostsResponse;
-      // response.data.data 就是 PageData<Post>，如果可能为空则提供默认值
-      return (
-        response.data.data ?? {
-          list: [],
-          total: 0,
-          page: 1,
-          page_size: pageSize,
-        }
-      );
+      });
+      const pageData = response.data?.data;
+      if (pageData && typeof pageData === "object" && "list" in pageData) {
+        return pageData as PageData<Post>;
+      }
+      // 降级默认值（后端返回异常时使用）
+      return {
+        list: [],
+        total: 0,
+        page: page,
+        page_size: pageSize,
+        has_more: false,
+      };
     },
     enabled,
   });
 
-  // 审核通过 Mutation
+  // 以下 mutations 保持不变...
   const approveMutation = useMutation({
     mutationFn: (params: { id: number; note?: string }) =>
       adminPostsApi.approvePost(params.id, params.note),
@@ -64,7 +62,6 @@ export function useAdminManagePosts({
     onError: () => toast.error(t("operation_failed")),
   });
 
-  // 审核拒绝 Mutation（可带原因）
   const rejectMutation = useMutation({
     mutationFn: (params: { id: number; reason?: string }) =>
       adminPostsApi.rejectPost(params.id, params.reason),
@@ -75,7 +72,6 @@ export function useAdminManagePosts({
     onError: () => toast.error(t("operation_failed")),
   });
 
-  // 批量审核通过
   const batchApproveMutation = useMutation({
     mutationFn: (items: Array<{ id: number; note?: string }>) =>
       Promise.all(
@@ -88,7 +84,6 @@ export function useAdminManagePosts({
     onError: () => toast.error(t("operation_failed")),
   });
 
-  // 批量审核拒绝
   const batchRejectMutation = useMutation({
     mutationFn: (items: Array<{ id: number; reason?: string }>) =>
       Promise.all(
@@ -101,7 +96,6 @@ export function useAdminManagePosts({
     onError: () => toast.error(t("operation_failed")),
   });
 
-  // 便捷方法
   const approvePost = (id: number, note?: string) => {
     approveMutation.mutate({ id, note });
   };

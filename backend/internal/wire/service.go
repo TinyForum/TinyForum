@@ -54,7 +54,7 @@ func NewServices(
 
 	// 基础服务
 	notifSvc := notification.NewNotificationService(repos.Notification)
-	userSvc := user.NewUserService(repos.User, jwtMgr, notifSvc)
+	userSvc := user.NewUserService(repos.User, jwtMgr, notifSvc, repos.Post, repos.Comment)
 	tagSvc := tag.NewTagService(repos.Tag)
 	boardSvc := board.NewBoardService(repos.Board, repos.User, repos.Post, notifSvc)
 	timelineSvc := timeline.NewTimelineService(repos.Timeline, repos.User, repos.Post, repos.Comment)
