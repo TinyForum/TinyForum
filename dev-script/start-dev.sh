@@ -933,6 +933,9 @@ main() {
     
     # Module 7: Summary
     print_summary
+    echo "如果无法访问后端，请检查 cors 配置"
+    echo "1. 检查 backend/config/basic.yaml 中的 allow_origins 配置"
+    echo "2. 检查 frontend/config.yaml 中的 allowedDevOrigins 配置"
 }
 
 # Run main function
