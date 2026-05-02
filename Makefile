@@ -12,6 +12,7 @@ help:
 	@echo "=============="
 	@echo "TinyForum help"
 	@echo "=============="
+	@echo "  make main-help      - 快捷帮助 "
 	@echo "  make code-help     - 代码检查帮助"
 	@echo "  make docker-help   - docker 帮助"
 	@echo "  make podman-help   - podman 帮助"
