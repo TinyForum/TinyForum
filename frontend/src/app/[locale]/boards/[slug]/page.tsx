@@ -17,9 +17,10 @@ import {
 
 // import type { Board, PageData } from "@/shared/api/types";
 import type { BoardPostListItem } from "@/shared/api/modules/boards";
-import { Board, PageData } from "@/shared/api/types";
 import { CreateBoardInline } from "@/features/boards/components/CreateBoardInline";
 import { BoardPostCard } from "@/features/boards/components/BoardPostCard";
+import { PageData } from "@/shared/api/types/basic.model";
+import { Board } from "@/shared/api/types/board.model";
 
 const PAGE_SIZE = 20;
 

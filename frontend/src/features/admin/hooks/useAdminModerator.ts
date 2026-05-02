@@ -226,7 +226,11 @@ export const useAdminUnbanUser = (boardId: number) => {
   });
 };
 
-// 管理员 - 获取板块版主列表
+/**
+ * 管理员 - 获取板块版主列表
+ * @param boardId
+ * @returns
+ */
 export const useAdminModeratorList = (boardId?: number) => {
   return useQuery({
     queryKey: ["boards", boardId, "moderators"],

@@ -1,26 +1,9 @@
 // hooks/useQuestionDetail.ts
 import { useState, useEffect, useCallback } from "react";
-import type { Post, Comment, ApiResponse } from "@/shared/api/types";
 import { toast } from "react-hot-toast";
-import { questionApi } from "@/shared/api";
+import { Comment, Post, questionApi } from "@/shared/api";
 
-// interface UseQuestionDetailOptions {
-//   answerPage?: number;
-//   answerPageSize?: number;
-// }
-
-interface QuestionDetailResponse {
-  post: Post;
-  answers: Comment[];
-  total: number;
-}
-
-export function useQuestionDetail(
-  questionId: number,
-  // options: UseQuestionDetailOptions = {},
-) {
-  // const { answerPage = 1, answerPageSize = 20 } = options;
-
+export function useQuestionDetail(questionId: number) {
   const [question, setQuestion] = useState<Post | null>(null);
   const [answers, setAnswers] = useState<Comment[]>([]);
   const [answersTotal, setAnswersTotal] = useState<number>(0);
@@ -35,8 +18,7 @@ export function useQuestionDetail(
     setError(null);
 
     try {
-      const response: { data: ApiResponse<QuestionDetailResponse> } =
-        await questionApi.getDetail(questionId);
+      const response = await questionApi.getDetail(questionId);
 
       console.log(response);
 

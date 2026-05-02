@@ -3,7 +3,6 @@ package stats
 import (
 	"context"
 	"time"
-	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/dto"
 	boardRepo "tiny-forum/internal/repository/board"
 	commentRepo "tiny-forum/internal/repository/comment"
@@ -14,9 +13,9 @@ import (
 )
 
 type StatsService interface {
-	GetStatsByDate(ctx context.Context, date time.Time, statsType string) (*do.StatsTodayInfo, error)
-	GetTotalStats(ctx context.Context, startDate, endDate time.Time, statsType string) (*do.StatsInfoResp, error)
-	GetTrendStats(ctx context.Context, startDate, endDate time.Time, statsType, intervals string) ([]*do.TrendData, error)
+	GetStatsByDate(ctx context.Context, date time.Time, statsType string) (*dto.StatsTodayInfo, error)
+	GetTotalStats(ctx context.Context, startDate, endDate time.Time, statsType string) (*dto.StatsInfoResp, error)
+	GetTrendStats(ctx context.Context, startDate, endDate time.Time, statsType, intervals string) ([]*dto.TrendData, error)
 	GetStatsByDateRange(ctx context.Context, startDate, endDate time.Time, statsType string) ([]dto.DailyStatResponse, error)
 }
 

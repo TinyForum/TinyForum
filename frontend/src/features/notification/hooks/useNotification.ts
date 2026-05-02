@@ -11,7 +11,6 @@ interface UseNotificationsOptions {
 
 export function useNotifications(options: UseNotificationsOptions = {}) {
   const { pageSize = 10, autoLoad = true } = options;
-
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [hasMore, setHasMore] = useState<boolean>(true);
@@ -19,7 +18,7 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
   const [total, setTotal] = useState<number>(0);
 
   const loadNotifications = useCallback(
-    async (page: number = 1, refresh: boolean = false) => {
+    async (page: number = 1) => {
       setLoading(true);
       try {
         const response = await notificationApi.list({
@@ -34,7 +33,7 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
             page_size: resPageSize,
             total: resTotal,
           } = data;
-          setNotifications((prev) => (refresh ? list : [...prev, ...list]));
+          setNotifications(list as Notification[]);
           setTotal(resTotal);
           setCurrentPage(resPage);
           // 判断是否还有更多：当前页 * 每页条数 < 总数
@@ -54,7 +53,7 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
 
   const refresh = useCallback(() => {
     setCurrentPage(1);
-    loadNotifications(1, true);
+    loadNotifications(1);
   }, [loadNotifications]);
 
   const loadMore = useCallback(() => {

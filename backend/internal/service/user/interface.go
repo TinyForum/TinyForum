@@ -5,6 +5,10 @@ import (
 	"tiny-forum/internal/infra/validator"
 	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/dto"
+	"tiny-forum/internal/model/request"
+	"tiny-forum/internal/model/vo"
+	commentRepo "tiny-forum/internal/repository/comment"
+	postRepo "tiny-forum/internal/repository/post"
 	userRepo "tiny-forum/internal/repository/user"
 	"tiny-forum/internal/service/notification"
 	jwtpkg "tiny-forum/pkg/jwt"
@@ -40,13 +44,18 @@ type UserService interface {
 	GetUserProfile(targetID, viewerID uint) (*UserProfileResponse, error)
 	GetUserBasicInfo(userID uint) (*do.User, error)
 	GetUserRoleById(userID uint) (string, error)
-	GetGlobalStatsCount(ctx context.Context, userID uint) (*dto.GlobalStatsCount, error)
+	// stats
+	GetGlobalStatsCount(ctx context.Context, userID uint) (*dto.StatsInfo, error)
+	// posts
+	GetUserPosts(ctx context.Context, req request.GetUserPostsRequest, userID uint) (*vo.BasicPageData, error)
 }
 type userService struct {
 	repo        userRepo.UserRepository
 	jwtMgr      *jwtpkg.JWTManager
-	notifSvc    notification.NotificationService // 注意：NotificationService 定义在别的包，需正确导入
-	roleChecker *validator.RoleChangeChecker     // 改为指针类型
+	notifSvc    notification.NotificationService
+	roleChecker *validator.RoleChangeChecker
+	postRepo    postRepo.PostRepository
+	commentRepo commentRepo.CommentRepository
 	// roleChange  validator.RoleChangeRequest
 }
 
@@ -54,6 +63,8 @@ func NewUserService(
 	repo userRepo.UserRepository,
 	jwtMgr *jwtpkg.JWTManager,
 	notifSvc notification.NotificationService,
+	postRepo postRepo.PostRepository,
+	commetnRepo commentRepo.CommentRepository,
 	// roleChange validator.RoleChangeRequest,
 ) UserService {
 	roleValidator := validator.NewRoleValidator()
@@ -65,5 +76,7 @@ func NewUserService(
 		// roleChecker: validator.RoleChangeChecker{},
 		// roleChange:  validator.RoleChangeRequest{},
 		roleChecker: roleChecker,
+		postRepo:    postRepo,
+		commentRepo: commetnRepo,
 	}
 }

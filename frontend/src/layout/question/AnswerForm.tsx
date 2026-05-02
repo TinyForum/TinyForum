@@ -12,7 +12,7 @@ import {
   ExclamationTriangleIcon,
   SparklesIcon,
 } from "@heroicons/react/24/outline";
-import { ApiResponse } from "@/shared/api/types";
+import { ApiResponse } from "@/shared/api/types/basic.model";
 
 interface AnswerFormProps {
   questionId: number;

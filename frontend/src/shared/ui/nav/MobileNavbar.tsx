@@ -5,12 +5,12 @@ import Image from "next/image";
 import { Menu } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import { User } from "@/shared/api";
 import SearchBar from "@/features/moderator/components/SearchBar";
 import NotificationBell from "@/shared/ui/nav/NotificationBell";
 import QuickActions from "@/shared/ui/nav/QuickActions";
 import UserDropdown from "@/shared/ui/nav/UserDropdown";
 import LanguageSwitcher from "./LanguageSwitcher";
+import { UserDO } from "@/shared/api/types/user.model";
 // User 类型直接从项目 store 引入，与 UserDropdown 期望的类型保持一致
 
 // ─────────────────────────────────────────────
@@ -22,7 +22,7 @@ import LanguageSwitcher from "./LanguageSwitcher";
 interface MobileNavbarProps {
   isAuthenticated: boolean;
   // 修复：使用项目已有的 User 类型，不再使用自造的 AuthUser
-  user: User | null;
+  user: UserDO | null;
   searchQuery: string;
   onSearchQueryChange: (value: string) => void;
   unreadCount: number;

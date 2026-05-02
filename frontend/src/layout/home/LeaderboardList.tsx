@@ -4,10 +4,10 @@ import Link from "next/link";
 import { Trophy, ChevronRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Avatar from "@/features/user/components/Avatar";
-import { User } from "@/shared/api";
+import { UserDO } from "@/shared/api/types/user.model";
 
 interface LeaderboardListProps {
-  leaderboard: User[];
+  leaderboard: UserDO[];
 }
 
 export default function LeaderboardList({ leaderboard }: LeaderboardListProps) {
@@ -50,7 +50,7 @@ export default function LeaderboardList({ leaderboard }: LeaderboardListProps) {
   );
 }
 
-function LeaderboardItem({ user, rank }: { user: User; rank: number }) {
+function LeaderboardItem({ user, rank }: { user: UserDO; rank: number }) {
   const getRankStyles = () => {
     switch (rank) {
       case 1:

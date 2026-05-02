@@ -5,15 +5,16 @@ import { useRouter } from "next/navigation";
 import { useForm, Controller, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { postApi, tagApi, boardApi } from "@/shared/api";
+import { postApi, tagApi, boardApi, Tag } from "@/shared/api";
 import { useAuthStore } from "@/store/auth";
 import toast from "react-hot-toast";
 import { getErrorMessage } from "@/shared/lib/utils";
 import { FileText, Send, X, FolderOpen } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
-import type { Board, Tag, ApiResponse } from "@/shared/api/types";
 import RichEditor from "@/layout/common/RichEditor";
+import { Board } from "@/shared/api/types/board.model";
+import { ApiResponse } from "@/shared/api/types/basic.model";
 
 const postSchema = z
   .object({

@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 
-import { User } from "@/shared/api/types";
 import { AdminSearchBar } from "@/features/admin/components/AdminSearchBar";
 import { AdminTasks } from "@/features/admin/components/AdminTasks";
 import { AnnouncementsManager } from "@/features/admin/components/AnnouncementsManager";
@@ -19,6 +18,7 @@ import { useAdminAuth } from "@/features/admin/hooks/useAdminAuth";
 import { usePostsData } from "@/features/admin/hooks/usePostsData";
 import { useQAData } from "@/features/admin/hooks/useQAData";
 import { useUsersData } from "@/features/admin/hooks/useUsersData";
+import { UserDO } from "@/shared/api/types/user.model";
 
 // 导入类型
 
@@ -110,7 +110,7 @@ export default function AdminPage() {
               t={t}
             />
             <UsersTable
-              users={usersData.users as User[]}
+              users={usersData.users as UserDO[]}
               currentUserId={user?.id}
               onToggleActive={handleToggleActive}
               onToggleBlock={handleToggleBlock}

@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { Board, boardApi } from "@/shared/api";
 import { useAuthStore } from "@/store/auth";
 import {
   ShieldCheckIcon,
@@ -20,6 +19,8 @@ import {
   ModeratorApplication,
 } from "@/shared/api/modules/moderator";
 import { adminModeratorApi } from "@/shared/api/modules/admin/moderator";
+import { boardApi } from "@/shared/api";
+import { Board } from "@/shared/api/types/board.model";
 
 type AppStatus = ModeratorApplication["status"];
 

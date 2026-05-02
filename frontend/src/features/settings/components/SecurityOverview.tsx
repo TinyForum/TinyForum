@@ -1,8 +1,8 @@
-import { User } from "@/shared/api";
+import { UserDO } from "@/shared/api/types/user.model";
 import { Mail, Shield } from "lucide-react";
 import { History } from "lucide-react";
 interface SecurityOverviewProps {
-  user: User;
+  user: UserDO;
   lastLoginTime: string;
   securityLevel: number;
 }

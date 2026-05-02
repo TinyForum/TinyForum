@@ -30,6 +30,8 @@ type CommentRepository interface {
 	MarkAsAnswer(commentID uint, isAnswer bool) error
 	UnacceptAnswer(commentID uint) error
 	GetAcceptedAnswer(postID uint) (*do.Comment, error)
+	// 查询评论数
+	BatchCountByPostIDs(ctx context.Context, postIDs []uint) (map[uint]int64, error)
 }
 type commentRepository struct {
 	db *gorm.DB

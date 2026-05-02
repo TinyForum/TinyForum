@@ -9,15 +9,18 @@ import {
   timelineApi,
   notificationApi,
   questionApi,
+  Tag,
+  Post,
+  TimelineEvent,
 } from "@/shared/api";
 import { useAuthStore } from "@/store/auth";
-import type { Board, Tag, TimelineEvent, Post } from "@/shared/api/types";
 import LeftSidebar, { FilterType } from "@/layout/home/LeftSidebar";
 import { SortBy } from "@/shared/type/posts.types";
 import { useLeaderboard } from "@/features/leader/hooks/useLeaderboard";
 import RightSidebar from "@/layout/home/RightSidebar";
 import PostFilterBar from "@/layout/home/mid/PostFilterBar";
 import PostList from "@/layout/home/mid/PostList";
+import { Board } from "@/shared/api/types/board.model";
 
 export default function HomePage() {
   const { isAuthenticated, user } = useAuthStore();

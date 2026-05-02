@@ -32,8 +32,15 @@ type LeaderboardUserSimple struct {
 // }
 
 type GlobalStatsCount struct {
-	TotalPosts     int `json:"total_posts"`
-	TotalComments  int `json:"total_comments"`
-	TotalFavorites int `json:"total_favorites"`
-	TotalViolation int `json:"total_violation"`
+	TotalCountPosts     int `json:"total_count_posts"`
+	TotalCountComments  int `json:"total_count_comments"`
+	TotalCountFavorites int `json:"total_count_favorites"`
+	TotalCountViolation int `json:"total_count_violation"`
+}
+
+type UserStatsCount struct {
+	TotalCountPosts     int `json:"total_count_posts"`
+	TotalCountComments  int `json:"total_count_comments"`
+	TotalCountFavorites int `json:"total_count_favorites"`
+	TotalCountViolation int `json:"total_count_violation"`
 }

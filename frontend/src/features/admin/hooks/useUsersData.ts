@@ -1,9 +1,8 @@
-// hooks/admin/useUsersData.ts
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import toast from "react-hot-toast";
-import { ApiResponse } from "@/shared/api/types";
 import { adminUsersApi } from "@/shared/api/modules/admin/user";
+import { ApiResponse } from "@/shared/api/types/basic.model";
 
 // 类型定义
 interface UserListResponse {

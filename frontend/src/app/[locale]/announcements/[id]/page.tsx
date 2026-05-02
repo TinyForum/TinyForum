@@ -16,6 +16,7 @@ import {
   AlertTriangleIcon,
 } from "lucide-react";
 import { AnnouncementDO } from "@/shared/api/types/announcement.model";
+import { useTranslations } from "next-intl";
 
 // 错误响应类型
 interface ErrorResponse {
@@ -119,6 +120,7 @@ export default function AnnouncementDetailPage() {
   const [announcement, setAnnouncement] = useState<AnnouncementDO | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const t = useTranslations("Announcement");
 
   const loadAnnouncement = useCallback(async () => {
     const id = parseInt(params.id as string);
@@ -262,7 +264,7 @@ export default function AnnouncementDetailPage() {
               {announcement.created_by && (
                 <div className="flex items-center gap-1.5">
                   <UserIcon className="w-4 h-4" />
-                  <span>发布者 ID: {announcement.created_by}</span>
+                  <span> {t(`published_by${announcement.created_by}`)}</span>
                 </div>
               )}
             </div>

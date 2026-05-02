@@ -5,7 +5,6 @@ import Image from "next/image";
 import { Sparkles } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import { User } from "@/shared/api";
 import SearchBar from "@/features/moderator/components/SearchBar";
 import NavLinks from "@/shared/ui/nav/NavLinks";
 import NotificationBell from "@/shared/ui/nav/NotificationBell";
@@ -13,11 +12,12 @@ import QuickActions from "@/shared/ui/nav/QuickActions";
 import { NavItem } from "@/shared/ui/nav/types";
 import UserDropdown from "@/shared/ui/nav/UserDropdown";
 import LanguageSwitcher from "./LanguageSwitcher";
+import { UserDO } from "@/shared/api/types/user.model";
 
 interface DesktopNavbarProps {
   navItems: NavItem[];
   isAuthenticated: boolean;
-  user: User | null;
+  user: UserDO | null;
   searchQuery: string;
   onSearchQueryChange: (value: string) => void;
   unreadCount: number;

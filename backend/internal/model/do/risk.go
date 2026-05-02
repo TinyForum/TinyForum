@@ -19,6 +19,7 @@ const (
 // 内容审核任务
 // ========================
 
+// 审核状态
 type ModerationStatus string
 
 const (

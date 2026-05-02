@@ -5,9 +5,10 @@ import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
 import { timeAgo, truncate } from "@/shared/lib/utils";
 import { Eye, Heart, MessageSquare, Pin, Tag, HelpCircle } from "lucide-react";
-import { Post, type User } from "@/shared/api";
+import { Post } from "@/shared/api";
 import Avatar from "@/features/user/components/Avatar";
 import { userApi } from "@/shared/api/modules/user";
+import { UserDO } from "@/shared/api/types/user.model";
 
 interface PostCardProps {
   post: Post;
@@ -24,7 +25,7 @@ export default function PostCard({ post, commentCount }: PostCardProps) {
   });
 
   if (!post) return null;
-  const author = (post.author || fetchedAuthor) as User | undefined;
+  const author = (post.author || fetchedAuthor) as UserDO | undefined;
   const rewardScore = post.question?.reward_score || 0;
   const answerCount = post.question?.answer_count || 0;
   const isAccepted = post.question?.accepted_answer_id != null;

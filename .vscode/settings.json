@@ -20,7 +20,8 @@
   "[go]": {
     "editor.insertSpaces": false,
     "editor.formatOnSave": true,
-    "editor.codeActionsOnSave": {}
+    "editor.codeActionsOnSave": {},
+    "editor.defaultFormatter": "golang.go"
   },
   "go.useLanguageServer": true,
   "gopls": {

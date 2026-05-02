@@ -1,12 +1,12 @@
 "use client";
 
 import { X } from "lucide-react";
-import type { User } from "@/shared/api/types";
 import Avatar from "./Avatar";
+import { UserDO } from "@/shared/api/types/user.model";
 
 interface UserListModalProps {
   title: string;
-  users: User[];
+  users: UserDO[];
   total: number;
   onClose: () => void;
   onUserClick: (userId: number) => void;
