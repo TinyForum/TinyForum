@@ -20,6 +20,11 @@ PACKAGE_MANAGER=""
 NEW_DB_USER=""
 NEW_DB_PASS=""
 
+LOCAL_IP=$(hostname -I | awk '{print $1}')
+if [ -z "$LOCAL_IP" ]; then
+    LOCAL_IP=$(ip route get 1 | awk '{print $7; exit}')
+fi
+
 # ============================================
 # Module 1: System Detection
 # ============================================
@@ -143,6 +148,54 @@ check_postgres_client() {
         return 1
     fi
 }
+
+check_redis_client() {
+    echo "Checking Redis client..."
+    if command -v redis-cli >/dev/null 2>&1; then
+        echo -e "${GREEN}✅ redis-cli found: $(redis-cli --version | head -n1)${NC}"
+        return 0
+    else
+        echo -e "${YELLOW}⚠️  redis-cli not found - Redis client tools not installed${NC}"
+        echo "   Install with:"
+        case "$OS" in
+            Darwin*)
+                echo "      brew install redis                  # macOS (Homebrew)"
+                echo "      # 安装后 redis-cli 即可使用"
+                ;;
+            Linux*)
+                # 检测具体的 Linux 发行版（如果 $ID 可用，否则给通用提示）
+                if [ -f /etc/os-release ]; then
+                    . /etc/os-release
+                    case "$ID" in
+                        ubuntu|debian)
+                            echo "      sudo apt update && sudo apt install redis-tools   # Ubuntu/Debian (client only)"
+                            echo "      # 若需要完整 Redis 服务端，请运行: sudo apt install redis-server"
+                            ;;
+                        rhel|centos|fedora)
+                            echo "      sudo yum install redis      # RHEL/CentOS/Fedora (includes both client and server)"
+                            ;;
+                        *)
+                            echo "      sudo apt install redis-tools   # Debian/Ubuntu"
+                            echo "      sudo yum install redis         # RHEL/CentOS/Fedora"
+                            ;;
+                    esac
+                else
+                    echo "      sudo apt install redis-tools   # Debian/Ubuntu"
+                    echo "      sudo yum install redis         # RHEL/CentOS/Fedora"
+                fi
+                ;;
+            MINGW*|MSYS*|CYGWIN*)
+                echo "      winget install redis                # Windows (winget)"
+                echo "      # 或从 https://github.com/microsoftarchive/redis/releases 下载安装"
+                ;;
+            *)
+                echo "      Visit: https://redis.io/download/   # 其他系统"
+                ;;
+        esac
+        return 1
+    fi
+}
+
 
 check_all_dependencies() {
     echo ""
@@ -352,6 +405,7 @@ setup_postgres() {
     fi
 }
 
+
 # ============================================
 # Module 4: Configuration Management
 # ============================================
@@ -504,6 +558,8 @@ allow_origins:
   - http://127.0.0.1:3000
   - http://localhost:8080
   - http://127.0.0.1:8080
+  - http://$LOCAL_IP:3000
+  - http://$LOCAL_IP:8080
 
 # 上传配置
 upload:
@@ -861,8 +917,10 @@ main() {
     # Module 2: Dependency Checking
     check_all_dependencies
     
-    # Module 3: PostgreSQL Setup
+    # Module 3: PostgreSQL Setup 
     setup_postgres
+
+    check_redis_client
     
     # Module 4: Configuration Setup
     setup_configurations
