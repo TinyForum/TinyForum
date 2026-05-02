@@ -15,6 +15,7 @@ main-help:
 	@echo "TinyForum Makefile"
 	@echo ""
 	@echo "Development:"
+	@echo "  make init-dev      - 初始化开发环境"
 	@echo "  make frontend      - 启动前端 (前台)"
 	@echo "  make backend       - 启动后端 (前台)"
 	@echo "  make dev           - 并发启动前后端"
