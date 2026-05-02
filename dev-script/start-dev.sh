@@ -500,7 +500,7 @@ create_basic_config() {
     fi
     
     mkdir -p backend/config
-    cat > "$config_file" << 'EOF'
+    cat > "$config_file" << EOF
 # Basic Configuration
 # 基础配置，可提交到版本控制
 
