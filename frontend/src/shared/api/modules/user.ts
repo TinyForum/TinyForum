@@ -40,7 +40,7 @@ export const userApi = {
     apiClient.get<ApiResponse<UserDO>>(`/users/${id}`),
 
   /** 获取当前用户的角色 (需登录) */
-  getMeRole: () => apiClient.get<ApiResponse<RoleResponse>>("/users/mine/role"),
+  getMeRole: () => apiClient.get<ApiResponse<RoleResponse>>("/users/me/role"),
 
   /** 更新当前用户资料 (需登录) */
   updateProfile: (data: UpdateProfilePayload) =>
