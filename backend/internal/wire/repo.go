@@ -47,11 +47,12 @@ type Repositories struct {
 // NewRepositories 创建所有 Repository 实例
 func NewRepositories(db *gorm.DB, redis *redis.Client) *Repositories {
 	tokenRepo := token.NewTokenRepository(db, redis)
+	postRepo := post.NewPostRepository(db)
 
 	return &Repositories{
 		Token:        tokenRepo,
-		User:         user.NewUserRepository(db, tokenRepo),
-		Post:         post.NewPostRepository(db),
+		Post:         postRepo,
+		User:         user.NewUserRepository(db, tokenRepo, postRepo),
 		Comment:      comment.NewCommentRepository(db),
 		Tag:          tag.NewTagRepository(db),
 		Notification: notification.NewNotificationRepository(db),

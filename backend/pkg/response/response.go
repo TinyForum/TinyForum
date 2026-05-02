@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"time"
+	"tiny-forum/internal/model/vo"
 	apperrors "tiny-forum/pkg/errors"
 	"tiny-forum/pkg/logger"
 
@@ -15,25 +16,6 @@ import (
 )
 
 // ========== 响应结构体 ==========
-
-// Response 统一响应结构
-type Response struct {
-	Code      int    `json:"code"`
-	Message   string `json:"message"`
-	Data      any    `json:"data,omitempty"`
-	Timestamp int64  `json:"timestamp"`
-	RequestID string `json:"request_id,omitempty"`
-	TraceID   string `json:"trace_id,omitempty"`
-}
-
-// PageData 分页数据结构
-type PageData struct {
-	List     any   `json:"list"`
-	Total    int64 `json:"total"`
-	Page     int   `json:"page"`
-	PageSize int   `json:"page_size"`
-	HasMore  bool  `json:"has_more"`
-}
 
 // ValidationError 字段校验错误详情（发送给客户端）
 type ValidationError struct {
@@ -45,16 +27,16 @@ type ValidationError struct {
 // ========== 响应选项 ==========
 
 // Option 响应选项函数，用于在构造响应时附加额外字段
-type Option func(*Response)
+type Option func(*vo.BasicResponse)
 
 // WithTraceID 设置追踪ID
 func WithTraceID(traceID string) Option {
-	return func(r *Response) { r.TraceID = traceID }
+	return func(r *vo.BasicResponse) { r.TraceID = traceID }
 }
 
 // WithMessage 覆盖默认消息
 func WithMessage(msg string) Option {
-	return func(r *Response) { r.Message = msg }
+	return func(r *vo.BasicResponse) { r.Message = msg }
 }
 
 // ========== 成功响应 ==========
@@ -76,7 +58,7 @@ func SuccessWithMessage(c *gin.Context, msg string, data interface{}) {
 // SuccessPage 分页成功响应
 func SuccessPage(c *gin.Context, list interface{}, total int64, page, pageSize int) {
 	hasMore := int64(page*pageSize) < total
-	Success(c, PageData{
+	Success(c, vo.BasicPageData{
 		List:     list,
 		Total:    total,
 		Page:     page,
@@ -328,8 +310,8 @@ func ErrorHandlerMiddleware() gin.HandlerFunc {
 // ========== 内部辅助函数 ==========
 
 // newResp 构造带公共字段的 Response
-func newResp(c *gin.Context, code int, msg string) Response {
-	return Response{
+func newResp(c *gin.Context, code int, msg string) vo.BasicResponse {
+	return vo.BasicResponse{
 		Code:      code,
 		Message:   msg,
 		Timestamp: time.Now().Unix(),
@@ -338,7 +320,7 @@ func newResp(c *gin.Context, code int, msg string) Response {
 	}
 }
 
-func applyOpts(r *Response, opts []Option) {
+func applyOpts(r *vo.BasicResponse, opts []Option) {
 	for _, opt := range opts {
 		opt(r)
 	}

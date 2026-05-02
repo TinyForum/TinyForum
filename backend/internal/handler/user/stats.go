@@ -1,6 +1,7 @@
 package user
 
 import (
+	"tiny-forum/internal/model/vo"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -14,12 +15,24 @@ import (
 // @Router /statistics [get]
 func (h *UserHandler) GetStatisticsCount(c *gin.Context) {
 	userID := c.GetUint("user_id")
-
 	stats, err := h.userSvc.GetGlobalStatsCount(c.Request.Context(), userID)
 	if err != nil {
 		response.HandleError(c, err)
 		return
 	}
-
-	response.Success(c, stats)
+	statsVo := vo.UserStatsInfo{
+		TotalPost:      stats.TotalPost,
+		TotalComment:   stats.TotalComment,
+		TotalFavorite:  stats.TotalFavorite,
+		TotalLike:      stats.TotalLike,
+		TotalFollower:  stats.TotalFollower,
+		TotalFollowing: stats.TotalFollowing,
+		TotalReport:    stats.TotalReport,
+		TotalViolation: stats.TotalViolation,
+		TotalQuestion:  stats.TotalQuestion,
+		TotalAnswer:    stats.TotalAnswer,
+		TotalUpload:    stats.TotalUpload,
+		TotalScore:     stats.TotalScore,
+	}
+	response.Success(c, statsVo)
 }

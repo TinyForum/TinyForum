@@ -5,6 +5,7 @@ import (
 	"time"
 	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/dto"
+	"tiny-forum/internal/repository/post"
 	"tiny-forum/internal/repository/token" // 假设 token 包路径
 
 	"gorm.io/gorm"
@@ -13,6 +14,7 @@ import (
 type userRepository struct {
 	db        *gorm.DB
 	tokenRepo token.TokenRepository
+	postRepo  post.PostRepository
 }
 
 type UserRepository interface {
@@ -65,10 +67,19 @@ type UserRepository interface {
 	CountActiveByDateRange(ctx context.Context, startDate, endDate time.Time) (int64, error)                          // 获取指定日期范围内活跃用户总数
 	GetActiveUsersByDateRange(ctx context.Context, startDate, endDate time.Time, limit int) ([]*ActiveUserRow, error) // 获取指定日期范围内活跃用户
 	IsUserExistsByEmail(email string) (bool, error)                                                                   // 检查用户是否存在
-	GetGlobalStatsCount(ctx context.Context, userID uint) (*dto.GlobalStatsCount, error)                              // 获取全局统计信息
+	// GetGlobalStatsCount(ctx context.Context, userID uint) (*dto.GlobalStatsCount, error)                              // 获取全局统计信息
+	GetGlobalStatsCount(ctx context.Context, userID uint) (*dto.StatsInfo, error) // 获取用户统计信息
 
 }
 
-func NewUserRepository(db *gorm.DB, tokenRepo token.TokenRepository) UserRepository {
-	return &userRepository{db: db, tokenRepo: tokenRepo}
+func NewUserRepository(
+	db *gorm.DB,
+	tokenRepo token.TokenRepository,
+	postRepo post.PostRepository,
+) UserRepository {
+	return &userRepository{
+		db:        db,
+		tokenRepo: tokenRepo,
+		postRepo:  postRepo,
+	}
 }
