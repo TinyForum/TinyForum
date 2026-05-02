@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "react-hot-toast";
 import { answerApi } from "@/shared/api/modules/answer";
-import { ApiResponse } from "@/shared/api/types";
+import { ApiResponse } from "@/shared/api/types/basic.model";
 
 type VoteType = "up" | "down" | "";
 

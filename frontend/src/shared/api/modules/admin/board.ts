@@ -1,5 +1,6 @@
 import apiClient from "../../client";
-import { ApiResponse, PageData, Board } from "../../types";
+import { ApiResponse, PageData } from "../../types/basic.model";
+import { Board } from "../../types/board.model";
 
 export const adminBoardsApi = {
   // ── 板块管理 ──────────────────────────────────────────────────────────────

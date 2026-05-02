@@ -4,7 +4,8 @@
 
 import { UserRoleType } from "@/shared/type/roles.types";
 import apiClient from "../client";
-import { ApiResponse, PageData, User } from "@/shared/api/types";
+import { ApiResponse, PageData } from "../types/basic.model";
+import { UserDO } from "../types/user.model";
 
 export interface UpdateProfilePayload {
   bio?: string;
@@ -34,13 +35,14 @@ export interface LeaderboardItemResponse {
  */
 export const userAPI = {
   // 获取用户信息
-  getProfile: (id: number) => apiClient.get<ApiResponse<User>>(`/users/${id}`),
+  getProfile: (id: number) =>
+    apiClient.get<ApiResponse<UserDO>>(`/users/${id}`),
   // 获取当前用户的角色
   getMeRole: () => apiClient.get<ApiResponse<RoleResponse>>("/users/me/role"),
 
   // 更新用户信息
   updateProfile: (data: UpdateProfilePayload) =>
-    apiClient.put<ApiResponse<User>>("/users/profile", data),
+    apiClient.put<ApiResponse<UserDO>>("/users/profile", data),
 
   // 获取用户关注
   follow: (id: number) =>
@@ -67,11 +69,11 @@ export const userAPI = {
     ),
 
   follwowers: (id: number, params?: { page?: number; page_size?: number }) =>
-    apiClient.get<ApiResponse<PageData<User>>>(`/users/${id}/followers`, {
+    apiClient.get<ApiResponse<PageData<UserDO>>>(`/users/${id}/followers`, {
       params,
     }),
   following: (id: number, params?: { page?: number; page_size?: number }) =>
-    apiClient.get<ApiResponse<PageData<User>>>(`/users/${id}/following`, {
+    apiClient.get<ApiResponse<PageData<UserDO>>>(`/users/${id}/following`, {
       params,
     }),
   // ── Admin ─────────────────────────────────────────────────────────────────────

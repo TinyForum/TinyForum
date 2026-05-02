@@ -1,11 +1,12 @@
 // hooks/admin/useAdminUsers.ts
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import type { User, PageData } from "@/shared/api/types";
 import { toast } from "react-hot-toast";
 import {
   adminUsersApi,
   ResetPasswordResponse,
 } from "@/shared/api/modules/admin/user";
+import { UserDO } from "@/shared/api/types/user.model";
+import { PageData } from "@/shared/api/types/basic.model";
 
 // 查询键
 const adminUsersKeys = {
@@ -26,7 +27,7 @@ export function useAdminUsers(params?: {
       const res = await adminUsersApi.listUsers(params);
       if (res.data.code !== 0)
         throw new Error(res.data.message || "获取用户列表失败");
-      return res.data.data as PageData<User>;
+      return res.data.data as PageData<UserDO>;
     },
   });
 }

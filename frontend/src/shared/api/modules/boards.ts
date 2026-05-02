@@ -5,15 +5,9 @@
 
 import { UserRoleType } from "@/shared/type/roles.types";
 import apiClient from "../client";
-import type {
-  ApiResponse,
-  PageData,
-  Board,
-  Moderator,
-  // ModeratorApplication,
-  // Post,
-  // UserRole,
-} from "../types";
+import { Board } from "../types/board.model";
+import { Moderator } from "../types/moderator.model";
+import { ApiResponse, PageData } from "../types/basic.model";
 
 export interface BoardPostListItem {
   id: number;

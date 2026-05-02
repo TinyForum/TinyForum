@@ -8,9 +8,9 @@ import { useAuthStore } from "@/store/auth";
 import toast from "react-hot-toast";
 import { getErrorMessage } from "@/shared/lib/utils";
 import { Save, AlertCircle, Camera } from "lucide-react";
-import type { User } from "@/shared/api/types";
 import Avatar from "@/features/user/components/Avatar";
-import { userAPI } from "@/shared/api";
+import { userApi } from "@/shared/api/modules/user";
+import { UserDO } from "@/shared/api/types/user.model";
 
 // 注意：User 接口中没有 displayName, location, website 字段
 // 这些可能是扩展字段，或者需要使用其他字段名
@@ -25,7 +25,7 @@ const profileSchema = z.object({
 type ProfileForm = z.infer<typeof profileSchema>;
 
 interface ProfileSettingsProps {
-  user: User;
+  user: UserDO;
 }
 
 export default function ProfileSettings({ user }: ProfileSettingsProps) {
@@ -70,7 +70,7 @@ export default function ProfileSettings({ user }: ProfileSettingsProps) {
   const onSubmit = async (data: ProfileForm): Promise<void> => {
     setLoading(true);
     try {
-      await userAPI.updateProfile(data);
+      await userApi.updateProfile(data);
       // 更新本地用户信息
       updateUser({ ...user, ...data });
       toast.success("资料已更新");

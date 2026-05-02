@@ -1,12 +1,12 @@
 "use client";
 
-import { User } from "@/shared/api/types";
 import Avatar from "./Avatar";
 import { useTranslations } from "next-intl";
 import { formatDate } from "@/shared/lib/utils";
+import { UserDO } from "@/shared/api/types/user.model";
 
 interface UserInfoCardProps {
-  user: User | null;
+  user: UserDO | null;
   isAdmin: boolean;
   isModerator: boolean;
 }

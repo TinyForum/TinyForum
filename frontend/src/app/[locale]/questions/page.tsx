@@ -16,8 +16,9 @@ import {
 } from "@heroicons/react/24/outline";
 import { useAuthStore } from "@/store/auth";
 import { questionApi } from "@/shared/api";
-import { QuestionSimple, ApiResponse } from "@/shared/api/types";
 import { useTranslations } from "next-intl";
+import { QuestionSimple } from "@/shared/api/types";
+import { ApiResponse } from "@/shared/api/types/basic.model";
 
 type FilterType = "all" | "unanswered" | "answered";
 type SortType = "latest" | "hot" | "score";

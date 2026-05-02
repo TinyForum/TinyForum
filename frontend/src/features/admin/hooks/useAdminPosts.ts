@@ -1,8 +1,9 @@
 // hooks/admin/useAdminPosts.ts
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import type { Post, PageData } from "@/shared/api/types";
+import type { Post } from "@/shared/api/types";
 import { toast } from "react-hot-toast";
 import { adminPostsApi } from "@/shared/api/modules/admin/post";
+import { PageData } from "@/shared/api/types/basic.model";
 
 const adminPostsKeys = {
   all: ["admin", "posts"] as const,

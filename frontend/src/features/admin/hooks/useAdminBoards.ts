@@ -1,7 +1,8 @@
 // hooks/admin/useAdminBoards.ts
 import { useQuery } from "@tanstack/react-query";
-import type { Board, PageData } from "@/shared/api/types";
 import { adminBoardsApi } from "@/shared/api/modules/admin/board";
+import { PageData } from "@/shared/api/types/basic.model";
+import { Board } from "@/shared/api/types/board.model";
 
 const adminBoardsKeys = {
   all: ["admin", "boards"] as const,

@@ -1,9 +1,9 @@
 // hooks/user/useUserInfo.ts
 import { useState, useCallback } from "react";
 import { UpdateProfilePayload } from "@/shared/api/modules/user";
-import type { User } from "@/shared/api/types";
 import { toast } from "react-hot-toast";
 import { userApi } from "@/shared/api/modules/user";
+import { UserDO } from "@/shared/api/types/user.model";
 
 export interface ErrorResponse {
   response?: { data?: { message?: string } };
@@ -12,7 +12,7 @@ export interface ErrorResponse {
 
 // ========== 用户资料 ==========
 interface UseProfileReturn {
-  user: User | null;
+  user: UserDO | null;
   loading: boolean;
   error: string | null;
   loadProfile: (id: number) => Promise<void>;
@@ -20,7 +20,7 @@ interface UseProfileReturn {
 }
 
 export function useUserProfile(): UseProfileReturn {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<UserDO | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 

@@ -1,7 +1,6 @@
-import { UserRoleType } from "@/shared/type/roles.types";
 import { Board } from "./board.model";
+import { UserDO } from "./user.model";
 
-export * from "./basic.model";
 /**
  * api/types/index.ts
  * 所有 API 共用的请求 / 响应类型
@@ -35,26 +34,11 @@ export type NotificationType =
 
 // ─── 实体类型 ─────────────────────────────────────────────────────────────────
 
-export interface User {
-  id: number;
-  username: string;
-  email: string;
-  avatar: string;
-  bio: string;
-  role: UserRoleType;
-  score: number;
-  is_active: boolean;
-  is_blocked: boolean;
-  last_login?: string;
-  created_at: string;
-  updated_at: string;
-}
-
 export interface Follow extends BaseModel {
   follower_id: number;
   following_id: number;
-  follower?: User;
-  following?: User;
+  follower?: UserDO;
+  following?: UserDO;
 }
 
 export interface Tag {
@@ -74,7 +58,7 @@ export interface Post {
   type: PostType;
   status: PostStatus;
   author_id: number;
-  author?: User;
+  author?: UserDO;
   view_count: number;
   like_count: number;
   pin_top: boolean;
@@ -92,7 +76,7 @@ export interface Comment {
   content: string;
   post_id: number;
   author_id: number;
-  author?: User;
+  author?: UserDO;
   parent_id?: number;
   parent?: Comment;
   replies?: Comment[];
@@ -134,7 +118,7 @@ export interface Notification {
   id: number;
   user_id: number;
   sender_id?: number;
-  sender?: User;
+  sender?: UserDO;
   type: NotificationType;
   content: string;
   target_id?: number;
@@ -156,7 +140,7 @@ export interface TimelineEvent {
   id: number;
   user_id: number;
   actor_id: number;
-  actor?: User;
+  actor?: UserDO;
   action: string;
   target_id: number;
   target_type: string;
@@ -179,7 +163,7 @@ export interface Topic {
   description: string;
   cover: string;
   creator_id: number;
-  creator?: User;
+  creator?: UserDO;
   is_public: boolean;
   post_count: number;
   follower_count: number;
@@ -202,7 +186,7 @@ export interface TopicFollow {
 }
 
 export interface AuthResult {
-  user: User;
+  user: UserDO;
 }
 
 // lib/api/types/index.ts 中添加
