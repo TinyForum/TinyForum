@@ -1,4 +1,4 @@
-// components/user/NotificationsList.tsx
+// components/user/ViolationsList.tsx
 "use client";
 
 import { Notification } from "@/shared/api";
@@ -8,7 +8,7 @@ interface NotificationsListProps {
   notifications: Notification[];
 }
 
-export function NotificationsList({ notifications }: NotificationsListProps) {
+export function ViolationsList({ notifications }: NotificationsListProps) {
   const t = useTranslations("Common");
   if (notifications.length === 0) {
     return (

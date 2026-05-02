@@ -3,31 +3,30 @@
 import Link from "next/link";
 import { Bell, X } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { notificationApi } from "@/shared/api";
+import { Notification, notificationApi } from "@/shared/api";
 import { useTranslations } from "next-intl";
 import { Fragment, useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { Dialog, Transition, TransitionChild } from "@headlessui/react";
-import { ApiResponse } from "@/shared/api/types/basic.model";
 
-interface Notification {
-  id: number;
-  content: string;
-  is_read: boolean;
-  created_at: string;
-  user_id: number;
-  sender_id?: number;
-  type: string;
-  target_id?: number;
-  target_type: string;
-}
+// interface Notification {
+//   id: number;
+//   content: string;
+//   is_read: boolean;
+//   created_at: string;
+//   user_id: number;
+//   sender_id?: number;
+//   type: string;
+//   target_id?: number;
+//   target_type: string;
+// }
 
-interface NotificationListResponse {
-  list: Notification[];
-  total: number;
-  page: number;
-  page_size: number;
-}
+// interface NotificationListResponse {
+//   list: Notification[];
+//   total: number;
+//   page: number;
+//   page_size: number;
+// }
 
 interface NotificationBellProps {
   unreadCount: number;
@@ -57,11 +56,7 @@ export default function NotificationBell({
   const { data: previewData, refetch } = useQuery({
     queryKey: ["notifications", "preview"],
     queryFn: () =>
-      notificationApi
-        .list({ page: 1, page_size: 5 })
-        .then(
-          (r: { data: ApiResponse<NotificationListResponse> }) => r.data.data,
-        ),
+      notificationApi.list({ page: 1, page_size: 5 }).then((r) => r.data.data),
     enabled: false,
   });
 

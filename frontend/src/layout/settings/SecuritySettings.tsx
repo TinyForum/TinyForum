@@ -1,15 +1,15 @@
 // SecuritySettings.tsx
 "use client";
-import type { User } from "@/shared/api/types";
 import { SecurityOverview } from "@/features/settings/components/SecurityOverview";
 import { SecuritySettingsHeader } from "@/features/settings/components/SecuritySettingsHeader";
 import { TwoFactorAuthCard } from "@/features/settings/components/TwoFactorAuthCard";
 import { ChangePasswordForm } from "@/features/settings/components/ChangePasswordForm";
 import { formatDate } from "@/shared/lib/utils";
+import { UserDO } from "@/shared/api/types/user.model";
 
 // ===================== 主组件 =====================
 interface SecuritySettingsProps {
-  user: User;
+  user: UserDO;
 }
 
 export default function SecuritySettings({ user }: SecuritySettingsProps) {

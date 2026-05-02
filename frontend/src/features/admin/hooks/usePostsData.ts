@@ -1,14 +1,11 @@
-import type { Post, PageData } from "@/shared/api/types";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import toast from "react-hot-toast";
-
-// 如果需要，定义 adminApi 响应结构（根据实际情况调整）
-type AdminApiListResponse = { data: ApiResponse<PageData<Post>> };
-// 假设你已有 ApiResponse 类型，如果未导出请从 @/shared/api/types 导入
-import type { ApiResponse } from "@/shared/api/types";
 import { adminPostsApi } from "@/shared/api/modules/admin/post";
+import { Post } from "@/shared/api";
+import { ApiResponse, PageData } from "@/shared/api/types/basic.model";
 
+type AdminApiListResponse = { data: ApiResponse<PageData<Post>> };
 interface UsePostsDataReturn {
   posts: Post[];
   total: number;
@@ -40,7 +37,15 @@ export function usePostsData(
       })) as AdminApiListResponse;
       // 确保返回有效的 PageData 对象，即使接口异常也不应返回 undefined
       // 如果后端可能返回空，这里提供默认结构
-      return response.data.data ?? { list: [], total: 0, page, page_size: 20 };
+      return (
+        response.data.data ?? {
+          list: [],
+          total: 0,
+          page,
+          page_size: 20,
+          has_more: false,
+        }
+      );
     },
     enabled,
   });

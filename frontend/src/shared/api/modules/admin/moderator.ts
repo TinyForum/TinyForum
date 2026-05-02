@@ -1,5 +1,5 @@
 import apiClient from "../../client";
-import { ApiResponse } from "../../types";
+import { ApiResponse } from "../../types/basic.model";
 import { ModeratorApplication, ReviewApplicationRequest } from "../moderator";
 
 export const adminModeratorApi = {

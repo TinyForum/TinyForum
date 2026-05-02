@@ -5,6 +5,7 @@ import (
 	"time"
 	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/dto"
+	"tiny-forum/internal/model/request"
 	statsRepo "tiny-forum/internal/repository/stats"
 
 	"gorm.io/gorm"
@@ -18,6 +19,7 @@ type PostRepository interface {
 	Update(post *do.Post) error
 	Delete(id uint) error
 	List(page, pageSize int, opts dto.PostListOptions) ([]do.Post, int64, error)
+	ListUserPosts(ctx context.Context, req request.GetUserPostsRequest, userID uint, orderBy string) ([]do.Post, int64, error)
 
 	// 互动
 	IncrViewCount(id uint) error

@@ -1,17 +1,18 @@
 // store/auth.ts
-import { User, authApi } from "@/shared/api";
+import { authApi } from "@/shared/api";
 import { userApi } from "@/shared/api/modules/user";
+import { UserDO } from "@/shared/api/types/user.model";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 interface AuthState {
-  user: User | null;
+  user: UserDO | null;
   isAuthenticated: boolean;
   isHydrated: boolean;
 
-  setAuth: (user: User) => void;
+  setAuth: (user: UserDO) => void;
   logout: () => Promise<void>;
-  updateUser: (user: Partial<User>) => void;
+  updateUser: (user: Partial<UserDO>) => void;
   setHydrated: (state: boolean) => void;
   refreshUser: () => Promise<void>;
 }

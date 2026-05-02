@@ -5,6 +5,6 @@ import (
 	"tiny-forum/internal/model/dto"
 )
 
-func (s *userService) GetGlobalStatsCount(ctx context.Context, userID uint) (*dto.GlobalStatsCount, error) {
+func (s *userService) GetGlobalStatsCount(ctx context.Context, userID uint) (*dto.StatsInfo, error) {
 	return s.repo.GetGlobalStatsCount(ctx, userID)
 }

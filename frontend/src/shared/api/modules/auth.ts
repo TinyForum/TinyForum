@@ -2,8 +2,10 @@
  * api/modules/auth.ts
  */
 
-import { ApiResponse, AuthResult, User } from "@/shared/api/types";
 import apiClient from "../client";
+import { AuthResult } from "../types";
+import { ApiResponse } from "../types/basic.model";
+import { UserDO } from "../types/user.model";
 
 export interface RegisterPayload {
   username: string;
@@ -26,7 +28,7 @@ export const authApi = {
 
   // 获取当前用户：Cookie 会自动携带
   me: () =>
-    apiClient.get<ApiResponse<User>>("/auth/me", {
+    apiClient.get<ApiResponse<UserDO>>("/auth/me", {
       withCredentials: true,
     }),
 

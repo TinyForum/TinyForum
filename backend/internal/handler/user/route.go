@@ -43,6 +43,18 @@ func (h *UserHandler) RegisterRoutes(api *gin.RouterGroup, mw middleware.Middlew
 	{
 		me.GET("/role", h.GetCurrentUserRole) // GET /api/v1/users/me/role 获取当前用户角色
 		me.PUT("/profile", h.UpdateProfile)   // PUT /api/v1/users/me/profile 更新用户信息
+		stats := me.Group("/stats")
+		{
+
+			stats.GET("", h.GetStatisticsCount) // GET /api/v1/users/me/stats/acunt 用户统计信息
+
+		}
+
+		posts := me.Group("/posts")
+		{
+			posts.GET("", h.GetUserPosts) // GET /api/v1/users/me/stats/posts 用户帖子列表
+		}
+
 		// me.PATCH("/password", h.ChangePassword) // PATCH /api/v1/users/me/password 修改密码
 	}
 }

@@ -4,6 +4,7 @@ import (
 	"strconv"
 
 	"tiny-forum/internal/model/do"
+	"tiny-forum/internal/model/vo"
 	boardService "tiny-forum/internal/service/board"
 	"tiny-forum/pkg/response"
 
@@ -100,7 +101,7 @@ func (h *BoardHandler) GetUserApplications(c *gin.Context) {
 		return
 	}
 
-	response.Success(c, response.PageData{
+	response.Success(c, vo.BasicPageData{
 		List:     applications,
 		Total:    total,
 		Page:     page,

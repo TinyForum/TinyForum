@@ -19,8 +19,8 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
-import type { User as UserType } from "@/shared/api/types";
 import Avatar from "@/features/user/components/Avatar";
+import { UserDO } from "@/shared/api/types/user.model";
 
 interface NavItem {
   key: string;
@@ -33,7 +33,7 @@ interface MobileMenuProps {
   onClose: () => void;
   navItems: NavItem[];
   isAuthenticated: boolean;
-  user: UserType | null;
+  user: UserDO | null;
   onLogout: () => void;
   unreadCount: number;
 }

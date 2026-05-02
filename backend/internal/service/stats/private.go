@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"sync"
 	"time"
-	"tiny-forum/internal/model/do"
+	"tiny-forum/internal/model/dto"
 
 	"golang.org/x/sync/errgroup"
 )
@@ -81,13 +81,13 @@ func generateDateRange(start, end time.Time, interval string) []time.Time {
 }
 
 // getBaseInfo 并行获取各维度总量
-func (s *statsService) getBaseInfo(ctx context.Context) (*do.StatsInfo, error) {
+func (s *statsService) getBaseInfo(ctx context.Context) (*dto.StatsInfo, error) {
 	var wg sync.WaitGroup
-	var info do.StatsInfo
+	var info dto.StatsInfo
 	var err1, err2, err3, err4, err5 error
 	wg.Add(5)
 	go func() { defer wg.Done(); info.TotalUser, err1 = s.userRepo.Count(ctx) }()
-	go func() { defer wg.Done(); info.TotalArticle, err2 = s.postRepo.Count(ctx) }()
+	go func() { defer wg.Done(); info.TotalPost, err2 = s.postRepo.Count(ctx) }()
 	go func() { defer wg.Done(); info.TotalComment, err3 = s.commentRepo.Count(ctx) }()
 	go func() { defer wg.Done(); info.TotalBoard, err4 = s.boardRepo.Count(ctx) }()
 	go func() { defer wg.Done(); info.TotalTag, err5 = s.tagRepo.Count(ctx) }()
@@ -111,8 +111,8 @@ func (s *statsService) getBaseInfo(ctx context.Context) (*do.StatsInfo, error) {
 }
 
 // getRangeStats 并行获取时间段内各维度增量，单项失败不中断整体
-func (s *statsService) getRangeStats(ctx context.Context, startDate, endDate time.Time) (*do.StatsTodayInfo, error) {
-	var info do.StatsTodayInfo
+func (s *statsService) getRangeStats(ctx context.Context, startDate, endDate time.Time) (*dto.StatsTodayInfo, error) {
+	var info dto.StatsTodayInfo
 	g, ctx := errgroup.WithContext(ctx)
 
 	// 新增用户
@@ -182,41 +182,41 @@ func (s *statsService) getRangeStats(ctx context.Context, startDate, endDate tim
 }
 
 // getIllegalInfo 获取违规统计（基于 reports 表）
-func (s *statsService) getIllegalInfo(_ context.Context, _, _ time.Time) (*do.StatsIllegalInfo, error) {
+func (s *statsService) getIllegalInfo(_ context.Context, _, _ time.Time) (*dto.StatsIllegalInfo, error) {
 	// TODO: 注入 ReportRepository 后按 target_type 分组统计
-	return &do.StatsIllegalInfo{}, nil
+	return &dto.StatsIllegalInfo{}, nil
 }
 
 // getActiveUserInfo 获取活跃用户列表及发帖/评论数
-func (s *statsService) getActiveUserInfo(ctx context.Context, startDate, endDate time.Time, limit int) (*do.StatsActiveUserInfo, error) {
+func (s *statsService) getActiveUserInfo(ctx context.Context, startDate, endDate time.Time, limit int) (*dto.StatsActiveUserInfo, error) {
 	users, err := s.userRepo.GetActiveUsersByDateRange(ctx, startDate, endDate, limit)
 	if err != nil {
 		return nil, err
 	}
-	list := make([]*do.ActiveUserDetail, 0, len(users))
+	list := make([]*dto.ActiveUserDetail, 0, len(users))
 	for _, u := range users {
-		list = append(list, &do.ActiveUserDetail{
+		list = append(list, &dto.ActiveUserDetail{
 			UserID:       int64(u.ID),
 			Username:     u.Username,
 			Avatar:       u.Avatar,
 			LastActiveAt: time.Now(),
 		})
 	}
-	return &do.StatsActiveUserInfo{
+	return &dto.StatsActiveUserInfo{
 		Total: int64(len(list)),
 		List:  list,
 	}, nil
 }
 
 // getHotArticles 获取热门文章列表
-func (s *statsService) getHotArticles(ctx context.Context, startDate, endDate time.Time, limit int) ([]*do.HotArticleItem, error) {
+func (s *statsService) getHotArticles(ctx context.Context, startDate, endDate time.Time, limit int) ([]*dto.HotArticleItem, error) {
 	rows, err := s.postRepo.GetHotArticlesByDateRange(ctx, startDate, endDate, limit)
 	if err != nil {
 		return nil, err
 	}
-	list := make([]*do.HotArticleItem, 0, len(rows))
+	list := make([]*dto.HotArticleItem, 0, len(rows))
 	for _, a := range rows {
-		list = append(list, &do.HotArticleItem{
+		list = append(list, &dto.HotArticleItem{
 			ID:           a.ID,
 			Title:        a.Title,
 			BoardID:      a.BoardID,
@@ -233,14 +233,14 @@ func (s *statsService) getHotArticles(ctx context.Context, startDate, endDate ti
 }
 
 // getHotBoards 获取热门板块列表
-func (s *statsService) getHotBoards(ctx context.Context, startDate, endDate time.Time, limit int) ([]*do.HotBoardItem, error) {
+func (s *statsService) getHotBoards(ctx context.Context, startDate, endDate time.Time, limit int) ([]*dto.HotBoardItem, error) {
 	rows, err := s.boardRepo.GetHotBoardsByDateRange(ctx, startDate, endDate, limit)
 	if err != nil {
 		return nil, err
 	}
-	list := make([]*do.HotBoardItem, 0, len(rows))
+	list := make([]*dto.HotBoardItem, 0, len(rows))
 	for _, b := range rows {
-		list = append(list, &do.HotBoardItem{
+		list = append(list, &dto.HotBoardItem{
 			ID:           b.ID,
 			Name:         b.Name,
 			Icon:         b.Icon,

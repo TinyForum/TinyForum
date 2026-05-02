@@ -2,18 +2,18 @@
 
 import { Ban, CheckCircle, XCircle } from "lucide-react";
 import { formatDate } from "@/shared/lib/utils";
-import { User } from "@/shared/api";
 import { UserActionMenu } from "./UserActionMenu";
 import { useTranslations } from "next-intl";
 import Avatar from "@/features/user/components/Avatar";
 import { RoleBadge } from "@/layout/common/RoleBadge";
 import { UserRoleType } from "@/shared/type/roles.types";
+import { UserDO } from "@/shared/api/types/user.model";
 
 // 翻译函数的类型定义
 
 // 用户表格组件 Props 类型
 interface UsersTableProps {
-  users: User[];
+  users: UserDO[];
   currentUserId?: number;
   onToggleActive: (id: number, active: boolean) => void;
   onToggleBlock: (id: number, blocked: boolean) => void;
@@ -50,7 +50,7 @@ export function UsersTable({
   }
 
   // 获取用户状态显示
-  const getUserStatusBadges = (user: User): React.ReactNode[] => {
+  const getUserStatusBadges = (user: UserDO): React.ReactNode[] => {
     const badges: React.ReactNode[] = [];
 
     // IsBlocked 优先级最高，如果被封禁，只显示封禁状态
@@ -96,7 +96,7 @@ export function UsersTable({
           </tr>
         </thead>
         <tbody>
-          {users.map((user: User) => {
+          {users.map((user: UserDO) => {
             const isBlocked = user.is_blocked;
 
             return (

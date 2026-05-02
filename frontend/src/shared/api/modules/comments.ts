@@ -4,13 +4,8 @@
  */
 
 import apiClient from "../client";
-import type {
-  ApiResponse,
-  PageData,
-  Comment,
-  // AnswerVoteResult,
-  VoteType,
-} from "../types";
+import type { Comment, VoteType } from "../types";
+import { ApiResponse, PageData } from "../types/basic.model";
 
 export interface CreateCommentPayload {
   post_id: number;

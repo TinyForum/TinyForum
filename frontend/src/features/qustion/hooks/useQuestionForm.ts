@@ -9,7 +9,7 @@ import {
   CreateQuestionPayload,
   CreateQuestionResponse,
 } from "@/shared/api/modules/questions";
-import { ApiResponse } from "@/shared/api/types";
+import { ApiResponse } from "@/shared/api/types/basic.model";
 
 export interface AskFormData {
   title: string;

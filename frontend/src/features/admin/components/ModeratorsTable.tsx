@@ -1,6 +1,4 @@
 import { useState, useEffect, useCallback } from "react";
-
-import { User } from "@/shared/api";
 import { Shield, ShieldAlert, ShieldCheck, Trash2, Edit } from "lucide-react";
 import toast from "react-hot-toast";
 import { useTranslations } from "next-intl";
@@ -9,6 +7,7 @@ import {
   useRemoveModerator,
   useUpdateModeratorPermissions,
 } from "../hooks/useAdminModerator";
+import { Moderator } from "@/shared/api/modules/moderator";
 
 // 类型定义
 interface ModeratorPermission {
@@ -17,14 +16,6 @@ interface ModeratorPermission {
   can_edit_any_post: boolean;
   can_manage_moderator: boolean;
   can_ban_user: boolean;
-}
-
-interface Moderator {
-  id: number;
-  user_id: number;
-  board_id: number;
-  user?: User;
-  permissions: ModeratorPermission;
 }
 
 interface ModeratorsTableProps {
@@ -74,14 +65,16 @@ export function ModeratorsTable({ boardId }: ModeratorsTableProps) {
     can_ban_user: false,
   });
 
-  const { data: moderatorsData, refetch } = useAdminModeratorList(boardId);
+  const { data: moderatorsData, refetch } = useAdminModeratorList(
+    (boardId = 1),
+  );
   const removeModerator = useRemoveModerator(boardId);
   const updatePermissions = useUpdateModeratorPermissions(boardId);
 
   // 加载版主列表 - 使用 useCallback 稳定化函数
   const loadAllModerators = useCallback(() => {
     if (moderatorsData) {
-      setModerators(moderatorsData as Moderator[]);
+      setModerators(moderatorsData);
     }
   }, [moderatorsData]);
 
@@ -161,6 +154,7 @@ export function ModeratorsTable({ boardId }: ModeratorsTableProps) {
   };
 
   if (!moderators.length) {
+    console.log("moderators: ", moderators);
     return (
       <div className="text-center py-8 text-base-content/50">
         {t("no_moderators")}

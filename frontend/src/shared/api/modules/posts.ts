@@ -4,14 +4,8 @@
  */
 
 import apiClient from "../client";
-import type {
-  ApiResponse,
-  PageData,
-  Post,
-  // Comment,
-  // Question,
-  PostType,
-} from "../types";
+import type { Post, PostType } from "../types";
+import { ApiResponse, PageData } from "../types/basic.model";
 
 // ─── 普通帖子 ─────────────────────────────────────────────────────────────────
 

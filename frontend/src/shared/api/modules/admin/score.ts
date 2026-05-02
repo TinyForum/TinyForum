@@ -1,5 +1,5 @@
 import apiClient from "../../client";
-import { ApiResponse } from "../../types";
+import { ApiResponse } from "../../types/basic.model";
 
 // 设置积分响应数据
 interface SetScoreResponse {

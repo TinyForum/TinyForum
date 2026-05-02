@@ -5,7 +5,7 @@ import { GuestCard } from "./right/GuestCard";
 import { Leaderboard } from "./right/Leaderboard";
 import { TimelineEvents } from "./right/TimelineEvents";
 import { UserProfileCard } from "./right/UserProfileCard";
-import type { User } from "@/shared/api/types";
+import { UserDO } from "@/shared/api/types/user.model";
 
 interface TimelineEvent {
   id: number;
@@ -22,7 +22,7 @@ interface TimelineEvent {
 
 interface RightSidebarProps {
   isAuthenticated: boolean;
-  userProfile: User | null;
+  userProfile: UserDO | null;
   leaderboard: LeaderboardItemResponse[];
   unreadCount: number;
   timelineEvents: TimelineEvent[];
