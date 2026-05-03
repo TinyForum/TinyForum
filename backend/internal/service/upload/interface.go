@@ -5,7 +5,7 @@ import (
 	"mime/multipart"
 	"os"
 	"strings"
-	"tiny-forum/config"
+	"tiny-forum/internal/infra/config"
 	"tiny-forum/internal/model/dto"
 	uploadRepo "tiny-forum/internal/repository/upload"
 )

@@ -4,7 +4,7 @@ package auth
 import (
 	"context"
 	"time"
-	"tiny-forum/config"
+	"tiny-forum/internal/infra/config"
 	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/dto"
 	"tiny-forum/internal/repository/auth"

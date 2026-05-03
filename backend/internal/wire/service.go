@@ -1,7 +1,7 @@
 package wire
 
 import (
-	"tiny-forum/config"
+	"tiny-forum/internal/infra/config"
 	"tiny-forum/internal/service/admin"
 	"tiny-forum/internal/service/announcement"
 	"tiny-forum/internal/service/auth"

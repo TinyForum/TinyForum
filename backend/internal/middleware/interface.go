@@ -12,7 +12,7 @@
 package middleware
 
 import (
-	"tiny-forum/config"
+	"tiny-forum/internal/infra/config"
 	"tiny-forum/internal/infra/ratelimit"
 	"tiny-forum/internal/repository/board"
 	"tiny-forum/internal/repository/token"
