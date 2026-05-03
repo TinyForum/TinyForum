@@ -640,7 +640,7 @@ setup_postgres() {
     fi
 
     # 确保 tinyforum 是 tiny_forum 数据库中所有表的所有者
-      echo "[4/5] Ensure Postfres Ownership..."
+      echo "[4/5] Ensure Postgres Ownership..."
    
     # 确保 tinyforum 是 tiny_forum 数据库中所有表的所有者
     echo "[6/6] Ensuring PostgreSQL ownership..."

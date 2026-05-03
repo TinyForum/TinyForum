@@ -38,15 +38,14 @@ check-pnpm:
 		echo "${GREEN}✅ pnpm 已安装: $$(pnpm --version)${NC}"; \
 	fi
 
-check-concurrently:
-	@echo "${BLUE}🔍 检查 concurrently...${NC}"
-	@if ! command -v concurrently >/dev/null 2>&1; then \
-		echo "${YELLOW}⚠️  concurrently 未安装，正在安装...${NC}"; \
-		pnpm install -g concurrently; \
-		echo "${GREEN}✅ concurrently 安装完成${NC}"; \
-	else \
-		echo "${GREEN}✅ concurrently 已安装${NC}"; \
-	fi
+# 在项目根目录执行 pnpm add -D concurrently 一次
+# check-concurrently:
+# 	@if npx concurrently --version >/dev/null 2>&1; then \
+# 		echo "${GREEN}✅ concurrently 可用${NC}"; \
+# 	else \
+# 		echo "${YELLOW}⚠️  concurrently 未安装，正在安装到项目...${NC}"; \
+# 		pnpm add -D concurrently; \
+# 	fi
 
 check-docsify:
 	@echo "${BLUE}🔍 检查 docsify...${NC}"
@@ -148,9 +147,9 @@ docs: check-docsify
 	@echo "⚠️  按 Ctrl+C 停止服务"
 	@cd docs && docsify serve
 
-dev: check-deps check-concurrently
+dev: check-deps
 	@echo "${GREEN}🚀 同时启动前后端服务（前台运行）...${NC}"
-	@concurrently --names "前端,后端" --prefix-colors "cyan,yellow" "make frontend" "make backend"
+	@./frontend/node_modules/.bin/concurrently --names "BACKEND,FRONTEND" --prefix-colors "cyan,yellow" "make frontend" "make backend"
 
 # ========== 后台运行 ==========
 
