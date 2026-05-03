@@ -3,9 +3,11 @@
 # ============================================
 
 # ----- 项目配置 -----
-PROJECT_ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/../" && pwd)
+PROJECT_ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/../../" && pwd)
 PROJECT_NAME="tinyforum"
 PROJECT_VERSION="0.0.1"
+PROJECT_BACKEND="${PROJECT_ROOT}/backend"
+PROJECT_BACKEND="${PROJECT_ROOT}/frontend"
 
 # ----- 系统信息 -----
 OS=$(uname -s)
