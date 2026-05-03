@@ -31,9 +31,48 @@ check_ollama() {
         echo -e "${GREEN}✅ Ollama found: $(ollama --version)${NC}"
         return 0
     else
-        echo -e "${RED}❌ Ollama is not installed. Visit https://ollama.com${NC}"
-        exit 1
+        echo -e "${YELLOW}⚠️ Ollama is not installed. Visit https://ollama.com${NC}"
+        return 1
     fi
+}
+
+check_llamacpp() {
+    echo "Checking llama.cpp..."
+    if command -v llama-cli >/dev/null 2>&1 || command -v llamacpp >/dev/null 2>&1; then
+        # 获取版本信息（可选）
+        echo -e "${GREEN}✅ llama.cpp found${NC}"
+        return 0
+    else
+        echo -e "${YELLOW}⚠️ llama.cpp is not installed. Visit https://github.com/ggml-org/llama.cpp${NC}"
+        return 1
+    fi
+}
+
+check_llm_runtime() {
+    echo "Checking LLM runtime (Ollama or llama.cpp)..."
+    local ollama_ok=0
+    local llamacpp_ok=0
+    
+    if command -v ollama >/dev/null 2>&1; then
+        echo -e "${GREEN}  ✅ Ollama found: $(ollama --version 2>/dev/null || echo 'installed')${NC}"
+        ollama_ok=1
+    fi
+    
+    if command -v llama-cli >/dev/null 2>&1 || command -v llamacpp >/dev/null 2>&1; then
+        echo -e "${GREEN}  ✅ llama.cpp found${NC}"
+        llamacpp_ok=1
+    fi
+    
+    if [ $ollama_ok -eq 0 ] && [ $llamacpp_ok -eq 0 ]; then
+        echo -e "${RED}❌ Neither Ollama nor llama.cpp is installed.${NC}"
+        echo "   Please install at least one:"
+        echo "   - Ollama: https://ollama.com"
+        echo "   - llama.cpp: https://github.com/ggml-org/llama.cpp"
+        return 1
+    fi
+    
+    echo -e "${GREEN}✅ LLM runtime available${NC}"
+    return 0
 }
 
 check_package_manager() {
@@ -129,11 +168,20 @@ check_redis_client() {
 
 
 check_all_dependencies() {
+    local ERRORS=0
     echo ""
     echo "Checking dependencies..."
-    check_go
-    check_nodejs
-    check_ollama
-    check_package_manager
-    check_postgres_client
+    
+    check_go || ((ERRORS++))
+    check_nodejs || ((ERRORS++))
+    check_llm_runtime || ((ERRORS++))       
+    check_package_manager || ((ERRORS++))
+    check_postgres_client || ((ERRORS++))
+    check_redis_client || ((ERRORS++))
+    
+    if [ $ERRORS -gt 0 ]; then
+        echo -e "${RED}Missing $ERRORS dependencies. Please install them and try again.${NC}"
+        exit 1
+    fi
+    echo -e "${GREEN}All dependencies satisfied.${NC}"
 }

@@ -1,0 +1,141 @@
+{
+  // ---- Go 语言通用设置 ----
+  "[go]": {
+    "editor.insertSpaces": false,
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": "always"
+    },
+    "editor.defaultFormatter": "golang.go"
+  },
+  "[go.mod]": {
+    "editor.insertSpaces": false,
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "golang.go"
+  },
+
+  // ---- Go 扩展核心配置 ----
+  "go.useLanguageServer": true,
+  "go.languageServerFlags": [],
+  "go.alternateTools": {},
+  "go.toolsManagement.autoUpdate": true,
+
+  // 代码检查与格式化
+  "go.lintTool": "golangci-lint",
+  "go.lintFlags": ["--fast"],
+  "go.lintOnSave": "package",
+  "go.vetOnSave": "package",
+  "go.formatTool": "goimports",
+  "go.formatFlags": [],
+
+  // 测试与覆盖
+  "go.testFlags": ["-v", "-count=1"],
+  "go.testTimeout": "30s",
+  "go.coverOnSave": false,
+  "go.coverageDecorator": {
+    "type": "gutter",
+    "coveredHighlightColor": "rgba(64,128,128,0.5)",
+    "uncoveredHighlightColor": "rgba(128,64,64,0.25)",
+    "coveredGutterStyle": "blockgreen",
+    "uncoveredGutterStyle": "blockred"
+  },
+
+  // 构建标签与环境
+  "go.buildTags": "",
+  "go.buildFlags": [],
+  "go.generateTestsFlags": ["-template"],
+  "go.inferGopath": false,
+
+  // 模块与代理
+  "go.module.auto": "on",
+  "go.module.installDependencies": true,
+  "go.gopath": "",
+  "go.goroot": "",
+  "go.toolsEnvVars": {
+    "GO111MODULE": "on",
+    "GOPROXY": "https://goproxy.cn,https://proxy.golang.org,direct"
+  },
+
+  // ---- delve 调试器配置 ----
+  "go.delveConfig": {
+    "dlvLoadConfig": {
+      "followPointers": true,
+      "maxVariableRecurse": 1,
+      "maxStringLen": 64,
+      "maxArrayValues": 64,
+      "maxStructFields": -1
+    },
+    "apiVersion": 2,
+    "showGlobalVariables": false
+  },
+
+  // ---- gopls (语言服务器) 高级配置 ----
+  "gopls": {
+    // 分析器设置：禁用某些不必要/噪音大的检查
+    "ui.diagnostic.analyses": {
+      "composites": false, // 禁用结构体字面量未使用字段名警告
+      "unusedparams": true,
+      "shadow": true,
+      "nilness": true,
+      "unusedwrite": true
+    },
+    // 代码补全行为
+    "ui.completion.usePlaceholders": true,
+    // 是否显示文档漂浮
+    "ui.documentation.hoverKind": "FullDocumentation",
+    // 语义高亮
+    "ui.semanticTokens": true,
+    // 性能优化：排除不相关的目录（前后端分离项目必备）
+    "build.directoryFilters": [
+      "-node_modules",
+      "-frontend", // 排除前端目录，避免扫描大量非 Go 文件
+      "-**/node_modules",
+      "-**/vendor",
+      "-**/dist",
+      "-**/.git"
+    ],
+    // 环境选项
+    "env": {
+      "GO111MODULE": "on"
+    },
+    // 静态检查（可选，启用可提升正确性）
+    "analyses": {
+      "fillstruct": true,
+      "unusedparams": true
+    },
+    // 链接器静态检查
+    "staticcheck": false,
+    // 代码生成提示
+    "codelenses": {
+      "gc_details": false,
+      "generate": true,
+      "regenerate_cgo": false,
+      "test": true,
+      "tidy": true,
+      "upgrade_dependency": true,
+      "vendor": true
+    },
+    "symbolMatcher": "FastFuzzy",
+    "symbolStyle": "Dynamic",
+    "verboseOutput": false
+  },
+
+  // ---- 文件关联与编辑器行为 ----
+  "files.associations": {
+    "*.tmpl": "go",
+    "*.gohtml": "go"
+  },
+  "files.exclude": {
+    "**/node_modules": true,
+    "**/vendor": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/vendor": true,
+    "**/dist": true,
+    "**/frontend": true
+  },
+
+  // ---- 工作区信任 ----
+  "security.workspace.trust.enabled": false
+}

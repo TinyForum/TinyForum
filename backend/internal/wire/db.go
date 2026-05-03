@@ -2,6 +2,9 @@ package wire
 
 import (
 	"fmt"
+	"log"
+	"os"
+	"strings"
 	"time"
 
 	"tiny-forum/config"
@@ -18,21 +21,41 @@ import (
 )
 
 func InitDB(cfg *config.Config) (*gorm.DB, error) {
-	dsn := buildDSN(&cfg.Private.Database)
-	fmt.Printf("DSN config: %v\n", dsn)
-	fmt.Printf("DBname: %v\n", cfg.Private.Database.DBName)
-	logLevel := gormlogger.Silent
-	if cfg.Basic.Server.Mode == "debug" {
-		logLevel = gormlogger.Info
+	dsn := buildDSN(&cfg.Postgres)
+	if cfg.Postgres.Logger == nil {
+		logger.Info("Postgres logger is not configured, using default settings")
+		cfg.Postgres.Logger = &config.PostLogger{
+			SlowThreshold:             "200ms",
+			LogLevel:                  "slient",
+			IgnoreRecordNotFoundError: true,
+			Colorful:                  true,
+		}
 	}
 
+	// 解析慢查询阈值
+	slowThreshold, err := time.ParseDuration(cfg.Postgres.Logger.SlowThreshold)
+	if err != nil {
+		slowThreshold = 200 * time.Millisecond // 解析失败时的后备默认值
+	}
+
+	// 创建 GORM 日志配置
+	gormLogConfig := gormlogger.Config{
+		SlowThreshold:             slowThreshold,
+		LogLevel:                  parseLogLevel(cfg.Postgres.Logger.LogLevel),
+		IgnoreRecordNotFoundError: cfg.Postgres.Logger.IgnoreRecordNotFoundError,
+		Colorful:                  cfg.Postgres.Logger.Colorful,
+	}
+	newLogger := gormlogger.New(
+		log.New(os.Stdout, "\r\n", log.LstdFlags),
+		gormLogConfig,
+	)
+
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
-		Logger: gormlogger.Default.LogMode(logLevel),
+		Logger: newLogger,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to database: %w", err)
 	}
-
 	// Auto migrate all models
 	if err := db.AutoMigrate(
 		// 用户
@@ -92,4 +115,19 @@ func InitDB(cfg *config.Config) (*gorm.DB, error) {
 
 	logger.Info("Database connected and migrated successfully")
 	return db, nil
+}
+
+func parseLogLevel(level string) gormlogger.LogLevel {
+	switch strings.ToLower(level) {
+	case "silent":
+		return gormlogger.Silent
+	case "error":
+		return gormlogger.Error
+	case "warn":
+		return gormlogger.Warn
+	case "info":
+		return gormlogger.Info
+	default:
+		return gormlogger.Info // 默认 info
+	}
 }

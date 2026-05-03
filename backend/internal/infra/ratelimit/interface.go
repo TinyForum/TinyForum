@@ -16,7 +16,7 @@ type RateLimiter interface {
 
 // NewLimiter 创建限流器，接收配置构建配额表
 func NewLimiter(rdb *redis.Client, cfg config.RateLimitConfig) (*Limiter, error) {
-	quotas, err := buildQuotaTable(cfg.RiskLevels)
+	quotas, err := buildQuotaTable(cfg.RiskControlLevels)
 	if err != nil {
 		return nil, fmt.Errorf("build quota table: %w", err)
 	}
