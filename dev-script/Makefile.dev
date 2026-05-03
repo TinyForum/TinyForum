@@ -9,7 +9,14 @@
 .PHONY: status logs logs-backend logs-frontend logs-docs
 .PHONY: clean-logs clean-pids help check-deps check-go check-node check-pnpm
 
+LOG_DIR = .logs
+PID_DIR = .pids
 
+$(LOG_DIR):
+	mkdir -p $@
+
+$(PID_DIR):
+	mkdir -p $@
 
 
 
