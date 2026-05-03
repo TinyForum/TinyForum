@@ -170,8 +170,6 @@ user_exists() {
 
 # ============================================================
 # create_pg_user <admin_user> <db_name> <new_user> <password>
-# Bug fix: 拆分为独立的 psql 调用，失败时明确提示哪步出错
-# Bug fix: 先检查用户是否已存在，避免 CREATE USER 报 already exists
 # ============================================================
 create_pg_user() {
     local admin_user="$1" db_name="$2" new_user="$3" password="$4"
@@ -320,11 +318,57 @@ _create_or_reuse_user() {
         read -rp "   Enter choice [1-3]: " choice
         case "$choice" in
             1)
-                echo -e "   Setting up default user '${default_user}'..." >&2
-                create_pg_user "$admin_user" "$db_name" "$default_user" "$default_password" || return 1
-                echo "${default_user}:${default_password}"
-                return 0
+    echo -e "   Setting up default user '${default_user}'..." >&2
+    # 检查用户是否已存在
+    if user_exists "$admin_user" "$default_user"; then
+        echo -e "${YELLOW}   User '${default_user}' already exists.${NC}" >&2
+        echo "   How would you like to proceed?" >&2
+        echo "   1) Keep existing user (no password change)" >&2
+        echo "   2) Update password to '${default_password}'" >&2
+        echo "   3) Delete and recreate user (⚠️  removes all owned objects)" >&2
+        echo "   4) Cancel" >&2
+        read -rp "   Enter choice [1-4]: " action
+        case "$action" in
+            1)
+                # 保持现状，不需要任何操作
+                echo -e "${GREEN}   Keeping existing user '${default_user}'.${NC}" >&2
                 ;;
+            2)
+                # 更新密码
+                set_user_password "$admin_user" "$default_user" "$default_password" || return 1
+                echo -e "${GREEN}   Password updated for '${default_user}'.${NC}" >&2
+                ;;
+            3)
+                # 删除并重建
+                echo -e "${YELLOW}   ⚠️  Deleting user '${default_user}' and all owned objects...${NC}" >&2
+                _psql_as "$admin_user" "postgres" -c "DROP OWNED BY \"${default_user}\" CASCADE;" >&2 2>&1 || {
+                    echo -e "${RED}   Failed to drop owned objects.${NC}" >&2
+                    return 1
+                }
+                _psql_as "$admin_user" "postgres" -c "DROP USER IF EXISTS \"${default_user}\";" >&2 2>&1 || {
+                    echo -e "${RED}   Failed to drop user.${NC}" >&2
+                    return 1
+                }
+                echo -e "   Recreating user '${default_user}'..." >&2
+                create_pg_user "$admin_user" "$db_name" "$default_user" "$default_password" || return 1
+                echo -e "${GREEN}   User recreated.${NC}" >&2
+                ;;
+            4)
+                echo -e "${YELLOW}   Setup cancelled.${NC}" >&2
+                return 2
+                ;;
+            *)
+                echo -e "${RED}   Invalid choice. Exiting.${NC}" >&2
+                return 1
+                ;;
+        esac
+    else
+        # 用户不存在，正常创建
+        create_pg_user "$admin_user" "$db_name" "$default_user" "$default_password" || return 1
+    fi
+    echo "${default_user}:${default_password}"
+    return 0
+    ;;
             2)
                 local custom_user custom_pass
                 while true; do
