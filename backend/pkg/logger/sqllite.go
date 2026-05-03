@@ -8,8 +8,7 @@ import (
 	"sync"
 	"time"
 	"tiny-forum/config"
-
-	_ "modernc.org/sqlite"
+	// _ "modernc.org/sqlite"
 )
 
 // DBEntry 单条日志记录（与数据库字段一一对应）
