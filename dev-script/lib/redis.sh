@@ -1,189 +1,226 @@
 #!/bin/bash
-
-# 连接测试
-# REDISCLI_AUTH='tf@password' redis-cli --user tinyforum PING
-
 # ============================================
 # Module 4: Redis Management
 # ============================================
+# Bug fix: 将所有 exit 1 改为 return 1
+#          （在 source 的脚本里 exit 会终止整个 shell）
+# Bug fix: connect_redis 无认证时不传 --user/--pass（redis 默认行为）
+# Bug fix: redis_user_exists 检查输出内容而非 grep 退出码
 
-# 颜色（若未定义则补全）
-if [ -z "${RED}" ]; then
-    RED='\033[0;31m'
-    GREEN='\033[0;32m'
-    YELLOW='\033[0;33m'
-    NC='\033[0m'
-fi
+: "${RED:=\033[0;31m}"
+: "${GREEN:=\033[0;32m}"
+: "${YELLOW:=\033[1;33m}"
+: "${BOLD:=\033[1m}"
+: "${NC:=\033[0m}"
 
-# 检查 Redis 是否运行（无认证）
+# ============================================================
+# check_redis_running: 无需认证的 PING 测试
+# ============================================================
 check_redis_running() {
-    if command -v redis-cli >/dev/null 2>&1 && redis-cli ping >/dev/null 2>&1; then
-        return 0
-    fi
-    return 1
+    command -v redis-cli >/dev/null 2>&1 || return 1
+    redis-cli ping >/dev/null 2>&1
 }
 
-# 使用特定用户认证后 ping
+# ============================================================
+# connect_redis <user> <password>
+# 空字符串 user/pass 表示无认证（default 用户 + 无密码）
+# ============================================================
 connect_redis() {
-    local username=$1
-    local password=$2
-    if [ -n "$username" ] && [ -n "$password" ]; then
-        redis-cli --user "$username" --pass "$password" ping >/dev/null 2>&1
+    local user="$1" pass="$2"
+    if [ -n "$user" ] && [ -n "$pass" ]; then
+        redis-cli --user "$user" --pass "$pass" ping >/dev/null 2>&1
+    elif [ -n "$pass" ]; then
+        redis-cli --pass "$pass" ping >/dev/null 2>&1
     else
         redis-cli ping >/dev/null 2>&1
     fi
 }
 
-# 检查 Redis 用户是否存在（需要管理员权限）
-# 参数: admin_username admin_password target_username
+# ============================================================
+# redis_user_exists <admin_user> <admin_pass> <target_user>
+# Bug fix: ACL GETUSER 找不到用户时输出 (error)，找到时输出内容
+#          用 grep "flags" 检查结构化输出
+# ============================================================
 redis_user_exists() {
-    local admin_user=$1
-    local admin_pass=$2
-    local target_user=$3
-    # 使用管理员用户执行 ACL GETUSER
-    redis-cli --user "$admin_user" --pass "$admin_pass" ACL GETUSER "$target_user" 2>/dev/null | grep -q '"flags"'
+    local admin_user="$1" admin_pass="$2" target_user="$3"
+    local output
+    if [ -n "$admin_pass" ]; then
+        output=$(redis-cli --user "$admin_user" --pass "$admin_pass" \
+            ACL GETUSER "$target_user" 2>&1)
+    else
+        output=$(redis-cli ACL GETUSER "$target_user" 2>&1)
+    fi
+    # ACL GETUSER 成功时输出以 "flags" 等字段开头；失败时输出 "(error)"
+    echo "$output" | grep -qv "^(error)"
 }
 
-# 创建 Redis 用户（需要管理员权限）
+# ============================================================
+# create_redis_user <admin_user> <admin_pass> <new_user> <new_pass>
+# ============================================================
 create_redis_user() {
-    local admin_user=$1
-    local admin_pass=$2
-    local new_user=$3
-    local new_pass=$4
-    redis-cli --user "$admin_user" --pass "$admin_pass" \
-        ACL SETUSER "$new_user" on ">$new_pass" ~* +@all >/dev/null 2>&1
+    local admin_user="$1" admin_pass="$2" new_user="$3" new_pass="$4"
+    local output rc
+    if [ -n "$admin_pass" ]; then
+        output=$(redis-cli --user "$admin_user" --pass "$admin_pass" \
+            ACL SETUSER "$new_user" on ">$new_pass" "~*" "+@all" 2>&1)
+    else
+        output=$(redis-cli \
+            ACL SETUSER "$new_user" on ">$new_pass" "~*" "+@all" 2>&1)
+    fi
+    rc=$?
+    if [ $rc -ne 0 ] || echo "$output" | grep -q "^(error)"; then
+        echo -e "${RED}   ✗ ACL SETUSER failed: $(echo "$output" | head -n1)${NC}"
+        return 1
+    fi
+    return 0
 }
 
-# 测试最终用户连接
+# ============================================================
+# test_redis_connection <user> <password>
+# ============================================================
 test_redis_connection() {
-    local username=$1
-    local password=$2
-    redis-cli --user "$username" --pass "$password" PING >/dev/null 2>&1
+    local user="$1" pass="$2"
+    redis-cli --user "$user" --pass "$pass" PING >/dev/null 2>&1
 }
 
-# 导出 Redis YAML 配置
+# ============================================================
+# write_redis_yaml
+# ============================================================
 write_redis_yaml() {
-    local host=$1
-    local port=$2
-    local user=$3
-    local password=$4
+    local host="$1" port="$2" user="$3" password="$4"
     local config_dir="backend/config"
-    local config_file="$config_dir/redis.yml"
+    local config_file="${config_dir}/redis.yml"
 
-    mkdir -p "$config_dir"
+    mkdir -p "$config_dir" || {
+        echo -e "${RED}❌ Cannot create config directory: ${config_dir}${NC}"
+        return 1
+    }
     cat > "$config_file" << EOF
 # Redis Configuration
 # Generated by TinyForum setup script
-host: $host
-port: $port
-user: $user
-password: $password
+# DO NOT EDIT MANUALLY — run 'make init-dev' to regenerate
+host: ${host}
+port: ${port}
+user: ${user}
+password: ${password}
+db: 0
+pool_size: 10
+min_idle_conns: 2
+dial_timeout: 5s
+read_timeout: 3s
+write_timeout: 3s
 EOF
-    echo -e "${GREEN}   📝 Configuration saved to $config_file${NC}"
+    echo -e "${GREEN}   📝 Saved: ${config_file}${NC}"
 }
 
-# 主函数：设置 Redis 用户及连接
+# ============================================================
+# setup_redis （主入口）
+# ============================================================
 setup_redis() {
     local redis_host="${REDIS_HOST:-localhost}"
     local redis_port="${REDIS_PORT:-6379}"
     local default_user="${REDIS_USER:-tinyforum}"
     local default_pass="${REDIS_PASSWORD:-tf@password}"
-    local admin_user=""
-    local admin_pass=""
+    local admin_user="" admin_pass=""
 
     echo ""
-    echo "Step: Checking Redis..."
+    echo -e "${BOLD}━━━ Redis Setup ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 
-    # 1. 确保 redis-cli 存在
+    # ── Step 1: 检查 redis-cli ────────────────────────────────────────────
+    echo "[1/4] Checking redis-cli..."
     if ! command -v redis-cli >/dev/null 2>&1; then
-        echo -e "${RED}❌ redis-cli not found. Please install Redis client.${NC}"
-        exit 1
-    fi
-
-    # 2. 检查 Redis 服务是否运行
-    if ! check_redis_running; then
-        echo -e "${RED}❌ Redis is not running${NC}"
-        echo "   Please start Redis:"
-        case "$OS" in
-            Darwin*)  echo "   - macOS: brew services start redis" ;;
-            Linux*)   echo "   - Linux: sudo systemctl start redis" ;;
-            MINGW*|MSYS*|CYGWIN*) echo "   - Windows: net start redis" ;;
-            *)        echo "   - Run: redis-server" ;;
+        echo -e "${RED}❌ redis-cli not found.${NC}"
+        case "$(uname -s)" in
+            Darwin*) echo "     → brew install redis" ;;
+            Linux*)  echo "     → sudo apt install redis-tools" ;;
         esac
-        exit 1
+        return 1
     fi
-    echo -e "${GREEN}✅ Redis is running${NC}"
 
-    # 3. 确定管理员用户（优先使用 default 无密码，否则尝试环境变量）
+    # ── Step 2: 确认 Redis 运行 ───────────────────────────────────────────
+    echo "[2/4] Checking Redis service..."
+    if ! check_redis_running; then
+        echo -e "${RED}❌ Redis is not running.${NC}"
+        case "$(uname -s)" in
+            Darwin*) echo "     → brew services start redis" ;;
+            Linux*)  echo "     → sudo systemctl start redis" ;;
+        esac
+        return 1
+    fi
+    echo -e "${GREEN}   ✅ Redis is running${NC}"
+
+    # ── Step 3: 确定管理员凭证 ────────────────────────────────────────────
+    echo "[3/4] Determining admin credentials..."
     if connect_redis "" ""; then
+        # 无密码 default 用户
         admin_user="default"
         admin_pass=""
-        echo -e "${GREEN}   Using default Redis admin (no password)${NC}"
-    elif [ -n "$REDIS_ADMIN_USER" ] && [ -n "$REDIS_ADMIN_PASS" ] && connect_redis "$REDIS_ADMIN_USER" "$REDIS_ADMIN_PASS"; then
+        echo -e "${GREEN}   ✅ Using default user (no password)${NC}"
+    elif [ -n "${REDIS_ADMIN_USER:-}" ] && [ -n "${REDIS_ADMIN_PASS:-}" ] \
+            && connect_redis "$REDIS_ADMIN_USER" "$REDIS_ADMIN_PASS"; then
         admin_user="$REDIS_ADMIN_USER"
         admin_pass="$REDIS_ADMIN_PASS"
-        echo -e "${GREEN}   Using admin user: $admin_user${NC}"
+        echo -e "${GREEN}   ✅ Using admin: '${admin_user}'${NC}"
     else
-        echo -e "${RED}❌ Cannot connect to Redis as admin. Please ensure Redis is accessible.${NC}"
-        exit 1
+        echo -e "${RED}❌ Cannot connect to Redis.${NC}"
+        echo "   If Redis has ACL enabled, set REDIS_ADMIN_USER / REDIS_ADMIN_PASS"
+        echo "   and re-run."
+        return 1
     fi
 
-    # 4. 检查目标用户是否存在，不存在则创建
+    # ── Step 4: 创建 / 验证目标用户 ──────────────────────────────────────
+    echo "[4/4] Setting up user '${default_user}'..."
     if redis_user_exists "$admin_user" "$admin_pass" "$default_user"; then
-        echo -e "${GREEN}   Redis user '$default_user' already exists${NC}"
+        echo -e "${GREEN}   ✅ User '${default_user}' already exists${NC}"
     else
-        echo "   Creating Redis user '$default_user'..."
-        if create_redis_user "$admin_user" "$admin_pass" "$default_user" "$default_pass"; then
-            echo -e "${GREEN}   Redis user '$default_user' created${NC}"
-        else
-            echo -e "${RED}❌ Failed to create Redis user '$default_user'${NC}"
-            exit 1
+        echo "   Creating user '${default_user}'..."
+        if ! create_redis_user "$admin_user" "$admin_pass" "$default_user" "$default_pass"; then
+            echo -e "${RED}❌ Failed to create Redis user.${NC}"
+            return 1
         fi
+        echo -e "${GREEN}   ✅ User '${default_user}' created${NC}"
     fi
 
-    # 5. 测试最终用户连接
-    echo "   Testing connection with user '$default_user'..."
+    # 验证最终连接
+    echo "   Verifying connection as '${default_user}'..."
     if test_redis_connection "$default_user" "$default_pass"; then
-        echo -e "${GREEN}✅ Successfully connected to Redis as '$default_user'${NC}"
+        echo -e "${GREEN}   ✅ Connection verified${NC}"
     else
-        echo -e "${RED}❌ Failed to authenticate as '$default_user'${NC}"
-        exit 1
+        echo -e "${RED}❌ Cannot connect as '${default_user}'.${NC}"
+        echo "   Check Redis ACL config and ensure user was persisted (ACL SAVE)."
+        return 1
     fi
 
+    # ── 写入配置 ──────────────────────────────────────────────────────────
+    write_redis_yaml "$redis_host" "$redis_port" "$default_user" "$default_pass" || return 1
 
-    # 7. 可选创建额外用户
+    # ── 可选：额外用户 ────────────────────────────────────────────────────
     echo ""
-    read -p "Create an additional Redis user? (y/n): " -n 1 -r
-    echo
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
-        read -p "Enter additional username: " extra_user
-        read -sp "Enter password for $extra_user: " extra_pass
-        echo
-        if create_redis_user "$admin_user" "$admin_pass" "$extra_user" "$extra_pass"; then
-            echo -e "${GREEN}✅ Additional user '$extra_user' created${NC}"
-            read -p "Grant full access? (y/n): " -n 1 -r
-            echo
-            if [[ $REPLY =~ ^[Yy]$ ]]; then
-                # 已经授予过 +@all，所以此处无需再操作
-                echo -e "${GREEN}   Full privileges granted${NC}"
-            else
-                # 可自定义权限，这里仅给出提示
-                echo "   You can manually set privileges with:"
-                echo "     redis-cli --user $admin_user --pass *** ACL SETUSER $extra_user +@read"
-            fi
+    read -rp "   Create an additional Redis user? (y/N): " add_extra
+    if [[ "$add_extra" =~ ^[Yy]$ ]]; then
+        local extra_user extra_pass
+        read -rp "   Extra username: " extra_user
+        if [ -z "$extra_user" ]; then
+            echo -e "${YELLOW}   Skipped (empty username).${NC}"
         else
-            echo -e "${RED}❌ Failed to create additional user${NC}"
+            read -rsp "   Password for '${extra_user}': " extra_pass; echo
+            if create_redis_user "$admin_user" "$admin_pass" "$extra_user" "$extra_pass"; then
+                echo -e "${GREEN}   ✅ Extra user '${extra_user}' created${NC}"
+            else
+                echo -e "${RED}   ❌ Failed to create '${extra_user}'${NC}"
+            fi
         fi
     fi
-    # 6. 导出 YAML 配置
-    
-    write_redis_yaml "$redis_host" "$redis_port" "$default_user" "$default_pass"
 
+    # ── 完成摘要 ──────────────────────────────────────────────────────────
     echo ""
     echo -e "${GREEN}🎉 Redis setup completed!${NC}"
-    echo "   Host: $redis_host"
-    echo "   Port: $redis_port"
-    echo "   User: $default_user"
-    echo "   Password: $default_pass"
-    echo "   Config file: config/redis.yml"
+    echo -e "   Host   : ${redis_host}:${redis_port}"
+    echo -e "   User   : ${BOLD}${default_user}${NC}"
+    echo -e "   Config : backend/config/redis.yml"
+    echo -e "${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+
+    # 导出供 summary 使用
+    REDIS_FINAL_USER="$default_user"
+    REDIS_FINAL_PASS="$default_pass"
 }
