@@ -12,8 +12,8 @@ import (
 	"log"
 	"time"
 
-	"tiny-forum/config"
 	"tiny-forum/internal/infra/casbinx"
+	"tiny-forum/internal/infra/config"
 	"tiny-forum/internal/infra/ratelimit"
 	"tiny-forum/internal/infra/sensitive"
 

@@ -1,7 +1,6 @@
 package wire
 
 import (
-	"tiny-forum/config"
 	adminHandler "tiny-forum/internal/handler/admin"
 	announcementHandler "tiny-forum/internal/handler/announcement"
 	answerHandler "tiny-forum/internal/handler/answer"
@@ -18,6 +17,7 @@ import (
 	topicHandler "tiny-forum/internal/handler/topic"
 	uploadHandler "tiny-forum/internal/handler/upload"
 	userHandler "tiny-forum/internal/handler/user"
+	"tiny-forum/internal/infra/config"
 	"tiny-forum/pkg/timeutil"
 )
 

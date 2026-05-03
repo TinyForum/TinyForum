@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	"tiny-forum/config"
+	"tiny-forum/internal/infra/config"
 	"tiny-forum/pkg/logger"
 
 	"gopkg.in/gomail.v2"

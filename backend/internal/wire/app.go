@@ -7,7 +7,7 @@
 package wire
 
 import (
-	"tiny-forum/config"
+	"tiny-forum/internal/infra/config"
 	"tiny-forum/internal/middleware"
 	jwtpkg "tiny-forum/pkg/jwt"
 
