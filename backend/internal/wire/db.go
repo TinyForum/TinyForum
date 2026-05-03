@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"tiny-forum/config"
 	adminInit "tiny-forum/init"
+	"tiny-forum/internal/infra/config"
 	"tiny-forum/internal/model/do"
 
 	"tiny-forum/pkg/logger"

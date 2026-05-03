@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"time"
-	"tiny-forum/config"
+	"tiny-forum/internal/infra/config"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"

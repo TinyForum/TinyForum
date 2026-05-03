@@ -3,7 +3,7 @@ package wire
 import (
 	"fmt"
 	"strings"
-	"tiny-forum/config"
+	"tiny-forum/internal/infra/config"
 )
 
 // 构建 DSN，自动跳过值为空的参数，避免因空密码导致的解析问题

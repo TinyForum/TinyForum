@@ -19,7 +19,7 @@ package wire
 
 import (
 	"fmt"
-	"tiny-forum/config"
+	"tiny-forum/internal/infra/config"
 	"tiny-forum/internal/infra/ratelimit"
 	"tiny-forum/internal/middleware"
 

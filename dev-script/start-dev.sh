@@ -1,91 +1,130 @@
-#!/bin/bash
-set -e
+#!/usr/bin/env bash
+# ============================================
+# TinyForum Development Environment Setup
+# ============================================
+# 用法: bash dev-script/start-dev.sh
+#       make init-dev
+#
+# 修复:
+#   [BUG-1] set -e 与 source 的交互：source 的文件中 exit 1 会终止父 shell
+#           修复: 各模块改用 return 1，主流程用 if ! func; then 判断
+#   [BUG-2] psql_user 检测后未被使用（赋值到局部变量但 setup_postgres 用全局）
+#           修复: 移除冗余变量，detect_default_db_user 结果仅用于日志展示
+#   [BUG-3] set -e 会导致 read 命令在 EOF 时退出脚本
+#           修复: 改为 set -eEo pipefail，并在交互式读取处局部关闭
 
-# 获取脚本所在目录的绝对路径
+set -eEo pipefail
+
+# ── 路径解析 ──────────────────────────────────────────────────────────────────
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-LIB_DIR="$SCRIPT_DIR/lib"
+LIB_DIR="${SCRIPT_DIR}/lib"
 
-# 引入所有模块
-source "$LIB_DIR/colors.sh"
-source "$LIB_DIR/globals.sh"
-source "$LIB_DIR/detect_os.sh"
-source "$LIB_DIR/check_deps.sh"
-source "$LIB_DIR/postgres.sh"
-source "$LIB_DIR/redis.sh"
-source "$LIB_DIR/config.sh"
-source "$LIB_DIR/backend.sh"
-source "$LIB_DIR/frontend.sh"
-source "$LIB_DIR/summary.sh"
+# ── 加载模块 ──────────────────────────────────────────────────────────────────
+# shellcheck source=lib/colors.sh
+source "${LIB_DIR}/colors.sh"
+# shellcheck source=lib/globals.sh
+source "${LIB_DIR}/globals.sh"
+# shellcheck source=lib/detect_os.sh
+source "${LIB_DIR}/detect_os.sh"
+# shellcheck source=lib/check_deps.sh
+source "${LIB_DIR}/check_deps.sh"
+# shellcheck source=lib/postgres.sh
+source "${LIB_DIR}/postgres.sh"
+# shellcheck source=lib/redis.sh
+source "${LIB_DIR}/redis.sh"
+# shellcheck source=lib/config.sh
+source "${LIB_DIR}/config.sh"
+# shellcheck source=lib/backend.sh
+source "${LIB_DIR}/backend.sh"
+# shellcheck source=lib/frontend.sh
+source "${LIB_DIR}/frontend.sh"
+# shellcheck source=lib/summary.sh
+source "${LIB_DIR}/summary.sh"
 
 
-# ============================================
-# Main Execution
-# ============================================
+echo "  Script Dir: ${SCRIPT_DIR}"
+echo "  Lib Dir: ${LIB_DIR}"
+echo "  Project Root: ${PROJECT_ROOT}"
 
-main() {
-    echo "🚀 Tiny Forum Development Startup"
-    echo "=================================="
-    echo "Project root: ${PROJECT_ROOT}"
-    local psql_user
-   local psql_password
-   local redis_user
-   local redis_password
-    
-    # Module 1: System Detection
-    detect_os >/dev/null   # 输出操作系统信息（如果需要显示可移除重定向）
-    psql_user=$(detect_default_db_user) # 获取默认数据库用户
-    echo -e "${GREEN}System user: $CURRENT_USER${NC}" # 显示当前用户
-    echo -e "${GREEN}Default database user: $psql_user${NC}" # 显示默认数据库用户
-    
-    # 允许通过环境变量覆盖
-    psql_user=${psql_user:-$psql_user} # 如果未设置psql_user，则使用默认值
-    echo -e "${GREEN}Using database user: $psql_user${NC}"
-    
-    # Module 2: Dependency Checking
-    if ! check_all_dependencies; then
-        echo -e "${RED}Dependency check failed. Exiting.${NC}"
-        exit 1
-    fi
-    
-    # Module 3: PostgreSQL & Redis Setup
-    if ! setup_postgres; then
-        echo -e "${RED}PostgreSQL setup failed. Exiting.${NC}"
-        exit 1
-    fi
-    if ! setup_redis; then
-        echo -e "${RED}Redis setup failed. Exiting.${NC}"
-        exit 1
-    fi
-    
-    # Module 4: Configuration Setup
-    if ! setup_configurations; then
-        echo -e "${RED}Configuration setup failed. Exiting.${NC}"
-        exit 1
-    fi
-    
-    # Module 5: Backend Setup
-    if ! setup_backend; then
-        echo -e "${RED}Backend setup failed. Exiting.${NC}"
-        exit 1
-    fi
-    
-    # Module 6: Frontend Setup
-    if ! setup_frontend; then
-        echo -e "${RED}Frontend setup failed. Exiting.${NC}"
-        exit 1
-    fi
-    
-    # Module 7: Summary
-    print_summary
-    
+
+# ── 全局错误处理 ───────────────────────────────────────────────────────────────
+_on_error() {
+    local lineno="$1" cmd="$2"
     echo ""
-    echo -e "${YELLOW}⚠️  Troubleshooting Tips:${NC}"
-    echo "如果无法访问后端，请检查 CORS 配置："
-    echo "  1. backend/config/basic.yaml 中的 allow_origins 配置"
-    echo "  2. frontend/config.yaml 中的 allowed_dev_origins 配置"
-    echo "如果无法访问数据库，请检查用户名/密码："
-    echo "  1. backend/config/private.yaml 中的 database 配置"
+    echo -e "${RED}${BOLD}━━━ Unexpected Error ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${RED}  Script failed at line ${lineno}: ${cmd}${NC}"
+    echo -e "${RED}  Run with 'bash -x ${BASH_SOURCE[0]}' for full trace.${NC}"
+    echo -e "${RED}${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+}
+trap '_on_error $LINENO "$BASH_COMMAND"' ERR
+
+# ── 主流程 ────────────────────────────────────────────────────────────────────
+main() {
+    echo ""
+    echo -e "${BOLD}🚀 TinyForum — Development Environment Setup${NC}"
+    echo -e "${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo "  Project : ${PROJECT_ROOT}"
+    echo "  Version : ${PROJECT_VERSION}"
+    echo ""
+
+    # ── Module 1: OS Detection ────────────────────────────────────────────
+    detect_os
+
+    # detect_default_db_user 仅用于信息展示；
+    # setup_postgres 内部自行判断管理员用户，无需外部传入
+    local detected_db_user
+    detected_db_user=$(detect_default_db_user)
+    echo "  Detected DB admin candidate: ${detected_db_user}"
+    echo ""
+
+    # ── Module 2: Dependency Check ────────────────────────────────────────
+    if ! check_all_dependencies; then
+        echo -e "${RED}❌ Dependency check failed. Fix missing tools and re-run.${NC}"
+        exit 1
+    fi
+
+    # ── Module 3: PostgreSQL ──────────────────────────────────────────────
+    # set -e 对交互式 read 不友好；临时关闭
+    set +e
+    setup_postgres
+    local pg_rc=$?
+    set -e
+    if [ "$pg_rc" -ne 0 ]; then
+        echo -e "${RED}❌ PostgreSQL setup failed (exit ${pg_rc}).${NC}"
+        echo "   Run 'bash -x ${BASH_SOURCE[0]}' for details."
+        exit 1
+    fi
+
+    # ── Module 4: Redis ───────────────────────────────────────────────────
+    set +e
+    setup_redis
+    local redis_rc=$?
+    set -e
+    if [ "$redis_rc" -ne 0 ]; then
+        echo -e "${RED}❌ Redis setup failed (exit ${redis_rc}).${NC}"
+        exit 1
+    fi
+
+    # ── Module 4.5: Config files ──────────────────────────────────────────
+    if ! setup_configurations; then
+        echo -e "${RED}❌ Configuration setup failed.${NC}"
+        exit 1
+    fi
+
+    # ── Module 5: Backend ─────────────────────────────────────────────────
+    if ! setup_backend; then
+        echo -e "${RED}❌ Backend setup failed.${NC}"
+        exit 1
+    fi
+
+    # ── Module 6: Frontend ────────────────────────────────────────────────
+    if ! setup_frontend; then
+        echo -e "${RED}❌ Frontend setup failed.${NC}"
+        exit 1
+    fi
+
+    # ── Module 7: Summary ─────────────────────────────────────────────────
+    print_summary
 }
 
-# Run main function
-main
+main "$@"

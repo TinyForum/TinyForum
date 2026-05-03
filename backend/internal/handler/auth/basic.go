@@ -1,7 +1,7 @@
 package auth
 
 import (
-	"tiny-forum/config"
+	"tiny-forum/internal/infra/config"
 	authService "tiny-forum/internal/service/auth"
 )
 
