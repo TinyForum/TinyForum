@@ -539,7 +539,7 @@ setup_postgres() {
     echo -e "${BOLD}━━━ PostgreSQL Setup ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 
     # ── Step 1: 确认 PostgreSQL 正在运行 ──────────────────────────────────
-    echo "[1/5] Checking PostgreSQL service..."
+    echo "[1/6] Checking PostgreSQL service..."
     if ! check_postgres_running; then
         echo -e "${RED}❌ PostgreSQL is not running.${NC}"
         case "$(uname -s)" in
@@ -551,7 +551,7 @@ setup_postgres() {
     echo -e "${GREEN}   ✅ PostgreSQL is running${NC}"
 
     # ── Step 2: 确定可用管理员 ───────────────────────────────────────────
-    echo "[2/5] Determining admin connection..."
+    echo "[2/6] Determining admin connection..."
     if ! admin_user=$(_determine_admin_user "$system_user"); then
         echo -e "${RED}❌ Cannot connect to PostgreSQL as 'postgres' or '${system_user}'.${NC}"
         echo "   Troubleshooting:"
@@ -562,7 +562,7 @@ setup_postgres() {
     echo -e "${GREEN}   ✅ Admin: '${admin_user}'${NC}"
 
     # ── Step 3: 确保数据库存在 ────────────────────────────────────────────
-    echo "[3/5] Checking database '${db_name}'..."
+    echo "[3/6] Checking database '${db_name}'..."
     if database_exists "$admin_user" "$db_name"; then
         echo -e "${GREEN}   ✅ Database '${db_name}' already exists${NC}"
     else
@@ -576,7 +576,7 @@ setup_postgres() {
     fi
 
     # ── Step 4: 用户管理 ──────────────────────────────────────────────────
-    echo "[4/5] Database user setup..."
+    echo "[4/6] Database user setup..."
     pair=$(_create_or_reuse_user \
         "$admin_user" "$db_name" "$default_user" "$default_password" "$system_user")
     local user_rc=$?
@@ -602,7 +602,7 @@ setup_postgres() {
     fi
 
     # ── Step 5: 连接验证 ──────────────────────────────────────────────────
-    echo "[5/5] Verifying connection as '${final_user}'..."
+    echo "[5/6] Verifying connection as '${final_user}'..."
     if test_db_connection "$final_user" "$final_password" "$db_name"; then
         echo -e "${GREEN}   ✅ Connection verified${NC}"
     else
@@ -638,11 +638,28 @@ setup_postgres() {
             fi
         fi
     fi
-    # 示例：确保 tinyforum 是 tiny_forum 数据库中所有表的所有者
-ensure_db_ownership "$admin_user" "$db_name" "$final_user"
-if [ $? -eq 2 ]; then
-    echo -e "${YELLOW}Ownership check skipped or cancelled.${NC}"
-fi
+
+    # 确保 tinyforum 是 tiny_forum 数据库中所有表的所有者
+      echo "[4/5] Ensure Postfres Ownership..."
+   
+    # 确保 tinyforum 是 tiny_forum 数据库中所有表的所有者
+    echo "[6/6] Ensuring PostgreSQL ownership..."
+    ensure_db_ownership "$admin_user" "$db_name" "$final_user"
+    case $? in
+        0)
+            echo -e "${GREEN}   ✅ Ownership verified${NC}"
+            ;;
+        1)
+            echo -e "${RED}   ❌ Failed to fix ownership${NC}"
+            exit 1
+            ;;
+        2)
+            echo -e "${YELLOW}   ⚠️  Ownership check skipped or cancelled${NC}"
+            # 根据项目需求决定是否退出
+            # 如果强制要求所有权正确，可以取消下面注释并 exit 1
+            # exit 1
+            ;;
+    esac
 
     # ── 完成摘要 ──────────────────────────────────────────────────────────
     echo ""
