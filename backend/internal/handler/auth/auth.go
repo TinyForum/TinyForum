@@ -61,12 +61,11 @@ func (h *AuthHandler) Login(c *gin.Context) {
 
 	isProduction := os.Getenv("APP_ENV") == "production"
 
-	// FIX #57: 补充 SameSite 属性防止 CSRF
 	// gin 的 SetCookie 不直接支持 SameSite，需要手动拼接 Set-Cookie header
 	cookieValue := "tiny_forum_token=" + result.Token +
 		"; Max-Age=604800" + // 7天
 		"; Path=/" +
-		// "; Domain=" + h.cfg.Basic.Server.Host +
+		"; Domain=" + h.cfg.Basic.Server.Host +
 		"; HttpOnly" +
 		"; SameSite=Lax"
 	if isProduction {
