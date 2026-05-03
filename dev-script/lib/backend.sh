@@ -68,7 +68,9 @@ _get_default() {
 
 # ── risk_control.yml ─────────────────────────────────────────────────────────
 write_risk_control_yml() {
-    _write_config "risk_control.yml" '# risk_control.yml
+    local config_content
+    config_content=$(cat <<EOF
+# risk_control.yml
 rate_limit:
   enabled: true
   risk_control_levels:
@@ -93,8 +95,13 @@ ip_whitelist:
   - "::1"
   - "localhost"
   - "10.0.0.0/8"
-  - "172.16.0.0/12"'
+  - "172.16.0.0/12"
+  - "${LOCAL_IP}"
+EOF
+)
+    _write_config "risk_control.yml" "$config_content"
 }
+
 
 # ── basic.yml ────────────────────────────────────────────────────────────────
 write_basic_yaml() {
