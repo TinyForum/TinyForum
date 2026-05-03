@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"sync"
 	"time"
-	"tiny-forum/config"
+	"tiny-forum/internal/infra/config"
 	// _ "modernc.org/sqlite"
 )
 

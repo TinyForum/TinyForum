@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"tiny-forum/config"
+	"tiny-forum/internal/infra/config"
 
 	"github.com/redis/go-redis/v9"
 )

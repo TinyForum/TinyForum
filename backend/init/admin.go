@@ -3,7 +3,7 @@ package init
 import (
 	"fmt"
 
-	"tiny-forum/config"
+	"tiny-forum/internal/infra/config"
 	"tiny-forum/internal/model/do"
 	"tiny-forum/pkg/logger"
 
