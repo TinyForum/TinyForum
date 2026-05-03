@@ -51,6 +51,7 @@ sql_escape() {
     printf '%s' "$1" | sed "s/'/''/g"
 }
 
+
 # ============================================================
 # _psql_as: 以指定管理员身份执行 psql（统一入口）
 #   _psql_as <admin_user> <db> [psql_args...]
@@ -98,6 +99,130 @@ check_postgres_running() {
             ;;
     esac
     return 1
+}
+
+
+# ============================================================
+# 函数：确保指定数据库用户拥有 public 模式下的所有表
+# 参数：
+#   $1 - 管理员用户 (admin_user, 如 'postgres')
+#   $2 - 数据库名 (db_name, 如 'tiny_forum')
+#   $3 - 目标拥有者 (target_owner, 如 'tinyforum')
+# 返回：0 表示所有表所有权正确或已修复，非0表示用户放弃或出错
+# ============================================================
+ensure_db_ownership() {
+    local admin_user="$1"
+    local db_name="$2"
+    local target_owner="$3"
+    local -a orphan_tables
+    local table owner
+
+    # 获取所有不属于目标拥有者的表
+    while IFS='|' read -r table owner; do
+        orphan_tables+=("$table:$owner")
+    done < <(_psql_as "$admin_user" "$db_name" -tAc "
+        SELECT tablename, tableowner
+        FROM pg_tables
+        WHERE schemaname = 'public'
+          AND tableowner != '$target_owner';
+    " | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+
+    if [ ${#orphan_tables[@]} -eq 0 ]; then
+        echo -e "${GREEN}✅ All tables in database '$db_name' are owned by '$target_owner'.${NC}"
+        return 0
+    fi
+
+    echo -e "${YELLOW}⚠️  The following tables are NOT owned by '$target_owner':${NC}"
+    for entry in "${orphan_tables[@]}"; do
+        table="${entry%:*}"
+        owner="${entry#*:}"
+        echo -e "   - $table (current owner: $owner)"
+    done
+
+    echo ""
+    echo "How would you like to resolve this ownership issue?"
+    echo "  1) Change owner of ALL these tables to '$target_owner' (recommended)"
+    echo "  2) Process each table individually (choose OWNER or RECREATE)"
+    echo "  3) Exit (do nothing)"
+    read -rp "Enter choice [1-3]: " global_choice
+
+    case "$global_choice" in
+        1)
+            echo -e "${GREEN}Changing owner of all tables to '$target_owner'...${NC}"
+            for entry in "${orphan_tables[@]}"; do
+                table="${entry%:*}"
+                if _psql_as "$admin_user" "$db_name" -c "ALTER TABLE public.\"$table\" OWNER TO \"$target_owner\";" >/dev/null 2>&1; then
+                    echo -e "   ✅ $table"
+                else
+                    echo -e "   ${RED}❌ Failed to change owner of $table${NC}"
+                    return 1
+                fi
+            done
+            echo -e "${GREEN}✅ All owners changed successfully.${NC}"
+            ;;
+        2)
+            for entry in "${orphan_tables[@]}"; do
+                table="${entry%:*}"
+                current_owner="${entry#*:}"
+                echo ""
+                echo -e "Table: ${BOLD}$table${NC} (current owner: $current_owner)"
+                echo "  What to do?"
+                echo "    o) Change OWNER to '$target_owner'"
+                echo "    r) RECREATE table (⚠️  DATA LOSS: table will be dropped and must be recreated by migration)"
+                echo "    s) Skip this table"
+                echo "    q) Quit entire process"
+                while true; do
+                    read -rp "  Your choice (o/r/s/q): " action
+                    case "$action" in
+                        o|O)
+                            if _psql_as "$admin_user" "$db_name" -c "ALTER TABLE public.\"$table\" OWNER TO \"$target_owner\";" >/dev/null 2>&1; then
+                                echo -e "    ${GREEN}✅ Owner changed to '$target_owner'${NC}"
+                            else
+                                echo -e "    ${RED}❌ Failed to change owner${NC}"
+                            fi
+                            break
+                            ;;
+                        r|R)
+                            echo -e "    ${YELLOW}⚠️  DANGER: This will DROP table '$table' and DELETE ALL ITS DATA.${NC}"
+                            read -rp "    Type 'RECREATE' to confirm: " confirm
+                            if [ "$confirm" = "RECREATE" ]; then
+                                if _psql_as "$admin_user" "$db_name" -c "DROP TABLE public.\"$table\" CASCADE;" >/dev/null 2>&1; then
+                                    echo -e "    ${GREEN}✅ Table '$table' dropped. Run your application migration to recreate it.${NC}"
+                                    echo -e "    ${YELLOW}   Note: The new table will be owned by the application user automatically.${NC}"
+                                else
+                                    echo -e "    ${RED}❌ Failed to drop table '$table'${NC}"
+                                fi
+                            else
+                                echo -e "    ${YELLOW}   Skipped (confirmation mismatch)${NC}"
+                            fi
+                            break
+                            ;;
+                        s|S)
+                            echo -e "    ${YELLOW}   Skipped.${NC}"
+                            break
+                            ;;
+                        q|Q)
+                            echo -e "${YELLOW}Exiting ownership repair.${NC}"
+                            return 2
+                            ;;
+                        *)
+                            echo -e "${RED}    Invalid choice.${NC}"
+                            ;;
+                    esac
+                done
+            done
+            echo -e "${GREEN}Table ownership processing completed.${NC}"
+            ;;
+        3|q|Q)
+            echo -e "${YELLOW}No changes made.${NC}"
+            return 2
+            ;;
+        *)
+            echo -e "${RED}Invalid choice.${NC}"
+            return 1
+            ;;
+    esac
+    return 0
 }
 
 # ============================================================
@@ -513,6 +638,11 @@ setup_postgres() {
             fi
         fi
     fi
+    # 示例：确保 tinyforum 是 tiny_forum 数据库中所有表的所有者
+ensure_db_ownership "$admin_user" "$db_name" "$final_user"
+if [ $? -eq 2 ]; then
+    echo -e "${YELLOW}Ownership check skipped or cancelled.${NC}"
+fi
 
     # ── 完成摘要 ──────────────────────────────────────────────────────────
     echo ""
