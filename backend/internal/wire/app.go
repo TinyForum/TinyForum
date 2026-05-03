@@ -57,7 +57,7 @@ func InitApp(cfg *config.Config) (*App, error) {
 		services.Risk,
 		services.ContentCheck,
 		repos.Token,
-		&cfg.Basic.RateLimit,
+		&cfg.RiskControl.RateLimit,
 		infra.Enforcer, // Casbin enforcer
 	)
 

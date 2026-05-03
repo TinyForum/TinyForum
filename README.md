@@ -113,6 +113,10 @@ maek frontend
 
 ---
 
+# 开发概述
+
+该项目配置了 vscode 工作区，建议使用 Vscode 打开，并根据提示，启动工作区（如果没有提示，可以打开文件 `.vscode/TinyForum.code-workspace` 然后根据提示启动）
+
 ## 技术栈
 
 | 层     | 技术                                                                           |

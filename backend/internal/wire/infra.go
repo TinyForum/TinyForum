@@ -34,11 +34,12 @@ type Infra struct {
 //
 // db 参数用于 Casbin 的 GORM adapter，会在数据库中自动创建 casbin_rule 表。
 func InitInfra(cfg *config.Config, db *gorm.DB) (*Infra, error) {
+	log.Println("初始化基础设施...")
 	// 1. Redis 客户端
 	redisClient := redis.NewClient(&redis.Options{
-		Addr:     cfg.Private.Redis.GetAddr(),
-		Password: cfg.Private.Redis.Password,
-		DB:       cfg.Private.Redis.DB,
+		Addr:     cfg.Redis.GetAddr(),
+		Password: cfg.Redis.Password,
+		DB:       cfg.Redis.DB,
 	})
 	if err := redisClient.Ping(context.Background()).Err(); err != nil {
 		return nil, err

@@ -7,7 +7,7 @@ import (
 )
 
 // 构建 DSN，自动跳过值为空的参数，避免因空密码导致的解析问题
-func buildDSN(cfg *config.DatabaseConfig) string {
+func buildDSN(cfg *config.ConfigPostgres) string {
 	var parts []string
 
 	if cfg.Host != "" {
