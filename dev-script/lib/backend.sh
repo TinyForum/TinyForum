@@ -75,28 +75,28 @@ rate_limit:
   enabled: true
   risk_control_levels:
     normal:
-      create_post:    {limit: 20, window: 1h}
-      create_comment: {limit: 60, window: 1h}
-      send_report:    {limit: 10, window: 1h}
-      update_profile: {limit:  5, window: 1h}
-    observe:
-      create_post:    {limit:  5, window: 1h}
-      create_comment: {limit: 20, window: 1h}
-      send_report:    {limit:  5, window: 1h}
-      update_profile: {limit:  3, window: 1h}
+      create_post:    {limit: 20, window: 1h} # 每小时最多创建 20 个帖子
+      create_comment: {limit: 60, window: 1h} # 每小时最多创建 60 个评论
+      send_report:    {limit: 10, window: 1h} # 每小时最多发送 10 个举报
+      update_profile: {limit:  5, window: 1h} # 每小时最多更新 5 次个人资料
+    observe: 
+      create_post:    {limit:  5, window: 1h} # 每小时最多创建 5 个帖子
+      create_comment: {limit: 20, window: 1h} # 每小时最多创建 20 个评论
+      send_report:    {limit:  5, window: 1h} # 每小时最多发送 5 个举报
+      update_profile: {limit:  3, window: 1h} # 每小时最多更新 3 次个人资料
     restrict:
-      create_post:    {limit:  2, window: 1h}
-      create_comment: {limit:  5, window: 1h}
-      send_report:    {limit:  2, window: 1h}
-      update_profile: {limit:  1, window: 1h}
+      create_post:    {limit:  2, window: 1h} # 每小时最多创建 2 个帖子
+      create_comment: {limit:  5, window: 1h} # 每小时最多创建 5 个评论
+      send_report:    {limit:  2, window: 1h} # 每小时最多发送 2 个举报
+      update_profile: {limit:  1, window: 1h} # 每小时最多更新 1 次个人资料
 
 ip_whitelist:
-  - "127.0.0.1"
-  - "::1"
-  - "localhost"
-  - "10.0.0.0/8"
-  - "172.16.0.0/12"
-  - "${LOCAL_IP}"
+  - "127.0.0.1" # 本地回环地址
+  - "::1" # IPv6 本地回环地址
+  - "localhost" # 本地主机名
+  - "10.0.0.0/8" # 私有网络地址
+  - "172.16.0.0/12" # 私有网络地址
+  - "${LOCAL_IP}" # 本地 IP 地址
 EOF
 )
     _write_config "risk_control.yml" "$config_content"
