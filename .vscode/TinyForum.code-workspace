@@ -1,0 +1,112 @@
+{
+  "folders": [
+    {
+      "path": "..",
+      "name": "TinyForum Root",
+    },
+    {
+      "path": "../frontend",
+      "name": "Frontend (Next.js)",
+    },
+    {
+      "path": "../backend",
+      "name": "Backend (Go)",
+    },
+  ],
+
+  "settings": {
+    "files.autoSave": "onFocusChange",
+    "editor.formatOnSave": true,
+
+    "files.associations": {
+      "*.env": "dotenv",
+      "Makefile.*": "makefile",
+    },
+    "[go]": {
+      "editor.tabSize": 4,
+    },
+    "[javascript]": {
+      "editor.tabSize": 2,
+    },
+    "go.languageServerFlags": [],
+    "go.useLanguageServer": true,
+    "go.lintTool": "golangci-lint",
+    "go.testFlags": ["-v"],
+    "js/ts.tsdk.path": "frontend/node_modules/typescript/lib",
+  },
+  "launch": {
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Launch Backend (Go)",
+        "type": "go",
+        "request": "launch",
+        "mode": "auto",
+        "program": "${workspaceFolder:Backend (Go)}/cmd/server",
+        "env": {
+          "GO_ENV": "development",
+          "DATABASE_URL": "postgres://caoyang:tf@password@localhost:5432/tiny_forum",
+        },
+        "args": [],
+      },
+      {
+        "name": "Launch Frontend (Next.js)",
+        "type": "node",
+        "request": "launch",
+        "cwd": "${workspaceFolder:Frontend (Next.js)}",
+        "runtimeExecutable": "pnpm",
+        "runtimeArgs": ["run", "dev"],
+        "console": "integratedTerminal",
+      },
+    ],
+    "compounds": [
+      {
+        "name": "Launch Both",
+        "configurations": ["Launch Backend (Go)", "Launch Frontend (Next.js)"],
+      },
+    ],
+  },
+  "tasks": {
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "install:backend",
+        "type": "shell",
+        "command": "go mod tidy",
+        "options": {
+          "cwd": "${workspaceFolder:Backend (Go)}",
+        },
+        "group": "build",
+      },
+      {
+        "label": "install:frontend",
+        "type": "shell",
+        "command": "pnpm install",
+        "options": {
+          "cwd": "${workspaceFolder:Frontend (Next.js)}",
+        },
+        "group": "build",
+      },
+      {
+        "label": "dev:backend",
+        "type": "shell",
+        "command": "go run ./cmd/server/main.go",
+        "options": {
+          "cwd": "${workspaceFolder:Backend (Go)}",
+        },
+        "isBackground": true,
+        "problemMatcher": [],
+      },
+      {
+        "label": "dev:frontend",
+        "type": "shell",
+        "command": "pnpm run dev",
+        "options": {
+          "cwd": "${workspaceFolder:Frontend (Next.js)}",
+        },
+        "isBackground": true,
+        "problemMatcher": [],
+      },
+    ],
+  },
+}

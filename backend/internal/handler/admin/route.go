@@ -29,10 +29,10 @@ func (h *AdminHandler) RegisterRoutes(api *gin.RouterGroup, mw middleware.Middle
 		usersGroup := adminGroup.Group("/users")
 		{
 			usersGroup.GET("", h.ListUsers)
-			usersGroup.PUT("/users/:id/active", h.SetActiveUser)
-			usersGroup.PUT("/users/:id/blocked", h.SetBlockedUser)
-			usersGroup.DELETE("/users/:id/", h.DeleteUser)
-			usersGroup.PUT("/users/:id/role", h.SetRoleUser)
+			usersGroup.PUT("/:id/active", h.SetActiveUser)
+			usersGroup.PUT("/:id/blocked", h.SetBlockedUser)
+			usersGroup.DELETE("/:id/", h.DeleteUser)
+			usersGroup.PUT("/:id/role", h.SetRoleUser)
 
 			// adminGroup.PUT("/users/:id/active", handlers.User.AdminSetActive)
 			// adminGroup.PUT("/users/:id/blocked", handlers.User.AdminSetBlocked)

@@ -39,7 +39,7 @@ export default function DesktopNavbar({
   const t = useTranslations("Nav");
 
   return (
-    <div className="flex items-center w-full gap-2">
+    <div className="flex items-center gap-16">
       {/* ── Logo + 品牌名 ── */}
       <Link
         href="/"
