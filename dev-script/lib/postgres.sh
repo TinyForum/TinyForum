@@ -301,28 +301,26 @@ EOF
 _create_or_reuse_user() {
     local admin_user="$1" db_name="$2" default_user="$3" default_password="$4" system_user="$5"
 
-    # 情况 A: 系统用户已存在于 PG，直接复用并更新密码
     if user_exists "$admin_user" "$system_user"; then
-        echo -e "${GREEN}   ✅ PostgreSQL user '${system_user}' already exists${NC}"
-        echo -e "   Updating password..."
+        echo -e "${GREEN}   ✅ PostgreSQL user '${system_user}' already exists${NC}" >&2
+        echo -e "   Updating password..." >&2
         set_user_password "$admin_user" "$system_user" "$default_password" || return 1
         echo "${system_user}:${default_password}"
         return 0
     fi
 
-    # 情况 B: 系统用户不存在，让用户选择
-    echo -e "${YELLOW}   ℹ️  System user '${system_user}' not found in PostgreSQL${NC}"
-    echo "   How would you like to set up the database user?"
-    echo "   1) Use default user  : ${default_user} / ${default_password}"
-    echo "   2) Create custom user"
-    echo "   3) Exit setup"
-    echo ""
+    echo -e "${YELLOW}   ℹ️  System user '${system_user}' not found in PostgreSQL${NC}" >&2
+    echo "   How would you like to set up the database user?" >&2
+    echo "   1) Use default user  : ${default_user} / ${default_password}" >&2
+    echo "   2) Create custom user" >&2
+    echo "   3) Exit setup" >&2
+    echo "" >&2
 
     while true; do
         read -rp "   Enter choice [1-3]: " choice
         case "$choice" in
             1)
-                echo -e "   Setting up default user '${default_user}'..."
+                echo -e "   Setting up default user '${default_user}'..." >&2
                 create_pg_user "$admin_user" "$db_name" "$default_user" "$default_password" || return 1
                 echo "${default_user}:${default_password}"
                 return 0
@@ -332,23 +330,23 @@ _create_or_reuse_user() {
                 while true; do
                     read -rp "   Username: " custom_user
                     [ -n "$custom_user" ] && break
-                    echo -e "${RED}   Username cannot be empty.${NC}"
+                    echo -e "${RED}   Username cannot be empty.${NC}" >&2
                 done
                 while true; do
-                    read -rsp "   Password: " custom_pass; echo
+                    read -rsp "   Password: " custom_pass; echo >&2
                     [ -n "$custom_pass" ] && break
-                    echo -e "${RED}   Password cannot be empty.${NC}"
+                    echo -e "${RED}   Password cannot be empty.${NC}" >&2
                 done
                 create_pg_user "$admin_user" "$db_name" "$custom_user" "$custom_pass" || return 1
                 echo "${custom_user}:${custom_pass}"
                 return 0
                 ;;
             3|[qQ])
-                echo -e "${YELLOW}   Cancelled by user.${NC}"
-                return 2   # 特殊退出码：用户主动取消
+                echo -e "${YELLOW}   Cancelled by user.${NC}" >&2
+                return 2
                 ;;
             *)
-                echo -e "${RED}   Invalid choice, enter 1, 2, or 3.${NC}"
+                echo -e "${RED}   Invalid choice, enter 1, 2, or 3.${NC}" >&2
                 ;;
         esac
     done

@@ -4,6 +4,7 @@
 
 # ── 内部工具 ─────────────────────────────────────────────────────────────────
 
+
 _write_config() {
     local filename="$1"
     local content="$2"
@@ -318,13 +319,17 @@ setup_backend() {
 
     # Bug fix: 确保始终在 PROJECT_ROOT 下操作，用子 shell 隔离 cd
     (
-        cd "$PROJECT_ROOT" || { echo -e "${RED}❌ Cannot cd to PROJECT_ROOT${NC}"; exit 1; }
+      echo -e "${YELLOW}   cd to ${PROJECT_ROOT}...${NC}"
+      
+        cd $PROJECT_ROOT || { echo -e "${RED}❌ Cannot cd to PROJECT_ROOT${NC}"; exit 1; }
+
         setup_backend_config
+        pwd 
 
         cd backend || { echo -e "${RED}❌ 'backend' directory not found${NC}"; exit 1; }
 
         if [ ! -f "go.mod" ]; then
-            echo -e "${RED}❌ go.mod not found in backend/. Are you in the right directory?${NC}"
+            echo -e "${RED}❌ go.mod not found in ${PROJECT_BACKEND}. Are you in the right directory?${NC}"
             exit 1
         fi
 

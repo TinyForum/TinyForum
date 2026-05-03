@@ -41,6 +41,12 @@ source "${LIB_DIR}/frontend.sh"
 # shellcheck source=lib/summary.sh
 source "${LIB_DIR}/summary.sh"
 
+
+echo "  Script Dir: ${SCRIPT_DIR}"
+echo "  Lib Dir: ${LIB_DIR}"
+echo "  Project Root: ${PROJECT_ROOT}"
+
+
 # ── 全局错误处理 ───────────────────────────────────────────────────────────────
 _on_error() {
     local lineno="$1" cmd="$2"
