@@ -86,9 +86,9 @@ create_database_user() {
     local sql="CREATE USER \"$username\" WITH PASSWORD '$password'; ALTER USER \"$username\" CREATEDB; GRANT ALL PRIVILEGES ON DATABASE $PSQL_DB_NAME TO \"$username\";"
     
     if [ "$PSQL_USER" = "postgres" ] && [ "$OS" = "Linux" ]; then
-        sudo -u postgres psql -d postgres -c "$sql" >/dev/null 2>&1
+        sudo -u postgres psql -d postgres -c "$sql" 
     else
-        psql -h localhost -U "$PSQL_USER" -d postgres -c "$sql" >/dev/null 2>&1
+        psql -h localhost -U "$PSQL_USER" -d postgres -c "$sql" 
     fi
 }
 

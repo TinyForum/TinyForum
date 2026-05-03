@@ -12,6 +12,10 @@
       "path": "../backend",
       "name": "Backend (Go)",
     },
+    {
+      "path": "../dev-script",
+      "name": "Script (make/shell)",
+    },
   ],
 
   "settings": {
