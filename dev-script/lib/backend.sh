@@ -126,10 +126,15 @@ write_basic_yaml() {
             allow_origins_yaml+="  - \"${_origin}\"\n"
         done
     else
-        allow_origins_yaml='  - "http://localhost:3000"
+       allow_origins_yaml=$(cat <<EOF
+  - "http://localhost:3000"
   - "http://127.0.0.1:3000"
   - "http://localhost:8080"
-  - "http://127.0.0.1:8080"'
+  - "http://127.0.0.1:8080"
+  - "${BACKEND_URL}"
+  - "${FRONTEND_URL}"
+EOF
+       )
     fi
 
     # Note: 使用 printf 而非 heredoc 避免变量展开歧义
