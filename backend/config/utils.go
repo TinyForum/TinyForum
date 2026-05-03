@@ -92,7 +92,7 @@ func (p *ConfigPostgres) GetAddr() string {
 // GetAddr 获取 Redis 的主机地址（host:port）
 func (r *ConfigRedis) GetAddr() string {
 	redisAddr := r.Host + ":" + strconv.Itoa(r.Port)
-	log.Printf("config: %s, %s, %s, %s", r.Host, r.Port, r.Password, r.DB)
+	log.Printf("config: %s,  %d, %s, %d", r.Host, r.Port, r.Password, r.DB)
 	log.Printf("connect Redis address: %s", redisAddr)
 	return redisAddr
 }
