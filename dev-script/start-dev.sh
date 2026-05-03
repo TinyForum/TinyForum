@@ -62,6 +62,7 @@ trap '_on_error $LINENO "$BASH_COMMAND"' ERR
 
 # ── 主流程 ────────────────────────────────────────────────────────────────────
 main() {
+    echo "${BANNER}"
     echo ""
     echo -e "${BOLD}🚀 TinyForum — Development Environment Setup${NC}"
     echo -e "${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"

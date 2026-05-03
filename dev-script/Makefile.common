@@ -25,8 +25,8 @@ $(LOG_DIR):
 .DEFAULT_GOAL := help
 
 # ========== 目录配置 ==========
-PID_DIR := .pids
-LOG_DIR := .logs
+# PID_DIR := .pids
+# LOG_DIR := .logs
 BACKEND_PID_FILE := $(PID_DIR)/backend.pid
 FRONTEND_PID_FILE := $(PID_DIR)/frontend.pid
 DOCS_PID_FILE := $(PID_DIR)/docs.pid

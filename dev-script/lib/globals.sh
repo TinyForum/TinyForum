@@ -7,7 +7,7 @@ PROJECT_ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/../../" && pwd)
 PROJECT_NAME="tinyforum"
 PROJECT_VERSION="0.0.1"
 PROJECT_BACKEND="${PROJECT_ROOT}/backend"
-PROJECT_BACKEND="${PROJECT_ROOT}/frontend"
+PROJECT_FRONTEND="${PROJECT_ROOT}/frontend"
 
 # ----- 配置文件位置 -----
 RISK_CONTROL_CONFIG_PATH="${PROJECT_ROOT}/backend/config/risk_control.yml"
@@ -81,3 +81,4 @@ FRONTEND_PORT="3000"
 BACKEND_PORT="8080"
 FRONTEND_URL="http://${LOCAL_IP}:${FRONTEND_PORT}"
 BACKEND_URL="http://${LOCAL_IP}:${BACKEND_PORT}"
+BANNER=$(cat $PROJECT_ROOT/dev-script/lib/banner.txt)
