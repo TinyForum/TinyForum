@@ -179,9 +179,9 @@ create_pg_user() {
 
     # 1. 创建用户（如已存在则跳过）
     if user_exists "$admin_user" "$new_user"; then
-        echo -e "${YELLOW}   ℹ️  User '${new_user}' already exists, skipping CREATE USER${NC}"
+        echo -e "${YELLOW}   ℹ️  User '${new_user}' already exists, skipping CREATE USER${NC}" >&2
     else
-        echo -e "   Creating user '${new_user}'..."
+        echo -e "   Creating user '${new_user}'..." >&2
         _pg_log_error "CREATE USER '${new_user}'" \
             _psql_as "$admin_user" "postgres" \
             -c "CREATE USER \"${new_user}\" WITH PASSWORD '${escaped_pass}';" \
