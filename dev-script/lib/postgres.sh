@@ -1,0 +1,360 @@
+#!/bin/bash
+# ============================================
+# Module 3: PostgreSQL Management
+# ============================================
+
+# 连接测试
+# PGPASSWORD='tf@password' psql -h localhost -U tinyforum -d tiny_forum
+
+# Colors (如果未定义则设置默认值)
+if [ -z "${RED}" ]; then
+    RED='\033[0;31m'
+    GREEN='\033[0;32m'
+    YELLOW='\033[0;33m'
+    NC='\033[0m'
+fi
+
+check_postgres_running() {
+    case "$OS" in
+        Darwin*)
+            if brew services list | grep -q "postgresql.*started" || pg_isready >/dev/null 2>&1; then
+                return 0
+            fi
+            ;;
+        Linux*)
+            if systemctl is-active --quiet postgresql 2>/dev/null || \
+               systemctl is-active --quiet postgresql@*-main 2>/dev/null || \
+               pg_isready >/dev/null 2>&1; then
+                return 0
+            fi
+            ;;
+        MINGW*|MSYS*|CYGWIN*)
+            if net start | grep -qi "postgres" 2>/dev/null || pg_isready >/dev/null 2>&1; then
+                return 0
+            fi
+            ;;
+        *)
+            if pg_isready >/dev/null 2>&1; then
+                return 0
+            fi
+            ;;
+    esac
+    return 1
+}
+
+connect_postgres() {
+    local user=$1
+    local db=${2:-postgres}
+    
+    if [ "$user" = "postgres" ] && [ "$OS" = "Linux" ]; then
+        sudo -u postgres psql -d "$db" -c "SELECT 1" >/dev/null 2>&1
+    else
+        psql -h localhost -U "$user" -d "$db" -c "SELECT 1" >/dev/null 2>&1
+    fi
+}
+
+database_exists() {
+    if [ "$PSQL_USER" = "postgres" ] && [ "$OS" = "Linux" ]; then
+        sudo -u postgres psql -lqt | cut -d \| -f 1 | grep -qw "$PSQL_DB_NAME"
+    else
+        psql -h localhost -U "$PSQL_USER" -lqt | cut -d \| -f 1 | grep -qw "$PSQL_DB_NAME"
+    fi
+}
+
+create_database() {
+    if [ "$PSQL_USER" = "postgres" ] && [ "$OS" = "Linux" ]; then
+        sudo -u postgres createdb "$PSQL_DB_NAME" 2>/dev/null || \
+        sudo -u postgres psql -c "CREATE DATABASE $PSQL_DB_NAME;" 2>/dev/null
+    else
+        createdb -h localhost -U "$PSQL_USER" "$PSQL_DB_NAME" 2>/dev/null || \
+        psql -h localhost -U "$PSQL_USER" -c "CREATE DATABASE $PSQL_DB_NAME;" 2>/dev/null
+    fi
+}
+
+user_exists() {
+    local username=$1
+    if [ "$PSQL_USER" = "postgres" ] && [ "$OS" = "Linux" ]; then
+        sudo -u postgres psql -d postgres -tAc "SELECT 1 FROM pg_roles WHERE rolname='$username'" >/dev/null 2>&1
+    else
+        psql -h localhost -U "$PSQL_USER" -d postgres -tAc "SELECT 1 FROM pg_roles WHERE rolname='$username'" >/dev/null 2>&1
+    fi
+}
+
+create_database_user() {
+    local username=$1
+    local password=$2
+    local sql="CREATE USER \"$username\" WITH PASSWORD '$password'; ALTER USER \"$username\" CREATEDB; GRANT ALL PRIVILEGES ON DATABASE $PSQL_DB_NAME TO \"$username\";"
+    
+    if [ "$PSQL_USER" = "postgres" ] && [ "$OS" = "Linux" ]; then
+        sudo -u postgres psql -d postgres -c "$sql" >/dev/null 2>&1
+    else
+        psql -h localhost -U "$PSQL_USER" -d postgres -c "$sql" >/dev/null 2>&1
+    fi
+}
+
+grant_schema_privileges() {
+    local username=$1
+    local sql="GRANT ALL PRIVILEGES ON SCHEMA public TO \"$username\"; ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO \"$username\";"
+    
+    if [ "$PSQL_USER" = "postgres" ] && [ "$OS" = "Linux" ]; then
+        sudo -u postgres psql -d "$PSQL_DB_NAME" -c "$sql" >/dev/null 2>&1
+    else
+        psql -h localhost -U "$PSQL_USER" -d "$PSQL_DB_NAME" -c "$sql" >/dev/null 2>&1
+    fi
+}
+
+test_db_connection() {
+    local user=$1
+    local pass=$2
+    if [ -n "$pass" ]; then
+        PGPASSWORD="$pass" psql -h localhost -U "$user" -d "$PSQL_DB_NAME" -c "SELECT 1" >/dev/null 2>&1
+    else
+        if [ "$user" = "postgres" ] && [ "$OS" = "Linux" ]; then
+            sudo -u postgres psql -d "$PSQL_DB_NAME" -c "SELECT 1" >/dev/null 2>&1
+        else
+            psql -h localhost -U "$user" -d "$PSQL_DB_NAME" -c "SELECT 1" >/dev/null 2>&1
+        fi
+    fi
+}
+
+# ============================================
+# Helper: Set password for existing user
+# ============================================
+set_user_password() {
+    local admin_user=$1
+    local target_user=$2
+    local new_password=$3
+    local sql="ALTER USER \"$target_user\" WITH PASSWORD '$new_password';"
+    
+    if [ "$admin_user" = "postgres" ] && [ "$OS" = "Linux" ]; then
+        sudo -u postgres psql -d postgres -c "$sql" >/dev/null 2>&1
+    else
+        psql -h localhost -U "$admin_user" -d postgres -c "$sql" >/dev/null 2>&1
+    fi
+}
+
+# ============================================
+# Helper: Write PostgreSQL config to YAML
+# ============================================
+write_postgres_yaml() {
+    local host=$1
+    local port=$2
+    local db_name=$3
+    local user=$4
+    local password=$5
+    local config_dir="backend/config"
+    local config_file="$config_dir/postgres.yml"
+
+    
+    mkdir -p "$config_dir"
+    
+    cat > "$config_file" << EOF
+# PostgreSQL Configuration
+# Generated by TinyForum setup script
+# DO NOT EDIT MANUALLY - Run 'make init-dev' to regenerate
+host: $host
+port: $port
+dbname: $db_name
+user: $user
+password: $password
+sslmode: disable
+max_idle_conns: 10
+max_open_conns: 100
+conn_max_lifetime: 5m0s
+logger:
+  slow_threshold: 200ms
+  log_level: info          # 可选: silent, error, warn, info
+  ignore_record_not_found_error: true
+  colorful: true
+EOF
+    
+    echo -e "${GREEN}   📝 Configuration saved to $config_file${NC}"
+}
+
+# ============================================
+# Refactored: PostgreSQL Setup
+# ============================================
+setup_postgres() {
+    # ----- Local variables (isolated from environment) -----
+    local admin_user=""
+    local db_name="$PSQL_DB_NAME"
+    local db_host="$PSQL_HOST"
+    local db_port="$PSQL_PORT"
+    local default_user="$PSQL_USER"
+    local default_password="$PSQL_PASS"
+    local final_user=""
+    local final_password=""
+    local system_user="$CURRENT_USER"
+    
+    echo ""
+    echo "Step 1: Checking PostgreSQL..."
+    
+    if ! check_postgres_running; then
+        echo -e "${RED}❌ PostgreSQL is not running${NC}"
+        echo "   Please start PostgreSQL:"
+        case "$OS" in
+            Darwin*)  echo "   - macOS: brew services start postgresql" ;;
+            Linux*)   echo "   - Linux: sudo systemctl start postgresql" ;;
+            MINGW*|MSYS*|CYGWIN*) echo "   - Windows: net start postgresql-x64-15" ;;
+            *)        echo "   - Start PostgreSQL manually" ;;
+        esac
+        exit 1
+    fi
+    echo -e "${GREEN}✅ PostgreSQL is running${NC}"
+    
+    # ----- 确定一个可用的管理员用户 -----
+    echo "  Determining admin user..."
+    if connect_postgres "postgres"; then
+        admin_user="postgres"
+        echo -e "${GREEN}   Using superuser: postgres${NC}"
+    elif connect_postgres "$system_user"; then
+        admin_user="$system_user"
+        echo -e "${GREEN}   Using current system user: $admin_user${NC}"
+    else
+        echo -e "${RED}❌ Cannot connect as 'postgres' or '$system_user'${NC}"
+        echo "   Please ensure PostgreSQL is accessible."
+        exit 1
+    fi
+    
+    # ----- 确保数据库存在 -----
+    echo "  Checking database '$db_name'..."
+    local old_psql_user="$PSQL_USER"
+    PSQL_USER="$admin_user"
+    if database_exists; then
+        echo -e "${GREEN}  Database '$db_name' already exists${NC}"
+    else
+        echo "  Creating database '$db_name'..."
+        if create_database; then
+            echo -e "${GREEN}  Database '$db_name' created${NC}"
+        else
+            echo -e "${RED}  Failed to create database${NC}"
+            exit 1
+        fi
+    fi
+    PSQL_USER="$old_psql_user"
+    
+    # ----- 处理数据库用户 -----
+    echo ""
+    echo "Step 2: Database user setup"
+    
+    if user_exists "$system_user"; then
+        echo -e "${GREEN}  System user '$system_user' already exists in PostgreSQL${NC}"
+        echo "  Setting password for existing user '$system_user'..."
+        if set_user_password "$admin_user" "$system_user" "$default_password"; then
+            echo -e "${GREEN}  Password set for '$system_user'${NC}"
+            final_user="$system_user"
+            final_password="$default_password"
+        else
+            echo -e "${RED}  Failed to set password for '$system_user'${NC}"
+            exit 1
+        fi
+    else
+        echo -e "${YELLOW}  System user '$system_user' does not exist in PostgreSQL${NC}"
+        echo "  Please choose how to create a database user:"
+        echo "  1) Create default user ($default_user)"
+        echo "  2) Create custom user"
+        echo "  3) Exit"
+        while true; do
+            read -p "  Enter your choice (1-3): " choice
+            case $choice in
+                1)
+                    echo "  Creating default user '$default_user'..."
+                    PSQL_USER="$admin_user"
+                    if create_database_user "$default_user" "$default_password"; then
+                        echo -e "${GREEN}  User '$default_user' created${NC}"
+                        final_user="$default_user"
+                        final_password="$default_password"
+                    else
+                        echo -e "${RED}  Failed to create default user${NC}"
+                        exit 1
+                    fi
+                    PSQL_USER="$old_psql_user"
+                    break
+                    ;;
+                2)
+                    read -p "  Enter username: " custom_user
+                    read -sp "  Enter password: " custom_pass
+                    echo
+                    PSQL_USER="$admin_user"
+                    if create_database_user "$custom_user" "$custom_pass"; then
+                        echo -e "${GREEN}  User '$custom_user' created${NC}"
+                        final_user="$custom_user"
+                        final_password="$custom_pass"
+                    else
+                        echo -e "${RED}  Failed to create custom user${NC}"
+                        exit 1
+                    fi
+                    PSQL_USER="$old_psql_user"
+                    break
+                    ;;
+                3|0|[qQ])
+                    echo -e "${YELLOW}Exiting PostgreSQL setup. No user was created.${NC}"
+                    exit 0
+                    ;;
+                *)
+                    echo -e "${RED}  Invalid choice, please try again.${NC}"
+                    ;;
+            esac
+        done
+    fi
+    
+    # ----- 授予权限 -----
+    echo "  Granting privileges to '$final_user' on database '$db_name'..."
+    PSQL_USER="$admin_user"
+    grant_schema_privileges "$final_user"
+    if [ $? -eq 0 ]; then
+        echo -e "${GREEN}  Privileges granted successfully${NC}"
+    else
+        echo -e "${YELLOW}  Warning: Could not grant privileges (maybe already set)${NC}"
+    fi
+    PSQL_USER="$old_psql_user"
+    
+    # ----- 测试连接 -----
+    echo "  Verifying connection with user '$final_user'..."
+    if test_db_connection "$final_user" "$final_password"; then
+        echo -e "${GREEN}✅ Successfully connected to database as '$final_user'${NC}"
+    else
+        echo -e "${RED}❌ Failed to connect as '$final_user'${NC}"
+        exit 1
+    fi
+    
+    # ----- 导出 YAML 配置 -----
+    write_postgres_yaml "$db_host" "$db_port" "$db_name" "$final_user" "$final_password"
+    
+    # ----- 可选：创建额外用户 -----
+    echo ""
+    read -p "Create an additional Postgres user? (y/n): " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        read -p "Enter additional username: " EXTRA_PSQL_USER
+        read -sp "Enter password for $EXTRA_PSQL_USER: " EXTRA_DB_PASS
+        echo
+        
+        if user_exists "$EXTRA_PSQL_USER"; then
+            echo -e "${YELLOW}⚠️  User $EXTRA_PSQL_USER already exists${NC}"
+        else
+            PSQL_USER="$admin_user"
+            if create_database_user "$EXTRA_PSQL_USER" "$EXTRA_DB_PASS"; then
+                echo -e "${GREEN}✅ Additional user '$EXTRA_PSQL_USER' created${NC}"
+                grant_schema_privileges "$EXTRA_PSQL_USER"
+                echo -e "${GREEN}   Privileges granted to '$EXTRA_PSQL_USER'${NC}"
+            else
+                echo -e "${RED}❌ Failed to create additional user${NC}"
+            fi
+            PSQL_USER="$old_psql_user"
+        fi
+    fi
+    
+    # ----- 完成信息 -----
+    echo ""
+    echo -e "${GREEN}🎉 PostgreSQL setup completed!${NC}"
+    echo "   Database: $db_name"
+    echo "   User: $final_user"
+    if [ -n "$final_password" ]; then
+        echo "   Password: $final_password"
+    else
+        echo "   Password: (unchanged, use your existing credentials)"
+    fi
+    echo "   Config file: config/postgres.yml"
+    echo "   You can now use these credentials to connect to the database."
+}
