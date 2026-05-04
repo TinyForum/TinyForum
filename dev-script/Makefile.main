@@ -4,56 +4,20 @@
 
 .PHONY: help all install build clean test api init-dev
 
-# 包含各个模块
-# include Makefile.common
-# include Makefile.dev
-# include Makefile.docker
-# include Makefile.bench
 
-# 默认目标
-main-help:
-	@echo "TinyForum Makefile"
-	@echo ""
-	@echo "Development:"
-	@echo "  make init-dev      - 初始化开发环境"
-	@echo "  make frontend      - 启动前端 (前台)"
-	@echo "  make backend       - 启动后端 (前台)"
-	@echo "  make dev           - 并发启动前后端"
-	@echo "  make docs          - 启动文档服务"
-	@echo ""
-	@echo "Daemon (后台):"
-	@echo "  make start         - 启动所有后台服务"
-	@echo "  make stop          - 停止所有服务"
-	@echo "  make status        - 查看服务状态"
-	@echo "  make logs          - 查看日志"
-	@echo ""
-	@echo "Docker:"
-	@echo "  make docker-up     - 启动 Docker 服务"
-	@echo "  make docker-down   - 停止 Docker 服务"
-	@echo ""
-	@echo "Benchmark:"
-	@echo "  make bench         - 运行压测"
-	@echo "  make bench-help    - 压测帮助"
-	@echo ""
-	@echo "Setup:"
-	@echo "  make install       - 安装依赖"
-	@echo "  make build         - 构建生产版本"
-	@echo "  make clean         - 清理"
-	@echo "  make test          - 运行测试"
-
-# 初始化配置
+# @初始化配置
 init-dev:
 	@echo "🚀 Initializing project..."
 	@bash ./dev-script/start-dev.sh
 
-# 安装依赖
+# @安装依赖
 install:
 	@echo "📦 Installing dependencies..."
 	@cd frontend && pnpm install
 	@cd backend && go mod download
 	@echo "✅ Dependencies installed"
 
-# 构建生产版本
+# @构建生产版本
 build:
 	@echo "🔨 Building frontend..."
 	@cd frontend && pnpm run build
@@ -61,7 +25,7 @@ build:
 	@cd backend && go build -o bin/server ./cmd/server/main.go
 	@echo "✅ Build complete"
 
-# 安装并构建
+# @安装并构建
 all: install build
 	@echo "✅ All tasks completed"
 
@@ -72,14 +36,20 @@ all: install build
 # 	@cd backend && rm -rf bin 2>/dev/null || true
 # 	@echo "✅ Clean complete"
 
-# 运行测试
+# @运行测试
 test:
 	@echo "🧪 Running tests..."
 	@cd frontend && pnpm test || true
 	@cd backend && go test ./... || true
 
-# 生成 API 文档
+# @生成 API 文档
 api:
 	@echo "📚 Generating API documentation..."
 	@cd backend && swag init -g ./cmd/server/main.go --output ./docs
 	@echo "Open Swagger API documentation at http://localhost:8080/swagger/index.html"
+
+.PHONY: main-help
+# @此帮助信息
+main-help:
+	@echo "call by main: $(MAKEFILE_MAIN_PATH)"
+	@$(MAKE) -s _print_help SELF_MAKEFILE_PATH='$(MAKEFILE_MAIN_PATH)'

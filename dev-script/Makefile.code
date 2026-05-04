@@ -23,18 +23,16 @@ HAS_PRETTIER := $(shell cd frontend && pnpm exec prettier --version 2>/dev/null)
 # 包管理器检测（优先 pnpm，降级 npm）
 PACKAGE_MANAGER := $(if $(HAS_PNPM),pnpm,$(if $(HAS_NPM),npm,echo none))
 
-# ============================================
-# 格式化
-# ============================================
-
+# @格式化所有代码
 fmt: fmt-backend fmt-frontend
 	@echo "$(GREEN)✅ 所有代码格式化完成$(NC)"
-
+# @格式化后端代码
 fmt-backend:
 	@echo "$(BLUE)📦 格式化 Go 代码...$(NC)"
 	@cd backend && go fmt ./...
 	@echo "$(GREEN)   ✅ Go 代码格式化完成$(NC)"
 
+# @格式化前端代码
 fmt-frontend:
 	@echo "$(BLUE)📦 格式化前端代码...$(NC)"
 	@if [ "$(PACKAGE_MANAGER)" != "none" ]; then \
@@ -45,13 +43,11 @@ fmt-frontend:
 		echo "$(YELLOW)   ⚠️  跳过前端格式化 (未找到 pnpm/npm)$(NC)"; \
 	fi
 
-# ============================================
-# 代码检查
-# ============================================
-
+# @检查所有代码
 lint: lint-backend lint-frontend type-check
 	@echo "$(GREEN)✅ 所有代码检查通过$(NC)"
 
+# @检查后端代码
 lint-backend:
 	@echo "$(BLUE)🔍 检查 Go 代码...$(NC)"
 	@if [ -n "$(HAS_GOLANGCI)" ]; then \
@@ -67,6 +63,7 @@ lint-backend:
 		echo "   💡 安装: brew install golangci-lint (macOS)"; \
 	fi
 
+# @检查前端代码
 lint-frontend:
 	@echo "$(BLUE)🔍 检查前端代码...$(NC)"
 	@if [ "$(PACKAGE_MANAGER)" != "none" ]; then \
@@ -80,6 +77,7 @@ lint-frontend:
 		echo "$(YELLOW)   ⚠️  跳过前端检查 (未找到 pnpm/npm)$(NC)"; \
 	fi
 
+# @类型检查
 type-check:
 	@echo "$(BLUE)🔍 TypeScript 类型检查...$(NC)"
 	@if [ "$(PACKAGE_MANAGER)" != "none" ]; then \
@@ -94,18 +92,17 @@ type-check:
 		echo "$(YELLOW)   ⚠️  跳过类型检查 (未找到 pnpm/npm)$(NC)"; \
 	fi
 
-# ============================================
-# 测试
-# ============================================
-
+# @测试整个项目
 test-project: test-backend test-frontend
 	@echo "$(GREEN)✅ 所有测试完成$(NC)"
 
+# @测试后端
 test-backend:
 	@echo "$(BLUE)🧪 运行后端测试...$(NC)"
 	@cd backend && go test -cover ./... 2>&1 | grep -E "(ok|FAIL|coverage)" || true
 	@echo "$(GREEN)   ✅ 后端测试完成$(NC)"
 
+# @测试前端
 test-frontend:
 	@echo "$(BLUE)🧪 运行前端测试...$(NC)"
 	@if [ "$(PACKAGE_MANAGER)" != "none" ]; then \
@@ -116,10 +113,7 @@ test-frontend:
 		echo "$(YELLOW)   ⚠️  跳过前端测试 (未找到 pnpm/npm)$(NC)"; \
 	fi
 
-# ============================================
-# 自动修复
-# ============================================
-
+# @自动修复前端错误
 fix: fix-frontend
 	@echo "$(GREEN)✅ 自动修复完成$(NC)"
 
@@ -133,20 +127,14 @@ fix-frontend:
 		echo "$(YELLOW)   ⚠️  跳过 (未找到 pnpm/npm)$(NC)"; \
 	fi
 
-# ============================================
-# CI 完整检查
-# ============================================
-
+# @CI 格式化和语法检查
 ci: check-tools fmt lint test
 	@echo ""
 	@echo "$(GREEN)╔════════════════════════════════════════════════════════════════╗$(NC)"
 	@echo "$(GREEN)║                    ✅ CI 检查全部通过！                         ║$(NC)"
 	@echo "$(GREEN)╚════════════════════════════════════════════════════════════════╝$(NC)"
 
-# ============================================
-# 工具检测
-# ============================================
-
+# @工具检测
 check-tools:
 	@echo "$(BLUE)🔧 检查开发工具...$(NC)"
 	@echo "  Go:          $(if $(HAS_GO),$(GREEN)✅$(NC),$(RED)❌ 未安装$(NC))"
@@ -159,23 +147,9 @@ check-tools:
 # 帮助
 # ============================================
 
+# 帮助信息
+.PHONY: code-help
+# @此帮助信息
 code-help:
-	@echo "代码检查与格式化命令:"
+	@$(MAKE) -s _print_help SELF_MAKEFILE_PATH='$(MAKEFILE_CODE_PATH)'
 	@echo ""
-	@echo "  $(GREEN)make fmt$(NC)            - 格式化所有代码"
-	@echo "  $(GREEN)make lint$(NC)           - 检查所有代码"
-	@echo "  $(GREEN)make test$(NC)           - 运行所有测试"
-	@echo "  $(GREEN)make ci$(NC)             - CI 完整检查 (fmt + lint + test)"
-	@echo "  $(GREEN)make fix$(NC)            - 自动修复前端代码问题"
-	@echo ""
-	@echo "  $(GREEN)make check-tools$(NC)    - 检查开发工具是否安装"
-	@echo "  $(GREEN)make fmt-backend$(NC)    - 仅格式化后端"
-	@echo "  $(GREEN)make fmt-frontend$(NC)   - 仅格式化前端"
-	@echo "  $(GREEN)make lint-backend$(NC)   - 仅检查后端"
-	@echo "  $(GREEN)make lint-frontend$(NC)  - 仅检查前端"
-	@echo "  $(GREEN)make test-backend$(NC)   - 仅运行后端测试"
-	@echo "  $(GREEN)make test-frontend$(NC)  - 仅运行前端测试"
-	@echo ""
-	@echo "安装依赖:"
-	@echo "  brew install golangci-lint     # macOS 安装 Go linter"
-	@echo "  cd frontend && pnpm install    # 安装前端依赖"

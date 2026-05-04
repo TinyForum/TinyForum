@@ -1,0 +1,26 @@
+# risk_control.yml
+rate_limit:
+  enabled: true
+  risk_control_levels:
+    normal:
+      create_post:    {limit: 20, window: 1h} # 窗口时间 1 小时，每分钟最多 20 次
+      create_comment: {limit: 60, window: 1h}
+      send_report:    {limit: 10, window: 1h}
+      update_profile: {limit:  5, window: 1h}
+    observe:
+      create_post:    {limit:  5, window: 1h}
+      create_comment: {limit: 20, window: 1h}
+      send_report:    {limit:  5, window: 1h}
+      update_profile: {limit:  3, window: 1h}
+    restrict:
+      create_post:    {limit:  2, window: 1h}
+      create_comment: {limit:  5, window: 1h}
+      send_report:    {limit:  2, window: 1h}
+      update_profile: {limit:  1, window: 1h}
+ip_whitelist:
+  - "127.0.0.1"
+  - "::1"
+  - "localhost"
+  - "10.0.0.0/8"
+  - "172.16.0.0/12"
+  - 192.168.5.180

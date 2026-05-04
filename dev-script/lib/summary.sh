@@ -64,6 +64,7 @@ print_summary() {
     echo "  └─ Redis auth errors"
     echo "      backend/config/private.yml → redis section"
     echo "      Run: redis-cli ACL LIST"
+    echo  -e "${GREEN} to running: make backend ${NC}"
     echo ""
     echo -e "${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 }

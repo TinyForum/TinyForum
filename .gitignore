@@ -47,3 +47,5 @@ dev-script/applogs
 tsconfig.tsbuildinfo
 
 dump.rdb
+.logs
+.pids
