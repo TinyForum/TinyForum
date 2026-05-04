@@ -23,9 +23,8 @@ import (
 // @name Authorization
 // @description Type "Bearer" followed by a space and the JWT token.
 
-var version = "0.1.0" // 可从构建时注入
-
 func main() {
+	version := os.Getenv("TINYFORUM_VERSION")
 	// 加载配置
 	cfg, err := loadConfig()
 	if err != nil {
