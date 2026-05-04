@@ -23,7 +23,7 @@ MAKEFILE_CFG_PATH    := $(DEVS_SCRIPT_DIR)/Makefile.cfg
 MAKEFILE_LOG_PATH    := $(DEVS_SCRIPT_DIR)/Makefile.log
 
 # logo
-BANNER_PATH			 := $(DEVS_SCRIPT_DIR)/script/dev/banner.txt
+BANNER_PATH			 := $(DEVS_SCRIPT_DIR)/scripts/dev/banner.txt
 
 # dev shell
 SHELL_DEV_PATH		 := $(DEVS_SCRIPT_DIR)/scripts/dev.sh
