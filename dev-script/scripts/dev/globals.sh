@@ -77,6 +77,8 @@ _detect_local_ip() {
 }
 
 LOCAL_IP=$(_detect_local_ip)
+BACKEND_HOST="${LOCAL_IP}"
+FRONTEND_HOST="${LOCAL_IP}"
 
 # ----- 前端 / 后端 URL -----
 FRONTEND_PORT="3000"
