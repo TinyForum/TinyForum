@@ -1,6 +1,7 @@
 package startup
 
 import (
+	_ "embed"
 	"fmt"
 
 	"tiny-forum/pkg/logger"
@@ -17,22 +18,13 @@ const (
 	colorBold   = "\033[1m"
 )
 
-// PrintBanner 打印项目 ASCII Art
-func PrintBanner(version string) {
-	banner := colorCyan + `
- ______                        ____                                      
-/\__  _\__                    /\  _` + "`" + `\                                    
-\/_/\ \/\_\    ___   __  __   \ \ \L\_\___   _ __   __  __    ___ ___    
-   \ \ \/\ \ /' _ ` + "`" + `\/\ \/\ \   \ \  _\/ __` + "`" + `\/\` + "`" + `'__\/\ \/\ \ /' __` + "`" + ` __` + "`" + `\  
-    \ \ \ \ \/\ \/\ \ \ \_\ \   \ \ \/\ \L\ \ \ \/ \ \ \_\ \/\ \/\ \/\ \ 
-     \ \_\ \_\ \_\ \_\/` + "`" + `____ \   \ \_\ \____/\ \_\  \ \____/\ \_\ \_\ \_\
-      \/_/\/_/\/_/\/_/` + "`" + `/___/> \   \/_/\/___/  \/_/   \/___/  \/_/\/_/\/_/
-                         /\___/                                          
-                         \/__/                                           
-` + colorReset + "\n" +
-		colorYellow + "✨ Tiny Forum v" + version + " ✨" + colorReset + "\n"
+//go:embed banner
+var bannerRaw string
 
-	fmt.Print(banner)
+func PrintBanner(version string) {
+	banner := colorCyan + bannerRaw + colorReset + "\n" +
+		colorYellow + "✨ Tiny Forum v" + version + " ✨" + colorReset + "\n"
+	logger.Infof(banner)
 }
 
 // PrintStartupInfo 打印统一的启动信息
