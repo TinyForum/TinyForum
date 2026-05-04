@@ -18,7 +18,7 @@ ENV_FILE := .env
 PODMAN_COMPOSE_CHECK := $(shell command -v podman-compose 2>/dev/null)
 PODMAN_CHECK := $(shell command -v podman 2>/dev/null)
 
-# MARK: 构建服务
+# @构建服务
 podman-build:
 	@echo "🔨 Building Podman images..."
 	@$(PODMAN_COMPOSE) --env-file $(ENV_FILE) build --no-cache
@@ -30,39 +30,39 @@ podman-build-frontend:
 	@$(PODMAN_COMPOSE) --env-file $(ENV_FILE) build --no-cache frontend
 
 
-# MARK: 启动所有服务
+# @启动所有服务
 podman-up:
 	@echo "🐳 Starting all services with Podman..."
 	@$(PODMAN_COMPOSE) --env-file $(ENV_FILE) up -d
 	@$(MAKE) podman-status
 
-# 启动服务并查看日志
+# @启动服务并查看日志
 podman-up-logs:
 	@echo "🐳 Starting all services with logs..."
 	@$(PODMAN_COMPOSE) --env-file $(ENV_FILE) up
 
-# 停止所有服务
+# @停止所有服务
 podman-down:
 	@echo "🛑 Stopping all services..."
 	@$(PODMAN_COMPOSE) --env-file $(ENV_FILE) down
 
-# 停止并删除 volumes（会丢失数据）
+# @停止并删除 volumes（会丢失数据）
 podman-down-volumes:
 	@echo "⚠️  Stopping and removing volumes (data will be lost)..."
 	@$(PODMAN_COMPOSE) --env-file $(ENV_FILE) down -v
 
-# 重启服务
+# @重启服务
 podman-restart:
 	@echo "🔄 Restarting all services..."
 	@$(PODMAN_COMPOSE) --env-file $(ENV_FILE) restart
 	@$(MAKE) podman-status
 
-# 查看服务状态
+# @查看服务状态
 podman-status:
 	@echo "📊 Podman services status:"
 	@$(PODMAN_COMPOSE) --env-file $(ENV_FILE) ps
 
-# MARK: 查看日志
+# @查看日志
 podman-logs:
 	@echo "📝 Tailing all logs..."
 	@echo "注意: Podman 远程模式下无法同时查看多个容器日志"
@@ -84,7 +84,7 @@ podman-logs-frontend:
 podman-logs-postgres:
 	@$(PODMAN_COMPOSE) --env-file $(ENV_FILE) logs -f postgres
 
-# 进入容器
+# @进入容器
 podman-shell-backend:
 	@$(PODMAN_COMPOSE) --env-file $(ENV_FILE) exec backend /bin/sh
 
@@ -95,40 +95,40 @@ podman-shell-postgres:
 	@$(PODMAN_COMPOSE) --env-file $(ENV_FILE) exec postgres psql -U ${DB_USER:-postgres} -d ${DB_NAME:-tiny_forum}
 
 
-# MARK: 清理 Podman 资源
+# @清理 Podman 资源
 podman-clean:
 	@echo "🧹 Cleaning Podman resources..."
 	@$(PODMAN_COMPOSE) --env-file $(ENV_FILE) down -v --rmi local
 	@podman system prune -f
 
-# 只清理悬空卷
+# @只清理悬空卷
 podman-volume-prune:
 	@echo "🧹 Pruning unused volumes..."
 	@podman volume prune -f
 
-# 只清理悬空镜像
+# @只清理悬空镜像
 podman-image-prune:
 	@echo "🧹 Pruning unused images..."
 	@podman image prune -f
 
-# 备份数据库
+# @备份数据库
 podman-backup-db:
 	@echo "💾 Backing up database..."
 	@mkdir -p backups
 	@$(PODMAN_COMPOSE) --env-file $(ENV_FILE) exec postgres pg_dump -U ${DB_USER:-postgres} ${DB_NAME:-tiny_forum} > backups/backup_$$(date +%Y%m%d_%H%M%S).sql
 	@echo "✅ Backup saved to backups/"
 
-# 启动开发环境（带热重载）
+# @启动开发环境（带热重载）
 podman-dev:
 	@echo "🛠️  Starting development environment..."
 	@$(PODMAN_COMPOSE) --env-file $(ENV_FILE) -f docker-compose.yml -f docker-compose.override.yml up
 
-# 启动工具服务（adminer等）
+# @启动工具服务（adminer等）
 podman-tools:
 	@echo "🔧 Starting tools services..."
 	@$(PODMAN_COMPOSE) --env-file $(ENV_FILE) --profile tools up -d
 
-# 检查 Podman 环境
+# @检查 Podman 环境
 podman-check:
 	@echo "🔍 Checking Podman environment..."
 	@echo ""
@@ -158,7 +158,7 @@ podman-check:
 	@echo "✅ Podman environment check complete"
 
 # MARK: 虚拟机（仅 macOS）
-# 初始化 Podman（macOS 需要）
+# @初始化 Podman（macOS 需要）
 podman-init:
 	@echo "🚀 Initializing Podman machine..."
 	@if [ "$$(uname)" = "Darwin" ]; then \
@@ -174,7 +174,7 @@ podman-init:
 	fi
 	@echo "✅ Podman ready"
 
-# 停止 Podman 机器（macOS）
+# @停止 Podman 机器（macOS）
 podman-stop-machine:
 	@echo "🛑 Stopping Podman machine..."
 	@if [ "$$(uname)" = "Darwin" ]; then \
@@ -184,40 +184,7 @@ podman-stop-machine:
 	fi
 
 # MARK: 帮助
+.PHONY: podman-help
+# @此帮助信息
 podman-help:
-	@echo "╔══════════════════════════════════════════════════════════════════════╗"
-	@echo "║                    🐳 Podman 管理命令                                 ║"
-	@echo "╚══════════════════════════════════════════════════════════════════════╝"
-	@echo ""
-	@echo "快速开始:"
-	@echo "  make podman-check          - 检查 Podman 环境"
-	@echo "  make podman-init           - 初始化 Podman (macOS)"
-	@echo "  make podman-up             - 启动所有服务"
-	@echo "  make podman-down           - 停止所有服务"
-	@echo ""
-	@echo "服务管理:"
-	@echo "  make podman-status         - 查看服务状态"
-	@echo "  make podman-restart        - 重启所有服务"
-	@echo "  make podman-logs           - 查看所有日志"
-	@echo "  make podman-dev            - 开发模式（带热重载）"
-	@echo ""
-	@echo "构建:"
-	@echo "  make podman-build          - 重新构建所有镜像"
-	@echo "  make podman-build-backend  - 仅构建后端"
-	@echo "  make podman-build-frontend - 仅构建前端"
-	@echo ""
-	@echo "容器操作:"
-	@echo "  make podman-shell-backend  - 进入后端容器"
-	@echo "  make podman-shell-frontend - 进入前端容器"
-	@echo "  make podman-shell-postgres - 进入 PostgreSQL"
-	@echo ""
-	@echo "清理:"
-	@echo "  make podman-clean          - 完整清理（停止+删除）"
-	@echo "  make podman-volume-prune   - 清理无用卷"
-	@echo "  make podman-image-prune    - 清理无用镜像"
-	@echo ""
-	@echo "工具:"
-	@echo "  make podman-backup-db      - 备份数据库"
-	@echo "  make podman-tools          - 启动工具服务（adminer）"
-	@echo ""
-
+	@$(MAKE) -s _print_help SELF_MAKEFILE_PATH='$(MAKEFILE_PODMAN_PATH)'

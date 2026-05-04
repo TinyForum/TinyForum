@@ -38,6 +38,8 @@ source "${LIB_DIR}/config.sh"
 source "${LIB_DIR}/backend.sh"
 # shellcheck source=lib/frontend.sh
 source "${LIB_DIR}/frontend.sh"
+# shellcheck source=lib/check_config.sh
+source "${LIB_DIR}/check_config.sh"
 # shellcheck source=lib/summary.sh
 source "${LIB_DIR}/summary.sh"
 
@@ -60,6 +62,7 @@ trap '_on_error $LINENO "$BASH_COMMAND"' ERR
 
 # ── 主流程 ────────────────────────────────────────────────────────────────────
 main() {
+    echo "${BANNER}"
     echo ""
     echo -e "${BOLD}🚀 TinyForum — Development Environment Setup${NC}"
     echo -e "${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
@@ -122,8 +125,12 @@ main() {
         echo -e "${RED}❌ Frontend setup failed.${NC}"
         exit 1
     fi
-
-    # ── Module 7: Summary ─────────────────────────────────────────────────
+    # ── Module 7: Config Check  ────────────────────────────────────────────────
+    if ! check_config; then
+        echo -e "${RED}❌ Configuration check failed.${NC}"
+        exit 1
+    fi
+    # ── Module 8: Summary ─────────────────────────────────────────────────
     print_summary
 }
 

@@ -1,0 +1,68 @@
+# 开发依赖
+.PHONY: check-deps check-go check-node check-pnpm
+# 启动环境
+.PHONY: check-ports
+
+# @依赖检查
+check-deps: check-go check-node check-pnpm
+	@echo "${GREEN}✅ 所有依赖检查通过${NC}"
+
+check-go:
+	@echo "${BLUE}🔍 检查 Go...${NC}"
+	@command -v go >/dev/null 2>&1 || { echo "${RED}❌ Go 未安装，请访问 https://go.dev/dl/ 安装${NC}"; exit 1; }
+	@echo "${GREEN}✅ Go 已安装: $$(go version)${NC}"
+
+check-node:
+	@echo "${BLUE}🔍 检查 Node.js...${NC}"
+	@command -v node >/dev/null 2>&1 || { echo "${RED}❌ Node.js 未安装，请访问 https://nodejs.org/ 安装${NC}"; exit 1; }
+	@echo "${GREEN}✅ Node.js 已安装: $$(node --version)${NC}"
+
+check-pnpm:
+	@echo "${BLUE}🔍 检查 pnpm...${NC}"
+	@if ! command -v pnpm >/dev/null 2>&1; then \
+		echo "${YELLOW}⚠️  pnpm 未安装，正在安装...${NC}"; \
+		npm install -g pnpm; \
+		echo "${GREEN}✅ pnpm 安装完成${NC}"; \
+	else \
+		echo "${GREEN}✅ pnpm 已安装: $$(pnpm --version)${NC}"; \
+	fi
+
+# @检测文档服务工具
+check-docsify:
+	@echo "${BLUE}🔍 检查 docsify...${NC}"
+	@if ! command -v docsify >/dev/null 2>&1; then \
+		echo "${YELLOW}⚠️  docsify 未安装，正在安装...${NC}"; \
+		npm install -g docsify-cli; \
+		echo "${GREEN}✅ docsify 安装完成${NC}"; \
+	else \
+		echo "${GREEN}✅ docsify 已安装${NC}"; \
+	fi
+
+# @环境检测
+check-ports:
+	@echo "${BLUE}🔍 检测端口占用情况...${NC}"
+	@echo "═══════════════════════════════════════════════════════════════"
+	@OCCUPIED=0; \
+	for port in 8080 3000 3001; do \
+		PIDS=$$(lsof -ti :$$port 2>/dev/null || true); \
+		if [ -n "$$PIDS" ]; then \
+			echo "${RED}❌ 端口 $$port 已被占用 (PID: $$PIDS)${NC}"; \
+			OCCUPIED=1; \
+		else \
+			echo "${GREEN}✅ 端口 $$port 空闲${NC}"; \
+		fi; \
+	done; \
+	echo "═══════════════════════════════════════════════════════════════"; \
+	if [ $$OCCUPIED -eq 1 ]; then \
+		echo "${YELLOW}⚠️  检测到端口冲突，请执行 'make clean-ports' 清理或手动终止进程${NC}"; \
+		exit 1; \
+	else \
+		echo "${GREEN}🎉 所有端口可用，可以启动服务${NC}"; \
+	fi
+
+# 帮助信息
+.PHONY: check-help
+# @此帮助信息
+check-help:
+	@$(MAKE) -s _print_help SELF_MAKEFILE_PATH='$(MAKEFILE_CHECK_PATH)'
+	@echo ""

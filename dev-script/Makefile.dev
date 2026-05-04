@@ -7,157 +7,51 @@
 .PHONY: stop stop-backend stop-frontend stop-docs
 .PHONY: restart restart-backend restart-frontend restart-docs
 .PHONY: status logs logs-backend logs-frontend logs-docs
-.PHONY: clean-logs clean-pids help check-deps check-go check-node check-pnpm
+
+
+# LOG_DIR = .logs
+# PID_DIR = .pids
+
+# $(LOG_DIR):
+# 	mkdir -p $@
+
+# $(PID_DIR):
+# 	mkdir -p $@
 
 
 
-
-
-# ========== 依赖检查 ==========
-
-check-deps: check-go check-node check-pnpm
-	@echo "${GREEN}✅ 所有依赖检查通过${NC}"
-
-check-go:
-	@echo "${BLUE}🔍 检查 Go...${NC}"
-	@command -v go >/dev/null 2>&1 || { echo "${RED}❌ Go 未安装，请访问 https://go.dev/dl/ 安装${NC}"; exit 1; }
-	@echo "${GREEN}✅ Go 已安装: $$(go version)${NC}"
-
-check-node:
-	@echo "${BLUE}🔍 检查 Node.js...${NC}"
-	@command -v node >/dev/null 2>&1 || { echo "${RED}❌ Node.js 未安装，请访问 https://nodejs.org/ 安装${NC}"; exit 1; }
-	@echo "${GREEN}✅ Node.js 已安装: $$(node --version)${NC}"
-
-check-pnpm:
-	@echo "${BLUE}🔍 检查 pnpm...${NC}"
-	@if ! command -v pnpm >/dev/null 2>&1; then \
-		echo "${YELLOW}⚠️  pnpm 未安装，正在安装...${NC}"; \
-		npm install -g pnpm; \
-		echo "${GREEN}✅ pnpm 安装完成${NC}"; \
-	else \
-		echo "${GREEN}✅ pnpm 已安装: $$(pnpm --version)${NC}"; \
-	fi
-
-check-concurrently:
-	@echo "${BLUE}🔍 检查 concurrently...${NC}"
-	@if ! command -v concurrently >/dev/null 2>&1; then \
-		echo "${YELLOW}⚠️  concurrently 未安装，正在安装...${NC}"; \
-		pnpm install -g concurrently; \
-		echo "${GREEN}✅ concurrently 安装完成${NC}"; \
-	else \
-		echo "${GREEN}✅ concurrently 已安装${NC}"; \
-	fi
-
-check-docsify:
-	@echo "${BLUE}🔍 检查 docsify...${NC}"
-	@if ! command -v docsify >/dev/null 2>&1; then \
-		echo "${YELLOW}⚠️  docsify 未安装，正在安装...${NC}"; \
-		npm install -g docsify-cli; \
-		echo "${GREEN}✅ docsify 安装完成${NC}"; \
-	else \
-		echo "${GREEN}✅ docsify 已安装${NC}"; \
-	fi
-
-# ========== 帮助信息 ==========
-dev-help:
-	@echo "═══════════════════════════════════════════════════════════════"
-	@echo "🔧 TinyForum 开发服务管理命令"
-	@echo "═══════════════════════════════════════════════════════════════"
-	@echo ""
-	@echo "📌 依赖检查"
-	@echo "───────────────────────────────────────────────────────────────"
-	@echo "  make check-deps   检查并自动安装必要依赖（Go/Node/pnpm）"
-	@echo ""
-	@echo "📌 前台运行（直接显示日志，Ctrl+C 停止）"
-	@echo "───────────────────────────────────────────────────────────────"
-	@echo "  make frontend   启动前端服务（前台运行）"
-	@echo "  make backend    启动后端服务（前台运行）"
-	@echo "  make docs       启动文档服务（前台运行）"
-	@echo "  make dev        同时启动前后端（需要 concurrently）"
-	@echo ""
-	@echo "📌 后台运行（在后台运行，不阻塞终端）"
-	@echo "───────────────────────────────────────────────────────────────"
-	@echo "  make start          启动所有服务（前后端 + 文档）"
-	@echo "  make start-backend  仅启动后端服务"
-	@echo "  make start-frontend 仅启动前端服务"
-	@echo "  make start-docs     仅启动文档服务"
-	@echo ""
-	@echo "📌 停止服务"
-	@echo "───────────────────────────────────────────────────────────────"
-	@echo "  make stop           停止所有服务"
-	@echo "  make stop-backend   仅停止后端服务"
-	@echo "  make stop-frontend  仅停止前端服务"
-	@echo "  make stop-docs      仅停止文档服务"
-	@echo ""
-	@echo "📌 重启服务"
-	@echo "───────────────────────────────────────────────────────────────"
-	@echo "  make restart           重启所有服务"
-	@echo "  make restart-backend   仅重启后端服务"
-	@echo "  make restart-frontend  仅重启前端服务"
-	@echo "  make restart-docs      仅重启文档服务"
-	@echo ""
-	@echo "📌 查看状态和日志"
-	@echo "───────────────────────────────────────────────────────────────"
-	@echo "  make status        查看所有服务运行状态"
-	@echo "  make logs          实时查看所有服务日志（混合输出）"
-	@echo "  make logs-backend  仅查看后端日志"
-	@echo "  make logs-frontend 仅查看前端日志"
-	@echo "  make logs-docs     仅查看文档日志"
-	@echo ""
-	@echo "📌 清理"
-	@echo "───────────────────────────────────────────────────────────────"
-	@echo "  make clean-logs    清理所有日志文件"
-	@echo "  make clean-pids    清理所有 PID 文件"
-	@echo ""
-	@echo "📌 快速命令"
-	@echo "───────────────────────────────────────────────────────────────"
-	@echo "  make up            启动所有服务并显示地址"
-	@echo "  make down          停止所有服务"
-	@echo "  make restart-all   重启所有服务（别名）"
-	@echo ""
-	@echo "═══════════════════════════════════════════════════════════════"
-	@echo "📍 服务访问地址"
-	@echo "═══════════════════════════════════════════════════════════════"
-	@echo "  🌐 前端:      http://localhost:3000"
-	@echo "  ⚙️  后端 API:  http://localhost:8080"
-	@echo "  📚 文档:      http://localhost:3001"
-	@echo ""
-	@echo "📁 PID 文件目录:   $(PID_DIR)"
-	@echo "📝 日志文件目录:   $(LOG_DIR)"
-	@echo "═══════════════════════════════════════════════════════════════"
-	@echo ""
-	@echo "💡 首次使用请运行: make check-deps"
-
-# ========== 前台运行 ==========
-
+# @启动前端（前台运行）
 frontend: check-pnpm
 	@echo "${GREEN}🚀 启动前端开发服务器（前台运行）...${NC}"
 	@echo "📍 访问地址: http://localhost:3000"
 	@echo "⚠️  按 Ctrl+C 停止服务"
 	@cd frontend && pnpm run dev
 
+# @启动前后（前台运行）
 backend: check-go
 	@echo "${GREEN}🚀 启动后端开发服务器（前台运行）...${NC}"
 	@echo "📍 API 地址: http://localhost:8080"
 	@echo "⚠️  按 Ctrl+C 停止服务"
 	@cd backend && go run ./cmd/server/main.go
 
+# @启动文档（前台运行）
 docs: check-docsify
 	@echo "${GREEN}📚 启动文档服务器（前台运行）...${NC}"
 	@echo "📍 文档地址: http://localhost:3001"
 	@echo "⚠️  按 Ctrl+C 停止服务"
 	@cd docs && docsify serve
 
-dev: check-deps check-concurrently
+# @启动整个项目（后台运行：开发模式）
+dev: check-deps
 	@echo "${GREEN}🚀 同时启动前后端服务（前台运行）...${NC}"
-	@concurrently --names "前端,后端" --prefix-colors "cyan,yellow" "make frontend" "make backend"
+	@./frontend/node_modules/.bin/concurrently --names "BACKEND,FRONTEND" --prefix-colors "cyan,yellow" "make frontend" "make backend"
 
-# ========== 后台运行 ==========
-
+# @启动项目（后台运行）
 start: check-deps | $(PID_DIR) $(LOG_DIR) start-backend start-frontend start-docs
 	@echo "${GREEN}✅ 所有服务已启动${NC}"
 	@$(MAKE) status
 
+# @启动后端（后台运行）
 start-backend: check-go | $(PID_DIR) $(LOG_DIR)
 	@if [ -f $(BACKEND_PID_FILE) ] && kill -0 $$(cat $(BACKEND_PID_FILE)) 2>/dev/null; then \
 		echo "${YELLOW}⚠️  后端服务已在运行中 (PID: $$(cat $(BACKEND_PID_FILE)))${NC}"; \
@@ -177,6 +71,8 @@ start-backend: check-go | $(PID_DIR) $(LOG_DIR)
 		fi \
 	fi
 
+
+# @启动前端（后台运行）
 start-frontend: check-pnpm | $(PID_DIR) $(LOG_DIR)
 	@if [ -f $(FRONTEND_PID_FILE) ] && kill -0 $$(cat $(FRONTEND_PID_FILE)) 2>/dev/null; then \
 		echo "${YELLOW}⚠️  前端服务已在运行中 (PID: $$(cat $(FRONTEND_PID_FILE)))${NC}"; \
@@ -196,6 +92,7 @@ start-frontend: check-pnpm | $(PID_DIR) $(LOG_DIR)
 		fi \
 	fi
 
+# @启动文档（后台运行）
 start-docs: check-docsify | $(PID_DIR) $(LOG_DIR)
 	@if [ -f $(DOCS_PID_FILE) ] && kill -0 $$(cat $(DOCS_PID_FILE)) 2>/dev/null; then \
 		echo "${YELLOW}⚠️  文档服务已在运行中 (PID: $$(cat $(DOCS_PID_FILE)))${NC}"; \
@@ -215,11 +112,11 @@ start-docs: check-docsify | $(PID_DIR) $(LOG_DIR)
 		fi \
 	fi
 
-# ========== 停止服务 ==========
-
+# @停止服务
 stop: stop-backend stop-frontend stop-docs
 	@echo "${GREEN}✅ 所有服务已停止${NC}"
 
+# @停止后端服务
 stop-backend:
 	@if [ -f $(BACKEND_PID_FILE) ]; then \
 		PID=$$(cat $(BACKEND_PID_FILE)); \
@@ -240,6 +137,7 @@ stop-backend:
 		echo "${YELLOW}⚠️  未找到后端 PID 文件（服务未运行）${NC}"; \
 	fi
 
+# @停止前端服务
 stop-frontend:
 	@if [ -f $(FRONTEND_PID_FILE) ]; then \
 		PID=$$(cat $(FRONTEND_PID_FILE)); \
@@ -260,6 +158,7 @@ stop-frontend:
 		echo "${YELLOW}⚠️  未找到前端 PID 文件（服务未运行）${NC}"; \
 	fi
 
+# @停止文档服务
 stop-docs:
 	@if [ -f $(DOCS_PID_FILE) ]; then \
 		PID=$$(cat $(DOCS_PID_FILE)); \
@@ -280,24 +179,23 @@ stop-docs:
 		echo "${YELLOW}⚠️  未找到文档 PID 文件（服务未运行）${NC}"; \
 	fi
 
-# ========== 重启 ==========
-
+# @重启
 restart: stop start
 	@echo "${GREEN}🔄 所有服务已重启${NC}"
 
+# @重启后端
 restart-backend: stop-backend start-backend
 	@echo "${GREEN}🔄 后端服务已重启${NC}"
 
+# @重启前端
 restart-frontend: stop-frontend start-frontend
 	@echo "${GREEN}🔄 前端服务已重启${NC}"
 
+# @重启文档
 restart-docs: stop-docs start-docs
 	@echo "${GREEN}🔄 文档服务已重启${NC}"
 
-restart-all: restart
-
-# ========== 状态 ==========
-
+# @状态检查
 status:
 	@echo "═══════════════════════════════════════════════════════════════"
 	@echo "📊 服务运行状态"
@@ -353,42 +251,27 @@ status:
 	@echo "📍 快速查看日志: make logs"
 	@echo "📍 停止所有服务: make stop"
 
-# ========== 日志 ==========
-
+# @查看实时日志
 logs:
 	@echo "${BLUE}📝 实时查看所有日志（按 Ctrl+C 退出）...${NC}"
 	@tail -f $(BACKEND_LOG) $(FRONTEND_LOG) $(DOCS_LOG) 2>/dev/null || echo "${YELLOW}未找到日志文件，请先运行 'make start' 启动服务${NC}"
 
+# @查看后端实时日志
 logs-backend:
 	@echo "${BLUE}📝 实时查看后端日志（按 Ctrl+C 退出）...${NC}"
 	@tail -f $(BACKEND_LOG) 2>/dev/null || echo "${YELLOW}未找到后端日志文件，请先运行 'make start-backend'${NC}"
 
+# @查看前端实时日志
 logs-frontend:
 	@echo "${BLUE}📝 实时查看前端日志（按 Ctrl+C 退出）...${NC}"
 	@tail -f $(FRONTEND_LOG) 2>/dev/null || echo "${YELLOW}未找到前端日志文件，请先运行 'make start-frontend'${NC}"
 
+# @查看文档实时日志
 logs-docs:
 	@echo "${BLUE}📝 实时查看文档日志（按 Ctrl+C 退出）...${NC}"
 	@tail -f $(DOCS_LOG) 2>/dev/null || echo "${YELLOW}未找到文档日志文件，请先运行 'make start-docs'${NC}"
 
-# ========== 清理 ==========
-
-clean-logs:
-	@echo "${YELLOW}🧹 清理日志文件...${NC}"
-	@rm -rf $(LOG_DIR)
-	@mkdir -p $(LOG_DIR)
-	@echo "${GREEN}✅ 日志已清理${NC}"
-
-clean-pids:
-	@echo "${YELLOW}🧹 清理 PID 文件...${NC}"
-	@rm -rf $(PID_DIR)
-	@echo "${GREEN}✅ PID 文件已清理${NC}"
-
-clean: clean-logs clean-pids
-	@echo "${GREEN}✅ 所有临时文件已清理${NC}"
-
-# ========== 开发快捷命令 ==========
-
+# @快捷启动项目
 up: start
 	@echo ""
 	@echo "${GREEN}═══════════════════════════════════════════════════════════════${NC}"
@@ -401,11 +284,10 @@ up: start
 	@echo "  📝 查看日志: ${YELLOW}make logs${NC}"
 	@echo "  🛑 停止服务: ${YELLOW}make stop${NC}"
 	@echo "${GREEN}═══════════════════════════════════════════════════════════════${NC}"
-
+# @快捷停止项目
 down: stop
 
-# ========== 开发环境初始化 ==========
-
+# @开发环境初始化
 init: check-deps
 	@echo "${GREEN}🚀 初始化开发环境...${NC}"
 	@echo "${BLUE}📦 安装前端依赖...${NC}"
@@ -415,3 +297,11 @@ init: check-deps
 	@echo "${GREEN}✅ 开发环境初始化完成${NC}"
 	@echo ""
 	@echo "💡 现在可以运行: make up"
+
+
+# 帮助信息
+.PHONY: dev-help
+# @此帮助信息
+dev-help:
+	@$(MAKE) -s _print_help SELF_MAKEFILE_PATH='$(MAKEFILE_DEV_PATH)'
+	@echo ""
