@@ -2,41 +2,52 @@
 # 公共变量定义
 # ============================================
 
-# PID 文件存储目录
+# ── 路径 ──────────────────────────────────────────────────────────────────────
+_CFG_SELF_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
+_CFG_ROOT     := $(abspath $(_CFG_SELF_DIR)/..)
+CFG_DIR       ?= $(_CFG_ROOT)/backend/config
+
+# 目录配置
 PID_DIR := .pids
+LOG_DIR := .logs
+SELF_MAKEFILE_PATH := $(abspath $(lastword $(MAKEFILE_LIST)))
+
+# PID 文件路径
 BACKEND_PID_FILE := $(PID_DIR)/backend.pid
 FRONTEND_PID_FILE := $(PID_DIR)/frontend.pid
-DOCS_PID_FILE := $(PID_DIR)/docs.pid
+DOCS_PID_FILE    := $(PID_DIR)/docs.pid
 
-# 日志目录
-LOG_DIR := ./dev-script/applogs
+# 日志文件路径
 BACKEND_LOG := $(LOG_DIR)/backend.log
 FRONTEND_LOG := $(LOG_DIR)/frontend.log
-DOCS_LOG := $(LOG_DIR)/docs.log
+DOCS_LOG    := $(LOG_DIR)/docs.log
 
-# 创建必要目录
+# 配置文件路径
+CFG_BASIC    := $(CFG_DIR)/basic.yml
+CFG_PRIVATE  := $(CFG_DIR)/private.yml
+CFG_RISK     := $(CFG_DIR)/risk_control.yml
+CFG_POSTGRES := $(CFG_DIR)/postgres.yml
+CFG_REDIS    := $(CFG_DIR)/redis.yml
+
+
+
+# 颜色输出（供其他目标使用）
+RED    := \033[0;31m
+GREEN  := \033[0;32m
+YELLOW := \033[1;33m
+BLUE   := \033[0;34m
+NC     := \033[0m   # No Color
+
+# ============================================
+# 目录创建（作为顺序依赖的目标）
+# ============================================
+
 $(PID_DIR):
 	@mkdir -p $(PID_DIR)
 
 $(LOG_DIR):
 	@mkdir -p $(LOG_DIR)
 
-# 默认目标：显示帮助
-.DEFAULT_GOAL := help
-
-# ========== 目录配置 ==========
-# PID_DIR := .pids
-# LOG_DIR := .logs
-BACKEND_PID_FILE := $(PID_DIR)/backend.pid
-FRONTEND_PID_FILE := $(PID_DIR)/frontend.pid
-DOCS_PID_FILE := $(PID_DIR)/docs.pid
-BACKEND_LOG := $(LOG_DIR)/backend.log
-FRONTEND_LOG := $(LOG_DIR)/frontend.log
-DOCS_LOG := $(LOG_DIR)/docs.log
-
-# 颜色输出
-RED := \033[0;31m
-GREEN := \033[0;32m
-YELLOW := \033[1;33m
-BLUE := \033[0;34m
-NC := \033[0m # No Color
+# 确保 PID 和 LOG 目录存在（其他目标可依赖此项）
+.PHONY: prepare-dirs
+prepare-dirs: $(PID_DIR) $(LOG_DIR)

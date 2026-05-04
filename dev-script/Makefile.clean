@@ -1,0 +1,54 @@
+.PHONY: clean-logs clean-pids 
+
+# @清理日志
+clean-logs:
+	@echo "${YELLOW}🧹 清理日志文件...${NC}"
+	@rm -rf $(LOG_DIR)
+	@mkdir -p $(LOG_DIR)
+	@echo "${GREEN}✅ 日志已清理${NC}"
+
+# @清理进程
+clean-pids:
+	@echo "${YELLOW}🧹 清理 PID 文件...${NC}"
+	@rm -rf $(PID_DIR)
+	@echo "${GREEN}✅ PID 文件已清理${NC}"
+
+# @清理日志和进程
+clean: clean-logs clean-pids
+	@echo "${GREEN}✅ 所有临时文件已清理${NC}"
+
+.PHONY: clean-ports
+# @清理端口
+clean-ports:
+	@echo "${YELLOW}🔍 检查端口 8080 和 3000 占用情况...${NC}"
+	@for port in 8080 3000; do \
+		PIDS=$$(lsof -ti :$$port 2>/dev/null || true); \
+		if [ -n "$$PIDS" ]; then \
+			echo "${YELLOW}⚠️  端口 $$port 被进程 PID=$$PIDS 占用，正在终止...${NC}"; \
+			for pid in $$PIDS; do \
+				kill -TERM $$pid 2>/dev/null || true; \
+			done; \
+			sleep 1; \
+			STILL=$$(lsof -ti :$$port 2>/dev/null || true); \
+			if [ -n "$$STILL" ]; then \
+				echo "${YELLOW}⚠️  进程未响应，强制终止...${NC}"; \
+				for pid in $$STILL; do \
+					kill -KILL $$pid 2>/dev/null || true; \
+				done; \
+			fi; \
+			echo "${GREEN}✅ 端口 $$port 已释放${NC}"; \
+		else \
+			echo "${GREEN}✅ 端口 $$port 未被占用${NC}"; \
+		fi; \
+	done
+
+# @清理所有
+clean-all: clean-logs clean-pids clean-ports
+	@echo "${GREEN}✅ 所有临时文件及端口冲突已清理${NC}"
+
+# 帮助信息
+.PHONY: clean-help
+# @此帮助信息
+clean-help:
+	@$(MAKE) -s _print_help SELF_MAKEFILE_PATH='$(MAKEFILE_CLEAN_PATH)'
+	@echo ""
