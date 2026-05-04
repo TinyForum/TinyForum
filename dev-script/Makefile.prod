@@ -1,0 +1,178 @@
+# ============================================
+# 生产服务管理（前台 + 后台）
+# ============================================
+
+.PHONY: frontend backend docs prod
+.PHONY: build build-frontend build-backend
+.PHONY: start start-backend start-frontend start-docs
+.PHONY: stop stop-backend stop-frontend stop-docs
+.PHONY: restart restart-backend restart-frontend restart-docs
+.PHONY: status logs logs-backend logs-frontend logs-docs
+
+BINARY        = ./backend/bin/server
+FRONTEND_DIST = ./frontend/build
+
+# ──────────────────────────────────────────
+# 构建
+# ──────────────────────────────────────────
+
+# @构建全部
+build: build-frontend build-backend
+	@echo "${GREEN}✅ 全部构建完成${NC}"
+
+# @构建前端（生成静态产物）
+build-frontend: check-pnpm
+	@echo "${BLUE}📦 构建前端...${NC}"
+	@cd frontend && pnpm run build
+	@echo "${GREEN}✅ 前端构建完成 → $(FRONTEND_DIST)${NC}"
+
+# @构建后端（编译二进制）
+build-backend: check-go
+	@echo "${BLUE}📦 编译后端...${NC}"
+	@cd backend && mkdir -p bin && go build -o ../$(BINARY) ./cmd/server/main.go
+	@echo "${GREEN}✅ 后端编译完成 → $(BINARY)${NC}"
+
+# ──────────────────────────────────────────
+# 前台运行（调试用，Ctrl+C 停止）
+# ──────────────────────────────────────────
+
+# @前端静态服务（前台运行）
+prod-frontend: check-serve
+	@echo "${GREEN}🚀 启动前端静态服务（前台运行）...${NC}"
+	@echo "📍 访问地址: http://localhost:3000"
+	@echo "⚠️  按 Ctrl+C 停止服务"
+	@serve -s $(FRONTEND_DIST) -l 3000
+
+# @后端服务（前台运行）
+prod-backend: $(BINARY)
+	@echo "${GREEN}🚀 启动后端服务（前台运行）...${NC}"
+	@echo "📍 API 地址: http://localhost:8080"
+	@echo "⚠️  按 Ctrl+C 停止服务"
+	@$(BINARY)
+
+# @文档服务（前台运行）
+prod-docs: check-docsify
+	@echo "${GREEN}📚 启动文档服务（前台运行）...${NC}"
+	@echo "📍 文档地址: http://localhost:3001"
+	@echo "⚠️  按 Ctrl+C 停止服务"
+	@cd docs && docsify serve
+
+# ──────────────────────────────────────────
+# 后台运行（生产推荐）
+# ──────────────────────────────────────────
+
+# @启动项目（后台运行，生产模式）
+prod-start: check-deps $(BINARY) $(FRONTEND_DIST) | $(PID_DIR) $(LOG_DIR)
+	@$(MAKE) start-backend start-frontend start-docs
+	@echo "${GREEN}✅ 所有服务已启动${NC}"
+	@$(MAKE) status
+
+# @启动后端（后台运行）
+prod-start-backend: $(BINARY) | $(PID_DIR) $(LOG_DIR)
+	@if [ -f $(BACKEND_PID_FILE) ] && kill -0 $$(cat $(BACKEND_PID_FILE)) 2>/dev/null; then \
+		echo "${YELLOW}⚠️  后端服务已在运行中 (PID: $$(cat $(BACKEND_PID_FILE)))${NC}"; \
+	else \
+		echo "${GREEN}🚀 正在启动后端服务（后台运行）...${NC}"; \
+		nohup $(BINARY) > $(BACKEND_LOG) 2>&1 & \
+		echo $$! > $(BACKEND_PID_FILE); \
+		sleep 2; \
+		if kill -0 $$(cat $(BACKEND_PID_FILE)) 2>/dev/null; then \
+			echo "${GREEN}✅ 后端服务启动成功 (PID: $$(cat $(BACKEND_PID_FILE)))${NC}"; \
+			echo "📝 日志文件: $(BACKEND_LOG)"; \
+			echo "📍 API 地址: http://localhost:8080"; \
+		else \
+			echo "${RED}❌ 后端服务启动失败，请检查日志: $(BACKEND_LOG)${NC}"; \
+			rm -f $(BACKEND_PID_FILE); \
+			exit 1; \
+		fi \
+	fi
+
+# @启动前端静态服务（后台运行）
+prod-start-frontend: check-serve $(FRONTEND_DIST) | $(PID_DIR) $(LOG_DIR)
+	@if [ -f $(FRONTEND_PID_FILE) ] && kill -0 $$(cat $(FRONTEND_PID_FILE)) 2>/dev/null; then \
+		echo "${YELLOW}⚠️  前端服务已在运行中 (PID: $$(cat $(FRONTEND_PID_FILE)))${NC}"; \
+	else \
+		echo "${GREEN}🚀 正在启动前端静态服务（后台运行）...${NC}"; \
+		nohup serve -s $(FRONTEND_DIST) -l 3000 > $(FRONTEND_LOG) 2>&1 & \
+		echo $$! > $(FRONTEND_PID_FILE); \
+		sleep 2; \
+		if kill -0 $$(cat $(FRONTEND_PID_FILE)) 2>/dev/null; then \
+			echo "${GREEN}✅ 前端服务启动成功 (PID: $$(cat $(FRONTEND_PID_FILE)))${NC}"; \
+			echo "📝 日志文件: $(FRONTEND_LOG)"; \
+			echo "📍 访问地址: http://localhost:3000"; \
+		else \
+			echo "${RED}❌ 前端服务启动失败，请检查日志: $(FRONTEND_LOG)${NC}"; \
+			rm -f $(FRONTEND_PID_FILE); \
+			exit 1; \
+		fi \
+	fi
+
+# @启动文档（后台运行）
+prod-start-docs: check-docsify | $(PID_DIR) $(LOG_DIR)
+	@if [ -f $(DOCS_PID_FILE) ] && kill -0 $$(cat $(DOCS_PID_FILE)) 2>/dev/null; then \
+		echo "${YELLOW}⚠️  文档服务已在运行中 (PID: $$(cat $(DOCS_PID_FILE)))${NC}"; \
+	else \
+		echo "${GREEN}📚 正在启动文档服务（后台运行）...${NC}"; \
+		cd docs && nohup docsify serve > ../$(DOCS_LOG) 2>&1 & \
+		echo $$! > $(DOCS_PID_FILE); \
+		sleep 1; \
+		if kill -0 $$(cat $(DOCS_PID_FILE)) 2>/dev/null; then \
+			echo "${GREEN}✅ 文档服务启动成功 (PID: $$(cat $(DOCS_PID_FILE)))${NC}"; \
+			echo "📝 日志文件: $(DOCS_LOG)"; \
+			echo "📍 文档地址: http://localhost:3001"; \
+		else \
+			echo "${RED}❌ 文档服务启动失败，请检查日志: $(DOCS_LOG)${NC}"; \
+			rm -f $(DOCS_PID_FILE); \
+			exit 1; \
+		fi \
+	fi
+
+
+# ──────────────────────────────────────────
+# 快捷命令
+# ──────────────────────────────────────────
+
+# @一键构建并启动（生产）
+prod-up: build prod-start
+	@echo ""
+	@echo "${GREEN}═══════════════════════════════════════════════════════════════${NC}"
+	@echo "${GREEN}🎉 生产服务已启动！${NC}"
+	@echo "${GREEN}═══════════════════════════════════════════════════════════════${NC}"
+	@echo "  🌐 前端: ${BLUE}http://localhost:3000${NC}"
+	@echo "  ⚙️  后端: ${BLUE}http://localhost:8080${NC}"
+	@echo "  📚 文档: ${BLUE}http://localhost:3001${NC}"
+	@echo ""
+	@echo "  📝 查看日志: ${YELLOW}make logs${NC}"
+	@echo "  🛑 停止服务: ${YELLOW}make stop${NC}"
+	@echo "${GREEN}═══════════════════════════════════════════════════════════════${NC}"
+
+# @快捷停止
+prod-down: stop
+
+# @生产环境初始化
+prod-init: check-deps
+	@echo "${GREEN}🚀 初始化生产环境...${NC}"
+	@echo "${BLUE}📦 安装前端依赖...${NC}"
+	@cd frontend && pnpm install --frozen-lockfile
+	@echo "${BLUE}📦 下载后端依赖...${NC}"
+	@cd backend && go mod download
+	@echo "${BLUE}🔧 检查静态服务器...${NC}"
+	@which serve >/dev/null 2>&1 || npm install -g serve
+	@echo "${GREEN}✅ 初始化完成${NC}"
+	@echo ""
+	@echo "💡 现在可以运行: make up"
+
+# ──────────────────────────────────────────
+# 依赖检查（新增 check-serve）
+# ──────────────────────────────────────────
+
+prod-check-serve:
+	@which serve >/dev/null 2>&1 || \
+		(echo "${RED}❌ 未找到 serve，请运行: npm install -g serve${NC}" && exit 1)
+
+# 帮助信息
+.PHONY: prod-help
+# @此帮助信息
+prod-help:
+	@$(MAKE) -s _print_help SELF_MAKEFILE_PATH='$(MAKEFILE_PROD_PATH)'
+	@echo ""

@@ -21,6 +21,7 @@ MAKEFILE_CODE_PATH   := $(DEVS_SCRIPT_DIR)/Makefile.code
 MAKEFILE_ENV_PATH    := $(DEVS_SCRIPT_DIR)/Makefile.env
 MAKEFILE_CFG_PATH    := $(DEVS_SCRIPT_DIR)/Makefile.cfg
 MAKEFILE_LOG_PATH    := $(DEVS_SCRIPT_DIR)/Makefile.log
+MAKEFILE_PROD_PATH   := $(DEVS_SCRIPT_DIR)/Makefile.prod
 
 # logo
 BANNER_PATH			 := $(DEVS_SCRIPT_DIR)/scripts/dev/banner.txt
@@ -44,6 +45,7 @@ include $(MAKEFILE_CODE_PATH)
 include $(MAKEFILE_ENV_PATH)
 include $(MAKEFILE_CFG_PATH)
 include $(MAKEFILE_LOG_PATH)
+include $(MAKEFILE_PROD_PATH)
 
 
 

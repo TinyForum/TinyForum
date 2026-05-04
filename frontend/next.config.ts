@@ -139,6 +139,7 @@ const baseConfig: Partial<NextConfig> = {
       { protocol: "http", hostname: "localhost" },
     ],
   },
+  distDir: "build",
   experimental: converted.experimental ?? {
     proxyTimeout: 10000,
   },
