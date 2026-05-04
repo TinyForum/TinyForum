@@ -30,6 +30,7 @@ _get_default() {
         ollama_model)       echo "${OLLAMA_MODEL:-qwen3:0.6b}" ;;
         llamacpp_url)       echo "${LLAMACPP_BASE_URL:-http://localhost:8080}" ;;
         llamacpp_model)     echo "${LLAMACPP_MODEL:-llama.cpp}" ;;
+        # Email
         email_host)         echo "${EMAIL_HOST:-smtp.163.com}" ;;
         email_port)         echo "${EMAIL_PORT:-465}" ;;
         email_user)         echo "${EMAIL_USERNAME:-xxxxx@xxxx.com}" ;;
@@ -38,6 +39,7 @@ _get_default() {
         email_from_name)    echo "${EMAIL_FROM_NAME:-TinyForum}" ;;
         email_ssl)          echo "${EMAIL_SSL:-false}" ;;
         email_tls)          echo "${EMAIL_TLS:-true}" ;;
+        # JWT
         jwt_secret)         echo "${JWT_SECRET:-tiny-forum-secret-change-in-production-32chars}" ;;
         jwt_expire)         echo "${JWT_EXPIRE:-24h}" ;;
         jwt_refresh)        echo "${JWT_REFRESH_EXPIRE:-168h}" ;;

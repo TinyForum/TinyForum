@@ -18,13 +18,13 @@ const (
 	colorBold   = "\033[1m"
 )
 
-//go:embed banner.txt
+//go:embed banner
 var bannerRaw string
 
 func PrintBanner(version string) {
 	banner := colorCyan + bannerRaw + colorReset + "\n" +
 		colorYellow + "✨ Tiny Forum v" + version + " ✨" + colorReset + "\n"
-	fmt.Print(banner)
+	logger.Infof(banner)
 }
 
 // PrintStartupInfo 打印统一的启动信息
