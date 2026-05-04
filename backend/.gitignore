@@ -5,3 +5,5 @@ logs/
 vendor/
 
 !rbac_model.conf
+*.yml
+*.yaml
