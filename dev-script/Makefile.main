@@ -5,10 +5,11 @@
 .PHONY: help all install build clean test api init-dev
 
 
+
 # @初始化配置
 init-dev:
 	@echo "🚀 Initializing project..."
-	@bash ./dev-script/start-dev.sh
+	@bash "$(SHELL_DEV_PATH)"
 
 # @安装依赖
 install:

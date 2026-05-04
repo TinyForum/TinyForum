@@ -22,6 +22,12 @@ MAKEFILE_ENV_PATH    := $(DEVS_SCRIPT_DIR)/Makefile.env
 MAKEFILE_CFG_PATH    := $(DEVS_SCRIPT_DIR)/Makefile.cfg
 MAKEFILE_LOG_PATH    := $(DEVS_SCRIPT_DIR)/Makefile.log
 
+# logo
+BANNER_PATH			 := $(DEVS_SCRIPT_DIR)/script/dev/banner.txt
+
+# dev shell
+SHELL_DEV_PATH		 := $(DEVS_SCRIPT_DIR)/scripts/dev.sh
+
 # 包含 help.mk（提供 _print_help 目标）
 include dev-script/help.mk
 
@@ -39,8 +45,11 @@ include $(MAKEFILE_ENV_PATH)
 include $(MAKEFILE_CFG_PATH)
 include $(MAKEFILE_LOG_PATH)
 
+
+
+
 banner:
-	@cat $(DEVS_SCRIPT_DIR)/lib/banner.txt
+	@cat $(BANNER_PATH)
 
 help: banner
 	@echo ""

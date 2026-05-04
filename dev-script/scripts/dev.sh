@@ -16,36 +16,37 @@
 set -eEo pipefail
 
 # ── 路径解析 ──────────────────────────────────────────────────────────────────
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-LIB_DIR="${SCRIPT_DIR}/lib"
+DEV_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPTS_DIR="${DEV_SCRIPT_DIR}"
+DEV_DIR="${SCRIPTS_DIR}/dev"
 
 # ── 加载模块 ──────────────────────────────────────────────────────────────────
 # shellcheck source=lib/colors.sh
-source "${LIB_DIR}/colors.sh"
+source "${DEV_DIR}/colors.sh"
 # shellcheck source=lib/globals.sh
-source "${LIB_DIR}/globals.sh"
+source "${DEV_DIR}/globals.sh"
 # shellcheck source=lib/detect_os.sh
-source "${LIB_DIR}/detect_os.sh"
+source "${DEV_DIR}/detect_os.sh"
 # shellcheck source=lib/check_deps.sh
-source "${LIB_DIR}/check_deps.sh"
+source "${DEV_DIR}/check_deps.sh"
 # shellcheck source=lib/postgres.sh
-source "${LIB_DIR}/postgres.sh"
+source "${DEV_DIR}/postgres.sh"
 # shellcheck source=lib/redis.sh
-source "${LIB_DIR}/redis.sh"
+source "${DEV_DIR}/redis.sh"
 # shellcheck source=lib/config.sh
-source "${LIB_DIR}/config.sh"
+source "${DEV_DIR}/config.sh"
 # shellcheck source=lib/backend.sh
-source "${LIB_DIR}/backend.sh"
+source "${DEV_DIR}/backend.sh"
 # shellcheck source=lib/frontend.sh
-source "${LIB_DIR}/frontend.sh"
+source "${DEV_DIR}/frontend.sh"
 # shellcheck source=lib/check_config.sh
-source "${LIB_DIR}/check_config.sh"
+source "${DEV_DIR}/check_config.sh"
 # shellcheck source=lib/summary.sh
-source "${LIB_DIR}/summary.sh"
+source "${DEV_DIR}/summary.sh"
 
 
 echo "  Script Dir: ${SCRIPT_DIR}"
-echo "  Lib Dir: ${LIB_DIR}"
+echo "  Lib Dir: ${DEV_DIR}"
 echo "  Project Root: ${PROJECT_ROOT}"
 
 
