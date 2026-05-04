@@ -49,3 +49,5 @@ tsconfig.tsbuildinfo
 dump.rdb
 .logs
 .pids
+.env
+.env.example
