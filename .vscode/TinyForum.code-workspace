@@ -16,6 +16,11 @@
       "path": "../dev-script",
       "name": "Script (make/shell)",
     },
+
+    {
+      "path": "../nginx",
+      "name": "Nginx (conf)",
+    },
   ],
 
   "settings": {
