@@ -27,6 +27,15 @@ check-pnpm:
 		echo "${GREEN}✅ pnpm 已安装: $$(pnpm --version)${NC}"; \
 	fi
 
+check-yq:
+	# 下载适用于 Linux ARM64 架构的最新 yq 二进制文件
+	@wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_arm64 -O yq
+	# 将文件移动到 PATH 路径下并赋予执行权限
+	@sudo mv yq /usr/local/bin/
+	@sudo chmod +x /usr/local/bin/yq
+	# 验证安装
+	@yq --version
+
 # @检测文档服务工具
 check-docsify:
 	@echo "${BLUE}🔍 检查 docsify...${NC}"
