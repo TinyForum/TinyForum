@@ -337,8 +337,9 @@ setup_backend() {
 
         setup_backend_config
         pwd 
+        echo "${PROJECT_BACKEND}"
 
-        cd backend || { echo -e "${RED}❌ 'backend' directory not found${NC}"; exit 1; }
+        cd "${PROJECT_BACKEND}" || { echo -e "${RED}❌ 'backend' directory not found${NC}"; exit 1; }
 
         if [ ! -f "go.mod" ]; then
             echo -e "${RED}❌ go.mod not found in ${PROJECT_BACKEND}. Are you in the right directory?${NC}"

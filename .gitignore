@@ -50,4 +50,4 @@ dump.rdb
 .logs
 .pids
 .env
-.env.example
+.env.*
