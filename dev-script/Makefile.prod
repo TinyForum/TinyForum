@@ -4,13 +4,13 @@
 
 .PHONY: frontend backend docs prod
 .PHONY: build build-frontend build-backend
-.PHONY: start start-backend start-frontend start-docs
+
 .PHONY: stop stop-backend stop-frontend stop-docs
 .PHONY: restart restart-backend restart-frontend restart-docs
 .PHONY: status logs logs-backend logs-frontend logs-docs
 
-BINARY        = ./backend/bin/server
-FRONTEND_DIST = ./frontend/build
+BINARY        = ./backend/server
+FRONTEND_DIST = ./frontend/.next
 
 # ──────────────────────────────────────────
 # 构建
@@ -60,35 +60,36 @@ prod-docs: check-docsify
 # ──────────────────────────────────────────
 # 后台运行（生产推荐）
 # ──────────────────────────────────────────
-
+.PHONY: prod start-prob prof proc
 # @启动项目（后台运行，生产模式）
-prod-start: check-deps $(BINARY) $(FRONTEND_DIST) | $(PID_DIR) $(LOG_DIR)
-	@$(MAKE) start-backend start-frontend start-docs
+product: check-deps $(BINARY) $(FRONTEND_DIST) | $(PID_DIR) $(LOG_DIR)
+	@$(MAKE) proback profro 
 	@echo "${GREEN}✅ 所有服务已启动${NC}"
 	@$(MAKE) status
 
 # @启动后端（后台运行）
-prod-start-backend: $(BINARY) | $(PID_DIR) $(LOG_DIR)
-	@if [ -f $(BACKEND_PID_FILE) ] && kill -0 $$(cat $(BACKEND_PID_FILE)) 2>/dev/null; then \
-		echo "${YELLOW}⚠️  后端服务已在运行中 (PID: $$(cat $(BACKEND_PID_FILE)))${NC}"; \
+proback: $(BINARY) | $(PID_DIR) $(LOG_DIR)
+	@mkdir -p $(PID_DIR) $(LOG_DIR)
+	@if [ -f $(BACKEND_PID) ] && kill -0 $$(cat $(BACKEND_PID)) 2>/dev/null; then \
+		echo "${YELLOW}⚠️  后端服务已在运行中 (PID: $$(cat $(BACKEND_PID)))${NC}"; \
 	else \
 		echo "${GREEN}🚀 正在启动后端服务（后台运行）...${NC}"; \
-		nohup $(BINARY) > $(BACKEND_LOG) 2>&1 & \
-		echo $$! > $(BACKEND_PID_FILE); \
+		cd $(BACKEND_DIR) && nohup ./bin/server > $(BACKEND_LOG) 2>&1 & \
+		echo $$! > $(BACKEND_PID); \
 		sleep 2; \
-		if kill -0 $$(cat $(BACKEND_PID_FILE)) 2>/dev/null; then \
-			echo "${GREEN}✅ 后端服务启动成功 (PID: $$(cat $(BACKEND_PID_FILE)))${NC}"; \
+		if kill -0 $$(cat $(BACKEND_PID)) 2>/dev/null; then \
+			echo "${GREEN}✅ 后端服务启动成功 (PID: $$(cat $(BACKEND_PID)))${NC}"; \
 			echo "📝 日志文件: $(BACKEND_LOG)"; \
 			echo "📍 API 地址: http://localhost:8080"; \
 		else \
 			echo "${RED}❌ 后端服务启动失败，请检查日志: $(BACKEND_LOG)${NC}"; \
-			rm -f $(BACKEND_PID_FILE); \
+			rm -f $(BACKEND_PID); \
 			exit 1; \
 		fi \
 	fi
 
 # @启动前端静态服务（后台运行）
-prod-start-frontend: check-serve $(FRONTEND_DIST) | $(PID_DIR) $(LOG_DIR)
+profro: check-serve $(FRONTEND_DIST) | $(PID_DIR) $(LOG_DIR)
 	@if [ -f $(FRONTEND_PID_FILE) ] && kill -0 $$(cat $(FRONTEND_PID_FILE)) 2>/dev/null; then \
 		echo "${YELLOW}⚠️  前端服务已在运行中 (PID: $$(cat $(FRONTEND_PID_FILE)))${NC}"; \
 	else \
@@ -108,7 +109,7 @@ prod-start-frontend: check-serve $(FRONTEND_DIST) | $(PID_DIR) $(LOG_DIR)
 	fi
 
 # @启动文档（后台运行）
-prod-start-docs: check-docsify | $(PID_DIR) $(LOG_DIR)
+prodoc: check-docsify | $(PID_DIR) $(LOG_DIR)
 	@if [ -f $(DOCS_PID_FILE) ] && kill -0 $$(cat $(DOCS_PID_FILE)) 2>/dev/null; then \
 		echo "${YELLOW}⚠️  文档服务已在运行中 (PID: $$(cat $(DOCS_PID_FILE)))${NC}"; \
 	else \

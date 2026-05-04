@@ -62,6 +62,13 @@ func main() {
 // loadConfig 加载配置文件
 func loadConfig() (*config.Config, error) {
 	configDir := "config"
+	// 获取当前工作目录
+	dir, err := os.Getwd()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "获取当前目录失败: %v\n", err)
+		os.Exit(1)
+	}
+	fmt.Println("当前路径:", dir)
 
 	basicConfigPath := filepath.Join(configDir, "basic.yml")
 	privateConfigPath := filepath.Join(configDir, "private.yml")

@@ -5,6 +5,7 @@
 # 获取当前 Makefile 自身的绝对路径（必须在任何 include 之前）
 SELF_MAKEFILE_PATH := $(abspath $(lastword $(MAKEFILE_LIST)))
 
+PROJECT_ROOT := $(CURDIR)
 # dev-script 目录绝对路径
 DEVS_SCRIPT_DIR := $(abspath dev-script)
 
@@ -22,12 +23,18 @@ MAKEFILE_ENV_PATH    := $(DEVS_SCRIPT_DIR)/Makefile.env
 MAKEFILE_CFG_PATH    := $(DEVS_SCRIPT_DIR)/Makefile.cfg
 MAKEFILE_LOG_PATH    := $(DEVS_SCRIPT_DIR)/Makefile.log
 MAKEFILE_PROD_PATH   := $(DEVS_SCRIPT_DIR)/Makefile.prod
+MAKEFILE_NGINX_PATH  := $(DEVS_SCRIPT_DIR)/Makefile.nginx
 
 # logo
 BANNER_PATH			 := $(DEVS_SCRIPT_DIR)/scripts/dev/banner.txt
 
 # dev shell
 SHELL_DEV_PATH		 := $(DEVS_SCRIPT_DIR)/scripts/dev.sh
+
+SHELL_NGINX_PATH		 := $(DEVS_SCRIPT_DIR)/scripts/nginx.sh
+
+BACKEND_PROJECT_PATH		 := $(PROJECT_ROOT)/backend
+FRONTEND_PROJECT_PATH		 := $(PROJECT_ROOT)/frontend
 
 # 包含 help.mk（提供 _print_help 目标）
 include dev-script/help.mk
@@ -46,6 +53,7 @@ include $(MAKEFILE_ENV_PATH)
 include $(MAKEFILE_CFG_PATH)
 include $(MAKEFILE_LOG_PATH)
 include $(MAKEFILE_PROD_PATH)
+include $(MAKEFILE_NGINX_PATH)
 
 
 
@@ -69,5 +77,6 @@ help: banner
 	@printf "  $(GREEN)env-help$(NC)         环境帮助信息\n"
 	@printf "  $(GREEN)docker-help$(NC)      Docker 帮助信息\n"
 	@printf "  $(GREEN)podman-help$(NC)      Podman 帮助信息\n"
+	@printf "  $(GREEN)nginx-help$(NC)       Nginx 帮助信息\n"
 	@printf "$(GREEN)────────────────────────────────────────────────────────$(NC)\n"
 	@printf "\n"
