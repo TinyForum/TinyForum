@@ -19,6 +19,7 @@ import {
   Bot,
   User2,
   EyeIcon,
+  MonitorUpIcon,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { UsersIcon } from "@heroicons/react/24/solid";
@@ -309,7 +310,8 @@ export function UserActionMenu({
           nextRole: "user",
         });
         break;
-      case "bot":
+      case "system":
+        // 系统管理员没有社区权限
         break;
     }
 
@@ -325,7 +327,7 @@ export function UserActionMenu({
       reviewer: <Eye className="w-4 h-4" />,
       member: <UserPlus className="w-4 h-4" />,
       user: <UsersIcon className="w-4 h-4" />,
-      bot: <Bot className="w-4 h-4" />,
+      system: <MonitorUpIcon className="w-4 h-4" />,
     };
 
     return {

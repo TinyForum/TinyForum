@@ -1,11 +1,11 @@
 import { useState, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-import { pluginApi } from "@/shared/api/modules/plugins";
-import type {
+import {
+  pluginApi,
   CreatePluginPayload,
   UpdatePluginPayload,
-} from "@/shared/api/modules/plugins";
+} from "@/shared/api/modules/plugin/plugins";
 
 export function useAdminPlugins() {
   const queryClient = useQueryClient();

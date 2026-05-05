@@ -3,6 +3,8 @@ package admin
 import (
 	"strconv"
 	"tiny-forum/internal/model/request"
+	"tiny-forum/internal/model/vo"
+	"tiny-forum/pkg/logger"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -175,18 +177,20 @@ func (h *AdminHandler) SetRoleUser(c *gin.Context) {
 	}
 	var body request.SetUserRoleRequest
 	if err := c.ShouldBindJSON(&body); err != nil {
-		response.BadRequest(c, "请求参数错误: "+err.Error())
+		logger.Errorf("修改用户角色失败: ",err.Error())
+		response.BadRequest(c, "请求参数错误")
 		return
 	}
 	if err := h.service.SetRoleUser(operatorID.(uint), uint(targetID), body.Role); err != nil {
-		// handleRoleError(c, err)
+		logger.Errorf("修改用户角色失败: ",err.Error())
 		response.HandleError(c, err)
 		return
 	}
-	response.Success(c, gin.H{
-		"message":     "设置角色成功",
-		"user_id":     targetID,
-		"new_role":    body.Role,
-		"operator_id": operatorID,
-	})
+	resp := vo.AdminSetUserRole{
+	Message:    "设置角色成功",
+	UserID:     targetID,
+	NewRole:    body.Role,
+	OperatorID: operatorID.(uint),
+}
+response.Success(c, resp)
 }

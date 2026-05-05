@@ -5,7 +5,7 @@ import { Toaster } from "react-hot-toast";
 import { useState, useCallback } from "react";
 import { useAuthStore } from "@/store";
 import { useLocale } from "next-intl";
-import { PluginProvider } from "@/shared/plugin/PluginContext";
+import { PluginProvider } from "./PluginContext";
 
 function InnerProviders({ children }: { children: React.ReactNode }) {
   const { user } = useAuthStore();

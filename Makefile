@@ -67,6 +67,7 @@ help: banner
 	@printf "$(GREEN) TinyForum 可用命令组$(NC)\n"
 	@printf "$(GREEN)────────────────────────────────────────────────────────$(NC)\n"
 	@printf "  $(GREEN)main-help$(NC)        主要帮助信息\n"
+	@printf "  $(GREEN)prod-help$(NC)        生产环境帮助信息\n"
 	@printf "  $(GREEN)dev-help$(NC)         开发帮助信息\n"
 	@printf "  $(GREEN)cfg-help$(NC)         配置帮助信息\n"
 	@printf "  $(GREEN)check-help$(NC)       检查帮助信息\n"

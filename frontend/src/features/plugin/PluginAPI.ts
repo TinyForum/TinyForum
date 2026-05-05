@@ -1,10 +1,10 @@
-import { pluginRegistry } from "./PluginRegistry";
-import type {
+import {
   PluginAPI,
   PluginEvent,
   PluginEventHandler,
   SlotName,
-} from "./types";
+} from "@/shared/type/plugin.type";
+import { pluginRegistry } from "./PluginRegistry";
 
 interface UserContext {
   id: string;
@@ -51,6 +51,10 @@ export function createPluginAPI(options: PluginAPIOptions): PluginAPI {
 
     getUser,
     getLocale,
+
+    getConfig() {
+      return pluginRegistry.getPluginConfig(pluginId);
+    },
 
     log(level, message) {
       const prefix = `[Plugin:${pluginName}]`;

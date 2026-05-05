@@ -15,6 +15,7 @@ interface UseUserRoleReturn {
   isMember: boolean;
   isSuperAdmin: boolean;
   isReviewer: boolean;
+  isSystemMaintainer: boolean;
 }
 
 export function useUserRole(): UseUserRoleReturn {
@@ -53,5 +54,6 @@ export function useUserRole(): UseUserRoleReturn {
     isMember: role?.role === "member",
     isSuperAdmin: role?.role === "super_admin",
     isReviewer: role?.role === "reviewer",
+    isSystemMaintainer: role?.role === "system_maintainer",
   };
 }

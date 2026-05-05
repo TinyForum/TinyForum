@@ -1,6 +1,6 @@
-import { pluginRegistry } from "./PluginRegistry";
 import { createPluginAPI } from "./PluginAPI";
-import type { PluginEntryFn, PluginMeta } from "./types";
+import { pluginRegistry } from "./PluginRegistry";
+import { PluginEntryFn, PluginMeta } from "@/shared/type/plugin.type";
 
 interface LoaderOptions {
   getUser: () => { id: string; username: string; role: string } | null;
@@ -21,9 +21,7 @@ async function loadPluginScript(
     // 防止重复加载
     const existingScript = document.getElementById(`plugin-script-${pluginId}`);
     if (existingScript) {
-      const fn = (window as Record<string, unknown>)[
-        `__plugin_${pluginId}__`
-      ] as PluginEntryFn | undefined;
+      const fn = window[`__plugin_${pluginId}__`] as PluginEntryFn | undefined;
       if (fn) return resolve(fn);
     }
 
@@ -40,9 +38,7 @@ async function loadPluginScript(
 
     script.onload = () => {
       clearTimeout(timer);
-      const fn = (window as Record<string, unknown>)[
-        `__plugin_${pluginId}__`
-      ] as PluginEntryFn | undefined;
+      const fn = window[`__plugin_${pluginId}__`] as PluginEntryFn | undefined;
       if (typeof fn === "function") {
         resolve(fn);
       } else {
@@ -123,9 +119,7 @@ export function unloadPlugin(pluginId: string): void {
 
   const script = document.getElementById(`plugin-script-${pluginId}`);
   if (script) script.remove();
-
   // 清理全局命名空间
-  delete (window as Record<string, unknown>)[`__plugin_${pluginId}__`];
-
+  delete window[`__plugin_${pluginId}__`];
   console.info(`[PluginLoader] Plugin "${pluginId}" unloaded`);
 }

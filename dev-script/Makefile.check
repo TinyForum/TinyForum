@@ -3,6 +3,7 @@
 # 启动环境
 .PHONY: check-ports
 
+
 # @依赖检查
 check-deps: check-go check-node check-pnpm
 	@echo "${GREEN}✅ 所有依赖检查通过${NC}"

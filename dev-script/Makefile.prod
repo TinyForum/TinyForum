@@ -166,7 +166,6 @@ prod-init: check-deps
 # ──────────────────────────────────────────
 # 依赖检查（新增 check-serve）
 # ──────────────────────────────────────────
-
 prod-check-serve:
 	@which serve >/dev/null 2>&1 || \
 		(echo "${RED}❌ 未找到 serve，请运行: npm install -g serve${NC}" && exit 1)

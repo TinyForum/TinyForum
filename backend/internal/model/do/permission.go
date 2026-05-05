@@ -1,5 +1,7 @@
 package do
 
+import "fmt"
+
 // ── 角色定义 ────────────────────────────────────────────────────────────────
 
 type UserRole string
@@ -13,7 +15,7 @@ const (
 	RoleAdmin      UserRole = "admin" // 管理员：管理用户、管理帖子、管理评论等（可读写：完全访问，完全读写）
 	RoleSuperAdmin UserRole = "super_admin" // 超级管理员：最高权限（可读写：完全访问，完全读写）
 	RoleBot        UserRole = "bot" // 系统机器人：自动回复、定时任务等（受限访问，受限读写）
-	SystemMaintainer       UserRole = "system_maintainer" // 系统维护者：系统维护、数据备份等（受限读写，受限访问
+	RoleSystemMaintainer       UserRole = "system_maintainer" // 系统维护者：系统维护、数据备份等（受限读写，受限访问
 )
 
 // ── 权限定义 ────────────────────────────────────────────────────────────────
@@ -73,6 +75,7 @@ const (
 	PermAssignRoleBot        Permission = "role.assign.bot"        // 分配机器人角色
 	PermAssignRoleAdmin      Permission = "role.assign.admin"      // 分配管理员角色
 	PermAssignRoleSuperAdmin Permission = "role.assign.superadmin" // 分配超级管理员角色
+	PermAssignRoleSystemMaintainer Permission = "role.assign.system_maintainer" // 分配系统维护者角色
 )
 
 // ── 角色→权限映射 ───────────────────────────────────────────────────────────
@@ -165,11 +168,13 @@ var assignableRoles = map[UserRole][]UserRole{
 	RoleModerator: {
 		RoleUser, RoleMember, RoleModerator, RoleReviewer,
 	},
+	// 管理员不可以修改超级管理员和系统维护者
 	RoleAdmin: {
 		RoleUser, RoleMember, RoleModerator, RoleReviewer, RoleBot, RoleAdmin,
 	},
+// 超级管理员是最高权限，可以修改所有角色
 	RoleSuperAdmin: {
-		RoleUser, RoleMember, RoleModerator, RoleReviewer, RoleBot, RoleAdmin, RoleSuperAdmin,
+		RoleUser, RoleMember, RoleModerator, RoleReviewer, RoleBot, RoleAdmin, RoleSuperAdmin,RoleSystemMaintainer,
 	},
 }
 
@@ -183,7 +188,7 @@ var operableTargetRoles = map[UserRole][]UserRole{
 		RoleGuest, RoleUser, RoleMember, RoleModerator, RoleReviewer, RoleBot,
 	},
 	RoleSuperAdmin: {
-		RoleGuest, RoleUser, RoleMember, RoleModerator, RoleReviewer, RoleBot, RoleAdmin,
+		RoleGuest, RoleUser, RoleMember, RoleModerator, RoleReviewer, RoleBot, RoleAdmin,RoleSystemMaintainer,
 	},
 }
 
@@ -247,10 +252,11 @@ func CanOperateTarget(operatorRole UserRole, currentTargetRole UserRole) bool {
 	return false
 }
 
-// IsValidRole 检查角色字符串是否合法（不含 guest/super_admin，不允许外部直接设置）
+// IsValidRole 检查角色字符串是否合法（）
 func IsValidRole(role UserRole) bool {
 	switch role {
-	case RoleUser, RoleMember, RoleModerator, RoleReviewer, RoleAdmin, RoleBot, RoleSuperAdmin:
+	case RoleUser, RoleMember, RoleModerator, RoleReviewer, RoleAdmin, RoleBot, RoleSuperAdmin,RoleSystemMaintainer:
+		fmt.Printf("无效角色: %v", role)
 		return true
 	}
 	return false

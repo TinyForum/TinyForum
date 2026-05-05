@@ -16,13 +16,13 @@ import {
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
-import { Modal } from "./Modal";
+import { Modal } from "@/features/admin/components/Modal";
+import { PluginMeta } from "@/shared/type/plugin.type";
+import { useAdminPlugins } from "../useAdminPlugins";
 import { PluginUploadForm } from "./PluginUploadForm";
-import { useAdminPlugins } from "../hooks/useAdminPlugins";
-import type { PluginMeta } from "@/shared/plugin/types";
-import type { CreatePluginPayload } from "@/shared/api/modules/plugins";
+import { CreatePluginPayload } from "@/shared/api/modules/plugin/plugins";
 
-export function PluginManager({ t }: { t: (key: string) => string }) {
+export function PluginManager() {
   const {
     plugins,
     total,

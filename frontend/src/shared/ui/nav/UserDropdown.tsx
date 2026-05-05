@@ -85,6 +85,14 @@ export default function UserDropdown({ user }: UserDropdownProps) {
         className: "text-primary",
       };
     }
+    if (role === "system_maintainer") {
+      return {
+        icon: <Crown className="w-4 h-4" />,
+        label: t("system_dashboard"),
+        path: "/dashboard/system",
+        className: "text-primary",
+      };
+    }
     if (role === "moderator") {
       return {
         icon: <Hammer className="w-4 h-4" />,
@@ -124,6 +132,7 @@ export default function UserDropdown({ user }: UserDropdownProps) {
   const hasManagementAccess =
     user.role === "super_admin" ||
     user.role === "admin" ||
+    user.role === "system_maintainer" ||
     user.role === "reviewer" ||
     user.role === "moderator" ||
     user.role === "member" ||

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useSyncExternalStore } from "react";
-import { pluginRegistry } from "./PluginRegistry";
+import { pluginRegistry } from "../PluginRegistry";
 
 interface PluginSlotProps {
   name: string;

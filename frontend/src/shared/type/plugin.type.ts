@@ -1,22 +1,181 @@
-// ─── Plugin System Types ───────────────────────────────────────────────────
+// ─── Plugin System Types ─────────────────────────────────────────────────────
 
+// ── 运行状态 ──────────────────────────────────────────────────────────────────
 export type PluginStatus = "active" | "inactive" | "error" | "loading";
 
+// ── 插件类型 ──────────────────────────────────────────────────────────────────
+export type PluginType =
+  | "ui" // 前端组件注入（PluginSlot 渲染）
+  | "backend" // 纯后端逻辑扩展（服务端加载，不注入前端）
+  | "lib" // 通用工具库（被其他插件依赖）
+  | "app" // 独立子应用（注册独立路由页面）
+  | "miniapp"; // 小程序/H5 轻应用
+
+// ── 价格模型 ──────────────────────────────────────────────────────────────────
+export type PluginPricingModel =
+  | "free" // 完全免费
+  | "freemium" // 基础免费，高级付费
+  | "paid"; // 纯付费
+
+export interface PluginPricing {
+  model: PluginPricingModel;
+  /** 付费/高级版价格，单位：元 */
+  price?: number;
+  /** 计费周期 */
+  cycle?: "once" | "monthly" | "yearly";
+  /** 免费版功能限制说明（freemium 时填写） */
+  freeLimit?: string;
+  /** 购买/授权链接 */
+  purchaseUrl?: string;
+}
+
+// ── 插件分类 ──────────────────────────────────────────────────────────────────
+export type PluginCategory =
+  | "ui" // UI 组件/主题美化
+  | "api" // API 接口扩展
+  | "app" // 独立 APP
+  | "miniapp" // 小程序
+  | "knowledge" // 知识付费
+  | "community" // 社区功能增强
+  | "local_o2o" // 本地/同城/O2O
+  | "media" // 视频/直播/音乐
+  | "marketing" // 营销/活动/投票
+  | "shop" // 商城/返利/分销
+  | "task" // 任务/悬赏/威客
+  | "content" // 小说/漫画/问答
+  | "im" // 聊天/问卷/工单
+  | "storage" // OSS/COS/对象存储
+  | "auth" // 注册/登录/安全验证
+  | "education" // 教育培训
+  | "system" // 独立功能系统
+  | "other"; // 其他
+
+export const PLUGIN_CATEGORY_LABELS: Record<PluginCategory, string> = {
+  ui: "UI 组件/主题",
+  api: "API 接口",
+  app: "APP",
+  miniapp: "小程序",
+  knowledge: "知识付费",
+  community: "社区功能增强",
+  local_o2o: "本地/同城/O2O",
+  media: "视频/直播/音乐",
+  marketing: "营销/活动/投票",
+  shop: "商城/返利/分销",
+  task: "任务/悬赏/威客",
+  content: "小说/漫画/问答",
+  im: "聊天/问卷/工单",
+  storage: "OSS/COS/对象存储",
+  auth: "注册/登录/安全验证",
+  education: "教育培训",
+  system: "独立功能系统",
+  other: "其他",
+};
+
+// ── 版本兼容性 ────────────────────────────────────────────────────────────────
+export type CompatVersion = "v0" | "v1" | "v2" | "v3";
+
+export interface PluginCompatibility {
+  /** 兼容的平台版本，空数组 = 全版本兼容 */
+  versions: CompatVersion[];
+  /** 最低 Node.js 版本（可选） */
+  minNode?: string;
+  /** 依赖的其他插件 ID */
+  requires?: string[];
+  /** 与哪些插件冲突 */
+  conflicts?: string[];
+}
+
+// ── 配置字段 Schema ───────────────────────────────────────────────────────────
+export interface PluginConfigField {
+  key: string;
+  label: string;
+  type:
+    | "text"
+    | "number"
+    | "boolean"
+    | "select"
+    | "textarea"
+    | "color"
+    | "url"
+    | "secret";
+  defaultValue?: unknown;
+  placeholder?: string;
+  description?: string;
+  required?: boolean;
+  options?: Array<{ label: string; value: string | number | boolean }>;
+  min?: number;
+  max?: number;
+}
+
+export type PluginConfigSchema = PluginConfigField[];
+
+// ── 权限声明 ──────────────────────────────────────────────────────────────────
+export type PluginPermission =
+  | "read:user"
+  | "read:posts"
+  | "write:posts"
+  | "read:comments"
+  | "write:comments"
+  | "read:settings"
+  | "write:settings"
+  | "send:email"
+  | "send:sms"
+  | "storage:read"
+  | "storage:write"
+  | "payment"
+  | "network";
+
+// ── 核心 PluginMeta ───────────────────────────────────────────────────────────
 export interface PluginMeta {
+  // 基础标识
   id: string;
   name: string;
   version: string;
   description: string;
+  summary?: string;
+  iconUrl?: string;
+  screenshots?: string[];
+  homepageUrl?: string;
+
+  // 分类与类型
+  type: PluginType;
+  category: PluginCategory;
+  tags?: string[];
+
+  // 作者信息
   author: string;
+  authorEmail?: string;
+  authorUrl?: string;
+
+  // 加载配置
   scriptUrl: string;
+  serverEntry?: string;
+  slots?: string[];
+  routes?: string[];
+
+  // 价格与兼容性
+  pricing: PluginPricing;
+  compatibility: PluginCompatibility;
+
+  // 权限
+  permissions?: PluginPermission[];
+
+  // 运行时（服务端写入，前端只读）
   enabled: boolean;
   status?: PluginStatus;
+  installCount?: number;
+  rating?: number; // 0~5
+
+  // 配置
+  configSchema?: PluginConfigSchema;
   config?: Record<string, unknown>;
-  slots?: string[];
+
+  // 时间戳
   createdAt?: string;
   updatedAt?: string;
 }
 
+// ── Runtime types ─────────────────────────────────────────────────────────────
 export interface RegisteredPlugin {
   meta: PluginMeta;
   status: PluginStatus;
@@ -31,7 +190,7 @@ export interface SlotComponent {
   order?: number;
 }
 
-// API沙箱接口 —— 只暴露受控能力给插件
+// ── Plugin API Sandbox ────────────────────────────────────────────────────────
 export interface PluginAPI {
   registerSlot(
     slotName: string,
@@ -42,6 +201,7 @@ export interface PluginAPI {
   off(event: PluginEvent, handler: PluginEventHandler): void;
   getUser(): { id: string; username: string; role: string } | null;
   getLocale(): string;
+  getConfig(): Record<string, unknown>;
   log(level: "info" | "warn" | "error", message: string): void;
 }
 
@@ -51,14 +211,14 @@ export type PluginEvent =
   | "post:delete"
   | "user:login"
   | "user:logout"
-  | "comment:create";
+  | "comment:create"
+  | "order:create"
+  | "payment:success";
 
 export type PluginEventHandler = (data: unknown) => void;
-
-// 插件入口函数签名
 export type PluginEntryFn = (api: PluginAPI) => void | Promise<void>;
 
-// 挂载的插槽名
+// ── Slot Names ────────────────────────────────────────────────────────────────
 export const SLOT_NAMES = [
   "sidebar-top",
   "sidebar-bottom",
@@ -66,8 +226,1229 @@ export const SLOT_NAMES = [
   "post-list-top",
   "post-list-bottom",
   "post-detail-bottom",
+  "post-detail-sidebar",
   "dashboard-widget",
   "profile-extra",
+  "profile-sidebar",
+  "home-banner",
+  "home-after-feed",
+  "footer-extra",
+  "payment-checkout",
+  "user-card-extra",
 ] as const;
 
 export type SlotName = (typeof SLOT_NAMES)[number];
+
+// ─────────────────────────────────────────────────────────────────────────────
+// EXAMPLE CONFIGS
+// ─────────────────────────────────────────────────────────────────────────────
+export const PLUGIN_EXAMPLES: Record<string, PluginMeta> = {
+  /** UI 主题美化 */
+  ui_dark_theme: {
+    id: "ui-dark-theme",
+    name: "暗黑极简主题",
+    version: "2.3.1",
+    summary: "为社区注入专业暗色风格，提升夜间阅读体验",
+    description:
+      "完整替换默认主题配色，提供 CSS 变量覆盖、字体替换、组件圆角微调等能力。支持与 DaisyUI 无缝集成。",
+    type: "ui",
+    category: "ui",
+    tags: ["主题", "暗色", "DaisyUI", "CSS"],
+    author: "DesignLab",
+    scriptUrl: "https://cdn.example.com/plugins/dark-theme/v2.3.1/index.js",
+    slots: ["home-banner", "navbar-extra"],
+    pricing: {
+      model: "freemium",
+      price: 49,
+      cycle: "once",
+      freeLimit: "仅基础配色，不含字体与圆角配置",
+      purchaseUrl: "https://market.example.com/dark-theme",
+    },
+    compatibility: { versions: ["v2", "v3"] },
+    permissions: ["read:settings"],
+    enabled: false,
+    configSchema: [
+      {
+        key: "primaryColor",
+        label: "主色调",
+        type: "color",
+        defaultValue: "#6366f1",
+        required: true,
+      },
+      {
+        key: "fontFamily",
+        label: "字体",
+        type: "select",
+        defaultValue: "system",
+        options: [
+          { label: "系统默认", value: "system" },
+          { label: "Noto Sans SC", value: "noto" },
+          { label: "霞鹜文楷", value: "lxgw" },
+        ],
+      },
+      {
+        key: "borderRadius",
+        label: "圆角大小",
+        type: "select",
+        defaultValue: "md",
+        options: [
+          { label: "无圆角", value: "none" },
+          { label: "小", value: "sm" },
+          { label: "中", value: "md" },
+          { label: "大", value: "lg" },
+        ],
+      },
+      {
+        key: "enableAnimation",
+        label: "启用过渡动画",
+        type: "boolean",
+        defaultValue: true,
+      },
+    ],
+    config: {
+      primaryColor: "#6366f1",
+      fontFamily: "noto",
+      borderRadius: "md",
+      enableAnimation: true,
+    },
+    createdAt: "2024-03-01T00:00:00Z",
+    updatedAt: "2024-11-15T08:30:00Z",
+  },
+
+  /** API 接口：AI 摘要 */
+  api_openai_summary: {
+    id: "api-openai-summary",
+    name: "AI 文章摘要",
+    version: "1.1.0",
+    summary: "接入 OpenAI 为每篇帖子自动生成 100 字摘要",
+    description:
+      "发帖后自动调用 OpenAI GPT-4o 接口，生成中文摘要写入帖子 meta，并在详情页展示。支持手动刷新。",
+    type: "backend",
+    category: "api",
+    tags: ["AI", "OpenAI", "摘要", "GPT"],
+    author: "AITools Team",
+    scriptUrl: "https://cdn.example.com/plugins/ai-summary/v1.1.0/index.js",
+    serverEntry: "https://cdn.example.com/plugins/ai-summary/v1.1.0/server.js",
+    slots: ["post-detail-bottom"],
+    pricing: { model: "free" },
+    compatibility: { versions: ["v1", "v2", "v3"], minNode: "18.0.0" },
+    permissions: ["read:posts", "write:posts", "network"],
+    enabled: true,
+    configSchema: [
+      {
+        key: "apiKey",
+        label: "OpenAI API Key",
+        type: "secret",
+        required: true,
+        placeholder: "sk-...",
+      },
+      {
+        key: "model",
+        label: "模型",
+        type: "select",
+        defaultValue: "gpt-4o-mini",
+        options: [
+          { label: "GPT-4o mini（快）", value: "gpt-4o-mini" },
+          { label: "GPT-4o（准）", value: "gpt-4o" },
+        ],
+      },
+      {
+        key: "maxTokens",
+        label: "摘要最大字数",
+        type: "number",
+        defaultValue: 100,
+        min: 50,
+        max: 300,
+      },
+      {
+        key: "autoTrigger",
+        label: "发帖后自动触发",
+        type: "boolean",
+        defaultValue: true,
+      },
+      {
+        key: "prompt",
+        label: "自定义提示词",
+        type: "textarea",
+        placeholder: "请用中文为以下内容生成一段摘要：",
+      },
+    ],
+    config: { model: "gpt-4o-mini", maxTokens: 100, autoTrigger: true },
+    createdAt: "2024-06-10T00:00:00Z",
+    updatedAt: "2024-12-01T00:00:00Z",
+  },
+
+  /** 知识付费 */
+  knowledge_paid_content: {
+    id: "knowledge-paid-content",
+    name: "知识付费解锁",
+    version: "3.0.0",
+    summary: "帖子内容分段加密，付费后解锁全文",
+    description:
+      "在富文本编辑器中插入付费分隔线，用户付款前只能看到分隔线以上内容。支持微信支付、支付宝，支持设置单价或会员免费。",
+    type: "ui",
+    category: "knowledge",
+    tags: ["付费", "内容加密", "会员", "微信支付"],
+    author: "PayWall Studio",
+    scriptUrl: "https://cdn.example.com/plugins/paid-content/v3.0.0/index.js",
+    slots: ["post-detail-bottom", "post-detail-sidebar"],
+    routes: ["/pay/order", "/pay/callback"],
+    pricing: {
+      model: "paid",
+      price: 299,
+      cycle: "yearly",
+      purchaseUrl: "https://market.example.com/paid-content",
+    },
+    compatibility: { versions: ["v2", "v3"] },
+    permissions: ["read:user", "read:posts", "payment", "network"],
+    enabled: false,
+    configSchema: [
+      {
+        key: "defaultPrice",
+        label: "默认解锁单价（元）",
+        type: "number",
+        defaultValue: 9.9,
+        min: 0.1,
+        max: 9999,
+        required: true,
+      },
+      {
+        key: "memberFree",
+        label: "会员免费解锁",
+        type: "boolean",
+        defaultValue: false,
+      },
+      {
+        key: "memberLevel",
+        label: "最低免费会员等级",
+        type: "select",
+        defaultValue: "vip1",
+        options: [
+          { label: "VIP1", value: "vip1" },
+          { label: "VIP2", value: "vip2" },
+          { label: "SVIP", value: "svip" },
+        ],
+      },
+      {
+        key: "previewRatio",
+        label: "免费预览比例",
+        type: "select",
+        defaultValue: "30%",
+        options: [
+          { label: "10%", value: "10%" },
+          { label: "30%", value: "30%" },
+          { label: "50%", value: "50%" },
+        ],
+      },
+      {
+        key: "wxpayMchId",
+        label: "微信支付商户号",
+        type: "secret",
+        placeholder: "1234567890",
+      },
+      {
+        key: "alipayAppId",
+        label: "支付宝 AppID",
+        type: "text",
+        placeholder: "2021001...",
+      },
+      { key: "notifyUrl", label: "支付回调地址", type: "url", required: true },
+    ],
+    config: { defaultPrice: 9.9, memberFree: false, previewRatio: "30%" },
+    createdAt: "2024-01-20T00:00:00Z",
+    updatedAt: "2024-10-08T12:00:00Z",
+  },
+
+  /** 社区功能增强：积分系统 */
+  community_points: {
+    id: "community-points",
+    name: "社区积分任务系统",
+    version: "1.4.2",
+    summary: "签到、发帖、评论赚积分，积分兑换奖励",
+    description:
+      "完整积分生命周期：任务配置（签到/发帖/邀请）、积分发放与消耗、积分商城、积分排行榜。",
+    type: "app",
+    category: "community",
+    tags: ["积分", "签到", "任务", "排行榜"],
+    author: "GrowthHack Labs",
+    scriptUrl:
+      "https://cdn.example.com/plugins/community-points/v1.4.2/index.js",
+    slots: ["sidebar-top", "dashboard-widget", "profile-extra"],
+    routes: ["/points", "/points/shop", "/points/history"],
+    pricing: {
+      model: "freemium",
+      price: 199,
+      cycle: "yearly",
+      freeLimit: "仅每日签到，不含积分商城和任务系统",
+    },
+    compatibility: { versions: ["v1", "v2", "v3"] },
+    permissions: ["read:user", "write:posts", "read:comments", "send:email"],
+    enabled: true,
+    configSchema: [
+      {
+        key: "checkInPoints",
+        label: "每日签到积分",
+        type: "number",
+        defaultValue: 10,
+        min: 1,
+      },
+      {
+        key: "postPoints",
+        label: "发帖奖励积分",
+        type: "number",
+        defaultValue: 20,
+        min: 0,
+      },
+      {
+        key: "commentPoints",
+        label: "评论奖励积分",
+        type: "number",
+        defaultValue: 5,
+        min: 0,
+      },
+      {
+        key: "invitePoints",
+        label: "成功邀请注册积分",
+        type: "number",
+        defaultValue: 100,
+        min: 0,
+      },
+      {
+        key: "pointsName",
+        label: "积分单位名称",
+        type: "text",
+        defaultValue: "积分",
+        placeholder: "积分 / 金币 / 贝壳",
+      },
+      {
+        key: "enableShop",
+        label: "启用积分商城",
+        type: "boolean",
+        defaultValue: false,
+      },
+      {
+        key: "enableLeaderboard",
+        label: "启用积分排行榜",
+        type: "boolean",
+        defaultValue: true,
+      },
+      {
+        key: "dailyCap",
+        label: "每日积分上限（0=不限）",
+        type: "number",
+        defaultValue: 200,
+      },
+    ],
+    config: {
+      checkInPoints: 10,
+      postPoints: 20,
+      commentPoints: 5,
+      invitePoints: 100,
+      pointsName: "积分",
+      enableShop: false,
+      enableLeaderboard: true,
+      dailyCap: 200,
+    },
+    createdAt: "2024-02-14T00:00:00Z",
+    updatedAt: "2024-11-30T16:00:00Z",
+  },
+
+  /** 本地/同城/O2O */
+  local_o2o_nearby: {
+    id: "local-o2o-nearby",
+    name: "同城信息 & 地图找人",
+    version: "1.0.1",
+    summary: "帖子附加地理位置，发现附近内容和用户",
+    description:
+      "发帖时选择地理位置，首页可切换「附近」视图，支持地图浏览、半径筛选、同城频道。基于高德地图 SDK。",
+    type: "ui",
+    category: "local_o2o",
+    tags: ["同城", "地图", "O2O", "附近", "高德"],
+    author: "GeoKit",
+    scriptUrl: "https://cdn.example.com/plugins/nearby/v1.0.1/index.js",
+    slots: ["post-list-top", "home-banner", "sidebar-top"],
+    routes: ["/nearby", "/nearby/map"],
+    pricing: {
+      model: "paid",
+      price: 499,
+      cycle: "once",
+      purchaseUrl: "https://market.example.com/nearby",
+    },
+    compatibility: { versions: ["v2", "v3"] },
+    permissions: ["read:user", "read:posts", "network"],
+    enabled: false,
+    configSchema: [
+      {
+        key: "amapKey",
+        label: "高德地图 Web JS Key",
+        type: "secret",
+        required: true,
+      },
+      {
+        key: "defaultRadius",
+        label: "默认搜索半径（km）",
+        type: "number",
+        defaultValue: 5,
+        min: 1,
+        max: 100,
+      },
+      {
+        key: "enableMapView",
+        label: "启用地图视图",
+        type: "boolean",
+        defaultValue: true,
+      },
+      {
+        key: "requireLocation",
+        label: "发帖强制填写位置",
+        type: "boolean",
+        defaultValue: false,
+      },
+      {
+        key: "cityFilter",
+        label: "限定城市（空=全国）",
+        type: "text",
+        placeholder: "北京,上海,广州",
+      },
+    ],
+    config: { defaultRadius: 5, enableMapView: true, requireLocation: false },
+    createdAt: "2024-07-01T00:00:00Z",
+    updatedAt: "2024-11-01T00:00:00Z",
+  },
+
+  /** 视频/直播/音乐 */
+  media_live_stream: {
+    id: "media-live-stream",
+    name: "云直播间",
+    version: "2.1.0",
+    summary: "为社区集成直播功能，支持连麦与打赏",
+    description:
+      "接入腾讯云 TRTC，用户可发起直播、观看、连麦互动、礼物打赏，直播回放自动存储 VOD。",
+    type: "app",
+    category: "media",
+    tags: ["直播", "连麦", "打赏", "礼物", "VOD"],
+    author: "LiveCore Studio",
+    scriptUrl: "https://cdn.example.com/plugins/live-stream/v2.1.0/index.js",
+    slots: ["navbar-extra", "home-after-feed", "sidebar-top"],
+    routes: ["/live", "/live/[id]", "/live/host"],
+    pricing: {
+      model: "paid",
+      price: 1999,
+      cycle: "yearly",
+      purchaseUrl: "https://market.example.com/live",
+    },
+    compatibility: { versions: ["v3"] },
+    permissions: [
+      "read:user",
+      "write:posts",
+      "payment",
+      "storage:write",
+      "network",
+    ],
+    enabled: false,
+    configSchema: [
+      {
+        key: "sdkAppId",
+        label: "腾讯云 TRTC SDK AppID",
+        type: "text",
+        required: true,
+      },
+      {
+        key: "sdkSecretKey",
+        label: "SDK SecretKey",
+        type: "secret",
+        required: true,
+      },
+      {
+        key: "enableGift",
+        label: "启用礼物打赏",
+        type: "boolean",
+        defaultValue: true,
+      },
+      {
+        key: "giftExchangeRate",
+        label: "礼物金币兑换比例（元/100金币）",
+        type: "number",
+        defaultValue: 1,
+        min: 0.1,
+      },
+      {
+        key: "enableVod",
+        label: "自动保存直播回放",
+        type: "boolean",
+        defaultValue: true,
+      },
+      {
+        key: "maxViewers",
+        label: "单场最大观看人数",
+        type: "number",
+        defaultValue: 10000,
+        min: 100,
+      },
+    ],
+    config: {
+      enableGift: true,
+      giftExchangeRate: 1,
+      enableVod: true,
+      maxViewers: 10000,
+    },
+    createdAt: "2024-05-01T00:00:00Z",
+    updatedAt: "2024-12-01T00:00:00Z",
+  },
+
+  /** 营销/活动/投票 */
+  marketing_vote: {
+    id: "marketing-vote",
+    name: "投票 & 问卷活动",
+    version: "2.0.5",
+    summary: "一键创建投票、问卷、抽奖活动",
+    description:
+      "支持单选/多选投票、匿名问卷、权重抽奖三种模式。活动数据可导出 Excel，内置防刷票机制。",
+    type: "app",
+    category: "marketing",
+    tags: ["投票", "问卷", "抽奖", "活动", "营销"],
+    author: "ActivityKit",
+    scriptUrl: "https://cdn.example.com/plugins/vote/v2.0.5/index.js",
+    slots: ["post-detail-bottom", "home-after-feed"],
+    routes: ["/vote", "/vote/[id]", "/vote/create"],
+    pricing: {
+      model: "paid",
+      price: 199,
+      cycle: "once",
+      purchaseUrl: "https://market.example.com/vote",
+    },
+    compatibility: { versions: ["v2", "v3"] },
+    permissions: ["read:user", "write:posts", "send:email"],
+    enabled: false,
+    configSchema: [
+      {
+        key: "allowAnonymous",
+        label: "允许匿名参与",
+        type: "boolean",
+        defaultValue: false,
+      },
+      {
+        key: "antiCheatMode",
+        label: "防刷票模式",
+        type: "select",
+        defaultValue: "both",
+        options: [
+          { label: "IP 限制", value: "ip" },
+          { label: "账号限制", value: "account" },
+          { label: "双重限制", value: "both" },
+          { label: "关闭", value: "off" },
+        ],
+      },
+      {
+        key: "maxOptionsPerVote",
+        label: "每次最多可选项",
+        type: "number",
+        defaultValue: 3,
+        min: 1,
+        max: 20,
+      },
+      {
+        key: "showResultBeforeEnd",
+        label: "活动结束前显示结果",
+        type: "boolean",
+        defaultValue: true,
+      },
+    ],
+    config: {
+      allowAnonymous: false,
+      antiCheatMode: "both",
+      maxOptionsPerVote: 3,
+      showResultBeforeEnd: true,
+    },
+    createdAt: "2024-04-01T00:00:00Z",
+    updatedAt: "2024-09-20T10:00:00Z",
+  },
+
+  /** 商城/返利/分销 */
+  shop_distribution: {
+    id: "shop-distribution",
+    name: "分销返利商城",
+    version: "1.5.0",
+    summary: "内置商城 + 三级分销返利体系",
+    description:
+      "商品发布、在线购买、订单管理、三级分销佣金自动结算、提现申请审核，支持微信支付和支付宝。",
+    type: "app",
+    category: "shop",
+    tags: ["商城", "分销", "返利", "佣金", "电商"],
+    author: "ShopEngine",
+    scriptUrl: "https://cdn.example.com/plugins/shop/v1.5.0/index.js",
+    slots: ["sidebar-top", "home-after-feed", "navbar-extra", "footer-extra"],
+    routes: [
+      "/shop",
+      "/shop/[id]",
+      "/shop/cart",
+      "/shop/orders",
+      "/shop/distribution",
+    ],
+    pricing: {
+      model: "paid",
+      price: 2999,
+      cycle: "once",
+      purchaseUrl: "https://market.example.com/shop",
+    },
+    compatibility: { versions: ["v2", "v3"] },
+    permissions: [
+      "read:user",
+      "write:posts",
+      "payment",
+      "send:email",
+      "send:sms",
+      "network",
+    ],
+    enabled: false,
+    configSchema: [
+      {
+        key: "level1Rate",
+        label: "一级分销佣金比例（%）",
+        type: "number",
+        defaultValue: 10,
+        min: 0,
+        max: 50,
+      },
+      {
+        key: "level2Rate",
+        label: "二级分销佣金比例（%）",
+        type: "number",
+        defaultValue: 5,
+        min: 0,
+        max: 30,
+      },
+      {
+        key: "level3Rate",
+        label: "三级分销佣金比例（%）",
+        type: "number",
+        defaultValue: 2,
+        min: 0,
+        max: 20,
+      },
+      {
+        key: "minWithdraw",
+        label: "最低提现金额（元）",
+        type: "number",
+        defaultValue: 50,
+        min: 1,
+      },
+      {
+        key: "withdrawAudit",
+        label: "提现需要人工审核",
+        type: "boolean",
+        defaultValue: true,
+      },
+      {
+        key: "enableCod",
+        label: "支持货到付款",
+        type: "boolean",
+        defaultValue: false,
+      },
+      { key: "currency", label: "货币符号", type: "text", defaultValue: "¥" },
+    ],
+    config: {
+      level1Rate: 10,
+      level2Rate: 5,
+      level3Rate: 2,
+      minWithdraw: 50,
+      withdrawAudit: true,
+      enableCod: false,
+      currency: "¥",
+    },
+    createdAt: "2024-03-10T00:00:00Z",
+    updatedAt: "2024-11-25T10:00:00Z",
+  },
+
+  /** 任务/悬赏/威客 */
+  task_bounty: {
+    id: "task-bounty",
+    name: "悬赏任务平台",
+    version: "1.1.0",
+    summary: "发布悬赏任务，接单者完成后自动结算",
+    description:
+      "用户发布悬赏（图文/编程/设计等），接单者提交成果，发布者确认后系统自动释放积分/余额，支持仲裁机制。",
+    type: "app",
+    category: "task",
+    tags: ["悬赏", "任务", "威客", "接单", "积分"],
+    author: "TaskHub",
+    scriptUrl: "https://cdn.example.com/plugins/bounty/v1.1.0/index.js",
+    slots: ["sidebar-top", "home-after-feed"],
+    routes: ["/tasks", "/tasks/[id]", "/tasks/create", "/tasks/my"],
+    pricing: {
+      model: "freemium",
+      price: 599,
+      cycle: "yearly",
+      freeLimit: "每月仅 10 条任务，不含仲裁功能",
+    },
+    compatibility: { versions: ["v2", "v3"] },
+    permissions: ["read:user", "write:posts", "payment", "send:email"],
+    enabled: false,
+    configSchema: [
+      {
+        key: "platformFeeRate",
+        label: "平台服务费比例（%）",
+        type: "number",
+        defaultValue: 5,
+        min: 0,
+        max: 30,
+      },
+      {
+        key: "escrowEnabled",
+        label: "启用资金托管",
+        type: "boolean",
+        defaultValue: true,
+      },
+      {
+        key: "disputeDays",
+        label: "任务完成后仲裁期（天）",
+        type: "number",
+        defaultValue: 3,
+        min: 1,
+        max: 30,
+      },
+      {
+        key: "autoReleaseDays",
+        label: "超时自动结算天数",
+        type: "number",
+        defaultValue: 7,
+        min: 1,
+      },
+      {
+        key: "enableRating",
+        label: "完成后双向评价",
+        type: "boolean",
+        defaultValue: true,
+      },
+      {
+        key: "minBounty",
+        label: "最低悬赏金额（元）",
+        type: "number",
+        defaultValue: 10,
+        min: 1,
+      },
+    ],
+    config: {
+      platformFeeRate: 5,
+      escrowEnabled: true,
+      disputeDays: 3,
+      autoReleaseDays: 7,
+      enableRating: true,
+      minBounty: 10,
+    },
+    createdAt: "2024-06-01T00:00:00Z",
+    updatedAt: "2024-10-15T00:00:00Z",
+  },
+
+  /** 小说/漫画/问答 */
+  content_novel: {
+    id: "content-novel",
+    name: "连载小说 & 漫画",
+    version: "2.0.0",
+    summary: "支持长篇连载、章节订阅、打赏催更",
+    description:
+      "创作者可发布连载作品（小说/漫画），读者按章节付费订阅，支持打赏催更、书架收藏、阅读历史、章节评论。",
+    type: "app",
+    category: "content",
+    tags: ["小说", "漫画", "连载", "订阅", "创作"],
+    author: "ReadingSpace",
+    scriptUrl: "https://cdn.example.com/plugins/novel/v2.0.0/index.js",
+    slots: ["sidebar-top", "home-after-feed", "profile-extra"],
+    routes: [
+      "/novels",
+      "/novels/[id]",
+      "/novels/[id]/chapter/[chapterId]",
+      "/novels/create",
+    ],
+    pricing: {
+      model: "paid",
+      price: 799,
+      cycle: "once",
+      purchaseUrl: "https://market.example.com/novel",
+    },
+    compatibility: { versions: ["v2", "v3"] },
+    permissions: ["read:user", "write:posts", "payment", "storage:write"],
+    enabled: false,
+    configSchema: [
+      {
+        key: "chapterPrice",
+        label: "默认章节价格（元，0=免费）",
+        type: "number",
+        defaultValue: 0.5,
+        min: 0,
+      },
+      {
+        key: "enableVip",
+        label: "会员订阅免费读",
+        type: "boolean",
+        defaultValue: true,
+      },
+      {
+        key: "enableTip",
+        label: "启用打赏催更",
+        type: "boolean",
+        defaultValue: true,
+      },
+      {
+        key: "wordsPerChapter",
+        label: "最少字数/章（字）",
+        type: "number",
+        defaultValue: 1000,
+        min: 100,
+      },
+      {
+        key: "enableAudioBook",
+        label: "支持 TTS 有声书",
+        type: "boolean",
+        defaultValue: false,
+      },
+      {
+        key: "authorShareRate",
+        label: "作者收益分成比例（%）",
+        type: "number",
+        defaultValue: 70,
+        min: 0,
+        max: 100,
+      },
+    ],
+    config: {
+      chapterPrice: 0.5,
+      enableVip: true,
+      enableTip: true,
+      wordsPerChapter: 1000,
+      enableAudioBook: false,
+      authorShareRate: 70,
+    },
+    createdAt: "2024-04-20T00:00:00Z",
+    updatedAt: "2024-12-01T00:00:00Z",
+  },
+
+  /** 聊天/问卷/工单 */
+  im_chat: {
+    id: "im-chat",
+    name: "站内私信 & IM 聊天",
+    version: "1.3.1",
+    summary: "用户间实时私信，支持图片和文件发送",
+    description:
+      "基于 WebSocket 的实时通信模块，支持一对一私信、群聊、图片/文件传输、消息已读回执、消息撤回。接入腾讯云 IM SDK。",
+    type: "ui",
+    category: "im",
+    tags: ["IM", "私信", "聊天", "WebSocket", "群聊"],
+    author: "IMKit",
+    scriptUrl: "https://cdn.example.com/plugins/im-chat/v1.3.1/index.js",
+    slots: ["navbar-extra", "user-card-extra", "profile-extra"],
+    routes: ["/messages", "/messages/[userId]"],
+    pricing: {
+      model: "freemium",
+      price: 399,
+      cycle: "yearly",
+      freeLimit: "仅一对一私信，不含群聊和文件传输",
+    },
+    compatibility: { versions: ["v1", "v2", "v3"] },
+    permissions: ["read:user", "storage:write", "network"],
+    enabled: false,
+    configSchema: [
+      {
+        key: "imSdkAppId",
+        label: "腾讯云 IM SDK AppID",
+        type: "text",
+        required: true,
+      },
+      {
+        key: "imAdminUserId",
+        label: "IM 管理员账号",
+        type: "text",
+        required: true,
+      },
+      {
+        key: "imAdminSig",
+        label: "IM 管理员 UserSig",
+        type: "secret",
+        required: true,
+      },
+      {
+        key: "enableGroupChat",
+        label: "启用群聊",
+        type: "boolean",
+        defaultValue: false,
+      },
+      {
+        key: "maxGroupMembers",
+        label: "群最大成员数",
+        type: "number",
+        defaultValue: 100,
+        min: 10,
+        max: 5000,
+      },
+      {
+        key: "enableFileTransfer",
+        label: "允许发送文件",
+        type: "boolean",
+        defaultValue: true,
+      },
+      {
+        key: "maxFileSizeMB",
+        label: "文件大小限制（MB）",
+        type: "number",
+        defaultValue: 20,
+        min: 1,
+      },
+      {
+        key: "messageRetentionDays",
+        label: "消息保存天数",
+        type: "number",
+        defaultValue: 90,
+        min: 7,
+      },
+    ],
+    config: {
+      enableGroupChat: false,
+      maxGroupMembers: 100,
+      enableFileTransfer: true,
+      maxFileSizeMB: 20,
+      messageRetentionDays: 90,
+    },
+    createdAt: "2024-03-15T00:00:00Z",
+    updatedAt: "2024-11-10T00:00:00Z",
+  },
+
+  /** OSS/COS/对象存储 */
+  storage_cos: {
+    id: "storage-cos",
+    name: "腾讯云 COS 存储",
+    version: "1.2.0",
+    summary: "将用户上传的图片/文件存储到腾讯云 COS",
+    description:
+      "替换默认本地存储，上传文件直传 COS Bucket，支持自定义域名、图片 WebP 转换、CDN 加速。",
+    type: "backend",
+    category: "storage",
+    tags: ["COS", "腾讯云", "OSS", "CDN", "图床"],
+    author: "CloudBridge",
+    scriptUrl: "https://cdn.example.com/plugins/cos-storage/v1.2.0/index.js",
+    serverEntry: "https://cdn.example.com/plugins/cos-storage/v1.2.0/server.js",
+    slots: [],
+    pricing: { model: "free" },
+    compatibility: { versions: ["v0", "v1", "v2", "v3"], minNode: "16.0.0" },
+    permissions: ["storage:read", "storage:write", "network"],
+    enabled: false,
+    configSchema: [
+      { key: "secretId", label: "SecretId", type: "secret", required: true },
+      { key: "secretKey", label: "SecretKey", type: "secret", required: true },
+      {
+        key: "bucket",
+        label: "Bucket 名称",
+        type: "text",
+        required: true,
+        placeholder: "my-bucket-1250000000",
+      },
+      {
+        key: "region",
+        label: "地域",
+        type: "select",
+        required: true,
+        defaultValue: "ap-guangzhou",
+        options: [
+          { label: "广州", value: "ap-guangzhou" },
+          { label: "上海", value: "ap-shanghai" },
+          { label: "北京", value: "ap-beijing" },
+          { label: "香港", value: "ap-hongkong" },
+        ],
+      },
+      {
+        key: "customDomain",
+        label: "自定义 CDN 域名",
+        type: "url",
+        placeholder: "https://static.yourdomain.com",
+      },
+      {
+        key: "enableWebP",
+        label: "自动转换 WebP",
+        type: "boolean",
+        defaultValue: true,
+      },
+      {
+        key: "maxFileSizeMB",
+        label: "单文件大小限制（MB）",
+        type: "number",
+        defaultValue: 20,
+        min: 1,
+        max: 2048,
+      },
+    ],
+    config: { region: "ap-guangzhou", enableWebP: true, maxFileSizeMB: 20 },
+    createdAt: "2024-01-05T00:00:00Z",
+    updatedAt: "2024-08-11T09:00:00Z",
+  },
+
+  /** 注册/登录/安全验证 */
+  auth_sms_login: {
+    id: "auth-sms-login",
+    name: "短信验证码登录",
+    version: "1.0.3",
+    summary: "支持手机号 + 短信验证码一键登录",
+    description:
+      "接入阿里云 / 腾讯云短信服务，为注册与登录流程增加短信验证码选项，支持国际区号、频率限制。",
+    type: "ui",
+    category: "auth",
+    tags: ["短信", "登录", "验证码", "手机号", "安全"],
+    author: "AuthKit",
+    scriptUrl: "https://cdn.example.com/plugins/sms-login/v1.0.3/index.js",
+    slots: [],
+    pricing: { model: "free" },
+    compatibility: { versions: ["v1", "v2", "v3"] },
+    permissions: ["read:user", "send:sms", "network"],
+    enabled: false,
+    configSchema: [
+      {
+        key: "provider",
+        label: "短信服务商",
+        type: "select",
+        required: true,
+        defaultValue: "aliyun",
+        options: [
+          { label: "阿里云", value: "aliyun" },
+          { label: "腾讯云", value: "qcloud" },
+        ],
+      },
+      {
+        key: "accessKeyId",
+        label: "AccessKey ID",
+        type: "secret",
+        required: true,
+      },
+      {
+        key: "accessKeySecret",
+        label: "AccessKey Secret",
+        type: "secret",
+        required: true,
+      },
+      {
+        key: "signName",
+        label: "短信签名",
+        type: "text",
+        required: true,
+        placeholder: "【你的品牌】",
+      },
+      {
+        key: "templateCode",
+        label: "验证码模板 Code",
+        type: "text",
+        required: true,
+      },
+      {
+        key: "expireMinutes",
+        label: "验证码有效期（分钟）",
+        type: "number",
+        defaultValue: 5,
+        min: 1,
+        max: 30,
+      },
+      {
+        key: "rateLimitPerHour",
+        label: "每号每小时发送上限",
+        type: "number",
+        defaultValue: 5,
+        min: 1,
+      },
+      {
+        key: "enableInternational",
+        label: "支持国际区号",
+        type: "boolean",
+        defaultValue: false,
+      },
+    ],
+    config: {
+      provider: "aliyun",
+      expireMinutes: 5,
+      rateLimitPerHour: 5,
+      enableInternational: false,
+    },
+    createdAt: "2024-03-28T00:00:00Z",
+    updatedAt: "2024-10-10T14:00:00Z",
+  },
+
+  /** 教育培训 */
+  education_course: {
+    id: "education-course",
+    name: "在线课程系统",
+    version: "1.3.0",
+    summary: "发布付费课程、学员管理、学习进度追踪",
+    description:
+      "完整在线教育方案：视频课程发布（阿里云 VOD）、章节管理、学员购买、学习进度记录、证书 PDF 生成、作业提交。",
+    type: "app",
+    category: "education",
+    tags: ["课程", "教育", "视频", "证书", "学员管理"],
+    author: "EduPlatform",
+    scriptUrl: "https://cdn.example.com/plugins/course/v1.3.0/index.js",
+    slots: ["sidebar-bottom", "profile-extra", "home-after-feed"],
+    routes: ["/courses", "/courses/[id]", "/courses/[id]/learn", "/my/courses"],
+    pricing: {
+      model: "paid",
+      price: 899,
+      cycle: "once",
+      purchaseUrl: "https://market.example.com/course",
+    },
+    compatibility: { versions: ["v2", "v3"], requires: ["storage-cos"] },
+    permissions: [
+      "read:user",
+      "write:posts",
+      "payment",
+      "storage:read",
+      "storage:write",
+      "send:email",
+    ],
+    enabled: false,
+    configSchema: [
+      {
+        key: "vodProvider",
+        label: "视频托管服务",
+        type: "select",
+        defaultValue: "aliyun",
+        options: [
+          { label: "阿里云 VOD", value: "aliyun" },
+          { label: "腾讯云 VOD", value: "tencent" },
+        ],
+      },
+      {
+        key: "enableCertificate",
+        label: "学完颁发证书",
+        type: "boolean",
+        defaultValue: true,
+      },
+      {
+        key: "certificateTitle",
+        label: "证书标题",
+        type: "text",
+        defaultValue: "结业证书",
+      },
+      {
+        key: "enableHomework",
+        label: "启用作业功能",
+        type: "boolean",
+        defaultValue: false,
+      },
+      {
+        key: "trialMinutes",
+        label: "试看时长（分钟，0=禁用）",
+        type: "number",
+        defaultValue: 5,
+        min: 0,
+      },
+      {
+        key: "enableDrm",
+        label: "视频加密防盗（DRM）",
+        type: "boolean",
+        defaultValue: false,
+      },
+      {
+        key: "refundDays",
+        label: "支持退款天数（0=不退）",
+        type: "number",
+        defaultValue: 7,
+        min: 0,
+        max: 30,
+      },
+      {
+        key: "authorShareRate",
+        label: "讲师分成比例（%）",
+        type: "number",
+        defaultValue: 70,
+        min: 0,
+        max: 100,
+      },
+    ],
+    config: {
+      vodProvider: "aliyun",
+      enableCertificate: true,
+      certificateTitle: "结业证书",
+      trialMinutes: 5,
+      refundDays: 7,
+      authorShareRate: 70,
+    },
+    createdAt: "2024-04-15T00:00:00Z",
+    updatedAt: "2024-11-20T10:00:00Z",
+  },
+
+  /** 独立功能系统 */
+  system_crm: {
+    id: "system-crm",
+    name: "会员 CRM 系统",
+    version: "1.0.0",
+    summary: "完整会员生命周期管理，标签画像与精准运营",
+    description:
+      "会员分级（普通/VIP/SVIP）、自定义标签、行为画像、批量消息推送（站内信/邮件/短信）、会员有效期管理、数据导出。",
+    type: "app",
+    category: "system",
+    tags: ["CRM", "会员", "标签", "运营", "画像"],
+    author: "OperationSuite",
+    scriptUrl: "https://cdn.example.com/plugins/crm/v1.0.0/index.js",
+    slots: ["dashboard-widget", "profile-sidebar", "user-card-extra"],
+    routes: ["/crm", "/crm/members", "/crm/tags", "/crm/push"],
+    pricing: {
+      model: "paid",
+      price: 3999,
+      cycle: "yearly",
+      purchaseUrl: "https://market.example.com/crm",
+    },
+    compatibility: { versions: ["v3"] },
+    permissions: [
+      "read:user",
+      "write:settings",
+      "send:email",
+      "send:sms",
+      "network",
+    ],
+    enabled: false,
+    configSchema: [
+      {
+        key: "levels",
+        label: "会员等级（逗号分隔）",
+        type: "text",
+        defaultValue: "普通,VIP,SVIP",
+      },
+      {
+        key: "vipExpireDays",
+        label: "VIP 默认有效期（天）",
+        type: "number",
+        defaultValue: 365,
+        min: 1,
+      },
+      {
+        key: "enableAutoTag",
+        label: "自动行为打标签",
+        type: "boolean",
+        defaultValue: true,
+      },
+      {
+        key: "enablePush",
+        label: "启用批量推送",
+        type: "boolean",
+        defaultValue: true,
+      },
+      {
+        key: "pushDailyLimit",
+        label: "每日推送上限（条/人）",
+        type: "number",
+        defaultValue: 3,
+        min: 1,
+      },
+      {
+        key: "dataRetentionMonths",
+        label: "行为数据保留月数",
+        type: "number",
+        defaultValue: 12,
+        min: 1,
+      },
+    ],
+    config: {
+      levels: "普通,VIP,SVIP",
+      vipExpireDays: 365,
+      enableAutoTag: true,
+      enablePush: true,
+      pushDailyLimit: 3,
+      dataRetentionMonths: 12,
+    },
+    createdAt: "2024-08-01T00:00:00Z",
+    updatedAt: "2024-12-01T00:00:00Z",
+  },
+};

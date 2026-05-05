@@ -7,7 +7,7 @@ type LeaderboardRequest struct {
 
 // SetUserRoleRequest 设置用户角色请求
 type SetUserRoleRequest struct {
-	Role string `json:"role" binding:"required,oneof=user member moderator reviewer bot admin super_admin"`
+	Role string `json:"role" binding:"required,oneof=user member moderator reviewer bot admin super_admin system_maintainer"`
 }
 
 type GetUserPostsRequest struct {

@@ -6,6 +6,7 @@ import (
 	apperrors "tiny-forum/pkg/errors"
 )
 
+// RoleValidator 角色权限校验器接口
 type roleValidator struct {
 	// 角色等级映射
 	roleLevel map[do.UserRole]int
@@ -13,10 +14,12 @@ type roleValidator struct {
 	rolePermissions map[do.UserRole]map[do.Permission]bool
 }
 
+// RoleValidator 角色权限校验器接口
 type RoleChangeChecker struct {
 	validator RoleValidator
 }
 
+// NewRoleValidator 创建角色权限校验器
 func NewRoleValidator() RoleValidator {
 	// 定义角色等级（数字越大等级越高）
 	roleLevel := map[do.UserRole]int{
@@ -26,7 +29,9 @@ func NewRoleValidator() RoleValidator {
 		do.RoleReviewer:   3,
 		do.RoleModerator:  4,
 		do.RoleAdmin:      5,
-		do.RoleSuperAdmin: 6,
+		do.RoleSystemMaintainer: 6,
+		do.RoleSuperAdmin: 7,
+		
 	}
 
 	// 定义每个角色拥有的权限
@@ -68,6 +73,7 @@ func NewRoleValidator() RoleValidator {
 			do.PermAssignRoleBot:        true,
 			do.PermAssignRoleAdmin:      true,
 			do.PermAssignRoleSuperAdmin: true,
+			do.PermAssignRoleSystemMaintainer: true,
 		},
 	}
 
@@ -130,6 +136,7 @@ func (c *RoleChangeChecker) checkCanAssignRole(_ context.Context, req RoleChange
 	return nil
 }
 
+// checkAssignPermission 检查操作者是否有权限分配目标角色
 func (c *RoleChangeChecker) checkAssignPermission(_ context.Context, req RoleChangeRequest) error {
 	perm, ok := roleAssignPermission[req.NewRole]
 	if !ok {
@@ -151,6 +158,7 @@ var roleAssignPermission = map[do.UserRole]do.Permission{
 	do.RoleBot:        do.PermAssignRoleBot,
 	do.RoleAdmin:      do.PermAssignRoleAdmin,
 	do.RoleSuperAdmin: do.PermAssignRoleSuperAdmin,
+	do.RoleSystemMaintainer: do.PermAssignRoleSystemMaintainer,
 }
 
 // IsValidRole 检查角色是否有效
