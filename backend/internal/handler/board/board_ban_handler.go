@@ -22,11 +22,11 @@ import (
 // @Param body.user_id body int true "用户ID" example(10086)
 // @Param body.reason body string true "禁言原因" example("发布违规内容")
 // @Param body.expires_at body string false "过期时间（RFC3339格式，空表示永久）" example("2024-12-31T23:59:59Z")
-// @Success 200 {object} response.Response{data=object} "禁言成功"
-// @Failure 400 {object} response.Response "请求参数错误或板块ID无效"
-// @Failure 401 {object} response.Response "未授权"
-// @Failure 403 {object} response.Response "无权限（需要版主或管理员权限）"
-// @Failure 404 {object} response.Response "板块不存在"
+// @Success 200 {object} vo.BasicResponse  "禁言成功"
+// @Failure 400 {object} vo.BasicResponse"请求参数错误或板块ID无效"
+// @Failure 401 {object} vo.BasicResponse"未授权"
+// @Failure 403 {object} vo.BasicResponse"无权限（需要版主或管理员权限）"
+// @Failure 404 {object} vo.BasicResponse"板块不存在"
 // @Router /boards/{id}/bans [post]
 func (h *BoardHandler) BanUser(c *gin.Context) {
 	boardID, err := strconv.ParseUint(c.Param("id"), 10, 64)
@@ -75,11 +75,11 @@ func (h *BoardHandler) BanUser(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Param id path int true "板块ID"
 // @Param user_id path int true "用户ID"
-// @Success 200 {object} response.Response{data=object} "解除禁言成功"
-// @Failure 400 {object} response.Response "无效的板块ID或用户ID"
-// @Failure 401 {object} response.Response "未授权"
-// @Failure 403 {object} response.Response "无权限（需要版主或管理员权限）"
-// @Failure 404 {object} response.Response "禁言记录不存在"
+// @Success 200 {object} vo.BasicResponse "解除禁言成功"
+// @Failure 400 {object} vo.BasicResponse"无效的板块ID或用户ID"
+// @Failure 401 {object} vo.BasicResponse"未授权"
+// @Failure 403 {object} vo.BasicResponse"无权限（需要版主或管理员权限）"
+// @Failure 404 {object} vo.BasicResponse"禁言记录不存在"
 // @Router /boards/{id}/bans/{user_id} [delete]
 func (h *BoardHandler) UnbanUser(c *gin.Context) {
 	boardID, err := strconv.ParseUint(c.Param("id"), 10, 64)

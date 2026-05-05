@@ -21,9 +21,9 @@ import (
 // @Security ApiKeyAuth
 // @Param date query string false "日期 (格式: 2006-01-02)" default(今天)
 // @Param type query string false "统计类型" Enums(users, posts, comments, all) default(all)
-// @Success 200 {object} response.Response{data=do.StatsTodayInfo}
-// @Failure 400 {object} response.Response
-// @Failure 500 {object} response.Response
+// @Success 200 {object} vo.BasicResponse
+// @Failure 400 {object} vo.BasicResponse
+// @Failure 500 {object} vo.BasicResponse
 // @Router /statistics/day [get]
 func (h *StatsHandler) GetStatsDay(c *gin.Context) {
 	var req dto.StatsDayQuery
@@ -67,9 +67,9 @@ func (h *StatsHandler) GetStatsDay(c *gin.Context) {
 // @Param start_date query string false "开始日期 (格式: 2006-01-02，默认30天前)"
 // @Param end_date   query string false "结束日期 (格式: 2006-01-02，默认今天)"
 // @Param type       query string false "统计类型" Enums(users, posts, comments, all) default(all)
-// @Success 200 {object} response.Response{data=do.StatsInfoResp}
-// @Failure 400 {object} response.Response
-// @Failure 500 {object} response.Response
+// @Success 200 {object} vo.BasicResponse
+// @Failure 400 {object} vo.BasicResponse
+// @Failure 500 {object} vo.BasicResponse
 // @Router /statistics/total [get]
 func (h *StatsHandler) GetStatsTotal(c *gin.Context) {
 	var req struct {
@@ -117,9 +117,9 @@ func (h *StatsHandler) GetStatsTotal(c *gin.Context) {
 // @Param end_date   query string false "结束日期 (格式: 2006-01-02，默认今天)"
 // @Param type       query string true  "统计类型" Enums(users, posts, comments)
 // @Param interval   query string false "统计粒度" Enums(day, week, month) default(day)
-// @Success 200 {object} response.Response{data=do.StatsTrendResponse}
-// @Failure 400 {object} response.Response
-// @Failure 500 {object} response.Response
+// @Success 200 {object} vo.BasicResponse
+// @Failure 400 {object} vo.BasicResponse
+// @Failure 500 {object} vo.BasicResponse
 // @Router /statistics/trend [get]
 func (h *StatsHandler) GetStatsTrend(c *gin.Context) {
 	var req dto.AdminStatsTrendRequest

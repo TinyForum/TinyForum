@@ -20,9 +20,9 @@ type GetCurrentUserRoleResponse struct {
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Success 200 {object} response.Response{data=GetCurrentUserRoleResponse} "操作成功"
-// @Failure 401 {object} response.Response "未授权"
-// @Failure 404 {object} response.Response "用户不存在"
+// @Success 200 {object} vo.BasicResponse "操作成功"
+// @Failure 401 {object} vo.BasicResponse"未授权"
+// @Failure 404 {object} vo.BasicResponse"用户不存在"
 // @Router /users/me/role [get]
 func (h *UserHandler) GetCurrentUserRole(c *gin.Context) {
 	userID, exists := c.Get("user_id")

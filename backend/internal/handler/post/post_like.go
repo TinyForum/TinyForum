@@ -15,10 +15,10 @@ import (
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path int true "帖子ID"
-// @Success 200 {object} response.Response{data=object} "点赞成功"
-// @Failure 400 {object} response.Response "无效的帖子ID"
-// @Failure 401 {object} response.Response "未授权"
-// @Failure 500 {object} response.Response "服务器内部错误"
+// @Success 200 {object} vo.BasicResponse  "点赞成功"
+// @Failure 400 {object} vo.BasicResponse"无效的帖子ID"
+// @Failure 401 {object} vo.BasicResponse"未授权"
+// @Failure 500 {object} vo.BasicResponse"服务器内部错误"
 // @Router /posts/{id}/like [post]
 func (h *PostHandler) Like(c *gin.Context) {
 	postID, err := strconv.ParseUint(c.Param("id"), 10, 64)
@@ -41,10 +41,10 @@ func (h *PostHandler) Like(c *gin.Context) {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path int true "帖子ID"
-// @Success 200 {object} response.Response{data=object} "取消点赞成功"
-// @Failure 400 {object} response.Response "无效的帖子ID"
-// @Failure 401 {object} response.Response "未授权"
-// @Failure 500 {object} response.Response "服务器内部错误"
+// @Success 200 {object} vo.BasicResponse  "取消点赞成功"
+// @Failure 400 {object} vo.BasicResponse"无效的帖子ID"
+// @Failure 401 {object} vo.BasicResponse"未授权"
+// @Failure 500 {object} vo.BasicResponse"服务器内部错误"
 // @Router /posts/{id}/like [delete]
 func (h *PostHandler) Unlike(c *gin.Context) {
 	postID, err := strconv.ParseUint(c.Param("id"), 10, 64)

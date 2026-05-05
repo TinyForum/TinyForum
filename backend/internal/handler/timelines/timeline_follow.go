@@ -15,11 +15,11 @@ import (
 // @Produce json
 // @Security ApiKeyAuth
 // @Param user_id path int true "要关注的用户ID"
-// @Success 200 {object} response.Response{data=object} "关注成功"
-// @Failure 400 {object} response.Response "无效的用户ID或不能关注自己"
-// @Failure 401 {object} response.Response "未授权"
-// @Failure 409 {object} response.Response "已关注该用户"
-// @Failure 500 {object} response.Response "服务器内部错误"
+// @Success 200 {object} vo.BasicResponse  "关注成功"
+// @Failure 400 {object} vo.BasicResponse"无效的用户ID或不能关注自己"
+// @Failure 401 {object} vo.BasicResponse"未授权"
+// @Failure 409 {object} vo.BasicResponse"已关注该用户"
+// @Failure 500 {object} vo.BasicResponse"服务器内部错误"
 // @Router /timeline/subscribe/{user_id} [post]
 func (h *TimelineHandler) Subscribe(c *gin.Context) {
 	userID, err := strconv.ParseUint(c.Param("user_id"), 10, 64)
@@ -48,11 +48,11 @@ func (h *TimelineHandler) Subscribe(c *gin.Context) {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param user_id path int true "要取消关注的用户ID"
-// @Success 200 {object} response.Response{data=object} "取消关注成功"
-// @Failure 400 {object} response.Response "无效的用户ID"
-// @Failure 401 {object} response.Response "未授权"
-// @Failure 404 {object} response.Response "未关注该用户"
-// @Failure 500 {object} response.Response "服务器内部错误"
+// @Success 200 {object} vo.BasicResponse  "取消关注成功"
+// @Failure 400 {object} vo.BasicResponse"无效的用户ID"
+// @Failure 401 {object} vo.BasicResponse"未授权"
+// @Failure 404 {object} vo.BasicResponse"未关注该用户"
+// @Failure 500 {object} vo.BasicResponse"服务器内部错误"
 // @Router /timeline/subscribe/{user_id} [delete]
 func (h *TimelineHandler) Unsubscribe(c *gin.Context) {
 	userID, err := strconv.ParseUint(c.Param("user_id"), 10, 64)
@@ -76,9 +76,9 @@ func (h *TimelineHandler) Unsubscribe(c *gin.Context) {
 // @Tags 时间线管理
 // @Produce json
 // @Security ApiKeyAuth
-// @Success 200 {object} response.Response{data=[]do.User} "获取成功"
-// @Failure 401 {object} response.Response "未授权"
-// @Failure 500 {object} response.Response "服务器内部错误"
+// @Success 200 {object} vo.BasicResponse "获取成功"
+// @Failure 401 {object} vo.BasicResponse"未授权"
+// @Failure 500 {object} vo.BasicResponse"服务器内部错误"
 // @Router /timeline/subscriptions [get]
 func (h *TimelineHandler) GetSubscriptions(c *gin.Context) {
 	userID := c.GetUint("user_id")
@@ -98,10 +98,10 @@ func (h *TimelineHandler) GetSubscriptions(c *gin.Context) {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param user_id path int true "要检查的用户ID"
-// @Success 200 {object} response.Response{data=object} "获取成功"
-// @Failure 400 {object} response.Response "无效的用户ID"
-// @Failure 401 {object} response.Response "未授权"
-// @Failure 500 {object} response.Response "服务器内部错误"
+// @Success 200 {object} vo.BasicResponse  "获取成功"
+// @Failure 400 {object} vo.BasicResponse"无效的用户ID"
+// @Failure 401 {object} vo.BasicResponse"未授权"
+// @Failure 500 {object} vo.BasicResponse"服务器内部错误"
 // @Router /timeline/subscribe/{user_id}/status [get]
 func (h *TimelineHandler) IsSubscribed(c *gin.Context) {
 	userID, err := strconv.ParseUint(c.Param("user_id"), 10, 64)

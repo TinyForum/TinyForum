@@ -16,10 +16,10 @@ import (
 // @Produce json
 // @Security ApiKeyAuth
 // @Param request body dto.BatchMarkReadRequest false "批量标记请求"
-// @Success 200 {object} response.Response{data=dto.BatchMarkReadResponse} "标记成功"
-// @Failure 400 {object} response.Response "参数错误"
-// @Failure 401 {object} response.Response "未授权"
-// @Failure 500 {object} response.Response "服务器内部错误"
+// @Success 200 {object} vo.BasicResponse "标记成功"
+// @Failure 400 {object} vo.BasicResponse"参数错误"
+// @Failure 401 {object} vo.BasicResponse"未授权"
+// @Failure 500 {object} vo.BasicResponse"服务器内部错误"
 // @Router /notifications/batch/read [patch]
 func (h *NotificationHandler) BatchMarkRead(c *gin.Context) {
 	var req dto.BatchMarkReadRequest
@@ -59,12 +59,12 @@ func (h *NotificationHandler) BatchMarkRead(c *gin.Context) {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path uint true "通知ID"
-// @Success 200 {object} response.Response{data=object} "标记成功"
-// @Failure 400 {object} response.Response "无效的通知ID"
-// @Failure 401 {object} response.Response "未授权"
-// @Failure 403 {object} response.Response "无权操作"
-// @Failure 404 {object} response.Response "通知不存在"
-// @Failure 500 {object} response.Response "服务器内部错误"
+// @Success 200 {object} vo.BasicResponse  "标记成功"
+// @Failure 400 {object} vo.BasicResponse"无效的通知ID"
+// @Failure 401 {object} vo.BasicResponse"未授权"
+// @Failure 403 {object} vo.BasicResponse"无权操作"
+// @Failure 404 {object} vo.BasicResponse"通知不存在"
+// @Failure 500 {object} vo.BasicResponse"服务器内部错误"
 // @Router /notifications/{id}/read [post]
 func (h *NotificationHandler) MarkRead(c *gin.Context) {
 	userID := c.GetUint("user_id")

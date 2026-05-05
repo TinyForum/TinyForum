@@ -15,11 +15,11 @@ import (
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path int true "回答ID"
-// @Success 200 {object} response.Response{data=object} "删除成功"
-// @Failure 400 {object} response.Response "请求参数错误"
-// @Failure 401 {object} response.Response "未授权"
-// @Failure 403 {object} response.Response "无权限"
-// @Failure 404 {object} response.Response "回答不存在"
+// @Success 200 {object} vo.BasicResponse "删除成功"
+// @Failure 400 {object} vo.BasicResponse"请求参数错误"
+// @Failure 401 {object} vo.BasicResponse"未授权"
+// @Failure 403 {object} vo.BasicResponse"无权限"
+// @Failure 404 {object} vo.BasicResponse"回答不存在"
 // @Router /answers/{id} [delete]
 func (h *AnswerHandler) DeleteAnswer(c *gin.Context) {
 	// 1. 获取并验证回答ID
@@ -74,9 +74,9 @@ func (h *AnswerHandler) DeleteAnswer(c *gin.Context) {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path int true "回答ID"
-// @Success 200 {object} response.Response{data=object{message=string,vote_count=int,user_vote=int}} "取消投票成功"
-// @Failure 400 {object} response.Response "无效的回答ID或尚未投票"
-// @Failure 401 {object} response.Response "未授权"
+// @Success 200 {object} vo.BasicResponse "取消投票成功"
+// @Failure 400 {object} vo.BasicResponse"无效的回答ID或尚未投票"
+// @Failure 401 {object} vo.BasicResponse"未授权"
 // @Router /answers/{id}/vote [delete]
 func (h *AnswerHandler) RemoveVote(c *gin.Context) {
 	answerID, err := strconv.ParseUint(c.Param("id"), 10, 64)

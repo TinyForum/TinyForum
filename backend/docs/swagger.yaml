@@ -10,18 +10,6 @@ definitions:
     required:
     - content
     type: object
-  answer.VoteStatusResponse:
-    properties:
-      down_count:
-        description: 反对数
-        type: integer
-      up_count:
-        description: 赞同数
-        type: integer
-      user_vote:
-        description: 0:未投票, 1:赞同, -1:反对
-        type: integer
-    type: object
   auth.DeleteAccountInput:
     properties:
       confirm:
@@ -62,44 +50,6 @@ definitions:
     - name
     - slug
     type: object
-  board.ModeratorBoardWithPerms:
-    properties:
-      cover:
-        type: string
-      created_at:
-        description: 插入时自动填充
-        type: string
-      description:
-        type: string
-      icon:
-        type: string
-      id:
-        type: integer
-      name:
-        type: string
-      parent_id:
-        type: integer
-      permissions:
-        $ref: '#/definitions/po.ModeratorPermissions'
-      post_count:
-        type: integer
-      post_role:
-        $ref: '#/definitions/po.UserRole'
-      reply_role:
-        $ref: '#/definitions/po.UserRole'
-      slug:
-        type: string
-      sort_order:
-        type: integer
-      thread_count:
-        type: integer
-      today_count:
-        type: integer
-      updated_at:
-        type: string
-      view_role:
-        $ref: '#/definitions/po.UserRole'
-    type: object
   board.ReviewApplicationRequest:
     properties:
       approve:
@@ -134,6 +84,90 @@ definitions:
     - content
     - post_id
     type: object
+  do.AnnouncementStatus:
+    enum:
+    - 0
+    - 1
+    - 2
+    type: integer
+    x-enum-comments:
+      AnnouncementStatusArchived: 已归档
+      AnnouncementStatusDraft: 草稿
+      AnnouncementStatusPublished: 已发布
+    x-enum-descriptions:
+    - 草稿
+    - 已发布
+    - 已归档
+    x-enum-varnames:
+    - AnnouncementStatusDraft
+    - AnnouncementStatusPublished
+    - AnnouncementStatusArchived
+  do.AnnouncementType:
+    enum:
+    - 0
+    - 1
+    - 2
+    - 3
+    type: integer
+    x-enum-comments:
+      AnnouncementTypeEmergency: 紧急公告
+      AnnouncementTypeEvent: 活动公告
+      AnnouncementTypeImportant: 重要公告
+      AnnouncementTypeNormal: 普通公告
+    x-enum-descriptions:
+    - 普通公告
+    - 重要公告
+    - 紧急公告
+    - 活动公告
+    x-enum-varnames:
+    - AnnouncementTypeNormal
+    - AnnouncementTypeImportant
+    - AnnouncementTypeEmergency
+    - AnnouncementTypeEvent
+  do.ApplyModeratorInput:
+    properties:
+      reason:
+        maxLength: 500
+        type: string
+      req_ban_user:
+        type: boolean
+      req_delete_post:
+        type: boolean
+      req_edit_any_post:
+        type: boolean
+      req_manage_moderator:
+        type: boolean
+      req_pin_post:
+        type: boolean
+    required:
+    - reason
+    type: object
+  do.PostStatus:
+    enum:
+    - draft
+    - pending
+    - published
+    - hidden
+    type: string
+    x-enum-varnames:
+    - PostStatusDraft
+    - PostStatusPending
+    - PostStatusPublished
+    - PostStatusHidden
+  do.UpdateProfileInput:
+    properties:
+      avatar:
+        type: string
+      bio:
+        maxLength: 500
+        type: string
+      email:
+        description: 邮箱
+        type: string
+      username:
+        description: 用户名
+        type: string
+    type: object
   dto.BatchMarkReadRequest:
     properties:
       ids:
@@ -141,62 +175,6 @@ definitions:
         items:
           type: integer
         type: array
-    type: object
-  dto.BatchMarkReadResponse:
-    properties:
-      message:
-        type: string
-      updated_count:
-        description: 实际更新的数量
-        type: integer
-    type: object
-  dto.CreateAnnouncementRequest:
-    properties:
-      board_id:
-        description: 版块ID
-        type: integer
-      content:
-        description: 内容
-        type: string
-      cover:
-        type: string
-      expired_at:
-        description: 过期时间
-        type: string
-      is_global:
-        description: 是否全局
-        type: boolean
-      is_pinned:
-        description: 是否置顶
-        type: boolean
-      published_at:
-        description: 发布时间
-        type: string
-      status:
-        allOf:
-        - $ref: '#/definitions/po.AnnouncementStatus'
-        description: 状态
-      summary:
-        description: 摘要
-        type: string
-      title:
-        description: 标题
-        maxLength: 200
-        minLength: 1
-        type: string
-      type:
-        allOf:
-        - $ref: '#/definitions/po.AnnouncementType'
-        description: 类型
-        enum:
-        - normal
-        - important
-        - emergency
-        - event
-    required:
-    - content
-    - title
-    - type
     type: object
   dto.CreateQuestionRequest:
     properties:
@@ -211,7 +189,7 @@ definitions:
         minimum: 0
         type: integer
       status:
-        $ref: '#/definitions/po.PostStatus'
+        $ref: '#/definitions/do.PostStatus'
       summary:
         maxLength: 500
         type: string
@@ -225,35 +203,6 @@ definitions:
     required:
     - content
     - title
-    type: object
-  dto.FileInfo:
-    properties:
-      created_at:
-        type: string
-      ext:
-        type: string
-      file_type:
-        description: avatar, post_image, attachment
-        type: string
-      id:
-        type: string
-      mime_type:
-        type: string
-      original_name:
-        type: string
-      post_id:
-        type: integer
-      size:
-        type: integer
-      status:
-        description: 0:临时 1:正式 2:已删除
-        type: integer
-      stored_name:
-        type: string
-      stored_path:
-        type: string
-      user_id:
-        type: integer
     type: object
   dto.ForgotPasswordRequest:
     properties:
@@ -291,1349 +240,6 @@ definitions:
     - password
     - token
     type: object
-  dto.UpdateAnnouncementRequest:
-    properties:
-      board_id:
-        type: integer
-      content:
-        type: string
-      cover:
-        type: string
-      expired_at:
-        type: string
-      is_global:
-        type: boolean
-      is_pinned:
-        type: boolean
-      published_at:
-        type: string
-      summary:
-        type: string
-      title:
-        type: string
-      type:
-        $ref: '#/definitions/po.AnnouncementType'
-    type: object
-  dto.UploadResponse:
-    properties:
-      file_id:
-        description: 存储标识
-        type: string
-      mime_type:
-        type: string
-      original_name:
-        type: string
-      size:
-        type: integer
-      url:
-        description: 访问URL
-        type: string
-    type: object
-  po.ActionType:
-    enum:
-    - create_post
-    - create_comment
-    - like_post
-    - like_comment
-    - follow_user
-    - accept_answer
-    - sign_in
-    type: string
-    x-enum-varnames:
-    - ActionCreatePost
-    - ActionCreateComment
-    - ActionLikePost
-    - ActionLikeComment
-    - ActionFollowUser
-    - ActionAcceptAnswer
-    - ActionSignIn
-  po.ActiveUserDetail:
-    properties:
-      article_count:
-        description: 今日发文数
-        type: integer
-      avatar:
-        description: 头像
-        type: string
-      comment_count:
-        description: 今日评论数
-        type: integer
-      last_active_at:
-        description: 最后活跃时间
-        type: string
-      user_id:
-        description: 用户ID
-        type: integer
-      username:
-        description: 用户名
-        type: string
-    type: object
-  po.Announcement:
-    properties:
-      board_id:
-        description: 关联的板块ID（为空则全局）
-        type: integer
-      content:
-        description: 公告内容
-        type: string
-      cover:
-        description: 封面图
-        type: string
-      created_at:
-        description: 插入时自动填充
-        type: string
-      created_by:
-        description: 创建人ID
-        type: integer
-      expired_at:
-        description: 过期时间
-        type: string
-      id:
-        type: integer
-      is_global:
-        description: 是否全局公告
-        type: boolean
-      is_pinned:
-        description: 是否置顶
-        type: boolean
-      published_at:
-        description: 发布时间
-        type: string
-      status:
-        allOf:
-        - $ref: '#/definitions/po.AnnouncementStatus'
-        description: 状态
-      summary:
-        description: 公告摘要
-        type: string
-      title:
-        description: 公告标题
-        type: string
-      type:
-        allOf:
-        - $ref: '#/definitions/po.AnnouncementType'
-        description: 公告类型
-      updated_at:
-        type: string
-      updated_by:
-        description: 更新人ID
-        type: integer
-      view_count:
-        description: 浏览次数
-        type: integer
-    type: object
-  po.AnnouncementStatus:
-    enum:
-    - all
-    - draft
-    - published
-    - archived
-    type: string
-    x-enum-comments:
-      AnnouncementStatusAll: 所有
-      AnnouncementStatusArchived: 已归档
-      AnnouncementStatusDraft: 草稿
-      AnnouncementStatusPublished: 已发布
-    x-enum-descriptions:
-    - 所有
-    - 草稿
-    - 已发布
-    - 已归档
-    x-enum-varnames:
-    - AnnouncementStatusAll
-    - AnnouncementStatusDraft
-    - AnnouncementStatusPublished
-    - AnnouncementStatusArchived
-  po.AnnouncementType:
-    enum:
-    - normal
-    - important
-    - emergency
-    - event
-    type: string
-    x-enum-comments:
-      AnnouncementTypeEmergency: 紧急公告
-      AnnouncementTypeEvent: 活动公告
-      AnnouncementTypeImportant: 重要公告
-      AnnouncementTypeNormal: 普通公告
-    x-enum-descriptions:
-    - 普通公告
-    - 重要公告
-    - 紧急公告
-    - 活动公告
-    x-enum-varnames:
-    - AnnouncementTypeNormal
-    - AnnouncementTypeImportant
-    - AnnouncementTypeEmergency
-    - AnnouncementTypeEvent
-  po.ApplicationStatus:
-    enum:
-    - pending
-    - approved
-    - rejected
-    - canceled
-    type: string
-    x-enum-comments:
-      ApplicationApproved: 已通过
-      ApplicationCanceled: 用户撤销
-      ApplicationPending: 待审核
-      ApplicationRejected: 已拒绝
-    x-enum-descriptions:
-    - 待审核
-    - 已通过
-    - 已拒绝
-    - 用户撤销
-    x-enum-varnames:
-    - ApplicationPending
-    - ApplicationApproved
-    - ApplicationRejected
-    - ApplicationCanceled
-  po.ApplyModeratorInput:
-    properties:
-      reason:
-        maxLength: 500
-        type: string
-      req_ban_user:
-        type: boolean
-      req_delete_post:
-        type: boolean
-      req_edit_any_post:
-        type: boolean
-      req_manage_moderator:
-        type: boolean
-      req_pin_post:
-        type: boolean
-    required:
-    - reason
-    type: object
-  po.Board:
-    properties:
-      cover:
-        type: string
-      created_at:
-        description: 插入时自动填充
-        type: string
-      description:
-        type: string
-      icon:
-        type: string
-      id:
-        type: integer
-      name:
-        type: string
-      parent_id:
-        type: integer
-      post_count:
-        type: integer
-      post_role:
-        $ref: '#/definitions/po.UserRole'
-      reply_role:
-        $ref: '#/definitions/po.UserRole'
-      slug:
-        type: string
-      sort_order:
-        type: integer
-      thread_count:
-        type: integer
-      today_count:
-        type: integer
-      updated_at:
-        type: string
-      view_role:
-        $ref: '#/definitions/po.UserRole'
-    type: object
-  po.BoardTree:
-    properties:
-      children:
-        items:
-          $ref: '#/definitions/po.BoardTree'
-        type: array
-      cover:
-        type: string
-      description:
-        type: string
-      icon:
-        type: string
-      id:
-        type: integer
-      name:
-        type: string
-      parent_id:
-        type: integer
-      post_count:
-        type: integer
-      post_role:
-        $ref: '#/definitions/po.UserRole'
-      reply_role:
-        $ref: '#/definitions/po.UserRole'
-      slug:
-        type: string
-      sort_order:
-        type: integer
-      thread_count:
-        type: integer
-      today_count:
-        type: integer
-      view_role:
-        $ref: '#/definitions/po.UserRole'
-    type: object
-  po.Comment:
-    properties:
-      author:
-        $ref: '#/definitions/po.User'
-      author_id:
-        type: integer
-      content:
-        type: string
-      created_at:
-        description: 插入时自动填充
-        type: string
-      id:
-        type: integer
-      is_accepted:
-        type: boolean
-      is_answer:
-        type: boolean
-      like_count:
-        type: integer
-      parent:
-        $ref: '#/definitions/po.Comment'
-      parent_id:
-        type: integer
-      post_id:
-        type: integer
-      replies:
-        items:
-          $ref: '#/definitions/po.Comment'
-        type: array
-      status:
-        allOf:
-        - $ref: '#/definitions/po.CommentStatus'
-        description: 新增审核状态
-      updated_at:
-        type: string
-      vote_count:
-        type: integer
-    type: object
-  po.CommentStatus:
-    enum:
-    - visible
-    - pending
-    - hidden
-    type: string
-    x-enum-comments:
-      CommentStatusHidden: 已隐藏
-      CommentStatusPending: 待审核
-      CommentStatusVisible: 正常可见
-    x-enum-descriptions:
-    - 正常可见
-    - 待审核
-    - 已隐藏
-    x-enum-varnames:
-    - CommentStatusVisible
-    - CommentStatusPending
-    - CommentStatusHidden
-  po.HotArticleItem:
-    properties:
-      author_id:
-        description: 作者ID
-        type: integer
-      author_name:
-        description: 作者昵称
-        type: string
-      board_id:
-        description: 板块ID
-        type: integer
-      board_name:
-        description: 板块名称
-        type: string
-      comment_count:
-        description: 评论数
-        type: integer
-      id:
-        description: 文章ID
-        type: integer
-      like_count:
-        description: 点赞数
-        type: integer
-      score:
-        description: 综合热度分
-        type: integer
-      title:
-        description: 文章标题
-        type: string
-      view_count:
-        description: 浏览量
-        type: integer
-    type: object
-  po.HotBoardItem:
-    properties:
-      active_user:
-        description: 今日活跃用户数
-        type: integer
-      article_count:
-        description: 今日发文数
-        type: integer
-      comment_count:
-        description: 今日评论数
-        type: integer
-      icon:
-        description: 板块图标
-        type: string
-      id:
-        description: 板块ID
-        type: integer
-      name:
-        description: 板块名称
-        type: string
-      score:
-        description: 综合热度分
-        type: integer
-    type: object
-  po.ModerationStatus:
-    enum:
-    - pending
-    - approved
-    - rejected
-    type: string
-    x-enum-comments:
-      ModerationStatusApproved: 审核通过
-      ModerationStatusPending: 待审核
-      ModerationStatusRejected: 审核拒绝（内容被隐藏）
-    x-enum-descriptions:
-    - 待审核
-    - 审核通过
-    - 审核拒绝（内容被隐藏）
-    x-enum-varnames:
-    - ModerationStatusPending
-    - ModerationStatusApproved
-    - ModerationStatusRejected
-  po.Moderator:
-    properties:
-      board:
-        $ref: '#/definitions/po.Board'
-      board_id:
-        type: integer
-      created_at:
-        description: 插入时自动填充
-        type: string
-      id:
-        type: integer
-      permissions:
-        type: object
-      updated_at:
-        type: string
-      user:
-        $ref: '#/definitions/po.User'
-      user_id:
-        type: integer
-    type: object
-  po.ModeratorApplication:
-    properties:
-      board:
-        $ref: '#/definitions/po.Board'
-      board_id:
-        type: integer
-      created_at:
-        description: 插入时自动填充
-        type: string
-      id:
-        type: integer
-      reason:
-        type: string
-      req_ban_user:
-        type: boolean
-      req_delete_post:
-        description: 申请时希望获得的初始权限（审批人可在通过时调整）
-        type: boolean
-      req_edit_any_post:
-        type: boolean
-      req_manage_moderator:
-        type: boolean
-      req_pin_post:
-        type: boolean
-      review_note:
-        description: 审批备注
-        type: string
-      reviewer:
-        $ref: '#/definitions/po.User'
-      reviewer_id:
-        description: 审批人（管理员）
-        type: integer
-      status:
-        $ref: '#/definitions/po.ApplicationStatus'
-      updated_at:
-        type: string
-      user:
-        $ref: '#/definitions/po.User'
-      user_id:
-        type: integer
-    type: object
-  po.ModeratorPermissions:
-    properties:
-      can_ban_user:
-        type: boolean
-      can_delete_post:
-        type: boolean
-      can_edit_any_post:
-        type: boolean
-      can_manage_moderator:
-        type: boolean
-      can_pin_post:
-        type: boolean
-    type: object
-  po.Notification:
-    properties:
-      content:
-        type: string
-      created_at:
-        description: 插入时自动填充
-        type: string
-      id:
-        type: integer
-      is_read:
-        type: boolean
-      sender:
-        $ref: '#/definitions/po.User'
-      sender_id:
-        type: integer
-      target_id:
-        type: integer
-      target_type:
-        type: string
-      type:
-        $ref: '#/definitions/po.NotificationType'
-      updated_at:
-        type: string
-      user_id:
-        type: integer
-    type: object
-  po.NotificationType:
-    enum:
-    - system
-    - announcement
-    - maintenance
-    - upgrade
-    - security
-    - verify
-    - bind
-    - unbind
-    - comment
-    - like
-    - reply
-    - mention
-    - share
-    - favorite
-    - reward
-    - report
-    - warning
-    - mute
-    - ban
-    - delete
-    - move
-    - lock
-    - unlock
-    - stick
-    - unstick
-    - promote
-    - demote
-    - assign_role
-    - post_approve
-    - post_reject
-    - post_schedule
-    - post_expire
-    - comment_approve
-    - comment_reject
-    - draft_saved
-    - question
-    - answer
-    - accept_answer
-    - accept_cancel
-    - question_update
-    - question_close
-    - question_reopen
-    - best_answer
-    - invite_answer
-    - subscribe_post
-    - subscribe_node
-    - subscribe_tag
-    - subscribe_user
-    - subscribe_comment
-    - subscribe_topic
-    - subscribe_digest
-    - follow
-    - unfollow
-    - follow_post
-    - follow_comment
-    - follow_like
-    - follow_favorite
-    - follow_share
-    - timeline_post
-    - timeline_comment
-    - timeline_like
-    - timeline_answer
-    - timeline_follow
-    - trending_post
-    - trending_comment
-    - recommend_post
-    - level_up
-    - badge
-    - achievement
-    - milestone
-    - points
-    - exp
-    - friend_request
-    - friend_accept
-    - friend_online
-    - private_message
-    - group_invite
-    - group_join
-    - credit
-    - debit
-    - gift
-    - vip_expire
-    - vip_renew
-    - payment_success
-    - payment_failed
-    - refund
-    - event
-    - event_remind
-    - event_end
-    - lottery
-    - coupon
-    - coupon_expire
-    - reminder
-    - digest
-    - birthday
-    - feedback
-    - survey
-    type: string
-    x-enum-comments:
-      NotifyAcceptAnswer: 采纳了我的回答
-      NotifyAcceptCancel: 取消采纳
-      NotifyAchievement: 解锁成就
-      NotifyAnnouncement: 全局公告
-      NotifyAnswer: 回答了问题
-      NotifyAssignRole: 授予管理角色
-      NotifyBadge: 获得勋章
-      NotifyBan: 封禁通知
-      NotifyBestAnswer: 被选为最佳答案
-      NotifyBind: 绑定成功通知
-      NotifyBirthday: 生日祝福
-      NotifyComment: 评论我的帖子
-      NotifyCommentApprove: 评论审核通过
-      NotifyCommentReject: 评论审核拒绝
-      NotifyCoupon: 优惠券发放
-      NotifyCouponExpire: 优惠券即将过期
-      NotifyCredit: 积分到账
-      NotifyDebit: 积分扣除
-      NotifyDelete: 内容被删除通知
-      NotifyDemote: 取消加精
-      NotifyDigest: 每日/每周摘要
-      NotifyDraftSaved: 草稿保存成功
-      NotifyEvent: 活动通知
-      NotifyEventEnd: 活动结束
-      NotifyEventRemind: 活动开始提醒
-      NotifyExp: 经验值变动
-      NotifyFavorite: 收藏了我的内容
-      NotifyFeedback: 反馈回复
-      NotifyFollow: 关注了我
-      NotifyFollowComment: 关注的人评论
-      NotifyFollowFavorite: 关注的人收藏
-      NotifyFollowLike: 关注的人点赞
-      NotifyFollowPost: 关注的人发帖
-      NotifyFollowShare: 关注的人分享
-      NotifyFriendAccept: 好友申请通过
-      NotifyFriendOnline: 好友上线
-      NotifyFriendRequest: 好友申请
-      NotifyGift: 收到礼物
-      NotifyGroupInvite: 邀请加入群组
-      NotifyGroupJoin: 加入群组
-      NotifyInviteAnswer: 邀请我回答问题
-      NotifyLevelUp: 等级提升
-      NotifyLike: 点赞我的内容
-      NotifyLock: 帖子被锁定
-      NotifyLottery: 中奖通知
-      NotifyMaintenance: 系统维护通知
-      NotifyMention: '@提及我'
-      NotifyMilestone: 里程碑达成（如发帖100篇）
-      NotifyMove: 帖子被移动
-      NotifyMute: 禁言通知
-      NotifyPaymentFailed: 支付失败
-      NotifyPaymentSuccess: 支付成功
-      NotifyPoints: 积分变动
-      NotifyPostApprove: 帖子审核通过
-      NotifyPostExpire: 帖子到期
-      NotifyPostReject: 帖子审核拒绝
-      NotifyPostSchedule: 定时发布成功
-      NotifyPrivateMessage: 私信（通常独立，但可归入）
-      NotifyPromote: 内容被加精/推荐
-      NotifyQuestion: 新问题
-      NotifyQuestionClose: 问题被关闭
-      NotifyQuestionReopen: 问题被重开
-      NotifyQuestionUpdate: 问题被修改
-      NotifyRecommendPost: 推荐帖子给我
-      NotifyRefund: 退款通知
-      NotifyReminder: 通用提醒
-      NotifyReply: 回复我的评论
-      NotifyReport: 举报处理结果
-      NotifyReward: 打赏/赞赏
-      NotifySecurity: 安全提醒（异地登录等）
-      NotifyShare: 分享了内容
-      NotifyStick: 帖子被置顶
-      NotifySubscribeComment: 订阅的评论有新回复
-      NotifySubscribeDigest: 订阅的摘要/周刊
-      NotifySubscribeNode: 订阅的节点有新帖
-      NotifySubscribePost: 订阅的帖子有新回复
-      NotifySubscribeTag: 订阅的标签有新内容
-      NotifySubscribeTopic: 订阅的话题更新
-      NotifySubscribeUser: 订阅的用户有新动态
-      NotifySurvey: 问卷调查邀请
-      NotifySystem: 系统通知
-      NotifyTimelineAnswer: 关注的用户回答问题
-      NotifyTimelineComment: 关注的用户发表评论
-      NotifyTimelineFollow: 关注的用户关注了别人
-      NotifyTimelineLike: 关注的用户点赞
-      NotifyTimelinePost: 关注的用户发新帖
-      NotifyTrendingComment: 评论成为热门
-      NotifyTrendingPost: 帖子成为热门
-      NotifyUnbind: 解绑通知
-      NotifyUnfollow: 取消关注（极少用）
-      NotifyUnlock: 帖子被解锁
-      NotifyUnstick: 取消置顶
-      NotifyUpgrade: 版本升级通知
-      NotifyVerify: 验证通知（邮箱/手机）
-      NotifyVipExpire: VIP到期提醒
-      NotifyVipRenew: VIP续费成功
-      NotifyWarning: 违规警告
-    x-enum-descriptions:
-    - 系统通知
-    - 全局公告
-    - 系统维护通知
-    - 版本升级通知
-    - 安全提醒（异地登录等）
-    - 验证通知（邮箱/手机）
-    - 绑定成功通知
-    - 解绑通知
-    - 评论我的帖子
-    - 点赞我的内容
-    - 回复我的评论
-    - '@提及我'
-    - 分享了内容
-    - 收藏了我的内容
-    - 打赏/赞赏
-    - 举报处理结果
-    - 违规警告
-    - 禁言通知
-    - 封禁通知
-    - 内容被删除通知
-    - 帖子被移动
-    - 帖子被锁定
-    - 帖子被解锁
-    - 帖子被置顶
-    - 取消置顶
-    - 内容被加精/推荐
-    - 取消加精
-    - 授予管理角色
-    - 帖子审核通过
-    - 帖子审核拒绝
-    - 定时发布成功
-    - 帖子到期
-    - 评论审核通过
-    - 评论审核拒绝
-    - 草稿保存成功
-    - 新问题
-    - 回答了问题
-    - 采纳了我的回答
-    - 取消采纳
-    - 问题被修改
-    - 问题被关闭
-    - 问题被重开
-    - 被选为最佳答案
-    - 邀请我回答问题
-    - 订阅的帖子有新回复
-    - 订阅的节点有新帖
-    - 订阅的标签有新内容
-    - 订阅的用户有新动态
-    - 订阅的评论有新回复
-    - 订阅的话题更新
-    - 订阅的摘要/周刊
-    - 关注了我
-    - 取消关注（极少用）
-    - 关注的人发帖
-    - 关注的人评论
-    - 关注的人点赞
-    - 关注的人收藏
-    - 关注的人分享
-    - 关注的用户发新帖
-    - 关注的用户发表评论
-    - 关注的用户点赞
-    - 关注的用户回答问题
-    - 关注的用户关注了别人
-    - 帖子成为热门
-    - 评论成为热门
-    - 推荐帖子给我
-    - 等级提升
-    - 获得勋章
-    - 解锁成就
-    - 里程碑达成（如发帖100篇）
-    - 积分变动
-    - 经验值变动
-    - 好友申请
-    - 好友申请通过
-    - 好友上线
-    - 私信（通常独立，但可归入）
-    - 邀请加入群组
-    - 加入群组
-    - 积分到账
-    - 积分扣除
-    - 收到礼物
-    - VIP到期提醒
-    - VIP续费成功
-    - 支付成功
-    - 支付失败
-    - 退款通知
-    - 活动通知
-    - 活动开始提醒
-    - 活动结束
-    - 中奖通知
-    - 优惠券发放
-    - 优惠券即将过期
-    - 通用提醒
-    - 每日/每周摘要
-    - 生日祝福
-    - 反馈回复
-    - 问卷调查邀请
-    x-enum-varnames:
-    - NotifySystem
-    - NotifyAnnouncement
-    - NotifyMaintenance
-    - NotifyUpgrade
-    - NotifySecurity
-    - NotifyVerify
-    - NotifyBind
-    - NotifyUnbind
-    - NotifyComment
-    - NotifyLike
-    - NotifyReply
-    - NotifyMention
-    - NotifyShare
-    - NotifyFavorite
-    - NotifyReward
-    - NotifyReport
-    - NotifyWarning
-    - NotifyMute
-    - NotifyBan
-    - NotifyDelete
-    - NotifyMove
-    - NotifyLock
-    - NotifyUnlock
-    - NotifyStick
-    - NotifyUnstick
-    - NotifyPromote
-    - NotifyDemote
-    - NotifyAssignRole
-    - NotifyPostApprove
-    - NotifyPostReject
-    - NotifyPostSchedule
-    - NotifyPostExpire
-    - NotifyCommentApprove
-    - NotifyCommentReject
-    - NotifyDraftSaved
-    - NotifyQuestion
-    - NotifyAnswer
-    - NotifyAcceptAnswer
-    - NotifyAcceptCancel
-    - NotifyQuestionUpdate
-    - NotifyQuestionClose
-    - NotifyQuestionReopen
-    - NotifyBestAnswer
-    - NotifyInviteAnswer
-    - NotifySubscribePost
-    - NotifySubscribeNode
-    - NotifySubscribeTag
-    - NotifySubscribeUser
-    - NotifySubscribeComment
-    - NotifySubscribeTopic
-    - NotifySubscribeDigest
-    - NotifyFollow
-    - NotifyUnfollow
-    - NotifyFollowPost
-    - NotifyFollowComment
-    - NotifyFollowLike
-    - NotifyFollowFavorite
-    - NotifyFollowShare
-    - NotifyTimelinePost
-    - NotifyTimelineComment
-    - NotifyTimelineLike
-    - NotifyTimelineAnswer
-    - NotifyTimelineFollow
-    - NotifyTrendingPost
-    - NotifyTrendingComment
-    - NotifyRecommendPost
-    - NotifyLevelUp
-    - NotifyBadge
-    - NotifyAchievement
-    - NotifyMilestone
-    - NotifyPoints
-    - NotifyExp
-    - NotifyFriendRequest
-    - NotifyFriendAccept
-    - NotifyFriendOnline
-    - NotifyPrivateMessage
-    - NotifyGroupInvite
-    - NotifyGroupJoin
-    - NotifyCredit
-    - NotifyDebit
-    - NotifyGift
-    - NotifyVipExpire
-    - NotifyVipRenew
-    - NotifyPaymentSuccess
-    - NotifyPaymentFailed
-    - NotifyRefund
-    - NotifyEvent
-    - NotifyEventRemind
-    - NotifyEventEnd
-    - NotifyLottery
-    - NotifyCoupon
-    - NotifyCouponExpire
-    - NotifyReminder
-    - NotifyDigest
-    - NotifyBirthday
-    - NotifyFeedback
-    - NotifySurvey
-  po.Post:
-    properties:
-      author:
-        allOf:
-        - $ref: '#/definitions/po.User'
-        description: 关联
-      author_id:
-        type: integer
-      board:
-        $ref: '#/definitions/po.Board'
-      board_id:
-        type: integer
-      content:
-        type: string
-      cover:
-        type: string
-      created_at:
-        description: 插入时自动填充
-        type: string
-      id:
-        type: integer
-      like_count:
-        type: integer
-      moderation_status:
-        allOf:
-        - $ref: '#/definitions/po.ModerationStatus'
-        description: 系统风控状态 - 由风控引擎或管理员审核决定
-      pin_in_board:
-        type: boolean
-      pin_top:
-        type: boolean
-      post_status:
-        allOf:
-        - $ref: '#/definitions/po.PostStatus'
-        description: 用户状态 - 用户自己控制/感知的状态
-      question:
-        $ref: '#/definitions/po.Question'
-      summary:
-        type: string
-      tags:
-        items:
-          $ref: '#/definitions/po.Tag'
-        type: array
-      title:
-        type: string
-      type:
-        $ref: '#/definitions/po.PostType'
-      updated_at:
-        type: string
-      view_count:
-        type: integer
-    type: object
-  po.PostStatus:
-    enum:
-    - draft
-    - pending
-    - published
-    - hidden
-    type: string
-    x-enum-varnames:
-    - PostStatusDraft
-    - PostStatusPending
-    - PostStatusPublished
-    - PostStatusHidden
-  po.PostType:
-    enum:
-    - post
-    - article
-    - topic
-    - question
-    type: string
-    x-enum-varnames:
-    - PostTypePost
-    - PostTypeArticle
-    - PostTypeTopic
-    - PostTypeQuestion
-  po.Question:
-    properties:
-      accepted_answer:
-        $ref: '#/definitions/po.Comment'
-      accepted_answer_id:
-        type: integer
-      answer_count:
-        type: integer
-      created_at:
-        description: 插入时自动填充
-        type: string
-      id:
-        type: integer
-      post:
-        $ref: '#/definitions/po.Post'
-      post_id:
-        type: integer
-      reward_score:
-        type: integer
-      updated_at:
-        type: string
-      view_count:
-        type: integer
-    type: object
-  po.QuestionListResponse:
-    properties:
-      answer_count:
-        type: integer
-      author_id:
-        type: integer
-      board_id:
-        type: integer
-      created_at:
-        description: 插入时自动填充
-        type: string
-      id:
-        type: integer
-      reward_score:
-        type: integer
-      summary:
-        type: string
-      title:
-        type: string
-      updated_at:
-        type: string
-      view_count:
-        type: integer
-    type: object
-  po.QuestionResponse:
-    properties:
-      accepted_answer_id:
-        type: integer
-      answer_count:
-        type: integer
-      author_id:
-        type: integer
-      board_id:
-        type: integer
-      content:
-        type: string
-      cover:
-        type: string
-      created_at:
-        type: string
-      id:
-        type: integer
-      post_id:
-        type: integer
-      reward_score:
-        type: integer
-      status:
-        type: string
-      summary:
-        type: string
-      title:
-        type: string
-      updated_at:
-        type: string
-    type: object
-  po.StatsActiveUserInfo:
-    properties:
-      list:
-        description: 今日活跃用户列表（最多N条）
-        items:
-          $ref: '#/definitions/po.ActiveUserDetail'
-        type: array
-      total:
-        description: 今日活跃用户总数
-        type: integer
-    type: object
-  po.StatsIllegalInfo:
-    properties:
-      article_cnt:
-        description: 今日违规文章数
-        type: integer
-      board_cnt:
-        description: 今日违规板块数
-        type: integer
-      comment_cnt:
-        description: 今日违规评论数
-        type: integer
-      total:
-        description: 今日违规总数
-        type: integer
-      user_count:
-        description: 今日违规用户数
-        type: integer
-    type: object
-  po.StatsInfo:
-    properties:
-      total_article:
-        description: 总文章数
-        type: integer
-      total_board:
-        description: 总板块数
-        type: integer
-      total_comment:
-        description: 总评论数
-        type: integer
-      total_tag:
-        description: 总标签数
-        type: integer
-      total_user:
-        description: 总用户数
-        type: integer
-    type: object
-  po.StatsInfoResp:
-    properties:
-      active_user_info:
-        allOf:
-        - $ref: '#/definitions/po.StatsActiveUserInfo'
-        description: 今日活跃用户信息
-      base_info:
-        allOf:
-        - $ref: '#/definitions/po.StatsInfo'
-        description: 基础统计信息
-      hot_articles:
-        description: 今日热门文章列表
-        items:
-          $ref: '#/definitions/po.HotArticleItem'
-        type: array
-      hot_boards:
-        description: 今日热门板块列表
-        items:
-          $ref: '#/definitions/po.HotBoardItem'
-        type: array
-      illegal_info:
-        allOf:
-        - $ref: '#/definitions/po.StatsIllegalInfo'
-        description: 今日违规信息
-      stat_time:
-        description: 统计时间
-        type: string
-      today_info:
-        allOf:
-        - $ref: '#/definitions/po.StatsTodayInfo'
-        description: 今日统计信息
-    type: object
-  po.StatsTodayInfo:
-    properties:
-      active_user:
-        description: 今日活跃用户数
-        type: integer
-      new_article:
-        description: 今日新增文章
-        type: integer
-      new_board:
-        description: 今日新增板块
-        type: integer
-      new_comment:
-        description: 今日新增评论
-        type: integer
-      new_tag:
-        description: 今日新增标签
-        type: integer
-      new_user:
-        description: 今日新增用户
-        type: integer
-    type: object
-  po.StatsTrendResponse:
-    properties:
-      end_date:
-        description: 结束日期
-        type: string
-      interval:
-        description: 统计粒度 (day/week/month)
-        type: string
-      start_date:
-        description: 开始日期
-        type: string
-      trend:
-        description: 趋势数据
-        items:
-          $ref: '#/definitions/po.TrendData'
-        type: array
-      type:
-        description: 统计类型
-        type: string
-    type: object
-  po.Tag:
-    properties:
-      color:
-        type: string
-      created_at:
-        description: 插入时自动填充
-        type: string
-      description:
-        type: string
-      id:
-        type: integer
-      name:
-        type: string
-      post_count:
-        type: integer
-      updated_at:
-        type: string
-    type: object
-  po.TimelineEvent:
-    properties:
-      action:
-        $ref: '#/definitions/po.ActionType'
-      actor:
-        $ref: '#/definitions/po.User'
-      actor_id:
-        type: integer
-      created_at:
-        description: 插入时自动填充
-        type: string
-      id:
-        type: integer
-      payload:
-        type: string
-      score:
-        type: integer
-      target_id:
-        type: integer
-      target_type:
-        type: string
-      updated_at:
-        type: string
-      user:
-        $ref: '#/definitions/po.User'
-      user_id:
-        type: integer
-    type: object
-  po.Topic:
-    properties:
-      cover:
-        type: string
-      created_at:
-        description: 插入时自动填充
-        type: string
-      creator:
-        $ref: '#/definitions/po.User'
-      creator_id:
-        type: integer
-      description:
-        type: string
-      follower_count:
-        type: integer
-      id:
-        type: integer
-      is_public:
-        type: boolean
-      post_count:
-        type: integer
-      title:
-        type: string
-      updated_at:
-        type: string
-    type: object
-  po.TrendData:
-    properties:
-      count:
-        type: integer
-      date:
-        type: string
-    type: object
-  po.UpdateProfileInput:
-    properties:
-      avatar:
-        type: string
-      bio:
-        maxLength: 500
-        type: string
-      email:
-        description: 邮箱
-        type: string
-      username:
-        description: 用户名
-        type: string
-    type: object
-  po.User:
-    properties:
-      avatar:
-        description: 用户的头像，目前为链接（暂不支持图片上传）
-        type: string
-      bio:
-        description: 用户的简介
-        type: string
-      created_at:
-        description: 插入时自动填充
-        type: string
-      email:
-        description: 邮箱
-        type: string
-      id:
-        type: integer
-      invited_by_id:
-        description: 邀请人ID
-        type: integer
-      is_active:
-        description: 低优先级，用户主动行为，例如验证邮箱后可以处于激活状态，非处罚性质
-        type: boolean
-      is_blocked:
-        description: 优先级高于 IsActive，被动行为，一旦为 true 完全无法登录，处罚性质
-        type: boolean
-      last_login:
-        description: 最后登陆时间
-        type: string
-      password:
-        description: 密码（hash）
-        type: string
-      role:
-        allOf:
-        - $ref: '#/definitions/po.UserRole'
-        description: 用户的角色，默认为普通用户
-      score:
-        description: 用户的积分
-        type: integer
-      updated_at:
-        type: string
-      username:
-        description: 用户名
-        type: string
-    type: object
-  po.UserRole:
-    enum:
-    - guest
-    - user
-    - member
-    - moderator
-    - reviewer
-    - admin
-    - super_admin
-    - bot
-    type: string
-    x-enum-varnames:
-    - RoleGuest
-    - RoleUser
-    - RoleMember
-    - RoleModerator
-    - RoleReviewer
-    - RoleAdmin
-    - RoleSuperAdmin
-    - RoleBot
   post.CreatePostInput:
     properties:
       board_id:
@@ -1644,7 +250,7 @@ definitions:
       cover:
         type: string
       status:
-        $ref: '#/definitions/po.PostStatus'
+        $ref: '#/definitions/do.PostStatus'
       summary:
         type: string
       tag_ids:
@@ -1680,7 +286,44 @@ definitions:
         minLength: 2
         type: string
     type: object
-  query.ListAnnouncements:
+  request.CreateAnnouncement:
+    properties:
+      board_id:
+        type: integer
+      content:
+        type: string
+      cover:
+        type: string
+      expired_at:
+        type: string
+      is_global:
+        type: boolean
+      is_pinned:
+        type: boolean
+      published_at:
+        type: string
+      status:
+        $ref: '#/definitions/do.AnnouncementStatus'
+      summary:
+        type: string
+      title:
+        maxLength: 200
+        minLength: 1
+        type: string
+      type:
+        allOf:
+        - $ref: '#/definitions/do.AnnouncementType'
+        enum:
+        - 0
+        - 1
+        - 2
+        - 3
+    required:
+    - content
+    - title
+    - type
+    type: object
+  request.ListAnnouncements:
     properties:
       board_id:
         type: integer
@@ -1702,11 +345,22 @@ definitions:
       start_time:
         type: string
       status:
-        $ref: '#/definitions/po.AnnouncementStatus'
+        allOf:
+        - $ref: '#/definitions/do.AnnouncementStatus'
+        enum:
+        - 0
+        - 1
+        - 2
       type:
-        $ref: '#/definitions/po.AnnouncementType'
+        allOf:
+        - $ref: '#/definitions/do.AnnouncementType'
+        enum:
+        - 0
+        - 1
+        - 2
+        - 3
     type: object
-  query.SetUserRoleRequest:
+  request.SetUserRoleRequest:
     properties:
       role:
         enum:
@@ -1721,39 +375,41 @@ definitions:
     required:
     - role
     type: object
-  response.PageData:
+  request.UpdateAnnouncement:
     properties:
-      has_more:
+      board_id:
+        type: integer
+      content:
+        type: string
+      cover:
+        type: string
+      expired_at:
+        type: string
+      is_global:
         type: boolean
-      list: {}
-      page:
-        type: integer
-      page_size:
-        type: integer
-      total:
-        type: integer
-    type: object
-  response.Response:
-    properties:
-      code:
-        type: integer
-      data: {}
-      message:
+      is_pinned:
+        type: boolean
+      published_at:
         type: string
-      request_id:
+      status:
+        allOf:
+        - $ref: '#/definitions/do.AnnouncementStatus'
+        enum:
+        - 0
+        - 1
+        - 2
+      summary:
         type: string
-      timestamp:
-        type: integer
-      trace_id:
+      title:
         type: string
-    type: object
-  response.ValidationError:
-    properties:
-      field:
-        type: string
-      message:
-        type: string
-      value: {}
+      type:
+        allOf:
+        - $ref: '#/definitions/do.AnnouncementType'
+        enum:
+        - 0
+        - 1
+        - 2
+        - 3
     type: object
   risk.resolveTaskInput:
     properties:
@@ -1804,15 +460,6 @@ definitions:
     required:
     - title
     type: object
-  user.AdminResetUserPasswordResponse:
-    properties:
-      message:
-        type: string
-      operator_id:
-        type: integer
-      user_id:
-        type: integer
-    type: object
   user.AdminSetScoreRequest:
     properties:
       operation:
@@ -1832,32 +479,6 @@ definitions:
     - operation
     - reason
     - score
-    type: object
-  user.AdminSetScoreResponse:
-    properties:
-      change:
-        type: integer
-      new_score:
-        type: integer
-      old_score:
-        type: integer
-      operation:
-        type: string
-      operator_id:
-        type: integer
-      reason:
-        type: string
-      timestamp:
-        type: integer
-      user_id:
-        type: integer
-    type: object
-  user.GetCurrentUserRoleResponse:
-    properties:
-      role:
-        type: string
-      user_id:
-        type: integer
     type: object
   user.LoginInput:
     properties:
@@ -1885,54 +506,18 @@ definitions:
     - password
     - username
     type: object
-  user.UserProfileResponse:
+  vo.BasicResponse:
     properties:
-      avatar:
-        description: 用户的头像，目前为链接（暂不支持图片上传）
-        type: string
-      bio:
-        description: 用户的简介
-        type: string
-      created_at:
-        description: 插入时自动填充
-        type: string
-      email:
-        description: 邮箱
-        type: string
-      follower_count:
+      code:
         type: integer
-      following_count:
-        type: integer
-      id:
-        type: integer
-      invited_by_id:
-        description: 邀请人ID
-        type: integer
-      is_active:
-        description: 低优先级，用户主动行为，例如验证邮箱后可以处于激活状态，非处罚性质
-        type: boolean
-      is_blocked:
-        description: 优先级高于 IsActive，被动行为，一旦为 true 完全无法登录，处罚性质
-        type: boolean
-      is_following:
-        type: boolean
-      last_login:
-        description: 最后登陆时间
+      data: {}
+      message:
         type: string
-      password:
-        description: 密码（hash）
+      request_id:
         type: string
-      role:
-        allOf:
-        - $ref: '#/definitions/po.UserRole'
-        description: 用户的角色，默认为普通用户
-      score:
-        description: 用户的积分
+      timestamp:
         type: integer
-      updated_at:
-        type: string
-      username:
-        description: 用户名
+      trace_id:
         type: string
     type: object
   vo.SimpleLeaderboardItem:
@@ -1946,15 +531,45 @@ definitions:
       username:
         type: string
     type: object
-  vo.Statistics:
+  vo.UserStatsInfo:
     properties:
-      total_comments:
+      total_answer:
+        description: 总回答数
+        type: integer
+      total_comment:
+        description: 总评论数
         type: integer
       total_favorites:
+        description: |-
+          TotalBoard   int64 `json:"total_board"`   // 总板块数
+          TotalTag     int64 `json:"total_tag"`     // 总标签数
         type: integer
-      total_posts:
+      total_follower:
+        description: 总关注数
         type: integer
-      unread_notifications:
+      total_following:
+        description: 总粉丝数
+        type: integer
+      total_like:
+        description: 总点赞数
+        type: integer
+      total_post:
+        description: 总帖子数
+        type: integer
+      total_question:
+        description: 总问题数
+        type: integer
+      total_report:
+        description: 总举报数
+        type: integer
+      total_score:
+        description: 总积分
+        type: integer
+      total_upload:
+        description: 总上传数
+        type: integer
+      total_violation:
+        description: 总违规数
         type: integer
     type: object
 host: localhost:8080
@@ -1975,35 +590,30 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/dto.CreateAnnouncementRequest'
+          $ref: '#/definitions/request.CreateAnnouncement'
       produces:
       - application/json
       responses:
         "200":
           description: 创建成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/po.Announcement'
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 请求参数错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "403":
           description: 无权限（非管理员）
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 创建公告
@@ -2026,27 +636,27 @@ paths:
         "200":
           description: 删除成功
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 参数错误（无效的公告ID）
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "403":
           description: 无权限（非管理员）
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "404":
           description: 公告不存在
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 删除公告
@@ -2067,34 +677,34 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/dto.UpdateAnnouncementRequest'
+          $ref: '#/definitions/request.UpdateAnnouncement'
       produces:
       - application/json
       responses:
         "200":
           description: 更新成功
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 参数错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "403":
           description: 无权限
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "404":
           description: 公告不存在
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 更新公告
@@ -2117,27 +727,27 @@ paths:
         "200":
           description: 归档成功
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 参数错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "403":
           description: 无权限
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "404":
           description: 公告不存在
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 归档公告
@@ -2166,27 +776,27 @@ paths:
         "200":
           description: 操作成功
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 参数错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "403":
           description: 无权限
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "404":
           description: 公告不存在
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 置顶/取消置顶公告
@@ -2209,27 +819,27 @@ paths:
         "200":
           description: 发布成功
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 参数错误或发布时间无效
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "403":
           description: 无权限
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "404":
           description: 公告不存在
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 发布公告
@@ -2246,35 +856,30 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/query.ListAnnouncements'
+          $ref: '#/definitions/request.ListAnnouncements'
       produces:
       - application/json
       responses:
         "200":
           description: 创建成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/po.Announcement'
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 请求参数错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "403":
           description: 无权限（非管理员）
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 列出公告
@@ -2297,37 +902,27 @@ paths:
         "200":
           description: 审核通过成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  properties:
-                    message:
-                      type: string
-                    post_id:
-                      type: integer
-                  type: object
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 无效的帖子ID
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "403":
           description: 无权限
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "404":
           description: 帖子不存在
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 审核通过帖子
@@ -2355,37 +950,27 @@ paths:
         "200":
           description: 审核拒绝成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  properties:
-                    message:
-                      type: string
-                    post_id:
-                      type: integer
-                  type: object
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 无效的帖子ID
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "403":
           description: 无权限
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "404":
           description: 帖子不存在
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 审核拒绝帖子
@@ -2423,35 +1008,23 @@ paths:
         "200":
           description: 获取成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  allOf:
-                  - $ref: '#/definitions/response.PageData'
-                  - properties:
-                      list:
-                        items:
-                          type: object
-                        type: array
-                    type: object
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 无效的板块ID
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "403":
           description: 无权限（需要管理员权限）
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 获取版主申请列表
@@ -2480,28 +1053,23 @@ paths:
         "200":
           description: 审批完成
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  type: object
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 请求参数错误或申请ID无效
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "403":
           description: 无权限（需要管理员权限）
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "404":
           description: 申请不存在
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 审批版主申请
@@ -2531,31 +1099,19 @@ paths:
         "200":
           description: 获取成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  allOf:
-                  - $ref: '#/definitions/response.PageData'
-                  - properties:
-                      list:
-                        items:
-                          $ref: '#/definitions/po.Post'
-                        type: array
-                    type: object
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "403":
           description: 无权限
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 管理员获取帖子列表
@@ -2576,28 +1132,23 @@ paths:
         "200":
           description: 操作成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  type: object
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 无效的帖子ID
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "403":
           description: 无权限
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 切换帖子置顶状态
@@ -2629,31 +1180,19 @@ paths:
         "200":
           description: 获取成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  allOf:
-                  - $ref: '#/definitions/response.PageData'
-                  - properties:
-                      list:
-                        items:
-                          $ref: '#/definitions/po.Post'
-                        type: array
-                    type: object
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "403":
           description: 无权限
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 获取待审核帖子列表
@@ -2684,15 +1223,15 @@ paths:
         "200":
           description: 成功
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 参数错误（target_id无效）
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       summary: 查询审核操作日志
       tags:
       - 风险管理
@@ -2718,11 +1257,11 @@ paths:
         "200":
           description: 成功
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       summary: 获取待审核内容列表
       tags:
       - 风险管理
@@ -2748,20 +1287,15 @@ paths:
         "200":
           description: 操作成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  type: object
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 请求参数错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       summary: 审核通过
       tags:
       - 风险管理
@@ -2788,20 +1322,15 @@ paths:
         "200":
           description: 操作成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  type: object
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 请求参数错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       summary: 审核拒绝
       tags:
       - 风险管理
@@ -2910,39 +1439,27 @@ paths:
         "200":
           description: 操作成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/user.AdminResetUserPasswordResponse'
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 参数错误
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  items:
-                    $ref: '#/definitions/response.ValidationError'
-                  type: array
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "403":
           description: 权限不足
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "404":
           description: 用户不存在
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 管理员重置用户密码（生成临时密码并通知用户）
@@ -2963,14 +1480,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/query.SetUserRoleRequest'
+          $ref: '#/definitions/request.SetUserRoleRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 管理员设置用户角色
@@ -3005,28 +1522,23 @@ paths:
         "200":
           description: 操作成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/user.AdminSetScoreResponse'
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 请求参数错误（如积分范围非法、操作类型错误等）
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权（缺少或无效的认证令牌）
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "403":
           description: 禁止访问（当前管理员无权限操作该用户）
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "500":
           description: 服务器内部错误（如数据库操作失败）
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 管理员设置用户积分
@@ -3048,28 +1560,23 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  type: object
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 获取用户积分
@@ -3101,31 +1608,15 @@ paths:
         "200":
           description: 获取成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  properties:
-                    list:
-                      items:
-                        $ref: '#/definitions/po.Announcement'
-                      type: array
-                    page:
-                      type: integer
-                    pageSize:
-                      type: integer
-                    total:
-                      type: integer
-                  type: object
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 请求参数错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       summary: 获取公告列表
       tags:
       - 公告管理
@@ -3146,24 +1637,19 @@ paths:
         "200":
           description: 获取成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/po.Announcement'
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 无效的公告ID
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "404":
           description: 公告不存在
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       summary: 获取公告详情
       tags:
       - 公告管理
@@ -3183,18 +1669,11 @@ paths:
         "200":
           description: 获取成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  items:
-                    $ref: '#/definitions/po.Announcement'
-                  type: array
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       summary: 获取置顶公告
       tags:
       - 公告管理
@@ -3215,28 +1694,23 @@ paths:
         "200":
           description: 删除成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  type: object
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 请求参数错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "403":
           description: 无权限
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "404":
           description: 回答不存在
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 删除回答
@@ -3258,20 +1732,15 @@ paths:
         "200":
           description: 获取成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/po.Comment'
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 请求参数错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "404":
           description: 回答不存在
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       summary: 获取回答详情
       tags:
       - 问答管理
@@ -3298,24 +1767,19 @@ paths:
         "200":
           description: 提交成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/po.Comment'
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 请求参数错误或非问答帖
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "404":
           description: 帖子不存在
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 提交回答
@@ -3338,24 +1802,19 @@ paths:
         "200":
           description: 获取成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/answer.VoteStatusResponse'
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 无效的回答ID
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 获取回答投票状态
@@ -3378,28 +1837,23 @@ paths:
         "200":
           description: 取消成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  type: object
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 请求参数错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "403":
           description: 无权限
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "404":
           description: 回答或问题不存在
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 取消接受答案
@@ -3420,27 +1874,15 @@ paths:
         "200":
           description: 取消投票成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  properties:
-                    message:
-                      type: string
-                    user_vote:
-                      type: integer
-                    vote_count:
-                      type: integer
-                  type: object
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 无效的回答ID或尚未投票
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 取消回答的投票
@@ -3503,20 +1945,15 @@ paths:
         "200":
           description: 获取成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  type: object
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 无效的帖子ID
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "404":
           description: 问题不存在
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 获取问题的回答列表
@@ -3542,28 +1979,23 @@ paths:
         "200":
           description: 采纳成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  type: object
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 无效的ID或操作失败
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "403":
           description: 无权限（非问题作者）
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "404":
           description: 问题或回答不存在
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 采纳答案
@@ -3586,7 +2018,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 用户注销账户（软删除）
@@ -3602,7 +2034,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 获取注销状态
@@ -3618,7 +2050,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 确认永久删除账户
@@ -3634,7 +2066,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 取消注销账户
@@ -3657,7 +2089,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       summary: 用户登录
       tags:
       - 验证管理
@@ -3669,7 +2101,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 用户登出
@@ -3683,7 +2115,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 获取当前用户信息
@@ -3707,18 +2139,11 @@ paths:
         "200":
           description: 成功（邮箱存在与否均返回此消息）
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  type: object
-                message:
-                  type: string
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 请求参数错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       summary: 忘记密码
       tags:
       - 验证管理
@@ -3740,11 +2165,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       summary: 通过token重置密码
       tags:
       - 验证管理
@@ -3758,7 +2183,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 忘记密码
@@ -3781,11 +2206,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       summary: 用户注册
       tags:
       - 验证管理
@@ -3809,23 +2234,11 @@ paths:
         "200":
           description: 获取成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  allOf:
-                  - $ref: '#/definitions/response.PageData'
-                  - properties:
-                      list:
-                        items:
-                          $ref: '#/definitions/po.Board'
-                        type: array
-                    type: object
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       summary: 获取板块列表
       tags:
       - 板块管理
@@ -3846,24 +2259,19 @@ paths:
         "200":
           description: 创建成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/po.Board'
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 请求参数错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "403":
           description: 无权限
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 创建新板块
@@ -3884,28 +2292,23 @@ paths:
         "200":
           description: 删除成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  type: object
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 无效的板块ID
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "403":
           description: 无权限
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "404":
           description: 板块不存在
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 删除板块（仅管理员）
@@ -3925,20 +2328,15 @@ paths:
         "200":
           description: 获取成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/po.Board'
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 无效的板块ID
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "404":
           description: 板块不存在
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       summary: 获取板块详情
       tags:
       - 板块管理
@@ -3966,28 +2364,23 @@ paths:
         "200":
           description: 更新成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/po.Board'
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 请求参数错误或板块ID无效
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "403":
           description: 无权限
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "404":
           description: 板块不存在
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 更新板块信息
@@ -4036,28 +2429,23 @@ paths:
         "200":
           description: 禁言成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  type: object
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 请求参数错误或板块ID无效
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "403":
           description: 无权限（需要版主或管理员权限）
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "404":
           description: 板块不存在
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 禁言用户
@@ -4083,28 +2471,23 @@ paths:
         "200":
           description: 解除禁言成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  type: object
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 无效的板块ID或用户ID
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "403":
           description: 无权限（需要版主或管理员权限）
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "404":
           description: 禁言记录不存在
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 解除禁言
@@ -4125,22 +2508,15 @@ paths:
         "200":
           description: 获取成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  items:
-                    $ref: '#/definitions/po.Moderator'
-                  type: array
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 无效的板块ID
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       summary: 获取板块版主列表
       tags:
       - 版主管理
@@ -4203,28 +2579,23 @@ paths:
         "200":
           description: 添加版主成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  type: object
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 请求参数错误或板块ID无效
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "403":
           description: 无权限（需要管理员或 manage_moderator 权限）
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "404":
           description: 板块不存在
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 任命版主
@@ -4250,28 +2621,23 @@ paths:
         "200":
           description: 移除版主成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  type: object
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 无效的板块ID或用户ID
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "403":
           description: 无权限（需要管理员或 manage_moderator 权限）
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "404":
           description: 版主不存在
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 移除版主
@@ -4335,28 +2701,23 @@ paths:
         "200":
           description: 权限更新成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  type: object
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 请求参数错误或板块ID/用户ID无效
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "403":
           description: 无权限（需要管理员权限）
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "404":
           description: 版主不存在
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 更新版主权限
@@ -4378,31 +2739,26 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/po.ApplyModeratorInput'
+          $ref: '#/definitions/do.ApplyModeratorInput'
       produces:
       - application/json
       responses:
         "200":
           description: 申请提交成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  type: object
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 请求参数错误或板块ID无效
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "403":
           description: 无权限或已申请
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 申请成为版主
@@ -4429,7 +2785,7 @@ paths:
           description: 删除成功
           schema:
             allOf:
-            - $ref: '#/definitions/response.Response'
+            - $ref: '#/definitions/vo.BasicResponse'
             - properties:
                 data:
                   type: object
@@ -4437,19 +2793,19 @@ paths:
         "400":
           description: 无效的板块ID或帖子ID
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "403":
           description: 无权限（需要版主或管理员权限）
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "404":
           description: 帖子不存在
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 删除帖子（版主）
@@ -4491,7 +2847,7 @@ paths:
           description: 操作成功
           schema:
             allOf:
-            - $ref: '#/definitions/response.Response'
+            - $ref: '#/definitions/vo.BasicResponse'
             - properties:
                 data:
                   type: object
@@ -4499,19 +2855,19 @@ paths:
         "400":
           description: 无效的板块ID或帖子ID
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "403":
           description: 无权限（需要版主或管理员权限）
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "404":
           description: 帖子不存在
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 置顶/取消置顶帖子
@@ -4532,28 +2888,23 @@ paths:
         "200":
           description: 撤销成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  type: object
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 无效的申请ID
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "403":
           description: 无权限（只能撤销自己的申请）
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "404":
           description: 申请不存在
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 撤销版主申请
@@ -4579,23 +2930,11 @@ paths:
         "200":
           description: 申请列表
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  allOf:
-                  - $ref: '#/definitions/response.PageData'
-                  - properties:
-                      list:
-                        items:
-                          $ref: '#/definitions/po.ModeratorApplication'
-                        type: array
-                    type: object
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 获取我的申请记录
@@ -4610,22 +2949,15 @@ paths:
         "200":
           description: 获取成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  items:
-                    $ref: '#/definitions/board.ModeratorBoardWithPerms'
-                  type: array
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 获取我管理的板块
@@ -4646,16 +2978,11 @@ paths:
         "200":
           description: 获取成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/po.Board'
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "404":
           description: 板块不存在
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       summary: 根据板块标识符获取板块
       tags:
       - 板块管理
@@ -4684,31 +3011,19 @@ paths:
         "200":
           description: 获取成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  allOf:
-                  - $ref: '#/definitions/response.PageData'
-                  - properties:
-                      list:
-                        items:
-                          $ref: '#/definitions/po.Post'
-                        type: array
-                    type: object
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 板块 slug 不能为空
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "404":
           description: 板块不存在
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       summary: 获取板块下的帖子列表
       tags:
       - 板块管理
@@ -4721,18 +3036,11 @@ paths:
         "200":
           description: 获取成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  items:
-                    $ref: '#/definitions/po.BoardTree'
-                  type: array
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       summary: 获取板块树形结构
       tags:
       - 板块管理
@@ -4754,20 +3062,15 @@ paths:
         "200":
           description: 创建成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/po.Comment'
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 请求参数错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 创建评论
@@ -4788,28 +3091,23 @@ paths:
         "200":
           description: 删除成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  type: object
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 无效的评论ID或删除失败
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "403":
           description: 无权限
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "404":
           description: 评论不存在
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 删除评论
@@ -4837,24 +3135,19 @@ paths:
         "200":
           description: 采纳成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  type: object
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 请求参数错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "403":
           description: 无权限
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 采纳答案
@@ -4875,16 +3168,11 @@ paths:
         "200":
           description: 获取成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  type: object
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 无效的评论ID
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 获取答案投票状态
@@ -4912,24 +3200,19 @@ paths:
         "200":
           description: 投票成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  type: object
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 请求参数错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "403":
           description: 不能给自己的答案投票
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 对答案投票
@@ -4960,27 +3243,15 @@ paths:
         "200":
           description: 获取成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  allOf:
-                  - $ref: '#/definitions/response.PageData'
-                  - properties:
-                      list:
-                        items:
-                          $ref: '#/definitions/po.Comment'
-                        type: array
-                    type: object
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 无效的帖子ID
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       summary: 获取帖子的评论列表
       tags:
       - 评论管理
@@ -5020,27 +3291,15 @@ paths:
         "200":
           description: 获取成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  allOf:
-                  - $ref: '#/definitions/response.PageData'
-                  - properties:
-                      list:
-                        items:
-                          $ref: '#/definitions/po.Notification'
-                        type: array
-                    type: object
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 获取通知列表
@@ -5061,32 +3320,27 @@ paths:
         "200":
           description: 标记成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  type: object
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 无效的通知ID
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "403":
           description: 无权操作
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "404":
           description: 通知不存在
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 标记单个通知为已读
@@ -5109,24 +3363,19 @@ paths:
         "200":
           description: 标记成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/dto.BatchMarkReadResponse'
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 参数错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 批量标记通知为已读
@@ -5141,20 +3390,15 @@ paths:
         "200":
           description: 获取成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  type: object
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 获取未读通知数量
@@ -5209,23 +3453,11 @@ paths:
         "200":
           description: 获取成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  allOf:
-                  - $ref: '#/definitions/response.PageData'
-                  - properties:
-                      list:
-                        items:
-                          $ref: '#/definitions/po.Post'
-                        type: array
-                    type: object
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       summary: 获取帖子列表
       tags:
       - 帖子管理
@@ -5246,24 +3478,19 @@ paths:
         "200":
           description: 创建成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/po.Post'
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 请求参数错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 创建帖子
@@ -5284,28 +3511,23 @@ paths:
         "200":
           description: 删除成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  type: object
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 无效的帖子ID
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "403":
           description: 无权限
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "404":
           description: 帖子不存在
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 删除帖子
@@ -5325,20 +3547,15 @@ paths:
         "200":
           description: 获取成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  type: object
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 无效的帖子ID
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "404":
           description: 帖子不存在
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 获取帖子详情
@@ -5366,28 +3583,23 @@ paths:
         "200":
           description: 更新成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/po.Post'
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 请求参数错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "403":
           description: 无权限
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "404":
           description: 帖子不存在
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 更新帖子
@@ -5408,24 +3620,19 @@ paths:
         "200":
           description: 取消点赞成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  type: object
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 无效的帖子ID
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 取消点赞帖子
@@ -5445,24 +3652,19 @@ paths:
         "200":
           description: 点赞成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  type: object
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 无效的帖子ID
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 点赞帖子
@@ -5486,24 +3688,19 @@ paths:
         "200":
           description: 创建成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/po.QuestionResponse'
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 请求参数错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "403":
           description: 积分不足
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 创建问答帖
@@ -5543,20 +3740,15 @@ paths:
         "200":
           description: 获取成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  type: object
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 无效的帖子ID或非问答帖
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "404":
           description: 帖子不存在
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       summary: 获取问答帖详情
       tags:
       - 问题管理
@@ -5584,16 +3776,11 @@ paths:
         "200":
           description: 获取成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/response.PageData'
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       summary: 获取问答帖列表
       tags:
       - 问题管理
@@ -5641,23 +3828,11 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  allOf:
-                  - $ref: '#/definitions/response.PageData'
-                  - properties:
-                      list:
-                        items:
-                          $ref: '#/definitions/po.QuestionListResponse'
-                        type: array
-                    type: object
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       summary: 获取问题精简列表
       tags:
       - 问题管理
@@ -5667,7 +3842,7 @@ paths:
         "200":
           description: 返回统计数据
           schema:
-            $ref: '#/definitions/vo.Statistics'
+            $ref: '#/definitions/vo.UserStatsInfo'
       security:
       - BearerAuth: []
       summary: 获取全局统计数据
@@ -5700,20 +3875,15 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/po.StatsTodayInfo'
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 获取日统计数据
@@ -5751,28 +3921,23 @@ paths:
         "200":
           description: 获取成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  type: object
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 参数错误或日期范围超过90天
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "403":
           description: 无权限
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 获取指定日期范围的统计数据
@@ -5808,20 +3973,15 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/po.StatsInfoResp'
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 获取总计统计数据
@@ -5865,20 +4025,15 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/po.StatsTrendResponse'
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 获取趋势统计数据
@@ -5893,18 +4048,11 @@ paths:
         "200":
           description: 获取成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  items:
-                    $ref: '#/definitions/po.Tag'
-                  type: array
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       summary: 获取所有标签
       tags:
       - 标签管理
@@ -5925,28 +4073,23 @@ paths:
         "200":
           description: 创建成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/po.Tag'
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 请求参数错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "403":
           description: 无权限
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 创建标签（仅管理员）
@@ -5967,32 +4110,27 @@ paths:
         "200":
           description: 删除成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  type: object
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 无效的标签ID
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "403":
           description: 无权限
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "404":
           description: 标签不存在
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 删除标签（仅管理员）
@@ -6012,16 +4150,11 @@ paths:
         "200":
           description: 获取成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/po.Tag'
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       summary: 获取单个标签
       tags:
       - 标签管理
@@ -6047,32 +4180,27 @@ paths:
         "200":
           description: 更新成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/po.Tag'
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 请求参数错误或无效的标签ID
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "403":
           description: 无权限
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "404":
           description: 标签不存在
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 更新标签（仅管理员）
@@ -6098,27 +4226,15 @@ paths:
         "200":
           description: 获取成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  allOf:
-                  - $ref: '#/definitions/response.PageData'
-                  - properties:
-                      list:
-                        items:
-                          $ref: '#/definitions/po.TimelineEvent'
-                        type: array
-                    type: object
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 获取关注时间线
@@ -6144,27 +4260,15 @@ paths:
         "200":
           description: 获取成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  allOf:
-                  - $ref: '#/definitions/response.PageData'
-                  - properties:
-                      list:
-                        items:
-                          $ref: '#/definitions/po.TimelineEvent'
-                        type: array
-                    type: object
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 获取首页时间线
@@ -6185,28 +4289,23 @@ paths:
         "200":
           description: 取消关注成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  type: object
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 无效的用户ID
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "404":
           description: 未关注该用户
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 取消关注用户
@@ -6226,28 +4325,23 @@ paths:
         "200":
           description: 关注成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  type: object
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 无效的用户ID或不能关注自己
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "409":
           description: 已关注该用户
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 关注用户
@@ -6268,24 +4362,19 @@ paths:
         "200":
           description: 获取成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  type: object
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 无效的用户ID
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 检查是否已关注
@@ -6300,22 +4389,15 @@ paths:
         "200":
           description: 获取成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  items:
-                    $ref: '#/definitions/po.User'
-                  type: array
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 获取关注列表
@@ -6341,23 +4423,11 @@ paths:
         "200":
           description: 获取成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  allOf:
-                  - $ref: '#/definitions/response.PageData'
-                  - properties:
-                      list:
-                        items:
-                          $ref: '#/definitions/po.Topic'
-                        type: array
-                    type: object
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       summary: 获取话题列表
       tags:
       - 话题管理
@@ -6378,24 +4448,19 @@ paths:
         "200":
           description: 创建成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/po.Topic'
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 请求参数错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "403":
           description: 无权限
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 创建话题
@@ -6416,28 +4481,23 @@ paths:
         "200":
           description: 删除成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  type: object
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 无效的话题ID
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "403":
           description: 无权限
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "404":
           description: 话题不存在
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 删除话题
@@ -6457,20 +4517,15 @@ paths:
         "200":
           description: 获取成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/po.Topic'
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 无效的话题ID
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "404":
           description: 话题不存在
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       summary: 获取话题详情
       tags:
       - 话题管理
@@ -6496,28 +4551,23 @@ paths:
         "200":
           description: 更新成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/po.Topic'
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 请求参数错误或无效的话题ID
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "403":
           description: 无权限
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "404":
           description: 话题不存在
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 更新话题
@@ -6538,24 +4588,19 @@ paths:
         "200":
           description: 取消关注成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  type: object
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 无效的话题ID
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "404":
           description: 话题不存在或未关注
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 取消关注话题
@@ -6575,24 +4620,19 @@ paths:
         "200":
           description: 关注成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  type: object
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 无效的话题ID
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "404":
           description: 话题不存在
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 关注话题
@@ -6613,24 +4653,19 @@ paths:
         "200":
           description: 获取成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  type: object
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 无效的话题ID
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 检查是否关注话题
@@ -6661,27 +4696,15 @@ paths:
         "200":
           description: 获取成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  allOf:
-                  - $ref: '#/definitions/response.PageData'
-                  - properties:
-                      list:
-                        items:
-                          $ref: '#/definitions/po.User'
-                        type: array
-                    type: object
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 无效的话题ID
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       summary: 获取话题关注者列表
       tags:
       - 话题管理
@@ -6710,27 +4733,15 @@ paths:
         "200":
           description: 获取成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  allOf:
-                  - $ref: '#/definitions/response.PageData'
-                  - properties:
-                      list:
-                        items:
-                          $ref: '#/definitions/po.Post'
-                        type: array
-                    type: object
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 无效的话题ID
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       summary: 获取话题帖子列表
       tags:
       - 话题管理
@@ -6756,28 +4767,23 @@ paths:
         "200":
           description: 添加成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  type: object
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 请求参数错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "403":
           description: 无权限
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "404":
           description: 话题或帖子不存在
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 添加帖子到话题
@@ -6803,28 +4809,23 @@ paths:
         "200":
           description: 移除成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  type: object
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 无效的ID
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "403":
           description: 无权限
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "404":
           description: 话题或帖子不存在
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 从话题移除帖子
@@ -6855,27 +4856,15 @@ paths:
         "200":
           description: 获取成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  allOf:
-                  - $ref: '#/definitions/response.PageData'
-                  - properties:
-                      list:
-                        items:
-                          $ref: '#/definitions/po.Topic'
-                        type: array
-                    type: object
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "400":
           description: 无效的用户ID
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       summary: 获取用户创建的话题
       tags:
       - 话题管理
@@ -6904,12 +4893,7 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/dto.UploadResponse'
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
       summary: 上传文件
       tags:
       - Upload
@@ -6927,7 +4911,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       summary: 删除文件
       tags:
       - Upload
@@ -6944,12 +4928,7 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/dto.FileInfo'
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
       summary: 获取文件信息
       tags:
       - Upload
@@ -6974,19 +4953,7 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  allOf:
-                  - $ref: '#/definitions/response.PageData'
-                  - properties:
-                      list:
-                        items:
-                          $ref: '#/definitions/dto.FileInfo'
-                        type: array
-                    type: object
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
       summary: 获取用户文件列表
       tags:
       - Upload
@@ -7004,12 +4971,7 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/user.UserProfileResponse'
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
       summary: 获取用户资料
       tags:
       - 用户管理
@@ -7121,20 +5083,15 @@ paths:
         "200":
           description: 操作成功
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/user.GetCurrentUserRoleResponse'
-              type: object
+            $ref: '#/definitions/vo.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
         "404":
           description: 用户不存在
           schema:
-            $ref: '#/definitions/response.Response'
+            $ref: '#/definitions/vo.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 获取当前用户角色
@@ -7150,7 +5107,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/po.UpdateProfileInput'
+          $ref: '#/definitions/do.UpdateProfileInput'
       produces:
       - application/json
       responses: {}

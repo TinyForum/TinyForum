@@ -130,8 +130,8 @@ func (h *UserHandler) AdminSetBlocked(c *gin.Context) {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path int true "用户ID"
-// @Param body body query.SetUserRoleRequest true "角色信息"
-// @Success 200 {object} response.Response
+// @Param body body request.SetUserRoleRequest true "角色信息"
+// @Success 200 {object} vo.BasicResponse
 // @Router /admin/users/{id}/role [put]
 //
 // Deprecated: 迁移到 adminHandler.SetRoleUsers
@@ -214,12 +214,12 @@ func (h *UserHandler) AdminDeleteUser(c *gin.Context) {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path int true "目标用户ID" example:"123"
-// @Success 200 {object} response.Response{data=AdminResetUserPasswordResponse} "操作成功"
-// @Failure 400 {object} response.Response{data=[]response.ValidationError} "参数错误"
-// @Failure 401 {object} response.Response "未授权"
-// @Failure 403 {object} response.Response "权限不足"
-// @Failure 404 {object} response.Response "用户不存在"
-// @Failure 500 {object} response.Response "服务器内部错误"
+// @Success 200 {object} vo.BasicResponse "操作成功"
+// @Failure 400 {object} vo.BasicResponse "参数错误"
+// @Failure 401 {object} vo.BasicResponse"未授权"
+// @Failure 403 {object} vo.BasicResponse"权限不足"
+// @Failure 404 {object} vo.BasicResponse"用户不存在"
+// @Failure 500 {object} vo.BasicResponse"服务器内部错误"
 // @Router /admin/users/{id}/reset-password [post]
 //
 // Deprecated: 迁移到 adminHandler.ResetPasswordUsers

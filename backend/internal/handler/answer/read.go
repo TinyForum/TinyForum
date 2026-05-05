@@ -18,9 +18,9 @@ import (
 // @Accept json
 // @Produce json
 // @Param id path int true "回答ID"
-// @Success 200 {object} response.Response{data=do.Comment} "获取成功"
-// @Failure 400 {object} response.Response "请求参数错误"
-// @Failure 404 {object} response.Response "回答不存在"
+// @Success 200 {object} vo.BasicResponse "获取成功"
+// @Failure 400 {object} vo.BasicResponse"请求参数错误"
+// @Failure 404 {object} vo.BasicResponse"回答不存在"
 // @Router /answers/{id} [get]
 func (h *AnswerHandler) GetAnswer(c *gin.Context) {
 	answerID, err := strconv.ParseUint(c.Param("id"), 10, 64)
@@ -47,9 +47,9 @@ func (h *AnswerHandler) GetAnswer(c *gin.Context) {
 // @Param post_id path int true "问题帖子ID"
 // @Param page query int false "页码" default(1)
 // @Param page_size query int false "每页数量" default(20)
-// @Success 200 {object} response.Response{data=object} "获取成功"
-// @Failure 400 {object} response.Response "无效的帖子ID"
-// @Failure 404 {object} response.Response "问题不存在"
+// @Success 200 {object} vo.BasicResponse "获取成功"
+// @Failure 400 {object} vo.BasicResponse "无效的帖子ID"
+// @Failure 404 {object} vo.BasicResponse "问题不存在"
 // @Router /answers/{post_id}/answers [get]
 func (h *AnswerHandler) GetQuestionAnswers(c *gin.Context) {
 	postID, err := strconv.ParseUint(c.Param("post_id"), 10, 64)
@@ -86,10 +86,10 @@ func (h *AnswerHandler) GetQuestionAnswers(c *gin.Context) {
 // @Produce      json
 // @Security     ApiKeyAuth
 // @Param        id   path      int  true  "回答ID"
-// @Success      200  {object}  response.Response{data=VoteStatusResponse}  "获取成功"
-// @Failure      400  {object}  response.Response  "无效的回答ID"
-// @Failure      401  {object}  response.Response  "未授权"
-// @Failure      500  {object}  response.Response  "服务器内部错误"
+// @Success      200  {object}  vo.BasicResponse  "获取成功"
+// @Failure      400  {object}  vo.BasicResponse "无效的回答ID"
+// @Failure      401  {object}  vo.BasicResponse "未授权"
+// @Failure      500  {object}  vo.BasicResponse "服务器内部错误"
 // @Router       /answers/{id}/status [get]
 func (h *AnswerHandler) GetVoteStatus(c *gin.Context) {
 	answerID, err := strconv.ParseUint(c.Param("id"), 10, 64)

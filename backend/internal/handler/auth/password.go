@@ -17,8 +17,8 @@ import (
 // @Accept json
 // @Produce json
 // @Param request body dto.ForgotPasswordRequest true "邮箱信息"
-// @Success 200 {object} response.Response{data=object,message=string} "成功（邮箱存在与否均返回此消息）"
-// @Failure 400 {object} response.Response "请求参数错误"
+// @Success 200 {object} vo.BasicResponse "成功（邮箱存在与否均返回此消息）"
+// @Failure 400 {object} vo.BasicResponse "请求参数错误"
 // @Router /auth/password/forgot [post]
 func (c *AuthHandler) ForgotPassword(ctx *gin.Context) {
 	var req dto.ForgotPasswordRequest
@@ -45,7 +45,7 @@ func (c *AuthHandler) ForgotPassword(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Success 200 {object} response.Response
+// @Success 200 {object} vo.BasicResponse
 // @Router /auth/password/reset [put]
 func (c *AuthHandler) ResetPassword(ctx *gin.Context) {
 	var req dto.ResetPasswordRequest
@@ -74,8 +74,8 @@ func (c *AuthHandler) ResetPassword(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param request body dto.ResetPasswordWithTokenRequest true "重置密码请求"
-// @Success 200 {object} response.Response
-// @Failure 400 {object} response.Response
+// @Success 200 {object} vo.BasicResponse
+// @Failure 400 {object} vo.BasicResponse
 // @Router /auth/password/reset [put]
 func (h *AuthHandler) ResetPasswordWithToken(ctx *gin.Context) {
 	logger.Info("=== ResetPasswordWithToken called ===")
@@ -114,7 +114,7 @@ func (h *AuthHandler) ResetPasswordWithToken(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Success 200 {object} response.Response
+// @Success 200 {object} vo.BasicResponse
 // @Router /auth/password/validate-token [get]
 func (h *AuthHandler) ValidateResetToken(ctx *gin.Context) {
 	logger.Info("=== [handler] request validate-token ===")
@@ -152,7 +152,7 @@ func (h *AuthHandler) ValidateResetToken(ctx *gin.Context) {
 // // @Tags 验证管理
 // // @Accept json
 // // @Produce json
-// // @Success 200 {object} response.Response
+// // @Success 200 {object} vo.BasicResponse
 // // @Router /auth/password/reset [get]
 // func (h *AuthHandler) ShowResetPage(ctx *gin.Context) {
 // 	logger.Info("=== [handler] Request ResetPage ===")

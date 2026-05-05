@@ -18,10 +18,10 @@ import (
 // @Security ApiKeyAuth
 // @Param id path int true "评论ID"
 // @Param body body object true "投票类型" example({"vote_type":"up"})
-// @Success 200 {object} response.Response{data=object} "投票成功"
-// @Failure 400 {object} response.Response "请求参数错误"
-// @Failure 401 {object} response.Response "未授权"
-// @Failure 403 {object} response.Response "不能给自己的答案投票"
+// @Success 200 {object} vo.BasicResponse  "投票成功"
+// @Failure 400 {object} vo.BasicResponse"请求参数错误"
+// @Failure 401 {object} vo.BasicResponse"未授权"
+// @Failure 403 {object} vo.BasicResponse"不能给自己的答案投票"
 // @Router /comments/{id}/vote [post]
 func (h *CommentHandler) VoteAnswer(c *gin.Context) {
 	commentID, err := strconv.ParseUint(c.Param("id"), 10, 64)
@@ -59,8 +59,8 @@ func (h *CommentHandler) VoteAnswer(c *gin.Context) {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path int true "评论ID"
-// @Success 200 {object} response.Response{data=object} "获取成功"
-// @Failure 400 {object} response.Response "无效的评论ID"
+// @Success 200 {object} vo.BasicResponse  "获取成功"
+// @Failure 400 {object} vo.BasicResponse"无效的评论ID"
 // @Router /comments/{id}/vote [get]
 func (h *CommentHandler) GetAnswerVoteStatus(c *gin.Context) {
 	commentID, err := strconv.ParseUint(c.Param("id"), 10, 64)
@@ -87,10 +87,10 @@ func (h *CommentHandler) GetAnswerVoteStatus(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Param id path int true "评论ID"
 // @Param post_id query int true "帖子ID"
-// @Success 200 {object} response.Response{data=object} "采纳成功"
-// @Failure 400 {object} response.Response "请求参数错误"
-// @Failure 401 {object} response.Response "未授权"
-// @Failure 403 {object} response.Response "无权限"
+// @Success 200 {object} vo.BasicResponse  "采纳成功"
+// @Failure 400 {object} vo.BasicResponse"请求参数错误"
+// @Failure 401 {object} vo.BasicResponse"未授权"
+// @Failure 403 {object} vo.BasicResponse"无权限"
 // @Router /comments/{id}/accept [post]
 func (h *CommentHandler) AcceptAnswer(c *gin.Context) {
 	commentID, err := strconv.ParseUint(c.Param("id"), 10, 64)
