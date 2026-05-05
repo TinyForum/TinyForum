@@ -17,7 +17,7 @@ import (
 // @Param file formData file true "文件"
 // @Param post_id formData int false "帖子ID"
 // @Param type formData string true "文件类型 (avatar/post_image/comment_attachment)"
-// @Success 200 {object} response.Response{data=dto.UploadResponse}
+// @Success 200 {object} vo.BasicResponse
 // @Router /upload [post]
 func (h *UploadHandler) Upload(c *gin.Context) {
 	// 获取用户ID（从认证中间件）
@@ -56,7 +56,7 @@ func (h *UploadHandler) Upload(c *gin.Context) {
 // @Tags Upload
 // @Produce json
 // @Param file_id path string true "文件ID"
-// @Success 200 {object} response.Response{data=dto.FileInfo}
+// @Success 200 {object} vo.BasicResponse
 // @Router /upload/{file_id} [get]
 func (h *UploadHandler) GetFile(c *gin.Context) {
 	fileID := c.Param("file_id")
@@ -79,7 +79,7 @@ func (h *UploadHandler) GetFile(c *gin.Context) {
 // @Tags Upload
 // @Produce json
 // @Param file_id path string true "文件ID"
-// @Success 200 {object} response.Response
+// @Success 200 {object} vo.BasicResponse
 // @Router /upload/{file_id} [delete]
 func (h *UploadHandler) DeleteFile(c *gin.Context) {
 	userID, exists := c.Get("userID")
@@ -109,7 +109,7 @@ func (h *UploadHandler) DeleteFile(c *gin.Context) {
 // @Param type query string false "文件类型"
 // @Param page query int false "页码"
 // @Param page_size query int false "每页数量"
-// @Success 200 {object} response.Response{data=response.PageData{list=[]dto.FileInfo}}
+// @Success 200 {object} vo.BasicResponse
 // @Router /user/files [get]
 func (h *UploadHandler) GetUserFiles(c *gin.Context) {
 	userID, exists := c.Get("userID")

@@ -17,10 +17,10 @@ import (
 // @Security ApiKeyAuth
 // @Param id path int true "帖子ID"
 // @Param body body CreateAnswerRequest true "回答内容"
-// @Success 200 {object} response.Response{data=do.Comment} "提交成功"
-// @Failure 400 {object} response.Response "请求参数错误或非问答帖"
-// @Failure 401 {object} response.Response "未授权"
-// @Failure 404 {object} response.Response "帖子不存在"
+// @Success 200 {object} vo.BasicResponse "提交成功"
+// @Failure 400 {object} vo.BasicResponse"请求参数错误或非问答帖"
+// @Failure 401 {object} vo.BasicResponse"未授权"
+// @Failure 404 {object} vo.BasicResponse"帖子不存在"
 // @Router /answers/{id}/answer [post]
 func (h *AnswerHandler) CreateAnswer(c *gin.Context) {
 	// 1. 获取问题ID（URL 参数）

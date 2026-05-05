@@ -11,7 +11,7 @@ import (
 // @Summary 获取全局统计数据
 // @Tags 统计
 // @Security BearerAuth
-// @Success 200 {object} vo.Statistics "返回统计数据"
+// @Success 200 {object} vo.UserStatsInfo "返回统计数据"
 // @Router /statistics [get]
 func (h *UserHandler) GetStatisticsCount(c *gin.Context) {
 	userID := c.GetUint("user_id")

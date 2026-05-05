@@ -13,7 +13,7 @@ import (
 // @Tags 用户管理
 // @Produce json
 // @Param id path int true "用户ID"
-// @Success 200 {object} response.Response{data=user.UserProfileResponse}
+// @Success 200 {object} vo.BasicResponse
 // @Router /users/{id} [get]
 func (h *UserHandler) GetProfile(c *gin.Context) {
 	targetID, err := strconv.ParseUint(c.Param("id"), 10, 64)
@@ -61,7 +61,7 @@ func (h *UserHandler) UpdateProfile(c *gin.Context) {
 // @Tags 验证管理
 // @Security ApiKeyAuth
 // @Produce json
-// @Success 200 {object} response.Response
+// @Success 200 {object} vo.BasicResponse
 // @Router /auth/me [get]
 func (h *UserHandler) Me(c *gin.Context) {
 	userID := c.GetUint("user_id")

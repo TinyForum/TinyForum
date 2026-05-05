@@ -5,14 +5,15 @@ package do
 type UserRole string
 
 const (
-	RoleGuest      UserRole = "guest"
-	RoleUser       UserRole = "user"
-	RoleMember     UserRole = "member"
-	RoleModerator  UserRole = "moderator"
-	RoleReviewer   UserRole = "reviewer"
-	RoleAdmin      UserRole = "admin"
-	RoleSuperAdmin UserRole = "super_admin"
-	RoleBot        UserRole = "bot"
+	RoleGuest      UserRole = "guest" // 游客：浏览（只读，受限访问）
+	RoleUser       UserRole = "user" // 普通用户：浏览、评论、发帖等（可读写：受限访问，受限读写）
+	RoleMember     UserRole = "member" // 会员：无广告、自定义表情、创建投票等（可读写：受限访问，受限读写）
+	RoleModerator  UserRole = "moderator" // 版主：管理版块、管理帖子、管理评论等（可读写：受限访问，受限读写）
+	RoleReviewer   UserRole = "reviewer" // 审核员：审核帖子、评论等（可读写：受限访问，受限读写）
+	RoleAdmin      UserRole = "admin" // 管理员：管理用户、管理帖子、管理评论等（可读写：完全访问，完全读写）
+	RoleSuperAdmin UserRole = "super_admin" // 超级管理员：最高权限（可读写：完全访问，完全读写）
+	RoleBot        UserRole = "bot" // 系统机器人：自动回复、定时任务等（受限访问，受限读写）
+	SystemMaintainer       UserRole = "system_maintainer" // 系统维护者：系统维护、数据备份等（受限读写，受限访问
 )
 
 // ── 权限定义 ────────────────────────────────────────────────────────────────
@@ -60,6 +61,9 @@ const (
 	PermApproveContent Permission = "reviewer.approve"
 	PermRejectContent  Permission = "reviewer.reject"
 	PermViewPending    Permission = "reviewer.view.pending"
+
+	// 系统维护者权限
+	PermSystemMaintainer Permission = "system.maintainer"
 
 	// 角色管理权限（细粒度）
 	PermAssignRoleUser       Permission = "role.assign.user"       // 分配普通用户角色

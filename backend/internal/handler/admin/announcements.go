@@ -20,11 +20,11 @@ import (
 // @Produce json
 // @Security ApiKeyAuth
 // @Param body body request.ListAnnouncements true "公告信息"
-// @Success 200 {object} response.Response{data=do.Announcement} "创建成功"
-// @Failure 400 {object} response.Response "请求参数错误"
-// @Failure 401 {object} response.Response "未授权"
-// @Failure 403 {object} response.Response "无权限（非管理员）"
-// @Failure 500 {object} response.Response "服务器内部错误"
+// @Success 200 {object} vo.BasicResponse "创建成功"
+// @Failure 400 {object} vo.BasicResponse "请求参数错误"
+// @Failure 401 {object} vo.BasicResponse "未授权"
+// @Failure 403 {object} vo.BasicResponse "无权限（非管理员）"
+// @Failure 500 {object} vo.BasicResponse "服务器内部错误"
 // @Router /admin/announcements/list [get]
 func (h *AdminHandler) ListAnnouncements(c *gin.Context) {
 	var req request.ListAnnouncements
@@ -60,11 +60,11 @@ func (h *AdminHandler) ListAnnouncements(c *gin.Context) {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param body body request.CreateAnnouncement true "公告信息"
-// @Success 200 {object} response.Response{data=do.Announcement} "创建成功"
-// @Failure 400 {object} response.Response "请求参数错误"
-// @Failure 401 {object} response.Response "未授权"
-// @Failure 403 {object} response.Response "无权限（非管理员）"
-// @Failure 500 {object} response.Response "服务器内部错误"
+// @Success 200 {object} vo.BasicResponse "创建成功"
+// @Failure 400 {object} vo.BasicResponse "请求参数错误"
+// @Failure 401 {object} vo.BasicResponse "未授权"
+// @Failure 403 {object} vo.BasicResponse "无权限（非管理员）"
+// @Failure 500 {object} vo.BasicResponse "服务器内部错误"
 // @Router /admin/announcements [post]
 func (h *AdminHandler) CreateAnnouncement(c *gin.Context) {
 	userID := c.GetUint("user_id")
@@ -94,13 +94,13 @@ func (h *AdminHandler) CreateAnnouncement(c *gin.Context) {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path int true "公告ID"
-// @Param body body dto.UpdateAnnouncementRequest true "公告信息"
-// @Success 200 {object} response.Response "更新成功"
-// @Failure 400 {object} response.Response "参数错误"
-// @Failure 401 {object} response.Response "未授权"
-// @Failure 403 {object} response.Response "无权限"
-// @Failure 404 {object} response.Response "公告不存在"
-// @Failure 500 {object} response.Response "服务器内部错误"
+// @Param body body request.UpdateAnnouncement true "公告信息"
+// @Success 200 {object} vo.BasicResponse "更新成功"
+// @Failure 400 {object} vo.BasicResponse "参数错误"
+// @Failure 401 {object} vo.BasicResponse "未授权"
+// @Failure 403 {object} vo.BasicResponse "无权限"
+// @Failure 404 {object} vo.BasicResponse "公告不存在"
+// @Failure 500 {object} vo.BasicResponse "服务器内部错误"
 // @Router /admin/announcements/{id} [put]
 func (h *AdminHandler) UpdateAnnouncement(c *gin.Context) {
 	id, ok := parseAnnouncementID(c)
@@ -128,12 +128,12 @@ func (h *AdminHandler) UpdateAnnouncement(c *gin.Context) {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path int true "公告ID"
-// @Success 200 {object} response.Response "删除成功"
-// @Failure 400 {object} response.Response "参数错误（无效的公告ID）"
-// @Failure 401 {object} response.Response "未授权"
-// @Failure 403 {object} response.Response "无权限（非管理员）"
-// @Failure 404 {object} response.Response "公告不存在"
-// @Failure 500 {object} response.Response "服务器内部错误"
+// @Success 200 {object} vo.BasicResponse "删除成功"
+// @Failure 400 {object} vo.BasicResponse "参数错误（无效的公告ID）"
+// @Failure 401 {object} vo.BasicResponse "未授权"
+// @Failure 403 {object} vo.BasicResponse "无权限（非管理员）"
+// @Failure 404 {object} vo.BasicResponse "公告不存在"
+// @Failure 500 {object} vo.BasicResponse "服务器内部错误"
 // @Router /admin/announcements/{id} [delete]
 func (h *AdminHandler) DeleteAnnouncement(c *gin.Context) {
 	id, ok := parseAnnouncementID(c)
@@ -160,12 +160,12 @@ func (h *AdminHandler) DeleteAnnouncement(c *gin.Context) {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path int true "公告ID"
-// @Success 200 {object} response.Response "发布成功"
-// @Failure 400 {object} response.Response "参数错误或发布时间无效"
-// @Failure 401 {object} response.Response "未授权"
-// @Failure 403 {object} response.Response "无权限"
-// @Failure 404 {object} response.Response "公告不存在"
-// @Failure 500 {object} response.Response "服务器内部错误"
+// @Success 200 {object} vo.BasicResponse "发布成功"
+// @Failure 400 {object} vo.BasicResponse "参数错误或发布时间无效"
+// @Failure 401 {object} vo.BasicResponse "未授权"
+// @Failure 403 {object} vo.BasicResponse "无权限"
+// @Failure 404 {object} vo.BasicResponse "公告不存在"
+// @Failure 500 {object} vo.BasicResponse "服务器内部错误"
 // @Router /admin/announcements/{id}/publish [post]
 func (h *AdminHandler) PublishAnnouncement(c *gin.Context) {
 	id, ok := parseAnnouncementID(c)
@@ -187,12 +187,12 @@ func (h *AdminHandler) PublishAnnouncement(c *gin.Context) {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path int true "公告ID"
-// @Success 200 {object} response.Response "归档成功"
-// @Failure 400 {object} response.Response "参数错误"
-// @Failure 401 {object} response.Response "未授权"
-// @Failure 403 {object} response.Response "无权限"
-// @Failure 404 {object} response.Response "公告不存在"
-// @Failure 500 {object} response.Response "服务器内部错误"
+// @Success 200 {object} vo.BasicResponse "归档成功"
+// @Failure 400 {object} vo.BasicResponse "参数错误"
+// @Failure 401 {object} vo.BasicResponse "未授权"
+// @Failure 403 {object} vo.BasicResponse "无权限"
+// @Failure 404 {object} vo.BasicResponse "公告不存在"
+// @Failure 500 {object} vo.BasicResponse "服务器内部错误"
 // @Router /admin/announcements/{id}/archive [post]
 func (h *AdminHandler) ArchiveAnnouncement(c *gin.Context) {
 	id, ok := parseAnnouncementID(c)
@@ -215,12 +215,12 @@ func (h *AdminHandler) ArchiveAnnouncement(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Param id path int true "公告ID"
 // @Param body body object true "置顶状态" example({"pinned": true})
-// @Success 200 {object} response.Response "操作成功"
-// @Failure 400 {object} response.Response "参数错误"
-// @Failure 401 {object} response.Response "未授权"
-// @Failure 403 {object} response.Response "无权限"
-// @Failure 404 {object} response.Response "公告不存在"
-// @Failure 500 {object} response.Response "服务器内部错误"
+// @Success 200 {object} vo.BasicResponse "操作成功"
+// @Failure 400 {object} vo.BasicResponse "参数错误"
+// @Failure 401 {object} vo.BasicResponse "未授权"
+// @Failure 403 {object} vo.BasicResponse "无权限"
+// @Failure 404 {object} vo.BasicResponse "公告不存在"
+// @Failure 500 {object} vo.BasicResponse "服务器内部错误"
 // @Router /admin/announcements/{id}/pin [put]
 func (h *AdminHandler) PinAnnouncement(c *gin.Context) {
 	id, ok := parseAnnouncementID(c)

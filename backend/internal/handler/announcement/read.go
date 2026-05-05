@@ -16,10 +16,10 @@ import (
 // @Accept json
 // @Produce json
 // @Param id path int true "公告ID"
-// @Success 200 {object} response.Response{data=do.Announcement} "获取成功"
-// @Failure 400 {object} response.Response "无效的公告ID"
-// @Failure 404 {object} response.Response "公告不存在"
-// @Failure 500 {object} response.Response "服务器内部错误"
+// @Success 200 {object} vo.BasicResponse "获取成功"
+// @Failure 400 {object} vo.BasicResponse"无效的公告ID"
+// @Failure 404 {object} vo.BasicResponse"公告不存在"
+// @Failure 500 {object} vo.BasicResponse"服务器内部错误"
 // @Router /announcements/{id} [get]
 func (h *AnnouncementHandler) GetByID(c *gin.Context) {
 	id, ok := parseAnnouncementID(c)
@@ -44,9 +44,9 @@ func (h *AnnouncementHandler) GetByID(c *gin.Context) {
 // @Param page query int false "页码" default(1)
 // @Param page_size query int false "每页数量" default(10)
 // @Param board_id query int false "版块ID（可选）"
-// @Success 200 {object} response.Response{data=object{list=[]do.Announcement,total=int,page=int,pageSize=int}} "获取成功"
-// @Failure 400 {object} response.Response "请求参数错误"
-// @Failure 500 {object} response.Response "服务器内部错误"
+// @Success 200 {object} vo.BasicResponse"获取成功"
+// @Failure 400 {object} vo.BasicResponse"请求参数错误"
+// @Failure 500 {object} vo.BasicResponse"服务器内部错误"
 // @Router /announcements [get]
 func (h *AnnouncementHandler) List(c *gin.Context) {
 	var req request.ListAnnouncements
@@ -73,8 +73,8 @@ func (h *AnnouncementHandler) List(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param board_id query int false "版块ID（可选）"
-// @Success 200 {object} response.Response{data=[]do.Announcement} "获取成功"
-// @Failure 500 {object} response.Response "服务器内部错误"
+// @Success 200 {object} vo.BasicResponse "获取成功"
+// @Failure 500 {object} vo.BasicResponse"服务器内部错误"
 // @Router /announcements/pinned [get]
 func (h *AnnouncementHandler) GetPinned(c *gin.Context) {
 	var boardID *uint

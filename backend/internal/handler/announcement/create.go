@@ -14,12 +14,12 @@ import (
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param body body dto.CreateAnnouncementRequest true "公告信息"
-// @Success 200 {object} response.Response{data=do.Announcement} "创建成功"
-// @Failure 400 {object} response.Response "请求参数错误"
-// @Failure 401 {object} response.Response "未授权"
-// @Failure 403 {object} response.Response "无权限（非管理员）"
-// @Failure 500 {object} response.Response "服务器内部错误"
+// @Param body body request.CreateAnnouncement true "公告信息"
+// @Success 200 {object} vo.BasicResponse "创建成功"
+// @Failure 400 {object} vo.BasicResponse"请求参数错误"
+// @Failure 401 {object} vo.BasicResponse"未授权"
+// @Failure 403 {object} vo.BasicResponse"无权限（非管理员）"
+// @Failure 500 {object} vo.BasicResponse"服务器内部错误"
 // @Router /admin/announcements [post]
 //
 // Deprecated: 迁移到 adminHandler.CreateAnnouncements

@@ -16,7 +16,7 @@ import (
 // @Produce json
 // @Security ApiKeyAuth
 // @Param request body auth.DeleteAccountInput true "注销请求"
-// @Success 200 {object} response.Response
+// @Success 200 {object} vo.BasicResponse
 // @Router /auth/account [delete]
 func (h *AuthHandler) DeleteAccount(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -52,7 +52,7 @@ func (h *AuthHandler) DeleteAccount(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Success 200 {object} response.Response
+// @Success 200 {object} vo.BasicResponse
 // @Router /auth/account/deletion [get]
 func (h *AuthHandler) DeletionStatus(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -80,7 +80,7 @@ func (h *AuthHandler) DeletionStatus(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Success 200 {object} response.Response
+// @Success 200 {object} vo.BasicResponse
 // @Router /auth/account/restore [post]
 func (h *AuthHandler) CancelDeletion(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -108,7 +108,7 @@ func (h *AuthHandler) CancelDeletion(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Success 200 {object} response.Response
+// @Success 200 {object} vo.BasicResponse
 // @Router /auth/account/permanent [delete]
 func (h *AuthHandler) ConfirmDeletion(c *gin.Context) {
 	ctx := c.Request.Context()

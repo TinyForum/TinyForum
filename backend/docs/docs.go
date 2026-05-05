@@ -40,7 +40,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.CreateAnnouncementRequest"
+                            "$ref": "#/definitions/request.CreateAnnouncement"
                         }
                     }
                 ],
@@ -48,43 +48,31 @@ const docTemplate = `{
                     "200": {
                         "description": "创建成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/do.Announcement"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "请求参数错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "403": {
                         "description": "无权限（非管理员）",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -115,7 +103,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/query.ListAnnouncements"
+                            "$ref": "#/definitions/request.ListAnnouncements"
                         }
                     }
                 ],
@@ -123,43 +111,31 @@ const docTemplate = `{
                     "200": {
                         "description": "创建成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/do.Announcement"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "请求参数错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "403": {
                         "description": "无权限（非管理员）",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -197,7 +173,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.UpdateAnnouncementRequest"
+                            "$ref": "#/definitions/request.UpdateAnnouncement"
                         }
                     }
                 ],
@@ -205,37 +181,37 @@ const docTemplate = `{
                     "200": {
                         "description": "更新成功",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "参数错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "403": {
                         "description": "无权限",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "404": {
                         "description": "公告不存在",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -270,37 +246,37 @@ const docTemplate = `{
                     "200": {
                         "description": "删除成功",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "参数错误（无效的公告ID）",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "403": {
                         "description": "无权限（非管理员）",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "404": {
                         "description": "公告不存在",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -337,37 +313,37 @@ const docTemplate = `{
                     "200": {
                         "description": "归档成功",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "参数错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "403": {
                         "description": "无权限",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "404": {
                         "description": "公告不存在",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -413,37 +389,37 @@ const docTemplate = `{
                     "200": {
                         "description": "操作成功",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "参数错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "403": {
                         "description": "无权限",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "404": {
                         "description": "公告不存在",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -480,37 +456,37 @@ const docTemplate = `{
                     "200": {
                         "description": "发布成功",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "参数错误或发布时间无效",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "403": {
                         "description": "无权限",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "404": {
                         "description": "公告不存在",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -547,57 +523,37 @@ const docTemplate = `{
                     "200": {
                         "description": "审核通过成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object",
-                                            "properties": {
-                                                "message": {
-                                                    "type": "string"
-                                                },
-                                                "post_id": {
-                                                    "type": "integer"
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "无效的帖子ID",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "403": {
                         "description": "无权限",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "404": {
                         "description": "帖子不存在",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -642,57 +598,37 @@ const docTemplate = `{
                     "200": {
                         "description": "审核拒绝成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object",
-                                            "properties": {
-                                                "message": {
-                                                    "type": "string"
-                                                },
-                                                "post_id": {
-                                                    "type": "integer"
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "无效的帖子ID",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "403": {
                         "description": "无权限",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "404": {
                         "description": "帖子不存在",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -750,58 +686,31 @@ const docTemplate = `{
                     "200": {
                         "description": "获取成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "allOf": [
-                                                {
-                                                    "$ref": "#/definitions/response.PageData"
-                                                },
-                                                {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "list": {
-                                                            "type": "array",
-                                                            "items": {
-                                                                "type": "object"
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            ]
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "无效的板块ID",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "403": {
                         "description": "无权限（需要管理员权限）",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -847,43 +756,31 @@ const docTemplate = `{
                     "200": {
                         "description": "审批完成",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "请求参数错误或申请ID无效",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "403": {
                         "description": "无权限（需要管理员权限）",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "404": {
                         "description": "申请不存在",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -930,52 +827,25 @@ const docTemplate = `{
                     "200": {
                         "description": "获取成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "allOf": [
-                                                {
-                                                    "$ref": "#/definitions/response.PageData"
-                                                },
-                                                {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "list": {
-                                                            "type": "array",
-                                                            "items": {
-                                                                "$ref": "#/definitions/do.Post"
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            ]
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "403": {
                         "description": "无权限",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -1025,52 +895,25 @@ const docTemplate = `{
                     "200": {
                         "description": "获取成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "allOf": [
-                                                {
-                                                    "$ref": "#/definitions/response.PageData"
-                                                },
-                                                {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "list": {
-                                                            "type": "array",
-                                                            "items": {
-                                                                "$ref": "#/definitions/do.Post"
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            ]
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "403": {
                         "description": "无权限",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -1104,43 +947,31 @@ const docTemplate = `{
                     "200": {
                         "description": "操作成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "无效的帖子ID",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "403": {
                         "description": "无权限",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -1184,19 +1015,19 @@ const docTemplate = `{
                     "200": {
                         "description": "成功",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "参数错误（target_id无效）",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -1235,13 +1066,13 @@ const docTemplate = `{
                     "200": {
                         "description": "成功",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -1281,31 +1112,19 @@ const docTemplate = `{
                     "200": {
                         "description": "操作成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "请求参数错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -1346,31 +1165,19 @@ const docTemplate = `{
                     "200": {
                         "description": "操作成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "请求参数错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -1423,43 +1230,31 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -1611,64 +1406,37 @@ const docTemplate = `{
                     "200": {
                         "description": "操作成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/user.AdminResetUserPasswordResponse"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "参数错误",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/definitions/response.ValidationError"
-                                            }
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "403": {
                         "description": "权限不足",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "404": {
                         "description": "用户不存在",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -1705,7 +1473,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/query.SetUserRoleRequest"
+                            "$ref": "#/definitions/request.SetUserRoleRequest"
                         }
                     }
                 ],
@@ -1713,7 +1481,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -1760,43 +1528,31 @@ const docTemplate = `{
                     "200": {
                         "description": "操作成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/user.AdminSetScoreResponse"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "请求参数错误（如积分范围非法、操作类型错误等）",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权（缺少或无效的认证令牌）",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "403": {
                         "description": "禁止访问（当前管理员无权限操作该用户）",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误（如数据库操作失败）",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -1841,48 +1597,19 @@ const docTemplate = `{
                     "200": {
                         "description": "获取成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object",
-                                            "properties": {
-                                                "list": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "$ref": "#/definitions/do.Announcement"
-                                                    }
-                                                },
-                                                "page": {
-                                                    "type": "integer"
-                                                },
-                                                "pageSize": {
-                                                    "type": "integer"
-                                                },
-                                                "total": {
-                                                    "type": "integer"
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "请求参数错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -1913,28 +1640,13 @@ const docTemplate = `{
                     "200": {
                         "description": "获取成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/definitions/do.Announcement"
-                                            }
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -1966,37 +1678,25 @@ const docTemplate = `{
                     "200": {
                         "description": "获取成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/do.Announcement"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "无效的公告ID",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "404": {
                         "description": "公告不存在",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -2028,31 +1728,19 @@ const docTemplate = `{
                     "200": {
                         "description": "获取成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/do.Comment"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "请求参数错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "404": {
                         "description": "回答不存在",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -2087,43 +1775,31 @@ const docTemplate = `{
                     "200": {
                         "description": "删除成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "请求参数错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "403": {
                         "description": "无权限",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "404": {
                         "description": "回答不存在",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -2169,37 +1845,25 @@ const docTemplate = `{
                     "200": {
                         "description": "提交成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/do.Comment"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "请求参数错误或非问答帖",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "404": {
                         "description": "帖子不存在",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -2236,37 +1900,25 @@ const docTemplate = `{
                     "200": {
                         "description": "获取成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/answer.VoteStatusResponse"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "无效的回答ID",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -2303,43 +1955,31 @@ const docTemplate = `{
                     "200": {
                         "description": "取消成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "请求参数错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "403": {
                         "description": "无权限",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "404": {
                         "description": "回答或问题不存在",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -2423,42 +2063,19 @@ const docTemplate = `{
                     "200": {
                         "description": "取消投票成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object",
-                                            "properties": {
-                                                "message": {
-                                                    "type": "string"
-                                                },
-                                                "user_vote": {
-                                                    "type": "integer"
-                                                },
-                                                "vote_count": {
-                                                    "type": "integer"
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "无效的回答ID或尚未投票",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -2506,31 +2123,19 @@ const docTemplate = `{
                     "200": {
                         "description": "获取成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "无效的帖子ID",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "404": {
                         "description": "问题不存在",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -2571,43 +2176,31 @@ const docTemplate = `{
                     "200": {
                         "description": "采纳成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "无效的ID或操作失败",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "403": {
                         "description": "无权限（非问题作者）",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "404": {
                         "description": "问题或回答不存在",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -2645,7 +2238,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -2672,7 +2265,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -2699,7 +2292,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -2726,7 +2319,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -2759,7 +2352,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -2783,7 +2376,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -2807,7 +2400,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -2841,28 +2434,13 @@ const docTemplate = `{
                     "200": {
                         "description": "成功（邮箱存在与否均返回此消息）",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object"
-                                        },
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "请求参数错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -2896,13 +2474,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -2929,7 +2507,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -2962,13 +2540,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -3004,40 +2582,13 @@ const docTemplate = `{
                     "200": {
                         "description": "获取成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "allOf": [
-                                                {
-                                                    "$ref": "#/definitions/response.PageData"
-                                                },
-                                                {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "list": {
-                                                            "type": "array",
-                                                            "items": {
-                                                                "$ref": "#/definitions/do.Board"
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            ]
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -3074,37 +2625,25 @@ const docTemplate = `{
                     "200": {
                         "description": "创建成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/do.Board"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "请求参数错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "403": {
                         "description": "无权限",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -3138,43 +2677,31 @@ const docTemplate = `{
                     "200": {
                         "description": "撤销成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "无效的申请ID",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "403": {
                         "description": "无权限（只能撤销自己的申请）",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "404": {
                         "description": "申请不存在",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -3215,40 +2742,13 @@ const docTemplate = `{
                     "200": {
                         "description": "申请列表",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "allOf": [
-                                                {
-                                                    "$ref": "#/definitions/response.PageData"
-                                                },
-                                                {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "list": {
-                                                            "type": "array",
-                                                            "items": {
-                                                                "$ref": "#/definitions/do.ModeratorApplication"
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            ]
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -3273,34 +2773,19 @@ const docTemplate = `{
                     "200": {
                         "description": "获取成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/definitions/board.ModeratorBoardWithPerms"
-                                            }
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -3329,25 +2814,13 @@ const docTemplate = `{
                     "200": {
                         "description": "获取成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/do.Board"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "404": {
                         "description": "板块不存在",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -3390,52 +2863,25 @@ const docTemplate = `{
                     "200": {
                         "description": "获取成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "allOf": [
-                                                {
-                                                    "$ref": "#/definitions/response.PageData"
-                                                },
-                                                {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "list": {
-                                                            "type": "array",
-                                                            "items": {
-                                                                "$ref": "#/definitions/do.Post"
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            ]
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "板块 slug 不能为空",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "404": {
                         "description": "板块不存在",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -3455,28 +2901,13 @@ const docTemplate = `{
                     "200": {
                         "description": "获取成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/definitions/do.BoardTree"
-                                            }
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -3505,31 +2936,19 @@ const docTemplate = `{
                     "200": {
                         "description": "获取成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/do.Board"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "无效的板块ID",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "404": {
                         "description": "板块不存在",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -3575,43 +2994,31 @@ const docTemplate = `{
                     "200": {
                         "description": "更新成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/do.Board"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "请求参数错误或板块ID无效",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "403": {
                         "description": "无权限",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "404": {
                         "description": "板块不存在",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -3643,43 +3050,31 @@ const docTemplate = `{
                     "200": {
                         "description": "删除成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "无效的板块ID",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "403": {
                         "description": "无权限",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "404": {
                         "description": "板块不存在",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -3754,43 +3149,31 @@ const docTemplate = `{
                     "200": {
                         "description": "禁言成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "请求参数错误或板块ID无效",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "403": {
                         "description": "无权限（需要版主或管理员权限）",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "404": {
                         "description": "板块不存在",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -3831,43 +3214,31 @@ const docTemplate = `{
                     "200": {
                         "description": "解除禁言成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "无效的板块ID或用户ID",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "403": {
                         "description": "无权限（需要版主或管理员权限）",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "404": {
                         "description": "禁言记录不存在",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -3896,34 +3267,19 @@ const docTemplate = `{
                     "200": {
                         "description": "获取成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/definitions/do.Moderator"
-                                            }
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "无效的板块ID",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -4022,43 +3378,31 @@ const docTemplate = `{
                     "200": {
                         "description": "添加版主成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "请求参数错误或板块ID无效",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "403": {
                         "description": "无权限（需要管理员或 manage_moderator 权限）",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "404": {
                         "description": "板块不存在",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -4104,37 +3448,25 @@ const docTemplate = `{
                     "200": {
                         "description": "申请提交成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "请求参数错误或板块ID无效",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "403": {
                         "description": "无权限或已申请",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -4175,43 +3507,31 @@ const docTemplate = `{
                     "200": {
                         "description": "移除版主成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "无效的板块ID或用户ID",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "403": {
                         "description": "无权限（需要管理员或 manage_moderator 权限）",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "404": {
                         "description": "版主不存在",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -4309,43 +3629,31 @@ const docTemplate = `{
                     "200": {
                         "description": "权限更新成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "请求参数错误或板块ID/用户ID无效",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "403": {
                         "description": "无权限（需要管理员权限）",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "404": {
                         "description": "版主不存在",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -4388,7 +3696,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/response.Response"
+                                    "$ref": "#/definitions/vo.BasicResponse"
                                 },
                                 {
                                     "type": "object",
@@ -4404,25 +3712,25 @@ const docTemplate = `{
                     "400": {
                         "description": "无效的板块ID或帖子ID",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "403": {
                         "description": "无权限（需要版主或管理员权限）",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "404": {
                         "description": "帖子不存在",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -4487,7 +3795,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/response.Response"
+                                    "$ref": "#/definitions/vo.BasicResponse"
                                 },
                                 {
                                     "type": "object",
@@ -4503,25 +3811,25 @@ const docTemplate = `{
                     "400": {
                         "description": "无效的板块ID或帖子ID",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "403": {
                         "description": "无权限（需要版主或管理员权限）",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "404": {
                         "description": "帖子不存在",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -4560,31 +3868,19 @@ const docTemplate = `{
                     "200": {
                         "description": "创建成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/do.Comment"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "请求参数错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -4627,46 +3923,19 @@ const docTemplate = `{
                     "200": {
                         "description": "获取成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "allOf": [
-                                                {
-                                                    "$ref": "#/definitions/response.PageData"
-                                                },
-                                                {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "list": {
-                                                            "type": "array",
-                                                            "items": {
-                                                                "$ref": "#/definitions/do.Comment"
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            ]
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "无效的帖子ID",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -4700,43 +3969,31 @@ const docTemplate = `{
                     "200": {
                         "description": "删除成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "无效的评论ID或删除失败",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "403": {
                         "description": "无权限",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "404": {
                         "description": "评论不存在",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -4780,37 +4037,25 @@ const docTemplate = `{
                     "200": {
                         "description": "采纳成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "请求参数错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "403": {
                         "description": "无权限",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -4844,25 +4089,13 @@ const docTemplate = `{
                     "200": {
                         "description": "获取成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "无效的评论ID",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -4906,37 +4139,25 @@ const docTemplate = `{
                     "200": {
                         "description": "投票成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "请求参数错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "403": {
                         "description": "不能给自己的答案投票",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -5000,46 +4221,19 @@ const docTemplate = `{
                     "200": {
                         "description": "获取成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "allOf": [
-                                                {
-                                                    "$ref": "#/definitions/response.PageData"
-                                                },
-                                                {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "list": {
-                                                            "type": "array",
-                                                            "items": {
-                                                                "$ref": "#/definitions/do.Notification"
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            ]
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -5077,37 +4271,25 @@ const docTemplate = `{
                     "200": {
                         "description": "标记成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/dto.BatchMarkReadResponse"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "参数错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -5132,31 +4314,19 @@ const docTemplate = `{
                     "200": {
                         "description": "获取成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -5190,49 +4360,37 @@ const docTemplate = `{
                     "200": {
                         "description": "标记成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "无效的通知ID",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "403": {
                         "description": "无权操作",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "404": {
                         "description": "通知不存在",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -5309,40 +4467,13 @@ const docTemplate = `{
                     "200": {
                         "description": "获取成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "allOf": [
-                                                {
-                                                    "$ref": "#/definitions/response.PageData"
-                                                },
-                                                {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "list": {
-                                                            "type": "array",
-                                                            "items": {
-                                                                "$ref": "#/definitions/do.Post"
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            ]
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -5379,37 +4510,25 @@ const docTemplate = `{
                     "200": {
                         "description": "创建成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/do.Post"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "请求参数错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -5443,31 +4562,19 @@ const docTemplate = `{
                     "200": {
                         "description": "获取成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "无效的帖子ID",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "404": {
                         "description": "帖子不存在",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -5511,43 +4618,31 @@ const docTemplate = `{
                     "200": {
                         "description": "更新成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/do.Post"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "请求参数错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "403": {
                         "description": "无权限",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "404": {
                         "description": "帖子不存在",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -5579,43 +4674,31 @@ const docTemplate = `{
                     "200": {
                         "description": "删除成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "无效的帖子ID",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "403": {
                         "description": "无权限",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "404": {
                         "description": "帖子不存在",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -5649,37 +4732,25 @@ const docTemplate = `{
                     "200": {
                         "description": "点赞成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "无效的帖子ID",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -5711,37 +4782,25 @@ const docTemplate = `{
                     "200": {
                         "description": "取消点赞成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "无效的帖子ID",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -5780,37 +4839,25 @@ const docTemplate = `{
                     "200": {
                         "description": "创建成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/do.QuestionResponse"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "请求参数错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "403": {
                         "description": "积分不足",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -5865,31 +4912,19 @@ const docTemplate = `{
                     "200": {
                         "description": "获取成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "无效的帖子ID或非问答帖",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "404": {
                         "description": "帖子不存在",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -5931,25 +4966,13 @@ const docTemplate = `{
                     "200": {
                         "description": "获取成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/response.PageData"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -6019,40 +5042,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "allOf": [
-                                                {
-                                                    "$ref": "#/definitions/response.PageData"
-                                                },
-                                                {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "list": {
-                                                            "type": "array",
-                                                            "items": {
-                                                                "$ref": "#/definitions/do.QuestionListResponse"
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            ]
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -6073,7 +5069,7 @@ const docTemplate = `{
                     "200": {
                         "description": "返回统计数据",
                         "schema": {
-                            "$ref": "#/definitions/vo.Statistics"
+                            "$ref": "#/definitions/vo.UserStatsInfo"
                         }
                     }
                 }
@@ -6123,31 +5119,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/do.StatsTodayInfo"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -6204,43 +5188,31 @@ const docTemplate = `{
                     "200": {
                         "description": "获取成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "参数错误或日期范围超过90天",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "403": {
                         "description": "无权限",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -6295,31 +5267,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/do.StatsInfoResp"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -6385,31 +5345,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/do.StatsTrendResponse"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -6429,28 +5377,13 @@ const docTemplate = `{
                     "200": {
                         "description": "获取成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/definitions/do.Tag"
-                                            }
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -6487,43 +5420,31 @@ const docTemplate = `{
                     "200": {
                         "description": "创建成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/do.Tag"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "请求参数错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "403": {
                         "description": "无权限",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -6552,25 +5473,13 @@ const docTemplate = `{
                     "200": {
                         "description": "获取成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/do.Tag"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -6614,49 +5523,37 @@ const docTemplate = `{
                     "200": {
                         "description": "更新成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/do.Tag"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "请求参数错误或无效的标签ID",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "403": {
                         "description": "无权限",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "404": {
                         "description": "标签不存在",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -6688,49 +5585,37 @@ const docTemplate = `{
                     "200": {
                         "description": "删除成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "无效的标签ID",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "403": {
                         "description": "无权限",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "404": {
                         "description": "标签不存在",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -6771,46 +5656,19 @@ const docTemplate = `{
                     "200": {
                         "description": "获取成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "allOf": [
-                                                {
-                                                    "$ref": "#/definitions/response.PageData"
-                                                },
-                                                {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "list": {
-                                                            "type": "array",
-                                                            "items": {
-                                                                "$ref": "#/definitions/do.TimelineEvent"
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            ]
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -6851,46 +5709,19 @@ const docTemplate = `{
                     "200": {
                         "description": "获取成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "allOf": [
-                                                {
-                                                    "$ref": "#/definitions/response.PageData"
-                                                },
-                                                {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "list": {
-                                                            "type": "array",
-                                                            "items": {
-                                                                "$ref": "#/definitions/do.TimelineEvent"
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            ]
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -6924,43 +5755,31 @@ const docTemplate = `{
                     "200": {
                         "description": "关注成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "无效的用户ID或不能关注自己",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "409": {
                         "description": "已关注该用户",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -6992,43 +5811,31 @@ const docTemplate = `{
                     "200": {
                         "description": "取消关注成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "无效的用户ID",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "404": {
                         "description": "未关注该用户",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -7062,37 +5869,25 @@ const docTemplate = `{
                     "200": {
                         "description": "获取成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "无效的用户ID",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -7117,34 +5912,19 @@ const docTemplate = `{
                     "200": {
                         "description": "获取成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/definitions/do.User"
-                                            }
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -7180,40 +5960,13 @@ const docTemplate = `{
                     "200": {
                         "description": "获取成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "allOf": [
-                                                {
-                                                    "$ref": "#/definitions/response.PageData"
-                                                },
-                                                {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "list": {
-                                                            "type": "array",
-                                                            "items": {
-                                                                "$ref": "#/definitions/do.Topic"
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            ]
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -7250,37 +6003,25 @@ const docTemplate = `{
                     "200": {
                         "description": "创建成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/do.Topic"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "请求参数错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "403": {
                         "description": "无权限",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -7323,46 +6064,19 @@ const docTemplate = `{
                     "200": {
                         "description": "获取成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "allOf": [
-                                                {
-                                                    "$ref": "#/definitions/response.PageData"
-                                                },
-                                                {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "list": {
-                                                            "type": "array",
-                                                            "items": {
-                                                                "$ref": "#/definitions/do.Topic"
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            ]
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "无效的用户ID",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -7391,31 +6105,19 @@ const docTemplate = `{
                     "200": {
                         "description": "获取成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/do.Topic"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "无效的话题ID",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "404": {
                         "description": "话题不存在",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -7459,43 +6161,31 @@ const docTemplate = `{
                     "200": {
                         "description": "更新成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/do.Topic"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "请求参数错误或无效的话题ID",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "403": {
                         "description": "无权限",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "404": {
                         "description": "话题不存在",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -7527,43 +6217,31 @@ const docTemplate = `{
                     "200": {
                         "description": "删除成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "无效的话题ID",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "403": {
                         "description": "无权限",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "404": {
                         "description": "话题不存在",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -7597,37 +6275,25 @@ const docTemplate = `{
                     "200": {
                         "description": "关注成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "无效的话题ID",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "404": {
                         "description": "话题不存在",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -7659,37 +6325,25 @@ const docTemplate = `{
                     "200": {
                         "description": "取消关注成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "无效的话题ID",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "404": {
                         "description": "话题不存在或未关注",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -7723,37 +6377,25 @@ const docTemplate = `{
                     "200": {
                         "description": "获取成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "无效的话题ID",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -7796,46 +6438,19 @@ const docTemplate = `{
                     "200": {
                         "description": "获取成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "allOf": [
-                                                {
-                                                    "$ref": "#/definitions/response.PageData"
-                                                },
-                                                {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "list": {
-                                                            "type": "array",
-                                                            "items": {
-                                                                "$ref": "#/definitions/do.User"
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            ]
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "无效的话题ID",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -7878,46 +6493,19 @@ const docTemplate = `{
                     "200": {
                         "description": "获取成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "allOf": [
-                                                {
-                                                    "$ref": "#/definitions/response.PageData"
-                                                },
-                                                {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "list": {
-                                                            "type": "array",
-                                                            "items": {
-                                                                "$ref": "#/definitions/do.Post"
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            ]
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "无效的话题ID",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -7961,43 +6549,31 @@ const docTemplate = `{
                     "200": {
                         "description": "添加成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "请求参数错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "403": {
                         "description": "无权限",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "404": {
                         "description": "话题或帖子不存在",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -8038,43 +6614,31 @@ const docTemplate = `{
                     "200": {
                         "description": "移除成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "400": {
                         "description": "无效的ID",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "403": {
                         "description": "无权限",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "404": {
                         "description": "话题或帖子不存在",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -8118,19 +6682,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/dto.UploadResponse"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -8158,19 +6710,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/dto.FileInfo"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -8196,7 +6736,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -8235,34 +6775,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "allOf": [
-                                                {
-                                                    "$ref": "#/definitions/response.PageData"
-                                                },
-                                                {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "list": {
-                                                            "type": "array",
-                                                            "items": {
-                                                                "$ref": "#/definitions/dto.FileInfo"
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            ]
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -8354,31 +6867,19 @@ const docTemplate = `{
                     "200": {
                         "description": "操作成功",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/user.GetCurrentUserRoleResponse"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     },
                     "404": {
                         "description": "用户不存在",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -8454,19 +6955,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/user.UserProfileResponse"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/vo.BasicResponse"
                         }
                     }
                 }
@@ -8580,23 +7069,6 @@ const docTemplate = `{
                 }
             }
         },
-        "answer.VoteStatusResponse": {
-            "type": "object",
-            "properties": {
-                "down_count": {
-                    "description": "反对数",
-                    "type": "integer"
-                },
-                "up_count": {
-                    "description": "赞同数",
-                    "type": "integer"
-                },
-                "user_vote": {
-                    "description": "0:未投票, 1:赞同, -1:反对",
-                    "type": "integer"
-                }
-            }
-        },
         "auth.DeleteAccountInput": {
             "type": "object",
             "properties": {
@@ -8654,63 +7126,6 @@ const docTemplate = `{
                 }
             }
         },
-        "board.ModeratorBoardWithPerms": {
-            "type": "object",
-            "properties": {
-                "cover": {
-                    "type": "string"
-                },
-                "created_at": {
-                    "description": "插入时自动填充",
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "icon": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "parent_id": {
-                    "type": "integer"
-                },
-                "permissions": {
-                    "$ref": "#/definitions/do.ModeratorPermissions"
-                },
-                "post_count": {
-                    "type": "integer"
-                },
-                "post_role": {
-                    "$ref": "#/definitions/do.UserRole"
-                },
-                "reply_role": {
-                    "$ref": "#/definitions/do.UserRole"
-                },
-                "slug": {
-                    "type": "string"
-                },
-                "sort_order": {
-                    "type": "integer"
-                },
-                "thread_count": {
-                    "type": "integer"
-                },
-                "today_count": {
-                    "type": "integer"
-                },
-                "updated_at": {
-                    "type": "string"
-                },
-                "view_role": {
-                    "$ref": "#/definitions/do.UserRole"
-                }
-            }
-        },
         "board.ReviewApplicationRequest": {
             "type": "object",
             "required": [
@@ -8761,6 +7176,118 @@ const docTemplate = `{
                 }
             }
         },
+        "do.AnnouncementStatus": {
+            "type": "integer",
+            "enum": [
+                0,
+                1,
+                2
+            ],
+            "x-enum-comments": {
+                "AnnouncementStatusArchived": "已归档",
+                "AnnouncementStatusDraft": "草稿",
+                "AnnouncementStatusPublished": "已发布"
+            },
+            "x-enum-descriptions": [
+                "草稿",
+                "已发布",
+                "已归档"
+            ],
+            "x-enum-varnames": [
+                "AnnouncementStatusDraft",
+                "AnnouncementStatusPublished",
+                "AnnouncementStatusArchived"
+            ]
+        },
+        "do.AnnouncementType": {
+            "type": "integer",
+            "enum": [
+                0,
+                1,
+                2,
+                3
+            ],
+            "x-enum-comments": {
+                "AnnouncementTypeEmergency": "紧急公告",
+                "AnnouncementTypeEvent": "活动公告",
+                "AnnouncementTypeImportant": "重要公告",
+                "AnnouncementTypeNormal": "普通公告"
+            },
+            "x-enum-descriptions": [
+                "普通公告",
+                "重要公告",
+                "紧急公告",
+                "活动公告"
+            ],
+            "x-enum-varnames": [
+                "AnnouncementTypeNormal",
+                "AnnouncementTypeImportant",
+                "AnnouncementTypeEmergency",
+                "AnnouncementTypeEvent"
+            ]
+        },
+        "do.ApplyModeratorInput": {
+            "type": "object",
+            "required": [
+                "reason"
+            ],
+            "properties": {
+                "reason": {
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "req_ban_user": {
+                    "type": "boolean"
+                },
+                "req_delete_post": {
+                    "type": "boolean"
+                },
+                "req_edit_any_post": {
+                    "type": "boolean"
+                },
+                "req_manage_moderator": {
+                    "type": "boolean"
+                },
+                "req_pin_post": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "do.PostStatus": {
+            "type": "string",
+            "enum": [
+                "draft",
+                "pending",
+                "published",
+                "hidden"
+            ],
+            "x-enum-varnames": [
+                "PostStatusDraft",
+                "PostStatusPending",
+                "PostStatusPublished",
+                "PostStatusHidden"
+            ]
+        },
+        "do.UpdateProfileInput": {
+            "type": "object",
+            "properties": {
+                "avatar": {
+                    "type": "string"
+                },
+                "bio": {
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "email": {
+                    "description": "邮箱",
+                    "type": "string"
+                },
+                "username": {
+                    "description": "用户名",
+                    "type": "string"
+                }
+            }
+        },
         "dto.BatchMarkReadRequest": {
             "type": "object",
             "properties": {
@@ -8770,87 +7297,6 @@ const docTemplate = `{
                     "items": {
                         "type": "integer"
                     }
-                }
-            }
-        },
-        "dto.BatchMarkReadResponse": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "type": "string"
-                },
-                "updated_count": {
-                    "description": "实际更新的数量",
-                    "type": "integer"
-                }
-            }
-        },
-        "dto.CreateAnnouncementRequest": {
-            "type": "object",
-            "required": [
-                "content",
-                "title",
-                "type"
-            ],
-            "properties": {
-                "board_id": {
-                    "description": "版块ID",
-                    "type": "integer"
-                },
-                "content": {
-                    "description": "内容",
-                    "type": "string"
-                },
-                "cover": {
-                    "type": "string"
-                },
-                "expired_at": {
-                    "description": "过期时间",
-                    "type": "string"
-                },
-                "is_global": {
-                    "description": "是否全局",
-                    "type": "boolean"
-                },
-                "is_pinned": {
-                    "description": "是否置顶",
-                    "type": "boolean"
-                },
-                "published_at": {
-                    "description": "发布时间",
-                    "type": "string"
-                },
-                "status": {
-                    "description": "状态",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/do.AnnouncementStatus"
-                        }
-                    ]
-                },
-                "summary": {
-                    "description": "摘要",
-                    "type": "string"
-                },
-                "title": {
-                    "description": "标题",
-                    "type": "string",
-                    "maxLength": 200,
-                    "minLength": 1
-                },
-                "type": {
-                    "description": "类型",
-                    "enum": [
-                        "normal",
-                        "important",
-                        "emergency",
-                        "event"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/do.AnnouncementType"
-                        }
-                    ]
                 }
             }
         },
@@ -8891,49 +7337,6 @@ const docTemplate = `{
                 "title": {
                     "type": "string",
                     "maxLength": 100
-                }
-            }
-        },
-        "dto.FileInfo": {
-            "type": "object",
-            "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "ext": {
-                    "type": "string"
-                },
-                "file_type": {
-                    "description": "avatar, post_image, attachment",
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "mime_type": {
-                    "type": "string"
-                },
-                "original_name": {
-                    "type": "string"
-                },
-                "post_id": {
-                    "type": "integer"
-                },
-                "size": {
-                    "type": "integer"
-                },
-                "status": {
-                    "description": "0:临时 1:正式 2:已删除",
-                    "type": "integer"
-                },
-                "stored_name": {
-                    "type": "string"
-                },
-                "stored_path": {
-                    "type": "string"
-                },
-                "user_id": {
-                    "type": "integer"
                 }
             }
         },
@@ -8990,1774 +7393,6 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
-        },
-        "dto.UpdateAnnouncementRequest": {
-            "type": "object",
-            "properties": {
-                "board_id": {
-                    "type": "integer"
-                },
-                "content": {
-                    "type": "string"
-                },
-                "cover": {
-                    "type": "string"
-                },
-                "expired_at": {
-                    "type": "string"
-                },
-                "is_global": {
-                    "type": "boolean"
-                },
-                "is_pinned": {
-                    "type": "boolean"
-                },
-                "published_at": {
-                    "type": "string"
-                },
-                "summary": {
-                    "type": "string"
-                },
-                "title": {
-                    "type": "string"
-                },
-                "type": {
-                    "$ref": "#/definitions/do.AnnouncementType"
-                }
-            }
-        },
-        "dto.UploadResponse": {
-            "type": "object",
-            "properties": {
-                "file_id": {
-                    "description": "存储标识",
-                    "type": "string"
-                },
-                "mime_type": {
-                    "type": "string"
-                },
-                "original_name": {
-                    "type": "string"
-                },
-                "size": {
-                    "type": "integer"
-                },
-                "url": {
-                    "description": "访问URL",
-                    "type": "string"
-                }
-            }
-        },
-        "do.ActionType": {
-            "type": "string",
-            "enum": [
-                "create_post",
-                "create_comment",
-                "like_post",
-                "like_comment",
-                "follow_user",
-                "accept_answer",
-                "sign_in"
-            ],
-            "x-enum-varnames": [
-                "ActionCreatePost",
-                "ActionCreateComment",
-                "ActionLikePost",
-                "ActionLikeComment",
-                "ActionFollowUser",
-                "ActionAcceptAnswer",
-                "ActionSignIn"
-            ]
-        },
-        "do.ActiveUserDetail": {
-            "type": "object",
-            "properties": {
-                "article_count": {
-                    "description": "今日发文数",
-                    "type": "integer"
-                },
-                "avatar": {
-                    "description": "头像",
-                    "type": "string"
-                },
-                "comment_count": {
-                    "description": "今日评论数",
-                    "type": "integer"
-                },
-                "last_active_at": {
-                    "description": "最后活跃时间",
-                    "type": "string"
-                },
-                "user_id": {
-                    "description": "用户ID",
-                    "type": "integer"
-                },
-                "username": {
-                    "description": "用户名",
-                    "type": "string"
-                }
-            }
-        },
-        "do.Announcement": {
-            "type": "object",
-            "properties": {
-                "board_id": {
-                    "description": "关联的板块ID（为空则全局）",
-                    "type": "integer"
-                },
-                "content": {
-                    "description": "公告内容",
-                    "type": "string"
-                },
-                "cover": {
-                    "description": "封面图",
-                    "type": "string"
-                },
-                "created_at": {
-                    "description": "插入时自动填充",
-                    "type": "string"
-                },
-                "created_by": {
-                    "description": "创建人ID",
-                    "type": "integer"
-                },
-                "expired_at": {
-                    "description": "过期时间",
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "is_global": {
-                    "description": "是否全局公告",
-                    "type": "boolean"
-                },
-                "is_pinned": {
-                    "description": "是否置顶",
-                    "type": "boolean"
-                },
-                "published_at": {
-                    "description": "发布时间",
-                    "type": "string"
-                },
-                "status": {
-                    "description": "状态",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/do.AnnouncementStatus"
-                        }
-                    ]
-                },
-                "summary": {
-                    "description": "公告摘要",
-                    "type": "string"
-                },
-                "title": {
-                    "description": "公告标题",
-                    "type": "string"
-                },
-                "type": {
-                    "description": "公告类型",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/do.AnnouncementType"
-                        }
-                    ]
-                },
-                "updated_at": {
-                    "type": "string"
-                },
-                "updated_by": {
-                    "description": "更新人ID",
-                    "type": "integer"
-                },
-                "view_count": {
-                    "description": "浏览次数",
-                    "type": "integer"
-                }
-            }
-        },
-        "do.AnnouncementStatus": {
-            "type": "string",
-            "enum": [
-                "all",
-                "draft",
-                "published",
-                "archived"
-            ],
-            "x-enum-comments": {
-                "AnnouncementStatusAll": "所有",
-                "AnnouncementStatusArchived": "已归档",
-                "AnnouncementStatusDraft": "草稿",
-                "AnnouncementStatusPublished": "已发布"
-            },
-            "x-enum-descriptions": [
-                "所有",
-                "草稿",
-                "已发布",
-                "已归档"
-            ],
-            "x-enum-varnames": [
-                "AnnouncementStatusAll",
-                "AnnouncementStatusDraft",
-                "AnnouncementStatusPublished",
-                "AnnouncementStatusArchived"
-            ]
-        },
-        "do.AnnouncementType": {
-            "type": "string",
-            "enum": [
-                "normal",
-                "important",
-                "emergency",
-                "event"
-            ],
-            "x-enum-comments": {
-                "AnnouncementTypeEmergency": "紧急公告",
-                "AnnouncementTypeEvent": "活动公告",
-                "AnnouncementTypeImportant": "重要公告",
-                "AnnouncementTypeNormal": "普通公告"
-            },
-            "x-enum-descriptions": [
-                "普通公告",
-                "重要公告",
-                "紧急公告",
-                "活动公告"
-            ],
-            "x-enum-varnames": [
-                "AnnouncementTypeNormal",
-                "AnnouncementTypeImportant",
-                "AnnouncementTypeEmergency",
-                "AnnouncementTypeEvent"
-            ]
-        },
-        "do.ApplicationStatus": {
-            "type": "string",
-            "enum": [
-                "pending",
-                "approved",
-                "rejected",
-                "canceled"
-            ],
-            "x-enum-comments": {
-                "ApplicationApproved": "已通过",
-                "ApplicationCanceled": "用户撤销",
-                "ApplicationPending": "待审核",
-                "ApplicationRejected": "已拒绝"
-            },
-            "x-enum-descriptions": [
-                "待审核",
-                "已通过",
-                "已拒绝",
-                "用户撤销"
-            ],
-            "x-enum-varnames": [
-                "ApplicationPending",
-                "ApplicationApproved",
-                "ApplicationRejected",
-                "ApplicationCanceled"
-            ]
-        },
-        "do.ApplyModeratorInput": {
-            "type": "object",
-            "required": [
-                "reason"
-            ],
-            "properties": {
-                "reason": {
-                    "type": "string",
-                    "maxLength": 500
-                },
-                "req_ban_user": {
-                    "type": "boolean"
-                },
-                "req_delete_post": {
-                    "type": "boolean"
-                },
-                "req_edit_any_post": {
-                    "type": "boolean"
-                },
-                "req_manage_moderator": {
-                    "type": "boolean"
-                },
-                "req_pin_post": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "do.Board": {
-            "type": "object",
-            "properties": {
-                "cover": {
-                    "type": "string"
-                },
-                "created_at": {
-                    "description": "插入时自动填充",
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "icon": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "parent_id": {
-                    "type": "integer"
-                },
-                "post_count": {
-                    "type": "integer"
-                },
-                "post_role": {
-                    "$ref": "#/definitions/do.UserRole"
-                },
-                "reply_role": {
-                    "$ref": "#/definitions/do.UserRole"
-                },
-                "slug": {
-                    "type": "string"
-                },
-                "sort_order": {
-                    "type": "integer"
-                },
-                "thread_count": {
-                    "type": "integer"
-                },
-                "today_count": {
-                    "type": "integer"
-                },
-                "updated_at": {
-                    "type": "string"
-                },
-                "view_role": {
-                    "$ref": "#/definitions/do.UserRole"
-                }
-            }
-        },
-        "do.BoardTree": {
-            "type": "object",
-            "properties": {
-                "children": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/do.BoardTree"
-                    }
-                },
-                "cover": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "icon": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "parent_id": {
-                    "type": "integer"
-                },
-                "post_count": {
-                    "type": "integer"
-                },
-                "post_role": {
-                    "$ref": "#/definitions/do.UserRole"
-                },
-                "reply_role": {
-                    "$ref": "#/definitions/do.UserRole"
-                },
-                "slug": {
-                    "type": "string"
-                },
-                "sort_order": {
-                    "type": "integer"
-                },
-                "thread_count": {
-                    "type": "integer"
-                },
-                "today_count": {
-                    "type": "integer"
-                },
-                "view_role": {
-                    "$ref": "#/definitions/do.UserRole"
-                }
-            }
-        },
-        "do.Comment": {
-            "type": "object",
-            "properties": {
-                "author": {
-                    "$ref": "#/definitions/do.User"
-                },
-                "author_id": {
-                    "type": "integer"
-                },
-                "content": {
-                    "type": "string"
-                },
-                "created_at": {
-                    "description": "插入时自动填充",
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "is_accepted": {
-                    "type": "boolean"
-                },
-                "is_answer": {
-                    "type": "boolean"
-                },
-                "like_count": {
-                    "type": "integer"
-                },
-                "parent": {
-                    "$ref": "#/definitions/do.Comment"
-                },
-                "parent_id": {
-                    "type": "integer"
-                },
-                "post_id": {
-                    "type": "integer"
-                },
-                "replies": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/do.Comment"
-                    }
-                },
-                "status": {
-                    "description": "新增审核状态",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/do.CommentStatus"
-                        }
-                    ]
-                },
-                "updated_at": {
-                    "type": "string"
-                },
-                "vote_count": {
-                    "type": "integer"
-                }
-            }
-        },
-        "do.CommentStatus": {
-            "type": "string",
-            "enum": [
-                "visible",
-                "pending",
-                "hidden"
-            ],
-            "x-enum-comments": {
-                "CommentStatusHidden": "已隐藏",
-                "CommentStatusPending": "待审核",
-                "CommentStatusVisible": "正常可见"
-            },
-            "x-enum-descriptions": [
-                "正常可见",
-                "待审核",
-                "已隐藏"
-            ],
-            "x-enum-varnames": [
-                "CommentStatusVisible",
-                "CommentStatusPending",
-                "CommentStatusHidden"
-            ]
-        },
-        "do.HotArticleItem": {
-            "type": "object",
-            "properties": {
-                "author_id": {
-                    "description": "作者ID",
-                    "type": "integer"
-                },
-                "author_name": {
-                    "description": "作者昵称",
-                    "type": "string"
-                },
-                "board_id": {
-                    "description": "板块ID",
-                    "type": "integer"
-                },
-                "board_name": {
-                    "description": "板块名称",
-                    "type": "string"
-                },
-                "comment_count": {
-                    "description": "评论数",
-                    "type": "integer"
-                },
-                "id": {
-                    "description": "文章ID",
-                    "type": "integer"
-                },
-                "like_count": {
-                    "description": "点赞数",
-                    "type": "integer"
-                },
-                "score": {
-                    "description": "综合热度分",
-                    "type": "integer"
-                },
-                "title": {
-                    "description": "文章标题",
-                    "type": "string"
-                },
-                "view_count": {
-                    "description": "浏览量",
-                    "type": "integer"
-                }
-            }
-        },
-        "do.HotBoardItem": {
-            "type": "object",
-            "properties": {
-                "active_user": {
-                    "description": "今日活跃用户数",
-                    "type": "integer"
-                },
-                "article_count": {
-                    "description": "今日发文数",
-                    "type": "integer"
-                },
-                "comment_count": {
-                    "description": "今日评论数",
-                    "type": "integer"
-                },
-                "icon": {
-                    "description": "板块图标",
-                    "type": "string"
-                },
-                "id": {
-                    "description": "板块ID",
-                    "type": "integer"
-                },
-                "name": {
-                    "description": "板块名称",
-                    "type": "string"
-                },
-                "score": {
-                    "description": "综合热度分",
-                    "type": "integer"
-                }
-            }
-        },
-        "do.ModerationStatus": {
-            "type": "string",
-            "enum": [
-                "pending",
-                "approved",
-                "rejected"
-            ],
-            "x-enum-comments": {
-                "ModerationStatusApproved": "审核通过",
-                "ModerationStatusPending": "待审核",
-                "ModerationStatusRejected": "审核拒绝（内容被隐藏）"
-            },
-            "x-enum-descriptions": [
-                "待审核",
-                "审核通过",
-                "审核拒绝（内容被隐藏）"
-            ],
-            "x-enum-varnames": [
-                "ModerationStatusPending",
-                "ModerationStatusApproved",
-                "ModerationStatusRejected"
-            ]
-        },
-        "do.Moderator": {
-            "type": "object",
-            "properties": {
-                "board": {
-                    "$ref": "#/definitions/do.Board"
-                },
-                "board_id": {
-                    "type": "integer"
-                },
-                "created_at": {
-                    "description": "插入时自动填充",
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "permissions": {
-                    "type": "object"
-                },
-                "updated_at": {
-                    "type": "string"
-                },
-                "user": {
-                    "$ref": "#/definitions/do.User"
-                },
-                "user_id": {
-                    "type": "integer"
-                }
-            }
-        },
-        "do.ModeratorApplication": {
-            "type": "object",
-            "properties": {
-                "board": {
-                    "$ref": "#/definitions/do.Board"
-                },
-                "board_id": {
-                    "type": "integer"
-                },
-                "created_at": {
-                    "description": "插入时自动填充",
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "reason": {
-                    "type": "string"
-                },
-                "req_ban_user": {
-                    "type": "boolean"
-                },
-                "req_delete_post": {
-                    "description": "申请时希望获得的初始权限（审批人可在通过时调整）",
-                    "type": "boolean"
-                },
-                "req_edit_any_post": {
-                    "type": "boolean"
-                },
-                "req_manage_moderator": {
-                    "type": "boolean"
-                },
-                "req_pin_post": {
-                    "type": "boolean"
-                },
-                "review_note": {
-                    "description": "审批备注",
-                    "type": "string"
-                },
-                "reviewer": {
-                    "$ref": "#/definitions/do.User"
-                },
-                "reviewer_id": {
-                    "description": "审批人（管理员）",
-                    "type": "integer"
-                },
-                "status": {
-                    "$ref": "#/definitions/do.ApplicationStatus"
-                },
-                "updated_at": {
-                    "type": "string"
-                },
-                "user": {
-                    "$ref": "#/definitions/do.User"
-                },
-                "user_id": {
-                    "type": "integer"
-                }
-            }
-        },
-        "do.ModeratorPermissions": {
-            "type": "object",
-            "properties": {
-                "can_ban_user": {
-                    "type": "boolean"
-                },
-                "can_delete_post": {
-                    "type": "boolean"
-                },
-                "can_edit_any_post": {
-                    "type": "boolean"
-                },
-                "can_manage_moderator": {
-                    "type": "boolean"
-                },
-                "can_pin_post": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "do.Notification": {
-            "type": "object",
-            "properties": {
-                "content": {
-                    "type": "string"
-                },
-                "created_at": {
-                    "description": "插入时自动填充",
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "is_read": {
-                    "type": "boolean"
-                },
-                "sender": {
-                    "$ref": "#/definitions/do.User"
-                },
-                "sender_id": {
-                    "type": "integer"
-                },
-                "target_id": {
-                    "type": "integer"
-                },
-                "target_type": {
-                    "type": "string"
-                },
-                "type": {
-                    "$ref": "#/definitions/do.NotificationType"
-                },
-                "updated_at": {
-                    "type": "string"
-                },
-                "user_id": {
-                    "type": "integer"
-                }
-            }
-        },
-        "do.NotificationType": {
-            "type": "string",
-            "enum": [
-                "system",
-                "announcement",
-                "maintenance",
-                "upgrade",
-                "security",
-                "verify",
-                "bind",
-                "unbind",
-                "comment",
-                "like",
-                "reply",
-                "mention",
-                "share",
-                "favorite",
-                "reward",
-                "report",
-                "warning",
-                "mute",
-                "ban",
-                "delete",
-                "move",
-                "lock",
-                "unlock",
-                "stick",
-                "unstick",
-                "promote",
-                "demote",
-                "assign_role",
-                "post_approve",
-                "post_reject",
-                "post_schedule",
-                "post_expire",
-                "comment_approve",
-                "comment_reject",
-                "draft_saved",
-                "question",
-                "answer",
-                "accept_answer",
-                "accept_cancel",
-                "question_update",
-                "question_close",
-                "question_reopen",
-                "best_answer",
-                "invite_answer",
-                "subscribe_post",
-                "subscribe_node",
-                "subscribe_tag",
-                "subscribe_user",
-                "subscribe_comment",
-                "subscribe_topic",
-                "subscribe_digest",
-                "follow",
-                "unfollow",
-                "follow_post",
-                "follow_comment",
-                "follow_like",
-                "follow_favorite",
-                "follow_share",
-                "timeline_post",
-                "timeline_comment",
-                "timeline_like",
-                "timeline_answer",
-                "timeline_follow",
-                "trending_post",
-                "trending_comment",
-                "recommend_post",
-                "level_up",
-                "badge",
-                "achievement",
-                "milestone",
-                "points",
-                "exp",
-                "friend_request",
-                "friend_accept",
-                "friend_online",
-                "private_message",
-                "group_invite",
-                "group_join",
-                "credit",
-                "debit",
-                "gift",
-                "vip_expire",
-                "vip_renew",
-                "payment_success",
-                "payment_failed",
-                "refund",
-                "event",
-                "event_remind",
-                "event_end",
-                "lottery",
-                "coupon",
-                "coupon_expire",
-                "reminder",
-                "digest",
-                "birthday",
-                "feedback",
-                "survey"
-            ],
-            "x-enum-comments": {
-                "NotifyAcceptAnswer": "采纳了我的回答",
-                "NotifyAcceptCancel": "取消采纳",
-                "NotifyAchievement": "解锁成就",
-                "NotifyAnnouncement": "全局公告",
-                "NotifyAnswer": "回答了问题",
-                "NotifyAssignRole": "授予管理角色",
-                "NotifyBadge": "获得勋章",
-                "NotifyBan": "封禁通知",
-                "NotifyBestAnswer": "被选为最佳答案",
-                "NotifyBind": "绑定成功通知",
-                "NotifyBirthday": "生日祝福",
-                "NotifyComment": "评论我的帖子",
-                "NotifyCommentApprove": "评论审核通过",
-                "NotifyCommentReject": "评论审核拒绝",
-                "NotifyCoupon": "优惠券发放",
-                "NotifyCouponExpire": "优惠券即将过期",
-                "NotifyCredit": "积分到账",
-                "NotifyDebit": "积分扣除",
-                "NotifyDelete": "内容被删除通知",
-                "NotifyDemote": "取消加精",
-                "NotifyDigest": "每日/每周摘要",
-                "NotifyDraftSaved": "草稿保存成功",
-                "NotifyEvent": "活动通知",
-                "NotifyEventEnd": "活动结束",
-                "NotifyEventRemind": "活动开始提醒",
-                "NotifyExp": "经验值变动",
-                "NotifyFavorite": "收藏了我的内容",
-                "NotifyFeedback": "反馈回复",
-                "NotifyFollow": "关注了我",
-                "NotifyFollowComment": "关注的人评论",
-                "NotifyFollowFavorite": "关注的人收藏",
-                "NotifyFollowLike": "关注的人点赞",
-                "NotifyFollowPost": "关注的人发帖",
-                "NotifyFollowShare": "关注的人分享",
-                "NotifyFriendAccept": "好友申请通过",
-                "NotifyFriendOnline": "好友上线",
-                "NotifyFriendRequest": "好友申请",
-                "NotifyGift": "收到礼物",
-                "NotifyGroupInvite": "邀请加入群组",
-                "NotifyGroupJoin": "加入群组",
-                "NotifyInviteAnswer": "邀请我回答问题",
-                "NotifyLevelUp": "等级提升",
-                "NotifyLike": "点赞我的内容",
-                "NotifyLock": "帖子被锁定",
-                "NotifyLottery": "中奖通知",
-                "NotifyMaintenance": "系统维护通知",
-                "NotifyMention": "@提及我",
-                "NotifyMilestone": "里程碑达成（如发帖100篇）",
-                "NotifyMove": "帖子被移动",
-                "NotifyMute": "禁言通知",
-                "NotifyPaymentFailed": "支付失败",
-                "NotifyPaymentSuccess": "支付成功",
-                "NotifyPoints": "积分变动",
-                "NotifyPostApprove": "帖子审核通过",
-                "NotifyPostExpire": "帖子到期",
-                "NotifyPostReject": "帖子审核拒绝",
-                "NotifyPostSchedule": "定时发布成功",
-                "NotifyPrivateMessage": "私信（通常独立，但可归入）",
-                "NotifyPromote": "内容被加精/推荐",
-                "NotifyQuestion": "新问题",
-                "NotifyQuestionClose": "问题被关闭",
-                "NotifyQuestionReopen": "问题被重开",
-                "NotifyQuestionUpdate": "问题被修改",
-                "NotifyRecommendPost": "推荐帖子给我",
-                "NotifyRefund": "退款通知",
-                "NotifyReminder": "通用提醒",
-                "NotifyReply": "回复我的评论",
-                "NotifyReport": "举报处理结果",
-                "NotifyReward": "打赏/赞赏",
-                "NotifySecurity": "安全提醒（异地登录等）",
-                "NotifyShare": "分享了内容",
-                "NotifyStick": "帖子被置顶",
-                "NotifySubscribeComment": "订阅的评论有新回复",
-                "NotifySubscribeDigest": "订阅的摘要/周刊",
-                "NotifySubscribeNode": "订阅的节点有新帖",
-                "NotifySubscribePost": "订阅的帖子有新回复",
-                "NotifySubscribeTag": "订阅的标签有新内容",
-                "NotifySubscribeTopic": "订阅的话题更新",
-                "NotifySubscribeUser": "订阅的用户有新动态",
-                "NotifySurvey": "问卷调查邀请",
-                "NotifySystem": "系统通知",
-                "NotifyTimelineAnswer": "关注的用户回答问题",
-                "NotifyTimelineComment": "关注的用户发表评论",
-                "NotifyTimelineFollow": "关注的用户关注了别人",
-                "NotifyTimelineLike": "关注的用户点赞",
-                "NotifyTimelinePost": "关注的用户发新帖",
-                "NotifyTrendingComment": "评论成为热门",
-                "NotifyTrendingPost": "帖子成为热门",
-                "NotifyUnbind": "解绑通知",
-                "NotifyUnfollow": "取消关注（极少用）",
-                "NotifyUnlock": "帖子被解锁",
-                "NotifyUnstick": "取消置顶",
-                "NotifyUpgrade": "版本升级通知",
-                "NotifyVerify": "验证通知（邮箱/手机）",
-                "NotifyVipExpire": "VIP到期提醒",
-                "NotifyVipRenew": "VIP续费成功",
-                "NotifyWarning": "违规警告"
-            },
-            "x-enum-descriptions": [
-                "系统通知",
-                "全局公告",
-                "系统维护通知",
-                "版本升级通知",
-                "安全提醒（异地登录等）",
-                "验证通知（邮箱/手机）",
-                "绑定成功通知",
-                "解绑通知",
-                "评论我的帖子",
-                "点赞我的内容",
-                "回复我的评论",
-                "@提及我",
-                "分享了内容",
-                "收藏了我的内容",
-                "打赏/赞赏",
-                "举报处理结果",
-                "违规警告",
-                "禁言通知",
-                "封禁通知",
-                "内容被删除通知",
-                "帖子被移动",
-                "帖子被锁定",
-                "帖子被解锁",
-                "帖子被置顶",
-                "取消置顶",
-                "内容被加精/推荐",
-                "取消加精",
-                "授予管理角色",
-                "帖子审核通过",
-                "帖子审核拒绝",
-                "定时发布成功",
-                "帖子到期",
-                "评论审核通过",
-                "评论审核拒绝",
-                "草稿保存成功",
-                "新问题",
-                "回答了问题",
-                "采纳了我的回答",
-                "取消采纳",
-                "问题被修改",
-                "问题被关闭",
-                "问题被重开",
-                "被选为最佳答案",
-                "邀请我回答问题",
-                "订阅的帖子有新回复",
-                "订阅的节点有新帖",
-                "订阅的标签有新内容",
-                "订阅的用户有新动态",
-                "订阅的评论有新回复",
-                "订阅的话题更新",
-                "订阅的摘要/周刊",
-                "关注了我",
-                "取消关注（极少用）",
-                "关注的人发帖",
-                "关注的人评论",
-                "关注的人点赞",
-                "关注的人收藏",
-                "关注的人分享",
-                "关注的用户发新帖",
-                "关注的用户发表评论",
-                "关注的用户点赞",
-                "关注的用户回答问题",
-                "关注的用户关注了别人",
-                "帖子成为热门",
-                "评论成为热门",
-                "推荐帖子给我",
-                "等级提升",
-                "获得勋章",
-                "解锁成就",
-                "里程碑达成（如发帖100篇）",
-                "积分变动",
-                "经验值变动",
-                "好友申请",
-                "好友申请通过",
-                "好友上线",
-                "私信（通常独立，但可归入）",
-                "邀请加入群组",
-                "加入群组",
-                "积分到账",
-                "积分扣除",
-                "收到礼物",
-                "VIP到期提醒",
-                "VIP续费成功",
-                "支付成功",
-                "支付失败",
-                "退款通知",
-                "活动通知",
-                "活动开始提醒",
-                "活动结束",
-                "中奖通知",
-                "优惠券发放",
-                "优惠券即将过期",
-                "通用提醒",
-                "每日/每周摘要",
-                "生日祝福",
-                "反馈回复",
-                "问卷调查邀请"
-            ],
-            "x-enum-varnames": [
-                "NotifySystem",
-                "NotifyAnnouncement",
-                "NotifyMaintenance",
-                "NotifyUpgrade",
-                "NotifySecurity",
-                "NotifyVerify",
-                "NotifyBind",
-                "NotifyUnbind",
-                "NotifyComment",
-                "NotifyLike",
-                "NotifyReply",
-                "NotifyMention",
-                "NotifyShare",
-                "NotifyFavorite",
-                "NotifyReward",
-                "NotifyReport",
-                "NotifyWarning",
-                "NotifyMute",
-                "NotifyBan",
-                "NotifyDelete",
-                "NotifyMove",
-                "NotifyLock",
-                "NotifyUnlock",
-                "NotifyStick",
-                "NotifyUnstick",
-                "NotifyPromote",
-                "NotifyDemote",
-                "NotifyAssignRole",
-                "NotifyPostApprove",
-                "NotifyPostReject",
-                "NotifyPostSchedule",
-                "NotifyPostExpire",
-                "NotifyCommentApprove",
-                "NotifyCommentReject",
-                "NotifyDraftSaved",
-                "NotifyQuestion",
-                "NotifyAnswer",
-                "NotifyAcceptAnswer",
-                "NotifyAcceptCancel",
-                "NotifyQuestionUpdate",
-                "NotifyQuestionClose",
-                "NotifyQuestionReopen",
-                "NotifyBestAnswer",
-                "NotifyInviteAnswer",
-                "NotifySubscribePost",
-                "NotifySubscribeNode",
-                "NotifySubscribeTag",
-                "NotifySubscribeUser",
-                "NotifySubscribeComment",
-                "NotifySubscribeTopic",
-                "NotifySubscribeDigest",
-                "NotifyFollow",
-                "NotifyUnfollow",
-                "NotifyFollowPost",
-                "NotifyFollowComment",
-                "NotifyFollowLike",
-                "NotifyFollowFavorite",
-                "NotifyFollowShare",
-                "NotifyTimelinePost",
-                "NotifyTimelineComment",
-                "NotifyTimelineLike",
-                "NotifyTimelineAnswer",
-                "NotifyTimelineFollow",
-                "NotifyTrendingPost",
-                "NotifyTrendingComment",
-                "NotifyRecommendPost",
-                "NotifyLevelUp",
-                "NotifyBadge",
-                "NotifyAchievement",
-                "NotifyMilestone",
-                "NotifyPoints",
-                "NotifyExp",
-                "NotifyFriendRequest",
-                "NotifyFriendAccept",
-                "NotifyFriendOnline",
-                "NotifyPrivateMessage",
-                "NotifyGroupInvite",
-                "NotifyGroupJoin",
-                "NotifyCredit",
-                "NotifyDebit",
-                "NotifyGift",
-                "NotifyVipExpire",
-                "NotifyVipRenew",
-                "NotifyPaymentSuccess",
-                "NotifyPaymentFailed",
-                "NotifyRefund",
-                "NotifyEvent",
-                "NotifyEventRemind",
-                "NotifyEventEnd",
-                "NotifyLottery",
-                "NotifyCoupon",
-                "NotifyCouponExpire",
-                "NotifyReminder",
-                "NotifyDigest",
-                "NotifyBirthday",
-                "NotifyFeedback",
-                "NotifySurvey"
-            ]
-        },
-        "do.Post": {
-            "type": "object",
-            "properties": {
-                "author": {
-                    "description": "关联",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/do.User"
-                        }
-                    ]
-                },
-                "author_id": {
-                    "type": "integer"
-                },
-                "board": {
-                    "$ref": "#/definitions/do.Board"
-                },
-                "board_id": {
-                    "type": "integer"
-                },
-                "content": {
-                    "type": "string"
-                },
-                "cover": {
-                    "type": "string"
-                },
-                "created_at": {
-                    "description": "插入时自动填充",
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "like_count": {
-                    "type": "integer"
-                },
-                "moderation_status": {
-                    "description": "系统风控状态 - 由风控引擎或管理员审核决定",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/do.ModerationStatus"
-                        }
-                    ]
-                },
-                "pin_in_board": {
-                    "type": "boolean"
-                },
-                "pin_top": {
-                    "type": "boolean"
-                },
-                "post_status": {
-                    "description": "用户状态 - 用户自己控制/感知的状态",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/do.PostStatus"
-                        }
-                    ]
-                },
-                "question": {
-                    "$ref": "#/definitions/do.Question"
-                },
-                "summary": {
-                    "type": "string"
-                },
-                "tags": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/do.Tag"
-                    }
-                },
-                "title": {
-                    "type": "string"
-                },
-                "type": {
-                    "$ref": "#/definitions/do.PostType"
-                },
-                "updated_at": {
-                    "type": "string"
-                },
-                "view_count": {
-                    "type": "integer"
-                }
-            }
-        },
-        "do.PostStatus": {
-            "type": "string",
-            "enum": [
-                "draft",
-                "pending",
-                "published",
-                "hidden"
-            ],
-            "x-enum-varnames": [
-                "PostStatusDraft",
-                "PostStatusPending",
-                "PostStatusPublished",
-                "PostStatusHidden"
-            ]
-        },
-        "do.PostType": {
-            "type": "string",
-            "enum": [
-                "post",
-                "article",
-                "topic",
-                "question"
-            ],
-            "x-enum-varnames": [
-                "PostTypePost",
-                "PostTypeArticle",
-                "PostTypeTopic",
-                "PostTypeQuestion"
-            ]
-        },
-        "do.Question": {
-            "type": "object",
-            "properties": {
-                "accepted_answer": {
-                    "$ref": "#/definitions/do.Comment"
-                },
-                "accepted_answer_id": {
-                    "type": "integer"
-                },
-                "answer_count": {
-                    "type": "integer"
-                },
-                "created_at": {
-                    "description": "插入时自动填充",
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "post": {
-                    "$ref": "#/definitions/do.Post"
-                },
-                "post_id": {
-                    "type": "integer"
-                },
-                "reward_score": {
-                    "type": "integer"
-                },
-                "updated_at": {
-                    "type": "string"
-                },
-                "view_count": {
-                    "type": "integer"
-                }
-            }
-        },
-        "do.QuestionListResponse": {
-            "type": "object",
-            "properties": {
-                "answer_count": {
-                    "type": "integer"
-                },
-                "author_id": {
-                    "type": "integer"
-                },
-                "board_id": {
-                    "type": "integer"
-                },
-                "created_at": {
-                    "description": "插入时自动填充",
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "reward_score": {
-                    "type": "integer"
-                },
-                "summary": {
-                    "type": "string"
-                },
-                "title": {
-                    "type": "string"
-                },
-                "updated_at": {
-                    "type": "string"
-                },
-                "view_count": {
-                    "type": "integer"
-                }
-            }
-        },
-        "do.QuestionResponse": {
-            "type": "object",
-            "properties": {
-                "accepted_answer_id": {
-                    "type": "integer"
-                },
-                "answer_count": {
-                    "type": "integer"
-                },
-                "author_id": {
-                    "type": "integer"
-                },
-                "board_id": {
-                    "type": "integer"
-                },
-                "content": {
-                    "type": "string"
-                },
-                "cover": {
-                    "type": "string"
-                },
-                "created_at": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "post_id": {
-                    "type": "integer"
-                },
-                "reward_score": {
-                    "type": "integer"
-                },
-                "status": {
-                    "type": "string"
-                },
-                "summary": {
-                    "type": "string"
-                },
-                "title": {
-                    "type": "string"
-                },
-                "updated_at": {
-                    "type": "string"
-                }
-            }
-        },
-        "do.StatsActiveUserInfo": {
-            "type": "object",
-            "properties": {
-                "list": {
-                    "description": "今日活跃用户列表（最多N条）",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/do.ActiveUserDetail"
-                    }
-                },
-                "total": {
-                    "description": "今日活跃用户总数",
-                    "type": "integer"
-                }
-            }
-        },
-        "do.StatsIllegalInfo": {
-            "type": "object",
-            "properties": {
-                "article_cnt": {
-                    "description": "今日违规文章数",
-                    "type": "integer"
-                },
-                "board_cnt": {
-                    "description": "今日违规板块数",
-                    "type": "integer"
-                },
-                "comment_cnt": {
-                    "description": "今日违规评论数",
-                    "type": "integer"
-                },
-                "total": {
-                    "description": "今日违规总数",
-                    "type": "integer"
-                },
-                "user_count": {
-                    "description": "今日违规用户数",
-                    "type": "integer"
-                }
-            }
-        },
-        "do.StatsInfo": {
-            "type": "object",
-            "properties": {
-                "total_article": {
-                    "description": "总文章数",
-                    "type": "integer"
-                },
-                "total_board": {
-                    "description": "总板块数",
-                    "type": "integer"
-                },
-                "total_comment": {
-                    "description": "总评论数",
-                    "type": "integer"
-                },
-                "total_tag": {
-                    "description": "总标签数",
-                    "type": "integer"
-                },
-                "total_user": {
-                    "description": "总用户数",
-                    "type": "integer"
-                }
-            }
-        },
-        "do.StatsInfoResp": {
-            "type": "object",
-            "properties": {
-                "active_user_info": {
-                    "description": "今日活跃用户信息",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/do.StatsActiveUserInfo"
-                        }
-                    ]
-                },
-                "base_info": {
-                    "description": "基础统计信息",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/do.StatsInfo"
-                        }
-                    ]
-                },
-                "hot_articles": {
-                    "description": "今日热门文章列表",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/do.HotArticleItem"
-                    }
-                },
-                "hot_boards": {
-                    "description": "今日热门板块列表",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/do.HotBoardItem"
-                    }
-                },
-                "illegal_info": {
-                    "description": "今日违规信息",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/do.StatsIllegalInfo"
-                        }
-                    ]
-                },
-                "stat_time": {
-                    "description": "统计时间",
-                    "type": "string"
-                },
-                "today_info": {
-                    "description": "今日统计信息",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/do.StatsTodayInfo"
-                        }
-                    ]
-                }
-            }
-        },
-        "do.StatsTodayInfo": {
-            "type": "object",
-            "properties": {
-                "active_user": {
-                    "description": "今日活跃用户数",
-                    "type": "integer"
-                },
-                "new_article": {
-                    "description": "今日新增文章",
-                    "type": "integer"
-                },
-                "new_board": {
-                    "description": "今日新增板块",
-                    "type": "integer"
-                },
-                "new_comment": {
-                    "description": "今日新增评论",
-                    "type": "integer"
-                },
-                "new_tag": {
-                    "description": "今日新增标签",
-                    "type": "integer"
-                },
-                "new_user": {
-                    "description": "今日新增用户",
-                    "type": "integer"
-                }
-            }
-        },
-        "do.StatsTrendResponse": {
-            "type": "object",
-            "properties": {
-                "end_date": {
-                    "description": "结束日期",
-                    "type": "string"
-                },
-                "interval": {
-                    "description": "统计粒度 (day/week/month)",
-                    "type": "string"
-                },
-                "start_date": {
-                    "description": "开始日期",
-                    "type": "string"
-                },
-                "trend": {
-                    "description": "趋势数据",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/do.TrendData"
-                    }
-                },
-                "type": {
-                    "description": "统计类型",
-                    "type": "string"
-                }
-            }
-        },
-        "do.Tag": {
-            "type": "object",
-            "properties": {
-                "color": {
-                    "type": "string"
-                },
-                "created_at": {
-                    "description": "插入时自动填充",
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "post_count": {
-                    "type": "integer"
-                },
-                "updated_at": {
-                    "type": "string"
-                }
-            }
-        },
-        "do.TimelineEvent": {
-            "type": "object",
-            "properties": {
-                "action": {
-                    "$ref": "#/definitions/do.ActionType"
-                },
-                "actor": {
-                    "$ref": "#/definitions/do.User"
-                },
-                "actor_id": {
-                    "type": "integer"
-                },
-                "created_at": {
-                    "description": "插入时自动填充",
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "payload": {
-                    "type": "string"
-                },
-                "score": {
-                    "type": "integer"
-                },
-                "target_id": {
-                    "type": "integer"
-                },
-                "target_type": {
-                    "type": "string"
-                },
-                "updated_at": {
-                    "type": "string"
-                },
-                "user": {
-                    "$ref": "#/definitions/do.User"
-                },
-                "user_id": {
-                    "type": "integer"
-                }
-            }
-        },
-        "do.Topic": {
-            "type": "object",
-            "properties": {
-                "cover": {
-                    "type": "string"
-                },
-                "created_at": {
-                    "description": "插入时自动填充",
-                    "type": "string"
-                },
-                "creator": {
-                    "$ref": "#/definitions/do.User"
-                },
-                "creator_id": {
-                    "type": "integer"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "follower_count": {
-                    "type": "integer"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "is_public": {
-                    "type": "boolean"
-                },
-                "post_count": {
-                    "type": "integer"
-                },
-                "title": {
-                    "type": "string"
-                },
-                "updated_at": {
-                    "type": "string"
-                }
-            }
-        },
-        "do.TrendData": {
-            "type": "object",
-            "properties": {
-                "count": {
-                    "type": "integer"
-                },
-                "date": {
-                    "type": "string"
-                }
-            }
-        },
-        "do.UpdateProfileInput": {
-            "type": "object",
-            "properties": {
-                "avatar": {
-                    "type": "string"
-                },
-                "bio": {
-                    "type": "string",
-                    "maxLength": 500
-                },
-                "email": {
-                    "description": "邮箱",
-                    "type": "string"
-                },
-                "username": {
-                    "description": "用户名",
-                    "type": "string"
-                }
-            }
-        },
-        "do.User": {
-            "type": "object",
-            "properties": {
-                "avatar": {
-                    "description": "用户的头像，目前为链接（暂不支持图片上传）",
-                    "type": "string"
-                },
-                "bio": {
-                    "description": "用户的简介",
-                    "type": "string"
-                },
-                "created_at": {
-                    "description": "插入时自动填充",
-                    "type": "string"
-                },
-                "email": {
-                    "description": "邮箱",
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "invited_by_id": {
-                    "description": "邀请人ID",
-                    "type": "integer"
-                },
-                "is_active": {
-                    "description": "低优先级，用户主动行为，例如验证邮箱后可以处于激活状态，非处罚性质",
-                    "type": "boolean"
-                },
-                "is_blocked": {
-                    "description": "优先级高于 IsActive，被动行为，一旦为 true 完全无法登录，处罚性质",
-                    "type": "boolean"
-                },
-                "last_login": {
-                    "description": "最后登陆时间",
-                    "type": "string"
-                },
-                "password": {
-                    "description": "密码（hash）",
-                    "type": "string"
-                },
-                "role": {
-                    "description": "用户的角色，默认为普通用户",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/do.UserRole"
-                        }
-                    ]
-                },
-                "score": {
-                    "description": "用户的积分",
-                    "type": "integer"
-                },
-                "updated_at": {
-                    "type": "string"
-                },
-                "username": {
-                    "description": "用户名",
-                    "type": "string"
-                }
-            }
-        },
-        "do.UserRole": {
-            "type": "string",
-            "enum": [
-                "guest",
-                "user",
-                "member",
-                "moderator",
-                "reviewer",
-                "admin",
-                "super_admin",
-                "bot"
-            ],
-            "x-enum-varnames": [
-                "RoleGuest",
-                "RoleUser",
-                "RoleMember",
-                "RoleModerator",
-                "RoleReviewer",
-                "RoleAdmin",
-                "RoleSuperAdmin",
-                "RoleBot"
-            ]
         },
         "post.CreatePostInput": {
             "type": "object",
@@ -10825,7 +7460,62 @@ const docTemplate = `{
                 }
             }
         },
-        "query.ListAnnouncements": {
+        "request.CreateAnnouncement": {
+            "type": "object",
+            "required": [
+                "content",
+                "title",
+                "type"
+            ],
+            "properties": {
+                "board_id": {
+                    "type": "integer"
+                },
+                "content": {
+                    "type": "string"
+                },
+                "cover": {
+                    "type": "string"
+                },
+                "expired_at": {
+                    "type": "string"
+                },
+                "is_global": {
+                    "type": "boolean"
+                },
+                "is_pinned": {
+                    "type": "boolean"
+                },
+                "published_at": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/do.AnnouncementStatus"
+                },
+                "summary": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string",
+                    "maxLength": 200,
+                    "minLength": 1
+                },
+                "type": {
+                    "enum": [
+                        0,
+                        1,
+                        2,
+                        3
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/do.AnnouncementType"
+                        }
+                    ]
+                }
+            }
+        },
+        "request.ListAnnouncements": {
             "type": "object",
             "properties": {
                 "board_id": {
@@ -10856,14 +7546,33 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "status": {
-                    "$ref": "#/definitions/do.AnnouncementStatus"
+                    "enum": [
+                        0,
+                        1,
+                        2
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/do.AnnouncementStatus"
+                        }
+                    ]
                 },
                 "type": {
-                    "$ref": "#/definitions/do.AnnouncementType"
+                    "enum": [
+                        0,
+                        1,
+                        2,
+                        3
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/do.AnnouncementType"
+                        }
+                    ]
                 }
             }
         },
-        "query.SetUserRoleRequest": {
+        "request.SetUserRoleRequest": {
             "type": "object",
             "required": [
                 "role"
@@ -10883,55 +7592,61 @@ const docTemplate = `{
                 }
             }
         },
-        "response.PageData": {
+        "request.UpdateAnnouncement": {
             "type": "object",
             "properties": {
-                "has_more": {
+                "board_id": {
+                    "type": "integer"
+                },
+                "content": {
+                    "type": "string"
+                },
+                "cover": {
+                    "type": "string"
+                },
+                "expired_at": {
+                    "type": "string"
+                },
+                "is_global": {
                     "type": "boolean"
                 },
-                "list": {},
-                "page": {
-                    "type": "integer"
+                "is_pinned": {
+                    "type": "boolean"
                 },
-                "page_size": {
-                    "type": "integer"
+                "published_at": {
+                    "type": "string"
                 },
-                "total": {
-                    "type": "integer"
+                "status": {
+                    "enum": [
+                        0,
+                        1,
+                        2
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/do.AnnouncementStatus"
+                        }
+                    ]
+                },
+                "summary": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "type": {
+                    "enum": [
+                        0,
+                        1,
+                        2,
+                        3
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/do.AnnouncementType"
+                        }
+                    ]
                 }
-            }
-        },
-        "response.Response": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "integer"
-                },
-                "data": {},
-                "message": {
-                    "type": "string"
-                },
-                "request_id": {
-                    "type": "string"
-                },
-                "timestamp": {
-                    "type": "integer"
-                },
-                "trace_id": {
-                    "type": "string"
-                }
-            }
-        },
-        "response.ValidationError": {
-            "type": "object",
-            "properties": {
-                "field": {
-                    "type": "string"
-                },
-                "message": {
-                    "type": "string"
-                },
-                "value": {}
             }
         },
         "risk.resolveTaskInput": {
@@ -11004,20 +7719,6 @@ const docTemplate = `{
                 }
             }
         },
-        "user.AdminResetUserPasswordResponse": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "type": "string"
-                },
-                "operator_id": {
-                    "type": "integer"
-                },
-                "user_id": {
-                    "type": "integer"
-                }
-            }
-        },
         "user.AdminSetScoreRequest": {
             "type": "object",
             "required": [
@@ -11042,46 +7743,6 @@ const docTemplate = `{
                     "type": "integer",
                     "maximum": 999999,
                     "minimum": 0
-                }
-            }
-        },
-        "user.AdminSetScoreResponse": {
-            "type": "object",
-            "properties": {
-                "change": {
-                    "type": "integer"
-                },
-                "new_score": {
-                    "type": "integer"
-                },
-                "old_score": {
-                    "type": "integer"
-                },
-                "operation": {
-                    "type": "string"
-                },
-                "operator_id": {
-                    "type": "integer"
-                },
-                "reason": {
-                    "type": "string"
-                },
-                "timestamp": {
-                    "type": "integer"
-                },
-                "user_id": {
-                    "type": "integer"
-                }
-            }
-        },
-        "user.GetCurrentUserRoleResponse": {
-            "type": "object",
-            "properties": {
-                "role": {
-                    "type": "string"
-                },
-                "user_id": {
-                    "type": "integer"
                 }
             }
         },
@@ -11122,74 +7783,23 @@ const docTemplate = `{
                 }
             }
         },
-        "user.UserProfileResponse": {
+        "vo.BasicResponse": {
             "type": "object",
             "properties": {
-                "avatar": {
-                    "description": "用户的头像，目前为链接（暂不支持图片上传）",
-                    "type": "string"
-                },
-                "bio": {
-                    "description": "用户的简介",
-                    "type": "string"
-                },
-                "created_at": {
-                    "description": "插入时自动填充",
-                    "type": "string"
-                },
-                "email": {
-                    "description": "邮箱",
-                    "type": "string"
-                },
-                "follower_count": {
+                "code": {
                     "type": "integer"
                 },
-                "following_count": {
-                    "type": "integer"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "invited_by_id": {
-                    "description": "邀请人ID",
-                    "type": "integer"
-                },
-                "is_active": {
-                    "description": "低优先级，用户主动行为，例如验证邮箱后可以处于激活状态，非处罚性质",
-                    "type": "boolean"
-                },
-                "is_blocked": {
-                    "description": "优先级高于 IsActive，被动行为，一旦为 true 完全无法登录，处罚性质",
-                    "type": "boolean"
-                },
-                "is_following": {
-                    "type": "boolean"
-                },
-                "last_login": {
-                    "description": "最后登陆时间",
+                "data": {},
+                "message": {
                     "type": "string"
                 },
-                "password": {
-                    "description": "密码（hash）",
+                "request_id": {
                     "type": "string"
                 },
-                "role": {
-                    "description": "用户的角色，默认为普通用户",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/do.UserRole"
-                        }
-                    ]
-                },
-                "score": {
-                    "description": "用户的积分",
+                "timestamp": {
                     "type": "integer"
                 },
-                "updated_at": {
-                    "type": "string"
-                },
-                "username": {
-                    "description": "用户名",
+                "trace_id": {
                     "type": "string"
                 }
             }
@@ -11211,19 +7821,55 @@ const docTemplate = `{
                 }
             }
         },
-        "vo.Statistics": {
+        "vo.UserStatsInfo": {
             "type": "object",
             "properties": {
-                "total_comments": {
+                "total_answer": {
+                    "description": "总回答数",
+                    "type": "integer"
+                },
+                "total_comment": {
+                    "description": "总评论数",
                     "type": "integer"
                 },
                 "total_favorites": {
+                    "description": "TotalBoard   int64 ` + "`" + `json:\"total_board\"` + "`" + `   // 总板块数\nTotalTag     int64 ` + "`" + `json:\"total_tag\"` + "`" + `     // 总标签数",
                     "type": "integer"
                 },
-                "total_posts": {
+                "total_follower": {
+                    "description": "总关注数",
                     "type": "integer"
                 },
-                "unread_notifications": {
+                "total_following": {
+                    "description": "总粉丝数",
+                    "type": "integer"
+                },
+                "total_like": {
+                    "description": "总点赞数",
+                    "type": "integer"
+                },
+                "total_post": {
+                    "description": "总帖子数",
+                    "type": "integer"
+                },
+                "total_question": {
+                    "description": "总问题数",
+                    "type": "integer"
+                },
+                "total_report": {
+                    "description": "总举报数",
+                    "type": "integer"
+                },
+                "total_score": {
+                    "description": "总积分",
+                    "type": "integer"
+                },
+                "total_upload": {
+                    "description": "总上传数",
+                    "type": "integer"
+                },
+                "total_violation": {
+                    "description": "总违规数",
                     "type": "integer"
                 }
             }

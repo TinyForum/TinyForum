@@ -9,7 +9,7 @@ package user
 // @Tags 用户管理
 // @Produce json
 // @Param id path int true "用户ID"
-// @Success 200 {object} response.Response{data=user.UserProfileResponse}
+// @Success 200 {object} vo.BasicResponse=user.UserProfileResponse}
 // @Router /users/{id} [get]
 // func (h *UserHandler) GetProfile(c *gin.Context) {
 // 	// 1. 参数解析
@@ -357,9 +357,9 @@ package user
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Success 200 {object} response.Response{data=GetCurrentUserRoleResponse} "操作成功"
-// @Failure 401 {object} response.Response "未授权"
-// @Failure 404 {object} response.Response "用户不存在"
+// @Success 200 {object} vo.BasicResponse=GetCurrentUserRoleResponse} "操作成功"
+// @Failure 401 {object} vo.BasicResponse"未授权"
+// @Failure 404 {object} vo.BasicResponse"用户不存在"
 // @Router /users/me/role [get]
 // func (h *UserHandler) GetCurrentUserRole(c *gin.Context) {
 // 	// 1. 从上下文获取用户ID
@@ -540,7 +540,7 @@ package user
 // @Security ApiKeyAuth
 // @Param id path int true "用户ID"
 // @Param body body SetUserRoleRequest true "角色信息"
-// @Success 200 {object} response.Response
+// @Success 200 {object} vo.BasicResponse
 // @Router /admin/users/{id}/role [put]
 // func (h *UserHandler) AdminSetRole(c *gin.Context) {
 // 	operatorID, exists := c.Get("id")
@@ -637,12 +637,12 @@ package user
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path int true "目标用户ID" example:"123"
-// @Success 200 {object} response.Response{data=AdminResetUserPasswordResponse} "操作成功"
-// @Failure 400 {object} response.Response{data=[]response.ValidationError} "参数错误"
-// @Failure 401 {object} response.Response "未授权"
-// @Failure 403 {object} response.Response "权限不足"
-// @Failure 404 {object} response.Response "用户不存在"
-// @Failure 500 {object} response.Response "服务器内部错误"
+// @Success 200 {object} vo.BasicResponse=AdminResetUserPasswordResponse} "操作成功"
+// @Failure 400 {object} vo.BasicResponse=[]response.ValidationError} "参数错误"
+// @Failure 401 {object} vo.BasicResponse"未授权"
+// @Failure 403 {object} vo.BasicResponse"权限不足"
+// @Failure 404 {object} vo.BasicResponse"用户不存在"
+// @Failure 500 {object} vo.BasicResponse"服务器内部错误"
 // @Router /admin/users/{id}/reset-password [post]
 // func (h *UserHandler) AdminResetUserPassword(c *gin.Context) {
 // 	// 1. 获取操作者ID
@@ -706,11 +706,11 @@ package user
 // @Security ApiKeyAuth
 // @Param id path int true "用户ID" example(10086)
 // @Param body body AdminSetScoreRequest true "积分操作信息"
-// @Success 200 {object} response.Response{data=AdminSetScoreResponse} "操作成功"
-// @Failure 400 {object} response.Response "请求参数错误（如积分范围非法、操作类型错误等）"
-// @Failure 401 {object} response.Response "未授权（缺少或无效的认证令牌）"
-// @Failure 403 {object} response.Response "禁止访问（当前管理员无权限操作该用户）"
-// @Failure 500 {object} response.Response "服务器内部错误（如数据库操作失败）"
+// @Success 200 {object} vo.BasicResponse=AdminSetScoreResponse} "操作成功"
+// @Failure 400 {object} vo.BasicResponse"请求参数错误（如积分范围非法、操作类型错误等）"
+// @Failure 401 {object} vo.BasicResponse"未授权（缺少或无效的认证令牌）"
+// @Failure 403 {object} vo.BasicResponse"禁止访问（当前管理员无权限操作该用户）"
+// @Failure 500 {object} vo.BasicResponse"服务器内部错误（如数据库操作失败）"
 // @Router /admin/users/{id}/score [put]
 // func (h *UserHandler) AdminSetScore(c *gin.Context) {
 // 	// 1. 解析目标用户ID
@@ -820,11 +820,11 @@ package user
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id query int false "用户ID"
-// @Success 200 {object} response.Response{data=object}
-// @Failure 400 {object} response.Response
-// @Failure 401 {object} response.Response
-// @Failure 403 {object} response.Response
-// @Failure 500 {object} response.Response
+// @Success 200 {object} vo.BasicResponse
+// @Failure 400 {object} vo.BasicResponse
+// @Failure 401 {object} vo.BasicResponse
+// @Failure 403 {object} vo.BasicResponse
+// @Failure 500 {object} vo.BasicResponse
 // @Router /admin/users/score [get]
 // func (h *UserHandler) AdminGetUserScore(c *gin.Context) {
 // 	// 1. 获取用户ID参数

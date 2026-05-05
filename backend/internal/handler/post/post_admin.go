@@ -22,10 +22,10 @@ import (
 // @Param page query int false "页码" default(1)
 // @Param page_size query int false "每页数量" default(20)
 // @Param keyword query string false "搜索关键词"
-// @Success 200 {object} response.Response{data=response.PageData{list=[]do.Post}} "获取成功"
-// @Failure 401 {object} response.Response "未授权"
-// @Failure 403 {object} response.Response "无权限"
-// @Failure 500 {object} response.Response "服务器内部错误"
+// @Success 200 {object} vo.BasicResponse  "获取成功"
+// @Failure 401 {object} vo.BasicResponse"未授权"
+// @Failure 403 {object} vo.BasicResponse"无权限"
+// @Failure 500 {object} vo.BasicResponse"服务器内部错误"
 // @Router /admin/posts [get]
 func (h *PostHandler) AdminList(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
@@ -51,11 +51,11 @@ func (h *PostHandler) AdminList(c *gin.Context) {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path int true "帖子ID"
-// @Success 200 {object} response.Response{data=object} "操作成功"
-// @Failure 400 {object} response.Response "无效的帖子ID"
-// @Failure 401 {object} response.Response "未授权"
-// @Failure 403 {object} response.Response "无权限"
-// @Failure 500 {object} response.Response "服务器内部错误"
+// @Success 200 {object} vo.BasicResponse  "操作成功"
+// @Failure 400 {object} vo.BasicResponse"无效的帖子ID"
+// @Failure 401 {object} vo.BasicResponse"未授权"
+// @Failure 403 {object} vo.BasicResponse"无权限"
+// @Failure 500 {object} vo.BasicResponse"服务器内部错误"
 // @Router /admin/posts/{id}/pin [put]
 func (h *PostHandler) AdminTogglePin(c *gin.Context) {
 	postID, err := strconv.ParseUint(c.Param("id"), 10, 64)
@@ -85,10 +85,10 @@ func (h *PostHandler) AdminTogglePin(c *gin.Context) {
 // @Param page query int false "页码" default(1)
 // @Param page_size query int false "每页数量" default(20)
 // @Param keyword query string false "搜索关键词"
-// @Success 200 {object} response.Response{data=response.PageData{list=[]do.Post}} "获取成功"
-// @Failure 401 {object} response.Response "未授权"
-// @Failure 403 {object} response.Response "无权限"
-// @Failure 500 {object} response.Response "服务器内部错误"
+// @Success 200 {object} vo.BasicResponse  "获取成功"
+// @Failure 401 {object} vo.BasicResponse"未授权"
+// @Failure 403 {object} vo.BasicResponse"无权限"
+// @Failure 500 {object} vo.BasicResponse"服务器内部错误"
 // @Router /admin/posts/pending [get]
 func (h *PostHandler) AdminGetModerationRequire(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
@@ -116,12 +116,12 @@ func (h *PostHandler) AdminGetModerationRequire(c *gin.Context) {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path int true "帖子ID"
-// @Success 200 {object} response.Response{data=object{message=string,post_id=int}} "审核通过成功"
-// @Failure 400 {object} response.Response "无效的帖子ID"
-// @Failure 401 {object} response.Response "未授权"
-// @Failure 403 {object} response.Response "无权限"
-// @Failure 404 {object} response.Response "帖子不存在"
-// @Failure 500 {object} response.Response "服务器内部错误"
+// @Success 200 {object} vo.BasicResponse "审核通过成功"
+// @Failure 400 {object} vo.BasicResponse"无效的帖子ID"
+// @Failure 401 {object} vo.BasicResponse"未授权"
+// @Failure 403 {object} vo.BasicResponse"无权限"
+// @Failure 404 {object} vo.BasicResponse"帖子不存在"
+// @Failure 500 {object} vo.BasicResponse"服务器内部错误"
 // @Router /admin/audit/tasks/{id}/approve [put]
 func (h *PostHandler) AdminApprovePost(c *gin.Context) {
 	postID, err := strconv.ParseUint(c.Param("id"), 10, 64)
@@ -153,12 +153,12 @@ func (h *PostHandler) AdminApprovePost(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Param id path int true "帖子ID"
 // @Param body body object false "拒绝原因" example({"reason": "内容不合规"})
-// @Success 200 {object} response.Response{data=object{message=string,post_id=int}} "审核拒绝成功"
-// @Failure 400 {object} response.Response "无效的帖子ID"
-// @Failure 401 {object} response.Response "未授权"
-// @Failure 403 {object} response.Response "无权限"
-// @Failure 404 {object} response.Response "帖子不存在"
-// @Failure 500 {object} response.Response "服务器内部错误"
+// @Success 200 {object} vo.BasicResponse "审核拒绝成功"
+// @Failure 400 {object} vo.BasicResponse"无效的帖子ID"
+// @Failure 401 {object} vo.BasicResponse"未授权"
+// @Failure 403 {object} vo.BasicResponse"无权限"
+// @Failure 404 {object} vo.BasicResponse"帖子不存在"
+// @Failure 500 {object} vo.BasicResponse"服务器内部错误"
 // @Router /admin/audit/tasks/{id}/reject [put]
 func (h *PostHandler) AdminRejectPost(c *gin.Context) {
 	postID, err := strconv.ParseUint(c.Param("id"), 10, 64)

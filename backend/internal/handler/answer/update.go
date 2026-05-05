@@ -19,11 +19,11 @@ import (
 // @Security ApiKeyAuth
 // @Param question_id path int true "问题帖子ID"
 // @Param answer_id path int true "回答评论ID"
-// @Success 200 {object} response.Response{data=object} "采纳成功"
-// @Failure 400 {object} response.Response "无效的ID或操作失败"
-// @Failure 401 {object} response.Response "未授权"
-// @Failure 403 {object} response.Response "无权限（非问题作者）"
-// @Failure 404 {object} response.Response "问题或回答不存在"
+// @Success 200 {object} vo.BasicResponse "采纳成功"
+// @Failure 400 {object} vo.BasicResponse"无效的ID或操作失败"
+// @Failure 401 {object} vo.BasicResponse"未授权"
+// @Failure 403 {object} vo.BasicResponse"无权限（非问题作者）"
+// @Failure 404 {object} vo.BasicResponse"问题或回答不存在"
 // @Router /answers/{question_id}/accept/{answer_id} [post]
 func (h *AnswerHandler) AcceptAnswer(c *gin.Context) {
 	postID, err := strconv.ParseUint(c.Param("question_id"), 10, 64)
@@ -62,11 +62,11 @@ func (h *AnswerHandler) AcceptAnswer(c *gin.Context) {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path int true "回答ID"
-// @Success 200 {object} response.Response{data=object} "取消成功"
-// @Failure 400 {object} response.Response "请求参数错误"
-// @Failure 401 {object} response.Response "未授权"
-// @Failure 403 {object} response.Response "无权限"
-// @Failure 404 {object} response.Response "回答或问题不存在"
+// @Success 200 {object} vo.BasicResponse "取消成功"
+// @Failure 400 {object} vo.BasicResponse"请求参数错误"
+// @Failure 401 {object} vo.BasicResponse"未授权"
+// @Failure 403 {object} vo.BasicResponse"无权限"
+// @Failure 404 {object} vo.BasicResponse"回答或问题不存在"
 // @Router /answers/{id}/unaccept [post]
 func (h *AnswerHandler) UnacceptAnswer(c *gin.Context) {
 	// 1. 获取回答ID
