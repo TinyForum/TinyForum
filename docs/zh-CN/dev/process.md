@@ -2,7 +2,13 @@
 
 使用中间件鉴权，handler 中进行颗粒度控制
 
+- query： 前端请求
+- vo：响应给前端
+- bo: service <-> handler
+- dto: service <-> service / repo <-> repo
+- po: service <->repo
 
+优先横向调用
 
 ````bash
 psql -U p-d tiny_forum

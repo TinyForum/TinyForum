@@ -371,6 +371,7 @@ definitions:
         - bot
         - admin
         - super_admin
+        - system_maintainer
         type: string
     required:
     - role
@@ -3404,6 +3405,48 @@ paths:
       summary: 获取未读通知数量
       tags:
       - 通知管理
+  /plugins:
+    get:
+      description: 获取插件列表
+      parameters:
+      - default: 1
+        description: 页码
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: 每页数量
+        in: query
+        name: page_size
+        type: integer
+      - description: 搜索关键词
+        in: query
+        name: keyword
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            $ref: '#/definitions/vo.BasicResponse'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/vo.BasicResponse'
+        "403":
+          description: 无权限
+          schema:
+            $ref: '#/definitions/vo.BasicResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/vo.BasicResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 用户获取插件列表
+      tags:
+      - 插件管理
   /posts:
     get:
       description: 分页获取帖子列表，支持多种筛选和排序

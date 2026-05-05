@@ -1,7 +1,9 @@
 package do
 
+import "tiny-forum/internal/model/common"
+
 type Tag struct {
-	BaseModel
+	common.BaseModel
 	Name        string `gorm:"uniqueIndex;not null;size:50" json:"name"`
 	Description string `gorm:"size:200" json:"description"`
 	Color       string `gorm:"size:20;default:'#6366f1'" json:"color"`

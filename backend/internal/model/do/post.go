@@ -1,5 +1,7 @@
 package do
 
+import "tiny-forum/internal/model/common"
+
 type PostType string
 
 const (
@@ -39,7 +41,7 @@ const (
 // 系统风控状态（由内容安全模块自动判定或管理员审核结果）
 
 type Post struct {
-	BaseModel
+	common.BaseModel
 	Title   string   `gorm:"not null;size:200" json:"title"`
 	Content string   `gorm:"not null;type:text" json:"content"`
 	Summary string   `gorm:"size:500" json:"summary"`

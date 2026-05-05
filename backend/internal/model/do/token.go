@@ -3,11 +3,12 @@ package do
 
 import (
 	"time"
+	"tiny-forum/internal/model/common"
 )
 
 // RefreshToken 刷新令牌表
 type RefreshToken struct {
-	BaseModel
+	common.BaseModel
 	UserID    uint      `gorm:"index:idx_user_id;not null" json:"user_id"`            // 用户ID
 	Token     string    `gorm:"uniqueIndex:idx_token;size:500;not null" json:"token"` // 令牌
 	JTI       string    `gorm:"uniqueIndex:idx_jti;size:36;not null" json:"jti"`      // JWT ID，用于精确撤销
