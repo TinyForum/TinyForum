@@ -75,6 +75,7 @@ func RegisterRoutes(
 	handlers.Stats.RegisterRoutes(api, mw)
 	handlers.Admin.RegisterRoutes(api, mw)
 	handlers.Upload.RegisterRoutes(api, mw)
+	handlers.Plugin.RegisterRoutes(api, mw)
 
 	// ── Admin 路由组（示例：Casbin 替代 AdminRequired）───────────────────────
 	//

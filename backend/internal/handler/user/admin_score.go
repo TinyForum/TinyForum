@@ -88,7 +88,7 @@ func (h *UserHandler) AdminSetScore(c *gin.Context) {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id query int false "用户ID"
-// @Success 200 {object} vo.BasicResponse 
+// @Success 200 {object} vo.BasicResponse
 // @Failure 400 {object} vo.BasicResponse
 // @Failure 401 {object} vo.BasicResponse
 // @Failure 403 {object} vo.BasicResponse

@@ -1,6 +1,9 @@
 package do
 
-import "time"
+import (
+	"time"
+	"tiny-forum/internal/model/common"
+)
 
 type ActionType string
 
@@ -15,7 +18,7 @@ const (
 )
 
 type TimelineEvent struct {
-	BaseModel
+	common.BaseModel
 	UserID     uint       `gorm:"not null;index" json:"user_id"`
 	ActorID    uint       `gorm:"not null;index" json:"actor_id"`
 	Action     ActionType `gorm:"type:varchar(50);index" json:"action"`
@@ -29,14 +32,14 @@ type TimelineEvent struct {
 }
 
 type UserTimeline struct {
-	BaseModel
+	common.BaseModel
 	UserID       uint      `gorm:"not null;uniqueIndex:idx_user_timeline" json:"user_id"`
 	TimelineType string    `gorm:"type:varchar(20);default:'home'" json:"timeline_type"`
 	LastReadAt   time.Time `json:"last_read_at"`
 }
 
 type TimelineSubscription struct {
-	BaseModel
+	common.BaseModel
 	SubscriberID uint   `gorm:"not null;index" json:"subscriber_id"`
 	TargetUserID uint   `gorm:"not null;index" json:"target_user_id"`
 	TargetType   string `gorm:"size:20;default:'user'" json:"target_type"`

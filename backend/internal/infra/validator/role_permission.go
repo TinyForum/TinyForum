@@ -23,15 +23,14 @@ type RoleChangeChecker struct {
 func NewRoleValidator() RoleValidator {
 	// 定义角色等级（数字越大等级越高）
 	roleLevel := map[do.UserRole]int{
-		do.RoleUser:       1,
-		do.RoleMember:     2,
-		do.RoleBot:        2,
-		do.RoleReviewer:   3,
-		do.RoleModerator:  4,
-		do.RoleAdmin:      5,
+		do.RoleUser:             1,
+		do.RoleMember:           2,
+		do.RoleBot:              2,
+		do.RoleReviewer:         3,
+		do.RoleModerator:        4,
+		do.RoleAdmin:            5,
 		do.RoleSystemMaintainer: 6,
-		do.RoleSuperAdmin: 7,
-		
+		do.RoleSuperAdmin:       7,
 	}
 
 	// 定义每个角色拥有的权限
@@ -66,13 +65,13 @@ func NewRoleValidator() RoleValidator {
 		},
 		do.RoleSuperAdmin: {
 			// 超级管理员可以分配所有角色
-			do.PermAssignRoleUser:       true,
-			do.PermAssignRoleMember:     true,
-			do.PermAssignRoleReviewer:   true,
-			do.PermAssignRoleModerator:  true,
-			do.PermAssignRoleBot:        true,
-			do.PermAssignRoleAdmin:      true,
-			do.PermAssignRoleSuperAdmin: true,
+			do.PermAssignRoleUser:             true,
+			do.PermAssignRoleMember:           true,
+			do.PermAssignRoleReviewer:         true,
+			do.PermAssignRoleModerator:        true,
+			do.PermAssignRoleBot:              true,
+			do.PermAssignRoleAdmin:            true,
+			do.PermAssignRoleSuperAdmin:       true,
 			do.PermAssignRoleSystemMaintainer: true,
 		},
 	}
@@ -151,13 +150,13 @@ func (c *RoleChangeChecker) checkAssignPermission(_ context.Context, req RoleCha
 }
 
 var roleAssignPermission = map[do.UserRole]do.Permission{
-	do.RoleUser:       do.PermAssignRoleUser,
-	do.RoleMember:     do.PermAssignRoleMember,
-	do.RoleModerator:  do.PermAssignRoleModerator,
-	do.RoleReviewer:   do.PermAssignRoleReviewer,
-	do.RoleBot:        do.PermAssignRoleBot,
-	do.RoleAdmin:      do.PermAssignRoleAdmin,
-	do.RoleSuperAdmin: do.PermAssignRoleSuperAdmin,
+	do.RoleUser:             do.PermAssignRoleUser,
+	do.RoleMember:           do.PermAssignRoleMember,
+	do.RoleModerator:        do.PermAssignRoleModerator,
+	do.RoleReviewer:         do.PermAssignRoleReviewer,
+	do.RoleBot:              do.PermAssignRoleBot,
+	do.RoleAdmin:            do.PermAssignRoleAdmin,
+	do.RoleSuperAdmin:       do.PermAssignRoleSuperAdmin,
 	do.RoleSystemMaintainer: do.PermAssignRoleSystemMaintainer,
 }
 

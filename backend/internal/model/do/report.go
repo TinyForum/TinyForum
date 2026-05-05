@@ -2,6 +2,7 @@ package do
 
 import (
 	"time"
+	"tiny-forum/internal/model/common"
 )
 
 // ReportStatus 举报状态枚举
@@ -30,7 +31,7 @@ const ReportAggregateThreshold = 3
 
 // Report 举报记录表
 type Report struct {
-	BaseModel
+	common.BaseModel
 	ReporterID uint         `gorm:"column:reporter_id;not null;index;comment:举报人ID" json:"reporter_id"`                              // 举报人ID
 	TargetID   uint         `gorm:"column:target_id;not null;index;comment:被举报对象ID" json:"target_id"`                                // 被举报对象ID
 	TargetType string       `gorm:"column:target_type;size:50;not null;index;comment:被举报对象类型(post/comment/user)" json:"target_type"` // 被举报对象类型

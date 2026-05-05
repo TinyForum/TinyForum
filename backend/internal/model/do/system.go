@@ -1,6 +1,8 @@
 package do
 
-import "time"
+import (
+	"time"
+)
 
 // SystemStatus 系统状态
 type SystemStatus struct {

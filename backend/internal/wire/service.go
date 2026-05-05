@@ -10,6 +10,7 @@ import (
 	"tiny-forum/internal/service/comment"
 	"tiny-forum/internal/service/email"
 	"tiny-forum/internal/service/notification"
+	"tiny-forum/internal/service/plugin"
 	"tiny-forum/internal/service/post"
 	"tiny-forum/internal/service/question"
 	"tiny-forum/internal/service/risk"
@@ -39,7 +40,8 @@ type Services struct {
 	Risk         risk.RiskService
 	ContentCheck check.ContentCheckService
 	Upload       upload.UploadService
-	admin        admin.AdminService
+	Admin        admin.AdminService
+	Plugin       plugin.PluginService
 }
 
 // NewServices 创建所有 Service 实例
@@ -68,6 +70,7 @@ func NewServices(
 	authSvc := auth.NewAuthService(repos.Auth, repos.User, jwtMgr, notifSvc, emailSvc, cfg, repos.Token, repos.Transaction, infra.RedisClient)
 	uploadSvc := upload.NewUploadService(repos.Upload, cfg.Basic.Upload)
 	adminSvc := admin.NewAdminService(announcementSvc, userSvc)
+	pluginSvc := plugin.NewPluginService()
 
 	return &Services{
 		User:         userSvc,
@@ -85,6 +88,7 @@ func NewServices(
 		Risk:         riskSvc,
 		ContentCheck: checkSvc,
 		Upload:       uploadSvc,
-		admin:        adminSvc,
+		Admin:        adminSvc,
+		Plugin:       pluginSvc,
 	}
 }

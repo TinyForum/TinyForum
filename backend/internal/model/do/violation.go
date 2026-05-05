@@ -3,6 +3,7 @@ package do
 import (
 	"database/sql"
 	"time"
+	"tiny-forum/internal/model/common"
 )
 
 // ViolationType 违规类型枚举
@@ -55,7 +56,7 @@ const (
 )
 
 type Violation struct {
-	BaseModel
+	common.BaseModel
 	UserID          int64           `gorm:"column:user_id;not null;index:idx_user_id;comment:违规用户ID" json:"user_id"`
 	ViolationType   ViolationType   `gorm:"column:violation_type;not null;comment:违规类型" json:"violation_type"`
 	Reason          string          `gorm:"column:reason;size:255;not null;default:'';comment:违规原因简述" json:"reason"`

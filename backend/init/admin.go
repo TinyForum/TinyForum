@@ -18,7 +18,7 @@ var DefaultAdminConfig = config.AdminConfig{
 	Email:    "admin@test.com",
 	Username: "admin",
 	Password: "password",
-	Role:     "super_admin", 
+	Role:     "super_admin",
 }
 
 // CreateSuperAdmin 创建超级管理员

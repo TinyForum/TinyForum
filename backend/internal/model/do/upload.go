@@ -1,8 +1,10 @@
 package do
 
+import "tiny-forum/internal/model/common"
+
 // Attachment 附件模型
 type Attachment struct {
-	BaseModel
+	common.BaseModel
 	FileID       string `gorm:"column:file_id;type:varchar(64);uniqueIndex;not null" json:"file_id"` // 唯一标识
 	UserID       int64  `gorm:"column:user_id;index;not null" json:"user_id"`                        // 上传用户ID
 	PostID       int64  `gorm:"column:post_id;index;default:0" json:"post_id"`
