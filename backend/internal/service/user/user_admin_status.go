@@ -7,6 +7,7 @@ import (
 	"tiny-forum/internal/infra/validator"
 	"tiny-forum/internal/model/do"
 	apperrors "tiny-forum/pkg/errors"
+	"tiny-forum/pkg/logger"
 
 	"gorm.io/gorm"
 )
@@ -97,6 +98,7 @@ func (s *userService) SetRole(operatorID, targetID uint, newRole string) error {
 	ctx := context.Background()
 	targetRole := do.UserRole(newRole)
 	if !do.IsValidRole(targetRole) {
+		logger.Errorf("无效的角色: %s", newRole)
 		return fmt.Errorf("%w: %s", apperrors.ErrInvalidRole, newRole)
 	}
 

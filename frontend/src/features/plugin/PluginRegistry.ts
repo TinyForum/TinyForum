@@ -1,11 +1,11 @@
-import type {
-  PluginMeta,
+import {
   RegisteredPlugin,
   SlotComponent,
+  PluginEventHandler,
+  PluginMeta,
   SlotName,
   PluginEvent,
-  PluginEventHandler,
-} from "./types";
+} from "@/shared/type/plugin.type";
 
 type Listener = () => void;
 
@@ -48,6 +48,9 @@ class PluginRegistry {
 
   getAllPlugins(): RegisteredPlugin[] {
     return Array.from(this.plugins.values());
+  }
+  getPluginConfig(pluginId: string): Record<string, unknown> {
+    return this.plugins.get(pluginId)?.meta.config ?? {};
   }
 
   // ── 插槽管理 ─────────────────────────────────

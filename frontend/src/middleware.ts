@@ -13,6 +13,8 @@ const authRoutes: string[] = ["/dashboard/admin", "/settings", "/posts/new"];
 const adminRoutes: string[] = ["/dashboard/admin"];
 const allowedRoles: string[] = ["admin", "super_admin"];
 
+const systemRoles: string[] = ["system"];
+
 // 调试函数：打印请求详情
 function logRequestDetails(request: NextRequest, stage: string) {
   console.log(`\n🔍 [${stage}] Request Details:`);

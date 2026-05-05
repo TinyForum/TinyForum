@@ -21,6 +21,10 @@
       "path": "../nginx",
       "name": "Nginx (conf)",
     },
+    {
+      "path": "../docs",
+      "name": "Docs (md)",
+    },
   ],
 
   "settings": {

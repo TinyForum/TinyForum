@@ -17,6 +17,7 @@ export default function DashboardPage() {
     isSuperAdmin,
     isModerator,
     isReviewer,
+    isSystemMaintainer,
   } = useUserRole();
 
   useEffect(() => {
@@ -33,6 +34,9 @@ export default function DashboardPage() {
     } else if (isMember) {
       // 普通用户重定向到个人中心
       router.replace(`/${locale}/dashboard/member`);
+    } else if (isSystemMaintainer) {
+      // 未登录用户重定向到登录页面
+      router.replace(`/${locale}/dashboard/system`);
     } else {
       // 普通用户重定向到首页
       router.replace(`/${locale}`);

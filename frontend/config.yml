@@ -15,7 +15,7 @@ images:
       hostname: localhost
 
 allowed_dev_origins:
-  - "192.168.5.180"
+  - "192.168.0.116"
   - "127.0.0.1"
   - "localhost"
 
@@ -24,6 +24,6 @@ experimental:
 
 proxy:
   enabled: true
-  backend_url: "http://192.168.5.180:8080"
+  backend_url: "http://192.168.0.116:8080"
   source: "/api/v1/:path*"
   destination_pattern: "/api/v1/:path*"

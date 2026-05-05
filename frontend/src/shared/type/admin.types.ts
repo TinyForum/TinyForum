@@ -5,6 +5,7 @@ export type TabType =
   | "qa"
   | "announcements"
   | "points"
+  | "plugins"
   | "statistics";
 
 export interface User {

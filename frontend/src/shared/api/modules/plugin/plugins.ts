@@ -1,5 +1,5 @@
-import apiClient from "../client";
-import type { PluginMeta } from "@/shared/plugin/types";
+import { apiClient } from "@/shared/api";
+import { PluginMeta } from "@/shared/type/plugin.type";
 
 export interface CreatePluginPayload {
   name: string;
