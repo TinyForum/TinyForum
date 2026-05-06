@@ -24,7 +24,7 @@ type ConfigBasic struct {
 	// RateLimit    RateLimitConfig `mapstructure:"rate_limit" validate:"required"`
 	Ollama       Ollama       `mapstructure:"ollama" validate:"required"`
 	AllowOrigins []string     `mapstructure:"allow_origins" validate:"omitempty,dive,url"` // 允许跨域请求的域名
-	Upload       UploadConfig `mapstructure:"upload" validate:"required"`                  // 上传配置
+	Attachment   UploadConfig `mapstructure:"attachment" validate:"required"`              // 上传配置
 	Version      string       `mapstructure:"version" validate:"required,semver"`
 }
 

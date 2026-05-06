@@ -74,10 +74,10 @@ func RegisterRoutes(
 	handlers.Announcement.RegisterRoutes(api, mw)
 	handlers.Stats.RegisterRoutes(api, mw)
 	handlers.Admin.RegisterRoutes(api, mw)
-	handlers.Upload.RegisterRoutes(api, mw)
+	handlers.Attachment.RegisterRoutes(api, mw)
 	handlers.Plugin.RegisterRoutes(api, mw)
 	// 静态路由
-	api.Static("/uploads", "./uploads")
+	// api.Static("/attachments", "./attachments")
 
 	// ── Admin 路由组（示例：Casbin 替代 AdminRequired）───────────────────────
 	//

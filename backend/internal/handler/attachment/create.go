@@ -1,4 +1,4 @@
-package upload
+package attachment
 
 import (
 	"tiny-forum/internal/model/converter"
@@ -54,7 +54,7 @@ func (h *UploadHandler) UploadPostFile(c *gin.Context) {
 	response.Success(c, result)
 }
 
-// Upload 上传文件
+// Attachment 上传文件
 // @Summary 上传文件
 // @Tags 上传管理
 // @Accept multipart/form-data
@@ -63,7 +63,7 @@ func (h *UploadHandler) UploadPostFile(c *gin.Context) {
 // @Param post_id formData int false "帖子ID"
 // @Param type formData string true "文件类型 (avatar/post_image/comment_attachment)"
 // @Success 200 {object} common.BasicResponse
-// @Router /upload/post_file [post]
+// @Router /attachment/post_file [post]
 func (h *UploadHandler) UploadCommentFile(c *gin.Context) {
 
 	// 获取用户ID（从认证中间件）

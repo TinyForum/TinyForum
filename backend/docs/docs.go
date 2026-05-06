@@ -6797,7 +6797,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/upload/post_file": {
+        "/attachment/post_file": {
             "post": {
                 "consumes": [
                     "multipart/form-data"
@@ -6841,7 +6841,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/upload/{file_id}": {
+        "/attachment/{file_id}": {
             "get": {
                 "produces": [
                     "application/json"

@@ -4,6 +4,21 @@ import { useState } from "react";
 
 type UploadType = "post" | "comment" | "plugin";
 
+interface FileInfo {
+  file_id: string;
+  user_id: number;
+  post_id?: number;
+  original_name: string;
+  stored_name: string;
+  stored_path: string;
+  size: number;
+  mime_type: string;
+  file_type: string;
+  ext: string;
+  status: number;
+  created_at: string;
+}
+
 interface UseUploadReturn {
   isUploading: boolean;
   error: string | null;
@@ -19,8 +34,8 @@ interface UseUploadReturn {
   getUserFiles: (params?: {
     page?: number;
     page_size?: number;
-  }) => Promise<any>;
-  getFileInfo: (type: UploadType, fileId: string) => Promise<any>;
+  }) => Promise<FileInfo>;
+  getFileInfo: (type: UploadType, fileId: string) => Promise<FileInfo>;
   deleteFile: (type: UploadType, fileId: string) => Promise<boolean>;
   serveFile: (fileId: string) => Promise<Blob | null>;
   resetError: () => void;

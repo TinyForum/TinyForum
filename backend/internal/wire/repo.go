@@ -2,7 +2,7 @@ package wire
 
 import (
 	"tiny-forum/internal/repository/announcement"
-	upload "tiny-forum/internal/repository/attachment"
+	attachment "tiny-forum/internal/repository/attachment"
 	"tiny-forum/internal/repository/auth"
 	"tiny-forum/internal/repository/board"
 	"tiny-forum/internal/repository/comment"
@@ -42,7 +42,7 @@ type Repositories struct {
 	Auth         auth.AuthRepository
 	Risk         risk.RiskRepository
 	Transaction  transaction.TransactionManager
-	Upload       upload.UploadRepository
+	Attachment   attachment.UploadRepository
 	Plugin       plugin.PluginRepository
 }
 
@@ -68,7 +68,7 @@ func NewRepositories(db *gorm.DB, redis *redis.Client) *Repositories {
 		Auth:         auth.NewAuthRepository(db),
 		Risk:         risk.NewRiskRepository(db),
 		Transaction:  transaction.NewTransactionManager(db),
-		Upload:       upload.NewUploadRepository(db),
+		Attachment:   attachment.NewUploadRepository(db),
 		Plugin:       plugin.NewPostRepository(db),
 	}
 }
