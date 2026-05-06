@@ -16,12 +16,12 @@ import (
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path int true "公告ID"
-// @Success 200 {object} vo.BasicResponse"删除成功"
-// @Failure 400 {object} vo.BasicResponse"参数错误（无效的公告ID）"
-// @Failure 401 {object} vo.BasicResponse"未授权"
-// @Failure 403 {object} vo.BasicResponse"无权限（非管理员）"
-// @Failure 404 {object} vo.BasicResponse"公告不存在"
-// @Failure 500 {object} vo.BasicResponse"服务器内部错误"
+// @Success 200 {object} common.BasicResponse"删除成功"
+// @Failure 400 {object} common.BasicResponse"参数错误（无效的公告ID）"
+// @Failure 401 {object} common.BasicResponse"未授权"
+// @Failure 403 {object} common.BasicResponse"无权限（非管理员）"
+// @Failure 404 {object} common.BasicResponse"公告不存在"
+// @Failure 500 {object} common.BasicResponse"服务器内部错误"
 // @Router /admin/announcements/{id} [delete]
 //
 // Deprecated: 迁移到 adminHandler.DeleteAnnouncements

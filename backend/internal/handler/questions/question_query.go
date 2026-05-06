@@ -17,8 +17,8 @@ import (
 // @Param page query int false "页码" default(1)
 // @Param page_size query int false "每页数量" default(20)
 // @Param unanswered query bool false "只看未解决"
-// @Success 200 {object} vo.BasicResponse "获取成功"
-// @Failure 500 {object} vo.BasicResponse"服务器内部错误"
+// @Success 200 {object} common.BasicResponse "获取成功"
+// @Failure 500 {object} common.BasicResponse"服务器内部错误"
 // @Router /questions/list [get]
 func (h *QuestionHandler) GetQuestionsList(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
@@ -42,9 +42,9 @@ func (h *QuestionHandler) GetQuestionsList(c *gin.Context) {
 // @Param page query int false "回答页码" default(1)
 // @Param page_size query int false "每页回答数" default(20)
 // @Param sort query string false "排序方式" default(vote) Enums(vote,newest,oldest)
-// @Success 200 {object} vo.BasicResponse  "获取成功"
-// @Failure 400 {object} vo.BasicResponse"无效的帖子ID或非问答帖"
-// @Failure 404 {object} vo.BasicResponse"帖子不存在"
+// @Success 200 {object} common.BasicResponse  "获取成功"
+// @Failure 400 {object} common.BasicResponse"无效的帖子ID或非问答帖"
+// @Failure 404 {object} common.BasicResponse"帖子不存在"
 // @Router /questions/detail/{id} [get]
 func (h *QuestionHandler) GetQuestionDetail(c *gin.Context) {
 	questionID, err := strconv.ParseUint(c.Param("id"), 10, 64)
@@ -90,8 +90,8 @@ func (h *QuestionHandler) GetQuestionDetail(c *gin.Context) {
 // @Param filter query string false "过滤条件" Enums(all, unanswered, answered)
 // @Param sort query string false "排序方式" Enums(latest, hot, score)
 // @Param keyword query string false "关键词搜索"
-// @Success 200 {object} vo.BasicResponse
-// @Failure 500 {object} vo.BasicResponse
+// @Success 200 {object} common.BasicResponse
+// @Failure 500 {object} common.BasicResponse
 // @Router /questions/simple [get]
 func (h *QuestionHandler) GetQuestionSimple(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))

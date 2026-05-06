@@ -18,11 +18,11 @@ import (
 // @Security ApiKeyAuth
 // @Param id path int true "话题ID"
 // @Param body body AddPostToTopicRequest true "帖子信息"
-// @Success 200 {object} vo.BasicResponse  "添加成功"
-// @Failure 400 {object} vo.BasicResponse"请求参数错误"
-// @Failure 401 {object} vo.BasicResponse"未授权"
-// @Failure 403 {object} vo.BasicResponse"无权限"
-// @Failure 404 {object} vo.BasicResponse"话题或帖子不存在"
+// @Success 200 {object} common.BasicResponse  "添加成功"
+// @Failure 400 {object} common.BasicResponse"请求参数错误"
+// @Failure 401 {object} common.BasicResponse"未授权"
+// @Failure 403 {object} common.BasicResponse"无权限"
+// @Failure 404 {object} common.BasicResponse"话题或帖子不存在"
 // @Router /topics/{id}/posts [post]
 func (h *TopicHandler) AddPost(c *gin.Context) {
 	topicID, err := strconv.ParseUint(c.Param("id"), 10, 64)
@@ -62,11 +62,11 @@ func (h *TopicHandler) AddPost(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Param id path int true "话题ID"
 // @Param post_id path int true "帖子ID"
-// @Success 200 {object} vo.BasicResponse  "移除成功"
-// @Failure 400 {object} vo.BasicResponse"无效的ID"
-// @Failure 401 {object} vo.BasicResponse"未授权"
-// @Failure 403 {object} vo.BasicResponse"无权限"
-// @Failure 404 {object} vo.BasicResponse"话题或帖子不存在"
+// @Success 200 {object} common.BasicResponse  "移除成功"
+// @Failure 400 {object} common.BasicResponse"无效的ID"
+// @Failure 401 {object} common.BasicResponse"未授权"
+// @Failure 403 {object} common.BasicResponse"无权限"
+// @Failure 404 {object} common.BasicResponse"话题或帖子不存在"
 // @Router /topics/{id}/posts/{post_id} [delete]
 func (h *TopicHandler) RemovePost(c *gin.Context) {
 	topicID, err := strconv.ParseUint(c.Param("id"), 10, 64)
@@ -98,9 +98,9 @@ func (h *TopicHandler) RemovePost(c *gin.Context) {
 // @Param id path int true "话题ID"
 // @Param page query int false "页码" default(1)
 // @Param page_size query int false "每页数量" default(20)
-// @Success 200 {object} vo.BasicResponse  "获取成功"
-// @Failure 400 {object} vo.BasicResponse"无效的话题ID"
-// @Failure 500 {object} vo.BasicResponse"服务器内部错误"
+// @Success 200 {object} common.BasicResponse  "获取成功"
+// @Failure 400 {object} common.BasicResponse"无效的话题ID"
+// @Failure 500 {object} common.BasicResponse"服务器内部错误"
 // @Router /topics/{id}/posts [get]
 func (h *TopicHandler) GetTopicPosts(c *gin.Context) {
 	topicID, err := strconv.ParseUint(c.Param("id"), 10, 64)

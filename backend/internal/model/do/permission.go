@@ -6,6 +6,18 @@ import "fmt"
 
 type UserRole string
 
+// 有效的用户角色
+var validuserRole = map[UserRole]bool{
+	RoleGuest:            true,
+	RoleUser:             true,
+	RoleMember:           true,
+	RoleModerator:        true,
+	RoleReviewer:         true,
+	RoleAdmin:            true,
+	RoleSuperAdmin:       true,
+	RoleSystemMaintainer: true,
+}
+
 const (
 	RoleGuest            UserRole = "guest"             // 游客：浏览（只读，受限访问）
 	RoleUser             UserRole = "user"              // 普通用户：浏览、评论、发帖等（可读写：受限访问，受限读写）
@@ -281,4 +293,17 @@ func GetRolePriority(role UserRole) int {
 
 func IsRoleAtLeast(role, target UserRole) bool {
 	return rolePriority[role] >= rolePriority[target]
+}
+
+// 解析用户角色
+func ParseUserRole(role string) UserRole {
+	ur := UserRole(role)
+	if ur.IsValid() {
+		return ur
+	}
+	return RoleUser // 默认值
+}
+
+func (ur UserRole) IsValid() bool {
+	return validuserRole[ur]
 }

@@ -28,7 +28,6 @@ type Favorite struct {
 	TargetType string         `gorm:"size:50;not null;uniqueIndex:idx_fav_unique,priority:3"`
 	GroupID    int64          `gorm:"not null;uniqueIndex:idx_fav_unique,priority:4"` // 非 NULL
 	Status     FavoriteStatus `gorm:"default:1;index:idx_fav_status"`
-	// 不需要单独 user_id 索引，因为唯一索引前缀可用于查询
 }
 
 func (Favorite) TableName() string { return "favorites" }

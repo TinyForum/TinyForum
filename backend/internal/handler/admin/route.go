@@ -37,6 +37,22 @@ func (h *AdminHandler) RegisterRoutes(api *gin.RouterGroup, mw middleware.Middle
 			// adminGroup.PUT("/users/:id/active", handlers.User.AdminSetActive)
 			// adminGroup.PUT("/users/:id/blocked", handlers.User.AdminSetBlocked)
 		}
+		postsGroup := adminGroup.Group("/posts")
+		{
+			postsGroup.GET("", h.ListPosts)
+
+		}
+
+		// 	adminGroup.POST("/users/:id/reset-password", handlers.User.AdminResetUserPassword)
+		// 	adminGroup.GET("/users/score", handlers.User.AdminGetUserScore)
+		// 	adminGroup.PUT("/users/:id/score", handlers.User.AdminSetScore)
+		// 	adminGroup.GET("/boards/applications", handlers.Board.ListApplications)
+		// 	adminGroup.POST("/boards/applications/:application_id/review", handlers.Board.ReviewApplication)
+		// 	adminGroup.GET("/boards", handlers.Board.List)
+		// 	adminGroup.GET("/posts/pending", handlers.Post.AdminGetModerationRequire)
+		// 	adminGroup.PUT("/audit/tasks/:id/approve", handlers.Post.AdminApprovePost)
+		// 	adminGroup.PUT("/audit/tasks/:id/reject", handlers.Post.AdminRejectPost)
+		// 	adminGroup.PUT("/posts/:id/pin", handlers.Post.AdminTogglePin)
 
 	}
 }

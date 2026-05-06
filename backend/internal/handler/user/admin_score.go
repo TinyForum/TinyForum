@@ -22,11 +22,11 @@ import (
 // @Security ApiKeyAuth
 // @Param id path int true "用户ID" example(10086)
 // @Param body body AdminSetScoreRequest true "积分操作信息"
-// @Success 200 {object} vo.BasicResponse "操作成功"
-// @Failure 400 {object} vo.BasicResponse"请求参数错误（如积分范围非法、操作类型错误等）"
-// @Failure 401 {object} vo.BasicResponse"未授权（缺少或无效的认证令牌）"
-// @Failure 403 {object} vo.BasicResponse"禁止访问（当前管理员无权限操作该用户）"
-// @Failure 500 {object} vo.BasicResponse"服务器内部错误（如数据库操作失败）"
+// @Success 200 {object} common.BasicResponse "操作成功"
+// @Failure 400 {object} common.BasicResponse"请求参数错误（如积分范围非法、操作类型错误等）"
+// @Failure 401 {object} common.BasicResponse"未授权（缺少或无效的认证令牌）"
+// @Failure 403 {object} common.BasicResponse"禁止访问（当前管理员无权限操作该用户）"
+// @Failure 500 {object} common.BasicResponse"服务器内部错误（如数据库操作失败）"
 // @Router /admin/users/{id}/score [put]
 func (h *UserHandler) AdminSetScore(c *gin.Context) {
 	targetID, err := strconv.ParseUint(c.Param("id"), 10, 64)
@@ -88,11 +88,11 @@ func (h *UserHandler) AdminSetScore(c *gin.Context) {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id query int false "用户ID"
-// @Success 200 {object} vo.BasicResponse
-// @Failure 400 {object} vo.BasicResponse
-// @Failure 401 {object} vo.BasicResponse
-// @Failure 403 {object} vo.BasicResponse
-// @Failure 500 {object} vo.BasicResponse
+// @Success 200 {object} common.BasicResponse
+// @Failure 400 {object} common.BasicResponse
+// @Failure 401 {object} common.BasicResponse
+// @Failure 403 {object} common.BasicResponse
+// @Failure 500 {object} common.BasicResponse
 // @Router /admin/users/score [get]
 func (h *UserHandler) AdminGetUserScore(c *gin.Context) {
 	targetID := c.Query("id")

@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 	"tiny-forum/internal/model/do"
+	"tiny-forum/internal/model/request"
 	userSvc "tiny-forum/internal/service/user"
 	apperrors "tiny-forum/pkg/errors"
 	"tiny-forum/pkg/logger"
@@ -29,7 +30,7 @@ var reservedUsernames = map[string]bool{
 var usernameRegex = regexp.MustCompile(`^[a-zA-Z0-9_-]{3,30}$`)
 
 // Register 用户注册
-func (s *authService) Register(ctx context.Context, input userSvc.RegisterInput) (*userSvc.AuthResult, error) {
+func (s *authService) Register(ctx context.Context, input request.RegisterRequest) (*userSvc.AuthResult, error) {
 	//  校验用户名格式（只允许字母数字下划线连字符）
 	if !usernameRegex.MatchString(input.Username) {
 		return nil, errors.New("用户名只能包含字母、数字、下划线和连字符，长度 3-30 位")
@@ -80,6 +81,7 @@ func (s *authService) Register(ctx context.Context, input userSvc.RegisterInput)
 		return nil, err
 	}
 	return &userSvc.AuthResult{Token: token, User: user}, nil
+	// return &userSvc.AuthResult{User: user}, nil
 }
 
 type AuthResult struct {

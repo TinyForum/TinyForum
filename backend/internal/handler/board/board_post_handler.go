@@ -16,11 +16,11 @@ import (
 // @Security ApiKeyAuth
 // @Param id path int true "板块ID"
 // @Param post_id path int true "帖子ID"
-// @Success 200 {object} vo.BasicResponse{data=object} "删除成功"
-// @Failure 400 {object} vo.BasicResponse "无效的板块ID或帖子ID"
-// @Failure 401 {object} vo.BasicResponse "未授权"
-// @Failure 403 {object} vo.BasicResponse "无权限（需要版主或管理员权限）"
-// @Failure 404 {object} vo.BasicResponse "帖子不存在"
+// @Success 200 {object} common.BasicResponse{data=object} "删除成功"
+// @Failure 400 {object} common.BasicResponse "无效的板块ID或帖子ID"
+// @Failure 401 {object} common.BasicResponse "未授权"
+// @Failure 403 {object} common.BasicResponse "无权限（需要版主或管理员权限）"
+// @Failure 404 {object} common.BasicResponse "帖子不存在"
 // @Router /boards/{id}/posts/{post_id} [delete]
 func (h *BoardHandler) DeletePost(c *gin.Context) {
 	boardID, err := strconv.ParseUint(c.Param("id"), 10, 64)
@@ -56,11 +56,11 @@ func (h *BoardHandler) DeletePost(c *gin.Context) {
 // @Param post_id path int true "帖子ID"
 // @Param body body object true "置顶选项"
 // @Param body.pin_in_board body bool true "是否置顶" example(true)
-// @Success 200 {object} vo.BasicResponse{data=object} "操作成功"
-// @Failure 400 {object} vo.BasicResponse "无效的板块ID或帖子ID"
-// @Failure 401 {object} vo.BasicResponse "未授权"
-// @Failure 403 {object} vo.BasicResponse "无权限（需要版主或管理员权限）"
-// @Failure 404 {object} vo.BasicResponse "帖子不存在"
+// @Success 200 {object} common.BasicResponse{data=object} "操作成功"
+// @Failure 400 {object} common.BasicResponse "无效的板块ID或帖子ID"
+// @Failure 401 {object} common.BasicResponse "未授权"
+// @Failure 403 {object} common.BasicResponse "无权限（需要版主或管理员权限）"
+// @Failure 404 {object} common.BasicResponse "帖子不存在"
 // @Router /boards/{id}/posts/{post_id}/pin [put]
 func (h *BoardHandler) PinPost(c *gin.Context) {
 	boardID, err := strconv.ParseUint(c.Param("id"), 10, 64)

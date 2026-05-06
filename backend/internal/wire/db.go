@@ -95,6 +95,7 @@ func InitDB(cfg *config.Config) (*gorm.DB, error) {
 		&do.BlockedIP{},        // 被封禁IP
 		&do.Violation{},        // 违规
 		&do.Favorite{},         // 收藏
+		&do.PluginMeta{},       // 插件元数据
 	); err != nil {
 		return nil, fmt.Errorf("auto migrate failed: %w", err)
 	}
@@ -103,10 +104,12 @@ func InitDB(cfg *config.Config) (*gorm.DB, error) {
 		return nil, fmt.Errorf("failed to get sql.DB: %w", err)
 	}
 	// 创建超级管理员
-	if err := adminInit.CreateSuperAdmin(db, &cfg.Private.Admin); err != nil {
+	if err := adminInit.CreateSuperAdmin(db, &cfg.Private.AdminUser); err != nil {
 		logger.Warnf("创建超级管理员失败: %v", err)
 	}
-
+	if err := adminInit.CreateSystemUser(db, &cfg.Private.SystemUser); err != nil {
+		logger.Warnf("创建系统维护者员失败: %v", err)
+	}
 	// 核心配置：避免打爆 PostgreSQL
 	sqlDB.SetMaxOpenConns(80)                 // 最大打开连接数（PG 默认 max_connections=100）
 	sqlDB.SetMaxIdleConns(20)                 // 空闲连接池大小

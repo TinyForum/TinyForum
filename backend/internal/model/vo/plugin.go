@@ -30,14 +30,49 @@ type PluginVO struct {
 	Status    do.PluginStatus `json:"status"`
 }
 
-// 前端请求参数（也可以放在 request 包，这里遵循你之前的习惯）
-type PluginListRequest struct {
-	Page     int             `json:"page" form:"page" binding:"min=1"`
-	PageSize int             `json:"pageSize" form:"pageSize" binding:"min=1,max=100"`
-	AuthorID uint            `json:"authorId" form:"authorId"`
-	Tags     []string        `json:"tagId" form:"tags"`
-	PostType string          `json:"postType" form:"postType"`
-	Keyword  string          `json:"keyword" form:"keyword"`
-	SortBy   string          `json:"sortBy" form:"sortBy"`
-	Status   do.PluginStatus `json:"status" form:"status"`
+// PluginMetaVO 插件元数据脱敏视图（对外暴露）
+type PluginMetaVO struct {
+	ID        uint      `json:"id"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+
+	// 基础标识
+	Name        string   `json:"name"`
+	Version     string   `json:"version"`
+	Description string   `json:"description,omitempty"`
+	Summary     string   `json:"summary,omitempty"`
+	IconURL     string   `json:"iconUrl,omitempty"`
+	Screenshots []string `json:"screenshots,omitempty"`
+	HomepageURL string   `json:"homepageUrl,omitempty"`
+
+	// 分类与类型
+	Type     string   `json:"type"`     // PluginType 映射为字符串
+	Category string   `json:"category"` // PluginCategory 映射为字符串
+	Tags     []string `json:"tags,omitempty"`
+
+	// 作者信息（移除邮箱）
+	AuthorID  uint   `json:"authorId,omitempty"`
+	AuthorURL string `json:"authorUrl,omitempty"`
+
+	// 加载配置
+	ScriptURL   string   `json:"scriptUrl"`
+	ServerEntry string   `json:"serverEntry,omitempty"`
+	Slots       []string `json:"slots,omitempty"`
+	Routes      []string `json:"routes,omitempty"`
+
+	// 价格与兼容性
+	Pricing       interface{} `json:"pricing,omitempty"` // 使用 interface{} 或自定义 VO
+	Compatibility interface{} `json:"compatibility,omitempty"`
+
+	// 权限
+	Permissions []interface{} `json:"permissions,omitempty"` // 权限声明列表
+
+	// 运行时
+	Enabled      bool    `json:"enabled"`
+	Status       string  `json:"status"` // PluginStatus 映射为字符串
+	InstallCount int     `json:"installCount"`
+	Rating       float32 `json:"rating"`
+
+	// 配置（仅保留 Schema，不返回具体配置值）
+	ConfigSchema []interface{} `json:"configSchema,omitempty"`
 }

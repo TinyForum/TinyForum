@@ -4,8 +4,9 @@ import (
 	"errors"
 	"strconv"
 
+	"tiny-forum/internal/model/bo"
+	"tiny-forum/internal/model/common"
 	"tiny-forum/internal/model/do"
-	"tiny-forum/internal/model/dto"
 	apperrors "tiny-forum/pkg/errors"
 	"tiny-forum/pkg/response"
 
@@ -22,21 +23,27 @@ import (
 // @Param page query int false "页码" default(1)
 // @Param page_size query int false "每页数量" default(20)
 // @Param keyword query string false "搜索关键词"
-// @Success 200 {object} vo.BasicResponse  "获取成功"
-// @Failure 401 {object} vo.BasicResponse"未授权"
-// @Failure 403 {object} vo.BasicResponse"无权限"
-// @Failure 500 {object} vo.BasicResponse"服务器内部错误"
+// @Success 200 {object} common.BasicResponse  "获取成功"
+// @Failure 401 {object} common.BasicResponse"未授权"
+// @Failure 403 {object} common.BasicResponse"无权限"
+// @Failure 500 {object} common.BasicResponse"服务器内部错误"
 // @Router /admin/posts [get]
+//
+// Deprecated: 迁移到 adminHandler.ListPosts
 func (h *PostHandler) AdminList(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "20"))
 	keyword := c.Query("keyword")
-	opts := dto.PostListOptions{
-		// Status:  do.PostStatusPending, // 关键：只查待审核
-		Keyword: keyword,
-		// 可按需添加其他筛选，如作者、标签等
+
+	listPostsBO := &common.PageQuery[bo.ListPosts]{
+		Page:     page,
+		PageSize: pageSize,
+		Data: bo.ListPosts{
+			PostStatus: do.PostStatusPending,
+			Keyword:    keyword,
+		},
 	}
-	posts, total, err := h.postSvc.AdminList(page, pageSize, opts)
+	posts, total, err := h.postSvc.AdminList(c, listPostsBO)
 	if err != nil {
 		response.InternalError(c, err.Error())
 		return
@@ -51,11 +58,11 @@ func (h *PostHandler) AdminList(c *gin.Context) {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path int true "帖子ID"
-// @Success 200 {object} vo.BasicResponse  "操作成功"
-// @Failure 400 {object} vo.BasicResponse"无效的帖子ID"
-// @Failure 401 {object} vo.BasicResponse"未授权"
-// @Failure 403 {object} vo.BasicResponse"无权限"
-// @Failure 500 {object} vo.BasicResponse"服务器内部错误"
+// @Success 200 {object} common.BasicResponse  "操作成功"
+// @Failure 400 {object} common.BasicResponse"无效的帖子ID"
+// @Failure 401 {object} common.BasicResponse"未授权"
+// @Failure 403 {object} common.BasicResponse"无权限"
+// @Failure 500 {object} common.BasicResponse"服务器内部错误"
 // @Router /admin/posts/{id}/pin [put]
 func (h *PostHandler) AdminTogglePin(c *gin.Context) {
 	postID, err := strconv.ParseUint(c.Param("id"), 10, 64)
@@ -85,23 +92,25 @@ func (h *PostHandler) AdminTogglePin(c *gin.Context) {
 // @Param page query int false "页码" default(1)
 // @Param page_size query int false "每页数量" default(20)
 // @Param keyword query string false "搜索关键词"
-// @Success 200 {object} vo.BasicResponse  "获取成功"
-// @Failure 401 {object} vo.BasicResponse"未授权"
-// @Failure 403 {object} vo.BasicResponse"无权限"
-// @Failure 500 {object} vo.BasicResponse"服务器内部错误"
+// @Success 200 {object} common.BasicResponse  "获取成功"
+// @Failure 401 {object} common.BasicResponse"未授权"
+// @Failure 403 {object} common.BasicResponse"无权限"
+// @Failure 500 {object} common.BasicResponse"服务器内部错误"
 // @Router /admin/posts/pending [get]
 func (h *PostHandler) AdminGetModerationRequire(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "20"))
 	keyword := c.Query("keyword")
 
-	opts := dto.PostListOptions{
-		// Status:  do.PostStatusPending,
-		ModerationStatus: do.ModerationStatusPending,
-		Keyword:          keyword,
+	listPostsBO := &common.PageQuery[bo.ListPosts]{
+		Page:     page,
+		PageSize: pageSize,
+		Data: bo.ListPosts{
+			PostStatus: do.PostStatusPending,
+			Keyword:    keyword,
+		},
 	}
-
-	posts, total, err := h.postSvc.AdminList(page, pageSize, opts)
+	posts, total, err := h.postSvc.AdminList(c, listPostsBO)
 	if err != nil {
 		response.InternalError(c, err.Error())
 		return
@@ -116,12 +125,12 @@ func (h *PostHandler) AdminGetModerationRequire(c *gin.Context) {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path int true "帖子ID"
-// @Success 200 {object} vo.BasicResponse "审核通过成功"
-// @Failure 400 {object} vo.BasicResponse"无效的帖子ID"
-// @Failure 401 {object} vo.BasicResponse"未授权"
-// @Failure 403 {object} vo.BasicResponse"无权限"
-// @Failure 404 {object} vo.BasicResponse"帖子不存在"
-// @Failure 500 {object} vo.BasicResponse"服务器内部错误"
+// @Success 200 {object} common.BasicResponse "审核通过成功"
+// @Failure 400 {object} common.BasicResponse"无效的帖子ID"
+// @Failure 401 {object} common.BasicResponse"未授权"
+// @Failure 403 {object} common.BasicResponse"无权限"
+// @Failure 404 {object} common.BasicResponse"帖子不存在"
+// @Failure 500 {object} common.BasicResponse"服务器内部错误"
 // @Router /admin/audit/tasks/{id}/approve [put]
 func (h *PostHandler) AdminApprovePost(c *gin.Context) {
 	postID, err := strconv.ParseUint(c.Param("id"), 10, 64)
@@ -153,12 +162,12 @@ func (h *PostHandler) AdminApprovePost(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Param id path int true "帖子ID"
 // @Param body body object false "拒绝原因" example({"reason": "内容不合规"})
-// @Success 200 {object} vo.BasicResponse "审核拒绝成功"
-// @Failure 400 {object} vo.BasicResponse"无效的帖子ID"
-// @Failure 401 {object} vo.BasicResponse"未授权"
-// @Failure 403 {object} vo.BasicResponse"无权限"
-// @Failure 404 {object} vo.BasicResponse"帖子不存在"
-// @Failure 500 {object} vo.BasicResponse"服务器内部错误"
+// @Success 200 {object} common.BasicResponse "审核拒绝成功"
+// @Failure 400 {object} common.BasicResponse"无效的帖子ID"
+// @Failure 401 {object} common.BasicResponse"未授权"
+// @Failure 403 {object} common.BasicResponse"无权限"
+// @Failure 404 {object} common.BasicResponse"帖子不存在"
+// @Failure 500 {object} common.BasicResponse"服务器内部错误"
 // @Router /admin/audit/tasks/{id}/reject [put]
 func (h *PostHandler) AdminRejectPost(c *gin.Context) {
 	postID, err := strconv.ParseUint(c.Param("id"), 10, 64)

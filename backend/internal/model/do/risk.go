@@ -22,6 +22,12 @@ const (
 // 内容审核任务
 // ========================
 
+var validModerationStatuses = map[ModerationStatus]bool{
+	ModerationStatusPending:  true,
+	ModerationStatusApproved: true,
+	ModerationStatusRejected: true,
+}
+
 // 审核状态
 type ModerationStatus string
 
@@ -154,4 +160,15 @@ func (b *BlockedIP) IsExpired() bool {
 // IsPermanent 是否是永久封禁
 func (b *BlockedIP) IsPermanent() bool {
 	return b.ExpireAt == nil
+}
+
+func (ms ModerationStatus) IsValid() bool {
+	return validModerationStatuses[ms]
+}
+func ParseModerationStatus(s string) ModerationStatus {
+	ms := ModerationStatus(s)
+	if ms.IsValid() {
+		return ms
+	}
+	return ModerationStatusApproved // 默认值
 }

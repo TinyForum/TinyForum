@@ -17,11 +17,11 @@ import (
 // @Param type query string false "统计类型" Enums(all, user, post, comment, like, board) default(all)
 // @Param start_date query string false "开始日期，格式：2006-01-02"
 // @Param end_date query string false "结束日期，格式：2006-01-02"
-// @Success 200 {object} vo.BasicResponse  "获取成功"
-// @Failure 400 {object} vo.BasicResponse"参数错误或日期范围超过90天"
-// @Failure 401 {object} vo.BasicResponse"未授权"
-// @Failure 403 {object} vo.BasicResponse"无权限"
-// @Failure 500 {object} vo.BasicResponse"服务器内部错误"
+// @Success 200 {object} common.BasicResponse  "获取成功"
+// @Failure 400 {object} common.BasicResponse"参数错误或日期范围超过90天"
+// @Failure 401 {object} common.BasicResponse"未授权"
+// @Failure 403 {object} common.BasicResponse"无权限"
+// @Failure 500 {object} common.BasicResponse"服务器内部错误"
 // @Router /statistics/range [get]
 func (h *StatsHandler) GetStatsRange(c *gin.Context) {
 	var req dto.StatsRangeRequest

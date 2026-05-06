@@ -3,6 +3,7 @@ package auth
 import (
 	"log"
 	"os"
+	"tiny-forum/internal/model/request"
 	userService "tiny-forum/internal/service/user"
 	"tiny-forum/pkg/response"
 
@@ -15,12 +16,12 @@ import (
 // @Accept json
 // @Produce json
 // @Param body body user.RegisterInput true "注册信息"
-// @Success 200 {object} vo.BasicResponse
-// @Failure 400 {object} vo.BasicResponse
+// @Success 200 {object} common.BasicResponse
+// @Failure 400 {object} common.BasicResponse
 // @Router /auth/register [post]
 func (h *AuthHandler) Register(c *gin.Context) {
 	ctx := c.Request.Context()
-	var input userService.RegisterInput
+	var input request.RegisterRequest
 
 	if err := c.ShouldBindJSON(&input); err != nil {
 		response.BadRequest(c, "参数错误: "+err.Error())
@@ -42,7 +43,7 @@ func (h *AuthHandler) Register(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param body body user.LoginInput true "登录信息"
-// @Success 200 {object} vo.BasicResponse
+// @Success 200 {object} common.BasicResponse
 // @Router /auth/login [post]
 func (h *AuthHandler) Login(c *gin.Context) {
 
@@ -87,7 +88,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 // @Tags 验证管理
 // @Produce json
 // @Security ApiKeyAuth
-// @Success 200 {object} vo.BasicResponse
+// @Success 200 {object} common.BasicResponse
 // @Router /auth/logout [post]
 func (h *AuthHandler) Logout(c *gin.Context) {
 	ctx := c.Request.Context()

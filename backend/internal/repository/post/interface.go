@@ -3,8 +3,8 @@ package post
 import (
 	"context"
 	"time"
+	"tiny-forum/internal/model/common"
 	"tiny-forum/internal/model/do"
-	"tiny-forum/internal/model/dto"
 	"tiny-forum/internal/model/request"
 	statsRepo "tiny-forum/internal/repository/stats"
 
@@ -18,7 +18,8 @@ type PostRepository interface {
 	FindByID(id uint) (*do.Post, error)
 	Update(post *do.Post) error
 	Delete(id uint) error
-	List(page, pageSize int, opts dto.PostListOptions) ([]do.Post, int64, error)
+	// List(page, pageSize int, opts bo.ListPosts) ([]do.Post, int64, error)
+	List(ctx context.Context, ListPostsDO *common.PageQuery[do.Post]) ([]do.Post, int64, error)
 	ListUserPosts(ctx context.Context, req request.GetUserPostsRequest, userID uint, orderBy string) ([]do.Post, int64, error)
 
 	// 互动
@@ -29,7 +30,8 @@ type PostRepository interface {
 	IsLiked(userID, postID uint) bool
 
 	// 管理
-	AdminList(page, pageSize int, opts dto.PostListOptions) ([]do.Post, int64, error)
+	// AdminList(page, pageSize int, opts bo.ListPosts) ([]do.Post, int64, error)
+	AdminList(ctx context.Context, ListPostsDO *common.PageQuery[do.Post]) ([]do.Post, int64, error)
 
 	// 板块相关
 	GetByBoardID(boardID uint, limit, offset int) ([]do.Post, int64, error)

@@ -1,8 +1,10 @@
 package post
 
 import (
+	"context"
+	"tiny-forum/internal/model/bo"
+	"tiny-forum/internal/model/common"
 	"tiny-forum/internal/model/do"
-	"tiny-forum/internal/model/dto"
 	boardRepo "tiny-forum/internal/repository/board"
 	postRepo "tiny-forum/internal/repository/post"
 	tagRepo "tiny-forum/internal/repository/tag"
@@ -15,7 +17,7 @@ import (
 )
 
 type PostService interface {
-	AdminList(page, pageSize int, opts dto.PostListOptions) ([]do.Post, int64, error)
+	AdminList(ctx context.Context, listPostsBO *common.PageQuery[bo.ListPosts]) ([]do.Post, int64, error)
 	SetStatus(postID uint, status do.PostStatus) error
 	TogglePin(postID uint) error
 	AdminSetReviewPost(postID uint, status do.ModerationStatus) error
@@ -24,7 +26,8 @@ type PostService interface {
 	Update(postID, userID uint, isAdmin bool, input UpdatePostInput) (*do.Post, error)
 	Delete(postID, userID uint, isAdmin bool) error
 	GetByID(postID, viewerID uint) (*do.Post, bool, error)
-	List(page, pageSize int, opts dto.PostListOptions) ([]do.Post, int64, error)
+	// List(ctx context.Context, page, pageSize int, opts bo.ListPosts) ([]do.Post, int64, error)
+	List(ctx context.Context, ListPostsBO *common.PageQuery[bo.ListPosts]) ([]do.Post, int64, error)
 	// like
 	Like(userID, postID uint) error
 	Unlike(userID, postID uint) error

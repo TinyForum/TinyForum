@@ -22,11 +22,11 @@ import (
 // @Produce json
 // @Security ApiKeyAuth
 // @Param body body request.ListAnnouncements true "公告信息"
-// @Success 200 {object} vo.BasicResponse "创建成功"
-// @Failure 400 {object} vo.BasicResponse"请求参数错误"
-// @Failure 401 {object} vo.BasicResponse"未授权"
-// @Failure 403 {object} vo.BasicResponse"无权限（非管理员）"
-// @Failure 500 {object} vo.BasicResponse"服务器内部错误"
+// @Success 200 {object} common.BasicResponse "创建成功"
+// @Failure 400 {object} common.BasicResponse"请求参数错误"
+// @Failure 401 {object} common.BasicResponse"未授权"
+// @Failure 403 {object} common.BasicResponse"无权限（非管理员）"
+// @Failure 500 {object} common.BasicResponse"服务器内部错误"
 // @Router /admin/announcements/list [get]
 //
 // Deprecated: 迁移到 adminHandler.ListAnnouncements

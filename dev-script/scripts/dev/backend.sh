@@ -56,11 +56,20 @@ _get_default() {
         redis_user)         echo "${REDIS_FINAL_USER:-${REDIS_USER:-tinyforum}}" ;;
         redis_pass)         echo "${REDIS_FINAL_PASS:-${REDIS_PASSWORD:-tf@password}}" ;;
         redis_db)           echo "${REDIS_DB:-0}" ;;
+        # admin
         admin_email)        echo "${ADMIN_EMAIL:-admin@test.com}" ;;
         admin_pass)         echo "${ADMIN_PASSWORD:-password}" ;;
         admin_user)         echo "${ADMIN_USERNAME:-admin}" ;;
         admin_role)         echo "${ADMIN_ROLE:-super_admin}" ;;
         admin_score)        echo "${ADMIN_SCORE:-10000}" ;;
+        #system user
+        system_email)        echo "${SYSTEM_EMAIL:-system@test.com}" ;;
+        system_pass)        echo "${SYSTEM_PASSWORD:-password}" ;;
+        system_user)         echo "${SYSTEM_USERNAME:-system}" ;;
+        system_role)         echo "${SYSTEM_ROLE:-system_maintainer}" ;;
+        system_score)        echo "${SYSTEM_SCORE:-10000}" ;;
+
+
         upload_dir)         echo "${UPLOAD_DIR:-uploads}" ;;
         upload_url_prefix)  echo "${UPLOAD_URL_PREFIX:-upload}" ;;
         upload_allowed_ext) echo "${UPLOAD_ALLOWED_EXT:-png,jpg,jpeg,gif,mp4,webm,mp3,avi,mkv}" ;;
@@ -260,11 +269,19 @@ write_private_yaml() {
     local redis_user; redis_user=$(_get_default redis_user)
     local redis_pass; redis_pass=$(_get_default redis_pass)
     local redis_db; redis_db=$(_get_default redis_db)
+    # admin user
     local admin_email; admin_email=$(_get_default admin_email)
     local admin_pass; admin_pass=$(_get_default admin_pass)
     local admin_user; admin_user=$(_get_default admin_user)
     local admin_role; admin_role=$(_get_default admin_role)
     local admin_score; admin_score=$(_get_default admin_score)
+    # syste user
+    local system_email; system_email=$(_get_default system_email)
+    local system_pass; system_pass=$(_get_default system_pass)
+    local system_user; system_user=$(_get_default system_user)
+    local system_role; system_role=$(_get_default system_role)
+    local system_score; system_score=$(_get_default system_score)
+
 
     local content
     content="# private.yml — SENSITIVE configuration
@@ -310,7 +327,14 @@ admin:
   password: ${admin_pass}
   username: ${admin_user}
   role: ${admin_role}
-  score: ${admin_score}"
+  score: ${admin_score}
+
+system:
+  email: ${system_email}
+  password: ${system_pass}
+  username: ${system_user}
+  role: ${system_role}
+  score: ${system_score}"
 
     _write_config "private.yml" "$content"
 }

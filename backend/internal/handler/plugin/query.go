@@ -1,9 +1,11 @@
 package plugin
 
 import (
+	"tiny-forum/internal/model/common"
 	"tiny-forum/internal/model/converter"
-	"tiny-forum/internal/model/vo"
+	"tiny-forum/internal/model/request"
 	apperrors "tiny-forum/pkg/errors"
+	"tiny-forum/pkg/logger"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -18,28 +20,20 @@ import (
 // @Param page query int false "页码" default(1)
 // @Param page_size query int false "每页数量" default(20)
 // @Param keyword query string false "搜索关键词"
-// @Success 200 {object} vo.BasicResponse "获取成功"
-// @Failure 401 {object} vo.BasicResponse "未授权"
-// @Failure 403 {object} vo.BasicResponse "无权限"
-// @Failure 500 {object} vo.BasicResponse "服务器内部错误"
+// @Success 200 {object} common.BasicResponse "获取成功"
+// @Failure 401 {object} common.BasicResponse "未授权"
+// @Failure 403 {object} common.BasicResponse "无权限"
+// @Failure 500 {object} common.BasicResponse "服务器内部错误"
 // @Router /plugins [get]
 func (h *PluginHandler) List(c *gin.Context) {
-	// // 解析请求参数
-	// pagesize := c.DefaultQuery("page_size", "20")
-	// page := c.DefaultQuery("page", "1")
-	// autherID := c.GetInt64("autherID")
-	// tags := c.DefaultQuery("tags", "")
-	// pluginType := c.DefaultQuery("plugin_type", "")
-	// keyword := c.DefaultQuery("keyword", "")
-	// srotBy := c.DefaultQuery("sort_by", "id")
-	// status := c.DefaultQuery("status", "1")
-
-	var req vo.PluginListRequest
+	var req request.PluginListRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
+		logger.Infof("绑定错误: ", err)
 		response.BadRequest(c, apperrors.ErrInvalidRequest.Error())
 		return
-
 	}
+
+	common.ApplyDefaults(&req)
 
 	// Request -> BO
 	queryBO := converter.PluginListRequestToBO(&req)
@@ -54,6 +48,6 @@ func (h *PluginHandler) List(c *gin.Context) {
 	// PageResult[BO] -> PageResult[VO]
 	pageVO := converter.PageBOToPageVO(pageBO, converter.PluginBOToVO)
 
-	response.SuccessPage(c, pageVO, pageVO.Total, pageVO.Page, pageVO.PageSize)
+	response.SuccessPage(c, pageVO.List, pageVO.Total, pageVO.Page, pageVO.PageSize)
 
 }

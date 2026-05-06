@@ -3,8 +3,10 @@ package post
 import (
 	"strconv"
 
+	"tiny-forum/internal/model/bo"
+	"tiny-forum/internal/model/common"
 	"tiny-forum/internal/model/do"
-	"tiny-forum/internal/model/dto"
+	"tiny-forum/internal/model/request"
 	postService "tiny-forum/internal/service/post"
 	apperrors "tiny-forum/pkg/errors"
 	"tiny-forum/pkg/response"
@@ -20,10 +22,10 @@ import (
 // @Produce json
 // @Security ApiKeyAuth
 // @Param body body post.CreatePostInput true "帖子信息"
-// @Success 200 {object} vo.BasicResponse "创建成功"
-// @Failure 400 {object} vo.BasicResponse"请求参数错误"
-// @Failure 401 {object} vo.BasicResponse"未授权"
-// @Failure 500 {object} vo.BasicResponse"服务器内部错误"
+// @Success 200 {object} common.BasicResponse "创建成功"
+// @Failure 400 {object} common.BasicResponse"请求参数错误"
+// @Failure 401 {object} common.BasicResponse"未授权"
+// @Failure 500 {object} common.BasicResponse"服务器内部错误"
 // @Router /posts [post]
 func (h *PostHandler) Create(c *gin.Context) {
 	// ctx := c.Request.Context()
@@ -58,9 +60,9 @@ func (h *PostHandler) Create(c *gin.Context) {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path int true "帖子ID"
-// @Success 200 {object} vo.BasicResponse  "获取成功"
-// @Failure 400 {object} vo.BasicResponse"无效的帖子ID"
-// @Failure 404 {object} vo.BasicResponse"帖子不存在"
+// @Success 200 {object} common.BasicResponse  "获取成功"
+// @Failure 400 {object} common.BasicResponse"无效的帖子ID"
+// @Failure 404 {object} common.BasicResponse"帖子不存在"
 // @Router /posts/{id} [get]
 func (h *PostHandler) GetByID(c *gin.Context) {
 	postID, err := strconv.ParseUint(c.Param("id"), 10, 64)
@@ -103,42 +105,40 @@ func (h *PostHandler) GetByID(c *gin.Context) {
 // @Param type query string false "帖子类型" Enums(post, question)
 // @Param author_id query int false "作者ID"
 // @Param tag_id query int false "标签ID"
-// @Success 200 {object} vo.BasicResponse  "获取成功"
-// @Failure 500 {object} vo.BasicResponse"服务器内部错误"
+// @Success 200 {object} common.BasicResponse  "获取成功"
+// @Failure 500 {object} common.BasicResponse"服务器内部错误"
 // @Router /posts [get]
 func (h *PostHandler) List(c *gin.Context) {
-	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
-	pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "20"))
-	keyword := c.Query("keyword")
-	sortBy := c.Query("sort_by")
-	postType := c.Query("type")
 
-	var authorID uint
-	if v := c.Query("author_id"); v != "" {
-		id, _ := strconv.ParseUint(v, 10, 64)
-		authorID = uint(id)
+	var req request.ListPosts
+
+	if err := c.ShouldBindQuery(&req); err != nil {
+		response.BadRequest(c, err.Error())
+		return
 	}
 
-	var tagID uint
-	if v := c.Query("tag_id"); v != "" {
-		id, _ := strconv.ParseUint(v, 10, 64)
-		tagID = uint(id)
+	postType := do.ParsePostType(req.PostType)
+
+	listPostsBO := &common.PageQuery[bo.ListPosts]{
+		Page:     req.Page,
+		PageSize: req.PageSize,
+		Data: bo.ListPosts{
+			AuthorID:         req.AuthorID,
+			TagNames:         req.TagNames,
+			SortBy:           req.SortBy,
+			PostStatus:       do.PostStatusPublished,
+			Keyword:          req.Keyword,
+			Type:             postType,
+			ModerationStatus: do.ModerationStatusApproved,
+		},
 	}
 
-	opts := dto.PostListOptions{
-		AuthorID: authorID,
-		TagID:    tagID,
-		PostType: postType,
-		Keyword:  keyword,
-		SortBy:   sortBy,
-	}
-
-	posts, total, err := h.postSvc.List(page, pageSize, opts)
+	posts, total, err := h.postSvc.List(c, listPostsBO)
 	if err != nil {
 		response.InternalError(c, err.Error())
 		return
 	}
-	response.SuccessPage(c, posts, total, page, pageSize)
+	response.SuccessPage(c, posts, total, req.Page, req.PageSize)
 }
 
 // Update 更新帖子
@@ -150,11 +150,11 @@ func (h *PostHandler) List(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Param id path int true "帖子ID"
 // @Param body body post.UpdatePostInput true "帖子信息"
-// @Success 200 {object} vo.BasicResponse "更新成功"
-// @Failure 400 {object} vo.BasicResponse"请求参数错误"
-// @Failure 401 {object} vo.BasicResponse"未授权"
-// @Failure 403 {object} vo.BasicResponse"无权限"
-// @Failure 404 {object} vo.BasicResponse"帖子不存在"
+// @Success 200 {object} common.BasicResponse "更新成功"
+// @Failure 400 {object} common.BasicResponse"请求参数错误"
+// @Failure 401 {object} common.BasicResponse"未授权"
+// @Failure 403 {object} common.BasicResponse"无权限"
+// @Failure 404 {object} common.BasicResponse"帖子不存在"
 // @Router /posts/{id} [put]
 func (h *PostHandler) Update(c *gin.Context) {
 	postID, err := strconv.ParseUint(c.Param("id"), 10, 64)
@@ -186,11 +186,11 @@ func (h *PostHandler) Update(c *gin.Context) {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path int true "帖子ID"
-// @Success 200 {object} vo.BasicResponse  "删除成功"
-// @Failure 400 {object} vo.BasicResponse"无效的帖子ID"
-// @Failure 401 {object} vo.BasicResponse"未授权"
-// @Failure 403 {object} vo.BasicResponse"无权限"
-// @Failure 404 {object} vo.BasicResponse"帖子不存在"
+// @Success 200 {object} common.BasicResponse  "删除成功"
+// @Failure 400 {object} common.BasicResponse"无效的帖子ID"
+// @Failure 401 {object} common.BasicResponse"未授权"
+// @Failure 403 {object} common.BasicResponse"无权限"
+// @Failure 404 {object} common.BasicResponse"帖子不存在"
 // @Router /posts/{id} [delete]
 func (h *PostHandler) Delete(c *gin.Context) {
 	postID, err := strconv.ParseUint(c.Param("id"), 10, 64)

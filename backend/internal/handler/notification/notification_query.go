@@ -15,9 +15,9 @@ import (
 // @Security ApiKeyAuth
 // @Param page query int false "页码" default(1)
 // @Param page_size query int false "每页数量" default(20)
-// @Success 200 {object} vo.BasicResponse "获取成功"
-// @Failure 401 {object} vo.BasicResponse"未授权"
-// @Failure 500 {object} vo.BasicResponse"服务器内部错误"
+// @Success 200 {object} common.BasicResponse "获取成功"
+// @Failure 401 {object} common.BasicResponse"未授权"
+// @Failure 500 {object} common.BasicResponse"服务器内部错误"
 // @Router /notifications [get]
 func (h *NotificationHandler) List(c *gin.Context) {
 	var req dto.NotificationListRequest
@@ -85,9 +85,9 @@ func (h *NotificationHandler) List(c *gin.Context) {
 // @Tags 通知管理
 // @Produce json
 // @Security ApiKeyAuth
-// @Success 200 {object} vo.BasicResponse  "获取成功"
-// @Failure 401 {object} vo.BasicResponse"未授权"
-// @Failure 500 {object} vo.BasicResponse"服务器内部错误"
+// @Success 200 {object} common.BasicResponse  "获取成功"
+// @Failure 401 {object} common.BasicResponse"未授权"
+// @Failure 500 {object} common.BasicResponse"服务器内部错误"
 // @Router /notifications/count/unread [get]
 func (h *NotificationHandler) UnreadCount(c *gin.Context) {
 	userID := c.GetUint("user_id")
