@@ -5,10 +5,11 @@ import (
 	"tiny-forum/internal/model/bo"
 	"tiny-forum/internal/model/common"
 	"tiny-forum/internal/model/converter"
+	"tiny-forum/internal/model/vo"
 )
 
 // service/plugin_service.go
-func (s *pluginService) ListPlugins(ctx context.Context, queryBO *bo.PluginQueryBO) (*common.PageResult[bo.PluginMeta], error) {
+func (s *pluginService) ListPlugins(ctx context.Context, queryBO *bo.PluginQueryBO) (*common.PageResult[vo.PluginMetaVO], error) {
 	// BO -> Query DO
 	queryDO := converter.PluginQueryBOToQueryDO(queryBO)
 
@@ -22,6 +23,6 @@ func (s *pluginService) ListPlugins(ctx context.Context, queryBO *bo.PluginQuery
 	}
 
 	// DO Page -> BO Page
-	pageBO := converter.PageDOToPageBO(pageDO, converter.PluginDOToBO)
-	return pageBO, nil
+	pageVO := converter.PageDOToPageVO(pageDO)
+	return pageVO, nil
 }

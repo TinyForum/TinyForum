@@ -9,7 +9,7 @@ import (
 )
 
 type UploadRepository interface {
-	Create(ctx context.Context, attachment *do.Attachment) error
+	Create(ctx context.Context, attachment *do.Attachment) error // 创建
 	GetByFileID(ctx context.Context, fileID string) (*do.Attachment, error)
 	GetByPostID(ctx context.Context, postID int64, limit, offset int) ([]*do.Attachment, error)
 	Delete(ctx context.Context, fileID string) error

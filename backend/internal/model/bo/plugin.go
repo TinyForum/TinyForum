@@ -31,6 +31,19 @@ type PluginQueryBO struct {
 	Status   do.PluginStatus `json:"status"`
 }
 
+type UserPluginBO struct {
+	Name     string          `json:"name"`
+	Page     int             `json:"page"`
+	PageSize int             `json:"pageSize"`
+	AuthorID uint            `json:"authorId"`
+	Category string          `json:"category"`
+	Tags     []string        `json:"tags"`
+	Type     string          `json:"type"`
+	Keyword  string          `json:"keyword"`
+	SortBy   string          `json:"sortBy"`
+	Status   do.PluginStatus `json:"status"`
+}
+
 // type PluginQueryBO struct {
 //     Page     int      `json:"page"`
 //     PageSize int      `json:"pageSize"`

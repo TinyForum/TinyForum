@@ -41,6 +41,7 @@ func (h *UploadHandler) RegisterRoutes(api *gin.RouterGroup, mw middleware.Middl
 			pluginFile.POST("", h.UploadPluginFile)      // POST /api/v1/attachments/plugin - 上传插件文件
 			pluginFile.GET("/:file_id", h.GetFile)       // GET /api/v1/attachments/plugin/:file_id - 获取插件文件信息
 			pluginFile.DELETE("/:file_id", h.DeleteFile) // DELETE /api/v1/attachments/plugin/:file_id - 删除插件文件
+			pluginFile.GET("/users/me", h.ListMyPlugins) // GET /api/v1/attachments/plugin/users/me - 获取当前用户的插件文件列表
 		}
 
 		attachments.GET("/users/me/files", h.GetUserFiles) // GET /api/v1/attachments/users/me/files - 获取当前用户的文件列表

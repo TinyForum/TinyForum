@@ -39,14 +39,14 @@ func (h *PluginHandler) List(c *gin.Context) {
 	queryBO := converter.PluginListRequestToBO(&req)
 
 	// 调用 Service
-	pageBO, err := h.service.ListPlugins(c.Request.Context(), queryBO)
+	pageVO, err := h.service.ListPlugins(c.Request.Context(), queryBO)
 	if err != nil {
 		response.InternalError(c, err.Error())
 		return
 	}
 
 	// PageResult[BO] -> PageResult[VO]
-	pageVO := converter.PageBOToPageVO(pageBO, converter.PluginBOToVO)
+	// pageVO := converter.PageBOToPageVO(pageBO, converter.PluginBOToVO)
 
 	response.SuccessPage(c, pageVO.List, pageVO.Total, pageVO.Page, pageVO.PageSize)
 
