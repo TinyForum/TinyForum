@@ -29,10 +29,11 @@ type ConfigBasic struct {
 }
 
 type ConfigPrivate struct {
-	JWT   JWTConfig   `mapstructure:"jwt" validate:"required"`
-	Email EmailConfig `mapstructure:"email" validate:"required"`
-	OAuth OAuthConfig `mapstructure:"oauth" validate:"required"`
-	Admin AdminConfig `mapstructure:"admin" validate:"required"`
+	JWT        JWTConfig        `mapstructure:"jwt" validate:"required"`
+	Email      EmailConfig      `mapstructure:"email" validate:"required"`
+	OAuth      OAuthConfig      `mapstructure:"oauth" validate:"required"`
+	AdminUser  AdminUserConfig  `mapstructure:"admin" validate:"required"`
+	SystemUser SystemUserConfig `mapstructure:"system" validate:"required"`
 }
 type RateLimitConfig struct {
 	RiskControlLevels map[string]map[string]QuotaConfig `yaml:"risk_control_levels" json:"risk_control_levels" mapstructure:"risk_control_levels" validate:"required,min=1"`
@@ -114,7 +115,15 @@ type APIConfig struct {
 
 // =========================================== MARK: 私有子配置
 
-type AdminConfig struct {
+type AdminUserConfig struct {
+	Username string      `mapstructure:"username" validate:"required,min=3,max=32"`
+	Email    string      `mapstructure:"email" validate:"required,email"`
+	Password string      `mapstructure:"password" validate:"required,min=8"`
+	Role     do.UserRole `mapstructure:"role" validate:"required"`
+	Score    int         `mapstructure:"score" validate:"min=0"`
+}
+
+type SystemUserConfig struct {
 	Username string      `mapstructure:"username" validate:"required,min=3,max=32"`
 	Email    string      `mapstructure:"email" validate:"required,email"`
 	Password string      `mapstructure:"password" validate:"required,min=8"`

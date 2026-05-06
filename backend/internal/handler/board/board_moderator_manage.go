@@ -24,11 +24,11 @@ import (
 // @Param body.can_edit_any_post body bool false "编辑任意帖子权限" example(false)
 // @Param body.can_manage_moderator body bool false "管理版主权限" example(false)
 // @Param body.can_ban_user body bool false "禁言用户权限" example(true)
-// @Success 200 {object} vo.BasicResponse  "添加版主成功"
-// @Failure 400 {object} vo.BasicResponse"请求参数错误或板块ID无效"
-// @Failure 401 {object} vo.BasicResponse"未授权"
-// @Failure 403 {object} vo.BasicResponse"无权限（需要管理员或 manage_moderator 权限）"
-// @Failure 404 {object} vo.BasicResponse"板块不存在"
+// @Success 200 {object} common.BasicResponse  "添加版主成功"
+// @Failure 400 {object} common.BasicResponse"请求参数错误或板块ID无效"
+// @Failure 401 {object} common.BasicResponse"未授权"
+// @Failure 403 {object} common.BasicResponse"无权限（需要管理员或 manage_moderator 权限）"
+// @Failure 404 {object} common.BasicResponse"板块不存在"
 // @Router /boards/{id}/moderators [post]
 func (h *BoardHandler) AddModerator(c *gin.Context) {
 	boardID, err := strconv.ParseUint(c.Param("id"), 10, 64)
@@ -76,11 +76,11 @@ func (h *BoardHandler) AddModerator(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Param id path int true "板块ID"
 // @Param user_id path int true "用户ID"
-// @Success 200 {object} vo.BasicResponse  "移除版主成功"
-// @Failure 400 {object} vo.BasicResponse"无效的板块ID或用户ID"
-// @Failure 401 {object} vo.BasicResponse"未授权"
-// @Failure 403 {object} vo.BasicResponse"无权限（需要管理员或 manage_moderator 权限）"
-// @Failure 404 {object} vo.BasicResponse"版主不存在"
+// @Success 200 {object} common.BasicResponse  "移除版主成功"
+// @Failure 400 {object} common.BasicResponse"无效的板块ID或用户ID"
+// @Failure 401 {object} common.BasicResponse"未授权"
+// @Failure 403 {object} common.BasicResponse"无权限（需要管理员或 manage_moderator 权限）"
+// @Failure 404 {object} common.BasicResponse"版主不存在"
 // @Router /boards/{id}/moderators/{user_id} [delete]
 func (h *BoardHandler) RemoveModerator(c *gin.Context) {
 	boardID, err := strconv.ParseUint(c.Param("id"), 10, 64)
@@ -108,9 +108,9 @@ func (h *BoardHandler) RemoveModerator(c *gin.Context) {
 // @Tags 版主管理
 // @Produce json
 // @Param id path int true "板块ID"
-// @Success 200 {object} vo.BasicResponse  "获取成功"
-// @Failure 400 {object} vo.BasicResponse"无效的板块ID"
-// @Failure 500 {object} vo.BasicResponse"服务器内部错误"
+// @Success 200 {object} common.BasicResponse  "获取成功"
+// @Failure 400 {object} common.BasicResponse"无效的板块ID"
+// @Failure 500 {object} common.BasicResponse"服务器内部错误"
 // @Router /boards/{id}/moderators [get]
 func (h *BoardHandler) GetModerators(c *gin.Context) {
 	boardID, err := strconv.ParseUint(c.Param("id"), 10, 64)
@@ -141,11 +141,11 @@ func (h *BoardHandler) GetModerators(c *gin.Context) {
 // @Param body.can_edit_any_post body bool false "编辑任意帖子权限" example(false)
 // @Param body.can_manage_moderator body bool false "管理版主权限" example(false)
 // @Param body.can_ban_user body bool false "禁言用户权限" example(true)
-// @Success 200 {object} vo.BasicResponse  "权限更新成功"
-// @Failure 400 {object} vo.BasicResponse"请求参数错误或板块ID/用户ID无效"
-// @Failure 401 {object} vo.BasicResponse"未授权"
-// @Failure 403 {object} vo.BasicResponse"无权限（需要管理员权限）"
-// @Failure 404 {object} vo.BasicResponse"版主不存在"
+// @Success 200 {object} common.BasicResponse  "权限更新成功"
+// @Failure 400 {object} common.BasicResponse"请求参数错误或板块ID/用户ID无效"
+// @Failure 401 {object} common.BasicResponse"未授权"
+// @Failure 403 {object} common.BasicResponse"无权限（需要管理员权限）"
+// @Failure 404 {object} common.BasicResponse"版主不存在"
 // @Router /boards/{id}/moderators/{user_id}/permissions [put]
 func (h *BoardHandler) UpdateModeratorPermissions(c *gin.Context) {
 	boardID, err := strconv.ParseUint(c.Param("id"), 10, 64)
@@ -195,9 +195,9 @@ func (h *BoardHandler) UpdateModeratorPermissions(c *gin.Context) {
 // @Tags 版主管理
 // @Produce json
 // @Security ApiKeyAuth
-// @Success 200 {object} vo.BasicResponse "获取成功"
-// @Failure 401 {object} vo.BasicResponse"未授权"
-// @Failure 500 {object} vo.BasicResponse"服务器内部错误"
+// @Success 200 {object} common.BasicResponse "获取成功"
+// @Failure 401 {object} common.BasicResponse"未授权"
+// @Failure 500 {object} common.BasicResponse"服务器内部错误"
 // @Router /boards/moderators/managed [get]
 func (h *BoardHandler) GetUserModeratorBoards(c *gin.Context) {
 	userID := c.GetUint("user_id")

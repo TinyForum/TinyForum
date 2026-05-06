@@ -6,6 +6,7 @@ import (
 	"tiny-forum/internal/model/common"
 	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/dto"
+	"tiny-forum/internal/model/request"
 	"tiny-forum/internal/model/vo"
 )
 
@@ -94,8 +95,8 @@ func PluginBOToVO(b *bo.PluginMeta) *vo.PluginVO {
 	}
 }
 
-// ========== Request ↔ BO ==========
-func PluginListRequestToBO(req *vo.PluginListRequest) *bo.PluginQueryBO {
+// Request => BO
+func PluginListRequestToBO(req *request.PluginListRequest) *bo.PluginQueryBO {
 	if req == nil {
 		return nil
 	}
@@ -104,14 +105,14 @@ func PluginListRequestToBO(req *vo.PluginListRequest) *bo.PluginQueryBO {
 		PageSize: req.PageSize,
 		AuthorID: req.AuthorID,
 		Tags:     req.Tags,
-		Type:     req.PostType,
+		Type:     req.Type,
 		Keyword:  req.Keyword,
 		SortBy:   req.SortBy,
 		Status:   req.Status,
 	}
 }
 
-// 泛型辅助：转换整个 PageResult[BO] -> PageResult[VO]
+// 泛型辅助：转换整个 PageResult[BO] => PageResult[VO]
 func PageBOToPageVO(pageBO *common.PageResult[bo.PluginMeta], mapper func(*bo.PluginMeta) *vo.PluginVO) *common.PageResult[vo.PluginVO] {
 	if pageBO == nil {
 		return nil

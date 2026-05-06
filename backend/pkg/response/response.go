@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"time"
-	"tiny-forum/internal/model/vo"
+	"tiny-forum/internal/model/common"
 	apperrors "tiny-forum/pkg/errors"
 	"tiny-forum/pkg/logger"
 
@@ -27,26 +27,34 @@ type ValidationError struct {
 // ========== 响应选项 ==========
 
 // Option 响应选项函数，用于在构造响应时附加额外字段
-type Option func(*vo.BasicResponse)
+type Option func(*common.BasicResponse)
 
 // WithTraceID 设置追踪ID
 func WithTraceID(traceID string) Option {
-	return func(r *vo.BasicResponse) { r.TraceID = traceID }
+	return func(r *common.BasicResponse) { r.TraceID = traceID }
 }
 
 // WithMessage 覆盖默认消息
 func WithMessage(msg string) Option {
-	return func(r *vo.BasicResponse) { r.Message = msg }
+	return func(r *common.BasicResponse) { r.Message = msg }
 }
 
 // ========== 成功响应 ==========
 
 // Success 返回成功响应 (HTTP 200)
+// Success 函数用于处理成功的响应
+// 它接收一个 gin.Context 上下文、任意类型的数据和可选的配置选项
+// 然后构造一个响应对象并返回 HTTP 200 状态码
 func Success(c *gin.Context, data any, opts ...Option) {
+	// 创建一个新的响应对象，默认状态码为 0，消息为 "success"
 	resp := newResp(c, 0, "success")
+	// 设置响应状态码为 0（成功）
 	resp.Code = 0
+	// 将传入的数据设置到响应对象中
 	resp.Data = data
+	// 应用传入的可选配置选项
 	applyOpts(&resp, opts)
+	// 将响应对象以 JSON 格式返回，HTTP 状态码为 200（OK）
 	c.JSON(http.StatusOK, resp)
 }
 
@@ -56,15 +64,16 @@ func SuccessWithMessage(c *gin.Context, msg string, data interface{}) {
 }
 
 // SuccessPage 分页成功响应
-func SuccessPage(c *gin.Context, list interface{}, total int64, page, pageSize int) {
+func SuccessPage[T any](c *gin.Context, list []T, total int64, page, pageSize int, opts ...Option) {
 	hasMore := int64(page*pageSize) < total
-	Success(c, vo.BasicPageData{
-		List:     list,
+	result := common.PageResult[T]{ // 确保 PageResult 在作用域内（vo.PageResult 或 common.PageResult）
 		Total:    total,
 		Page:     page,
 		PageSize: pageSize,
+		List:     list,
 		HasMore:  hasMore,
-	})
+	}
+	Success(c, result, opts...)
 }
 
 // Created 创建资源成功响应 (HTTP 201)，同时写入 Location 头
@@ -310,8 +319,8 @@ func ErrorHandlerMiddleware() gin.HandlerFunc {
 // ========== 内部辅助函数 ==========
 
 // newResp 构造带公共字段的 Response
-func newResp(c *gin.Context, code int, msg string) vo.BasicResponse {
-	return vo.BasicResponse{
+func newResp(c *gin.Context, code int, msg string) common.BasicResponse {
+	return common.BasicResponse{
 		Code:      code,
 		Message:   msg,
 		Timestamp: time.Now().Unix(),
@@ -320,7 +329,9 @@ func newResp(c *gin.Context, code int, msg string) vo.BasicResponse {
 	}
 }
 
-func applyOpts(r *vo.BasicResponse, opts []Option) {
+// applyOpts 函数用于接收一个 BasicResponse 指针和 Option 切片，
+// 并遍历 opts 切片中的每个 Option 函数，对传入的 r 进行配置
+func applyOpts(r *common.BasicResponse, opts []Option) {
 	for _, opt := range opts {
 		opt(r)
 	}

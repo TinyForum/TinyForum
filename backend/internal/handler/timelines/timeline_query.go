@@ -16,9 +16,9 @@ import (
 // @Security ApiKeyAuth
 // @Param page query int false "页码" default(1)
 // @Param page_size query int false "每页数量" default(20)
-// @Success 200 {object} vo.BasicResponse "获取成功"
-// @Failure 401 {object} vo.BasicResponse"未授权"
-// @Failure 500 {object} vo.BasicResponse"服务器内部错误"
+// @Success 200 {object} common.BasicResponse "获取成功"
+// @Failure 401 {object} common.BasicResponse"未授权"
+// @Failure 500 {object} common.BasicResponse"服务器内部错误"
 // @Router /timeline/home [get]
 func (h *TimelineHandler) GetHomeTimeline(c *gin.Context) {
 	userID := c.GetUint("user_id")
@@ -41,9 +41,9 @@ func (h *TimelineHandler) GetHomeTimeline(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Param page query int false "页码" default(1)
 // @Param page_size query int false "每页数量" default(20)
-// @Success 200 {object} vo.BasicResponse "获取成功"
-// @Failure 401 {object} vo.BasicResponse"未授权"
-// @Failure 500 {object} vo.BasicResponse"服务器内部错误"
+// @Success 200 {object} common.BasicResponse "获取成功"
+// @Failure 401 {object} common.BasicResponse"未授权"
+// @Failure 500 {object} common.BasicResponse"服务器内部错误"
 // @Router /timeline/following [get]
 func (h *TimelineHandler) GetFollowingTimeline(c *gin.Context) {
 	userID := c.GetUint("user_id")

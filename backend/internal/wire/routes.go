@@ -76,6 +76,8 @@ func RegisterRoutes(
 	handlers.Admin.RegisterRoutes(api, mw)
 	handlers.Upload.RegisterRoutes(api, mw)
 	handlers.Plugin.RegisterRoutes(api, mw)
+	// 静态路由
+	api.Static("/uploads", "./uploads")
 
 	// ── Admin 路由组（示例：Casbin 替代 AdminRequired）───────────────────────
 	//
@@ -93,7 +95,7 @@ func RegisterRoutes(
 	// 	adminGroup.GET("/boards/applications", handlers.Board.ListApplications)
 	// 	adminGroup.POST("/boards/applications/:application_id/review", handlers.Board.ReviewApplication)
 	// 	adminGroup.GET("/boards", handlers.Board.List)
-	// 	adminGroup.GET("/posts", handlers.Post.AdminList)
+	// adminGroup.GET("/posts", handlers.Post.AdminList)
 	// 	adminGroup.GET("/posts/pending", handlers.Post.AdminGetModerationRequire)
 	// 	adminGroup.PUT("/audit/tasks/:id/approve", handlers.Post.AdminApprovePost)
 	// 	adminGroup.PUT("/audit/tasks/:id/reject", handlers.Post.AdminRejectPost)

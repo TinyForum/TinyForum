@@ -2,19 +2,7 @@ package dto
 
 import (
 	"time"
-	"tiny-forum/internal/model/do"
 )
-
-// PostListOptions 帖子列表查询选项
-type PostListOptions struct {
-	AuthorID         uint
-	TagID            uint
-	PostType         string
-	Keyword          string
-	SortBy           string
-	Status           do.PostStatus
-	ModerationStatus do.ModerationStatus
-}
 
 // GetStatsDay 获取每日统计数据
 type StatsDayQuery struct {
@@ -25,4 +13,7 @@ type StatsDayQuery struct {
 // GetStatsResponse 响应的统计数据
 type GetStatsResponse struct {
 	Day time.Time `json:"day"` // 日期
+}
+
+type Listposts struct {
 }

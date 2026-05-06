@@ -1,6 +1,8 @@
 package do
 
-import "tiny-forum/internal/model/common"
+import (
+	"tiny-forum/internal/model/common"
+)
 
 type PostType string
 
@@ -16,6 +18,13 @@ var validPostTypes = map[PostType]bool{
 	PostTypePost:    true,
 	PostTypeArticle: true,
 	PostTypeTopic:   true,
+}
+
+var validPostStatuses = map[PostStatus]bool{
+	PostStatusDraft:     true,
+	PostStatusPending:   true,
+	PostStatusPublished: true,
+	PostStatusHidden:    true,
 }
 
 type PostStatus string
@@ -83,4 +92,16 @@ func ParsePostType(s string) PostType {
 		return pt
 	}
 	return PostTypePost // 默认值
+}
+
+func ParsePostStatus(s string) PostStatus {
+	ps := PostStatus(s)
+	if ps.IsValid() {
+		return ps
+	}
+	return PostStatusDraft // 默认值
+}
+
+func (ps PostStatus) IsValid() bool {
+	return validPostStatuses[ps]
 }

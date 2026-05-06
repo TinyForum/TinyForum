@@ -162,7 +162,7 @@ func (h *AdminHandler) DeleteUser(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Param id path int true "用户ID"
 // @Param body body request.SetUserRoleRequest true "角色信息"
-// @Success 200 {object} vo.BasicResponse
+// @Success 200 {object} common.BasicResponse
 // @Router /admin/users/{id}/role [put]
 func (h *AdminHandler) SetRoleUser(c *gin.Context) {
 	operatorID, exists := c.Get("user_id")

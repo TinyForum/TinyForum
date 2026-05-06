@@ -3,8 +3,8 @@ package board
 import (
 	"strconv"
 
+	"tiny-forum/internal/model/common"
 	"tiny-forum/internal/model/do"
-	"tiny-forum/internal/model/vo"
 	boardService "tiny-forum/internal/service/board"
 	"tiny-forum/pkg/response"
 
@@ -20,10 +20,10 @@ import (
 // @Security ApiKeyAuth
 // @Param id path int true "板块ID"
 // @Param body body do.ApplyModeratorInput true "申请信息"
-// @Success 200 {object} vo.BasicResponse  "申请提交成功"
-// @Failure 400 {object} vo.BasicResponse"请求参数错误或板块ID无效"
-// @Failure 401 {object} vo.BasicResponse"未授权"
-// @Failure 403 {object} vo.BasicResponse"无权限或已申请"
+// @Success 200 {object} common.BasicResponse  "申请提交成功"
+// @Failure 400 {object} common.BasicResponse"请求参数错误或板块ID无效"
+// @Failure 401 {object} common.BasicResponse"未授权"
+// @Failure 403 {object} common.BasicResponse"无权限或已申请"
 // @Router /boards/{id}/moderators/apply [post]
 func (h *BoardHandler) ApplyModerator(c *gin.Context) {
 	boardID, err := strconv.ParseUint(c.Param("id"), 10, 64)
@@ -57,11 +57,11 @@ func (h *BoardHandler) ApplyModerator(c *gin.Context) {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param application_id path int true "申请ID"
-// @Success 200 {object} vo.BasicResponse  "撤销成功"
-// @Failure 400 {object} vo.BasicResponse"无效的申请ID"
-// @Failure 401 {object} vo.BasicResponse"未授权"
-// @Failure 403 {object} vo.BasicResponse"无权限（只能撤销自己的申请）"
-// @Failure 404 {object} vo.BasicResponse"申请不存在"
+// @Success 200 {object} common.BasicResponse  "撤销成功"
+// @Failure 400 {object} common.BasicResponse"无效的申请ID"
+// @Failure 401 {object} common.BasicResponse"未授权"
+// @Failure 403 {object} common.BasicResponse"无权限（只能撤销自己的申请）"
+// @Failure 404 {object} common.BasicResponse"申请不存在"
 // @Router /boards/apply/{application_id} [delete]
 func (h *BoardHandler) CancelApplication(c *gin.Context) {
 	applicationID, err := strconv.ParseUint(c.Param("application_id"), 10, 64)
@@ -86,8 +86,8 @@ func (h *BoardHandler) CancelApplication(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Param page query int false "页码" default(1)
 // @Param page_size query int false "每页数量" default(20)
-// @Success 200 {object} vo.BasicResponse  "申请列表"
-// @Failure 401 {object} vo.BasicResponse"未授权"
+// @Success 200 {object} common.BasicResponse  "申请列表"
+// @Failure 401 {object} common.BasicResponse"未授权"
 // @Router /boards/moderators/applications [get]
 func (h *BoardHandler) GetUserApplications(c *gin.Context) {
 	userID := c.GetUint("user_id")
@@ -100,13 +100,14 @@ func (h *BoardHandler) GetUserApplications(c *gin.Context) {
 		response.InternalError(c, err.Error())
 		return
 	}
-
-	response.Success(c, vo.BasicPageData{
+	resp := common.PageResult[do.ModeratorApplication]{
 		List:     applications,
 		Total:    total,
 		Page:     page,
 		PageSize: pageSize,
-	})
+	}
+	response.Success(c, resp)
+
 }
 
 // ReviewApplication 管理员审批版主申请（通过或拒绝）
@@ -118,11 +119,11 @@ func (h *BoardHandler) GetUserApplications(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Param application_id path int true "申请ID"
 // @Param body body ReviewApplicationRequest true "审批信息"
-// @Success 200 {object} vo.BasicResponse  "审批完成"
-// @Failure 400 {object} vo.BasicResponse"请求参数错误或申请ID无效"
-// @Failure 401 {object} vo.BasicResponse"未授权"
-// @Failure 403 {object} vo.BasicResponse"无权限（需要管理员权限）"
-// @Failure 404 {object} vo.BasicResponse"申请不存在"
+// @Success 200 {object} common.BasicResponse  "审批完成"
+// @Failure 400 {object} common.BasicResponse"请求参数错误或申请ID无效"
+// @Failure 401 {object} common.BasicResponse"未授权"
+// @Failure 403 {object} common.BasicResponse"无权限（需要管理员权限）"
+// @Failure 404 {object} common.BasicResponse"申请不存在"
 // @Router /admin/boards/applications/{application_id}/review [post]
 func (h *BoardHandler) ReviewApplication(c *gin.Context) {
 	applicationID, err := strconv.ParseUint(c.Param("application_id"), 10, 64)
@@ -174,11 +175,11 @@ func (h *BoardHandler) ReviewApplication(c *gin.Context) {
 // @Param status query string false "申请状态" Enums(pending, approved, rejected)
 // @Param page query int false "页码" default(1)
 // @Param page_size query int false "每页数量" default(20)
-// @Success 200 {object} vo.BasicResponse  "获取成功"
-// @Failure 400 {object} vo.BasicResponse"无效的板块ID"
-// @Failure 401 {object} vo.BasicResponse"未授权"
-// @Failure 403 {object} vo.BasicResponse"无权限（需要管理员权限）"
-// @Failure 500 {object} vo.BasicResponse"服务器内部错误"
+// @Success 200 {object} common.BasicResponse  "获取成功"
+// @Failure 400 {object} common.BasicResponse"无效的板块ID"
+// @Failure 401 {object} common.BasicResponse"未授权"
+// @Failure 403 {object} common.BasicResponse"无权限（需要管理员权限）"
+// @Failure 500 {object} common.BasicResponse"服务器内部错误"
 // @Router /admin/boards/applications [get]
 func (h *BoardHandler) ListApplications(c *gin.Context) {
 	var boardID *uint

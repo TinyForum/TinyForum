@@ -84,6 +84,26 @@ definitions:
     - content
     - post_id
     type: object
+  common.BasicResponse:
+    properties:
+      code:
+        description: 业务状态码
+        type: integer
+      data:
+        description: 业务数据
+      message:
+        description: 业务信息
+        type: string
+      request_id:
+        description: 请求ID
+        type: string
+      timestamp:
+        description: 时间戳
+        type: integer
+      trace_id:
+        description: 追踪ID
+        type: string
+    type: object
   do.AnnouncementStatus:
     enum:
     - 0
@@ -507,20 +527,6 @@ definitions:
     - password
     - username
     type: object
-  vo.BasicResponse:
-    properties:
-      code:
-        type: integer
-      data: {}
-      message:
-        type: string
-      request_id:
-        type: string
-      timestamp:
-        type: integer
-      trace_id:
-        type: string
-    type: object
   vo.SimpleLeaderboardItem:
     properties:
       id:
@@ -598,23 +604,23 @@ paths:
         "200":
           description: 创建成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 请求参数错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "403":
           description: 无权限（非管理员）
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 创建公告
@@ -637,27 +643,27 @@ paths:
         "200":
           description: 删除成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 参数错误（无效的公告ID）
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "403":
           description: 无权限（非管理员）
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "404":
           description: 公告不存在
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 删除公告
@@ -685,27 +691,27 @@ paths:
         "200":
           description: 更新成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 参数错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "403":
           description: 无权限
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "404":
           description: 公告不存在
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 更新公告
@@ -728,27 +734,27 @@ paths:
         "200":
           description: 归档成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 参数错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "403":
           description: 无权限
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "404":
           description: 公告不存在
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 归档公告
@@ -777,27 +783,27 @@ paths:
         "200":
           description: 操作成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 参数错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "403":
           description: 无权限
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "404":
           description: 公告不存在
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 置顶/取消置顶公告
@@ -820,27 +826,27 @@ paths:
         "200":
           description: 发布成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 参数错误或发布时间无效
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "403":
           description: 无权限
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "404":
           description: 公告不存在
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 发布公告
@@ -864,23 +870,23 @@ paths:
         "200":
           description: 创建成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 请求参数错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "403":
           description: 无权限（非管理员）
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 列出公告
@@ -903,27 +909,27 @@ paths:
         "200":
           description: 审核通过成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 无效的帖子ID
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "403":
           description: 无权限
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "404":
           description: 帖子不存在
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 审核通过帖子
@@ -951,27 +957,27 @@ paths:
         "200":
           description: 审核拒绝成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 无效的帖子ID
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "403":
           description: 无权限
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "404":
           description: 帖子不存在
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 审核拒绝帖子
@@ -1009,23 +1015,23 @@ paths:
         "200":
           description: 获取成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 无效的板块ID
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "403":
           description: 无权限（需要管理员权限）
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 获取版主申请列表
@@ -1054,23 +1060,23 @@ paths:
         "200":
           description: 审批完成
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 请求参数错误或申请ID无效
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "403":
           description: 无权限（需要管理员权限）
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "404":
           description: 申请不存在
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 审批版主申请
@@ -1100,19 +1106,19 @@ paths:
         "200":
           description: 获取成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "403":
           description: 无权限
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 管理员获取帖子列表
@@ -1133,23 +1139,23 @@ paths:
         "200":
           description: 操作成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 无效的帖子ID
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "403":
           description: 无权限
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 切换帖子置顶状态
@@ -1181,19 +1187,19 @@ paths:
         "200":
           description: 获取成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "403":
           description: 无权限
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 获取待审核帖子列表
@@ -1224,15 +1230,15 @@ paths:
         "200":
           description: 成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 参数错误（target_id无效）
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       summary: 查询审核操作日志
       tags:
       - 风险管理
@@ -1258,11 +1264,11 @@ paths:
         "200":
           description: 成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       summary: 获取待审核内容列表
       tags:
       - 风险管理
@@ -1288,15 +1294,15 @@ paths:
         "200":
           description: 操作成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 请求参数错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       summary: 审核通过
       tags:
       - 风险管理
@@ -1323,15 +1329,15 @@ paths:
         "200":
           description: 操作成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 请求参数错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       summary: 审核拒绝
       tags:
       - 风险管理
@@ -1440,27 +1446,27 @@ paths:
         "200":
           description: 操作成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 参数错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "403":
           description: 权限不足
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "404":
           description: 用户不存在
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 管理员重置用户密码（生成临时密码并通知用户）
@@ -1488,7 +1494,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 管理员设置用户角色
@@ -1523,23 +1529,23 @@ paths:
         "200":
           description: 操作成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 请求参数错误（如积分范围非法、操作类型错误等）
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权（缺少或无效的认证令牌）
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "403":
           description: 禁止访问（当前管理员无权限操作该用户）
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "500":
           description: 服务器内部错误（如数据库操作失败）
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 管理员设置用户积分
@@ -1561,23 +1567,23 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 获取用户积分
@@ -1609,15 +1615,15 @@ paths:
         "200":
           description: 获取成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 请求参数错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       summary: 获取公告列表
       tags:
       - 公告管理
@@ -1638,19 +1644,19 @@ paths:
         "200":
           description: 获取成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 无效的公告ID
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "404":
           description: 公告不存在
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       summary: 获取公告详情
       tags:
       - 公告管理
@@ -1670,11 +1676,11 @@ paths:
         "200":
           description: 获取成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       summary: 获取置顶公告
       tags:
       - 公告管理
@@ -1695,23 +1701,23 @@ paths:
         "200":
           description: 删除成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 请求参数错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "403":
           description: 无权限
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "404":
           description: 回答不存在
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 删除回答
@@ -1733,15 +1739,15 @@ paths:
         "200":
           description: 获取成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 请求参数错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "404":
           description: 回答不存在
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       summary: 获取回答详情
       tags:
       - 问答管理
@@ -1768,19 +1774,19 @@ paths:
         "200":
           description: 提交成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 请求参数错误或非问答帖
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "404":
           description: 帖子不存在
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 提交回答
@@ -1803,19 +1809,19 @@ paths:
         "200":
           description: 获取成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 无效的回答ID
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 获取回答投票状态
@@ -1838,23 +1844,23 @@ paths:
         "200":
           description: 取消成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 请求参数错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "403":
           description: 无权限
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "404":
           description: 回答或问题不存在
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 取消接受答案
@@ -1875,15 +1881,15 @@ paths:
         "200":
           description: 取消投票成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 无效的回答ID或尚未投票
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 取消回答的投票
@@ -1946,15 +1952,15 @@ paths:
         "200":
           description: 获取成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 无效的帖子ID
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "404":
           description: 问题不存在
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 获取问题的回答列表
@@ -1980,28 +1986,57 @@ paths:
         "200":
           description: 采纳成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 无效的ID或操作失败
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "403":
           description: 无权限（非问题作者）
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "404":
           description: 问题或回答不存在
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 采纳答案
       tags:
       - 回答管理
+  /attachments/post/:post_id:
+    post:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: 文件
+        in: formData
+        name: file
+        required: true
+        type: file
+      - description: 帖子ID
+        in: formData
+        name: post_id
+        type: integer
+      - description: 文件类型
+        in: formData
+        name: type
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+      summary: 上传帖子文件
+      tags:
+      - 上传管理
   /auth/account:
     delete:
       consumes:
@@ -2019,7 +2054,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 用户注销账户（软删除）
@@ -2035,7 +2070,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 获取注销状态
@@ -2051,7 +2086,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 确认永久删除账户
@@ -2067,7 +2102,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 取消注销账户
@@ -2090,7 +2125,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       summary: 用户登录
       tags:
       - 验证管理
@@ -2102,7 +2137,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 用户登出
@@ -2116,7 +2151,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 获取当前用户信息
@@ -2140,11 +2175,11 @@ paths:
         "200":
           description: 成功（邮箱存在与否均返回此消息）
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 请求参数错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       summary: 忘记密码
       tags:
       - 验证管理
@@ -2166,11 +2201,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       summary: 通过token重置密码
       tags:
       - 验证管理
@@ -2184,7 +2219,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 忘记密码
@@ -2207,11 +2242,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       summary: 用户注册
       tags:
       - 验证管理
@@ -2235,11 +2270,11 @@ paths:
         "200":
           description: 获取成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       summary: 获取板块列表
       tags:
       - 板块管理
@@ -2260,19 +2295,19 @@ paths:
         "200":
           description: 创建成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 请求参数错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "403":
           description: 无权限
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 创建新板块
@@ -2293,23 +2328,23 @@ paths:
         "200":
           description: 删除成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 无效的板块ID
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "403":
           description: 无权限
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "404":
           description: 板块不存在
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 删除板块（仅管理员）
@@ -2329,15 +2364,15 @@ paths:
         "200":
           description: 获取成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 无效的板块ID
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "404":
           description: 板块不存在
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       summary: 获取板块详情
       tags:
       - 板块管理
@@ -2365,23 +2400,23 @@ paths:
         "200":
           description: 更新成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 请求参数错误或板块ID无效
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "403":
           description: 无权限
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "404":
           description: 板块不存在
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 更新板块信息
@@ -2430,23 +2465,23 @@ paths:
         "200":
           description: 禁言成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 请求参数错误或板块ID无效
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "403":
           description: 无权限（需要版主或管理员权限）
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "404":
           description: 板块不存在
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 禁言用户
@@ -2472,23 +2507,23 @@ paths:
         "200":
           description: 解除禁言成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 无效的板块ID或用户ID
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "403":
           description: 无权限（需要版主或管理员权限）
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "404":
           description: 禁言记录不存在
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 解除禁言
@@ -2509,15 +2544,15 @@ paths:
         "200":
           description: 获取成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 无效的板块ID
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       summary: 获取板块版主列表
       tags:
       - 版主管理
@@ -2580,23 +2615,23 @@ paths:
         "200":
           description: 添加版主成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 请求参数错误或板块ID无效
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "403":
           description: 无权限（需要管理员或 manage_moderator 权限）
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "404":
           description: 板块不存在
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 任命版主
@@ -2622,23 +2657,23 @@ paths:
         "200":
           description: 移除版主成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 无效的板块ID或用户ID
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "403":
           description: 无权限（需要管理员或 manage_moderator 权限）
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "404":
           description: 版主不存在
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 移除版主
@@ -2702,23 +2737,23 @@ paths:
         "200":
           description: 权限更新成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 请求参数错误或板块ID/用户ID无效
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "403":
           description: 无权限（需要管理员权限）
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "404":
           description: 版主不存在
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 更新版主权限
@@ -2747,19 +2782,19 @@ paths:
         "200":
           description: 申请提交成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 请求参数错误或板块ID无效
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "403":
           description: 无权限或已申请
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 申请成为版主
@@ -2786,7 +2821,7 @@ paths:
           description: 删除成功
           schema:
             allOf:
-            - $ref: '#/definitions/vo.BasicResponse'
+            - $ref: '#/definitions/common.BasicResponse'
             - properties:
                 data:
                   type: object
@@ -2794,19 +2829,19 @@ paths:
         "400":
           description: 无效的板块ID或帖子ID
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "403":
           description: 无权限（需要版主或管理员权限）
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "404":
           description: 帖子不存在
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 删除帖子（版主）
@@ -2848,7 +2883,7 @@ paths:
           description: 操作成功
           schema:
             allOf:
-            - $ref: '#/definitions/vo.BasicResponse'
+            - $ref: '#/definitions/common.BasicResponse'
             - properties:
                 data:
                   type: object
@@ -2856,19 +2891,19 @@ paths:
         "400":
           description: 无效的板块ID或帖子ID
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "403":
           description: 无权限（需要版主或管理员权限）
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "404":
           description: 帖子不存在
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 置顶/取消置顶帖子
@@ -2889,23 +2924,23 @@ paths:
         "200":
           description: 撤销成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 无效的申请ID
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "403":
           description: 无权限（只能撤销自己的申请）
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "404":
           description: 申请不存在
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 撤销版主申请
@@ -2931,11 +2966,11 @@ paths:
         "200":
           description: 申请列表
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 获取我的申请记录
@@ -2950,15 +2985,15 @@ paths:
         "200":
           description: 获取成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 获取我管理的板块
@@ -2979,11 +3014,11 @@ paths:
         "200":
           description: 获取成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "404":
           description: 板块不存在
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       summary: 根据板块标识符获取板块
       tags:
       - 板块管理
@@ -3012,19 +3047,19 @@ paths:
         "200":
           description: 获取成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 板块 slug 不能为空
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "404":
           description: 板块不存在
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       summary: 获取板块下的帖子列表
       tags:
       - 板块管理
@@ -3037,11 +3072,11 @@ paths:
         "200":
           description: 获取成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       summary: 获取板块树形结构
       tags:
       - 板块管理
@@ -3063,15 +3098,15 @@ paths:
         "200":
           description: 创建成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 请求参数错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 创建评论
@@ -3092,23 +3127,23 @@ paths:
         "200":
           description: 删除成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 无效的评论ID或删除失败
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "403":
           description: 无权限
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "404":
           description: 评论不存在
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 删除评论
@@ -3136,19 +3171,19 @@ paths:
         "200":
           description: 采纳成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 请求参数错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "403":
           description: 无权限
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 采纳答案
@@ -3169,11 +3204,11 @@ paths:
         "200":
           description: 获取成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 无效的评论ID
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 获取答案投票状态
@@ -3201,19 +3236,19 @@ paths:
         "200":
           description: 投票成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 请求参数错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "403":
           description: 不能给自己的答案投票
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 对答案投票
@@ -3244,15 +3279,15 @@ paths:
         "200":
           description: 获取成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 无效的帖子ID
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       summary: 获取帖子的评论列表
       tags:
       - 评论管理
@@ -3271,7 +3306,7 @@ paths:
       responses: {}
       summary: 获取文件内容
       tags:
-      - Upload
+      - 上传管理
   /notifications:
     get:
       description: 分页获取当前用户的通知列表
@@ -3292,15 +3327,15 @@ paths:
         "200":
           description: 获取成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 获取通知列表
@@ -3321,27 +3356,27 @@ paths:
         "200":
           description: 标记成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 无效的通知ID
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "403":
           description: 无权操作
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "404":
           description: 通知不存在
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 标记单个通知为已读
@@ -3364,19 +3399,19 @@ paths:
         "200":
           description: 标记成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 参数错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 批量标记通知为已读
@@ -3391,15 +3426,15 @@ paths:
         "200":
           description: 获取成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 获取未读通知数量
@@ -3429,19 +3464,19 @@ paths:
         "200":
           description: 获取成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "403":
           description: 无权限
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 用户获取插件列表
@@ -3496,11 +3531,11 @@ paths:
         "200":
           description: 获取成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       summary: 获取帖子列表
       tags:
       - 帖子管理
@@ -3521,19 +3556,19 @@ paths:
         "200":
           description: 创建成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 请求参数错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 创建帖子
@@ -3554,23 +3589,23 @@ paths:
         "200":
           description: 删除成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 无效的帖子ID
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "403":
           description: 无权限
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "404":
           description: 帖子不存在
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 删除帖子
@@ -3590,15 +3625,15 @@ paths:
         "200":
           description: 获取成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 无效的帖子ID
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "404":
           description: 帖子不存在
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 获取帖子详情
@@ -3626,23 +3661,23 @@ paths:
         "200":
           description: 更新成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 请求参数错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "403":
           description: 无权限
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "404":
           description: 帖子不存在
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 更新帖子
@@ -3663,19 +3698,19 @@ paths:
         "200":
           description: 取消点赞成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 无效的帖子ID
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 取消点赞帖子
@@ -3695,19 +3730,19 @@ paths:
         "200":
           description: 点赞成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 无效的帖子ID
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 点赞帖子
@@ -3731,19 +3766,19 @@ paths:
         "200":
           description: 创建成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 请求参数错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "403":
           description: 积分不足
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 创建问答帖
@@ -3783,15 +3818,15 @@ paths:
         "200":
           description: 获取成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 无效的帖子ID或非问答帖
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "404":
           description: 帖子不存在
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       summary: 获取问答帖详情
       tags:
       - 问题管理
@@ -3819,11 +3854,11 @@ paths:
         "200":
           description: 获取成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       summary: 获取问答帖列表
       tags:
       - 问题管理
@@ -3871,11 +3906,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       summary: 获取问题精简列表
       tags:
       - 问题管理
@@ -3918,15 +3953,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 获取日统计数据
@@ -3964,23 +3999,23 @@ paths:
         "200":
           description: 获取成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 参数错误或日期范围超过90天
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "403":
           description: 无权限
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 获取指定日期范围的统计数据
@@ -4016,15 +4051,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 获取总计统计数据
@@ -4068,15 +4103,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 获取趋势统计数据
@@ -4091,11 +4126,11 @@ paths:
         "200":
           description: 获取成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       summary: 获取所有标签
       tags:
       - 标签管理
@@ -4116,23 +4151,23 @@ paths:
         "200":
           description: 创建成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 请求参数错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "403":
           description: 无权限
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 创建标签（仅管理员）
@@ -4153,27 +4188,27 @@ paths:
         "200":
           description: 删除成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 无效的标签ID
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "403":
           description: 无权限
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "404":
           description: 标签不存在
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 删除标签（仅管理员）
@@ -4193,11 +4228,11 @@ paths:
         "200":
           description: 获取成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       summary: 获取单个标签
       tags:
       - 标签管理
@@ -4223,27 +4258,27 @@ paths:
         "200":
           description: 更新成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 请求参数错误或无效的标签ID
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "403":
           description: 无权限
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "404":
           description: 标签不存在
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 更新标签（仅管理员）
@@ -4269,15 +4304,15 @@ paths:
         "200":
           description: 获取成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 获取关注时间线
@@ -4303,15 +4338,15 @@ paths:
         "200":
           description: 获取成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 获取首页时间线
@@ -4332,23 +4367,23 @@ paths:
         "200":
           description: 取消关注成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 无效的用户ID
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "404":
           description: 未关注该用户
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 取消关注用户
@@ -4368,23 +4403,23 @@ paths:
         "200":
           description: 关注成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 无效的用户ID或不能关注自己
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "409":
           description: 已关注该用户
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 关注用户
@@ -4405,19 +4440,19 @@ paths:
         "200":
           description: 获取成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 无效的用户ID
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 检查是否已关注
@@ -4432,15 +4467,15 @@ paths:
         "200":
           description: 获取成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 获取关注列表
@@ -4466,11 +4501,11 @@ paths:
         "200":
           description: 获取成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       summary: 获取话题列表
       tags:
       - 话题管理
@@ -4491,19 +4526,19 @@ paths:
         "200":
           description: 创建成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 请求参数错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "403":
           description: 无权限
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 创建话题
@@ -4524,23 +4559,23 @@ paths:
         "200":
           description: 删除成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 无效的话题ID
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "403":
           description: 无权限
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "404":
           description: 话题不存在
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 删除话题
@@ -4560,15 +4595,15 @@ paths:
         "200":
           description: 获取成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 无效的话题ID
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "404":
           description: 话题不存在
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       summary: 获取话题详情
       tags:
       - 话题管理
@@ -4594,23 +4629,23 @@ paths:
         "200":
           description: 更新成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 请求参数错误或无效的话题ID
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "403":
           description: 无权限
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "404":
           description: 话题不存在
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 更新话题
@@ -4631,19 +4666,19 @@ paths:
         "200":
           description: 取消关注成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 无效的话题ID
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "404":
           description: 话题不存在或未关注
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 取消关注话题
@@ -4663,19 +4698,19 @@ paths:
         "200":
           description: 关注成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 无效的话题ID
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "404":
           description: 话题不存在
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 关注话题
@@ -4696,19 +4731,19 @@ paths:
         "200":
           description: 获取成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 无效的话题ID
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 检查是否关注话题
@@ -4739,15 +4774,15 @@ paths:
         "200":
           description: 获取成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 无效的话题ID
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       summary: 获取话题关注者列表
       tags:
       - 话题管理
@@ -4776,15 +4811,15 @@ paths:
         "200":
           description: 获取成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 无效的话题ID
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       summary: 获取话题帖子列表
       tags:
       - 话题管理
@@ -4810,23 +4845,23 @@ paths:
         "200":
           description: 添加成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 请求参数错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "403":
           description: 无权限
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "404":
           description: 话题或帖子不存在
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 添加帖子到话题
@@ -4852,23 +4887,23 @@ paths:
         "200":
           description: 移除成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 无效的ID
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "403":
           description: 无权限
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "404":
           description: 话题或帖子不存在
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 从话题移除帖子
@@ -4899,19 +4934,54 @@ paths:
         "200":
           description: 获取成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "400":
           description: 无效的用户ID
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       summary: 获取用户创建的话题
       tags:
       - 话题管理
-  /upload:
+  /upload/{file_id}:
+    delete:
+      parameters:
+      - description: 文件ID
+        in: path
+        name: file_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+      summary: 删除文件
+      tags:
+      - 上传管理
+    get:
+      parameters:
+      - description: 文件ID
+        in: path
+        name: file_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+      summary: 获取文件信息
+      tags:
+      - 上传管理
+  /upload/post_file:
     post:
       consumes:
       - multipart/form-data
@@ -4936,45 +5006,10 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       summary: 上传文件
       tags:
-      - Upload
-  /upload/{file_id}:
-    delete:
-      parameters:
-      - description: 文件ID
-        in: path
-        name: file_id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/vo.BasicResponse'
-      summary: 删除文件
-      tags:
-      - Upload
-    get:
-      parameters:
-      - description: 文件ID
-        in: path
-        name: file_id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/vo.BasicResponse'
-      summary: 获取文件信息
-      tags:
-      - Upload
+      - 上传管理
   /user/files:
     get:
       parameters:
@@ -4996,10 +5031,10 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       summary: 获取用户文件列表
       tags:
-      - Upload
+      - 上传管理
   /users/{id}:
     get:
       parameters:
@@ -5014,7 +5049,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       summary: 获取用户资料
       tags:
       - 用户管理
@@ -5126,15 +5161,15 @@ paths:
         "200":
           description: 操作成功
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
         "404":
           description: 用户不存在
           schema:
-            $ref: '#/definitions/vo.BasicResponse'
+            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 获取当前用户角色

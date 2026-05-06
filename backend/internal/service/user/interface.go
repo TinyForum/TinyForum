@@ -3,6 +3,7 @@ package user
 import (
 	"context"
 	"tiny-forum/internal/infra/validator"
+	"tiny-forum/internal/model/common"
 	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/dto"
 	"tiny-forum/internal/model/request"
@@ -47,7 +48,7 @@ type UserService interface {
 	// stats
 	GetGlobalStatsCount(ctx context.Context, userID uint) (*dto.StatsInfo, error)
 	// posts
-	GetUserPosts(ctx context.Context, req request.GetUserPostsRequest, userID uint) (*vo.BasicPageData, error)
+	GetUserPosts(ctx context.Context, req request.GetUserPostsRequest, userID uint) (*common.PageResult[vo.UserPosts], error)
 }
 type userService struct {
 	repo        userRepo.UserRepository

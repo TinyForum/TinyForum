@@ -20,10 +20,10 @@ import (
 // @Produce json
 // @Security ApiKeyAuth
 // @Param body body board.CreateBoardInput true "板块信息"
-// @Success 200 {object} vo.BasicResponse  "创建成功"
-// @Failure 400 {object} vo.BasicResponse"请求参数错误"
-// @Failure 401 {object} vo.BasicResponse"未授权"
-// @Failure 403 {object} vo.BasicResponse"无权限"
+// @Success 200 {object} common.BasicResponse  "创建成功"
+// @Failure 400 {object} common.BasicResponse"请求参数错误"
+// @Failure 401 {object} common.BasicResponse"未授权"
+// @Failure 403 {object} common.BasicResponse"无权限"
 // @Router /boards [post]
 func (h *BoardHandler) Create(c *gin.Context) {
 	var input boardService.CreateBoardInput
@@ -48,11 +48,11 @@ func (h *BoardHandler) Create(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Param id path int true "板块ID" minimum(1) example(1)
 // @Param body body board.CreateBoardInput true "板块信息"
-// @Success 200 {object} vo.BasicResponse  "更新成功"
-// @Failure 400 {object} vo.BasicResponse"请求参数错误或板块ID无效"
-// @Failure 401 {object} vo.BasicResponse"未授权"
-// @Failure 403 {object} vo.BasicResponse"无权限"
-// @Failure 404 {object} vo.BasicResponse"板块不存在"
+// @Success 200 {object} common.BasicResponse  "更新成功"
+// @Failure 400 {object} common.BasicResponse"请求参数错误或板块ID无效"
+// @Failure 401 {object} common.BasicResponse"未授权"
+// @Failure 403 {object} common.BasicResponse"无权限"
+// @Failure 404 {object} common.BasicResponse"板块不存在"
 // @Router /boards/{id} [put]
 func (h *BoardHandler) Update(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
@@ -80,11 +80,11 @@ func (h *BoardHandler) Update(c *gin.Context) {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path int true "板块ID"
-// @Success 200 {object} vo.BasicResponse  "删除成功"
-// @Failure 400 {object} vo.BasicResponse"无效的板块ID"
-// @Failure 401 {object} vo.BasicResponse"未授权"
-// @Failure 403 {object} vo.BasicResponse"无权限"
-// @Failure 404 {object} vo.BasicResponse"板块不存在"
+// @Success 200 {object} common.BasicResponse  "删除成功"
+// @Failure 400 {object} common.BasicResponse"无效的板块ID"
+// @Failure 401 {object} common.BasicResponse"未授权"
+// @Failure 403 {object} common.BasicResponse"无权限"
+// @Failure 404 {object} common.BasicResponse"板块不存在"
 // @Router /boards/{id} [delete]
 func (h *BoardHandler) Delete(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
@@ -105,9 +105,9 @@ func (h *BoardHandler) Delete(c *gin.Context) {
 // @Tags 板块管理
 // @Produce json
 // @Param id path int true "板块ID"
-// @Success 200 {object} vo.BasicResponse  "获取成功"
-// @Failure 400 {object} vo.BasicResponse"无效的板块ID"
-// @Failure 404 {object} vo.BasicResponse"板块不存在"
+// @Success 200 {object} common.BasicResponse  "获取成功"
+// @Failure 400 {object} common.BasicResponse"无效的板块ID"
+// @Failure 404 {object} common.BasicResponse"板块不存在"
 // @Router /boards/{id} [get]
 func (h *BoardHandler) GetByID(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
@@ -129,8 +129,8 @@ func (h *BoardHandler) GetByID(c *gin.Context) {
 // @Tags 板块管理
 // @Produce json
 // @Param slug path string true "板块标识符"
-// @Success 200 {object} vo.BasicResponse  "获取成功"
-// @Failure 404 {object} vo.BasicResponse"板块不存在"
+// @Success 200 {object} common.BasicResponse  "获取成功"
+// @Failure 404 {object} common.BasicResponse"板块不存在"
 // @Router /boards/slug/{slug} [get]
 func (h *BoardHandler) GetBoardBySlug(c *gin.Context) {
 	slug := c.Param("slug")
@@ -149,8 +149,8 @@ func (h *BoardHandler) GetBoardBySlug(c *gin.Context) {
 // @Produce json
 // @Param page query int false "页码" default(1)
 // @Param page_size query int false "每页数量" default(20)
-// @Success 200 {object} vo.BasicResponse  "获取成功"
-// @Failure 500 {object} vo.BasicResponse"服务器内部错误"
+// @Success 200 {object} common.BasicResponse  "获取成功"
+// @Failure 500 {object} common.BasicResponse"服务器内部错误"
 // @Router /boards [get]
 func (h *BoardHandler) List(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
@@ -168,8 +168,8 @@ func (h *BoardHandler) List(c *gin.Context) {
 // @Description 获取所有板块的树形层级结构
 // @Tags 板块管理
 // @Produce json
-// @Success 200 {object} vo.BasicResponse  "获取成功"
-// @Failure 500 {object} vo.BasicResponse"服务器内部错误"
+// @Success 200 {object} common.BasicResponse  "获取成功"
+// @Failure 500 {object} common.BasicResponse"服务器内部错误"
 // @Router /boards/tree [get]
 func (h *BoardHandler) GetTree(c *gin.Context) {
 	tree, err := h.boardSvc.GetTree()
@@ -188,10 +188,10 @@ func (h *BoardHandler) GetTree(c *gin.Context) {
 // @Param slug path string true "板块标识符"
 // @Param page query int false "页码" default(1)
 // @Param page_size query int false "每页数量" default(20)
-// @Success 200 {object} vo.BasicResponse  "获取成功"
-// @Failure 400 {object} vo.BasicResponse"板块 slug 不能为空"
-// @Failure 404 {object} vo.BasicResponse"板块不存在"
-// @Failure 500 {object} vo.BasicResponse"服务器内部错误"
+// @Success 200 {object} common.BasicResponse  "获取成功"
+// @Failure 400 {object} common.BasicResponse"板块 slug 不能为空"
+// @Failure 404 {object} common.BasicResponse"板块不存在"
+// @Failure 500 {object} common.BasicResponse"服务器内部错误"
 // @Router /boards/slug/{slug}/posts [get]
 func (h *BoardHandler) GetPostsBySlug(c *gin.Context) {
 	slug := c.Param("slug")

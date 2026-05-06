@@ -69,8 +69,8 @@ func NewServices(
 	emailSvc := email.NewEmailService(&cfg.Private.Email)
 	authSvc := auth.NewAuthService(repos.Auth, repos.User, jwtMgr, notifSvc, emailSvc, cfg, repos.Token, repos.Transaction, infra.RedisClient)
 	uploadSvc := upload.NewUploadService(repos.Upload, cfg.Basic.Upload)
-	adminSvc := admin.NewAdminService(announcementSvc, userSvc)
-	pluginSvc := plugin.NewPluginService()
+	adminSvc := admin.NewAdminService(announcementSvc, userSvc, postSvc)
+	pluginSvc := plugin.NewPluginService(repos.Plugin)
 
 	return &Services{
 		User:         userSvc,

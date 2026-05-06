@@ -21,10 +21,10 @@ import (
 // @Produce json
 // @Security ApiKeyAuth
 // @Param body body dto.CreateQuestionRequest true "问答信息"
-// @Success 200 {object} vo.BasicResponse "创建成功"
-// @Failure 400 {object} vo.BasicResponse"请求参数错误"
-// @Failure 401 {object} vo.BasicResponse"未授权"
-// @Failure 403 {object} vo.BasicResponse"积分不足"
+// @Success 200 {object} common.BasicResponse "创建成功"
+// @Failure 400 {object} common.BasicResponse"请求参数错误"
+// @Failure 401 {object} common.BasicResponse"未授权"
+// @Failure 403 {object} common.BasicResponse"积分不足"
 // @Router /questions/create [post]
 func (h *QuestionHandler) CreateQuestion(c *gin.Context) {
 	body, err := io.ReadAll(c.Request.Body)

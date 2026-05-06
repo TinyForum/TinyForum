@@ -15,6 +15,6 @@ type pluginService struct {
 	repo pluginRepo.PluginRepository
 }
 
-func NewPluginService() PluginService {
-	return &pluginService{}
+func NewPluginService(repo pluginRepo.PluginRepository) PluginService {
+	return &pluginService{repo: repo}
 }

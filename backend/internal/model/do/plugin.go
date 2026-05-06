@@ -154,7 +154,7 @@ type PluginMeta struct {
 	Tags     []string       `json:"tags,omitempty" gorm:"type:json"`                 // 标签列表
 
 	// 作者信息
-	AuthorID    uint   `json:"authorId,omitempty" gorm:"type:bigint(20)"`
+	AuthorID    uint   `json:"authorId,omitempty" gorm:"type:bigint"`
 	AuthorEmail string `json:"authorEmail,omitempty" gorm:"type:varchar(100)"` // 作者邮箱
 	AuthorURL   string `json:"authorUrl,omitempty" gorm:"type:varchar(255)"`   // 作者主页
 

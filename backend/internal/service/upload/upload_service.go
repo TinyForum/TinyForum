@@ -17,6 +17,7 @@ import (
 
 	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/dto"
+	"tiny-forum/internal/model/request"
 	"tiny-forum/pkg/logger"
 )
 
@@ -35,7 +36,7 @@ func randomFileName(ext string) string {
 }
 
 // 检查文件类型
-func (s *service) validateFile(header *multipart.FileHeader, fileType string) (string, error) {
+func (s *service) validateFile(header *multipart.FileHeader, fileType do.FileType) (string, error) {
 	// 检查大小
 	if header.Size > s.maxSize {
 		return "", fmt.Errorf("文件过大，最大允许 %d MB", s.maxSize/(1024*1024))
@@ -110,7 +111,7 @@ func processImage(srcPath, dstPath string, maxWidth, maxHeight int) error {
 }
 
 // 主上传方法
-func (s *service) UploadFile(ctx context.Context, userID int64, fileHeader *multipart.FileHeader, req *dto.UploadRequest) (*dto.UploadResponse, error) {
+func (s *service) UploadFile(ctx context.Context, userID int64, fileHeader *multipart.FileHeader, req *request.UploadPostFileRequest) (*dto.UploadResponse, error) {
 	// 1. 验证文件
 	ext, err := s.validateFile(fileHeader, req.FileType)
 	if err != nil {
@@ -126,8 +127,7 @@ func (s *service) UploadFile(ctx context.Context, userID int64, fileHeader *mult
 	if req.FileType == "attachment" {
 		subDir = "files"
 	}
-
-	saveDir := filepath.Join(s.uploadDir, subDir)
+	saveDir := filepath.Join(s.uploadDir, string(subDir))
 	if err := os.MkdirAll(saveDir, 0755); err != nil {
 		return nil, fmt.Errorf("创建目录失败: %w", err)
 	}
