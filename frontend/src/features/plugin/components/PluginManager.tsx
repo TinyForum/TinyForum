@@ -8,7 +8,6 @@ import {
   Pencil,
   Power,
   PowerOff,
-  RefreshCw,
   AlertCircle,
   CheckCircle2,
   Loader2,

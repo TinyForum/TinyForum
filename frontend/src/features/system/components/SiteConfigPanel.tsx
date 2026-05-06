@@ -142,7 +142,7 @@ export function SiteConfigPanel({
 
 // ── helpers ────────────────────────────────────────────────────────────────────
 
-function SectionCard({
+export function SectionCard({
   title,
   subtitle,
   children,
@@ -166,7 +166,7 @@ function SectionCard({
   );
 }
 
-function Field({
+export function Field({
   label,
   icon,
   children,

@@ -8,7 +8,10 @@ import {
   ChevronRight,
 } from "lucide-react";
 
-export type SystemMenuId = "config" | "plugins" | "features";
+export type SystemMenuId =
+  | "website_config"
+  | "plugins_center"
+  | "features_flags";
 
 interface MenuItem {
   id: SystemMenuId;
@@ -20,21 +23,21 @@ interface MenuItem {
 
 const MENUS: MenuItem[] = [
   {
-    id: "config",
+    id: "website_config",
     label: "网站配置",
     sublabel: "Site Config",
     icon: <Settings className="w-5 h-5" />,
     accent: "text-primary",
   },
   {
-    id: "plugins",
-    label: "插件管理",
+    id: "plugins_center",
+    label: "插件中心",
     sublabel: "Plugins",
     icon: <Puzzle className="w-5 h-5" />,
     accent: "text-secondary",
   },
   {
-    id: "features",
+    id: "features_flags",
     label: "功能开关",
     sublabel: "Feature Flags",
     icon: <ToggleLeft className="w-5 h-5" />,

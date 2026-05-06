@@ -15,7 +15,7 @@ import (
 // @Tags 验证管理
 // @Accept json
 // @Produce json
-// @Param body body user.RegisterInput true "注册信息"
+// @Param body body request.RegisterRequest true "注册信息"
 // @Success 200 {object} common.BasicResponse
 // @Failure 400 {object} common.BasicResponse
 // @Router /auth/register [post]

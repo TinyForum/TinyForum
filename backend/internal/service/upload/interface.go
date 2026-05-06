@@ -6,6 +6,7 @@ import (
 	"os"
 	"strings"
 	"tiny-forum/internal/infra/config"
+	"tiny-forum/internal/model/bo"
 	"tiny-forum/internal/model/dto"
 	"tiny-forum/internal/model/request"
 	uploadRepo "tiny-forum/internal/repository/upload"
@@ -13,6 +14,7 @@ import (
 
 type UploadService interface {
 	UploadFile(ctx context.Context, userID int64, fileHeader *multipart.FileHeader, req *request.UploadPostFileRequest) (*dto.UploadResponse, error)
+	UploadPlugin(ctx context.Context, request bo.PluginUpdateBO) (*dto.UploadResponse, error)
 	GetFile(ctx context.Context, fileID string) (*dto.FileInfo, error)
 	DeleteFile(ctx context.Context, userID int64, fileID string) error
 	GetUserFiles(ctx context.Context, userID int64, fileType string, page, pageSize int) ([]*dto.FileInfo, int64, error)

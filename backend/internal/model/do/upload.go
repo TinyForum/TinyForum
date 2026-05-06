@@ -96,7 +96,7 @@ type Attachment struct {
 	UploadIP string           `gorm:"column:upload_ip;type:varchar(45);comment:上传时的客户端IP" json:"upload_ip"`
 
 	// 可选：插件自定义元数据 (JSON)
-	PluginMeta map[string]any `gorm:"column:plugin_meta;type:json;comment:插件附加数据, 例如缩略图处理参数等" json:"plugin_meta,omitempty" serializer:json"`
+	PluginMeta map[string]any `gorm:"column:plugin_meta;type:json;comment:插件附加数据, 例如缩略图处理参数等" json:"plugin_meta,omitempty" serializer:"json"`
 }
 
 // TableName 指定表名

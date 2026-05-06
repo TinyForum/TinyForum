@@ -16,7 +16,6 @@ import {
   XCircle,
   User as UserIcon,
   UserPlus,
-  Bot,
   User2,
   EyeIcon,
   MonitorUpIcon,
@@ -310,7 +309,7 @@ export function UserActionMenu({
           nextRole: "user",
         });
         break;
-      case "system":
+      case "system_maintainer":
         // 系统管理员没有社区权限
         break;
     }
@@ -327,7 +326,7 @@ export function UserActionMenu({
       reviewer: <Eye className="w-4 h-4" />,
       member: <UserPlus className="w-4 h-4" />,
       user: <UsersIcon className="w-4 h-4" />,
-      system: <MonitorUpIcon className="w-4 h-4" />,
+      system_maintainer: <MonitorUpIcon className="w-4 h-4" />,
     };
 
     return {

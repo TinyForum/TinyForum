@@ -90,7 +90,7 @@ class PluginComponentWrapper extends React.Component<
     if (this.state.hasError) {
       return (
         <div className="text-xs text-error/60 px-2 py-1 border border-error/20 rounded bg-error/5">
-          Plugin "{this.props.pluginName}" encountered an error
+          Plugin {`"${this.props.pluginName}"`} encountered an error
         </div>
       );
     }

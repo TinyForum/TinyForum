@@ -84,7 +84,7 @@ export function FeatureFlagsPanel({
   );
 }
 
-function FeatureRow({
+export function FeatureRow({
   feature,
   isToggling,
   onToggle,

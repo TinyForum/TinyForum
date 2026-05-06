@@ -7,51 +7,58 @@ import {
   UpdatePluginPayload,
 } from "@/shared/api/modules/plugin/plugins";
 
+const PAGE_SIZE = 10;
+
 export function useAdminPlugins() {
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
-  const PAGE_SIZE = 10;
 
-  const { data, isLoading } = useQuery({
+  // 直接拿到分页数据
+  const { data: pageData, isLoading } = useQuery({
     queryKey: ["admin", "plugins", page],
-    queryFn: () =>
-      pluginApi.list({ page, page_size: PAGE_SIZE }).then((r) => r.data),
+    queryFn: async () => {
+      const res = await pluginApi.list({ page, page_size: PAGE_SIZE });
+      // 后端返回结构: res.data = { code, message, data: { list, total, page, page_size } }
+      return (
+        res.data?.data ?? { list: [], total: 0, page: 1, page_size: PAGE_SIZE }
+      );
+    },
   });
 
+  // 提取插件列表和总数
+  const plugins = pageData?.list ?? [];
+  const total = pageData?.total ?? 0;
+
+  // 通用成功回调
+  const invalidateAndToast = (successMsg: string) => {
+    queryClient.invalidateQueries({ queryKey: ["admin", "plugins"] });
+    toast.success(successMsg);
+  };
+
+  // mutations...
   const createMutation = useMutation({
     mutationFn: (payload: CreatePluginPayload) => pluginApi.create(payload),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin", "plugins"] });
-      toast.success("Plugin installed successfully");
-    },
+    onSuccess: () => invalidateAndToast("Plugin installed successfully"),
     onError: () => toast.error("Failed to install plugin"),
   });
 
   const updateMutation = useMutation({
     mutationFn: (payload: UpdatePluginPayload) => pluginApi.update(payload),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin", "plugins"] });
-      toast.success("Plugin updated");
-    },
+    onSuccess: () => invalidateAndToast("Plugin updated"),
     onError: () => toast.error("Failed to update plugin"),
   });
 
   const toggleMutation = useMutation({
     mutationFn: ({ id, enabled }: { id: string; enabled: boolean }) =>
       pluginApi.toggle(id, enabled),
-    onSuccess: (_, { enabled }) => {
-      queryClient.invalidateQueries({ queryKey: ["admin", "plugins"] });
-      toast.success(enabled ? "Plugin enabled" : "Plugin disabled");
-    },
+    onSuccess: (_, { enabled }) =>
+      invalidateAndToast(enabled ? "Plugin enabled" : "Plugin disabled"),
     onError: () => toast.error("Failed to toggle plugin"),
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => pluginApi.delete(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin", "plugins"] });
-      toast.success("Plugin removed");
-    },
+    onSuccess: () => invalidateAndToast("Plugin removed"),
     onError: () => toast.error("Failed to remove plugin"),
   });
 
@@ -76,8 +83,8 @@ export function useAdminPlugins() {
   );
 
   return {
-    plugins: data?.data ?? [],
-    total: data?.total ?? 0,
+    plugins, // 插件数组（PluginVO[]）
+    total, // 总数（number）
     isLoading,
     page,
     pageSize: PAGE_SIZE,

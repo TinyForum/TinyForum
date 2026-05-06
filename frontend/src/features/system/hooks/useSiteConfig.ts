@@ -45,7 +45,7 @@ export function useSiteConfig() {
     } finally {
       setIsSaving(false);
     }
-  }, [config]);
+  }, []);
 
   return { config, update, save, isSaving };
 }

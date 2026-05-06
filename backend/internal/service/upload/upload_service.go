@@ -15,6 +15,7 @@ import (
 
 	"github.com/disintegration/imaging"
 
+	"tiny-forum/internal/model/bo"
 	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/dto"
 	"tiny-forum/internal/model/request"
@@ -108,6 +109,96 @@ func processImage(srcPath, dstPath string, maxWidth, maxHeight int) error {
 	}
 
 	return imaging.Save(src, dstPath)
+}
+
+const (
+	pluginUploadSubDir = "plugins" // 插件专用子目录
+)
+
+// UploadPlugin 专门处理插件上传（独立于通用文件上传）
+func (s *service) UploadPlugin(ctx context.Context, request bo.PluginUpdateBO) (*dto.UploadResponse, error) {
+	fileHeader := request.FileHeader
+	userID := request.UserID
+
+	// 1. 验证插件文件（仅 ZIP）
+	ext, err := s.validatePluginFile(fileHeader)
+	if err != nil {
+		return nil, err
+	}
+
+	// 2. 生成存储路径
+	fileID := generateFileID()
+	storedName := fmt.Sprintf("%s%s", fileID, ext) // 例如：abc123.zip
+	saveDir := filepath.Join(s.uploadDir, pluginUploadSubDir)
+	if err := os.MkdirAll(saveDir, 0755); err != nil {
+		return nil, fmt.Errorf("创建插件目录失败: %w", err)
+	}
+	storedPath := filepath.Join(saveDir, storedName)
+
+	// 3. 保存文件
+	srcFile, err := fileHeader.Open()
+	if err != nil {
+		return nil, fmt.Errorf("打开插件文件失败: %w", err)
+	}
+	defer srcFile.Close()
+
+	dstFile, err := os.Create(storedPath)
+	if err != nil {
+		return nil, fmt.Errorf("创建插件文件失败: %w", err)
+	}
+	defer dstFile.Close()
+
+	if _, err := io.Copy(dstFile, srcFile); err != nil {
+		os.Remove(storedPath)
+		return nil, fmt.Errorf("保存插件文件失败: %w", err)
+	}
+
+	// 4. 可选：解压或校验 ZIP 内容 (可扩展)
+	// 例如检查 manifest.json 是否存在
+	// ...
+
+	// 5. 保存到附件表（标记 file_type = plugin）
+	attachment := &do.Attachment{
+		FileID:       fileID,
+		UserID:       int64(userID),
+		OriginalName: fileHeader.Filename,
+		StoredName:   storedName,
+		StoredPath:   storedPath,
+		Size:         fileHeader.Size,
+		MimeType:     "application/zip",
+		FileType:     "plugin", // 明确标记为插件
+		Ext:          ext,
+		Status:       1,
+		// PostID/CommentID 等留空
+	}
+	if err := s.repo.Create(ctx, attachment); err != nil {
+		os.Remove(storedPath)
+		return nil, fmt.Errorf("保存插件记录失败: %w", err)
+	}
+
+	// 6. 构建响应 URL
+	url := fmt.Sprintf("%s/%s/%s", s.urlPrefix, pluginUploadSubDir, storedName)
+	return &dto.UploadResponse{
+		FileID:       fileID,
+		URL:          url,
+		OriginalName: fileHeader.Filename,
+		Size:         fileHeader.Size,
+		MimeType:     "application/zip",
+	}, nil
+}
+
+// validatePluginFile 验证插件文件（仅允许 ZIP）
+func (s *service) validatePluginFile(fileHeader *multipart.FileHeader) (string, error) {
+	// 获取扩展名
+	ext := strings.ToLower(filepath.Ext(fileHeader.Filename))
+	if ext != ".zip" {
+		return "", fmt.Errorf("只允许上传 .zip 格式的插件包")
+	}
+	// // 可选：限制大小
+	// if fileHeader.Size > s.maxPluginSize {
+	// 	return "", fmt.Errorf("插件包大小超过限制（最大 %d MB）", s.maxPluginSize>>20)
+	// }
+	return ext, nil
 }
 
 // 主上传方法
