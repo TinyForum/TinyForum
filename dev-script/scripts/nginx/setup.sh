@@ -85,8 +85,8 @@ server {
         proxy_send_timeout 120s;
     }
 
-    location /uploads/ {
-        proxy_pass http://127.0.0.1:8080/uploads/;
+    location /attachments/ {
+        proxy_pass http://127.0.0.1:8080/attachments/;
         expires 7d;
         add_header Cache-Control "public, immutable";
     }

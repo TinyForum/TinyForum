@@ -81,6 +81,93 @@ func PageDOToPageBO(pageDO *common.PageResult[do.PluginMeta], mapper func(*do.Pl
 	}
 }
 
+// converter/plugin_converter.go
+
+// PluginDOToVO 将 do.PluginMeta 转换为 vo.PluginMetaVO
+func PluginDOToVO(d *do.PluginMeta) *vo.PluginMetaVO {
+	if d == nil {
+		return nil
+	}
+	return &vo.PluginMetaVO{
+		ID:        d.ID,
+		CreatedAt: d.CreatedAt,
+		UpdatedAt: d.UpdatedAt,
+
+		// 基础标识
+		Name:        d.Name,
+		Version:     d.Version,
+		Description: d.Description,
+		Summary:     d.Summary,
+		IconURL:     d.IconURL,
+		Screenshots: d.Screenshots,
+		HomepageURL: d.HomepageURL,
+
+		// 分类与类型（枚举转字符串）
+		Type:     string(d.Type),
+		Category: string(d.Category),
+		Tags:     d.Tags,
+
+		// 作者信息
+		AuthorID:  d.AuthorID,
+		AuthorURL: d.AuthorURL,
+
+		// 加载配置
+		ScriptURL:   d.ScriptURL,
+		ServerEntry: d.ServerEntry,
+		Slots:       d.Slots,
+		Routes:      d.Routes,
+
+		// 价格与兼容性（转换为 interface{}，前端可按需解析）
+		Pricing:       d.Pricing,
+		Compatibility: d.Compatibility,
+
+		// 权限声明（转换为 interface{} 切片）
+		Permissions: func() []interface{} {
+			perms := make([]interface{}, len(d.Permissions))
+			for i, p := range d.Permissions {
+				perms[i] = p
+			}
+			return perms
+		}(),
+
+		// 运行时
+		Enabled:      d.Enabled,
+		Status:       string(d.Status),
+		InstallCount: d.InstallCount,
+		Rating:       d.Rating,
+
+		// 配置（仅 Schema，不返回具体值）
+		ConfigSchema: func() []interface{} {
+			schemas := make([]interface{}, len(d.ConfigSchema))
+			for i, s := range d.ConfigSchema {
+				schemas[i] = s
+			}
+			return schemas
+		}(),
+	}
+}
+
+// ========== PageResult[DO] ↔ PageResult[VO] ==========
+// PageDOToPageVO 直接将分页的 do.PluginMeta 转换为 vo.PluginMetaVO
+func PageDOToPageVO(pageDO *common.PageResult[do.PluginMeta]) *common.PageResult[vo.PluginMetaVO] {
+	if pageDO == nil {
+		return nil
+	}
+	listVO := make([]vo.PluginMetaVO, 0, len(pageDO.List))
+	for i := range pageDO.List {
+		if voItem := PluginDOToVO(&pageDO.List[i]); voItem != nil {
+			listVO = append(listVO, *voItem)
+		}
+	}
+	return &common.PageResult[vo.PluginMetaVO]{
+		Total:    pageDO.Total,
+		Page:     pageDO.Page,
+		PageSize: pageDO.PageSize,
+		List:     listVO,
+		HasMore:  pageDO.HasMore,
+	}
+}
+
 // ========== BO ↔ VO ==========
 func PluginBOToVO(b *bo.PluginMeta) *vo.PluginVO {
 	if b == nil {
@@ -95,23 +182,7 @@ func PluginBOToVO(b *bo.PluginMeta) *vo.PluginVO {
 	}
 }
 
-// Request => BO
-func PluginListRequestToBO(req *request.PluginListRequest) *bo.PluginQueryBO {
-	if req == nil {
-		return nil
-	}
-	return &bo.PluginQueryBO{
-		Page:     req.Page,
-		PageSize: req.PageSize,
-		AuthorID: req.AuthorID,
-		Tags:     req.Tags,
-		Type:     req.Type,
-		Keyword:  req.Keyword,
-		SortBy:   req.SortBy,
-		Status:   req.Status,
-	}
-}
-
+// MARK: PageResult[BO] ↔ PageResult[VO]
 // 泛型辅助：转换整个 PageResult[BO] => PageResult[VO]
 func PageBOToPageVO(pageBO *common.PageResult[bo.PluginMeta], mapper func(*bo.PluginMeta) *vo.PluginVO) *common.PageResult[vo.PluginVO] {
 	if pageBO == nil {
@@ -133,6 +204,7 @@ func PageBOToPageVO(pageBO *common.PageResult[bo.PluginMeta], mapper func(*bo.Pl
 	}
 }
 
+// MARK: BO => DTO
 func PluginQueryBOToQueryDO(b *bo.PluginQueryBO) *dto.PluginQueryDTO {
 	if b == nil {
 		return nil
@@ -146,5 +218,39 @@ func PluginQueryBOToQueryDO(b *bo.PluginQueryBO) *dto.PluginQueryDTO {
 		Status:   b.Status,
 		// Enabled:  b.Enabled,
 		Keyword: b.Keyword,
+	}
+}
+
+// MARK: REQ => BO
+func PluginListRequestToUserPluginBO(req *request.PluginListRequest, userID uint) *bo.PluginQueryBO {
+	if req == nil {
+		return nil
+	}
+	return &bo.PluginQueryBO{
+		AuthorID: userID, // 查询用户自己的插件
+		Page:     req.Page,
+		PageSize: req.PageSize,
+		Tags:     req.Tags,
+		Type:     req.Type,
+		Keyword:  req.Keyword,
+		SortBy:   req.SortBy,
+		Status:   req.Status,
+	}
+}
+
+// Request => BO
+func PluginListRequestToBO(req *request.PluginListRequest) *bo.PluginQueryBO {
+	if req == nil {
+		return nil
+	}
+	return &bo.PluginQueryBO{
+		Page:     req.Page,
+		PageSize: req.PageSize,
+		AuthorID: req.AuthorID, // 查询指定作者的插件
+		Tags:     req.Tags,
+		Type:     req.Type,
+		Keyword:  req.Keyword,
+		SortBy:   req.SortBy,
+		Status:   req.Status,
 	}
 }

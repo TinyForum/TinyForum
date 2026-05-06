@@ -7,9 +7,12 @@ import (
 	"strings"
 	"tiny-forum/internal/infra/config"
 	"tiny-forum/internal/model/bo"
+	"tiny-forum/internal/model/common"
 	"tiny-forum/internal/model/dto"
 	"tiny-forum/internal/model/request"
+	"tiny-forum/internal/model/vo"
 	attachmentRepo "tiny-forum/internal/repository/attachment"
+	"tiny-forum/internal/service/plugin"
 )
 
 type UploadService interface {
@@ -19,6 +22,7 @@ type UploadService interface {
 	DeleteFile(ctx context.Context, userID int64, fileID string) error
 	GetUserFiles(ctx context.Context, userID int64, fileType string, page, pageSize int) ([]*dto.FileInfo, int64, error)
 	AssociateWithPost(ctx context.Context, fileID string, postID int64) error
+	ListUserPlugins(ctx context.Context, queryBO *bo.PluginQueryBO) (*common.PageResult[vo.PluginMetaVO], error)
 }
 
 type service struct {
@@ -27,9 +31,14 @@ type service struct {
 	urlPrefix  string
 	maxSize    int64
 	allowedExt map[string]bool
+	pluginSvc  plugin.PluginService
 }
 
-func NewUploadService(repo attachmentRepo.UploadRepository, cfg config.UploadConfig) UploadService {
+func NewUploadService(
+	repo attachmentRepo.UploadRepository,
+	cfg config.UploadConfig,
+	plugin plugin.PluginService,
+) UploadService {
 	allowedMap := make(map[string]bool)
 	for _, ext := range cfg.AllowedExt {
 		allowedMap[strings.ToLower(ext)] = true
@@ -44,5 +53,6 @@ func NewUploadService(repo attachmentRepo.UploadRepository, cfg config.UploadCon
 		urlPrefix:  cfg.URLPrefix,
 		maxSize:    cfg.MaxSize,
 		allowedExt: allowedMap,
+		pluginSvc:  plugin,
 	}
 }

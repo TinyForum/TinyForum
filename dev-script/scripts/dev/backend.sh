@@ -70,8 +70,8 @@ _get_default() {
         system_score)        echo "${SYSTEM_SCORE:-10000}" ;;
 
 
-        upload_dir)         echo "${UPLOAD_DIR:-uploads}" ;;
-        upload_url_prefix)  echo "${UPLOAD_URL_PREFIX:-upload}" ;;
+        upload_dir)         echo "${UPLOAD_DIR:-attachments}" ;;
+        upload_url_prefix)  echo "${UPLOAD_URL_PREFIX:-attachment}" ;;
         upload_allowed_ext) echo "${UPLOAD_ALLOWED_EXT:-png,jpg,jpeg,gif,mp4,webm,mp3,avi,mkv}" ;;
         config_version)     echo "${CONFIG_VERSION:-1.0.0}" ;;
     esac
@@ -215,7 +215,7 @@ llamacpp:
 allow_origins:
 ${allow_origins_yaml}
 
-upload:
+attachment:
   upload_dir: ${upload_dir}
   url_prefix: /${upload_url_prefix}
   allowed_ext: ${upload_allowed_ext}
@@ -238,7 +238,7 @@ upload:
     allowed_types: [.jpg, .jpeg, .png, .gif, .webp]
   storage:
     type: local
-    local_path: ./uploads"
+    local_path: ./attachments"
 
     _write_config "basic.yml" "$content"
 }

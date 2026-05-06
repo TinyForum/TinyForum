@@ -15,10 +15,11 @@ import { PluginLogsTab } from "@/features/plugin/components/PluginLogsTab";
 import { PluginManagementTab } from "@/features/plugin/components/PluginManagementTab";
 import { PluginMarketTab } from "@/features/plugin/components/PluginMarketTab";
 import { UploadPluginTab } from "@/features/plugin/components/UploadPluginTab";
+import { MyPluginsTab } from "./MyPluginsTab";
 
 export function SystemPluginsPanel() {
   const [activeTab, setActiveTab] = useState<
-    "manage" | "market" | "config" | "logs" | "dev" | "upload"
+    "manage" | "market" | "config" | "logs" | "dev" | "upload" | "my"
   >("manage");
 
   const tabs = [
@@ -26,8 +27,9 @@ export function SystemPluginsPanel() {
     { id: "market", label: "插件市场", icon: Store },
     { id: "config", label: "插件配置", icon: Settings },
     { id: "logs", label: "运行日志", icon: Activity },
-    { id: "dev", label: "开发者工具", icon: Wrench },
-    { id: "upload", label: "分享插件", icon: CloudUpload }, // 新增 Tab
+    { id: "dev", label: "开发工具", icon: Wrench },
+    { id: "upload", label: "上传插件", icon: CloudUpload },
+    { id: "my", label: "我的插件", icon: Puzzle },
   ] as const;
 
   return (
@@ -55,6 +57,7 @@ export function SystemPluginsPanel() {
         {activeTab === "logs" && <PluginLogsTab />}
         {activeTab === "dev" && <DeveloperToolsTab />}
         {activeTab === "upload" && <UploadPluginTab />}
+        {activeTab === "my" && <MyPluginsTab />}
       </div>
     </div>
   );
