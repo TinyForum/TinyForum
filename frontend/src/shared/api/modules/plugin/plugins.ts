@@ -1,5 +1,6 @@
 import { apiClient } from "@/shared/api";
 import { PluginMeta } from "@/shared/type/plugin.type";
+import { ApiResponse, PageData } from "../../types/basic.model";
 
 export interface CreatePluginPayload {
   name: string;
@@ -22,10 +23,17 @@ export interface PluginListParams {
   page_size?: number;
 }
 
+export interface PluginVO {
+  id: string;
+  name: string;
+  authorId: number;
+  createdAt: string;
+  status: string;
+}
 export const pluginApi = {
   /** 获取插件列表（管理端，全量） */
   list(params?: PluginListParams) {
-    return apiClient.get<{ data: PluginMeta[]; total: number }>("/plugins", {
+    return apiClient.get<ApiResponse<PageData<PluginMeta>>>("/plugins", {
       params,
     });
   },

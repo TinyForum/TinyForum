@@ -12,22 +12,22 @@ import { useSiteConfig } from "@/features/system/hooks/useSiteConfig";
 import { useFeatureFlags } from "@/features/system/hooks/useFeatureFlags";
 
 const PAGE_META: Record<SystemMenuId, { title: string; subtitle: string }> = {
-  config: {
-    title: "网站配置",
+  website_config: {
+    title: "website_config",
     subtitle: "管理站点基础信息、显示偏好与高级选项",
   },
-  plugins: {
-    title: "插件管理",
+  plugins_center: {
+    title: "plugins_center",
     subtitle: "安装、启用或移除扩展插件，变更在下次页面加载时生效",
   },
-  features: {
-    title: "功能开关",
+  features_flags: {
+    title: "features_flags",
     subtitle: "实时控制各功能模块的启用状态，修改后立即生效",
   },
 };
 
 export default function SystemPage() {
-  const [activeMenu, setActiveMenu] = useState<SystemMenuId>("config");
+  const [activeMenu, setActiveMenu] = useState<SystemMenuId>("website_config");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   const { config, update, save, isSaving } = useSiteConfig();
@@ -59,7 +59,7 @@ export default function SystemPage() {
         {/* Scrollable content */}
         <div className="flex-1 overflow-y-auto custom-scrollbar">
           <div className="p-6 max-w-3xl">
-            {activeMenu === "config" && (
+            {activeMenu === "website_config" && (
               <SiteConfigPanel
                 config={config}
                 isSaving={isSaving}
@@ -67,8 +67,8 @@ export default function SystemPage() {
                 onSave={save}
               />
             )}
-            {activeMenu === "plugins" && <SystemPluginsPanel />}
-            {activeMenu === "features" && (
+            {activeMenu === "plugins_center" && <SystemPluginsPanel />}
+            {activeMenu === "features_flags" && (
               <FeatureFlagsPanel
                 grouped={grouped}
                 enabledCount={enabledCount}

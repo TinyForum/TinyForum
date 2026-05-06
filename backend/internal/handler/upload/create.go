@@ -1,6 +1,7 @@
 package upload
 
 import (
+	"tiny-forum/internal/model/converter"
 	"tiny-forum/internal/model/request"
 	apperrors "tiny-forum/pkg/errors"
 	"tiny-forum/pkg/logger"
@@ -96,8 +97,8 @@ func (h *UploadHandler) UploadCommentFile(c *gin.Context) {
 	response.Success(c, result)
 }
 
-// Upload 上传文件
-// @Summary 上传文件
+// UploadPluginFile
+// @Summary 上传插件
 // @Tags 上传管理
 // @Accept multipart/form-data
 // @Produce json
@@ -105,32 +106,28 @@ func (h *UploadHandler) UploadCommentFile(c *gin.Context) {
 // @Param post_id formData int false "帖子ID"
 // @Param type formData string true "文件类型 (avatar/post_image/comment_attachment)"
 // @Success 200 {object} common.BasicResponse
-// @Router /upload/post_file [post]
+// @Router /attachments/plugin [post]
 func (h *UploadHandler) UploadPluginFile(c *gin.Context) {
-
-	// 获取用户ID（从认证中间件）
+	// 获取用户ID
 	userID, exists := c.Get("user_id")
 	if !exists {
-		response.Unauthorized(c, "请先登录")
+		response.Unauthorized(c, apperrors.ErrUnauthorized.Error())
 		return
 	}
+	logger.Infof("请求 Content-Type: %s", c.ContentType())
 
-	// 获取上传的文件
-	file, err := c.FormFile("file")
-	if err != nil {
-		response.BadRequest(c, "请选择要上传的文件")
-		return
-	}
-
-	// 解析请求参数
-	var req request.UploadPostFileRequest
+	// 绑定请求（仅包含文件字段）
+	var req request.UploadPluginRequest
 	if err := c.ShouldBind(&req); err != nil {
-		response.BadRequest(c, "参数错误: "+err.Error())
+		response.HandleError(c, err)
 		return
 	}
 
-	// 调用服务上传
-	result, err := h.service.UploadFile(c.Request.Context(), userID.(int64), file, &req)
+	// 转换为 BO，注入用户ID
+	requestBO := converter.UploadPluginRequestToUploadPluginBo(req, userID.(uint))
+
+	// 调用服务
+	result, err := h.service.UploadPlugin(c.Request.Context(), requestBO)
 	if err != nil {
 		response.HandleError(c, err)
 		return

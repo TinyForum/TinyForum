@@ -8,6 +8,7 @@ export const UserRole = {
   Reviewer: "reviewer",
   Admin: "admin",
   SuperAdmin: "super_admin",
+  Bot: "bot",
   SystemMaintainer: "system_maintainer",
 } as const;
 
@@ -22,6 +23,7 @@ export const roleDisplayMap: Record<UserRoleType, string> = {
   [UserRole.Reviewer]: "审核员",
   [UserRole.Admin]: "管理员",
   [UserRole.SuperAdmin]: "超级管理员",
+  [UserRole.Bot]: "机器人",
   [UserRole.SystemMaintainer]: "系统管理员",
 };
 
@@ -34,6 +36,7 @@ export const roleLevel: Record<UserRoleType, number> = {
   [UserRole.Reviewer]: 10,
   [UserRole.Moderator]: 20,
   [UserRole.Admin]: 50,
+  [UserRole.Bot]: 30,
   [UserRole.SuperAdmin]: 100,
 };
 

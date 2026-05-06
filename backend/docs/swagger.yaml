@@ -380,6 +380,22 @@ definitions:
         - 2
         - 3
     type: object
+  request.RegisterRequest:
+    properties:
+      email:
+        type: string
+      password:
+        minLength: 6
+        type: string
+      username:
+        maxLength: 50
+        minLength: 2
+        type: string
+    required:
+    - email
+    - password
+    - username
+    type: object
   request.SetUserRoleRequest:
     properties:
       role:
@@ -510,22 +526,6 @@ definitions:
     required:
     - email
     - password
-    type: object
-  user.RegisterInput:
-    properties:
-      email:
-        type: string
-      password:
-        minLength: 6
-        type: string
-      username:
-        maxLength: 50
-        minLength: 2
-        type: string
-    required:
-    - email
-    - password
-    - username
     type: object
   vo.SimpleLeaderboardItem:
     properties:
@@ -2008,6 +2008,35 @@ paths:
       summary: 采纳答案
       tags:
       - 回答管理
+  /attachments/plugin:
+    post:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: 文件
+        in: formData
+        name: file
+        required: true
+        type: file
+      - description: 帖子ID
+        in: formData
+        name: post_id
+        type: integer
+      - description: 文件类型 (avatar/post_image/comment_attachment)
+        in: formData
+        name: type
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+      summary: 上传插件
+      tags:
+      - 上传管理
   /attachments/post/:post_id:
     post:
       consumes:
@@ -2235,7 +2264,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/user.RegisterInput'
+          $ref: '#/definitions/request.RegisterRequest'
       produces:
       - application/json
       responses:

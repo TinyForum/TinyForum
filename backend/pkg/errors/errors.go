@@ -215,8 +215,8 @@ func Wrapf(base *AppError, cause error, format string, args ...interface{}) *App
 var (
 	// 通用
 	ErrUnknown             = New(CodeUnknown, "未知错误")
-	ErrValidation          = New(CodeValidation, "参数验证失败") // 参数验证失败
-	ErrUnauthorized        = New(CodeUnauthorized, "未授权，请先登录")
+	ErrValidation          = New(CodeValidation, "参数验证失败")     // 参数验证失败
+	ErrUnauthorized        = New(CodeUnauthorized, "未授权，请先登录") // 未授权，请先登录
 	ErrForbidden           = New(CodeForbidden, "权限不足")
 	ErrNotFound            = New(CodeNotFound, "资源不存在")
 	ErrTooManyRequests     = New(CodeTooManyRequests, "请求过于频繁，请稍后再试")

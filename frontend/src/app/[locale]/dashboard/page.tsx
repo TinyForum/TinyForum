@@ -48,7 +48,6 @@ export default function DashboardPage() {
     isLoading,
     isAdmin,
     isSuperAdmin,
-    ,
     router,
     locale,
   ]);
