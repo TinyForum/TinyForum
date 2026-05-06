@@ -30,7 +30,9 @@ interface UserPlugin {
 
 // 获取我的插件列表
 const fetchMyPlugins = async (): Promise<UserPlugin[]> => {
-  const res = await apiClient.get<{ data: UserPlugin[] }>("/user/plugins");
+  const res = await apiClient.get<{ data: UserPlugin[] }>(
+    "/attachments/plugin/user/me",
+  );
   return res.data.data;
 };
 
