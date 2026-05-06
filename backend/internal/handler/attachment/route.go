@@ -2,7 +2,7 @@ package upload
 
 import (
 	"tiny-forum/internal/middleware"
-	uploadService "tiny-forum/internal/service/upload"
+	uploadService "tiny-forum/internal/service/attachment"
 
 	"github.com/gin-gonic/gin"
 )

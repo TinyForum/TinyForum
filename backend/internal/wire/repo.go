@@ -2,6 +2,7 @@ package wire
 
 import (
 	"tiny-forum/internal/repository/announcement"
+	upload "tiny-forum/internal/repository/attachment"
 	"tiny-forum/internal/repository/auth"
 	"tiny-forum/internal/repository/board"
 	"tiny-forum/internal/repository/comment"
@@ -16,7 +17,6 @@ import (
 	"tiny-forum/internal/repository/token"
 	"tiny-forum/internal/repository/topic"
 	"tiny-forum/internal/repository/transaction"
-	"tiny-forum/internal/repository/upload"
 	"tiny-forum/internal/repository/user"
 	"tiny-forum/internal/repository/vote"
 

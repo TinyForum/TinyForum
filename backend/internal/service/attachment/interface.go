@@ -9,7 +9,7 @@ import (
 	"tiny-forum/internal/model/bo"
 	"tiny-forum/internal/model/dto"
 	"tiny-forum/internal/model/request"
-	uploadRepo "tiny-forum/internal/repository/upload"
+	uploadRepo "tiny-forum/internal/repository/attachment"
 )
 
 type UploadService interface {
