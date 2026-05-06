@@ -1,4 +1,4 @@
-package upload
+package attachment
 
 import (
 	"strconv"
@@ -14,7 +14,7 @@ import (
 // @Produce json
 // @Param file_id path string true "文件ID"
 // @Success 200 {object} common.BasicResponse
-// @Router /upload/{file_id} [get]
+// @Router /attachment/{file_id} [get]
 func (h *UploadHandler) GetFile(c *gin.Context) {
 	fileID := c.Param("file_id")
 	if fileID == "" {
@@ -37,7 +37,7 @@ func (h *UploadHandler) GetFile(c *gin.Context) {
 // @Produce json
 // @Param file_id path string true "文件ID"
 // @Success 200 {object} common.BasicResponse
-// @Router /upload/{file_id} [delete]
+// @Router /attachment/{file_id} [delete]
 func (h *UploadHandler) DeleteFile(c *gin.Context) {
 	userID, exists := c.Get("userID")
 	if !exists {

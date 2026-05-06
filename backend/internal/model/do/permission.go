@@ -66,7 +66,7 @@ const (
 	PermManageAdmin    Permission = "system.admin.manage"
 
 	// 会员专属权限
-	PermUploadFile     Permission = "member.upload.file"
+	PermUploadFile     Permission = "member.attachment.file"
 	PermNoAds          Permission = "member.no.ads"
 	PermUseCustomEmoji Permission = "member.custom.emoji"
 	PermCreatePoll     Permission = "member.create.poll"

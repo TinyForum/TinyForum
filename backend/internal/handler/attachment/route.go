@@ -1,4 +1,4 @@
-package upload
+package attachment
 
 import (
 	"tiny-forum/internal/middleware"

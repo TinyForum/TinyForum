@@ -23,10 +23,10 @@ func (h *PluginHandler) RegisterRoutes(api *gin.RouterGroup, mw middleware.Middl
 		// 启用/禁用插件
 		// plugin.PUT("/:id/enable", h.Enable) // PUT /api/v1/plugins/:id/enable - 启用插件
 
-		// plugin.POST("", h.Upload)                 // POST /api/v1/upload - 上传文件
-		// plugin.GET("/user/files", h.GetUserFiles) // GET /api/v1/upload/user/files - 获取用户文件列表
-		// plugin.GET("/:file_id", h.GetFile)        // GET /api/v1/upload/:file_id - 获取文件信息
-		// plugin.DELETE("/:file_id", h.DeleteFile)  // DELETE /api/v1/upload/:file_id - 删除文件
+		// plugin.POST("", h.Attachment)                 // POST /api/v1/attachment - 上传文件
+		// plugin.GET("/user/files", h.GetUserFiles) // GET /api/v1/attachment/user/files - 获取用户文件列表
+		// plugin.GET("/:file_id", h.GetFile)        // GET /api/v1/attachment/:file_id - 获取文件信息
+		// plugin.DELETE("/:file_id", h.DeleteFile)  // DELETE /api/v1/attachment/:file_id - 删除文件
 	}
 
 }

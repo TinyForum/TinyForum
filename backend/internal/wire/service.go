@@ -4,7 +4,7 @@ import (
 	"tiny-forum/internal/infra/config"
 	"tiny-forum/internal/service/admin"
 	"tiny-forum/internal/service/announcement"
-	upload "tiny-forum/internal/service/attachment"
+	attachment "tiny-forum/internal/service/attachment"
 	"tiny-forum/internal/service/auth"
 	"tiny-forum/internal/service/board"
 	"tiny-forum/internal/service/check"
@@ -39,7 +39,7 @@ type Services struct {
 	Stats        stats.StatsService
 	Risk         risk.RiskService
 	ContentCheck check.ContentCheckService
-	Upload       upload.UploadService
+	Attachment   attachment.UploadService
 	Admin        admin.AdminService
 	Plugin       plugin.PluginService
 }
@@ -68,7 +68,7 @@ func NewServices(
 	statsSvc := stats.NewStatsService(repos.Stats, repos.Post, repos.Tag, repos.Board, repos.User, repos.Comment)
 	emailSvc := email.NewEmailService(&cfg.Private.Email)
 	authSvc := auth.NewAuthService(repos.Auth, repos.User, jwtMgr, notifSvc, emailSvc, cfg, repos.Token, repos.Transaction, infra.RedisClient)
-	uploadSvc := upload.NewUploadService(repos.Upload, cfg.Basic.Upload)
+	attachmentSvc := attachment.NewUploadService(repos.Attachment, cfg.Basic.Attachment)
 	adminSvc := admin.NewAdminService(announcementSvc, userSvc, postSvc)
 	pluginSvc := plugin.NewPluginService(repos.Plugin)
 
@@ -87,7 +87,7 @@ func NewServices(
 		Stats:        statsSvc,
 		Risk:         riskSvc,
 		ContentCheck: checkSvc,
-		Upload:       uploadSvc,
+		Attachment:   attachmentSvc,
 		Admin:        adminSvc,
 		Plugin:       pluginSvc,
 	}

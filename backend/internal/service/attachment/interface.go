@@ -1,4 +1,4 @@
-package upload
+package attachment
 
 import (
 	"context"
@@ -9,7 +9,7 @@ import (
 	"tiny-forum/internal/model/bo"
 	"tiny-forum/internal/model/dto"
 	"tiny-forum/internal/model/request"
-	uploadRepo "tiny-forum/internal/repository/attachment"
+	attachmentRepo "tiny-forum/internal/repository/attachment"
 )
 
 type UploadService interface {
@@ -22,14 +22,14 @@ type UploadService interface {
 }
 
 type service struct {
-	repo       uploadRepo.UploadRepository
+	repo       attachmentRepo.UploadRepository
 	uploadDir  string
 	urlPrefix  string
 	maxSize    int64
 	allowedExt map[string]bool
 }
 
-func NewUploadService(repo uploadRepo.UploadRepository, cfg config.UploadConfig) UploadService {
+func NewUploadService(repo attachmentRepo.UploadRepository, cfg config.UploadConfig) UploadService {
 	allowedMap := make(map[string]bool)
 	for _, ext := range cfg.AllowedExt {
 		allowedMap[strings.ToLower(ext)] = true

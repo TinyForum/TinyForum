@@ -38,7 +38,7 @@ type Handlers struct {
 	Announcement *announcementHandler.AnnouncementHandler
 	Stats        *statsHandler.StatsHandler
 	Risk         *riskhandler.RiskHandler
-	Upload       *uploadHandler.UploadHandler
+	Attachment   *uploadHandler.UploadHandler
 	Admin        *adminHandler.AdminHandler
 	Plugin       *pluginHandler.PluginHandler
 }
@@ -59,7 +59,7 @@ func NewHandlers(svc *Services, timeHelpers *timeutil.TimeHelpers, cfg *config.C
 	announcement := announcementHandler.NewAnnouncementHandler(svc.Announcement)
 	stats := statsHandler.NewStatsHandler(svc.Stats, timeHelpers)
 	risk := riskhandler.NewRiskHandler(svc.ContentCheck, svc.Risk)
-	upload := uploadHandler.NewUploadHandler(svc.Upload)
+	attachment := uploadHandler.NewUploadHandler(svc.Attachment)
 	admin := adminHandler.NewAdminHandler(svc.Admin)
 	plugin := pluginHandler.NewPluginHandler(svc.Plugin)
 
@@ -78,7 +78,7 @@ func NewHandlers(svc *Services, timeHelpers *timeutil.TimeHelpers, cfg *config.C
 		Announcement: announcement,
 		Stats:        stats,
 		Risk:         risk,
-		Upload:       upload,
+		Attachment:   attachment,
 		Admin:        admin,
 		Plugin:       plugin,
 	}
