@@ -36,6 +36,7 @@ interface UseUploadReturn {
     page_size?: number;
   }) => Promise<FileInfo>;
   getFileInfo: (type: UploadType, fileId: string) => Promise<FileInfo>;
+  getUserPluginsList: () => Promise<FileInfo[]>;
   deleteFile: (type: UploadType, fileId: string) => Promise<boolean>;
   serveFile: (fileId: string) => Promise<Blob | null>;
   resetError: () => void;
@@ -132,6 +133,20 @@ export function useUpload(): UseUploadReturn {
     }
   };
 
+  const getUserPluginsList = async () => {
+    setIsUploading(true);
+    setError(null);
+    try {
+      const res = await uploadApi.getUserPlugins();
+      return res.data;
+    } catch (err) {
+      setErrorAndReturnNull(err);
+      throw err;
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   const deleteFile = async (
     type: UploadType,
     fileId: string,
@@ -173,6 +188,7 @@ export function useUpload(): UseUploadReturn {
     uploadPluginFile,
     getUserFiles,
     getFileInfo,
+    getUserPluginsList,
     deleteFile,
     serveFile,
     resetError,

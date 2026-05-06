@@ -58,6 +58,10 @@ export const uploadApi = {
     return apiClient.get(`/attachments/plugin/${fileId}`);
   },
 
+  // 获取用户上传的插件信息
+  getUserPlugins(params?: { page?: number; page_size?: number }) {
+    return apiClient.get("/attachments/plugin/users/me", { params });
+  },
   /** 删除帖子文件 */
   deletePostFile(fileId: string) {
     return apiClient.delete(`/attachments/post/${fileId}`);
