@@ -4,6 +4,7 @@ import (
 	"tiny-forum/internal/infra/config"
 	"tiny-forum/internal/service/admin"
 	"tiny-forum/internal/service/announcement"
+	upload "tiny-forum/internal/service/attachment"
 	"tiny-forum/internal/service/auth"
 	"tiny-forum/internal/service/board"
 	"tiny-forum/internal/service/check"
@@ -18,7 +19,6 @@ import (
 	"tiny-forum/internal/service/tag"
 	"tiny-forum/internal/service/timeline"
 	"tiny-forum/internal/service/topic"
-	"tiny-forum/internal/service/upload"
 	"tiny-forum/internal/service/user"
 	jwtpkg "tiny-forum/pkg/jwt"
 )
