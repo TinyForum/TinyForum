@@ -12,8 +12,8 @@ import "tiny-forum/internal/model/do"
 
 type PluginListRequest struct {
 	Page     int             `json:"page" form:"page" default:"1"`
-	PageSize int             `json:"page_size" form:"page_size" binding:"min=1,max=100" default:"20"`
-	AuthorID uint            `json:"author_id" form:"authorId"`
+	PageSize int             `json:"page_size" form:"page_size" binding:"min=1,max=100"  default:"20"`
+	AuthorID uint            `json:"author_id" form:"author_id"`
 	Tags     []string        `json:"tags" form:"tags"`
 	Type     string          `json:"type" form:"type"`
 	Keyword  string          `json:"keyword" form:"keyword"`

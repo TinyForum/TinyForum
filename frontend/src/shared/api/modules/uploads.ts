@@ -1,4 +1,17 @@
 import { apiClient } from "@/shared/api";
+import { ApiResponse, PageData } from "../types/basic.model";
+import { PluginMeta } from "@/shared/type/plugin.type";
+
+export interface ListPluginRequest {
+  page?: number;
+  page_size?: number;
+  author_id?: number;
+  tags?: string[];
+  type?: string;
+  keyword?: string;
+  sort_by?: string;
+  status?: "active" | "inactive" | "all";
+}
 
 export const uploadApi = {
   // ========== 上传相关 API ==========
@@ -59,9 +72,11 @@ export const uploadApi = {
   },
 
   // 获取用户上传的插件信息
-  getUserPlugins(params?: { page?: number; page_size?: number }) {
-    return apiClient.get("/attachments/plugin/users/me", { params });
-  },
+  getUserPlugins: (params: ListPluginRequest) =>
+    apiClient.get<ApiResponse<PageData<PluginMeta>>>(
+      "/attachments/plugin/user/me",
+      { params },
+    ),
   /** 删除帖子文件 */
   deletePostFile(fileId: string) {
     return apiClient.delete(`/attachments/post/${fileId}`);

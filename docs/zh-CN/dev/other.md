@@ -1,10 +1,8 @@
 # 其他
 
-使用中间件鉴权，handler 中进行颗粒度控制
+使用中间件鉴权，handler 中进行颗粒度权限控制
 
-
-
-````bash
+```bash
 psql -U p-d tiny_forum
 ```
 
@@ -17,7 +15,7 @@ ubuntu
 
 数据库更改
 
-````bash
+```bash
 \c tiny_forum
 
 sudo -u postgres psql
@@ -35,7 +33,7 @@ DROP DATABASE IF EXISTS tiny_forum;
 CREATE DATABASE tiny_forum OWNER tinyform;
 \q
 EOF
-````
+```
 
 ```bash
 sudo nano /etc/postgresql/*/main/pg_hba.conf

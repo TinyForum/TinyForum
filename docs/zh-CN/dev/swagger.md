@@ -1,5 +1,15 @@
 # Swagger 接口测试
 
+
+
+## 一行命令获取 Authorize
+
+```bash
+
+```
+
+
+
 ## 先注册一个用户
 
 ```bash
@@ -9,9 +19,9 @@ http://localhost:8080/swagger/index.html#/%E9%AA%8C%E8%AF%81%E7%AE%A1%E7%90%86/p
 
 ```bash
 curl -X POST http://localhost:8080/api/v1/auth/register -H "Content-Type: application/json" -d '{
-"email": "admin@email.com",
+"email": "admin@test.com",
 "username": "admin",
-"password": "adminadmin"
+"password": "password"
 }'
 ```
 

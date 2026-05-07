@@ -44,7 +44,7 @@ func (h *UploadHandler) RegisterRoutes(api *gin.RouterGroup, mw middleware.Middl
 			pluginFile.GET("/user/me", h.ListMyPlugins)  // GET /api/v1/attachments/plugin/users/me - 获取当前用户的插件文件列表
 		}
 
-		attachments.GET("/users/me/files", h.GetUserFiles) // GET /api/v1/attachments/users/me/files - 获取当前用户的文件列表
+		attachments.GET("/user/me/files", h.GetUserFiles) // GET /api/v1/attachments/users/me/files - 获取当前用户的文件列表
 	}
 
 	// 公开文件访问（无认证）

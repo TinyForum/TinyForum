@@ -15,7 +15,7 @@ import { PluginLogsTab } from "@/features/plugin/components/PluginLogsTab";
 import { PluginManagementTab } from "@/features/plugin/components/PluginManagementTab";
 import { PluginMarketTab } from "@/features/plugin/components/PluginMarketTab";
 import { UploadPluginTab } from "@/features/plugin/components/UploadPluginTab";
-import { MyPluginsTab } from "./MyPluginsTab";
+import { MyPluginsTab } from "@/features/plugin/components/MyPluginsTab";
 
 export function SystemPluginsPanel() {
   const [activeTab, setActiveTab] = useState<
