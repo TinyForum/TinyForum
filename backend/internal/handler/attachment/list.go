@@ -3,6 +3,7 @@ package attachment
 import (
 	"tiny-forum/internal/model/converter"
 	"tiny-forum/internal/model/request"
+	"tiny-forum/pkg/logger"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -15,12 +16,13 @@ import (
 // @Success 200 {object} common.BasicResponse
 // @Router /attachment/plugin [get]
 func (h *UploadHandler) ListMyPlugins(c *gin.Context) {
-	userID, exists := c.Get("userID")
+	userID, exists := c.Get("user_id")
 	if !exists {
 		response.Unauthorized(c, "请先登录")
 	}
 	var request request.PluginListRequest
 	if err := c.ShouldBindQuery(&request); err != nil {
+		logger.Infof("绑定错误: ", err)
 		response.BadRequest(c, "参数错误")
 		return
 	}

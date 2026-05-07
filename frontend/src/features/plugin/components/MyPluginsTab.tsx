@@ -1,21 +1,20 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   CheckCircle2,
   Trash2,
   Power,
   PowerOff,
-  AlertCircle,
   Package,
   Upload,
 } from "lucide-react";
-import { apiClient } from "@/shared/api";
 import toast from "react-hot-toast";
 import { useUpload } from "@/features/plugin/hooks/useUpload";
 
-// 插件元信息（后端返回的结构，根据实际情况调整）
+// 插件元信息（后端返回的结构，需与 getUserPluginsList 返回的 FileInfo 匹配或转换）
+// 假设 getUserPluginsList 返回的数组元素包含以下字段，具体可根据实际后端调整
 interface UserPlugin {
   id: string;
   name: string;
@@ -28,38 +27,40 @@ interface UserPlugin {
   updatedAt: string;
 }
 
-// 获取我的插件列表
-const fetchMyPlugins = async (): Promise<UserPlugin[]> => {
-  const res = await apiClient.get<{ data: UserPlugin[] }>(
-    "/attachments/plugin/user/me",
-  );
-  return res.data.data;
-};
-
-// 删除插件
-const deletePlugin = async (pluginId: string): Promise<void> => {
-  await apiClient.delete(`/user/plugins/${pluginId}`);
-};
-
 export function MyPluginsTab() {
   const queryClient = useQueryClient();
   const [showUploadForm, setShowUploadForm] = useState(false);
   const [uploadedFlag, setUploadedFlag] = useState(false);
-  const { uploadPluginFile, isUploading, error, resetError } = useUpload();
+  // 分页状态
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
 
-  // 查询我的插件列表
+  const {
+    uploadPluginFile,
+    isUploading,
+    error: uploadError,
+    resetError,
+    getUserPluginsList, // 返回 Promise<FileInfo[]>，且内部已携带分页参数
+    deleteFile, // 使用统一删除方法，传入 type="plugin" 和 fileId
+  } = useUpload();
+
+  // 查询我的插件列表（使用 getUserPluginsList 并传入分页参数）
   const {
     data: plugins = [],
     isLoading,
     refetch,
   } = useQuery({
-    queryKey: ["myPlugins"],
-    queryFn: fetchMyPlugins,
+    queryKey: ["myPlugins", page, pageSize],
+    queryFn: () =>
+      getUserPluginsList({
+        page: page,
+        page_size: pageSize,
+      }), // 需确保 getUserPluginsList 支持分页参数
   });
 
   // 删除 mutation
   const deleteMutation = useMutation({
-    mutationFn: deletePlugin,
+    mutationFn: (pluginId: string) => deleteFile("plugin", pluginId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["myPlugins"] });
       toast.success("插件已删除");
@@ -84,7 +85,7 @@ export function MyPluginsTab() {
       queryClient.invalidateQueries({ queryKey: ["myPlugins"] });
       setTimeout(() => setUploadedFlag(false), 3000);
     } else {
-      toast.error(error || "上传失败");
+      toast.error(uploadError || "上传失败");
     }
   };
 
@@ -173,68 +174,87 @@ export function MyPluginsTab() {
           </p>
         </div>
       ) : (
-        <div className="grid gap-4">
-          {plugins.map((plugin) => (
-            <div
-              key={plugin.id}
-              className="card card-side bg-base-100 border border-base-300 shadow-sm"
-            >
-              <div className="card-body flex-row flex-wrap items-center justify-between p-4">
-                <div className="flex-1 space-y-1">
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-semibold text-base">{plugin.name}</h3>
-                    <span className="badge badge-ghost badge-sm">
-                      v{plugin.version}
-                    </span>
-                    {plugin.enabled ? (
-                      <span className="badge badge-success badge-sm">
-                        已启用
+        <>
+          <div className="grid gap-4">
+            {plugins.map((plugin) => (
+              <div
+                key={plugin.id}
+                className="card card-side bg-base-100 border border-base-300 shadow-sm"
+              >
+                <div className="card-body flex-row flex-wrap items-center justify-between p-4">
+                  <div className="flex-1 space-y-1">
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-semibold text-base">{plugin.name}</h3>
+                      <span className="badge badge-ghost badge-sm">
+                        v{plugin.version}
                       </span>
-                    ) : (
-                      <span className="badge badge-warning badge-sm">
-                        未启用
-                      </span>
-                    )}
+                      {plugin.enabled ? (
+                        <span className="badge badge-success badge-sm">
+                          已启用
+                        </span>
+                      ) : (
+                        <span className="badge badge-warning badge-sm">
+                          未启用
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-sm text-base-content/70">
+                      {plugin.description}
+                    </p>
+                    <div className="flex gap-3 text-xs text-base-content/50">
+                      <span>作者: {plugin.author}</span>
+                      <span>上传时间: {plugin.createdAt}</span>
+                    </div>
                   </div>
-                  <p className="text-sm text-base-content/70">
-                    {plugin.description}
-                  </p>
-                  <div className="flex gap-3 text-xs text-base-content/50">
-                    <span>作者: {plugin.author}</span>
-                    <span>
-                      上传时间:{" "}
-                      {new Date(plugin.createdAt).toLocaleDateString()}
-                    </span>
+                  <div className="flex gap-2">
+                    {/* 启用/禁用按钮（假设后续 API 支持） */}
+                    <button
+                      className="btn btn-sm btn-ghost gap-1"
+                      onClick={() => {
+                        toast("启用/禁用功能开发中");
+                      }}
+                    >
+                      {plugin.enabled ? (
+                        <PowerOff className="w-4 h-4" />
+                      ) : (
+                        <Power className="w-4 h-4" />
+                      )}
+                    </button>
+                    <button
+                      className="btn btn-sm btn-ghost text-error gap-1"
+                      onClick={() => deleteMutation.mutate(plugin.id)}
+                      disabled={deleteMutation.isPending}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      删除
+                    </button>
                   </div>
-                </div>
-                <div className="flex gap-2">
-                  {/* 启用/禁用按钮（假设API支持，可根据实际调整） */}
-                  <button
-                    className="btn btn-sm btn-ghost gap-1"
-                    onClick={() => {
-                      // 这里调用启用/禁用 API，示例略
-                      toast("启用/禁用功能开发中");
-                    }}
-                  >
-                    {plugin.enabled ? (
-                      <PowerOff className="w-4 h-4" />
-                    ) : (
-                      <Power className="w-4 h-4" />
-                    )}
-                  </button>
-                  <button
-                    className="btn btn-sm btn-ghost text-error gap-1"
-                    onClick={() => deleteMutation.mutate(plugin.id)}
-                    disabled={deleteMutation.isPending}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                    删除
-                  </button>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+
+          {/* 分页控件（简单示例，可扩展） */}
+          <div className="flex justify-center gap-2 pt-4">
+            <button
+              className="btn btn-sm btn-outline"
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1}
+            >
+              上一页
+            </button>
+            <span className="btn btn-sm btn-ghost no-animation">
+              第 {page} 页
+            </span>
+            <button
+              className="btn btn-sm btn-outline"
+              onClick={() => setPage((p) => p + 1)}
+              disabled={plugins.length < pageSize}
+            >
+              下一页
+            </button>
+          </div>
+        </>
       )}
     </div>
   );
