@@ -4,7 +4,7 @@ import (
 	adminHandler "tiny-forum/internal/handler/admin"
 	announcementHandler "tiny-forum/internal/handler/announcement"
 	answerHandler "tiny-forum/internal/handler/answer"
-	uploadHandler "tiny-forum/internal/handler/attachment"
+	"tiny-forum/internal/handler/attachment"
 	authHandler "tiny-forum/internal/handler/auth"
 	boardHandler "tiny-forum/internal/handler/board"
 	commentHandler "tiny-forum/internal/handler/comment"
@@ -38,9 +38,9 @@ type Handlers struct {
 	Announcement *announcementHandler.AnnouncementHandler
 	Stats        *statsHandler.StatsHandler
 	Risk         *riskhandler.RiskHandler
-	Attachment   *uploadHandler.UploadHandler
+	Attachment   *attachment.AttachmentHandler
 	Admin        *adminHandler.AdminHandler
-	Plugin       *pluginHandler.PluginHandler
+	Plugin       *pluginHandler.Handler
 }
 
 // NewHandlers 创建所有 Handler 实例
@@ -59,9 +59,9 @@ func NewHandlers(svc *Services, timeHelpers *timeutil.TimeHelpers, cfg *config.C
 	announcement := announcementHandler.NewAnnouncementHandler(svc.Announcement)
 	stats := statsHandler.NewStatsHandler(svc.Stats, timeHelpers)
 	risk := riskhandler.NewRiskHandler(svc.ContentCheck, svc.Risk)
-	attachment := uploadHandler.NewUploadHandler(svc.Attachment)
+	attachment := attachment.NewAttachmentHandler(svc.Attachment)
 	admin := adminHandler.NewAdminHandler(svc.Admin)
-	plugin := pluginHandler.NewPluginHandler(svc.Plugin)
+	plugin := pluginHandler.NewHandler(svc.Plugin)
 
 	return &Handlers{
 		Auth:         auth,

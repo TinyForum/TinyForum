@@ -2206,37 +2206,25 @@ const docTemplate = `{
                 }
             }
         },
-        "/attachments/plugin": {
-            "post": {
+        "/attachment/{file_id}": {
+            "delete": {
+                "description": "删除用户上传的文件（仅文件所有者可操作）",
                 "consumes": [
-                    "multipart/form-data"
+                    "application/json"
                 ],
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "上传管理"
+                    "attachment"
                 ],
-                "summary": "上传插件",
+                "summary": "删除文件",
                 "parameters": [
                     {
-                        "type": "file",
-                        "description": "文件",
-                        "name": "file",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "帖子ID",
-                        "name": "post_id",
-                        "in": "formData"
-                    },
-                    {
                         "type": "string",
-                        "description": "文件类型 (avatar/post_image/comment_attachment)",
-                        "name": "type",
-                        "in": "formData",
+                        "description": "文件ID",
+                        "name": "file_id",
+                        "in": "path",
                         "required": true
                     }
                 ],
@@ -2246,12 +2234,25 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/common.BasicResponse"
                         }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
                     }
                 }
             }
         },
-        "/attachments/post/:post_id": {
+        "/attachments": {
             "post": {
+                "description": "上传附件，支持图片、文档等，通过 type 字段区分业务类型（post_image, comment_file, avatar 等）",
                 "consumes": [
                     "multipart/form-data"
                 ],
@@ -2259,9 +2260,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "上传管理"
+                    "attachment"
                 ],
-                "summary": "上传帖子文件",
+                "summary": "上传文件",
                 "parameters": [
                     {
                         "type": "file",
@@ -2271,22 +2272,129 @@ const docTemplate = `{
                         "required": true
                     },
                     {
+                        "type": "string",
+                        "description": "业务类型：post_image / comment_file / avatar / plugin_asset",
+                        "name": "type",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
                         "type": "integer",
-                        "description": "帖子ID",
+                        "description": "关联的帖子ID（当 type = post_image 时需提供）",
                         "name": "post_id",
                         "in": "formData"
                     },
                     {
+                        "type": "integer",
+                        "description": "关联的评论ID（当 type = comment_file 时需提供）",
+                        "name": "reply_id",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/attachments/user/me": {
+            "get": {
+                "description": "分页获取当前登录用户上传的所有文件，可按文件类型过滤",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "attachment"
+                ],
+                "summary": "获取用户文件列表",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 20,
+                        "description": "每页条数",
+                        "name": "page_size",
+                        "in": "query"
+                    },
+                    {
                         "type": "string",
-                        "description": "文件类型",
-                        "name": "type",
-                        "in": "formData",
+                        "description": "文件类型过滤 (post_image, comment_file, avatar, plugin_asset)",
+                        "name": "file_type",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/attachments/{file_id}": {
+            "get": {
+                "description": "根据文件ID获取文件的元数据（不包含文件内容）",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "attachment"
+                ],
+                "summary": "获取文件元信息",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "文件ID",
+                        "name": "file_id",
+                        "in": "path",
                         "required": true
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/common.BasicResponse"
                         }
@@ -4253,15 +4361,14 @@ const docTemplate = `{
         },
         "/files/{file_id}": {
             "get": {
-                "produces": [
-                    "image/jpeg",
-                    "image/png",
-                    "application/pdf"
+                "description": "根据文件ID直接返回文件内容（适用于图片、附件下载）",
+                "consumes": [
+                    "application/json"
                 ],
                 "tags": [
-                    "上传管理"
+                    "attachment"
                 ],
-                "summary": "获取文件内容",
+                "summary": "公开文件下载",
                 "parameters": [
                     {
                         "type": "string",
@@ -4271,7 +4378,26 @@ const docTemplate = `{
                         "required": true
                     }
                 ],
-                "responses": {}
+                "responses": {
+                    "200": {
+                        "description": "文件内容",
+                        "schema": {
+                            "type": "file"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    }
+                }
             }
         },
         "/notifications": {
@@ -4486,19 +4612,17 @@ const docTemplate = `{
         },
         "/plugins": {
             "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
+                "description": "获取系统中所有已安装的插件（通常需要管理员权限，可根据业务调整）",
+                "consumes": [
+                    "application/json"
                 ],
-                "description": "获取插件列表",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "插件管理"
+                    "plugin"
                 ],
-                "summary": "用户获取插件列表",
+                "summary": "获取所有插件列表",
                 "parameters": [
                     {
                         "type": "integer",
@@ -4510,38 +4634,76 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "default": 20,
-                        "description": "每页数量",
+                        "description": "每页条数",
                         "name": "page_size",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "搜索关键词",
-                        "name": "keyword",
+                        "description": "分类过滤 (commerce, marketing, content...)",
+                        "name": "category",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "类型过滤 (ui, backend, lib, app, miniapp)",
+                        "name": "type",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "是否启用",
+                        "name": "enabled",
                         "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "获取成功",
+                        "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/common.BasicResponse"
                         }
                     },
-                    "401": {
-                        "description": "未授权",
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/plugins/upload": {
+            "post": {
+                "description": "上传一个 ZIP 压缩包，包含 manifest.json 和插件资源，进行插件安装",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "plugin"
+                ],
+                "summary": "安装插件",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "插件 ZIP 文件",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/common.BasicResponse"
                         }
                     },
-                    "403": {
-                        "description": "无权限",
-                        "schema": {
-                            "$ref": "#/definitions/common.BasicResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "服务器内部错误",
+                    "400": {
+                        "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/common.BasicResponse"
                         }
@@ -6797,143 +6959,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/attachment/post_file": {
-            "post": {
-                "consumes": [
-                    "multipart/form-data"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "上传管理"
-                ],
-                "summary": "上传文件",
-                "parameters": [
-                    {
-                        "type": "file",
-                        "description": "文件",
-                        "name": "file",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "帖子ID",
-                        "name": "post_id",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "string",
-                        "description": "文件类型 (avatar/post_image/comment_attachment)",
-                        "name": "type",
-                        "in": "formData",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/common.BasicResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/attachment/{file_id}": {
-            "get": {
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "上传管理"
-                ],
-                "summary": "获取文件信息",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "文件ID",
-                        "name": "file_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/common.BasicResponse"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "上传管理"
-                ],
-                "summary": "删除文件",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "文件ID",
-                        "name": "file_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/common.BasicResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/user/files": {
-            "get": {
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "上传管理"
-                ],
-                "summary": "获取用户文件列表",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "文件类型",
-                        "name": "type",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "页码",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "每页数量",
-                        "name": "page_size",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/common.BasicResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/users/leaderboard/detail": {
             "get": {
                 "security": [
@@ -6993,6 +7018,35 @@ const docTemplate = `{
                             "items": {
                                 "$ref": "#/definitions/vo.SimpleLeaderboardItem"
                             }
+                        }
+                    }
+                }
+            }
+        },
+        "/users/me/plugins": {
+            "get": {
+                "description": "获取当前登录用户已安装（上传）的插件列表，通常是通过 author_id 查询",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "plugin"
+                ],
+                "summary": "当前用户安装的插件",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
                         }
                     }
                 }

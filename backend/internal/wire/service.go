@@ -19,7 +19,10 @@ import (
 	"tiny-forum/internal/service/tag"
 	"tiny-forum/internal/service/timeline"
 	"tiny-forum/internal/service/topic"
+	"tiny-forum/internal/service/upload"
 	"tiny-forum/internal/service/user"
+	"tiny-forum/internal/storage"
+	"tiny-forum/internal/strategy"
 	jwtpkg "tiny-forum/pkg/jwt"
 )
 
@@ -39,7 +42,7 @@ type Services struct {
 	Stats        stats.StatsService
 	Risk         risk.RiskService
 	ContentCheck check.ContentCheckService
-	Attachment   attachment.UploadService
+	Attachment   attachment.AttachmentService
 	Admin        admin.AdminService
 	Plugin       plugin.PluginService
 }
@@ -53,6 +56,11 @@ func NewServices(
 ) *Services {
 	riskSvc := risk.NewRiskService(repos.Risk, infra.RateLimiter)
 	checkSvc := check.NewContentCheckService(repos.Risk, infra.SensitiveFilter)
+
+	registry := strategy.NewHandlerRegistry()
+	// 基础设施
+	storage := storage.NewLocalStorage("./upload")
+	engine := upload.NewEngine(storage,registry)
 
 	// 基础服务
 	notifSvc := notification.NewNotificationService(repos.Notification)
@@ -69,8 +77,10 @@ func NewServices(
 	emailSvc := email.NewEmailService(&cfg.Private.Email)
 	authSvc := auth.NewAuthService(repos.Auth, repos.User, jwtMgr, notifSvc, emailSvc, cfg, repos.Token, repos.Transaction, infra.RedisClient)
 	adminSvc := admin.NewAdminService(announcementSvc, userSvc, postSvc)
-	pluginSvc := plugin.NewPluginService(repos.Plugin)
-	attachmentSvc := attachment.NewUploadService(repos.Attachment, cfg.Basic.Attachment, pluginSvc)
+	pluginSvc := plugin.NewPluginService(repos.Plugin,storage)
+
+	attachmentSvc := attachment.NewAttachmentService(repos.Attachment,cfg.Basic.Attachment,engine)
+	
 
 	return &Services{
 		User:         userSvc,

@@ -9,6 +9,7 @@ import (
 	"tiny-forum/internal/model/request"
 	postService "tiny-forum/internal/service/post"
 	apperrors "tiny-forum/pkg/errors"
+	"tiny-forum/pkg/logger"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -113,7 +114,8 @@ func (h *PostHandler) List(c *gin.Context) {
 	var req request.ListPosts
 
 	if err := c.ShouldBindQuery(&req); err != nil {
-		response.BadRequest(c, err.Error())
+		logger.Errorf("用户获取文章列表失败: ", err)
+		response.HandleError(c, err)
 		return
 	}
 

@@ -4,7 +4,7 @@ import { Wrench } from "lucide-react";
 export function DeveloperToolsTab() {
   return (
     <div className="space-y-4">
-      <div className="alert alert-info shadow-lg">
+      <div className="flex items-center gap-2 text-sm font-medium">
         <div>
           <Wrench className="w-5 h-5" />
           <span>开发者工具：钩子调试、日志查看、插件打包上传</span>

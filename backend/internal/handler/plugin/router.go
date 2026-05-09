@@ -6,27 +6,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (h *PluginHandler) RegisterRoutes(api *gin.RouterGroup, mw middleware.MiddlewareSet) {
-	// 需要认证的上传接口
-	plugin := api.Group("/plugins")
-	plugin.Use(mw.Auth())
+// RegisterRoutes 注册插件相关路由
+func (h *Handler) RegisterRoutes(api *gin.RouterGroup, mw middleware.MiddlewareSet) {
+	// 插件列表（可公开，也可认证，按需）
+	api.GET("/plugins", h.ListPlugins) // GET /api/v1/plugins
+
+	// 需要认证的插件操作
+	pluginGroup := api.Group("/plugins")
+	pluginGroup.Use(mw.Auth())
 	{
-		plugin.GET("", h.List) // GET /api/v1/plugins/ - 获取插件列表
-		// 获取插件详细信息
-		// plugin.GET("/:id", h.GetByID) // GET /api/v1/plugins/:id - 获取插件详细信息
-		// 卸载插件
-		// plugin.DELETE("/:id", h.Uninstall) // DELETE /api/v1/plugins/:id - 卸载插件
-		// 删除插件
-		// plugin.DELETE("/:id", h.Delete) // DELETE /api/v1/plugins/:id - 删除插件
-		// 更新插件
-		// plugin.PUT("/:id", h.Update) // PUT /api/v1/plugins/:id - 更新插件
-		// 启用/禁用插件
-		// plugin.PUT("/:id/enable", h.Enable) // PUT /api/v1/plugins/:id/enable - 启用插件
+		// 上传安装插件（需认证）
+		pluginGroup.POST("/upload", h.UploadPlugin) // POST /api/v1/plugins/upload
 
-		// plugin.POST("", h.Attachment)                 // POST /api/v1/attachment - 上传文件
-		// plugin.GET("/user/files", h.GetUserFiles) // GET /api/v1/attachment/user/files - 获取用户文件列表
-		// plugin.GET("/:file_id", h.GetFile)        // GET /api/v1/attachment/:file_id - 获取文件信息
-		// plugin.DELETE("/:file_id", h.DeleteFile)  // DELETE /api/v1/attachment/:file_id - 删除文件
+		// 获取当前用户已安装的插件列表
+		api.GET("/users/me/plugins", h.ListMyPlugins) // GET /api/v1/users/me/plugins
 	}
-
 }

@@ -1,13 +1,23 @@
 package attachment
 
-import (
-	"tiny-forum/internal/model/converter"
-	"tiny-forum/internal/model/request"
-	"tiny-forum/pkg/logger"
-	"tiny-forum/pkg/response"
-
-	"github.com/gin-gonic/gin"
-)
+// // GET /api/v1/users/me/plugins
+// // ListMyPlugins 是一个处理用户获取自己插件列表的HTTP处理函数
+// // 它从请求上下文中获取用户ID，然后调用服务层获取该用户的插件列表
+// // 如果发生错误，则返回错误响应；否则返回成功响应和插件列表
+// func (h *UploadHandler) ListMyPlugins(c *gin.Context) {
+//     // 从请求上下文中获取用户ID
+//     userID := c.GetInt64("user_id")
+//     // 调用服务层方法获取用户插件列表，传入请求上下文和用户ID
+//     plugins, err := h.service.ListUserPlugins(c.Request.Context(), userID)
+//     // 检查是否发生错误
+//     if err != nil {
+//         // 如果发生错误，则返回错误响应
+//         response.HandleError(c, err.Error())
+//         return
+//     }
+//     // 如果没有错误，则返回成功响应和插件列表
+//     response.Success(c, plugins)
+// }
 
 // GetPluginFiles 我的插件
 // @Summary 我的插件
@@ -15,45 +25,45 @@ import (
 // @Produce json
 // @Success 200 {object} common.BasicResponse
 // @Router /attachment/plugin [get]
-func (h *UploadHandler) ListMyPlugins(c *gin.Context) {
-	userID, exists := c.Get("user_id")
-	if !exists {
-		response.Unauthorized(c, "请先登录")
-	}
-	var request request.PluginListRequest
-	if err := c.ShouldBindQuery(&request); err != nil {
-		logger.Infof("绑定错误: ", err)
-		response.BadRequest(c, "参数错误")
-		return
-	}
+// func (h *UploadHandler) ListMyPlugins(c *gin.Context) {
+// 	userID, exists := c.Get("user_id")
+// 	if !exists {
+// 		response.Unauthorized(c, "请先登录")
+// 	}
+// 	var request request.PluginListRequest
+// 	if err := c.ShouldBindQuery(&request); err != nil {
+// 		logger.Infof("绑定错误: ", err)
+// 		response.BadRequest(c, "参数错误")
+// 		return
+// 	}
 
-	// var req request.PluginListRequest
-	// if err := c.ShouldBindQuery(&req); err != nil {
-	// 	logger.Infof("绑定错误: ", err)
-	// 	response.BadRequest(c, apperrors.ErrInvalidRequest.Error())
-	// 	return
-	// }
-	queryBO := converter.PluginListRequestToUserPluginBO(&request, userID.(uint))
+// 	// var req request.PluginListRequest
+// 	// if err := c.ShouldBindQuery(&req); err != nil {
+// 	// 	logger.Infof("绑定错误: ", err)
+// 	// 	response.BadRequest(c, apperrors.ErrInvalidRequest.Error())
+// 	// 	return
+// 	// }
+// 	queryBO := converter.PluginListRequestToUserPluginBO(&request, userID.(uint))
 
-	// resultBO, err := h.service.ListUserPlugins(c, *query)
-	// if err != nil {
-	// 	response.HandleError(c, err)
-	// 	return
-	// }
+// 	// resultBO, err := h.service.ListUserPlugins(c, *query)
+// 	// if err != nil {
+// 	// 	response.HandleError(c, err)
+// 	// 	return
+// 	// }
 
-	// Request -> BO
-	// queryBO := converter.PluginListRequestToBO(&req)
+// 	// Request -> BO
+// 	// queryBO := converter.PluginListRequestToBO(&req)
 
-	// 调用 Service
-	pageVO, err := h.service.ListUserPlugins(c.Request.Context(), queryBO)
-	if err != nil {
-		response.InternalError(c, err.Error())
-		return
-	}
+// 	// 调用 Service
+// 	pageVO, err := h.service.ListUserPlugins(c.Request.Context(), queryBO)
+// 	if err != nil {
+// 		response.InternalError(c, err.Error())
+// 		return
+// 	}
 
-	// PageResult[BO] -> PageResult[VO]
-	// pageVO := converter.PageBOToPageVO(pageBO, converter.PluginBOToVO)
+// 	// PageResult[BO] -> PageResult[VO]
+// 	// pageVO := converter.PageBOToPageVO(pageBO, converter.PluginBOToVO)
 
-	response.SuccessPage(c, pageVO.List, pageVO.Total, pageVO.Page, pageVO.PageSize)
-	// response.SuccessPage(c, resultBO.List, resultBO.Total, request.Page, request.PageSize)
-}
+// 	response.SuccessPage(c, pageVO.List, pageVO.Total, pageVO.Page, pageVO.PageSize)
+// 	// response.SuccessPage(c, resultBO.List, resultBO.Total, request.Page, request.PageSize)
+// }
