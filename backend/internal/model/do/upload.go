@@ -16,12 +16,12 @@ const (
 	FileTypePostImage    FileType = "post_image"    // 帖子图片
 	FileTypePostFile     FileType = "post_file"     // 帖子普通附件
 	FileTypeCommentImage FileType = "comment_image" // 评论图片
-	FileTypePluginAsset  FileType = "plugin_asset"  // 插件资源文件
+	FileTypePlugin  FileType = "plugin"  // 插件资源文件
 )
 
 func (f FileType) IsValid() bool {
 	switch f {
-	case FileTypeAvatar, FileTypePostImage, FileTypePostFile, FileTypePluginAsset:
+	case FileTypeAvatar, FileTypePostImage, FileTypePostFile, FileTypePlugin:
 		return true
 	}
 	return false
@@ -68,7 +68,7 @@ type Attachment struct {
 
 	// ---------- 唯一标识与归属 ----------
 	FileID   string `gorm:"column:file_id;type:varchar(64);uniqueIndex;not null;comment:附件唯一标识(通常为UUID)" json:"file_id"`
-	UserID   int64  `gorm:"column:user_id;index;not null;comment:上传用户ID" json:"user_id"`
+	UserID   uint  `gorm:"column:user_id;index;not null;comment:上传用户ID" json:"user_id"`
 	PluginID string `gorm:"column:plugin_id;type:varchar(64);index;comment:插件ID（若由插件上传）" json:"plugin_id,omitempty"` // 支持插件上传
 
 	// ---------- 业务关联 ----------

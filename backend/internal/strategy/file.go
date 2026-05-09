@@ -37,11 +37,21 @@ func (h *BaseHandler) Process(src io.Reader, meta *do.Attachment) (io.Reader, er
 	return src, nil // 默认不处理
 }
 
+type PluginHandler struct {
+    BaseHandler
+}
+
+func (h *PluginHandler) GetStoragePath(meta *do.Attachment) string {
+    // 存储到特定目录，例如 uploads/plugins/
+    return filepath.Join("plugins", meta.StoredName)
+}
+
 // PostImageHandler 帖子图片
 type PostImageHandler struct {
 	BaseHandler
 	MaxWidth int
 }
+
 
 func (h *PostImageHandler) GetStoragePath(meta *do.Attachment) string {
 	return filepath.Join("post_images", fmt.Sprintf("%d", meta.UserID), meta.StoredName)
@@ -81,14 +91,20 @@ func NewHandlerRegistry() *HandlerRegistry {
 		BaseHandler: BaseHandler{MaxSize: 10 << 20, AllowedMime: []string{"image/"}},
 		MaxWidth:    4096,
 	})
-	reg.Register(do.FileTypePluginAsset, &PluginAssetHandler{
-		BaseHandler: BaseHandler{MaxSize: 50 << 20, AllowedMime: []string{"application/javascript", "text/css", "image/", "application/json"}},
-	})
+	// reg.Register(do.FileTypePlugin, &PluginAssetHandler{
+	// 	BaseHandler: BaseHandler{MaxSize: 50 << 20, AllowedMime: []string{"application/javascript", "text/css", "image/", "application/json"}},
+	// })
 	reg.Register(do.FileTypeAvatar, &AvatarHandler{
 		BaseHandler: BaseHandler{MaxSize: 2 << 20, AllowedMime: []string{"image/"}},
 		MaxWidth:    512,
 		MaxHeight:   512,
 	})
+	reg.Register(do.FileTypePlugin, &PluginHandler{
+        BaseHandler: BaseHandler{
+            MaxSize:     50 << 20, // 50MB，根据需求调整
+            AllowedMime: []string{"application/zip", "application/x-zip-compressed"},
+        },
+    })
 	// 可继续注册其他类型
 	return reg
 }
