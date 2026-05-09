@@ -53,13 +53,13 @@ func (h *Handler) ListPlugins(c *gin.Context) {
 		Order:    req.Order,
 		Options: bo.PluginQueryBO{
 			Name:     req.Keyword,
-			AuthorID: UserID,     
-			Category: req.Category,       
-			Tags:     req.Tags,     
-			Type:     req.Type,       
+			AuthorID: UserID,
+			Category: req.Category,
+			Tags:     req.Tags,
+			Type:     req.Type,
 			Keyword:  req.Keyword,
-			Status:   do.PluginStatus(req.Status), 
-			Version:  req.Version,                       
+			Status:   do.PluginStatus(req.Status),
+			Version:  req.Version,
 		},
 	}
 
@@ -116,25 +116,24 @@ func (h *Handler) ListMyPlugins(c *gin.Context) {
 	response.Success(c, plugins)
 }
 
-
 // DeletePlugin 删除插件
 // @Router /api/v1/plugins/:id [delete]
 func (h *Handler) DeletePlugin(c *gin.Context) {
-    // 1. 获取当前用户ID
-    userID := c.GetUint("user_id")
-    
-    // 2. 获取路径参数中的插件ID
-    pluginIDStr := c.Param("id")
-    pluginID, err := strconv.ParseUint(pluginIDStr, 10, 32)
-    if err != nil {
-        response.HandleError(c, apperrors.ErrValidation)
-    }
-    
-    // 3. 调用服务层删除
-    if err := h.svc.DeletePlugin(c.Request.Context(), uint(pluginID), userID); err != nil {
-        response.HandleError(c, err)
-        return
-    }
-    
-    response.Success(c, gin.H{"message": "plugin deleted successfully"})
+	// 1. 获取当前用户ID
+	userID := c.GetUint("user_id")
+
+	// 2. 获取路径参数中的插件ID
+	pluginIDStr := c.Param("id")
+	pluginID, err := strconv.ParseUint(pluginIDStr, 10, 32)
+	if err != nil {
+		response.HandleError(c, apperrors.ErrValidation)
+	}
+
+	// 3. 调用服务层删除
+	if err := h.svc.DeletePlugin(c.Request.Context(), uint(pluginID), userID); err != nil {
+		response.HandleError(c, err)
+		return
+	}
+
+	response.Success(c, gin.H{"message": "plugin deleted successfully"})
 }

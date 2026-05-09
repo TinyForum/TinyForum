@@ -24,6 +24,6 @@ func (h *Handler) RegisterRoutes(api *gin.RouterGroup, mw middleware.MiddlewareS
 
 		// 获取当前用户的插件列表
 		api.GET("/me", h.ListMyPlugins) // GET /api/v1/plugins/me
-	
+
 	}
 }

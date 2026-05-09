@@ -37,8 +37,6 @@ func main() {
 		log.Fatalf("Failed to init logger: %v\n", err)
 	}
 
-		
-
 	// 打印字符画 Banner
 	startup.PrintBanner(version)
 
