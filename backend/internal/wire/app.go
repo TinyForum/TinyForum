@@ -8,7 +8,10 @@ package wire
 
 import (
 	"tiny-forum/internal/infra/config"
+	"tiny-forum/internal/job"
 	"tiny-forum/internal/middleware"
+	"tiny-forum/internal/storage"
+	"tiny-forum/internal/strategy"
 	jwtpkg "tiny-forum/pkg/jwt"
 
 	"github.com/gin-gonic/gin"
@@ -37,12 +40,16 @@ func InitApp(cfg *config.Config) (*App, error) {
 	if err != nil {
 		return nil, err
 	}
+		registry := strategy.NewHandlerRegistry()
+
+	storage := storage.NewLocalStorage("./upload")
+
 
 	// 4. 数据仓库层
 	repos := NewRepositories(db, infra.RedisClient)
 
 	// 5. 服务层
-	services := NewServices(cfg, jwtMgr, repos, infra)
+	services := NewServices(cfg, jwtMgr, repos, infra,storage,registry)
 
 	// 6. 辅助工具
 	helpers := NewHelpers()
@@ -69,6 +76,9 @@ func InitApp(cfg *config.Config) (*App, error) {
 
 	// 10. 注册路由
 	RegisterRoutes(engine, handlers, mw, repos, cfg)
+
+	// 自动清理
+	go job.CleanTempFiles(db,storage,repos.Attachment)
 
 	return &App{
 		Engine: engine,
