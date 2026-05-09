@@ -8,13 +8,16 @@ import (
 )
 
 type AttachmentRepository interface {
-	Create(ctx context.Context, att *do.Attachment) error
-	GetByFileID(ctx context.Context, fileID string) (*do.Attachment, error)
-	Update(ctx context.Context, att *do.Attachment) error
-	Delete(ctx context.Context, fileID string) error
-	ListByUser(ctx context.Context, userID uint, fileType *do.FileType, page, pageSize int) ([]*do.Attachment, int64, error)
-	FindDuplicate(ctx context.Context, fileHash string, fileType do.FileType) (*do.Attachment, error)
-	AssociateWithPost(ctx context.Context, fileID string, postID int64) error
+	Create(ctx context.Context, att *do.Attachment) error // 创建文件
+	GetByFileID(ctx context.Context, fileID string) (*do.Attachment, error) // 根据文件ID获取文件信息
+	Update(ctx context.Context, att *do.Attachment) error // 更新文件信息
+	Delete(ctx context.Context, fileID string) error // 删除文件
+	ListByUser(ctx context.Context, userID uint, fileType *do.FileType, page, pageSize int) ([]*do.Attachment, int64, error) // 根据用户ID获取文件列表
+	FindDuplicate(ctx context.Context, fileHash string, fileType do.FileType) (*do.Attachment, error) // 查找重复文件
+	AssociateWithPost(ctx context.Context, fileID string, postID int64) error // 将文件与帖子关联
+	CheckFileExist(ctx context.Context, fileID string) bool // 检查文件是否存在
+	SoftDelete(ctx context.Context, fileID string) error // 软删除
+	GetByFileIDUnscoped(ctx context.Context, fileID string) (*do.Attachment, error) // 获取文件信息（包括软删除的）
 }
 
 type attachmentRepo struct {
@@ -29,6 +32,24 @@ func (r *attachmentRepo) Create(ctx context.Context, att *do.Attachment) error {
 	return r.db.WithContext(ctx).Create(att).Error
 }
 
+// GetByFileIDUnscoped 即使软删除也能查到
+func (r *attachmentRepo) GetByFileIDUnscoped(ctx context.Context, fileID string) (*do.Attachment, error) {
+  var att do.Attachment
+    err := r.db.Unscoped().Where("file_id = ?", fileID).First(&att).Error
+    return &att, err
+}
+
+// SoftDelete 软删除（如果 GORM 模型已定义 DeletedAt）
+func (r *attachmentRepo) SoftDelete(ctx context.Context, fileID string) error {
+	var att do.Attachment
+    return r.db.Where("file_id = ?", fileID).Delete(&att).Error
+}
+
+// 检查文件是否存在
+func (r *attachmentRepo) CheckFileExist(ctx context.Context, fileID string) bool {
+    return r.db.WithContext(ctx).Where("file_id = ? AND deleted_at IS NULL", fileID).First(&do.Attachment{}).Error == nil
+}
+// 获取文件信息
 func (r *attachmentRepo) GetByFileID(ctx context.Context, fileID string) (*do.Attachment, error) {
 	var att do.Attachment
 	err := r.db.WithContext(ctx).Where("file_id = ?", fileID).First(&att).Error

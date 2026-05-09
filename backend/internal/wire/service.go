@@ -53,15 +53,14 @@ func NewServices(
 	jwtMgr *jwtpkg.JWTManager,
 	repos *Repositories,
 	infra *Infra,
+	// storage *strategy.HandlerRegistry,
+	storage storage.StorageDriver,
+	registry *strategy.HandlerRegistry,
+	
+	
 ) *Services {
 	riskSvc := risk.NewRiskService(repos.Risk, infra.RateLimiter)
 	checkSvc := check.NewContentCheckService(repos.Risk, infra.SensitiveFilter)
-
-	registry := strategy.NewHandlerRegistry()
-	// 基础设施
-	storage := storage.NewLocalStorage("./upload")
-	engine := upload.NewEngine(storage,registry)
-
 	// 基础服务
 	notifSvc := notification.NewNotificationService(repos.Notification)
 	userSvc := user.NewUserService(repos.User, jwtMgr, notifSvc, repos.Post, repos.Comment)
@@ -78,7 +77,7 @@ func NewServices(
 	authSvc := auth.NewAuthService(repos.Auth, repos.User, jwtMgr, notifSvc, emailSvc, cfg, repos.Token, repos.Transaction, infra.RedisClient)
 	adminSvc := admin.NewAdminService(announcementSvc, userSvc, postSvc)
 	pluginSvc := plugin.NewPluginService(repos.Plugin,storage)
-
+	engine := upload.NewEngine(storage,registry)
 	attachmentSvc := attachment.NewAttachmentService(repos.Attachment,cfg.Basic.Attachment,engine)
 	
 

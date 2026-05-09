@@ -3,6 +3,7 @@ package attachment
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"mime/multipart"
 
@@ -16,14 +17,16 @@ import (
 	"tiny-forum/pkg/logger"
 
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 type AttachmentService interface {
-	UploadFile(ctx context.Context, userID uint, fileHeader *multipart.FileHeader, req *request.UploadPostFileRequest, clientIP string) (*dto.UploadResponse, error)
-	GetFile(ctx context.Context, fileID string) (*dto.FileInfo, error)
-	DeleteFile(ctx context.Context, userID uint, fileID string) error
-	GetUserFiles(ctx context.Context, userID uint, fileType string, page, pageSize int) ([]*dto.FileInfo, int64, error)
-	AssociateWithPost(ctx context.Context, fileID string, postID int64) error
+	UploadFile(ctx context.Context, userID uint, fileHeader *multipart.FileHeader, req *request.UploadPostFileRequest, clientIP string) (*dto.UploadResponse, error) // 上传文件
+	GetFile(ctx context.Context, fileID string) (*dto.FileInfo, error) // 获取文件信息
+	DeleteFile(ctx context.Context, userID uint, fileID string) error // 删除文件
+	GetUserFiles(ctx context.Context, userID uint, fileType string, page, pageSize int) ([]*dto.FileInfo, int64, error) // 获取用户上传的文件列表
+	AssociateWithPost(ctx context.Context, fileID string, postID int64) error // 关联附件与帖子
+	
 }
 
 type service struct {
@@ -117,26 +120,46 @@ func (s *service) GetFile(ctx context.Context, fileID string) (*dto.FileInfo, er
 }
 
 func (s *service) DeleteFile(ctx context.Context, userID uint, fileID string) error {
-	att, err := s.repo.GetByFileID(ctx, fileID)
-	if err != nil {
-		logger.Errorf("查询失败: ", err)
-		return err
-	}
-	if att.UserID != userID {
-		logger.Errorf("用户 %d 尝试删除文件 %s，该文件所有者是 %d", userID, fileID, att.UserID)
-		return apperrors.ErrInsufficientPermission
-	}
-	// 删除物理文件
-	if err := s.uploadEng.DeleteFile(ctx, att.StoredPath); err != nil {
-		logger.Errorf("删除物理文件失败: %v", err)
-	}
-	if err := s.repo.Delete(ctx, fileID); err != nil {
-	    logger.Errorf("删除数据库文件失败: ", err)
-	}
+    // 1. 查询记录（包括已软删除的）
+    att, err := s.repo.GetByFileIDUnscoped(ctx, fileID)  // 需要新增此方法，不加 deleted_at 过滤
+    if err != nil {
+        if errors.Is(err, gorm.ErrRecordNotFound) {
+            logger.Warnf("文件 %s 不存在", fileID)
+            return apperrors.ErrNotFound
+        }
+        logger.Errorf("查询文件记录失败: %v", err)
+        return apperrors.ErrInternalError
+    }
 
-	// 删除数据库记录
-	return err
+    // 2. 如果已经被软删除，幂等返回成功
+    if att.DeletedAt.Valid {
+        logger.Infof("文件 %s 已被删除，无需重复删除", fileID)
+        return nil
+    }
+
+    // 3. 权限检查
+    if att.UserID != userID {
+        logger.Warnf("用户 %d 尝试删除文件 %s，文件所有者是 %d", userID, fileID, att.UserID)
+        return apperrors.ErrInsufficientPermission
+    }
+
+    // 4. 先删除物理文件，失败则整体失败（避免不一致）
+    if err := s.uploadEng.DeleteFile(ctx, att.StoredPath); err != nil {
+        logger.Errorf("删除物理文件失败 (path=%s): %v", att.StoredPath, err)
+        return apperrors.ErrInternalError  // 可自定义：文件删除失败，请稍后重试
+    }
+
+    // 5. 软删除数据库记录（如果业务需要软删除）
+    if err := s.repo.SoftDelete(ctx, fileID); err != nil {
+        logger.Errorf("软删除数据库记录失败: %v", err)
+        return apperrors.ErrInternalError
+    }
+
+    logger.Infof("用户 %d 成功删除文件 %s", userID, fileID)
+    return nil
 }
+
+
 func (s *service) GetUserFiles(ctx context.Context, userID uint, fileTypeStr string, page, pageSize int) ([]*dto.FileInfo, int64, error) {
 	var fileType *do.FileType
 	if fileTypeStr != "" {
