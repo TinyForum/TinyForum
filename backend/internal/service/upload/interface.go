@@ -10,17 +10,17 @@ import (
 type Engine interface {
 	// Upload 仅负责存储文件，返回存储结果，不操作数据库
 	Upload(ctx context.Context, req *UploadRequest) (*UploadResult, error)
-	DeleteFile(ctx context.Context, storedPath string) error 
+	DeleteFile(ctx context.Context, storedPath string) error
 }
 
 type UploadRequest struct {
-	UserID    uint
-	PluginID  string
-	File      *multipart.FileHeader
-	FileType  do.FileType
-	PostID    int64
-	ReplyID   int64
-	ClientIP  string
+	UserID   uint
+	PluginID string
+	File     *multipart.FileHeader
+	FileType do.FileType
+	PostID   int64
+	ReplyID  int64
+	ClientIP string
 }
 
 // UploadResult 上传结果，由调用方负责保存到数据库

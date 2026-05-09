@@ -95,13 +95,13 @@ type PluginListOptionsQuery struct {
 // }
 
 type PluginQueryDTO struct {
-	Name     string          `json:"name"`
-	Type     string          `json:"type"`
-	Category string          `json:"category"`
-	Tags     []string        `json:"tags"`
-	AuthorID uint            `json:"author_id"`
-	Status   do.PluginStatus `json:"status"`
-	SortBy   string          `json:"sort_by"`
-	Enabled  *bool           `json:"enabled"` // 使用指针区分未传/传false
-	Keyword  string          `json:"keyword"` // 模糊搜索关键词
+	Name     string            `json:"name"`
+	Type     string            `json:"type"`
+	Category do.PluginCategory `json:"category"`
+	Tags     []string          `json:"tags"`
+	AuthorID uint              `json:"author_id"`
+	Status   do.PluginStatus   `json:"status"`
+	SortBy   string            `json:"sort_by"`
+	Enabled  *bool             `json:"enabled"` // 使用指针区分未传/传false
+	Keyword  string            `json:"keyword"` // 模糊搜索关键词
 }

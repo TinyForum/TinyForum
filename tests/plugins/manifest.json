@@ -1,9 +1,9 @@
 {
-  "id": "my-local-plugin",
-  "name": "本地示例插件",
+  "id": "plugin_demo",
+  "name": "示例插件",
   "version": "0.1.0",
-  "description": "这是一个完全本地化的插件，不依赖任何外部网络资源。",
-  "summary": "本地插件示例",
+  "description": "这是一个示例插件",
+  "summary": "插件示例",
   "iconUrl": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABfSURBVFhH7dYxDgAgDEPRDdyf+17iJYjBpG0S2lVhMNjPej2cdQQQwHVwvwIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAn9yASsUQjqEnK4nAAAAAElFTkSuQmCC",
   "screenshots": [],
   "homepageUrl": "",
@@ -13,7 +13,7 @@
   "author": "本地开发者",
   "authorEmail": "dev@localhost",
   "authorUrl": "",
-  "scriptUrl": "./main.js",
+  "entry": "./main.js",
   "serverEntry": "./server.js",
   "slots": ["after-header", "before-footer"],
   "routes": [],
@@ -53,6 +53,6 @@
   "config": {
     "greeting": "Hello from local plugin!"
   },
-  "createdAt": "2025-03-20T00:00:00Z",
-  "updatedAt": "2025-03-20T00:00:00Z"
+  "createdAt": "2026-05-20T00:00:00Z",
+  "updatedAt": "2026-05-20T00:00:00Z"
 }

@@ -31,13 +31,22 @@ export interface PluginVO {
   status: string;
 }
 export const pluginApi = {
-  /** 获取插件列表（管理端，全量） */
+  /** 获取插件列表 */
   list(params?: PluginListParams) {
     return apiClient.get<ApiResponse<PageData<PluginMeta>>>("/plugins", {
       params,
     });
   },
 
+  /** 上传插件文件 */
+  upload(file: File, fileType: string = "plugin") {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("file_type", fileType);
+    return apiClient.post<{ data: string }>("/plugins", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+  },
   /** 获取已启用插件（前端运行时加载用） */
   listEnabled() {
     return apiClient.get<{ data: PluginMeta[] }>("/plugins", {
@@ -50,10 +59,10 @@ export const pluginApi = {
     return apiClient.get<{ data: PluginMeta }>(`/plugins/${id}`);
   },
 
-  /** 创建/安装插件 */
-  create(payload: CreatePluginPayload) {
-    return apiClient.post<{ data: PluginMeta }>("/plugins", payload);
-  },
+  // /** 创建/安装插件 */
+  // create(payload: CreatePluginPayload) {
+  //   return apiClient.post<{ data: PluginMeta }>("/plugins", payload);
+  // },
 
   /** 更新插件信息 */
   update({ id, ...payload }: UpdatePluginPayload) {

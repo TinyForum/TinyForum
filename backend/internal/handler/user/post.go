@@ -7,9 +7,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// handler/user_handler.go
+// GetUserPosts 获取用户发布的文章
+// @Summary 获取用户发布的文章
+// @Description 获取当前登录用户已安装（上传）的插件列表，通常是通过 author_id 查询
+// @Tags plugin
+// @Accept json
+// @Produce json
+// @Success 200 {object} common.BasicResponse
+// @Failure 400 {object} common.BasicResponse
+// @Router /users/me/plugins [get]
 func (h *UserHandler) GetUserPosts(c *gin.Context) {
-	// 获取当前登录用户 ID（例如从 JWT 中间件）
 	userID := c.GetUint("user_id")
 
 	var req request.GetUserPostsRequest

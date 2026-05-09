@@ -6,10 +6,10 @@ import "tiny-forum/internal/model/common"
 type PluginStatus string
 
 const (
-	PluginStatusActive   PluginStatus = "active"
-	PluginStatusInactive PluginStatus = "inactive"
-	PluginStatusError    PluginStatus = "error"
-	PluginStatusLoading  PluginStatus = "loading"
+	PluginStatusActive   PluginStatus = "active"   // 激活
+	PluginStatusInactive PluginStatus = "inactive" // 未激活
+	PluginStatusError    PluginStatus = "error"    // 错误
+	PluginStatusLoading  PluginStatus = "loading"  // 加载中
 )
 
 // PluginType 插件类型
@@ -140,7 +140,7 @@ const (
 type PluginMeta struct {
 	common.BaseModel
 	// 基础标识
-	Name        string   `json:"name" gorm:"type:varchar(100);not null;index:idx_name,unique"` // 插件名称
+	Name string `json:"name" gorm:"type:varchar(100);not null;index:idx_name"`
 	Version     string   `json:"version" gorm:"type:varchar(50);not null"`                     // 插件版本
 	Description string   `json:"description" gorm:"type:text"`                                 // 插件描述
 	Summary     string   `json:"summary,omitempty" gorm:"type:varchar(300)"`                   // 一句话简介
@@ -185,4 +185,24 @@ type PluginMeta struct {
 // TableName 指定表名
 func (PluginMeta) TableName() string {
 	return "plugins"
+}
+
+// 有效的插件状态
+var validPluginStatuses = map[PluginStatus]bool{
+	PluginStatusActive:   true,
+	PluginStatusInactive: true,
+	PluginStatusError:    true,
+	PluginStatusLoading:  false,
+}
+
+func ParsePluginStatus(s string) PluginStatus {
+	ps := PluginStatus(s)
+	if ps.IsValid() {
+		return ps
+	}
+	return PluginStatusInactive // 默认为未激活状态
+}
+
+func (ps PluginStatus) IsValid() bool {
+	return validPluginStatuses[ps]
 }

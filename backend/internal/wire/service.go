@@ -56,8 +56,7 @@ func NewServices(
 	// storage *strategy.HandlerRegistry,
 	storage storage.StorageDriver,
 	registry *strategy.HandlerRegistry,
-	
-	
+
 ) *Services {
 	riskSvc := risk.NewRiskService(repos.Risk, infra.RateLimiter)
 	checkSvc := check.NewContentCheckService(repos.Risk, infra.SensitiveFilter)
@@ -76,10 +75,9 @@ func NewServices(
 	emailSvc := email.NewEmailService(&cfg.Private.Email)
 	authSvc := auth.NewAuthService(repos.Auth, repos.User, jwtMgr, notifSvc, emailSvc, cfg, repos.Token, repos.Transaction, infra.RedisClient)
 	adminSvc := admin.NewAdminService(announcementSvc, userSvc, postSvc)
-	pluginSvc := plugin.NewPluginService(repos.Plugin,storage)
-	engine := upload.NewEngine(storage,registry)
-	attachmentSvc := attachment.NewAttachmentService(repos.Attachment,cfg.Basic.Attachment,engine)
-	
+	pluginSvc := plugin.NewPluginService(repos.Plugin, storage,&cfg.Plugins)
+	engine := upload.NewEngine(storage, registry)
+	attachmentSvc := attachment.NewAttachmentService(repos.Attachment, cfg.Basic.Attachment, engine)
 
 	return &Services{
 		User:         userSvc,

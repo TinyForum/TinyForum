@@ -73,7 +73,7 @@ _get_default() {
         upload_dir)         echo "${UPLOAD_DIR:-attachments}" ;;
         upload_url_prefix)  echo "${UPLOAD_URL_PREFIX:-attachment}" ;;
         upload_allowed_ext) echo "${UPLOAD_ALLOWED_EXT:-png,jpg,jpeg,gif,mp4,webm,mp3,avi,mkv}" ;;
-        config_version)     echo "${CONFIG_VERSION:-1.0.0}" ;;
+        config_version)     echo "${CONFIG_VERSION:-0.1.0}" ;;
     esac
 }
 
@@ -236,9 +236,16 @@ attachment:
   post_image:
     max_size: 5242880
     allowed_types: [.jpg, .jpeg, .png, .gif, .webp]
+
   storage:
     type: local
-    local_path: ./attachments"
+    local_path: ./attachments
+    
+plugins:
+  storage_dir: plugins
+  "
+
+  
 
     _write_config "basic.yml" "$content"
 }

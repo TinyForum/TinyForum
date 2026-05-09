@@ -38,12 +38,12 @@ func (h *BaseHandler) Process(src io.Reader, meta *do.Attachment) (io.Reader, er
 }
 
 type PluginHandler struct {
-    BaseHandler
+	BaseHandler
 }
 
 func (h *PluginHandler) GetStoragePath(meta *do.Attachment) string {
-    // 存储到特定目录，例如 uploads/plugins/
-    return filepath.Join("plugins", meta.StoredName)
+	// 存储到特定目录，例如 uploads/plugins/
+	return filepath.Join("plugins", meta.StoredName)
 }
 
 // PostImageHandler 帖子图片
@@ -51,7 +51,6 @@ type PostImageHandler struct {
 	BaseHandler
 	MaxWidth int
 }
-
 
 func (h *PostImageHandler) GetStoragePath(meta *do.Attachment) string {
 	return filepath.Join("post_images", fmt.Sprintf("%d", meta.UserID), meta.StoredName)
@@ -100,11 +99,11 @@ func NewHandlerRegistry() *HandlerRegistry {
 		MaxHeight:   512,
 	})
 	reg.Register(do.FileTypePlugin, &PluginHandler{
-        BaseHandler: BaseHandler{
-            MaxSize:     50 << 20, // 50MB，根据需求调整
-            AllowedMime: []string{"application/zip", "application/x-zip-compressed"},
-        },
-    })
+		BaseHandler: BaseHandler{
+			MaxSize:     50 << 20, // 50MB，根据需求调整
+			AllowedMime: []string{"application/zip", "application/x-zip-compressed"},
+		},
+	})
 	// 可继续注册其他类型
 	return reg
 }

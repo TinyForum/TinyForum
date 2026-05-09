@@ -7,4 +7,5 @@ type PageQuery[T any] struct {
 	Keyword  string   `json:"keyword"`
 	SortBy   string   `json:"sort_by"`
 	TagNames []string `json:"tag_names"`
+	Order    string   `json:"order"`
 }

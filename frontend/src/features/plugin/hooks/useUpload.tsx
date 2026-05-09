@@ -1,5 +1,5 @@
 // hooks/useUpload.ts
-import { ListPluginRequest, uploadApi } from "@/shared/api/modules/uploads";
+import { ListPluginRequest, uploadApi } from "@/shared/api/modules/attachments";
 import { ApiResponse, PageData } from "@/shared/api/types/basic.model";
 import { useState } from "react";
 import { PluginMeta } from "@/shared/type/plugin.type";
@@ -31,7 +31,6 @@ interface UseUploadReturn {
     commentId: string | number,
     file: File,
   ) => Promise<string | null>;
-  uploadPluginFile: (file: File) => Promise<string | null>;
   getUserFiles: (params?: {
     page?: number;
     page_size?: number;
@@ -87,19 +86,6 @@ export function useUpload(): UseUploadReturn {
     }
   };
 
-  const uploadPluginFile = async (file: File): Promise<string | null> => {
-    setIsUploading(true);
-    setError(null);
-    try {
-      const res = await uploadApi.uploadPluginFile(file);
-      return res.data.data;
-    } catch (err) {
-      return setErrorAndReturnNull(err);
-    } finally {
-      setIsUploading(false);
-    }
-  };
-
   // 获取用户文件列表
   const getUserFiles = async (params?: {
     page?: number;
@@ -139,6 +125,7 @@ export function useUpload(): UseUploadReturn {
   const getUserPluginsList = async (params: ListPluginRequest) => {
     setIsUploading(true);
     setError(null);
+    params.type = "plugin";
 
     try {
       const res = await uploadApi.getUserPlugins(params);
@@ -189,7 +176,7 @@ export function useUpload(): UseUploadReturn {
     error,
     uploadPostFile,
     uploadCommentFile,
-    uploadPluginFile,
+
     getUserFiles,
     getFileInfo,
     getUserPluginsList,

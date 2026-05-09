@@ -16,7 +16,7 @@ const (
 	FileTypePostImage    FileType = "post_image"    // 帖子图片
 	FileTypePostFile     FileType = "post_file"     // 帖子普通附件
 	FileTypeCommentImage FileType = "comment_image" // 评论图片
-	FileTypePlugin  FileType = "plugin"  // 插件资源文件
+	FileTypePlugin       FileType = "plugin"        // 插件资源文件
 )
 
 func (f FileType) IsValid() bool {
@@ -68,7 +68,7 @@ type Attachment struct {
 
 	// ---------- 唯一标识与归属 ----------
 	FileID   string `gorm:"column:file_id;type:varchar(64);uniqueIndex;not null;comment:附件唯一标识(通常为UUID)" json:"file_id"`
-	UserID   uint  `gorm:"column:user_id;index;not null;comment:上传用户ID" json:"user_id"`
+	UserID   uint   `gorm:"column:user_id;index;not null;comment:上传用户ID" json:"user_id"`
 	PluginID string `gorm:"column:plugin_id;type:varchar(64);index;comment:插件ID（若由插件上传）" json:"plugin_id,omitempty"` // 支持插件上传
 
 	// ---------- 业务关联 ----------
@@ -98,7 +98,7 @@ type Attachment struct {
 	// 可选：插件自定义元数据 (JSON)
 	PluginMeta map[string]any `gorm:"column:plugin_meta;type:json;comment:插件附加数据, 例如缩略图处理参数等" json:"plugin_meta,omitempty" serializer:"json"`
 
-	 FileHash string `gorm:"column:file_hash;type:varchar(64);index" json:"file_hash"`
+	FileHash string `gorm:"column:file_hash;type:varchar(64);index" json:"file_hash"`
 }
 
 // TableName 指定表名

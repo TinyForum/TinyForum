@@ -11,4 +11,3 @@ type StorageDriver interface {
 	Exists(destPath string) (bool, error)
 	DeleteDir(dirPath string) error // 递归删除目录
 }
-
