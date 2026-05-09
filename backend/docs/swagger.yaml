@@ -2008,35 +2008,6 @@ paths:
       summary: 采纳答案
       tags:
       - 回答管理
-  /attachment/{file_id}:
-    delete:
-      consumes:
-      - application/json
-      description: 删除用户上传的文件（仅文件所有者可操作）
-      parameters:
-      - description: 文件ID
-        in: path
-        name: file_id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/common.BasicResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/common.BasicResponse'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/common.BasicResponse'
-      summary: 删除文件
-      tags:
-      - attachment
   /attachments:
     post:
       consumes:
@@ -2077,6 +2048,34 @@ paths:
       tags:
       - attachment
   /attachments/{file_id}:
+    delete:
+      consumes:
+      - application/json
+      description: 删除用户上传的文件（仅文件所有者可操作）
+      parameters:
+      - description: 文件ID
+        in: path
+        name: file_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+      summary: 删除文件
+      tags:
+      - attachment
     get:
       consumes:
       - application/json

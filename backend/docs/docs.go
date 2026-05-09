@@ -2206,50 +2206,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/attachment/{file_id}": {
-            "delete": {
-                "description": "删除用户上传的文件（仅文件所有者可操作）",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "attachment"
-                ],
-                "summary": "删除文件",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "文件ID",
-                        "name": "file_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/common.BasicResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/common.BasicResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "$ref": "#/definitions/common.BasicResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/attachments": {
             "post": {
                 "description": "上传附件，支持图片、文档等，通过 type 字段区分业务类型（post_image, comment_file, avatar 等）",
@@ -2395,6 +2351,48 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "删除用户上传的文件（仅文件所有者可操作）",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "attachment"
+                ],
+                "summary": "删除文件",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "文件ID",
+                        "name": "file_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
                         "schema": {
                             "$ref": "#/definitions/common.BasicResponse"
                         }

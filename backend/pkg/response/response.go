@@ -13,6 +13,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"go.uber.org/zap"
+	"gorm.io/gorm"
 )
 
 // ========== 响应结构体 ==========
@@ -163,32 +164,32 @@ func HandleError(c *gin.Context, err error) {
 	}
 
 	// 1. 业务错误
-	var appErr *apperrors.AppError
-	if errors.As(err, &appErr) {
+	if appErr, ok := errors.AsType[*apperrors.AppError](err); ok {
 		handleAppError(c, appErr)
 		return
 	}
 
 	// 2. validator 校验错误
-	var ve validator.ValidationErrors
-	if errors.As(err, &ve) {
+	if ve, ok := errors.AsType[validator.ValidationErrors](err); ok {
 		handleValidationErrors(c, ve)
 		return
 	}
 
-	// 3. 标准库 context 错误
-	switch {
-	case errors.Is(err, context.DeadlineExceeded):
-		fail(c, http.StatusGatewayTimeout, apperrors.CodeSystemBusy, "请求超时", nil)
-		return
-	case errors.Is(err, context.Canceled):
-		// 客户端主动取消，不记录错误日志，静默结束
-		c.Status(http.StatusNoContent)
-		c.Abort()
-		return
-	}
+	
+    // 3. context 错误 -> 转换为 apperrors.AppError
+    if appErr := convertContextError(err); appErr != nil {
+        handleAppError(c, appErr)
+        return
+    }
 
-	// 4. 兜底：记录日志，返回通用 500
+    // 4. GORM 错误 -> 转换为 apperrors.AppError
+    if appErr := convertGormError(err); appErr != nil {
+        handleAppError(c, appErr)
+        return
+    }
+
+
+	// 5. 兜底：记录日志，返回通用 500
 	logger.Error("unhandled error",
 		zap.Error(err),
 		zap.String("path", c.Request.URL.Path),
@@ -197,7 +198,57 @@ func HandleError(c *gin.Context, err error) {
 	)
 	InternalError(c, "")
 }
+// convertContextError 将 context 错误转换为 *apperrors.AppError
+func convertContextError(err error) *apperrors.AppError {
+    switch {
+    case errors.Is(err, context.DeadlineExceeded):
+        // 使用预定义的系统繁忙错误，无需硬编码状态码或消息
+        return apperrors.ErrSystemBusy.WithCause(err)
+    case errors.Is(err, context.Canceled):
+        // 客户端主动取消：无需返回错误，直接静默结束
+        // 返回 nil 表示不需要处理（不写响应）
+        return nil
+    default:
+        return nil
+    }
+}
 
+// gormErrorMapping 定义 GORM 错误到 AppError 的映射关系
+// 完全使用预定义的 apperrors 实例，无硬编码
+var gormErrorMappings = []struct {
+    gormErr error
+    appErr  *apperrors.AppError
+}{
+    {gorm.ErrRecordNotFound, apperrors.ErrNotFound},
+    {gorm.ErrDuplicatedKey, apperrors.ErrUserExist}, // 可根据业务调整，或定义新的错误码
+    // 可以继续增加其他 GORM 错误映射
+    {gorm.ErrForeignKeyViolated, apperrors.ErrInvalidRequest},
+    {gorm.ErrCheckConstraintViolated, apperrors.ErrValidation},
+}
+
+// convertGormError 将 GORM 错误转换为 *apperrors.AppError
+// 如果无法识别，返回 nil（走兜底逻辑）
+func convertGormError(err error) *apperrors.AppError {
+    for _, m := range gormErrorMappings {
+        if errors.Is(err, m.gormErr) {
+            // 复制预定义错误并附带原始错误原因
+            return m.appErr.WithCause(err)
+        }
+    }
+    // 对于未知的数据库错误（如连接失败），返回一个通用内部错误（不硬编码）
+    // 或者返回 nil 让上层统一处理成 unknownErr
+    if isDatabaseError(err) {
+        return apperrors.ErrInternalError.WithCause(err).WithDetail("database operation failed")
+    }
+    return nil
+}
+
+// isDatabaseError 简单判断是否与数据库相关（可扩展）
+func isDatabaseError(err error) bool {
+    // 可以根据需要检查 errors.Is(err, gorm.ErrInvalidData) 等
+    return err != nil && (errors.Is(err, gorm.ErrInvalidData) ||
+        errors.Is(err, gorm.ErrInvalidTransaction))
+}
 // ========== 内部处理函数 ==========
 
 // handleAppError 处理 *apperrors.AppError
