@@ -140,13 +140,13 @@ const (
 type PluginMeta struct {
 	common.BaseModel
 	// 基础标识
-	Name string `json:"name" gorm:"type:varchar(100);not null;index:idx_name"`
-	Version     string   `json:"version" gorm:"type:varchar(50);not null"`                     // 插件版本
-	Description string   `json:"description" gorm:"type:text"`                                 // 插件描述
-	Summary     string   `json:"summary,omitempty" gorm:"type:varchar(300)"`                   // 一句话简介
-	IconURL     string   `json:"iconUrl,omitempty" gorm:"type:varchar(255)"`                   // 插件图标
-	Screenshots []string `json:"screenshots,omitempty" gorm:"type:json"`                       // 截图列表
-	HomepageURL string   `json:"homepageUrl,omitempty" gorm:"type:varchar(255)"`               // 官网地址
+	Name        string   `json:"name" gorm:"type:varchar(100);not null;index:idx_name"`
+	Version     string   `json:"version" gorm:"type:varchar(50);not null"`       // 插件版本
+	Description string   `json:"description" gorm:"type:text"`                   // 插件描述
+	Summary     string   `json:"summary,omitempty" gorm:"type:varchar(300)"`     // 一句话简介
+	IconURL     string   `json:"iconUrl,omitempty" gorm:"type:varchar(255)"`     // 插件图标
+	Screenshots []string `json:"screenshots,omitempty" gorm:"type:json"`         // 截图列表
+	HomepageURL string   `json:"homepageUrl,omitempty" gorm:"type:varchar(255)"` // 官网地址
 
 	// 分类与类型
 	Type     PluginType     `json:"type" gorm:"type:varchar(20);not null;index"`     // 插件类型（对于服务端）

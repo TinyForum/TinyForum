@@ -12,7 +12,6 @@ type Config struct {
 	RiskControl ConfigRiskControl // 风控配置文件
 	Postgres    ConfigPostgres    // 数据库配置文件
 	Redis       ConfigRedis       // Redis 配置文件
-	Plugins     ConfigPlugins     // 插件配置文件
 	// RateLimit   RateLimitConfig   // 限流配置文件
 }
 
@@ -23,15 +22,15 @@ type ConfigBasic struct {
 	API      APIConfig      `mapstructure:"api" validate:"required"`
 	Log      LogConfig      `mapstructure:"log" validate:"required"`
 	// RateLimit    RateLimitConfig `mapstructure:"rate_limit" validate:"required"`
-	Ollama       Ollama       `mapstructure:"ollama" validate:"required"`
-	AllowOrigins []string     `mapstructure:"allow_origins" validate:"omitempty,dive,url"` // 允许跨域请求的域名
-	Attachment   UploadConfig `mapstructure:"attachment" validate:"required"`              // 上传配置
-	Version      string       `mapstructure:"version" validate:"required,semver"`
-	Plugins ConfigPlugins `mapstructure:"plugins" validate:"required"`
+	Ollama       Ollama        `mapstructure:"ollama" validate:"required"`
+	AllowOrigins []string      `mapstructure:"allow_origins" validate:"omitempty,dive,url"` // 允许跨域请求的域名
+	Attachment   UploadConfig  `mapstructure:"attachment" validate:"required"`              // 上传配置
+	Version      string        `mapstructure:"version" validate:"required,semver"`
+	Plugins      ConfigPlugins `mapstructure:"plugins" validate:"required"`
 }
 
-type ConfigPlugins struct{
-	StorageDir string `yaml:"storage_dir" mapstructure:"storage_dir"`
+type ConfigPlugins struct {
+	StorageDir string `mapstructure:"storage_dir" validate:"required"`
 }
 
 type ConfigPrivate struct {

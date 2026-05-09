@@ -42,13 +42,14 @@ func InitApp(cfg *config.Config) (*App, error) {
 	}
 	registry := strategy.NewHandlerRegistry()
 
-	storage := storage.NewLocalStorage("./upload")
+	userStorage := storage.NewLocalStorage("./uploads")
+	publicStorage := storage.NewLocalStorage("./public")
 
 	// 4. 数据仓库层
 	repos := NewRepositories(db, infra.RedisClient)
 
 	// 5. 服务层
-	services := NewServices(cfg, jwtMgr, repos, infra, storage, registry)
+	services := NewServices(cfg, jwtMgr, repos, infra, userStorage, publicStorage, registry)
 
 	// 6. 辅助工具
 	helpers := NewHelpers()
@@ -77,7 +78,8 @@ func InitApp(cfg *config.Config) (*App, error) {
 	RegisterRoutes(engine, handlers, mw, repos, cfg)
 
 	// 自动清理
-	go job.CleanTempFiles(db, storage, repos.Attachment)
+	go job.CleanTempFiles(db, userStorage, repos.Attachment)
+	go job.CleanTempFiles(db, publicStorage, repos.Attachment)
 
 	return &App{
 		Engine: engine,

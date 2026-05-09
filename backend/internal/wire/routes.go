@@ -81,7 +81,6 @@ func RegisterRoutes(
 	handlers.Plugin.RegisterRoutes(api, mw)
 
 	// 静态路由
-	// engine.Static("/public", "./public")
 	engine.StaticFS("/public", http.Dir("./public"))
 
 	// ── Admin 路由组（示例：Casbin 替代 AdminRequired）───────────────────────

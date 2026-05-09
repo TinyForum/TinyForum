@@ -84,16 +84,15 @@ const (
 	CodeTimelineEmpty = 80001
 
 	// 文件插件模块 (90000-90999)
-	CodeFileTooLarge    = 90001
-	CodeFileTypeInvalid = 90002
-	CodeUploadFailed    = 90003
+	CodeFileTooLarge        = 90001
+	CodeFileTypeInvalid     = 90002
+	CodeUploadFailed        = 90003
 	CodeInvalidPluginFormat = 90004
-	CodeManifestNotFound = 	90005
-	CodeInvalidManifest = 90006
-	CodePluginAlreadyExist = 90007
-	CodePluginEnabledFirst = 90008
+	CodeManifestNotFound    = 90005
+	CodeInvalidManifest     = 90006
+	CodePluginAlreadyExist  = 90007
+	CodePluginEnabledFirst  = 90008
 )
-
 
 // ========== 核心错误类型 ==========
 
@@ -337,12 +336,12 @@ var (
 	ErrTimelineEmpty = New(CodeTimelineEmpty, "时间线暂无内容")
 
 	// 文件插件模块
-	ErrFileTooLarge    = New(CodeFileTooLarge, "文件过大")
-	ErrFileTypeInvalid = New(CodeFileTypeInvalid, "不支持的文件类型")
-	ErrUploadFailed    = New(CodeUploadFailed, "文件上传失败")
-	 ErrInvalidPluginFormat    = New(CodeInvalidPluginFormat,"插件格式无效")
-    ErrManifestNotFound       = New(CodeManifestNotFound,"没有找到 manifest.json 文件")
-    ErrInvalidManifest        = New(CodeInvalidManifest,"文件 manifest.json 无效")
-    ErrPluginAlreadyExist = New(CodePluginAlreadyExist,"插件已存在")
-	 ErrPluginEnabledFirst      = New(CodePluginEnabledFirst,"请先禁用插件")
+	ErrFileTooLarge        = New(CodeFileTooLarge, "文件过大")
+	ErrFileTypeInvalid     = New(CodeFileTypeInvalid, "不支持的文件类型")
+	ErrUploadFailed        = New(CodeUploadFailed, "文件上传失败")
+	ErrInvalidPluginFormat = New(CodeInvalidPluginFormat, "插件格式无效")
+	ErrManifestNotFound    = New(CodeManifestNotFound, "没有找到 manifest.json 文件")
+	ErrInvalidManifest     = New(CodeInvalidManifest, "文件 manifest.json 无效")
+	ErrPluginAlreadyExist  = New(CodePluginAlreadyExist, "插件已存在")
+	ErrPluginEnabledFirst  = New(CodePluginEnabledFirst, "请先禁用插件")
 )
