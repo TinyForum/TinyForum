@@ -25,6 +25,10 @@
       "path": "../docs",
       "name": "Docs (md)",
     },
+    {
+      "path": "../plugin",
+      "name": "Plugin (ts)",
+    },
   ],
 
   "settings": {

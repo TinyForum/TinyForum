@@ -1,0 +1,58 @@
+{
+  "id": "plugin_demo",
+  "name": "示例插件",
+  "version": "0.1.0",
+  "description": "这是一个示例插件",
+  "summary": "插件示例",
+  "iconUrl": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABfSURBVFhH7dYxDgAgDEPRDdyf+17iJYjBpG0S2lVhMNjPej2cdQQQwHVwvwIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAn9yASsUQjqEnK4nAAAAAElFTkSuQmCC",
+  "screenshots": [],
+  "homepageUrl": "",
+  "type": "integration",
+  "category": "utility",
+  "tags": ["example", "local"],
+  "author": "本地开发者",
+  "authorEmail": "dev@localhost",
+  "authorUrl": "",
+  "entry": "./main.js",
+  "serverEntry": "./server.js",
+  "slots": ["after-header", "before-footer"],
+  "routes": [],
+  "pricing": {
+    "type": "free",
+    "price": 0,
+    "currency": "CNY",
+    "trialDays": 0,
+    "plans": []
+  },
+  "compatibility": {
+    "minFaceVersion": "1.0.0",
+    "maxFaceVersion": "*",
+    "phpExtensions": [],
+    "requires": []
+  },
+  "permissions": [
+    {
+      "id": "local_storage",
+      "name": "本地存储",
+      "description": "允许插件使用浏览器本地存储"
+    }
+  ],
+  "enabled": true,
+  "status": "active",
+  "installCount": 0,
+  "rating": 0,
+  "configSchema": {
+    "type": "object",
+    "properties": {
+      "greeting": {
+        "type": "string",
+        "default": "Hello from local plugin!"
+      }
+    }
+  },
+  "config": {
+    "greeting": "Hello from local plugin!"
+  },
+  "createdAt": "2026-05-20T00:00:00Z",
+  "updatedAt": "2026-05-20T00:00:00Z"
+}
