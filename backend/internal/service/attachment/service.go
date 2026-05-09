@@ -12,15 +12,17 @@ import (
 	"tiny-forum/internal/model/request"
 	attachmentRepo "tiny-forum/internal/repository/attachment"
 	"tiny-forum/internal/service/upload"
+	apperrors "tiny-forum/pkg/errors"
+	"tiny-forum/pkg/logger"
 
 	"github.com/google/uuid"
 )
 
 type AttachmentService interface {
-	UploadFile(ctx context.Context, userID int64, fileHeader *multipart.FileHeader, req *request.UploadPostFileRequest, clientIP string) (*dto.UploadResponse, error)
+	UploadFile(ctx context.Context, userID uint, fileHeader *multipart.FileHeader, req *request.UploadPostFileRequest, clientIP string) (*dto.UploadResponse, error)
 	GetFile(ctx context.Context, fileID string) (*dto.FileInfo, error)
-	DeleteFile(ctx context.Context, userID int64, fileID string) error
-	GetUserFiles(ctx context.Context, userID int64, fileType string, page, pageSize int) ([]*dto.FileInfo, int64, error)
+	DeleteFile(ctx context.Context, userID uint, fileID string) error
+	GetUserFiles(ctx context.Context, userID uint, fileType string, page, pageSize int) ([]*dto.FileInfo, int64, error)
 	AssociateWithPost(ctx context.Context, fileID string, postID int64) error
 }
 
@@ -42,7 +44,7 @@ func NewAttachmentService(
 	}
 }
 
-func (s *service) UploadFile(ctx context.Context, userID int64, fileHeader *multipart.FileHeader, req *request.UploadPostFileRequest, clientIP string) (*dto.UploadResponse, error) {
+func (s *service) UploadFile(ctx context.Context, userID uint, fileHeader *multipart.FileHeader, req *request.UploadPostFileRequest, clientIP string) (*dto.UploadResponse, error) {
 	// 1. 先调用上传引擎存储文件（不写入数据库）
 	uploadReq := &upload.UploadRequest{
 		UserID:   userID,
@@ -114,22 +116,28 @@ func (s *service) GetFile(ctx context.Context, fileID string) (*dto.FileInfo, er
 	}, nil
 }
 
-func (s *service) DeleteFile(ctx context.Context, userID int64, fileID string) error {
+func (s *service) DeleteFile(ctx context.Context, userID uint, fileID string) error {
 	att, err := s.repo.GetByFileID(ctx, fileID)
 	if err != nil {
+		logger.Errorf("查询失败: ", err)
 		return err
 	}
 	if att.UserID != userID {
-		return fmt.Errorf("permission denied")
+		logger.Errorf("用户 %d 尝试删除文件 %s，该文件所有者是 %d", userID, fileID, att.UserID)
+		return apperrors.ErrInsufficientPermission
 	}
 	// 删除物理文件
 	if err := s.uploadEng.DeleteFile(ctx, att.StoredPath); err != nil {
-		// 记录日志但不中断，可以继续删除数据库记录
+		logger.Errorf("删除物理文件失败: %v", err)
 	}
+	if err := s.repo.Delete(ctx, fileID); err != nil {
+	    logger.Errorf("删除数据库文件失败: ", err)
+	}
+
 	// 删除数据库记录
-	return s.repo.Delete(ctx, fileID)
+	return err
 }
-func (s *service) GetUserFiles(ctx context.Context, userID int64, fileTypeStr string, page, pageSize int) ([]*dto.FileInfo, int64, error) {
+func (s *service) GetUserFiles(ctx context.Context, userID uint, fileTypeStr string, page, pageSize int) ([]*dto.FileInfo, int64, error) {
 	var fileType *do.FileType
 	if fileTypeStr != "" {
 		ft := do.FileType(fileTypeStr)

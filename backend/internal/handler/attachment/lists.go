@@ -24,12 +24,12 @@ func NewAttachmentHandler(svc attachment.AttachmentService) *AttachmentHandler {
 // @Produce json
 // @Param page query int false "页码" default(1)
 // @Param page_size query int false "每页条数" default(20)
-// @Param file_type query string false "文件类型过滤 (post_image, comment_file, avatar, plugin_asset)"
+// @Param file_type query string false "文件类型过滤 (post_image, comment_file, avatar, plugin)"
 // @Success 200 {object} common.BasicResponse
 // @Failure 400 {object} common.BasicResponse
 // @Router /attachments/user/me [get]
 func (h *AttachmentHandler) ListMyFiles(c *gin.Context) {
-	userID := c.GetInt64("user_id")
+	userID := c.GetUint("user_id")
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "20"))
 	fileType := c.Query("file_type")

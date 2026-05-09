@@ -15,14 +15,14 @@ import (
 // @Accept multipart/form-data
 // @Produce json
 // @Param file formData file true "文件"
-// @Param type formData string true "业务类型：post_image / comment_file / avatar / plugin_asset"
+// @Param type formData string true "业务类型：post_image / comment_file / avatar / plugin"
 // @Param post_id formData int false "关联的帖子ID（当 type = post_image 时需提供）"
 // @Param reply_id formData int false "关联的评论ID（当 type = comment_file 时需提供）"
 // @Success 200 {object} common.BasicResponse
 // @Failure 400 {object} common.BasicResponse
 // @Router /attachments [post]
 func (h *AttachmentHandler) UploadFile(c *gin.Context) {
-	userID := c.GetInt64("user_id")
+	userID := c.GetUint("user_id")
 	file, err := c.FormFile("file")
 	if err != nil {
 		response.BadRequest(c, "file is required")
@@ -75,7 +75,7 @@ func (h *AttachmentHandler) GetFile(c *gin.Context) {
 // @Failure 403 {object} common.BasicResponse
 // @Router /attachments/{file_id} [delete]
 func (h *AttachmentHandler) DeleteFile(c *gin.Context) {
-	userID := c.GetInt64("user_id")
+	userID := c.GetUint("user_id")
 	fileID := c.Param("file_id")
 	if err := h.svc.DeleteFile(c.Request.Context(), userID, fileID); err != nil {
 		response.HandleError(c, err)

@@ -220,8 +220,7 @@ var gormErrorMappings = []struct {
     appErr  *apperrors.AppError
 }{
     {gorm.ErrRecordNotFound, apperrors.ErrNotFound},
-    {gorm.ErrDuplicatedKey, apperrors.ErrUserExist}, // 可根据业务调整，或定义新的错误码
-    // 可以继续增加其他 GORM 错误映射
+    {gorm.ErrDuplicatedKey, apperrors.ErrUserExist}, 
     {gorm.ErrForeignKeyViolated, apperrors.ErrInvalidRequest},
     {gorm.ErrCheckConstraintViolated, apperrors.ErrValidation},
 }
@@ -249,6 +248,7 @@ func isDatabaseError(err error) bool {
     return err != nil && (errors.Is(err, gorm.ErrInvalidData) ||
         errors.Is(err, gorm.ErrInvalidTransaction))
 }
+
 // ========== 内部处理函数 ==========
 
 // handleAppError 处理 *apperrors.AppError

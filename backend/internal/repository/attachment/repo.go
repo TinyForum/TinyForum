@@ -12,7 +12,7 @@ type AttachmentRepository interface {
 	GetByFileID(ctx context.Context, fileID string) (*do.Attachment, error)
 	Update(ctx context.Context, att *do.Attachment) error
 	Delete(ctx context.Context, fileID string) error
-	ListByUser(ctx context.Context, userID int64, fileType *do.FileType, page, pageSize int) ([]*do.Attachment, int64, error)
+	ListByUser(ctx context.Context, userID uint, fileType *do.FileType, page, pageSize int) ([]*do.Attachment, int64, error)
 	FindDuplicate(ctx context.Context, fileHash string, fileType do.FileType) (*do.Attachment, error)
 	AssociateWithPost(ctx context.Context, fileID string, postID int64) error
 }
@@ -43,7 +43,7 @@ func (r *attachmentRepo) Delete(ctx context.Context, fileID string) error {
 	return r.db.WithContext(ctx).Where("file_id = ?", fileID).Delete(&do.Attachment{}).Error
 }
 
-func (r *attachmentRepo) ListByUser(ctx context.Context, userID int64, fileType *do.FileType, page, pageSize int) ([]*do.Attachment, int64, error) {
+func (r *attachmentRepo) ListByUser(ctx context.Context, userID uint, fileType *do.FileType, page, pageSize int) ([]*do.Attachment, int64, error) {
 	query := r.db.WithContext(ctx).Model(&do.Attachment{}).Where("user_id = ? AND status = ?", userID, do.StatusNormal)
 	if fileType != nil {
 		query = query.Where("file_type = ?", *fileType)
