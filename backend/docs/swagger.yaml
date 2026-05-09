@@ -2008,23 +2008,15 @@ paths:
       summary: 采纳答案
       tags:
       - 回答管理
-  /attachments/plugin:
-    post:
+  /attachment/{file_id}:
+    delete:
       consumes:
-      - multipart/form-data
+      - application/json
+      description: 删除用户上传的文件（仅文件所有者可操作）
       parameters:
-      - description: 文件
-        in: formData
-        name: file
-        required: true
-        type: file
-      - description: 帖子ID
-        in: formData
-        name: post_id
-        type: integer
-      - description: 文件类型 (avatar/post_image/comment_attachment)
-        in: formData
-        name: type
+      - description: 文件ID
+        in: path
+        name: file_id
         required: true
         type: string
       produces:
@@ -2034,26 +2026,65 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/common.BasicResponse'
-      summary: 上传插件
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+      summary: 删除文件
       tags:
-      - 上传管理
-  /attachments/post/:post_id:
+      - attachment
+  /attachments:
     post:
       consumes:
       - multipart/form-data
+      description: 上传附件，支持图片、文档等，通过 type 字段区分业务类型（post_image, comment_file, avatar
+        等）
       parameters:
       - description: 文件
         in: formData
         name: file
         required: true
         type: file
-      - description: 帖子ID
+      - description: 业务类型：post_image / comment_file / avatar / plugin_asset
+        in: formData
+        name: type
+        required: true
+        type: string
+      - description: 关联的帖子ID（当 type = post_image 时需提供）
         in: formData
         name: post_id
         type: integer
-      - description: 文件类型
+      - description: 关联的评论ID（当 type = comment_file 时需提供）
         in: formData
-        name: type
+        name: reply_id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+      summary: 上传文件
+      tags:
+      - attachment
+  /attachments/{file_id}:
+    get:
+      consumes:
+      - application/json
+      description: 根据文件ID获取文件的元数据（不包含文件内容）
+      parameters:
+      - description: 文件ID
+        in: path
+        name: file_id
         required: true
         type: string
       produces:
@@ -2063,9 +2094,51 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/common.BasicResponse'
-      summary: 上传帖子文件
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+      summary: 获取文件元信息
       tags:
-      - 上传管理
+      - attachment
+  /attachments/user/me:
+    get:
+      consumes:
+      - application/json
+      description: 分页获取当前登录用户上传的所有文件，可按文件类型过滤
+      parameters:
+      - default: 1
+        description: 页码
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: 每页条数
+        in: query
+        name: page_size
+        type: integer
+      - description: 文件类型过滤 (post_image, comment_file, avatar, plugin_asset)
+        in: query
+        name: file_type
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+      summary: 获取用户文件列表
+      tags:
+      - attachment
   /auth/account:
     delete:
       consumes:
@@ -3322,20 +3395,31 @@ paths:
       - 评论管理
   /files/{file_id}:
     get:
+      consumes:
+      - application/json
+      description: 根据文件ID直接返回文件内容（适用于图片、附件下载）
       parameters:
       - description: 文件ID
         in: path
         name: file_id
         required: true
         type: string
-      produces:
-      - image/jpeg
-      - image/png
-      - application/pdf
-      responses: {}
-      summary: 获取文件内容
+      responses:
+        "200":
+          description: 文件内容
+          schema:
+            type: file
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+      summary: 公开文件下载
       tags:
-      - 上传管理
+      - attachment
   /notifications:
     get:
       description: 分页获取当前用户的通知列表
@@ -3471,7 +3555,9 @@ paths:
       - 通知管理
   /plugins:
     get:
-      description: 获取插件列表
+      consumes:
+      - application/json
+      description: 获取系统中所有已安装的插件（通常需要管理员权限，可根据业务调整）
       parameters:
       - default: 1
         description: 页码
@@ -3479,38 +3565,61 @@ paths:
         name: page
         type: integer
       - default: 20
-        description: 每页数量
+        description: 每页条数
         in: query
         name: page_size
         type: integer
-      - description: 搜索关键词
+      - description: 分类过滤 (commerce, marketing, content...)
         in: query
-        name: keyword
+        name: category
         type: string
+      - description: 类型过滤 (ui, backend, lib, app, miniapp)
+        in: query
+        name: type
+        type: string
+      - description: 是否启用
+        in: query
+        name: enabled
+        type: boolean
       produces:
       - application/json
       responses:
         "200":
-          description: 获取成功
+          description: OK
           schema:
             $ref: '#/definitions/common.BasicResponse'
-        "401":
-          description: 未授权
+        "400":
+          description: Bad Request
           schema:
             $ref: '#/definitions/common.BasicResponse'
-        "403":
-          description: 无权限
-          schema:
-            $ref: '#/definitions/common.BasicResponse'
-        "500":
-          description: 服务器内部错误
-          schema:
-            $ref: '#/definitions/common.BasicResponse'
-      security:
-      - ApiKeyAuth: []
-      summary: 用户获取插件列表
+      summary: 获取所有插件列表
       tags:
-      - 插件管理
+      - plugin
+  /plugins/upload:
+    post:
+      consumes:
+      - multipart/form-data
+      description: 上传一个 ZIP 压缩包，包含 manifest.json 和插件资源，进行插件安装
+      parameters:
+      - description: 插件 ZIP 文件
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+      summary: 安装插件
+      tags:
+      - plugin
   /posts:
     get:
       description: 分页获取帖子列表，支持多种筛选和排序
@@ -4975,95 +5084,6 @@ paths:
       summary: 获取用户创建的话题
       tags:
       - 话题管理
-  /upload/{file_id}:
-    delete:
-      parameters:
-      - description: 文件ID
-        in: path
-        name: file_id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/common.BasicResponse'
-      summary: 删除文件
-      tags:
-      - 上传管理
-    get:
-      parameters:
-      - description: 文件ID
-        in: path
-        name: file_id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/common.BasicResponse'
-      summary: 获取文件信息
-      tags:
-      - 上传管理
-  /upload/post_file:
-    post:
-      consumes:
-      - multipart/form-data
-      parameters:
-      - description: 文件
-        in: formData
-        name: file
-        required: true
-        type: file
-      - description: 帖子ID
-        in: formData
-        name: post_id
-        type: integer
-      - description: 文件类型 (avatar/post_image/comment_attachment)
-        in: formData
-        name: type
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/common.BasicResponse'
-      summary: 上传文件
-      tags:
-      - 上传管理
-  /user/files:
-    get:
-      parameters:
-      - description: 文件类型
-        in: query
-        name: type
-        type: string
-      - description: 页码
-        in: query
-        name: page
-        type: integer
-      - description: 每页数量
-        in: query
-        name: page_size
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/common.BasicResponse'
-      summary: 获取用户文件列表
-      tags:
-      - 上传管理
   /users/{id}:
     get:
       parameters:
@@ -5179,6 +5199,25 @@ paths:
       summary: 精简排行榜信息
       tags:
       - 用户排行榜
+  /users/me/plugins:
+    get:
+      consumes:
+      - application/json
+      description: 获取当前登录用户已安装（上传）的插件列表，通常是通过 author_id 查询
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+      summary: 当前用户安装的插件
+      tags:
+      - plugin
   /users/me/role:
     get:
       consumes:

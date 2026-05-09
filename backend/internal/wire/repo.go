@@ -42,7 +42,7 @@ type Repositories struct {
 	Auth         auth.AuthRepository
 	Risk         risk.RiskRepository
 	Transaction  transaction.TransactionManager
-	Attachment   attachment.UploadRepository
+	Attachment   attachment.AttachmentRepository
 	Plugin       plugin.PluginRepository
 }
 
@@ -68,7 +68,7 @@ func NewRepositories(db *gorm.DB, redis *redis.Client) *Repositories {
 		Auth:         auth.NewAuthRepository(db),
 		Risk:         risk.NewRiskRepository(db),
 		Transaction:  transaction.NewTransactionManager(db),
-		Attachment:   attachment.NewUploadRepository(db),
-		Plugin:       plugin.NewPostRepository(db),
+		Attachment:   attachment.NewAttachmentRepository(db),
+		Plugin:       plugin.NewPluginRepository(db),
 	}
 }

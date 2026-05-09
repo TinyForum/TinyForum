@@ -97,6 +97,8 @@ type Attachment struct {
 
 	// 可选：插件自定义元数据 (JSON)
 	PluginMeta map[string]any `gorm:"column:plugin_meta;type:json;comment:插件附加数据, 例如缩略图处理参数等" json:"plugin_meta,omitempty" serializer:"json"`
+
+	 FileHash string `gorm:"column:file_hash;type:varchar(64);index" json:"file_hash"`
 }
 
 // TableName 指定表名

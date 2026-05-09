@@ -2,55 +2,39 @@ package attachment
 
 import (
 	"tiny-forum/internal/middleware"
-	uploadService "tiny-forum/internal/service/attachment"
 
 	"github.com/gin-gonic/gin"
 )
 
-type UploadHandler struct {
-	service uploadService.UploadService
-}
+// type UploadHandler struct {
+// 	service uploadService.AttachmentService
+// }
 
-func NewUploadHandler(service uploadService.UploadService) *UploadHandler {
-	return &UploadHandler{service: service}
-}
-
-// 在路由注册函数中
-func (h *UploadHandler) RegisterRoutes(api *gin.RouterGroup, mw middleware.MiddlewareSet) {
-	// 需要认证的上传接口
+// func NewUploadHandler(service uploadService.AttachmentService) *UploadHandler {
+// 	return &UploadHandler{service: service}
+// }
+// RegisterRoutes 注册附件相关路由
+func (h *AttachmentHandler) RegisterRoutes(api *gin.RouterGroup, mw middleware.MiddlewareSet) {
+	// 需要认证的附件操作
 	attachments := api.Group("/attachments")
-	attachments.Use(mw.Auth()) // 需要认证使用
+	attachments.Use(mw.Auth())
 	{
+		// 通用文件上传（通过 type 字段区分业务类型，如 post_image, comment_file 等）
+		attachments.POST("", h.UploadFile) // POST /api/v1/attachments
 
-		postFile := attachments.Group("/post")
-		{
-			postFile.POST("/:post_id", h.UploadPostFile) // POST /api/v1/attachments/post/:post_id - 上传帖子文件
-			postFile.GET("/:post_id", h.GetFile)         // GET /api/v1/attachments/post/:post_id - 获取帖子文件信息
-			postFile.DELETE("/:file_id", h.DeleteFile)   // DELETE /api/v1/attachments/post/:file_id - 删除帖子文件
-		}
+		// 获取当前用户的所有文件列表（支持 type 过滤）
+		attachments.GET("/user/me", h.ListMyFiles) // GET /api/v1/attachments/user/me
 
-		commentFile := attachments.Group("/comment")
-		{
-			commentFile.POST("/:comment_id", h.UploadCommentFile) // POST /api/v1/attachments/comment/:comment_id - 上传评论文件
-			commentFile.GET("/:file_id", h.GetFile)               // GET /api/v1/attachments/comment/:file_id - 获取评论文件信息
-			commentFile.DELETE("/:file_id", h.DeleteFile)         // DELETE /api/v1/attachments/comment/:file_id - 删除评论文件
-		}
-
-		pluginFile := attachments.Group("/plugin")
-		{
-			pluginFile.POST("", h.UploadPluginFile)      // POST /api/v1/attachments/plugin - 上传插件文件
-			pluginFile.GET("/:file_id", h.GetFile)       // GET /api/v1/attachments/plugin/:file_id - 获取插件文件信息
-			pluginFile.DELETE("/:file_id", h.DeleteFile) // DELETE /api/v1/attachments/plugin/:file_id - 删除插件文件
-			pluginFile.GET("/user/me", h.ListMyPlugins)  // GET /api/v1/attachments/plugin/users/me - 获取当前用户的插件文件列表
-		}
-
-		attachments.GET("/user/me/files", h.GetUserFiles) // GET /api/v1/attachments/users/me/files - 获取当前用户的文件列表
+		// 单个文件操作
+		attachments.GET("/:file_id", h.GetFile)       // GET /api/v1/attachments/:file_id
+		attachments.DELETE("/:file_id", h.DeleteFile) // DELETE /api/v1/attachments/:file_id
 	}
 
-	// 公开文件访问（无认证）
+	// 公开文件访问（无认证，注意权限控制：只能访问公有文件或带签名 URL）
 	public := api.Group("/files")
 	{
-		public.GET("/:file_id", h.ServeFile) // GET /api/v1/files/:file_id - 公开访问文件
+		public.GET("/:file_id", h.ServeFile) // GET /api/v1/files/:file_id
 	}
-
 }
+
+// package attachment
