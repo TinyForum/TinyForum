@@ -60,9 +60,9 @@ export const pluginApi = {
   },
 
   // /** 创建/安装插件 */
-  // create(payload: CreatePluginPayload) {
-  //   return apiClient.post<{ data: PluginMeta }>("/plugins", payload);
-  // },
+  create(payload: CreatePluginPayload) {
+    return apiClient.post<{ data: PluginMeta }>("/plugins", payload);
+  },
 
   /** 更新插件信息 */
   update({ id, ...payload }: UpdatePluginPayload) {
