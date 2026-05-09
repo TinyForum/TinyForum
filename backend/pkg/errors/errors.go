@@ -100,6 +100,7 @@ type AppError struct {
 	Err     error       `json:"-"`                // 内部原始错误，不对外暴露
 }
 
+
 // Error 实现 error 接口，格式为 "[code] message: cause"
 func (e *AppError) Error() string {
 	if e.Err != nil {

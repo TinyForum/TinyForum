@@ -2,6 +2,7 @@ package attachment
 
 import (
 	"tiny-forum/internal/model/request"
+	"tiny-forum/pkg/logger"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -40,12 +41,6 @@ func (h *AttachmentHandler) UploadFile(c *gin.Context) {
 	response.Success(c, resp)
 }
 
-
-
-
-
-
-
 // GetFile 获取文件元信息
 // @Summary 获取文件元信息
 // @Description 根据文件ID获取文件的元数据（不包含文件内容）
@@ -61,6 +56,7 @@ func (h *AttachmentHandler) GetFile(c *gin.Context) {
 	fileID := c.Param("file_id")
 	fileInfo, err := h.svc.GetFile(c.Request.Context(), fileID)
 	if err != nil {
+		logger.Errorf("获取文件源信息错误: ", err)
 		response.HandleError(c, err)
 		return
 	}
@@ -77,7 +73,7 @@ func (h *AttachmentHandler) GetFile(c *gin.Context) {
 // @Success 200 {object} common.BasicResponse
 // @Failure 400 {object} common.BasicResponse
 // @Failure 403 {object} common.BasicResponse
-// @Router /attachment/{file_id} [delete]
+// @Router /attachments/{file_id} [delete]
 func (h *AttachmentHandler) DeleteFile(c *gin.Context) {
 	userID := c.GetInt64("user_id")
 	fileID := c.Param("file_id")
