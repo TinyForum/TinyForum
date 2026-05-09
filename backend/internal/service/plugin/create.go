@@ -187,6 +187,7 @@ func (s *pluginService) parseManifestFromZip(zipPath string) (PluginManifest, st
 // extractPluginFiles 将 ZIP 解压到目标目录，自动去除 manifestDir 前缀
 func (s *pluginService) extractPluginFiles(zipPath, targetDir, manifestDir string) error {
 	logger.Infof("解压目标路径: %s", targetDir)
+
 	r, err := zip.OpenReader(zipPath)
 	if err != nil {
 		return fmt.Errorf("open zip for extract: %w", err)
