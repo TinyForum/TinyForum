@@ -86,6 +86,6 @@ export function PluginProvider({
   );
 }
 
-export function usePlugins() {
+export function usePluginsContext() {
   return useContext(PluginContext);
 }

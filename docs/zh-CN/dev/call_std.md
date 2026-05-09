@@ -27,31 +27,41 @@
 4. 如需复用逻辑，应下沉到 Service 层。
 
 ```go
-func (h *PluginHandler) List(c *gin.Context) {
-	var req request.PluginListRequest
-	if err := c.ShouldBindQuery(&req); err != nil {
-		logger.Infof("绑定错误: ", err)
-		response.BadRequest(c, apperrors.ErrInvalidRequest.Error())
+func (h *Handler) ListPlugins(c *gin.Context) {
+	var req request.ListPluginsRequest
+	if err := req.Bind(c); err != nil {
+		response.HandleError(c, err)
 		return
 	}
 
-	common.ApplyDefaults(&req)
+	// 获取当前登录用户ID（中间件注入，类型为 uint）
+	UserID := c.GetUint("user_id")
 
-	// Request -> BO
-	queryBO := converter.PluginListRequestToBO(&req)
+	// 构建分页查询对象 PageQuery[PluginQueryBO]
+	pageQuery := &bo.PageQuery[bo.PluginQueryBO]{
+		Page:     req.Page,
+		PageSize: req.PageSize,
+		SortBy:   req.SortBy,
+		Order:    req.Order,
+		Options: bo.PluginQueryBO{
+			Name:     req.Keyword,
+			AuthorID: UserID,     
+			Category: req.Category,       
+			Tags:     req.Tags,     
+			Type:     req.Type,       
+			Keyword:  req.Keyword,
+			Status:   do.PluginStatus(req.Status), 
+			Version:  req.Version,                       
+		},
+	}
 
-	// 调用 Service
-	pageBO, err := h.service.ListPlugins(c.Request.Context(), queryBO)
+	// 调用 Service（参数类型匹配）
+	pageResult, err := h.svc.ListPlugins(c.Request.Context(), pageQuery)
 	if err != nil {
-		response.InternalError(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
-
-	// PageResult[BO] -> PageResult[VO]
-	pageVO := converter.PageBOToPageVO(pageBO, converter.PluginBOToVO)
-
-	response.SuccessPage(c, pageVO.List, pageVO.Total, pageVO.Page, pageVO.PageSize)
-
+	response.Success(c, pageResult)
 }
 
 ```
@@ -66,7 +76,6 @@ func (h *PluginHandler) List(c *gin.Context) {
    1. 接收：`BO`
    2. 返回：`VO`
    3. 该层涉及复杂的 `DTO` 模型，
-
 4. **允许横向调用**：一个 Service 可以调用另一个 Service 的方法。
 5. **规范要求**：
    - 通过接口依赖，而非直接依赖实现类（便于单元测试和替换）。
@@ -75,23 +84,106 @@ func (h *PluginHandler) List(c *gin.Context) {
    - 被调用的 Service 方法应职责单一、无副作用的业务逻辑。
    - 尽量避免过深的调用链（不超过 3 层）。
 
-```go
-func (s *pluginService) ListPlugins(ctx context.Context, queryBO *bo.PluginQueryBO) (*common.PageResult[bo.PluginMeta], error) {
-	// BO -> Query DO
-	queryDO := converter.PluginQueryBOToQueryDO(queryBO)
+接口定义
 
-	// 调用 Repo
-	pageDO, err := s.repo.List(ctx, queryDO, common.PageParam{
-		Page:     queryBO.Page,
-		PageSize: queryBO.PageSize,
-	})
-	if err != nil {
-		return nil, err
+```go
+ListPlugins(ctx context.Context, queryBO *bo.PageQuery[bo.PluginQueryBO]) (*common.PageResult[vo.PluginMetaVO], error)
+```
+
+实现
+
+```go
+func (s *pluginService) ListPlugins(ctx context.Context, queryBO *bo.PageQuery[bo.PluginQueryBO]) (*common.PageResult[vo.PluginMetaVO], error) {
+	// 1. 防御性检查
+	if queryBO == nil {
+		return nil, apperrors.ErrValidation
 	}
 
-	// DO Page -> BO Page
-	pageBO := converter.PageDOToPageBO(pageDO, converter.PluginDOToBO)
-	return pageBO, nil
+	// 2. 业务校验：仅当 Status 非空且无效时报错
+	status := queryBO.Options.Status
+	if status != "" && !status.IsValid() {
+		logger.Warnf("无效的插件状态: %s", status)
+		return nil, apperrors.ErrValidation
+	}
+
+	// 3. 规范化分页参数
+	page, pageSize := queryBO.Page, queryBO.PageSize
+	if page <= 0 {
+		page = 1
+	}
+	if pageSize <= 0 {
+		pageSize = 20
+	}
+	if pageSize > 100 {
+		pageSize = 100
+	}
+
+	// 4. 构建 Repository 查询参数（内联转换，简洁清晰）
+	repoQuery := do.PluginMeta{
+		Name:     queryBO.Options.Name,
+		AuthorID: queryBO.Options.AuthorID,
+		Category: queryBO.Options.Category,
+		Tags:     queryBO.Options.Tags,
+		Type:     do.PluginType(queryBO.Options.Type),
+		Status:   queryBO.Options.Status,
+		Version:  queryBO.Options.Version,
+	}
+	queryDO := &common.PageQuery[do.PluginMeta]{
+		Page:     page,
+		PageSize: pageSize,
+		SortBy:   "created_at", 
+		Order:    "desc",
+		Data:     repoQuery,
+		Keyword:  queryBO.Keywords,
+	}
+
+	// 5. 调用 Repository 层
+	plugins, total, err := s.repo.List(ctx, queryDO)
+	if err != nil {
+		logger.Errorf("查询插件列表失败: %v, query: %+v", err, repoQuery)
+		return nil, apperrors.ErrInternalError
+	}
+
+	// 6. 批量转换 DO -> VO
+	vos := make([]vo.PluginMetaVO, 0, len(plugins))
+	for _, p := range plugins {
+		vos = append(vos, vo.PluginMetaVO{
+			ID:            p.ID,
+			CreatedAt:     p.CreatedAt,
+			UpdatedAt:     p.UpdatedAt,
+			Name:          p.Name,
+			Version:       p.Version,
+			Description:   p.Description,
+			Summary:       p.Summary,
+			IconURL:       p.IconURL,
+			Screenshots:   p.Screenshots,
+			HomepageURL:   p.HomepageURL,
+			Type:          string(p.Type),
+			Category:      string(p.Category),
+			Tags:          p.Tags, // []string
+			AuthorID:      p.AuthorID,
+			AuthorURL:     p.AuthorURL,
+			ScriptURL:     p.ScriptURL,
+			ServerEntry:   p.ServerEntry,
+			Slots:         p.Slots,
+			Routes:        p.Routes,
+			Pricing:       p.Pricing,
+			Compatibility: p.Compatibility,
+			Permissions:   p.Permissions,
+			Enabled:       p.Enabled,
+			Status:        string(p.Status),
+			InstallCount:  p.InstallCount,
+			Rating:        p.Rating,
+			ConfigSchema:  p.ConfigSchema,
+		})
+	}
+
+	return &common.PageResult[vo.PluginMetaVO]{
+		Total:    total,
+		Page:     page,
+		PageSize: pageSize,
+		List:     vos,
+	}, nil
 }
 
 ```
@@ -108,54 +200,66 @@ func (s *pluginService) ListPlugins(ctx context.Context, queryBO *bo.PluginQuery
    - 避免循环依赖和过长调用链。
    - 可使用事务管理器协调多个 Repository 调用，确保原子性。
 
+接口定义
+
 ```go
-func (r *pluginRepository) List(ctx context.Context, query *dto.PluginQueryDTO, pageParam common.PageParam) (*common.PageResult[do.PluginMeta], error) {
+	List(ctx context.Context, queryDO *common.PageQuery[do.PluginMeta]) ([]*do.PluginMeta, int64, error)
+```
+
+实现
+
+```go
+func (r *pluginRepo) List(ctx context.Context, queryBO *common.PageQuery[do.PluginMeta]) ([]*do.PluginMeta, int64, error) {
 	db := r.db.WithContext(ctx).Model(&do.PluginMeta{})
 
-	// 动态条件
-	if query.AuthorID != 0 {
-		db = db.Where("author_id = ?", query.AuthorID)
-	}
-	if query.Tags != nil {
-		db = db.Where("tag_id = ?", query.Tags)
-	}
-	if query.Type != "" {
-		db = db.Where("post_type = ?", query.Type)
-	}
-	if query.Keyword != "" {
-		db = db.Where("name LIKE ?", "%"+query.Keyword+"%")
-	}
-	if query.Status != "" {
-		db = db.Where("status = ?", query.Status)
+	// 软删除过滤
+	db = db.Where("deleted_at IS NULL")
+
+	// 用户过滤
+	if queryBO.Data.AuthorID > 0 {
+		db = db.Where("user_id = ?", queryBO.Data.AuthorID)
 	}
 
-	// 总数
+	// 状态过滤
+	if queryBO.Data.Status != "" {
+		db = db.Where("status = ?", queryBO.Data.Status)
+	}
+
+	// 标签过滤
+	if len(queryBO.Data.Tags) != 0 {
+		db = db.Where("tag = ?", queryBO.Data.Tags)
+	}
+
+	// 关键字模糊搜索
+	if queryBO.Keyword != "" {
+		keyword := "%" + queryBO.Keyword + "%"
+		db = db.Where("name LIKE ? OR description LIKE ?", keyword, keyword)
+	}
+
+	// 排序
+	sortField := queryBO.SortBy
+	if sortField == "" {
+		sortField = "created_at"
+	}
+	// 默认降序
+	order := queryBO.Order
+	if order == "" {
+		order = "desc"
+	}
+	// 支持自定义排序字段
+	db = db.Order(fmt.Sprintf("%s %s", sortField, order))
+
+	// 分页查询
 	var total int64
 	if err := db.Count(&total).Error; err != nil {
-		return nil, err
+		return nil, 0, err
+
 	}
 
-	// 列表
-	var list []do.PluginMeta
-	offset := (pageParam.Page - 1) * pageParam.PageSize
-	order := "created_at DESC"
-	if query.SortBy != "" {
-		order = query.SortBy
-	}
-	err := db.Offset(offset).Limit(pageParam.PageSize).Order(order).Find(&list).Error
-	if err != nil {
-		return nil, err
-	}
-
-	hasMore := int64(pageParam.Page*pageParam.PageSize) < total
-
-	return &common.PageResult[do.PluginMeta]{
-		Total:    total,
-		Page:     pageParam.Page,
-		PageSize: pageParam.PageSize,
-		List:     list,
-		HasMore:  hasMore,
-	}, nil
+	var plugins []*do.PluginMeta
+	offset := (queryBO.Page - 1) * queryBO.PageSize
+	err := db.Offset(offset).Limit(queryBO.PageSize).Find(&plugins).Error
+	return plugins, total, err
 }
 
 ```

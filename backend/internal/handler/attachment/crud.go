@@ -35,7 +35,7 @@ func (h *AttachmentHandler) UploadFile(c *gin.Context) {
 	}
 	resp, err := h.svc.UploadFile(c.Request.Context(), userID, file, &req, c.ClientIP())
 	if err != nil {
-		response.HandleError(c,  err)
+		response.HandleError(c, err)
 		return
 	}
 	response.Success(c, resp)
@@ -99,7 +99,7 @@ func (h *AttachmentHandler) ServeFile(c *gin.Context) {
 	// 获取文件路径
 	fileInfo, err := h.svc.GetFile(c.Request.Context(), fileID)
 	if err != nil {
-			response.HandleError(c, err)
+		response.HandleError(c, err)
 		return
 	}
 	// 注意：这里假设 fileInfo.URL 是相对路径或绝对路径，需要映射到实际存储位置

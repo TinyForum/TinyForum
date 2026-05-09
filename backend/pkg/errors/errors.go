@@ -83,11 +83,17 @@ const (
 	// 时间线模块 (80000-80999)
 	CodeTimelineEmpty = 80001
 
-	// 文件上传模块 (90000-90999)
+	// 文件插件模块 (90000-90999)
 	CodeFileTooLarge    = 90001
 	CodeFileTypeInvalid = 90002
 	CodeUploadFailed    = 90003
+	CodeInvalidPluginFormat = 90004
+	CodeManifestNotFound = 	90005
+	CodeInvalidManifest = 90006
+	CodePluginAlreadyExist = 90007
+	CodePluginEnabledFirst = 90008
 )
+
 
 // ========== 核心错误类型 ==========
 
@@ -99,7 +105,6 @@ type AppError struct {
 	Detail  interface{} `json:"detail,omitempty"` // 可附加给客户端的补充信息
 	Err     error       `json:"-"`                // 内部原始错误，不对外暴露
 }
-
 
 // Error 实现 error 接口，格式为 "[code] message: cause"
 func (e *AppError) Error() string {
@@ -222,7 +227,7 @@ var (
 	ErrNotFound            = New(CodeNotFound, "资源不存在")
 	ErrTooManyRequests     = New(CodeTooManyRequests, "请求过于频繁，请稍后再试")
 	ErrInternalError       = New(CodeInternalError, "服务器内部错误")
-	ErrInvalidRequest      = New(CodeInvalidRequest, "无效的请求")
+	ErrInvalidRequest      = New(CodeInvalidRequest, "无效的请求") // 无效的请求
 	ErrSystemBusy          = New(CodeSystemBusy, "系统繁忙，请稍后再试")
 	ErrInvalidConfirmation = New(CodeInvalidConfirmation, "无效的确认信息")
 
@@ -331,8 +336,13 @@ var (
 	// 时间线模块
 	ErrTimelineEmpty = New(CodeTimelineEmpty, "时间线暂无内容")
 
-	// 文件上传模块
+	// 文件插件模块
 	ErrFileTooLarge    = New(CodeFileTooLarge, "文件过大")
 	ErrFileTypeInvalid = New(CodeFileTypeInvalid, "不支持的文件类型")
 	ErrUploadFailed    = New(CodeUploadFailed, "文件上传失败")
+	 ErrInvalidPluginFormat    = New(CodeInvalidPluginFormat,"插件格式无效")
+    ErrManifestNotFound       = New(CodeManifestNotFound,"没有找到 manifest.json 文件")
+    ErrInvalidManifest        = New(CodeInvalidManifest,"文件 manifest.json 无效")
+    ErrPluginAlreadyExist = New(CodePluginAlreadyExist,"插件已存在")
+	 ErrPluginEnabledFirst      = New(CodePluginEnabledFirst,"请先禁用插件")
 )

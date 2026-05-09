@@ -18,7 +18,7 @@ export function useAdminPlugins() {
     queryKey: ["admin", "plugins", page],
     queryFn: async () => {
       const res = await pluginApi.list({ page, page_size: PAGE_SIZE });
-      // 后端返回结构: res.data = { code, message, data: { list, total, page, page_size } }
+      console.log("请求插件： ", res);
       return (
         res.data?.data ?? { list: [], total: 0, page: 1, page_size: PAGE_SIZE }
       );
@@ -35,7 +35,10 @@ export function useAdminPlugins() {
     toast.success(successMsg);
   };
 
-  // mutations...
+  const upload = async (file: File) => {
+    const res = await pluginApi.upload(file);
+    return res.data.data;
+  };
   const createMutation = useMutation({
     mutationFn: (payload: CreatePluginPayload) => pluginApi.create(payload),
     onSuccess: () => invalidateAndToast("Plugin installed successfully"),
@@ -89,6 +92,7 @@ export function useAdminPlugins() {
     page,
     pageSize: PAGE_SIZE,
     setPage,
+    upload,
     handleToggle,
     handleDelete,
     handleCreate,

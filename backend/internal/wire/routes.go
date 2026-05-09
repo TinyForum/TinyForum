@@ -76,7 +76,7 @@ func RegisterRoutes(
 	handlers.Admin.RegisterRoutes(api, mw)
 	handlers.Attachment.RegisterRoutes(api, mw)
 	handlers.Plugin.RegisterRoutes(api, mw)
-	
+
 	// 静态路由
 	// api.Static("/attachments", "./attachments")
 

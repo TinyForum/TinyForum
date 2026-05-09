@@ -8,4 +8,3 @@ type UploadResponse struct {
 	Size         int64  `json:"size"`
 	MimeType     string `json:"mime_type"`
 }
-

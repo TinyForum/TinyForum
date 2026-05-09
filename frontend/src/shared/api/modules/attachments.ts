@@ -41,16 +41,6 @@ export const uploadApi = {
     );
   },
 
-  /** 上传插件文件 */
-  uploadPluginFile(file: File, fileType: string = "plugin") {
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("file_type", fileType);
-    return apiClient.post<{ data: string }>("/attachments/plugin", formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
-  },
-
   /** 获取当前用户文件列表 */
   getUserFiles(params?: { page?: number; page_size?: number }) {
     return apiClient.get("/attachments/users/me/files", { params });
@@ -71,12 +61,11 @@ export const uploadApi = {
     return apiClient.get(`/attachments/plugin/${fileId}`);
   },
 
-  // 获取用户上传的插件信息
+  // 获取用户上传的文件信息
   getUserPlugins: (params: ListPluginRequest) =>
-    apiClient.get<ApiResponse<PageData<PluginMeta>>>(
-      "/attachments/plugin/user/me",
-      { params },
-    ),
+    apiClient.get<ApiResponse<PageData<PluginMeta>>>("/attachments/user/me", {
+      params,
+    }),
   /** 删除帖子文件 */
   deletePostFile(fileId: string) {
     return apiClient.delete(`/attachments/post/${fileId}`);
@@ -89,7 +78,7 @@ export const uploadApi = {
 
   /** 删除插件文件 */
   deletePluginFile(fileId: string) {
-    return apiClient.delete(`/attachments/plugin/${fileId}`);
+    return apiClient.delete(`/attachments/${fileId}`);
   },
 
   /** 公开访问文件（无需认证） */

@@ -1,7 +1,12 @@
 package plugin
 
 import (
+	"strconv"
+	"tiny-forum/internal/model/bo"
+	"tiny-forum/internal/model/do"
+	"tiny-forum/internal/model/request"
 	"tiny-forum/internal/service/plugin"
+	apperrors "tiny-forum/pkg/errors"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -29,11 +34,42 @@ func NewHandler(svc plugin.PluginService) *Handler {
 // @Success 200 {object} common.BasicResponse
 // @Failure 400 {object} common.BasicResponse
 // @Router /plugins [get]
+// handler/plugin.go
 func (h *Handler) ListPlugins(c *gin.Context) {
-	// 此处你需要根据实际 bo.PluginQueryBO 构造分页请求
-	// result, err := h.svc.ListPlugins(c.Request.Context(), queryBO)
-	// 简单返回示例
-	response.Success(c, gin.H{"message": "TODO"})
+	var req request.ListPluginsRequest
+	if err := req.Bind(c); err != nil {
+		response.HandleError(c, err)
+		return
+	}
+
+	// 获取当前登录用户ID（中间件注入，类型为 uint）
+	UserID := c.GetUint("user_id")
+
+	// 构建分页查询对象 PageQuery[PluginQueryBO]
+	pageQuery := &bo.PageQuery[bo.PluginQueryBO]{
+		Page:     req.Page,
+		PageSize: req.PageSize,
+		SortBy:   req.SortBy,
+		Order:    req.Order,
+		Options: bo.PluginQueryBO{
+			Name:     req.Keyword,
+			AuthorID: UserID,     
+			Category: req.Category,       
+			Tags:     req.Tags,     
+			Type:     req.Type,       
+			Keyword:  req.Keyword,
+			Status:   do.PluginStatus(req.Status), 
+			Version:  req.Version,                       
+		},
+	}
+
+	// 调用 Service（参数类型匹配）
+	pageResult, err := h.svc.ListPlugins(c.Request.Context(), pageQuery)
+	if err != nil {
+		response.HandleError(c, err)
+		return
+	}
+	response.Success(c, pageResult)
 }
 
 // UploadPlugin 上传并安装插件
@@ -53,7 +89,7 @@ func (h *Handler) UploadPlugin(c *gin.Context) {
 		response.BadRequest(c, "file is required")
 		return
 	}
-	meta, err := h.svc.Install(c.Request.Context(), file, userID)
+	meta, err := h.svc.Create(c.Request.Context(), file, userID)
 	if err != nil {
 		response.HandleError(c, err)
 		return
@@ -71,11 +107,34 @@ func (h *Handler) UploadPlugin(c *gin.Context) {
 // @Failure 400 {object} common.BasicResponse
 // @Router /users/me/plugins [get]
 func (h *Handler) ListMyPlugins(c *gin.Context) {
-	userID := c.GetInt64("user_id")
+	userID := c.GetUint("user_id")
 	plugins, err := h.svc.ListUserPlugins(c.Request.Context(), userID)
 	if err != nil {
 		response.HandleError(c, err)
 		return
 	}
 	response.Success(c, plugins)
+}
+
+
+// DeletePlugin 删除插件
+// @Router /api/v1/plugins/:id [delete]
+func (h *Handler) DeletePlugin(c *gin.Context) {
+    // 1. 获取当前用户ID
+    userID := c.GetUint("user_id")
+    
+    // 2. 获取路径参数中的插件ID
+    pluginIDStr := c.Param("id")
+    pluginID, err := strconv.ParseUint(pluginIDStr, 10, 32)
+    if err != nil {
+        response.HandleError(c, apperrors.ErrValidation)
+    }
+    
+    // 3. 调用服务层删除
+    if err := h.svc.DeletePlugin(c.Request.Context(), uint(pluginID), userID); err != nil {
+        response.HandleError(c, err)
+        return
+    }
+    
+    response.Success(c, gin.H{"message": "plugin deleted successfully"})
 }

@@ -65,7 +65,7 @@ type PluginMetaVO struct {
 	Compatibility interface{} `json:"compatibility,omitempty"`
 
 	// 权限
-	Permissions []interface{} `json:"permissions,omitempty"` // 权限声明列表
+	Permissions []do.PluginPermission `json:"permissions,omitempty"` // 权限声明列表
 
 	// 运行时
 	Enabled      bool    `json:"enabled"`
@@ -74,5 +74,5 @@ type PluginMetaVO struct {
 	Rating       float32 `json:"rating"`
 
 	// 配置（仅保留 Schema，不返回具体配置值）
-	ConfigSchema []interface{} `json:"configSchema,omitempty"`
+	ConfigSchema []do.PluginConfigField `json:"configSchema,omitempty"`
 }

@@ -1,11 +1,14 @@
 import { CheckCircle2 } from "lucide-react";
 import { useState } from "react";
 import { useUpload } from "../hooks/useUpload";
+import { usePluginsContext } from "./PluginContext";
+import { useAdminPlugins } from "../useAdminPlugins";
 
 export function UploadPluginTab() {
   const [file, setFile] = useState<File | null>(null);
   const [uploaded, setUploaded] = useState(false);
-  const { uploadPluginFile, isUploading, error, resetError } = useUpload();
+  const { isUploading, error, resetError } = useUpload();
+  const { upload } = useAdminPlugins();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -14,7 +17,7 @@ export function UploadPluginTab() {
       return;
     }
     resetError();
-    const result = await uploadPluginFile(file);
+    const result = await upload(file);
     if (result) {
       setUploaded(true);
       setFile(null);

@@ -19,16 +19,14 @@ type PluginMeta struct {
 
 // PluginListBO 用于 Service 接收查询参数（不含业务返回字段）
 type PluginQueryBO struct {
-	Name     string          `json:"name"`
-	Page     int             `json:"page"`
-	PageSize int             `json:"pageSize"`
-	AuthorID uint            `json:"authorId"`
-	Category string          `json:"category"`
-	Tags     []string        `json:"tags"`
-	Type     string          `json:"type"`
-	Keyword  string          `json:"keyword"`
-	SortBy   string          `json:"sortBy"`
-	Status   do.PluginStatus `json:"status"`
+	Name     string            `json:"name"`
+	AuthorID uint              `json:"authorId"`
+	Category do.PluginCategory `json:"category"`
+	Tags     []string          `json:"tags"`
+	Type     string            `json:"type"`
+	Keyword  string            `json:"keyword"`
+	Status   do.PluginStatus   `json:"status"`
+	Version  string            `json:"version"`
 }
 
 type UserPluginBO struct {

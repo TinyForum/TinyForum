@@ -1,8 +1,12 @@
 import { useState } from "react";
+import { usePluginsContext } from "./PluginContext";
+import { useAdminPlugins } from "../useAdminPlugins";
 
 // ==================== 插件市场 ====================
 export function PluginMarketTab() {
   // mock 数据，实际对接 API
+  const { plugins } = useAdminPlugins();
+  console.log("插件信息: ", plugins);
   const [loading] = useState(false);
   // useEffect 等省略，仅示例
   return (

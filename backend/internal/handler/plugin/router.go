@@ -15,10 +15,15 @@ func (h *Handler) RegisterRoutes(api *gin.RouterGroup, mw middleware.MiddlewareS
 	pluginGroup := api.Group("/plugins")
 	pluginGroup.Use(mw.Auth())
 	{
-		// 上传安装插件（需认证）
-		pluginGroup.POST("/upload", h.UploadPlugin) // POST /api/v1/plugins/upload
+		// 上传插件
+		pluginGroup.POST("", h.UploadPlugin) // POST /api/v1/plugins
+		// 获取所有插件
+		api.GET("", h.ListPlugins) // GET /api/v1/plugins
+		// 删除插件
+		pluginGroup.DELETE("/:id", h.DeletePlugin) // DELETE /api/v1/plugins/:id
 
-		// 获取当前用户已安装的插件列表
-		api.GET("/users/me/plugins", h.ListMyPlugins) // GET /api/v1/users/me/plugins
+		// 获取当前用户的插件列表
+		api.GET("/me", h.ListMyPlugins) // GET /api/v1/plugins/me
+	
 	}
 }

@@ -2,13 +2,16 @@ package request
 
 import "tiny-forum/internal/model/do"
 
-// type ListPluginsRequest struct {
-// 	PageRequest
-// 	Keyword          string `form:"keyword"`           // 关键字
-// 	Status           string `form:"status"`            // 插件状态
-// 	ModerationStatus string `form:"moderation_status"` // 风控状态审核结果 (normal, pending, rejected)
-// 	Tag              string `form:"tag"`               // 标签名称
-// }
+type ListPluginsRequest struct {
+	PageRequest
+	Keyword string `form:"keyword"`                 // 关键字
+	Status  string `form:"status" default:"active"` // 插件状态
+	Tags     []string `form:"tag"`                     // 标签名称
+	UserID  uint   `form:"user_id"`                 // 用户ID
+	Type    string `form:"type"`                    // 插件类型
+	Version string `form:"version"`                 // 插件版本
+		Category do.PluginCategory `json:"category"` // 插件分类
+}
 
 type PluginListRequest struct {
 	Page     int             `json:"page" form:"page" default:"1"`

@@ -26,3 +26,25 @@ internal/service/
     └── query.go              # ListPlugins, ListUserPlugins
 ```
 
+
+
+请求绑定
+
+
+
+```bash
+ List(ctx context.Context, queryBO *common.PageQuery[do.PluginMeta]) ([]*do.PluginMeta, int64, error)
+```
+
+
+
+
+
+```bash
+	var req request.ListPluginsRequest
+	if err := req.Bind(c); err != nil {
+		response.HandleError(c, err)
+		return
+	}
+```
+

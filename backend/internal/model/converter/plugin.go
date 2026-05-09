@@ -20,7 +20,6 @@ func PluginListBOToQueryDTO(b *bo.PluginQueryBO) *dto.PluginQueryDTO {
 		Tags:     b.Tags,
 		Type:     b.Type,
 		Keyword:  b.Keyword,
-		SortBy:   b.SortBy,
 		Status:   b.Status,
 	}
 }
@@ -121,14 +120,14 @@ func PluginDOToVO(d *do.PluginMeta) *vo.PluginMetaVO {
 		Pricing:       d.Pricing,
 		Compatibility: d.Compatibility,
 
-		// 权限声明（转换为 interface{} 切片）
-		Permissions: func() []interface{} {
-			perms := make([]interface{}, len(d.Permissions))
-			for i, p := range d.Permissions {
-				perms[i] = p
-			}
-			return perms
-		}(),
+		// // 权限声明（转换为 interface{} 切片）
+		// Permissions: func() []interface{} {
+		// 	perms := make([]interface{}, len(d.Permissions))
+		// 	for i, p := range d.Permissions {
+		// 		perms[i] = p
+		// 	}
+		// 	return perms
+		// }(),
 
 		// 运行时
 		Enabled:      d.Enabled,
@@ -136,14 +135,14 @@ func PluginDOToVO(d *do.PluginMeta) *vo.PluginMetaVO {
 		InstallCount: d.InstallCount,
 		Rating:       d.Rating,
 
-		// 配置（仅 Schema，不返回具体值）
-		ConfigSchema: func() []interface{} {
-			schemas := make([]interface{}, len(d.ConfigSchema))
-			for i, s := range d.ConfigSchema {
-				schemas[i] = s
-			}
-			return schemas
-		}(),
+		// // 配置（仅 Schema，不返回具体值）
+		// ConfigSchema: func() []interface{} {
+		// 	schemas := make([]interface{}, len(d.ConfigSchema))
+		// 	for i, s := range d.ConfigSchema {
+		// 		schemas[i] = s
+		// 	}
+		// 	return schemas
+		// }(),
 	}
 }
 
@@ -228,13 +227,13 @@ func PluginListRequestToUserPluginBO(req *request.PluginListRequest, userID uint
 	}
 	return &bo.PluginQueryBO{
 		AuthorID: userID, // 查询用户自己的插件
-		Page:     req.Page,
-		PageSize: req.PageSize,
-		Tags:     req.Tags,
-		Type:     req.Type,
-		Keyword:  req.Keyword,
-		SortBy:   req.SortBy,
-		Status:   req.Status,
+		// Page:     req.Page,
+		// PageSize: req.PageSize,
+		Tags:    req.Tags,
+		Type:    req.Type,
+		Keyword: req.Keyword,
+		// SortBy:   req.SortBy,
+		Status: req.Status,
 	}
 }
 
@@ -244,13 +243,28 @@ func PluginListRequestToBO(req *request.PluginListRequest) *bo.PluginQueryBO {
 		return nil
 	}
 	return &bo.PluginQueryBO{
-		Page:     req.Page,
-		PageSize: req.PageSize,
+		// Page:     req.Page,
+		// PageSize: req.PageSize,
 		AuthorID: req.AuthorID, // 查询指定作者的插件
 		Tags:     req.Tags,
 		Type:     req.Type,
 		Keyword:  req.Keyword,
-		SortBy:   req.SortBy,
-		Status:   req.Status,
+		// SortBy:   req.SortBy,
+		Status: req.Status,
+	}
+}
+
+func ListPluginQueryBoToListPluguinQueryDO(query *bo.PluginQueryBO) *do.PluginMeta {
+	//
+	return &do.PluginMeta{
+
+		Name:     query.Name,
+		Version:  query.Version,
+		AuthorID: query.AuthorID,
+		Category: query.Category,
+		Tags:     query.Tags,
+		Type:     do.PluginType(query.Type),
+
+		Status: do.PluginStatus(query.Status),
 	}
 }
