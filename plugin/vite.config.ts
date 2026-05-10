@@ -13,7 +13,7 @@ export default defineConfig({
   build: {
     lib: {
       entry: path.resolve(process.cwd(), 'src/index.tsx'),
-      name: manifest.id,
+      name: manifest.name,
       formats: ['iife'],
       fileName: () => 'main.js',
     },
@@ -36,7 +36,7 @@ export default defineConfig({
     
   },
    define: {
-    '__PLUGIN_ID__': JSON.stringify(manifest.id)   ,// 假设 manifest.id = "14"
+    '__PLUGIN_SLUG__': JSON.stringify(manifest.slug)   ,// 假设 manifest.id = "14"
     'process.env': JSON.stringify({}),
     'process.env.NODE_ENV': JSON.stringify('production')
   }
