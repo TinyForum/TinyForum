@@ -3,9 +3,9 @@ import { MyWidget } from "./Widget";
 import { PluginAPI } from "./PLUGIN.type";
 
 
-// ⚠️ 注意：函数名必须与插件 id 一致
-// 插件 id 为 "my-plugin" → window.__plugin_my_plugin__
-window.__plugin_my_plugin__ = async function (api: PluginAPI) {
+const pluginId = __PLUGIN_ID__;
+window[`__plugin_${pluginId}__`] = async function (api: PluginAPI) {
+// window.__plugin_my_plugin__ = 
   // 1. 读取管理员配置的值
   const config = api.getConfig();
   const title = (config.title as string) || "我的插件";
@@ -35,4 +35,3 @@ window.__plugin_my_plugin__ = async function (api: PluginAPI) {
     api.log("info", `用户 ${user?.username} 已登录`);
   });
 };
-
