@@ -66,7 +66,7 @@ func (r *pluginRepo) List(ctx context.Context, queryBO *common.PageQuery[do.Plug
 
 	// 用户过滤
 	if queryBO.Data.AuthorID > 0 {
-		db = db.Where("user_id = ?", queryBO.Data.AuthorID)
+		db = db.Where("author_id = ?", queryBO.Data.AuthorID)
 	}
 
 	// 状态过滤
