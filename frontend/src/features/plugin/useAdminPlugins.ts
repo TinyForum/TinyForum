@@ -24,6 +24,22 @@ export function useAdminPlugins() {
       );
     },
   });
+  // 获取启用的插件
+  const { data: enabledPlugins } = useQuery({
+    queryKey: ["admin", "plugins", "enabled"],
+    queryFn: async () => {
+      const res = await pluginApi.listEnabled();
+      console.log("启用的插件列表： ", res);
+      return (
+        res.data?.data?.data ?? {
+          list: [],
+          total: 0,
+          page: 1,
+          page_size: PAGE_SIZE,
+        }
+      );
+    },
+  });
 
   // 提取插件列表和总数
   const plugins = pageData?.list ?? [];
@@ -91,6 +107,7 @@ export function useAdminPlugins() {
     isLoading,
     page,
     pageSize: PAGE_SIZE,
+    enabledPlugins,
     setPage,
     upload,
     handleToggle,

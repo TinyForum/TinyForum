@@ -49,7 +49,7 @@ export const pluginApi = {
   },
   /** 获取已启用插件（前端运行时加载用） */
   listEnabled() {
-    return apiClient.get<{ data: PluginMeta[] }>("/plugins", {
+    return apiClient.get<ApiResponse<{ data: PluginMeta[] }>>("/plugins", {
       params: { enabled: true },
     });
   },

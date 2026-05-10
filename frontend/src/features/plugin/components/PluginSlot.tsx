@@ -3,6 +3,7 @@
 import React, { useSyncExternalStore, useCallback } from "react";
 import { pluginRegistry } from "../PluginRegistry";
 import type { SlotComponent } from "@/shared/type/plugin.type";
+import { useAdminPlugins } from "../useAdminPlugins";
 
 interface PluginSlotProps {
   name: string;
@@ -41,6 +42,7 @@ export function PluginSlot({
   className,
 }: PluginSlotProps) {
   // 订阅函数：依赖 name 变化时会重新创建，但内部使用全局的 registry.subscribe
+  console.log("PluginSlot render");
   const subscribe = useCallback(
     (onStoreChange: () => void) => {
       // 全局订阅，任何插件变化都会触发，但这是可接受的简洁方案

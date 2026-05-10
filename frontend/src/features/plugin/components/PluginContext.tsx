@@ -12,6 +12,7 @@ import React, {
 import { PluginMeta, RegisteredPlugin } from "@/shared/type/plugin.type";
 import { loadPlugins } from "../PluginLoader";
 import { pluginRegistry } from "../PluginRegistry";
+import { useAdminPlugins } from "../useAdminPlugins";
 
 interface PluginContextValue {
   plugins: RegisteredPlugin[];
@@ -26,17 +27,8 @@ const PluginContext = createContext<PluginContextValue>({
   isLoading: false,
   reload: async () => {},
 });
-
-async function fetchEnabledPlugins(): Promise<PluginMeta[]> {
-  try {
-    const res = await fetch("/api/v1/plugins?enabled=true");
-    if (!res.ok) return [];
-    const json = await res.json();
-    return json?.data ?? [];
-  } catch {
-    return [];
-  }
-}
+const { enabledPlugins } = useAdminPlugins();
+console.log("启用的插件: ", enabledPlugins);
 
 export function PluginProvider({
   children,
@@ -63,8 +55,8 @@ export function PluginProvider({
   const load = useCallback(async () => {
     setIsLoading(true);
     try {
-      const metas = await fetchEnabledPlugins();
-      await loadPlugins(metas, { getUser, getLocale });
+      // const metas = await fetchEnabledPlugins();
+      await loadPlugins(enabledPlugins, { getUser, getLocale });
     } finally {
       setIsLoading(false);
       setIsInitialized(true);
