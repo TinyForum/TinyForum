@@ -105,7 +105,7 @@ func PluginBrowser(c *gin.Context) {
                     loadDirectory(newPath);
                 };
             } else {
-                const fileUrl = "/public/plugins/" + (currentPath === "." ? "" : currentPath + "/") + file.name;
+                const fileUrl = "/store/plugins/" + (currentPath === "." ? "" : currentPath + "/") + file.name;
                 const ext = file.ext.toLowerCase();
                 
                 if (ext === ".md") {

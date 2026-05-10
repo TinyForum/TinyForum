@@ -54,5 +54,10 @@
     "greeting": "Hello from local plugin!"
   },
   "createdAt": "2026-05-20T00:00:00Z",
-  "updatedAt": "2026-05-20T00:00:00Z"
+  "updatedAt": "2026-05-20T00:00:00Z",
+  "external": ["react", "react-dom"],
+  "globals": {
+    "react": "React",
+    "react-dom": "ReactDOM"
+  }
 }

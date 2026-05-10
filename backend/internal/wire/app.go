@@ -43,13 +43,13 @@ func InitApp(cfg *config.Config) (*App, error) {
 	registry := strategy.NewHandlerRegistry()
 
 	userStorage := storage.NewLocalStorage("./uploads")
-	publicStorage := storage.NewLocalStorage("./public")
+	pluginsStorage := storage.NewLocalStorage("./store")
 
 	// 4. 数据仓库层
 	repos := NewRepositories(db, infra.RedisClient)
 
 	// 5. 服务层
-	services := NewServices(cfg, jwtMgr, repos, infra, userStorage, publicStorage, registry)
+	services := NewServices(cfg, jwtMgr, repos, infra, userStorage, pluginsStorage, registry)
 
 	// 6. 辅助工具
 	helpers := NewHelpers()
@@ -79,7 +79,7 @@ func InitApp(cfg *config.Config) (*App, error) {
 
 	// 自动清理
 	go job.CleanTempFiles(db, userStorage, repos.Attachment)
-	go job.CleanTempFiles(db, publicStorage, repos.Attachment)
+	go job.CleanTempFiles(db, pluginsStorage, repos.Attachment)
 
 	return &App{
 		Engine: engine,

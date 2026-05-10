@@ -31,7 +31,7 @@ type PluginManifest struct {
 }
 
 const (
-	defaultStorageDir = "./public/plugins"
+	defaultStorageDir = "./plugins"
 	// tempDir           = "./temp/plugins"
 )
 
@@ -252,7 +252,7 @@ func (s *pluginService) extractPluginFiles(zipPath, targetDir, manifestDir strin
 // saveOrUpdatePluginMeta 根据现有记录决定插入或更新数据库
 func (s *pluginService) saveOrUpdatePluginMeta(ctx context.Context, existing *do.PluginMeta, manifest PluginManifest, targetDir string, userID uint) (*do.PluginMeta, error) {
 	logger.Infof("保存或更新插件元数据: %s, 版本 %s", manifest.Name, manifest.Version)
-	scriptURL := "/public/plugins/" + path.Join(manifest.Name, manifest.Version, manifest.Entry)
+	scriptURL := "/store/plugins/" + path.Join(manifest.Name, manifest.Version, manifest.Entry)
 
 	if existing != nil {
 		// 覆盖：删除旧物理文件（如果版本不同，旧目录会被新目录覆盖；版本相同时，文件已覆盖）

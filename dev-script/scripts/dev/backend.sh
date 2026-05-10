@@ -242,7 +242,8 @@ attachment:
     local_path: ./attachments
     
 plugins:
-  storage_dir: public/plugins
+  storage_dir: plugins
+  base_url: //plugins
   "
 
   

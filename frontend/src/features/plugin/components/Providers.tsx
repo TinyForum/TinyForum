@@ -7,26 +7,32 @@ import { useAuthStore } from "@/store";
 import { useLocale } from "next-intl";
 import { PluginProvider } from "./PluginContext";
 
-function InnerProviders({ children }: { children: React.ReactNode }) {
+/**
+ * InnerProviders 组件，用于提供用户和本地化信息给子组件
+ * @param children - React 节点，将被包裹在 Provider 中
+ */
+export function InnerProviders({ children }: { children: React.ReactNode }) {
+  // 使用 useAuthStore 获取用户信息
   const { user } = useAuthStore();
-  const locale = useLocale();
+  // 使用 useLocale 获取本地化信息
+  // const locale = useLocale();
 
+  // 使用 useCallback 缓存 getUser 函数，避免不必要的重新创建
   const getUser = useCallback(() => {
+    // 如果用户不存在，返回 null
     if (!user) return null;
+    // 返回用户信息对象，包含 id、username 和 role
     return {
       id: String(user.id),
-      username: user.username ?? "",
-      role: user.role ?? "user",
+      username: user.username ?? "", // 如果 username 不存在，使用空字符串作为默认值
+      role: user.role ?? "user", // 如果 role 不存在，使用 "user" 作为默认值
     };
-  }, [user]);
+  }, [user]); // 依赖项为 user，当 user 变化时重新创建函数
 
-  const getLocale = useCallback(() => locale, [locale]);
+  // 使用 useCallback 缓存 getLocale 函数，避免不必要的重新创建
+  // const getLocale = useCallback(() => locale, [locale]); // 依赖项为 locale，当 locale 变化时重新创建函数
 
-  return (
-    <PluginProvider getUser={getUser} getLocale={getLocale}>
-      {children}
-    </PluginProvider>
-  );
+  return <PluginProvider getUser={getUser}>{children}</PluginProvider>;
 }
 
 export default function Providers({ children }: { children: React.ReactNode }) {
