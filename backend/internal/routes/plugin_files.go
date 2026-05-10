@@ -21,12 +21,12 @@ type FileInfo struct {
 func ListPluginFiles(c *gin.Context) {
 
 	// 允许访问的根目录
-	rootDir := "./public/plugins" // 请使用绝对路径或配置
+	rootDir := "./store/plugins" // 请使用绝对路径或配置
 
-	wd, _ := os.Getwd()
-	logger.Infof("工作目录: %s", wd)
+	// wd, _ := os.Getwd()
+	// logger.Infof("工作目录: %s", wd)
 	absRoot, _ := filepath.Abs(rootDir)
-	logger.Infof("期望的插件目录: %s", absRoot)
+	// logger.Infof("期望的插件目录: %s", absRoot)
 	// 可选：限制只读用户或游客
 	// if !isAllowed(c) { c.JSON(403, gin.H{"error": "forbidden"}) }
 

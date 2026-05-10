@@ -16,7 +16,7 @@ interface PluginAPIOptions {
   pluginId: string;
   pluginName: string;
   getUser: () => UserContext | null;
-  getLocale: () => string;
+  // getLocale: () => string;
 }
 
 /**
@@ -24,7 +24,7 @@ interface PluginAPIOptions {
  * 插件只能访问这里暴露的能力，无法直接操作 store 或内部状态
  */
 export function createPluginAPI(options: PluginAPIOptions): PluginAPI {
-  const { pluginId, pluginName, getUser, getLocale } = options;
+  const { pluginId, pluginName, getUser } = options;
   const registeredHandlers: Array<{
     event: PluginEvent;
     handler: PluginEventHandler;
@@ -50,7 +50,7 @@ export function createPluginAPI(options: PluginAPIOptions): PluginAPI {
     },
 
     getUser,
-    getLocale,
+    // getLocale,
 
     getConfig() {
       return pluginRegistry.getPluginConfig(pluginId);

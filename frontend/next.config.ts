@@ -50,13 +50,35 @@ const nextConfig: NextConfig = {
       return [];
     }
 
-    const cleanUrl = backendUrl.replace(/\/$/, "");
-    const source = proxy.source ?? "/api/v1/:path*";
-    const destination = `${cleanUrl}${proxy.destinationPattern ?? "/api/v1/:path*"}`;
+    //     const cleanUrl = backendUrl.replace(/\/$/, "");
+    //     const source = proxy.source ?? "/api/v1/:path*";
+    //     const destination = `${cleanUrl}${proxy.destinationPattern ?? "/api/v1/:path*"}`;
 
-    checkBackendReachable(cleanUrl).catch(() => {});
-    console.log(`🔁 启用代理: ${source} → ${destination}`);
-    return [{ source, destination }];
+    //     // 新增：代理 /store 静态资源
+    //     const sourceStatic = "/store/:path*";
+    //     const destinationStatic = `${cleanUrl}/store/:path*`;
+
+    //     checkBackendReachable(cleanUrl).catch(() => {});
+    //     console.log(`🔁 启用代理: ${source} → ${destination}`);
+    //     return [{ source, destination }];
+    //   },
+    // };
+
+    const cleanUrl = backendUrl.replace(/\/$/, "");
+    const sourceApi = proxy.source ?? "/api/v1/:path*";
+    const destinationApi = `${cleanUrl}${proxy.destinationPattern ?? "/api/v1/:path*"}`;
+
+    // 新增：代理 /store 静态资源
+    const sourceStatic = "/store/:path*";
+    const destinationStatic = `${cleanUrl}/store/:path*`;
+
+    console.log(`🔁 启用 API 代理: ${sourceApi} → ${destinationApi}`);
+    console.log(`🔁 启用静态资源代理: ${sourceStatic} → ${destinationStatic}`);
+
+    return [
+      { source: sourceApi, destination: destinationApi },
+      { source: sourceStatic, destination: destinationStatic },
+    ];
   },
 };
 

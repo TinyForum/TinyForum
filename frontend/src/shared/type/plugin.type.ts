@@ -198,7 +198,7 @@ export interface PluginAPI {
   on(event: PluginEvent, handler: PluginEventHandler): void;
   off(event: PluginEvent, handler: PluginEventHandler): void;
   getUser(): { id: string; username: string; role: string } | null;
-  getLocale(): string;
+  // getLocale(): string;
   getConfig(): Record<string, unknown>;
   log(level: "info" | "warn" | "error", message: string): void;
 }
