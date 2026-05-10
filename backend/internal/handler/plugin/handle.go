@@ -34,7 +34,6 @@ func NewHandler(svc plugin.PluginService) *Handler {
 // @Success 200 {object} common.BasicResponse
 // @Failure 400 {object} common.BasicResponse
 // @Router /plugins [get]
-// handler/plugin.go
 func (h *Handler) ListPlugins(c *gin.Context) {
 	var req request.ListPluginsRequest
 	if err := req.Bind(c); err != nil {
@@ -105,7 +104,7 @@ func (h *Handler) UploadPlugin(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} common.BasicResponse
 // @Failure 400 {object} common.BasicResponse
-// @Router /users/me/plugins [get]
+// @Router /plugins/user/me [get]
 func (h *Handler) ListMyPlugins(c *gin.Context) {
 	userID := c.GetUint("user_id")
 	plugins, err := h.svc.ListUserPlugins(c.Request.Context(), userID)
@@ -117,7 +116,14 @@ func (h *Handler) ListMyPlugins(c *gin.Context) {
 }
 
 // DeletePlugin 删除插件
-// @Router /api/v1/plugins/:id [delete]
+// @Summary 删除插件
+// @Description 删除插件
+// @Tags plugin
+// @Accept json
+// @Produce json
+// @Success 200 {object} common.BasicResponse
+// @Failure 400 {object} common.BasicResponse
+// @Router /pligins/delete [get]
 func (h *Handler) DeletePlugin(c *gin.Context) {
 	// 1. 获取当前用户ID
 	userID := c.GetUint("user_id")

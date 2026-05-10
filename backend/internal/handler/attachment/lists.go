@@ -2,19 +2,10 @@ package attachment
 
 import (
 	"strconv"
-	"tiny-forum/internal/service/attachment"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
 )
-
-type AttachmentHandler struct {
-	svc attachment.AttachmentService
-}
-
-func NewAttachmentHandler(svc attachment.AttachmentService) *AttachmentHandler {
-	return &AttachmentHandler{svc: svc}
-}
 
 // ListMyFiles 获取当前用户的文件列表
 // @Summary 获取用户文件列表

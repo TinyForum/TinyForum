@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	adminInit "tiny-forum/init"
+	initdata "tiny-forum/init"
 	"tiny-forum/internal/infra/config"
 	"tiny-forum/internal/model/do"
 
@@ -96,6 +96,8 @@ func InitDB(cfg *config.Config) (*gorm.DB, error) {
 		&do.Violation{},        // 违规
 		&do.Favorite{},         // 收藏
 		&do.PluginMeta{},       // 插件元数据
+		// 机器人
+		&do.Bot{}, // 机器人
 	); err != nil {
 		return nil, fmt.Errorf("auto migrate failed: %w", err)
 	}
@@ -104,11 +106,14 @@ func InitDB(cfg *config.Config) (*gorm.DB, error) {
 		return nil, fmt.Errorf("failed to get sql.DB: %w", err)
 	}
 	// 创建超级管理员
-	if err := adminInit.CreateSuperAdmin(db, &cfg.Private.AdminUser); err != nil {
+	if err := initdata.CreateSuperAdmin(db, &cfg.Private.AdminUser); err != nil {
 		logger.Warnf("创建超级管理员失败: %v", err)
 	}
-	if err := adminInit.CreateSystemUser(db, &cfg.Private.SystemUser); err != nil {
+	if err := initdata.CreateSystemUser(db, &cfg.Private.SystemUser); err != nil {
 		logger.Warnf("创建系统维护者员失败: %v", err)
+	}
+	if err := initdata.InitDefaultBot(db); err != nil {
+		log.Fatal("初始化系统机器人失败: ", err)
 	}
 	// 核心配置：避免打爆 PostgreSQL
 	sqlDB.SetMaxOpenConns(80)                 // 最大打开连接数（PG 默认 max_connections=100）

@@ -78,7 +78,10 @@ func SuccessPage[T any](c *gin.Context, list []T, total int64, page, pageSize in
 }
 
 // Created 创建资源成功响应 (HTTP 201)，同时写入 Location 头
-func Created(c *gin.Context, data interface{}, location string) {
+// c: gin.Context 对象
+// data: 创建的资源数据
+// location: 创建的资源 URL
+func Created(c *gin.Context, data any, location string) {
 	if location != "" {
 		c.Header("Location", location)
 	}

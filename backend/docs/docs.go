@@ -2229,7 +2229,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "业务类型：post_image / comment_file / avatar / plugin_asset",
+                        "description": "业务类型：post_image / comment_file / avatar / plugin",
                         "name": "type",
                         "in": "formData",
                         "required": true
@@ -2293,7 +2293,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "文件类型过滤 (post_image, comment_file, avatar, plugin_asset)",
+                        "description": "文件类型过滤 (post_image, comment_file, avatar, plugin)",
                         "name": "file_type",
                         "in": "query"
                     }
@@ -4029,6 +4029,552 @@ const docTemplate = `{
                 }
             }
         },
+        "/bots": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "分页查询所有机器人",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "机器人管理"
+                ],
+                "summary": "获取机器人列表",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "example": 1,
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 20,
+                        "example": 20,
+                        "description": "每页条数",
+                        "name": "pageSize",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "返回机器人列表及总数",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.BasicResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "list": {
+                                                    "type": "array"
+                                                },
+                                                "page": {
+                                                    "type": "integer"
+                                                },
+                                                "total": {
+                                                    "type": "integer"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "请求参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "在指定板块下创建新的机器人",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "机器人管理"
+                ],
+                "summary": "创建机器人",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "板块ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "机器人创建信息",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CreateBotRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "创建成功，返回机器人ID",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.BasicResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "请求参数错误（如板块ID无效、机器人信息不合法）",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "无权限（需要版主或管理员权限）",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "不存在",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/bots/user/me": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "分页查询当前用户创建的所有机器人",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "机器人管理"
+                ],
+                "summary": "获取我的机器人列表",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "example": 1,
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 20,
+                        "example": 20,
+                        "description": "每页条数",
+                        "name": "pageSize",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "返回机器人列表及总数",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.BasicResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "list": {
+                                                    "type": "array"
+                                                },
+                                                "page": {
+                                                    "type": "integer"
+                                                },
+                                                "total": {
+                                                    "type": "integer"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "请求参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/bots/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "根据ID获取机器人详细信息（公开信息，不需要鉴权？注意代码中未使用userID，但路由挂在Auth中间件下，实际仍需要认证）",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "机器人管理"
+                ],
+                "summary": "获取机器人详情",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "机器人ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "返回机器人视图对象（botVO）",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.BasicResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "请求参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "机器人不存在",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "更新指定机器人的配置信息（只能操作自己的机器人）",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "机器人管理"
+                ],
+                "summary": "更新机器人",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "机器人ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "机器人更新信息",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateBotRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "更新成功，返回空数据",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.BasicResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "请求参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "无权限（非本人机器人）",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "机器人不存在",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "删除指定机器人（只能删除自己的机器人）",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "机器人管理"
+                ],
+                "summary": "删除机器人",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "机器人ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "删除成功，返回空数据",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.BasicResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "请求参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "无权限（非本人机器人）",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "机器人不存在",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/bots/{id}/run": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "立即执行指定机器人脚本一次，可附带事件数据（可选）",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "机器人管理"
+                ],
+                "summary": "手动触发机器人执行",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "机器人ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "事件数据（任意JSON）",
+                        "name": "body",
+                        "in": "body",
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "触发成功，返回message",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.BasicResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "message": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "请求参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "无权限（非本人机器人）",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "机器人不存在",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/comments": {
             "post": {
                 "security": [
@@ -4608,6 +5154,35 @@ const docTemplate = `{
                 }
             }
         },
+        "/pligins/delete": {
+            "get": {
+                "description": "删除插件",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "plugin"
+                ],
+                "summary": "删除插件",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/plugins": {
             "get": {
                 "description": "获取系统中所有已安装的插件（通常需要管理员权限，可根据业务调整）",
@@ -4693,6 +5268,35 @@ const docTemplate = `{
                         "required": true
                     }
                 ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/plugins/user/me": {
+            "get": {
+                "description": "获取当前登录用户已安装（上传）的插件列表，通常是通过 author_id 查询",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "plugin"
+                ],
+                "summary": "当前用户安装的插件",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -7033,7 +7637,7 @@ const docTemplate = `{
                 "tags": [
                     "plugin"
                 ],
-                "summary": "当前用户安装的插件",
+                "summary": "获取用户发布的文章",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -7486,6 +8090,137 @@ const docTemplate = `{
                 }
             }
         },
+        "do.BotConfigField": {
+            "type": "object",
+            "properties": {
+                "defaultValue": {},
+                "description": {
+                    "type": "string"
+                },
+                "key": {
+                    "type": "string"
+                },
+                "label": {
+                    "type": "string"
+                },
+                "options": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "label": {
+                                "type": "string"
+                            },
+                            "value": {}
+                        }
+                    }
+                },
+                "placeholder": {
+                    "type": "string"
+                },
+                "required": {
+                    "type": "boolean"
+                },
+                "type": {
+                    "description": "text, number, boolean, select, textarea, secret",
+                    "type": "string"
+                }
+            }
+        },
+        "do.BotPermission": {
+            "type": "string",
+            "enum": [
+                "read:user",
+                "read:posts",
+                "write:posts",
+                "read:comments",
+                "write:comments",
+                "send:message",
+                "manage:content",
+                "read:stats"
+            ],
+            "x-enum-varnames": [
+                "BotPermReadUser",
+                "BotPermReadPosts",
+                "BotPermWritePosts",
+                "BotPermReadComments",
+                "BotPermWriteComments",
+                "PermSendMessage",
+                "PermManageContent",
+                "PermReadStats"
+            ]
+        },
+        "do.BotPricing": {
+            "type": "object",
+            "properties": {
+                "cycle": {
+                    "type": "string"
+                },
+                "freeLimit": {
+                    "type": "string"
+                },
+                "model": {
+                    "$ref": "#/definitions/do.BotPricingModel"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "purchaseUrl": {
+                    "type": "string"
+                }
+            }
+        },
+        "do.BotPricingModel": {
+            "type": "string",
+            "enum": [
+                "free",
+                "freemium",
+                "paid",
+                "subscription"
+            ],
+            "x-enum-varnames": [
+                "BotPricingFree",
+                "BotPricingFreemium",
+                "BotPricingPaid",
+                "PricingSubscription"
+            ]
+        },
+        "do.BotTriggerType": {
+            "type": "string",
+            "enum": [
+                "schedule",
+                "event",
+                "webhook",
+                "manual"
+            ],
+            "x-enum-varnames": [
+                "TriggerSchedule",
+                "TriggerEvent",
+                "TriggerWebhook",
+                "TriggerManual"
+            ]
+        },
+        "do.BotType": {
+            "type": "string",
+            "enum": [
+                "chat",
+                "moderate",
+                "notify",
+                "sync",
+                "task",
+                "webhook",
+                "analysis"
+            ],
+            "x-enum-varnames": [
+                "BotTypeChat",
+                "BotTypeModerate",
+                "BotTypeNotify",
+                "BotTypeSync",
+                "BotTypeTask",
+                "BotTypeWebhook",
+                "BotTypeAnalysis"
+            ]
+        },
         "do.PostStatus": {
             "type": "string",
             "enum": [
@@ -7500,6 +8235,17 @@ const docTemplate = `{
                 "PostStatusPublished",
                 "PostStatusHidden"
             ]
+        },
+        "do.ResourceLimit": {
+            "type": "object",
+            "properties": {
+                "maxCPU": {
+                    "type": "integer"
+                },
+                "maxMemoryMB": {
+                    "type": "integer"
+                }
+            }
         },
         "do.UpdateProfileInput": {
             "type": "object",
@@ -7748,6 +8494,126 @@ const docTemplate = `{
                 }
             }
         },
+        "request.CreateBotRequest": {
+            "type": "object",
+            "required": [
+                "name",
+                "triggerType",
+                "type",
+                "version"
+            ],
+            "properties": {
+                "avatarUrl": {
+                    "type": "string"
+                },
+                "configSchema": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/do.BotConfigField"
+                    }
+                },
+                "configValues": {
+                    "type": "object",
+                    "additionalProperties": {}
+                },
+                "cronExpr": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "envVars": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "eventFilter": {
+                    "type": "string"
+                },
+                "homepageUrl": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "minLength": 1
+                },
+                "permissions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/do.BotPermission"
+                    }
+                },
+                "pricing": {
+                    "$ref": "#/definitions/do.BotPricing"
+                },
+                "resourceLimit": {
+                    "$ref": "#/definitions/do.ResourceLimit"
+                },
+                "retryTimes": {
+                    "type": "integer"
+                },
+                "screenshots": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "scriptCode": {
+                    "type": "string"
+                },
+                "scriptUrl": {
+                    "type": "string"
+                },
+                "summary": {
+                    "type": "string"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "timeoutSec": {
+                    "type": "integer",
+                    "maximum": 300,
+                    "minimum": 1
+                },
+                "triggerType": {
+                    "enum": [
+                        "schedule",
+                        "event",
+                        "webhook",
+                        "manual"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/do.BotTriggerType"
+                        }
+                    ]
+                },
+                "type": {
+                    "enum": [
+                        "chat",
+                        "moderate",
+                        "notify",
+                        "sync",
+                        "task",
+                        "webhook",
+                        "analysis"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/do.BotType"
+                        }
+                    ]
+                },
+                "version": {
+                    "type": "string"
+                }
+            }
+        },
         "request.ListAnnouncements": {
             "type": "object",
             "properties": {
@@ -7902,6 +8768,75 @@ const docTemplate = `{
                             "$ref": "#/definitions/do.AnnouncementType"
                         }
                     ]
+                }
+            }
+        },
+        "request.UpdateBotRequest": {
+            "type": "object",
+            "properties": {
+                "avatarUrl": {
+                    "type": "string"
+                },
+                "configSchema": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/do.BotConfigField"
+                    }
+                },
+                "configValues": {
+                    "type": "object",
+                    "additionalProperties": {}
+                },
+                "cronExpr": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "enabled": {
+                    "type": "boolean"
+                },
+                "envVars": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "eventFilter": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "permissions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/do.BotPermission"
+                    }
+                },
+                "pricing": {
+                    "$ref": "#/definitions/do.BotPricing"
+                },
+                "resourceLimit": {
+                    "$ref": "#/definitions/do.ResourceLimit"
+                },
+                "retryTimes": {
+                    "type": "integer"
+                },
+                "scriptCode": {
+                    "type": "string"
+                },
+                "scriptUrl": {
+                    "type": "string"
+                },
+                "summary": {
+                    "type": "string"
+                },
+                "timeoutSec": {
+                    "type": "integer"
+                },
+                "triggerType": {
+                    "$ref": "#/definitions/do.BotTriggerType"
                 }
             }
         },
