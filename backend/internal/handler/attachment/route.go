@@ -2,18 +2,19 @@ package attachment
 
 import (
 	"tiny-forum/internal/middleware"
+	"tiny-forum/internal/service/attachment"
 
 	"github.com/gin-gonic/gin"
 )
 
-// type UploadHandler struct {
-// 	service uploadService.AttachmentService
-// }
+type AttachmentHandler struct {
+	svc attachment.AttachmentService
+}
 
-//	func NewUploadHandler(service uploadService.AttachmentService) *UploadHandler {
-//		return &UploadHandler{service: service}
-//	}
-//
+func NewAttachmentHandler(svc attachment.AttachmentService) *AttachmentHandler {
+	return &AttachmentHandler{svc: svc}
+}
+
 // RegisterRoutes 注册附件相关路由
 func (h *AttachmentHandler) RegisterRoutes(api *gin.RouterGroup, mw middleware.MiddlewareSet) {
 	// 需要认证的附件操作

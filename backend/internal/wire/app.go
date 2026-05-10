@@ -10,6 +10,7 @@ import (
 	"tiny-forum/internal/infra/config"
 	"tiny-forum/internal/job"
 	"tiny-forum/internal/middleware"
+	"tiny-forum/internal/service/bot"
 	"tiny-forum/internal/storage"
 	"tiny-forum/internal/strategy"
 	jwtpkg "tiny-forum/pkg/jwt"
@@ -22,6 +23,7 @@ type App struct {
 	Engine *gin.Engine
 	DB     *gorm.DB
 	Cfg    *config.Config
+	BotSvc bot.Service
 }
 
 func InitApp(cfg *config.Config) (*App, error) {
@@ -50,6 +52,7 @@ func InitApp(cfg *config.Config) (*App, error) {
 
 	// 5. 服务层
 	services := NewServices(cfg, jwtMgr, repos, infra, userStorage, pluginsStorage, registry)
+	services.Bot.StartScheduler()
 
 	// 6. 辅助工具
 	helpers := NewHelpers()
@@ -81,9 +84,11 @@ func InitApp(cfg *config.Config) (*App, error) {
 	go job.CleanTempFiles(db, userStorage, repos.Attachment)
 	go job.CleanTempFiles(db, pluginsStorage, repos.Attachment)
 
+	// services.Bot.StopScheduler()
 	return &App{
 		Engine: engine,
 		DB:     db,
 		Cfg:    cfg,
+		BotSvc: services.Bot,
 	}, nil
 }

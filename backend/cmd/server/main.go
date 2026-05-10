@@ -1,11 +1,16 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
+	"os/signal"
 	"path/filepath"
 	"strings"
+	"syscall"
+	"time"
 
 	"tiny-forum/internal/infra/config"
 	"tiny-forum/internal/startup"
@@ -25,7 +30,6 @@ import (
 
 func main() {
 	version := os.Getenv("TINYFORUM_VERSION")
-	// 加载配置
 	cfg, err := loadConfig()
 	if err != nil {
 		printConfigError(err)
@@ -37,26 +41,56 @@ func main() {
 		log.Fatalf("Failed to init logger: %v\n", err)
 	}
 
-	// 打印字符画 Banner
-	startup.PrintBanner(version)
-
 	// 打印启动信息
+	startup.PrintBanner(version)
 	startup.PrintStartupInfo(cfg)
-
-	// 打印配置摘要（调试模式）
 	if cfg.Basic.Log.Level == "debug" {
 		startup.PrintConfigSummary(cfg)
 	}
 
-	// 初始化应用（数据库 + 路由）
+	// 初始化核心应用（包括数据库、服务、调度器）
 	app, err := wire.InitApp(cfg)
 	if err != nil {
 		logger.Fatal(fmt.Sprintf("Failed to initialize app: %v\n", err))
 	}
+	defer logger.CloseDB() // 确保正常退出时关闭数据库
 
-	// 启动服务器
-	startServer(cfg, app)
-	defer logger.CloseDB()
+	// 优雅关闭处理
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+
+	// 启动 HTTP 服务器（在 goroutine 中运行）
+	addr := fmt.Sprintf(":%d", cfg.Basic.Server.Port)
+	srv := &http.Server{
+		Addr:    addr,
+		Handler: app.Engine,
+	}
+
+	go func() {
+		logger.Info(fmt.Sprintf("✅ Server is running on http://localhost%s", addr))
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			logger.Fatal(fmt.Sprintf("Server failed: %v", err))
+		}
+	}()
+
+	// 等待中断信号
+	<-quit
+	logger.Info("Shutting down server gracefully...")
+
+	// 给正在处理的请求预留 5 秒完成
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if err := srv.Shutdown(ctx); err != nil {
+		logger.Error(fmt.Sprintf("Server forced to shutdown: %v", err))
+	}
+
+	// 停止机器人调度器（如果有）
+	if app.BotSvc != nil {
+		app.BotSvc.StopScheduler()
+		logger.Info("Bot scheduler stopped")
+	}
+
+	logger.Info("Server exited")
 }
 
 // loadConfig 加载配置文件

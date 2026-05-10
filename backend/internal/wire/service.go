@@ -7,6 +7,7 @@ import (
 	attachment "tiny-forum/internal/service/attachment"
 	"tiny-forum/internal/service/auth"
 	"tiny-forum/internal/service/board"
+	"tiny-forum/internal/service/bot"
 	"tiny-forum/internal/service/check"
 	"tiny-forum/internal/service/comment"
 	"tiny-forum/internal/service/email"
@@ -45,6 +46,7 @@ type Services struct {
 	Attachment   attachment.AttachmentService
 	Admin        admin.AdminService
 	Plugin       plugin.PluginService
+	Bot          bot.Service
 }
 
 // NewServices 创建所有 Service 实例
@@ -81,6 +83,7 @@ func NewServices(
 	pluginSvc := plugin.NewPluginService(repos.Plugin, publicStorage, &cfg.Basic.Plugins)
 	engine := upload.NewEngine(userStorage, registry)
 	attachmentSvc := attachment.NewAttachmentService(repos.Attachment, cfg.Basic.Attachment, engine)
+	botSvc := bot.NewService(repos.Bot)
 
 	return &Services{
 		User:         userSvc,
@@ -100,5 +103,6 @@ func NewServices(
 		Attachment:   attachmentSvc,
 		Admin:        adminSvc,
 		Plugin:       pluginSvc,
+		Bot:          botSvc,
 	}
 }

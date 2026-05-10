@@ -1,0 +1,79 @@
+package bot
+
+import (
+	"context"
+	"tiny-forum/internal/model/do"
+
+	"gorm.io/gorm"
+)
+
+type Repository interface {
+	Create(ctx context.Context, bot *do.Bot) error
+	Update(ctx context.Context, id uint, updates map[string]interface{}) error
+	Delete(ctx context.Context, id uint) error
+	GetByID(ctx context.Context, id uint) (*do.Bot, error)
+	ListByUser(ctx context.Context, creatorID uint, offset, limit int) ([]*do.Bot, int64, error)
+	List(ctx context.Context, offset, limit int) ([]*do.Bot, int64, error)
+	ListActive(ctx context.Context) ([]*do.Bot, error)
+}
+
+type repo struct {
+	db *gorm.DB
+}
+
+func NewRepository(db *gorm.DB) Repository {
+	return &repo{db: db}
+}
+
+func (r *repo) Create(ctx context.Context, bot *do.Bot) error {
+	return r.db.WithContext(ctx).Create(bot).Error
+}
+
+func (r *repo) Update(ctx context.Context, id uint, updates map[string]interface{}) error {
+	return r.db.WithContext(ctx).Model(&do.Bot{}).Where("id = ?", id).Updates(updates).Error
+}
+
+func (r *repo) Delete(ctx context.Context, id uint) error {
+	return r.db.WithContext(ctx).Delete(&do.Bot{}, id).Error
+}
+
+func (r *repo) GetByID(ctx context.Context, id uint) (*do.Bot, error) {
+	var bot do.Bot
+	err := r.db.WithContext(ctx).First(&bot, id).Error
+	if err != nil {
+		return nil, err
+	}
+	return &bot, nil
+}
+
+func (r *repo) ListByUser(ctx context.Context, creatorID uint, offset, limit int) ([]*do.Bot, int64, error) {
+	var bots []*do.Bot
+	var total int64
+	query := r.db.WithContext(ctx).Model(&do.Bot{})
+	if creatorID > 0 {
+		query = query.Where("creator_id = ?", creatorID)
+	}
+	if err := query.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+	err := query.Offset(offset).Limit(limit).Order("created_at DESC").Find(&bots).Error
+	return bots, total, err
+}
+
+func (r *repo) List(ctx context.Context, offset, limit int) ([]*do.Bot, int64, error) {
+	var bots []*do.Bot
+	var total int64
+	query := r.db.WithContext(ctx).Model(&do.Bot{})
+
+	if err := query.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+	err := query.Offset(offset).Limit(limit).Order("created_at DESC").Find(&bots).Error
+	return bots, total, err
+}
+
+func (r *repo) ListActive(ctx context.Context) ([]*do.Bot, error) {
+	var bots []*do.Bot
+	err := r.db.WithContext(ctx).Where("enabled = ?", true).Find(&bots).Error
+	return bots, err
+}

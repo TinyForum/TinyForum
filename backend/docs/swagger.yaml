@@ -162,6 +162,106 @@ definitions:
     required:
     - reason
     type: object
+  do.BotConfigField:
+    properties:
+      defaultValue: {}
+      description:
+        type: string
+      key:
+        type: string
+      label:
+        type: string
+      options:
+        items:
+          properties:
+            label:
+              type: string
+            value: {}
+          type: object
+        type: array
+      placeholder:
+        type: string
+      required:
+        type: boolean
+      type:
+        description: text, number, boolean, select, textarea, secret
+        type: string
+    type: object
+  do.BotPermission:
+    enum:
+    - read:user
+    - read:posts
+    - write:posts
+    - read:comments
+    - write:comments
+    - send:message
+    - manage:content
+    - read:stats
+    type: string
+    x-enum-varnames:
+    - BotPermReadUser
+    - BotPermReadPosts
+    - BotPermWritePosts
+    - BotPermReadComments
+    - BotPermWriteComments
+    - PermSendMessage
+    - PermManageContent
+    - PermReadStats
+  do.BotPricing:
+    properties:
+      cycle:
+        type: string
+      freeLimit:
+        type: string
+      model:
+        $ref: '#/definitions/do.BotPricingModel'
+      price:
+        type: number
+      purchaseUrl:
+        type: string
+    type: object
+  do.BotPricingModel:
+    enum:
+    - free
+    - freemium
+    - paid
+    - subscription
+    type: string
+    x-enum-varnames:
+    - BotPricingFree
+    - BotPricingFreemium
+    - BotPricingPaid
+    - PricingSubscription
+  do.BotTriggerType:
+    enum:
+    - schedule
+    - event
+    - webhook
+    - manual
+    type: string
+    x-enum-varnames:
+    - TriggerSchedule
+    - TriggerEvent
+    - TriggerWebhook
+    - TriggerManual
+  do.BotType:
+    enum:
+    - chat
+    - moderate
+    - notify
+    - sync
+    - task
+    - webhook
+    - analysis
+    type: string
+    x-enum-varnames:
+    - BotTypeChat
+    - BotTypeModerate
+    - BotTypeNotify
+    - BotTypeSync
+    - BotTypeTask
+    - BotTypeWebhook
+    - BotTypeAnalysis
   do.PostStatus:
     enum:
     - draft
@@ -174,6 +274,13 @@ definitions:
     - PostStatusPending
     - PostStatusPublished
     - PostStatusHidden
+  do.ResourceLimit:
+    properties:
+      maxCPU:
+        type: integer
+      maxMemoryMB:
+        type: integer
+    type: object
   do.UpdateProfileInput:
     properties:
       avatar:
@@ -343,6 +450,88 @@ definitions:
     - title
     - type
     type: object
+  request.CreateBotRequest:
+    properties:
+      avatarUrl:
+        type: string
+      configSchema:
+        items:
+          $ref: '#/definitions/do.BotConfigField'
+        type: array
+      configValues:
+        additionalProperties: {}
+        type: object
+      cronExpr:
+        type: string
+      description:
+        type: string
+      envVars:
+        additionalProperties:
+          type: string
+        type: object
+      eventFilter:
+        type: string
+      homepageUrl:
+        type: string
+      name:
+        maxLength: 100
+        minLength: 1
+        type: string
+      permissions:
+        items:
+          $ref: '#/definitions/do.BotPermission'
+        type: array
+      pricing:
+        $ref: '#/definitions/do.BotPricing'
+      resourceLimit:
+        $ref: '#/definitions/do.ResourceLimit'
+      retryTimes:
+        type: integer
+      screenshots:
+        items:
+          type: string
+        type: array
+      scriptCode:
+        type: string
+      scriptUrl:
+        type: string
+      summary:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      timeoutSec:
+        maximum: 300
+        minimum: 1
+        type: integer
+      triggerType:
+        allOf:
+        - $ref: '#/definitions/do.BotTriggerType'
+        enum:
+        - schedule
+        - event
+        - webhook
+        - manual
+      type:
+        allOf:
+        - $ref: '#/definitions/do.BotType'
+        enum:
+        - chat
+        - moderate
+        - notify
+        - sync
+        - task
+        - webhook
+        - analysis
+      version:
+        type: string
+    required:
+    - name
+    - triggerType
+    - type
+    - version
+    type: object
   request.ListAnnouncements:
     properties:
       board_id:
@@ -447,6 +636,52 @@ definitions:
         - 1
         - 2
         - 3
+    type: object
+  request.UpdateBotRequest:
+    properties:
+      avatarUrl:
+        type: string
+      configSchema:
+        items:
+          $ref: '#/definitions/do.BotConfigField'
+        type: array
+      configValues:
+        additionalProperties: {}
+        type: object
+      cronExpr:
+        type: string
+      description:
+        type: string
+      enabled:
+        type: boolean
+      envVars:
+        additionalProperties:
+          type: string
+        type: object
+      eventFilter:
+        type: string
+      name:
+        type: string
+      permissions:
+        items:
+          $ref: '#/definitions/do.BotPermission'
+        type: array
+      pricing:
+        $ref: '#/definitions/do.BotPricing'
+      resourceLimit:
+        $ref: '#/definitions/do.ResourceLimit'
+      retryTimes:
+        type: integer
+      scriptCode:
+        type: string
+      scriptUrl:
+        type: string
+      summary:
+        type: string
+      timeoutSec:
+        type: integer
+      triggerType:
+        $ref: '#/definitions/do.BotTriggerType'
     type: object
   risk.resolveTaskInput:
     properties:
@@ -2020,7 +2255,7 @@ paths:
         name: file
         required: true
         type: file
-      - description: 业务类型：post_image / comment_file / avatar / plugin_asset
+      - description: 业务类型：post_image / comment_file / avatar / plugin
         in: formData
         name: type
         required: true
@@ -2120,7 +2355,7 @@ paths:
         in: query
         name: page_size
         type: integer
-      - description: 文件类型过滤 (post_image, comment_file, avatar, plugin_asset)
+      - description: 文件类型过滤 (post_image, comment_file, avatar, plugin)
         in: query
         name: file_type
         type: string
@@ -3181,6 +3416,339 @@ paths:
       summary: 获取板块树形结构
       tags:
       - 板块管理
+  /bots:
+    get:
+      consumes:
+      - application/json
+      description: 分页查询所有机器人
+      parameters:
+      - default: 1
+        description: 页码
+        example: 1
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: 每页条数
+        example: 20
+        in: query
+        name: pageSize
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回机器人列表及总数
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.BasicResponse'
+            - properties:
+                data:
+                  properties:
+                    list:
+                      type: array
+                    page:
+                      type: integer
+                    total:
+                      type: integer
+                  type: object
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 获取机器人列表
+      tags:
+      - 机器人管理
+    post:
+      consumes:
+      - application/json
+      description: 在指定板块下创建新的机器人
+      parameters:
+      - description: 板块ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 机器人创建信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateBotRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 创建成功，返回机器人ID
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.BasicResponse'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "400":
+          description: 请求参数错误（如板块ID无效、机器人信息不合法）
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+        "403":
+          description: 无权限（需要版主或管理员权限）
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+        "404":
+          description: 不存在
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 创建机器人
+      tags:
+      - 机器人管理
+  /bots/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: 删除指定机器人（只能删除自己的机器人）
+      parameters:
+      - description: 机器人ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 删除成功，返回空数据
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.BasicResponse'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+        "403":
+          description: 无权限（非本人机器人）
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+        "404":
+          description: 机器人不存在
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 删除机器人
+      tags:
+      - 机器人管理
+    get:
+      consumes:
+      - application/json
+      description: 根据ID获取机器人详细信息（公开信息，不需要鉴权？注意代码中未使用userID，但路由挂在Auth中间件下，实际仍需要认证）
+      parameters:
+      - description: 机器人ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回机器人视图对象（botVO）
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.BasicResponse'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+        "404":
+          description: 机器人不存在
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 获取机器人详情
+      tags:
+      - 机器人管理
+    put:
+      consumes:
+      - application/json
+      description: 更新指定机器人的配置信息（只能操作自己的机器人）
+      parameters:
+      - description: 机器人ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 机器人更新信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateBotRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 更新成功，返回空数据
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.BasicResponse'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+        "403":
+          description: 无权限（非本人机器人）
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+        "404":
+          description: 机器人不存在
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 更新机器人
+      tags:
+      - 机器人管理
+  /bots/{id}/run:
+    post:
+      consumes:
+      - application/json
+      description: 立即执行指定机器人脚本一次，可附带事件数据（可选）
+      parameters:
+      - description: 机器人ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 事件数据（任意JSON）
+        in: body
+        name: body
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 触发成功，返回message
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.BasicResponse'
+            - properties:
+                data:
+                  properties:
+                    message:
+                      type: string
+                  type: object
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+        "403":
+          description: 无权限（非本人机器人）
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+        "404":
+          description: 机器人不存在
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 手动触发机器人执行
+      tags:
+      - 机器人管理
+  /bots/user/me:
+    get:
+      consumes:
+      - application/json
+      description: 分页查询当前用户创建的所有机器人
+      parameters:
+      - default: 1
+        description: 页码
+        example: 1
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: 每页条数
+        example: 20
+        in: query
+        name: pageSize
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回机器人列表及总数
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.BasicResponse'
+            - properties:
+                data:
+                  properties:
+                    list:
+                      type: array
+                    page:
+                      type: integer
+                    total:
+                      type: integer
+                  type: object
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 获取我的机器人列表
+      tags:
+      - 机器人管理
   /comments:
     post:
       consumes:
@@ -3552,6 +4120,25 @@ paths:
       summary: 获取未读通知数量
       tags:
       - 通知管理
+  /pligins/delete:
+    get:
+      consumes:
+      - application/json
+      description: 删除插件
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+      summary: 删除插件
+      tags:
+      - plugin
   /plugins:
     get:
       consumes:
@@ -3617,6 +4204,25 @@ paths:
           schema:
             $ref: '#/definitions/common.BasicResponse'
       summary: 安装插件
+      tags:
+      - plugin
+  /plugins/user/me:
+    get:
+      consumes:
+      - application/json
+      description: 获取当前登录用户已安装（上传）的插件列表，通常是通过 author_id 查询
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+      summary: 当前用户安装的插件
       tags:
       - plugin
   /posts:
@@ -5214,7 +5820,7 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/common.BasicResponse'
-      summary: 当前用户安装的插件
+      summary: 获取用户发布的文章
       tags:
       - plugin
   /users/me/role:
