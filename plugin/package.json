@@ -1,12 +1,16 @@
 {
   "name": "my-plugin",
+  "type": "module",
   "scripts": {
     "build": "vite build"
   },
   "devDependencies": {
-    "vite": "^5.0.0",
-    "react": "^18.0.0",
-    "@types/react": "^18.0.0",
-    "typescript": "^5.0.0"
+    "@types/node": "^25.6.2",
+    "@types/react": "^19.0.0",
+    "@vitejs/plugin-react": "^6.0.1",
+    "react": "^19.0.0",
+    "rollup-plugin-copy": "^3.5.0",
+    "typescript": "^5.0.0",
+    "vite": "^8.0.11"
   }
 }
