@@ -141,6 +141,7 @@ type PluginMeta struct {
 	common.BaseModel
 	// 基础标识
 	Name        string   `json:"name" gorm:"type:varchar(100);not null;index:idx_name"`
+	Slug        string   `json:"slug" gorm:"type:varchar(100);not null;index:idx_slug"`
 	Version     string   `json:"version" gorm:"type:varchar(50);not null"`       // 插件版本
 	Description string   `json:"description" gorm:"type:text"`                   // 插件描述
 	Summary     string   `json:"summary,omitempty" gorm:"type:varchar(300)"`     // 一句话简介

@@ -59,6 +59,7 @@ func (r *pluginRepo) GetByID(ctx context.Context, id uint) (*do.PluginMeta, erro
 }
 
 func (r *pluginRepo) List(ctx context.Context, queryBO *common.PageQuery[do.PluginMeta]) ([]*do.PluginMeta, int64, error) {
+	logger.Infof("列出所有插件 %+v", queryBO)
 	db := r.db.WithContext(ctx).Model(&do.PluginMeta{})
 
 	// 软删除过滤

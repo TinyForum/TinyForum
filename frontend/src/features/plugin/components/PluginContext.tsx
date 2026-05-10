@@ -32,7 +32,6 @@ const PluginContext = createContext<PluginContextValue>({
 async function fetchEnabledPlugins(): Promise<PluginMeta[]> {
   try {
     const res = await fetch("/api/v1/plugins?enabled=true");
-    console.log("[PluginContext] fetchEnabledPlugins: HTTP", res.status);
 
     if (!res.ok) {
       console.warn("[PluginContext] fetchEnabledPlugins: HTTP", res.status);

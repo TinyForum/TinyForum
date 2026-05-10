@@ -126,7 +126,8 @@ export type PluginPermission =
 // ── 核心 PluginMeta ───────────────────────────────────────────────────────────
 export interface PluginMeta {
   // 基础标识
-  id: string;
+  // id: string;
+  slug: string;
   name: string;
   version: string;
   description: string;

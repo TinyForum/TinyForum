@@ -17,7 +17,7 @@ func (h *Handler) RegisterRoutes(api *gin.RouterGroup, mw middleware.MiddlewareS
 		// 上传插件
 		pluginGroup.POST("", h.UploadPlugin) // POST /api/v1/plugins 上传插件
 		// 获取所有插件
-		pluginGroup.GET("", h.ListMyPlugins) // GET /api/v1/plugins 获取所有插件
+		pluginGroup.GET("", h.ListPlugins) // GET /api/v1/plugins 获取所有插件
 		// 删除插件
 		pluginGroup.DELETE("/:id", h.DeletePlugin) // DELETE /api/v1/plugins/:id 删除插件
 

@@ -7,7 +7,7 @@ type ListPluginsRequest struct {
 	Keyword  string            `form:"keyword"`                 // 关键字
 	Status   string            `form:"status" default:"active"` // 插件状态
 	Tags     []string          `form:"tag"`                     // 标签名称
-	UserID   uint              `form:"user_id"`                 // 用户ID
+	AuthorID uint              `form:"author_id"`               // 用户ID
 	Type     string            `form:"type"`                    // 插件类型
 	Version  string            `form:"version"`                 // 插件版本
 	Category do.PluginCategory `json:"category"`                // 插件分类

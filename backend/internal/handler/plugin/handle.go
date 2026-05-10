@@ -7,6 +7,7 @@ import (
 	"tiny-forum/internal/model/request"
 	"tiny-forum/internal/service/plugin"
 	apperrors "tiny-forum/pkg/errors"
+	"tiny-forum/pkg/logger"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -40,9 +41,10 @@ func (h *Handler) ListPlugins(c *gin.Context) {
 		response.HandleError(c, err)
 		return
 	}
+	logger.Infof("ListPlugins request: %+v", req)
+	// userID := c.GetUint("user_id")
 
 	// 获取当前登录用户ID（中间件注入，类型为 uint）
-	UserID := c.GetUint("user_id")
 
 	// 构建分页查询对象 PageQuery[PluginQueryBO]
 	pageQuery := &bo.PageQuery[bo.PluginQueryBO]{
@@ -52,7 +54,8 @@ func (h *Handler) ListPlugins(c *gin.Context) {
 		Order:    req.Order,
 		Options: bo.PluginQueryBO{
 			Name:     req.Keyword,
-			AuthorID: UserID,
+			Slug:     req.Keyword,
+			AuthorID: req.AuthorID,
 			Category: req.Category,
 			Tags:     req.Tags,
 			Type:     req.Type,

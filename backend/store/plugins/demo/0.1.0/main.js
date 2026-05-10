@@ -79,7 +79,7 @@
       ],
     });
   }
-  var f = `14`;
+  var f = `demo`;
   window[`__plugin_${f}__`] = async function (t) {
     (t.getConfig().title,
       t.registerSlot(`sidebar-top`, () => e.default.createElement(d, {}), {
