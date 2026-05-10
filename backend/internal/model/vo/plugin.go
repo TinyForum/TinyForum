@@ -33,6 +33,7 @@ type PluginVO struct {
 // PluginMetaVO 插件元数据脱敏视图（对外暴露）
 type PluginMetaVO struct {
 	ID        uint      `json:"id"`
+	Slug      string    `json:"slug"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 

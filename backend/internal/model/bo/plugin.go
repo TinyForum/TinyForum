@@ -20,6 +20,7 @@ type PluginMeta struct {
 // PluginListBO 用于 Service 接收查询参数（不含业务返回字段）
 type PluginQueryBO struct {
 	Name     string            `json:"name"`
+	Slug     string            `json:"slug"`
 	AuthorID uint              `json:"authorId"`
 	Category do.PluginCategory `json:"category"`
 	Tags     []string          `json:"tags"`

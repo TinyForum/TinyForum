@@ -23,7 +23,7 @@ import (
 // PluginManifest 表示插件压缩包内 manifest.json 的结构
 type PluginManifest struct {
 	Name        string            `json:"name"`
-	ID          string            `json:"id"`
+	Slug        string            `json:"slug"`
 	Version     string            `json:"version"`
 	Description string            `json:"description"`
 	Type        do.PluginType     `json:"type"`
@@ -89,7 +89,7 @@ func (s *pluginService) Create(ctx context.Context, fileHeader *multipart.FileHe
 	}
 
 	// 5. 确定目标解压目录（格式：<storageBase>/<name>/<version>/）
-	targetDir := s.buildTargetDir(manifest.Name, manifest.Version)
+	targetDir := s.buildTargetDir(manifest.Slug, manifest.Version)
 
 	// 6. 解压插件文件到目标目录
 	if err := s.extractPluginFiles(tempZipPath, targetDir, manifestDir); err != nil {
@@ -301,10 +301,10 @@ func (s *pluginService) saveOrUpdatePluginMeta(
 	targetDir string,
 	userID uint,
 ) (*do.PluginMeta, error) {
-	logger.Infof("持久化插件元数据: name=%s version=%s", manifest.Name, manifest.Version)
+	logger.Infof("持久化插件元数据: id=%s name=%s version=%s", manifest.Slug, manifest.Name, manifest.Version)
 
-	// ScriptURL 格式：/store/plugins/<name>/<version>/<entry>
-	scriptURL := "/store/plugins/" + path.Join(manifest.Name, manifest.Version, manifest.Entry)
+	// ScriptURL 格式：/store/plugins/<id>/<version>/<entry>
+	scriptURL := "/store/plugins/" + path.Join(manifest.Slug, manifest.Version, manifest.Entry)
 
 	if existing != nil {
 		return s.overwritePluginMeta(ctx, existing, manifest, targetDir, scriptURL, userID)
@@ -358,6 +358,7 @@ func (s *pluginService) createPluginMeta(
 ) (*do.PluginMeta, error) {
 	pluginMeta := &do.PluginMeta{
 		Name:        manifest.Name,
+		Slug:        manifest.Slug,
 		Version:     manifest.Version,
 		Description: manifest.Description,
 		Type:        manifest.Type,

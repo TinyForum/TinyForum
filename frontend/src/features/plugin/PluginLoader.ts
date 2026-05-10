@@ -105,33 +105,38 @@ export async function loadPlugin(
   pluginRegistry.registerPlugin(meta);
   console.log(
     "[PluginLoader] Loading plugin: ",
-    "ID: ",
-    meta.id,
+    "Slug: ",
+    meta.slug,
     " Name: ",
     meta.name,
     " Version: ",
     meta.version,
+    "\n",
+    meta,
   );
 
   try {
-    const entryFn = await loadPluginScript(meta.scriptUrl, meta.id.toString());
+    const entryFn = await loadPluginScript(
+      meta.scriptUrl,
+      meta.slug.toString(),
+    );
 
     const api = createPluginAPI({
-      pluginId: meta.id,
+      pluginId: meta.slug,
       pluginName: meta.name,
       getUser: options.getUser,
     });
 
     await entryFn(api);
 
-    pluginRegistry.updatePluginStatus(meta.id, "active");
+    pluginRegistry.updatePluginStatus(meta.slug, "active");
     console.info(
-      `[PluginLoader] ✅ Plugin "${meta.id}" v${meta.version} loaded`,
+      `[PluginLoader] ✅ Plugin "${meta.slug}" v${meta.version} loaded`,
     );
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
-    pluginRegistry.updatePluginStatus(meta.id, "error", message);
-    console.error(`[PluginLoader] ❌ Plugin "${meta.name}" failed:`, message);
+    pluginRegistry.updatePluginStatus(meta.slug, "error", message);
+    console.error(`[PluginLoader] ❌ Plugin "${meta.slug}" failed:`, message);
   }
 }
 

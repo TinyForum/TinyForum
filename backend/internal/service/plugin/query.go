@@ -11,6 +11,7 @@ import (
 )
 
 func (s *pluginService) ListPlugins(ctx context.Context, queryBO *bo.PageQuery[bo.PluginQueryBO]) (*common.PageResult[vo.PluginMetaVO], error) {
+	logger.Infof("查询插件列表: %+v", queryBO)
 	// 1. 防御性检查
 	if queryBO == nil {
 		return nil, apperrors.ErrValidation
@@ -38,6 +39,7 @@ func (s *pluginService) ListPlugins(ctx context.Context, queryBO *bo.PageQuery[b
 	// 4. 构建 Repository 查询参数（内联转换，简洁清晰）
 	repoQuery := do.PluginMeta{
 		Name:     queryBO.Options.Name,
+		Slug:     queryBO.Options.Slug,
 		AuthorID: queryBO.Options.AuthorID,
 		Category: queryBO.Options.Category,
 		Tags:     queryBO.Options.Tags,
@@ -66,6 +68,7 @@ func (s *pluginService) ListPlugins(ctx context.Context, queryBO *bo.PageQuery[b
 	for _, p := range plugins {
 		vos = append(vos, vo.PluginMetaVO{
 			ID:            p.ID,
+			Slug:          p.Slug,
 			CreatedAt:     p.CreatedAt,
 			UpdatedAt:     p.UpdatedAt,
 			Name:          p.Name,
