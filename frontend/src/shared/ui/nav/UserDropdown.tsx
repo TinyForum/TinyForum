@@ -286,6 +286,7 @@ export default function UserDropdown({ user }: UserDropdownProps) {
                                       />
                                     </div>
                                   </div>
+                                  {/* 用户信息 */}
                                   <div className="flex-1 min-w-0">
                                     <p className="text-base-content font-semibold truncate">
                                       {user?.username}
@@ -293,18 +294,24 @@ export default function UserDropdown({ user }: UserDropdownProps) {
                                     <p className="text-xs text-base-content/60 truncate">
                                       {user?.email}
                                     </p>
-                                    {user.role !== "user" && (
+                                    {/* 用户角色 */}
+                                    {user.role !== "user" && ( // 不是普通用户
                                       <span
                                         className={`badge badge-xs mt-1.5 p-2 text-white ${
-                                          user?.role === "super_admin"
+                                          user?.role === "super_admin" // 超级管理员
                                             ? "badge-error"
-                                            : user?.role === "admin"
+                                            : user?.role === "admin" // 管理员
                                               ? "badge-warning"
-                                              : user?.role === "moderator"
+                                              : user?.role === "moderator" // 管理员
                                                 ? "badge-secondary"
-                                                : user?.role === "reviewer"
+                                                : user?.role === "reviewer" // 审核者
                                                   ? "badge-accent"
-                                                  : "badge-ghost"
+                                                  : user?.role ===
+                                                      "system_maintainer" // 系统维护者
+                                                    ? "badge-success"
+                                                    : user?.role === "member"
+                                                      ? "badge-base-500"
+                                                      : "badge-base-200"
                                         }`}
                                       >
                                         {t(`role.${user.role}`)}

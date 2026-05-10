@@ -1,41 +1,48 @@
+// src/features/plugin/PluginLoader.ts
 import { createPluginAPI } from "./PluginAPI";
 import { pluginRegistry } from "./PluginRegistry";
 import { PluginEntryFn, PluginMeta } from "@/shared/type/plugin.type";
 
 interface LoaderOptions {
   getUser: () => { id: string; username: string; role: string } | null;
-  // getLocale: () => string;
 }
+
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-window.React = React;
-window.ReactDOM = ReactDOM;
+
+// 仅在客户端环境下挂载 React 到 window，避免 SSR 报错
+if (typeof window !== "undefined") {
+  window.React = React;
+  window.ReactDOM = ReactDOM;
+}
 
 const LOAD_TIMEOUT = 10_000;
 
-// ── window 类型扩展，允许动态键访问 ──────────────────────────────────────────
-// 解决 TypeScript "Element implicitly has an 'any' type" 错误
 declare global {
   interface Window {
     [key: string]: unknown;
   }
 }
 
-async function loadPluginScript(
+export async function loadPluginScript(
   scriptUrl: string,
   pluginId: string,
 ): Promise<PluginEntryFn> {
-  // window 的 key 规则：插件 id 中的 "-" 替换为 "_"
+  // 确保在客户端运行
+  if (typeof window === "undefined" || typeof document === "undefined") {
+    throw new Error(
+      "loadPluginScript can only be called in browser environment",
+    );
+  }
+
   const windowKey = `__plugin_${pluginId.replace(/-/g, "_")}__`;
   console.log(`Loading plugin "${pluginId}" from "${scriptUrl}"...`);
 
   return new Promise((resolve, reject) => {
-    // 防止重复加载
     const existingScript = document.getElementById(`plugin-script-${pluginId}`);
     if (existingScript) {
       const fn = window[windowKey] as PluginEntryFn | undefined;
       if (typeof fn === "function") return resolve(fn);
-      // 脚本存在但函数未挂载，说明上次加载失败，移除旧标签重试
       existingScript.remove();
     }
 
@@ -89,6 +96,12 @@ export async function loadPlugin(
   meta: PluginMeta,
   options: LoaderOptions,
 ): Promise<void> {
+  // SSR 环境下直接返回，不执行加载逻辑
+  if (typeof window === "undefined") {
+    console.info("[PluginLoader] Skipping plugin load on server side");
+    return;
+  }
+
   pluginRegistry.registerPlugin(meta);
   console.log(
     "[PluginLoader] Loading plugin: ",
@@ -126,7 +139,12 @@ export async function loadPlugins(
   plugins: PluginMeta[],
   options: LoaderOptions,
 ): Promise<void> {
-  // 防御：确保传入的是数组
+  // SSR 环境下直接返回
+  if (typeof window === "undefined") {
+    console.info("[PluginLoader] Skipping plugins load on server side");
+    return;
+  }
+
   if (!Array.isArray(plugins)) {
     console.error(
       "[PluginLoader] loadPlugins: expected PluginMeta[], got:",
@@ -142,19 +160,22 @@ export async function loadPlugins(
     `[PluginLoader] Loading ${enabledPlugins.length}/${plugins.length} enabled plugins`,
   );
 
-  // 并行加载，单个失败不阻塞其他
   await Promise.allSettled(
     enabledPlugins.map((meta) => loadPlugin(meta, options)),
   );
 }
 
 export function unloadPlugin(pluginId: string): void {
+  if (typeof window === "undefined") {
+    console.warn("[PluginLoader] Cannot unload plugin on server side");
+    return;
+  }
+
   pluginRegistry.unregisterPlugin(pluginId);
 
   const script = document.getElementById(`plugin-script-${pluginId}`);
   if (script) script.remove();
 
-  // 清理 window 挂载（使用扩展后的类型，无需类型断言）
   const windowKey = `__plugin_${pluginId.replace(/-/g, "_")}__`;
   delete window[windowKey];
 

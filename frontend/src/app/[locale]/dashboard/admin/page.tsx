@@ -19,6 +19,7 @@ import { usePostsData } from "@/features/admin/hooks/usePostsData";
 import { useQAData } from "@/features/admin/hooks/useQAData";
 import { useUsersData } from "@/features/admin/hooks/useUsersData";
 import { UserDO } from "@/shared/api/types/user.model";
+import { BotManager } from "@/features/bot/components/BotManager";
 
 // 导入类型
 
@@ -93,6 +94,8 @@ export default function AdminPage() {
       case "tasks":
         return <AdminTasks />;
 
+      case "bot":
+        return <BotManager />;
       case "announcements":
         return <AnnouncementsManager t={t} />;
 
