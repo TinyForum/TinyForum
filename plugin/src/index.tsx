@@ -3,9 +3,8 @@ import { MyWidget } from "./Widget";
 import { PluginAPI } from "./PLUGIN.type";
 
 
-const pluginId = __PLUGIN_ID__;
-window[`__plugin_${pluginId}__`] = async function (api: PluginAPI) {
-// window.__plugin_my_plugin__ = 
+const pluginSlug = __PLUGIN_SLUG__;
+window[`__plugin_${pluginSlug}__`] = async function (api: PluginAPI) {
   // 1. 读取管理员配置的值
   const config = api.getConfig();
   const title = (config.title as string) || "我的插件";

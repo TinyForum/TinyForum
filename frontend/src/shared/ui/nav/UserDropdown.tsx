@@ -230,6 +230,23 @@ export default function UserDropdown({ user }: UserDropdownProps) {
     },
   ];
 
+  // 角色样式映射表
+  const roleBadgeConfig: Record<string, string> = {
+    super_admin: "badge-error",
+    admin: "badge-warning",
+    moderator: "badge-secondary",
+    reviewer: "badge-accent",
+    system_maintainer: "badge-success",
+    member: "badge-base-500",
+    // 默认
+    default: "badge-base-200",
+  };
+
+  // 辅助函数：获取角色的徽章样式类名
+  const getRoleBadgeClass = (role?: string): string => {
+    if (!role) return roleBadgeConfig.default;
+    return roleBadgeConfig[role] || roleBadgeConfig.default;
+  };
   return (
     <div className="relative ">
       <Menu>
@@ -297,24 +314,9 @@ export default function UserDropdown({ user }: UserDropdownProps) {
                                     {/* 用户角色 */}
                                     {user.role !== "user" && ( // 不是普通用户
                                       <span
-                                        className={`badge badge-xs mt-1.5 p-2 text-white ${
-                                          user?.role === "super_admin" // 超级管理员
-                                            ? "badge-error"
-                                            : user?.role === "admin" // 管理员
-                                              ? "badge-warning"
-                                              : user?.role === "moderator" // 管理员
-                                                ? "badge-secondary"
-                                                : user?.role === "reviewer" // 审核者
-                                                  ? "badge-accent"
-                                                  : user?.role ===
-                                                      "system_maintainer" // 系统维护者
-                                                    ? "badge-success"
-                                                    : user?.role === "member"
-                                                      ? "badge-base-500"
-                                                      : "badge-base-200"
-                                        }`}
+                                        className={`badge badge-xs mt-1.5 p-2 text-white ${getRoleBadgeClass(user?.role)}`}
                                       >
-                                        {t(`role.${user.role}`)}
+                                        {t(`role.${user?.role}`)}
                                       </span>
                                     )}
                                   </div>
