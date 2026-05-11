@@ -1,0 +1,71 @@
+// package bot
+
+// import (
+// 	"strconv"
+// 	"tiny-forum/internal/model/request"
+// 	"tiny-forum/pkg/response"
+
+// 	"github.com/gin-gonic/gin"
+// )
+
+// // GetNocodeMetadata 获取零代码编辑器所需的内置节点元数据
+// // @Summary 获取零代码节点元数据
+// // @Description 返回所有内置 Trigger / Condition / Action 的类型、参数定义，供前端编辑器渲染使用
+// // @Tags 机器人管理
+// // @Produce json
+// // @Security ApiKeyAuth
+// // @Success 200 {object} common.BasicResponse{data=nocode.NocodeMetadata}
+// // @Router /bots/nocode/metadata [get]
+// func (h *Handler) GetNocodeMetadata(c *gin.Context) {
+// 	meta := h.svc.GetNocodeMetadata()
+// 	response.Success(c, meta)
+// }
+
+// // ValidateFlow 校验零代码流程配置
+// // @Summary 校验零代码流程
+// // @Description 提交 Flow JSON，校验格式与节点合法性，不实际执行
+// // @Tags 机器人管理
+// // @Accept json
+// // @Produce json
+// // @Security ApiKeyAuth
+// // @Param body body request.ValidateFlowRequest true "Flow 配置"
+// // @Success 200 {object} common.BasicResponse{data=object{valid=bool,errors=array}}
+// // @Router /bots/nocode/validate [post]
+// func (h *Handler) ValidateFlow(c *gin.Context) {
+// 	var req request.ValidateFlowRequest
+// 	if err := c.ShouldBindJSON(&req); err != nil {
+// 		response.BadRequest(c, err.Error())
+// 		return
+// 	}
+// 	errs := h.svc.ValidateFlow(&req.Flow)
+// 	if len(errs) > 0 {
+// 		msgs := make([]string, len(errs))
+// 		for i, e := range errs {
+// 			msgs[i] = e.Error()
+// 		}
+// 		response.Success(c, gin.H{"valid": false, "errors": msgs})
+// 		return
+// 	}
+// 	response.Success(c, gin.H{"valid": true, "errors": []string{}})
+// }
+
+// // RunNowWithEvent 手动触发（附带完整事件）
+// func (h *Handler) RunNowWithEvent(c *gin.Context) {
+// 	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+// 	var event map[string]any
+// 	_ = c.ShouldBindJSON(&event)
+// 	if event == nil {
+// 		event = map[string]any{}
+// 	}
+// 	err := h.svc.RunNow(c.Request.Context(), uint(id), event)
+// 	if err != nil {
+// 		response.HandleError(c, err)
+// 		return
+// 	}
+// 	response.Success(c, gin.H{"message": "triggered"})
+// }
+
+// // Handler 扩展（原 Handler 已有 svc 字段，直接用）
+// // var _ botservice.Service = (*botservice.ServiceImpl)(nil) // 编译期检查
+
+package bot

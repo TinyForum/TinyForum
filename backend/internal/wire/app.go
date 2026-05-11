@@ -7,6 +7,9 @@
 package wire
 
 import (
+	"fmt"
+	initdata "tiny-forum/init"
+	"tiny-forum/internal/botapi"
 	"tiny-forum/internal/infra/config"
 	"tiny-forum/internal/job"
 	"tiny-forum/internal/middleware"
@@ -49,9 +52,27 @@ func InitApp(cfg *config.Config) (*App, error) {
 
 	// 4. 数据仓库层
 	repos := NewRepositories(db, infra.RedisClient)
+	// api
+	bot, err := initdata.InitDefaultBot(db) // 调用上面的函数
+	if err != nil {
+		return nil, fmt.Errorf("init default bot: %w", err)
+	}
+
+	// 6. 创建 ForumAPI（使用上面得到的 bot 实例）
+	forumAPI := botapi.NewForumAPI(
+		bot.ID, // *do.Bot
+		// int64(bot.BaseModel.ID), // botActorID
+		repos.Post,
+		repos.Comment,
+		repos.User,
+		// repos.
+		// repos.Message, // 确保 repos.Message 存在且类型正确
+		repos.Notification,
+		// repos.Stats,
+	)
 
 	// 5. 服务层
-	services := NewServices(cfg, jwtMgr, repos, infra, userStorage, pluginsStorage, registry)
+	services := NewServices(cfg, jwtMgr, repos, infra, userStorage, pluginsStorage, registry, forumAPI)
 	services.Bot.StartScheduler()
 
 	// 6. 辅助工具

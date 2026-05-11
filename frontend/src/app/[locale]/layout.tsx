@@ -7,7 +7,6 @@ import "../styles/globals.css";
 import Providers from "@/layout/layout/Providers";
 import AuthProvider from "@/layout/providers/AuthProvider";
 import Navbar from "@/shared/ui/nav/Navbar";
-import { PluginProvider } from "@/features/plugin/components/PluginContext";
 import { InnerProviders } from "@/features/plugin/components/Providers";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });

@@ -1,7 +1,6 @@
 import { CheckCircle2 } from "lucide-react";
 import { useState } from "react";
 import { useUpload } from "../hooks/useUpload";
-import { usePluginsContext } from "./PluginContext";
 import { useAdminPlugins } from "../useAdminPlugins";
 
 export function UploadPluginTab() {

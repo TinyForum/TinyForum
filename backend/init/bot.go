@@ -7,17 +7,18 @@ import (
 	"gorm.io/gorm"
 )
 
-// InitDefaultBot 在数据库迁移后调用，确保系统默认机器人存在
-func InitDefaultBot(db *gorm.DB) error {
+// InitDefaultBot 确保系统默认机器人存在，并返回该机器人实例
+func InitDefaultBot(db *gorm.DB) (*do.Bot, error) {
 	var bot do.Bot
 	err := db.First(&bot, do.SystemBotID).Error
 	if err == nil {
-		return nil
+		return &bot, nil
 	}
 	if !errors.Is(err, gorm.ErrRecordNotFound) {
-		return err
+		return nil, err
 	}
 
+	// 记录不存在，创建默认机器人
 	defaultBot := do.DefaultSystemBot
 
 	// 初始化所有 JSON 字段为非 nil
@@ -39,8 +40,10 @@ func InitDefaultBot(db *gorm.DB) error {
 	if defaultBot.ConfigValues == nil {
 		defaultBot.ConfigValues = make(map[string]any)
 	}
-	// ResourceLimit 可以为 nil，但 JSON 序列化会变成 null，PostgreSQL 可能接受
-	// 如有必要，可赋值空对象，但建议保持 nil 并观察
 
-	return db.Create(defaultBot).Error
+	// 创建记录（注意 Create 传入指针）
+	if err := db.Create(&defaultBot).Error; err != nil {
+		return nil, err
+	}
+	return defaultBot, nil
 }

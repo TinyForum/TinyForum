@@ -1,7 +1,6 @@
 import {
   Award,
   BarChart3,
-  Bell,
   Bot,
   ChevronLeft,
   ChevronRight,

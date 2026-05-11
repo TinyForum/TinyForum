@@ -1,20 +1,33 @@
+// Package bot 提供机器人业务逻辑服务。
+// 两种执行路径：
+//   - Lua 脚本：bot.ScriptCode != "" → LuaSandbox.ExecuteWithAPI
+//   - 零代码：bot.ConfigValues["flow"] 存在 → FlowEngine.Run
 package bot
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"time"
-	luaengine "tiny-forum/internal/infra/lua"
+
+	"tiny-forum/internal/botapi"
+	luaengine "tiny-forum/internal/infra/lua/lua"
+	"tiny-forum/internal/infra/lua/nocode"
 	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/request"
 	"tiny-forum/internal/model/vo"
-	"tiny-forum/internal/repository/bot"
+	botrepo "tiny-forum/internal/repository/bot"
+	commentrepo "tiny-forum/internal/repository/comment"
+	notificationrepo "tiny-forum/internal/repository/notification"
+	postrepo "tiny-forum/internal/repository/post"
+	userrepo "tiny-forum/internal/repository/user"
 
 	"github.com/robfig/cron/v3"
-	lua "github.com/yuin/gopher-lua"
 	"gorm.io/gorm"
 )
+
+// ─── Service 接口 ─────────────────────────────────────────────────────────
 
 type Service interface {
 	Create(ctx context.Context, creatorID uint, req *request.CreateBotRequest) (*do.Bot, error)
@@ -24,44 +37,82 @@ type Service interface {
 	ListByUser(ctx context.Context, userID uint, page, pageSize int) ([]*vo.BotResponse, int64, error)
 	List(ctx context.Context, page, pageSize int) ([]*vo.BotResponse, int64, error)
 	RunNow(ctx context.Context, botID uint, eventData map[string]any) error
-	StartScheduler() // 启动后台调度器
+
+	// 零代码支持
+	GetNocodeMetadata() *nocode.NocodeMetadata
+	ValidateFlow(flow *nocode.Flow) []error
+
+	// 事件总线（其他 service 发布事件触发机器人）
+	PublishEvent(eventName string, data map[string]any)
+
+	// 调度器生命周期
+	StartScheduler()
 	StopScheduler()
 }
 
+// ─── service 实现 ─────────────────────────────────────────────────────────
+
 type service struct {
-	repo     bot.Repository
-	sandbox  *luaengine.LuaSandbox
-	cron     *cron.Cron
-	eventBus *EventBus // 自定义事件总线，简单实现见下方
-	// db       *gorm.DB
+	repo        botrepo.Repository
+	sandbox     *luaengine.LuaSandbox
+	cron        *cron.Cron
+	eventBus    *EventBus
+	postRepo    postrepo.PostRepository
+	commentRepo commentrepo.CommentRepository
+	userRepo    userrepo.UserRepository
+	notifRepo   notificationrepo.NotificationRepository
 }
 
-func NewService(repo bot.Repository) Service {
-	s := &service{
-		repo:     repo,
-		sandbox:  luaengine.NewLuaSandbox(10),
-		cron:     cron.New(),
-		eventBus: NewEventBus(),
-		// db:       db,
+// NewService 创建 bot Service。依赖现有各 repository，由 wire/service.go 注入。
+func NewService(
+	repo botrepo.Repository,
+	postRepo postrepo.PostRepository,
+	commentRepo commentrepo.CommentRepository,
+	userRepo userrepo.UserRepository,
+	notifRepo notificationrepo.NotificationRepository,
+) Service {
+	return &service{
+		repo:        repo,
+		sandbox:     luaengine.NewLuaSandbox(30, []string{"0.0.0.0", "127.0.0.1"}),
+		cron:        cron.New(),
+		eventBus:    NewEventBus(),
+		postRepo:    postRepo,
+		commentRepo: commentRepo,
+		userRepo:    userRepo,
+		notifRepo:   notifRepo,
 	}
-	return s
 }
 
-// Create 创建机器人
+// ─── CRUD ─────────────────────────────────────────────────────────────────
+
 func (s *service) Create(ctx context.Context, creatorID uint, req *request.CreateBotRequest) (*do.Bot, error) {
-	// 获取创建者名称（略，假设通过 repo 获取 user）
+	// 零代码模式：预先校验 Flow JSON
+	if req.ScriptCode == "" && req.ConfigValues != nil {
+		if flowRaw, ok := req.ConfigValues["flow"]; ok {
+			if errs := s.ValidateFlow(parseFlowRaw(flowRaw)); len(errs) > 0 {
+				return nil, fmt.Errorf("invalid nocode flow: %v", errs[0])
+			}
+		}
+	}
+
+	// 查询创建者用户名
+	creatorName := "user"
+	if u, err := s.userRepo.FindByID(creatorID); err == nil {
+		creatorName = u.Username
+	}
+
 	bot := &do.Bot{
 		Name:          req.Name,
 		Version:       req.Version,
 		Description:   req.Description,
 		Summary:       req.Summary,
 		AvatarURL:     req.AvatarURL,
-		Screenshots:   req.Screenshots,
+		Screenshots:   orStrSlice(req.Screenshots),
 		HomepageURL:   req.HomepageURL,
 		Type:          req.Type,
-		Tags:          req.Tags,
+		Tags:          orStrSlice(req.Tags),
 		CreatorID:     creatorID,
-		CreatorName:   "user", // 实际需查询用户表
+		CreatorName:   creatorName,
 		ScriptCode:    req.ScriptCode,
 		ScriptURL:     req.ScriptURL,
 		TriggerType:   req.TriggerType,
@@ -69,14 +120,14 @@ func (s *service) Create(ctx context.Context, creatorID uint, req *request.Creat
 		EventFilter:   req.EventFilter,
 		TimeoutSec:    req.TimeoutSec,
 		RetryTimes:    req.RetryTimes,
-		EnvVars:       req.EnvVars,
+		EnvVars:       orStrMap(req.EnvVars),
 		ResourceLimit: req.ResourceLimit,
 		Pricing:       req.Pricing,
 		Permissions:   req.Permissions,
 		Enabled:       false,
 		Status:        do.BotStatusInactive,
 		ConfigSchema:  req.ConfigSchema,
-		ConfigValues:  req.ConfigValues,
+		ConfigValues:  orAnyMap(req.ConfigValues),
 	}
 	if bot.TimeoutSec == 0 {
 		bot.TimeoutSec = 10
@@ -87,7 +138,6 @@ func (s *service) Create(ctx context.Context, creatorID uint, req *request.Creat
 	return bot, nil
 }
 
-// Update 更新机器人（仅允许自己创建的）
 func (s *service) Update(ctx context.Context, userID uint, botID uint, req *request.UpdateBotRequest) error {
 	bot, err := s.repo.GetByID(ctx, botID)
 	if err != nil {
@@ -96,15 +146,59 @@ func (s *service) Update(ctx context.Context, userID uint, botID uint, req *requ
 	if bot.CreatorID != userID {
 		return errors.New("permission denied")
 	}
+
 	updates := make(map[string]interface{})
-	// 字段映射略（可根据 req 非空指针填充）
 	if req.Name != nil {
 		updates["name"] = *req.Name
 	}
 	if req.Description != nil {
 		updates["description"] = *req.Description
 	}
-	// ... 其他字段类似
+	if req.Summary != nil {
+		updates["summary"] = *req.Summary
+	}
+	if req.AvatarURL != nil {
+		updates["avatar_url"] = *req.AvatarURL
+	}
+	if req.ScriptCode != nil {
+		updates["script_code"] = *req.ScriptCode
+	}
+	if req.ScriptURL != nil {
+		updates["script_url"] = *req.ScriptURL
+	}
+	if req.TriggerType != nil {
+		updates["trigger_type"] = *req.TriggerType
+	}
+	if req.CronExpr != nil {
+		updates["cron_expr"] = *req.CronExpr
+	}
+	if req.EventFilter != nil {
+		updates["event_filter"] = *req.EventFilter
+	}
+	if req.TimeoutSec != nil {
+		updates["timeout_sec"] = *req.TimeoutSec
+	}
+	if req.RetryTimes != nil {
+		updates["retry_times"] = *req.RetryTimes
+	}
+	if req.EnvVars != nil {
+		updates["env_vars"] = req.EnvVars
+	}
+	if req.ResourceLimit != nil {
+		updates["resource_limit"] = req.ResourceLimit
+	}
+	if req.Pricing != nil {
+		updates["pricing"] = req.Pricing
+	}
+	if req.Permissions != nil {
+		updates["permissions"] = req.Permissions
+	}
+	if req.ConfigSchema != nil {
+		updates["config_schema"] = req.ConfigSchema
+	}
+	if req.ConfigValues != nil {
+		updates["config_values"] = req.ConfigValues
+	}
 	if req.Enabled != nil {
 		updates["enabled"] = *req.Enabled
 		if *req.Enabled {
@@ -132,23 +226,29 @@ func (s *service) Get(ctx context.Context, id uint) (*vo.BotResponse, error) {
 	if err != nil {
 		return nil, err
 	}
-	return s.toResponse(bot), nil
+	return toResponse(bot), nil
 }
 
-// func (s *service) ListByUser(ctx context.Context, userID uint, page, pageSize int) ([]*vo.BotResponse, int64, error) {
-// 	offset := (page - 1) * pageSize
-// 	bots, total, err := s.repo.List(ctx, userID, offset, pageSize)
-// 	if err != nil {
-// 		return nil, 0, err
-// 	}
-// 	var res []*vo.BotResponse
-// 	for _, b := range bots {
-// 		res = append(res, s.toResponse(b))
-// 	}
-// 	return res, total, nil
-// }
+func (s *service) ListByUser(ctx context.Context, userID uint, page, pageSize int) ([]*vo.BotResponse, int64, error) {
+	offset := (page - 1) * pageSize
+	bots, total, err := s.repo.ListByUser(ctx, userID, offset, pageSize)
+	if err != nil {
+		return nil, 0, err
+	}
+	return mapToResponse(bots), total, nil
+}
 
-// RunNow 手动执行机器人
+func (s *service) List(ctx context.Context, page, pageSize int) ([]*vo.BotResponse, int64, error) {
+	offset := (page - 1) * pageSize
+	bots, total, err := s.repo.List(ctx, offset, pageSize)
+	if err != nil {
+		return nil, 0, err
+	}
+	return mapToResponse(bots), total, nil
+}
+
+// ─── 执行 ─────────────────────────────────────────────────────────────────
+
 func (s *service) RunNow(ctx context.Context, botID uint, eventData map[string]any) error {
 	bot, err := s.repo.GetByID(ctx, botID)
 	if err != nil {
@@ -162,30 +262,55 @@ func (s *service) RunNow(ctx context.Context, botID uint, eventData map[string]a
 }
 
 func (s *service) executeBot(bot *do.Bot, eventData map[string]any) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(bot.TimeoutSec+10)*time.Second)
+	defer cancel()
+
 	start := time.Now()
 	var execErr error
-	var output interface{}
+	var logs []string
 
-	// 准备 API 回调（需根据机器人权限包装）
-	apiCallbacks := map[string]interface{}{
-		"getPost":   s.makeGetPostCallback(bot),
-		"replyPost": s.makeReplyPostCallback(bot),
+	// 构造 ForumAPI（每次执行隔离，携带权限列表）
+	perms := make([]string, len(bot.Permissions))
+	for i, p := range bot.Permissions {
+		perms[i] = string(p)
+	}
+	api := botapi.NewForumAPI(do.SystemBotID, s.postRepo, s.commentRepo, s.userRepo, s.notifRepo)
+
+	if bot.ScriptCode != "" {
+		// ── Lua 脚本 ──────────────────────────────────────────────────
+		result := s.sandbox.Execute(ctx, bot, api, eventData)
+		execErr = result.Err
+		logs = result.Logs
+
+	} else if flowRaw, ok := bot.ConfigValues["flow"]; ok {
+		// ── 零代码流程 ────────────────────────────────────────────────
+		flow := parseFlowRaw(flowRaw)
+		if flow == nil {
+			execErr = errors.New("invalid flow configuration")
+		} else {
+			engine := nocode.NewFlowEngine(api)
+			fctx, err := engine.Run(ctx, flow, eventData)
+			if fctx != nil {
+				logs = fctx.Logs
+			}
+			execErr = err
+		}
+	} else {
+		execErr = errors.New("bot has neither script_code nor nocode flow")
 	}
 
-	result, err := s.sandbox.Execute(bot.ScriptCode, bot.ConfigValues, eventData, apiCallbacks)
-	execErr = err
-	output = result
-
 	duration := time.Since(start).Milliseconds()
-	// 记录执行日志
-	s.recordLog(bot.ID, execErr == nil, duration, fmt.Sprintf("%v", output), execErr)
+	s.recordLog(bot.ID, execErr == nil, duration, logs, execErr)
+
+	// 更新 bot 状态
+	bgCtx := context.Background()
 	if execErr != nil {
-		s.repo.Update(context.Background(), bot.ID, map[string]interface{}{
+		_ = s.repo.Update(bgCtx, bot.ID, map[string]interface{}{
 			"status":    do.BotStatusError,
 			"error_msg": execErr.Error(),
 		})
 	} else {
-		s.repo.Update(context.Background(), bot.ID, map[string]interface{}{
+		_ = s.repo.Update(bgCtx, bot.ID, map[string]interface{}{
 			"exec_count":   gorm.Expr("exec_count + 1"),
 			"last_exec_at": time.Now(),
 			"status":       do.BotStatusActive,
@@ -194,71 +319,70 @@ func (s *service) executeBot(bot *do.Bot, eventData map[string]any) {
 	}
 }
 
-func (s *service) recordLog(botID uint, success bool, duration int64, output string, err error) {
-	// 实际应写入数据库表 bot_execution_logs
-	// 此处省略具体存储
-}
-
-func (s *service) toResponse(bot *do.Bot) *vo.BotResponse {
-	return &vo.BotResponse{
-		ID:            bot.ID,
-		Name:          bot.Name,
-		Version:       bot.Version,
-		Description:   bot.Description,
-		Summary:       bot.Summary,
-		AvatarURL:     bot.AvatarURL,
-		Screenshots:   bot.Screenshots,
-		HomepageURL:   bot.HomepageURL,
-		Type:          bot.Type,
-		Tags:          bot.Tags,
-		CreatorID:     bot.CreatorID,
-		CreatorName:   bot.CreatorName,
-		TriggerType:   bot.TriggerType,
-		CronExpr:      bot.CronExpr,
-		EventFilter:   bot.EventFilter,
-		TimeoutSec:    bot.TimeoutSec,
-		RetryTimes:    bot.RetryTimes,
-		ResourceLimit: bot.ResourceLimit,
-		Pricing:       bot.Pricing,
-		Permissions:   bot.Permissions,
-		Enabled:       bot.Enabled,
-		Status:        bot.Status,
-		ExecCount:     bot.ExecCount,
-		LastExecAt:    bot.LastExecAt,
-		ErrorMsg:      bot.ErrorMsg,
-		ConfigSchema:  bot.ConfigSchema,
-		ConfigValues:  bot.ConfigValues,
-		CreatedAt:     bot.CreatedAt,
-		UpdatedAt:     bot.UpdatedAt,
+func (s *service) recordLog(botID uint, success bool, durationMs int64, logs []string, err error) {
+	// TODO: 写入 bot_execution_logs 表
+	status := "success"
+	errMsg := ""
+	if !success {
+		status = "fail"
+		if err != nil {
+			errMsg = err.Error()
+		}
 	}
+	fmt.Printf("[BotLog] bot=%d status=%s duration=%dms logs=%d err=%s\n",
+		botID, status, durationMs, len(logs), errMsg)
 }
 
-// 启动调度器：从数据库加载所有 enabled bots 并注册 cron/event
+// ─── 零代码 ───────────────────────────────────────────────────────────────
+
+func (s *service) GetNocodeMetadata() *nocode.NocodeMetadata {
+	return &nocode.NocodeMetadata{}
+}
+
+func (s *service) ValidateFlow(flow *nocode.Flow) []error {
+	if flow == nil {
+		return []error{errors.New("flow is nil")}
+	}
+	var errs []error
+	if flow.Trigger.Type == "" {
+		errs = append(errs, errors.New("trigger.type is required"))
+	}
+	if len(flow.Actions) == 0 {
+		errs = append(errs, errors.New("at least one action is required"))
+	}
+	return errs
+}
+
+// ─── 调度器 ───────────────────────────────────────────────────────────────
+
 func (s *service) StartScheduler() {
 	ctx := context.Background()
 	bots, err := s.repo.ListActive(ctx)
 	if err != nil {
+		fmt.Println("[Scheduler] ListActive error:", err)
 		return
 	}
 	for _, bot := range bots {
 		s.registerBot(bot)
 	}
 	s.cron.Start()
+	fmt.Printf("[Scheduler] 启动，已注册 %d 个机器人\n", len(bots))
 }
 
 func (s *service) registerBot(bot *do.Bot) {
 	switch bot.TriggerType {
 	case do.TriggerSchedule:
 		if bot.CronExpr != "" {
-			s.cron.AddFunc(bot.CronExpr, func() {
-				s.executeBot(bot, nil)
-			})
+			b := bot
+			_, err := s.cron.AddFunc(bot.CronExpr, func() { s.executeBot(b, nil) })
+			if err != nil {
+				fmt.Printf("[Scheduler] bot=%d cron='%s' 注册失败: %v\n", bot.ID, bot.CronExpr, err)
+			}
 		}
 	case do.TriggerEvent:
 		if bot.EventFilter != "" {
-			s.eventBus.Subscribe(bot.EventFilter, func(data map[string]any) {
-				s.executeBot(bot, data)
-			})
+			b := bot
+			s.eventBus.Subscribe(bot.EventFilter, func(data map[string]any) { s.executeBot(b, data) })
 		}
 	}
 }
@@ -267,7 +391,8 @@ func (s *service) StopScheduler() {
 	s.cron.Stop()
 }
 
-// 简单事件总线实现
+// ─── EventBus ─────────────────────────────────────────────────────────────
+
 type EventBus struct {
 	subscribers map[string][]func(map[string]any)
 }
@@ -286,28 +411,75 @@ func (e *EventBus) Publish(event string, data map[string]any) {
 	}
 }
 
-// 回调函数示例（需权限检查）
-func (s *service) makeGetPostCallback(bot *do.Bot) func(*lua.LState) int {
-	return func(L *lua.LState) int {
-		postID := L.CheckInt64(1)
-		// 检查权限：是否包含 read:posts
-		// 模拟返回一个表
-		tbl := L.NewTable()
-		tbl.RawSetString("id", lua.LNumber(postID))
-		tbl.RawSetString("title", lua.LString("demo post"))
-		L.Push(tbl)
-		return 1
+func (s *service) PublishEvent(eventName string, data map[string]any) {
+	s.eventBus.Publish(eventName, data)
+}
+
+// ─── 工具函数 ─────────────────────────────────────────────────────────────
+
+func toResponse(bot *do.Bot) *vo.BotResponse {
+	return &vo.BotResponse{
+		ID: bot.ID, Name: bot.Name, Version: bot.Version,
+		Description: bot.Description, Summary: bot.Summary,
+		AvatarURL: bot.AvatarURL, Screenshots: bot.Screenshots,
+		HomepageURL: bot.HomepageURL, Type: bot.Type, Tags: bot.Tags,
+		CreatorID: bot.CreatorID, CreatorName: bot.CreatorName,
+		TriggerType: bot.TriggerType, CronExpr: bot.CronExpr,
+		EventFilter: bot.EventFilter, TimeoutSec: bot.TimeoutSec,
+		RetryTimes: bot.RetryTimes, ResourceLimit: bot.ResourceLimit,
+		Pricing: bot.Pricing, Permissions: bot.Permissions,
+		Enabled: bot.Enabled, Status: bot.Status,
+		ExecCount: bot.ExecCount, LastExecAt: bot.LastExecAt,
+		ErrorMsg: bot.ErrorMsg, ConfigSchema: bot.ConfigSchema,
+		ConfigValues: bot.ConfigValues,
+		CreatedAt:    bot.CreatedAt, UpdatedAt: bot.UpdatedAt,
 	}
 }
 
-func (s *service) makeReplyPostCallback(bot *do.Bot) func(*lua.LState) int {
-	return func(L *lua.LState) int {
-		postID := L.CheckInt64(1)
-		content := L.CheckString(2)
-		// 检查权限 write:posts
-		_ = postID
-		_ = content
-		L.Push(lua.LBool(true))
-		return 1
+func mapToResponse(bots []*do.Bot) []*vo.BotResponse {
+	res := make([]*vo.BotResponse, 0, len(bots))
+	for _, b := range bots {
+		res = append(res, toResponse(b))
 	}
+	return res
+}
+
+func parseFlowRaw(raw any) *nocode.Flow {
+	var s string
+	switch v := raw.(type) {
+	case string:
+		s = v
+	default:
+		b, err := json.Marshal(v)
+		if err != nil {
+			return nil
+		}
+		s = string(b)
+	}
+	f, err := nocode.FlowFromJSON(s)
+	if err != nil {
+		return nil
+	}
+	return f
+}
+
+func orStrSlice(s []string) []string {
+	if s == nil {
+		return []string{}
+	}
+	return s
+}
+
+func orStrMap(m map[string]string) map[string]string {
+	if m == nil {
+		return map[string]string{}
+	}
+	return m
+}
+
+func orAnyMap(m map[string]any) map[string]any {
+	if m == nil {
+		return map[string]any{}
+	}
+	return m
 }

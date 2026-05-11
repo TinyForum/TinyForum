@@ -4,7 +4,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "react-hot-toast";
 import { useState, useCallback } from "react";
 import { useAuthStore } from "@/store";
-import { useLocale } from "next-intl";
 import { PluginProvider } from "./PluginContext";
 
 /**

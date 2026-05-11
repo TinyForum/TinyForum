@@ -70,6 +70,13 @@ definitions:
     required:
     - approve
     type: object
+  bot.ValidateFlowRequest:
+    properties:
+      flow:
+        $ref: '#/definitions/nocode.Flow'
+    required:
+    - flow
+    type: object
   comment.CreateCommentInput:
     properties:
       content:
@@ -367,6 +374,176 @@ definitions:
     - password
     - token
     type: object
+  nocode.ActionNode:
+    properties:
+      params:
+        additionalProperties: {}
+        type: object
+      type:
+        $ref: '#/definitions/nocode.ActionType'
+    type: object
+  nocode.ActionType:
+    enum:
+    - reply_post
+    - delete_post
+    - hide_post
+    - pin_post
+    - lock_post
+    - create_post
+    - delete_comment
+    - ban_user
+    - send_message
+    - webhook
+    - notify_admin
+    - wait
+    - set_variable
+    - stop_if
+    type: string
+    x-enum-varnames:
+    - ActionReplyPost
+    - ActionDeletePost
+    - ActionHidePost
+    - ActionPinPost
+    - ActionLockPost
+    - ActionCreatePost
+    - ActionDeleteComment
+    - ActionBanUser
+    - ActionSendMessage
+    - ActionWebhook
+    - ActionNotifyAdmin
+    - ActionWait
+    - ActionSetVariable
+    - ActionStopIf
+  nocode.CondNode:
+    properties:
+      negate:
+        description: true → NOT 取反
+        type: boolean
+      params:
+        additionalProperties: {}
+        type: object
+      type:
+        $ref: '#/definitions/nocode.CondType'
+    type: object
+  nocode.CondType:
+    enum:
+    - post_title_contains
+    - post_content_contains
+    - user_role_is
+    - user_post_count_gte
+    - board_id_in
+    - time_range
+    - custom_expr
+    type: string
+    x-enum-varnames:
+    - CondPostTitleContains
+    - CondPostContentContains
+    - CondUserRoleIs
+    - CondUserPostCountGte
+    - CondBoardIDIn
+    - CondTimeRange
+    - CondCustomExpr
+  nocode.Flow:
+    properties:
+      actions:
+        description: 顺序执行的动作列表
+        items:
+          $ref: '#/definitions/nocode.ActionNode'
+        type: array
+      conditions:
+        description: 前置条件，全部满足才执行 Actions
+        items:
+          $ref: '#/definitions/nocode.CondNode'
+        type: array
+      trigger:
+        allOf:
+        - $ref: '#/definitions/nocode.TriggerNode'
+        description: 触发器（唯一）
+      version:
+        description: 目前固定 "1"
+        type: string
+    type: object
+  nocode.NocodeMetadata:
+    properties:
+      actions:
+        items:
+          $ref: '#/definitions/nocode.NodeMeta'
+        type: array
+      conditions:
+        items:
+          $ref: '#/definitions/nocode.NodeMeta'
+        type: array
+      triggers:
+        items:
+          $ref: '#/definitions/nocode.NodeMeta'
+        type: array
+    type: object
+  nocode.NodeMeta:
+    properties:
+      category:
+        type: string
+      description:
+        type: string
+      icon:
+        type: string
+      label:
+        type: string
+      params:
+        items:
+          $ref: '#/definitions/nocode.ParamMeta'
+        type: array
+      type:
+        type: string
+    type: object
+  nocode.OptionMeta:
+    properties:
+      label:
+        type: string
+      value: {}
+    type: object
+  nocode.ParamMeta:
+    properties:
+      default: {}
+      key:
+        type: string
+      label:
+        type: string
+      options:
+        items:
+          $ref: '#/definitions/nocode.OptionMeta'
+        type: array
+      placeholder:
+        type: string
+      required:
+        type: boolean
+      type:
+        description: text|number|boolean|select|textarea|tags|cron
+        type: string
+    type: object
+  nocode.TriggerNode:
+    properties:
+      params:
+        additionalProperties: {}
+        type: object
+      type:
+        $ref: '#/definitions/nocode.TriggerType'
+    type: object
+  nocode.TriggerType:
+    enum:
+    - on_schedule
+    - on_new_post
+    - on_new_comment
+    - on_user_register
+    - on_keyword
+    - on_manual
+    type: string
+    x-enum-varnames:
+    - TriggerOnSchedule
+    - TriggerOnNewPost
+    - TriggerOnNewComment
+    - TriggerOnUserRegister
+    - TriggerOnKeyword
+    - TriggerOnManual
   post.CreatePostInput:
     properties:
       board_id:
@@ -3418,49 +3595,18 @@ paths:
       - 板块管理
   /bots:
     get:
-      consumes:
-      - application/json
-      description: 分页查询所有机器人
       parameters:
       - default: 1
         description: 页码
-        example: 1
         in: query
         name: page
         type: integer
       - default: 20
         description: 每页条数
-        example: 20
         in: query
         name: pageSize
         type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 返回机器人列表及总数
-          schema:
-            allOf:
-            - $ref: '#/definitions/common.BasicResponse'
-            - properties:
-                data:
-                  properties:
-                    list:
-                      type: array
-                    page:
-                      type: integer
-                    total:
-                      type: integer
-                  type: object
-              type: object
-        "400":
-          description: 请求参数错误
-          schema:
-            $ref: '#/definitions/common.BasicResponse'
-        "401":
-          description: 未授权
-          schema:
-            $ref: '#/definitions/common.BasicResponse'
+      responses: {}
       security:
       - ApiKeyAuth: []
       summary: 获取机器人列表
@@ -3469,13 +3615,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: 在指定板块下创建新的机器人
       parameters:
-      - description: 板块ID
-        in: path
-        name: id
-        required: true
-        type: integer
       - description: 机器人创建信息
         in: body
         name: body
@@ -3486,30 +3626,17 @@ paths:
       - application/json
       responses:
         "200":
-          description: 创建成功，返回机器人ID
+          description: OK
           schema:
             allOf:
             - $ref: '#/definitions/common.BasicResponse'
             - properties:
                 data:
+                  properties:
+                    id:
+                      type: integer
                   type: object
               type: object
-        "400":
-          description: 请求参数错误（如板块ID无效、机器人信息不合法）
-          schema:
-            $ref: '#/definitions/common.BasicResponse'
-        "401":
-          description: 未授权
-          schema:
-            $ref: '#/definitions/common.BasicResponse'
-        "403":
-          description: 无权限（需要版主或管理员权限）
-          schema:
-            $ref: '#/definitions/common.BasicResponse'
-        "404":
-          description: 不存在
-          schema:
-            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
       summary: 创建机器人
@@ -3517,131 +3644,45 @@ paths:
       - 机器人管理
   /bots/{id}:
     delete:
-      consumes:
-      - application/json
-      description: 删除指定机器人（只能删除自己的机器人）
       parameters:
       - description: 机器人ID
         in: path
         name: id
         required: true
         type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 删除成功，返回空数据
-          schema:
-            allOf:
-            - $ref: '#/definitions/common.BasicResponse'
-            - properties:
-                data:
-                  type: object
-              type: object
-        "400":
-          description: 请求参数错误
-          schema:
-            $ref: '#/definitions/common.BasicResponse'
-        "401":
-          description: 未授权
-          schema:
-            $ref: '#/definitions/common.BasicResponse'
-        "403":
-          description: 无权限（非本人机器人）
-          schema:
-            $ref: '#/definitions/common.BasicResponse'
-        "404":
-          description: 机器人不存在
-          schema:
-            $ref: '#/definitions/common.BasicResponse'
+      responses: {}
       security:
       - ApiKeyAuth: []
       summary: 删除机器人
       tags:
       - 机器人管理
     get:
-      consumes:
-      - application/json
-      description: 根据ID获取机器人详细信息（公开信息，不需要鉴权？注意代码中未使用userID，但路由挂在Auth中间件下，实际仍需要认证）
       parameters:
       - description: 机器人ID
         in: path
         name: id
         required: true
         type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 返回机器人视图对象（botVO）
-          schema:
-            allOf:
-            - $ref: '#/definitions/common.BasicResponse'
-            - properties:
-                data:
-                  type: object
-              type: object
-        "400":
-          description: 请求参数错误
-          schema:
-            $ref: '#/definitions/common.BasicResponse'
-        "401":
-          description: 未授权
-          schema:
-            $ref: '#/definitions/common.BasicResponse'
-        "404":
-          description: 机器人不存在
-          schema:
-            $ref: '#/definitions/common.BasicResponse'
+      responses: {}
       security:
       - ApiKeyAuth: []
       summary: 获取机器人详情
       tags:
       - 机器人管理
     put:
-      consumes:
-      - application/json
-      description: 更新指定机器人的配置信息（只能操作自己的机器人）
       parameters:
       - description: 机器人ID
         in: path
         name: id
         required: true
         type: integer
-      - description: 机器人更新信息
+      - description: 更新信息
         in: body
         name: body
         required: true
         schema:
           $ref: '#/definitions/request.UpdateBotRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 更新成功，返回空数据
-          schema:
-            allOf:
-            - $ref: '#/definitions/common.BasicResponse'
-            - properties:
-                data:
-                  type: object
-              type: object
-        "400":
-          description: 请求参数错误
-          schema:
-            $ref: '#/definitions/common.BasicResponse'
-        "401":
-          description: 未授权
-          schema:
-            $ref: '#/definitions/common.BasicResponse'
-        "403":
-          description: 无权限（非本人机器人）
-          schema:
-            $ref: '#/definitions/common.BasicResponse'
-        "404":
-          description: 机器人不存在
-          schema:
-            $ref: '#/definitions/common.BasicResponse'
+      responses: {}
       security:
       - ApiKeyAuth: []
       summary: 更新机器人
@@ -3649,9 +3690,6 @@ paths:
       - 机器人管理
   /bots/{id}/run:
     post:
-      consumes:
-      - application/json
-      description: 立即执行指定机器人脚本一次，可附带事件数据（可选）
       parameters:
       - description: 机器人ID
         in: path
@@ -3663,87 +3701,79 @@ paths:
         name: body
         schema:
           type: object
+      responses: {}
+      security:
+      - ApiKeyAuth: []
+      summary: 手动触发执行
+      tags:
+      - 机器人管理
+  /bots/nocode/metadata:
+    get:
+      description: 返回所有内置 Trigger/Condition/Action 的类型和参数定义，供前端拖拽编辑器使用
       produces:
       - application/json
       responses:
         "200":
-          description: 触发成功，返回message
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.BasicResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/nocode.NocodeMetadata'
+              type: object
+      security:
+      - ApiKeyAuth: []
+      summary: 获取零代码节点元数据
+      tags:
+      - 机器人管理
+  /bots/nocode/validate:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Flow 配置
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/bot.ValidateFlowRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
           schema:
             allOf:
             - $ref: '#/definitions/common.BasicResponse'
             - properties:
                 data:
                   properties:
-                    message:
-                      type: string
+                    errors:
+                      type: array
+                    valid:
+                      type: boolean
                   type: object
               type: object
-        "400":
-          description: 请求参数错误
-          schema:
-            $ref: '#/definitions/common.BasicResponse'
-        "401":
-          description: 未授权
-          schema:
-            $ref: '#/definitions/common.BasicResponse'
-        "403":
-          description: 无权限（非本人机器人）
-          schema:
-            $ref: '#/definitions/common.BasicResponse'
-        "404":
-          description: 机器人不存在
-          schema:
-            $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
-      summary: 手动触发机器人执行
+      summary: 校验零代码流程
       tags:
       - 机器人管理
   /bots/user/me:
     get:
-      consumes:
-      - application/json
-      description: 分页查询当前用户创建的所有机器人
       parameters:
       - default: 1
         description: 页码
-        example: 1
         in: query
         name: page
         type: integer
       - default: 20
         description: 每页条数
-        example: 20
         in: query
         name: pageSize
         type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 返回机器人列表及总数
-          schema:
-            allOf:
-            - $ref: '#/definitions/common.BasicResponse'
-            - properties:
-                data:
-                  properties:
-                    list:
-                      type: array
-                    page:
-                      type: integer
-                    total:
-                      type: integer
-                  type: object
-              type: object
-        "400":
-          description: 请求参数错误
-          schema:
-            $ref: '#/definitions/common.BasicResponse'
-        "401":
-          description: 未授权
-          schema:
-            $ref: '#/definitions/common.BasicResponse'
+      responses: {}
       security:
       - ApiKeyAuth: []
       summary: 获取我的机器人列表

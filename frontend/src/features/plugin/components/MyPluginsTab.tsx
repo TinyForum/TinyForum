@@ -12,51 +12,43 @@ import {
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { useUpload } from "@/features/plugin/hooks/useUpload";
+import { useAdminPlugins } from "../useAdminPlugins";
+import { Pagination } from "@/shared/ui/common/Pagination";
 
-// 插件元信息（后端返回的结构，需与 getUserPluginsList 返回的 FileInfo 匹配或转换）
-// 假设 getUserPluginsList 返回的数组元素包含以下字段，具体可根据实际后端调整
-interface UserPlugin {
-  id: string;
-  name: string;
-  version: string;
-  description: string;
-  author: string;
-  fileId: string;
-  enabled: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
+// 假设 getUserPluginsList 现在返回 { list: FileInfo[], total: number }
+// 如果实际 API 不支持，请先修改后端或增加一个获取总数的接口
 
 export function MyPluginsTab() {
   const queryClient = useQueryClient();
   const [showUploadForm, setShowUploadForm] = useState(false);
   const [uploadedFlag, setUploadedFlag] = useState(false);
   // 分页状态
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(20);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const {
-    uploadPluginFile,
     isUploading,
+
     error: uploadError,
     resetError,
-    getUserPluginsList, // 返回 Promise<FileInfo[]>，且内部已携带分页参数
-    deleteFile, // 使用统一删除方法，传入 type="plugin" 和 fileId
+    getUserPluginsList, // 应返回 { list: FileInfo[], total: number }
+    deleteFile,
   } = useUpload();
+  const { upload, plugins, page, pageSize, total, pageTotal } =
+    useAdminPlugins();
+  setCurrentPage(page);
 
-  // 查询我的插件列表（使用 getUserPluginsList 并传入分页参数）
-  const {
-    data: plugins = [],
-    isLoading,
-    refetch,
-  } = useQuery({
+  // 查询我的插件列表（假设返回分页对象）
+  const { data, isLoading } = useQuery({
     queryKey: ["myPlugins", page, pageSize],
-    queryFn: () =>
-      getUserPluginsList({
-        page: page,
-        page_size: pageSize,
-      }), // 需确保 getUserPluginsList 支持分页参数
+    queryFn: () => getUserPluginsList({ page, page_size: pageSize }),
+    // 如果 getUserPluginsList 仍返回数组，请使用下方 adapter
+    // select: (data) => ({ list: data, total: data.length }) // 临时兼容
   });
+
+  // 兼容两种情况：后端返回 { list, total } 或仅返回数组
+  // const plugins = (data as any)?.list || data || [];
+  // const total = plugins.length;
+  // const totalPages = Math.ceil(total / pageSize);
 
   // 删除 mutation
   const deleteMutation = useMutation({
@@ -77,7 +69,7 @@ export function MyPluginsTab() {
       return;
     }
     resetError();
-    const result = await uploadPluginFile(file);
+    const result = await upload(file);
     if (result) {
       setUploadedFlag(true);
       setFile(null);
@@ -115,9 +107,7 @@ export function MyPluginsTab() {
         <div className="flex items-center gap-2">
           <Package className="w-5 h-5 text-secondary" />
           <h2 className="text-xl font-semibold">我的插件</h2>
-          <span className="badge badge-ghost badge-sm">
-            {plugins.length} 个插件
-          </span>
+          <span className="badge badge-ghost badge-sm">{total} 个插件</span>
         </div>
         <button
           onClick={() => setShowUploadForm(!showUploadForm)}
@@ -128,7 +118,7 @@ export function MyPluginsTab() {
         </button>
       </div>
 
-      {/* 上传表单（可折叠） */}
+      {/* 上传表单 */}
       {showUploadForm && (
         <div className="card bg-base-200 border border-base-300 p-4">
           <form onSubmit={handleUploadSubmit} className="space-y-4">
@@ -178,7 +168,7 @@ export function MyPluginsTab() {
           <div className="grid gap-4">
             {plugins.map((plugin) => (
               <div
-                key={plugin.id}
+                key={plugin.slug}
                 className="card card-side bg-base-100 border border-base-300 shadow-sm"
               >
                 <div className="card-body flex-row flex-wrap items-center justify-between p-4">
@@ -207,7 +197,6 @@ export function MyPluginsTab() {
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    {/* 启用/禁用按钮（假设后续 API 支持） */}
                     <button
                       className="btn btn-sm btn-ghost gap-1"
                       onClick={() => {
@@ -222,7 +211,7 @@ export function MyPluginsTab() {
                     </button>
                     <button
                       className="btn btn-sm btn-ghost text-error gap-1"
-                      onClick={() => deleteMutation.mutate(plugin.id)}
+                      onClick={() => deleteMutation.mutate(plugin.slug)}
                       disabled={deleteMutation.isPending}
                     >
                       <Trash2 className="w-4 h-4" />
@@ -234,26 +223,14 @@ export function MyPluginsTab() {
             ))}
           </div>
 
-          {/* 分页控件（简单示例，可扩展） */}
-          <div className="flex justify-center gap-2 pt-4">
-            <button
-              className="btn btn-sm btn-outline"
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={page === 1}
-            >
-              上一页
-            </button>
-            <span className="btn btn-sm btn-ghost no-animation">
-              第 {page} 页
-            </span>
-            <button
-              className="btn btn-sm btn-outline"
-              onClick={() => setPage((p) => p + 1)}
-              disabled={plugins.length < pageSize}
-            >
-              下一页
-            </button>
-          </div>
+          {/* 使用通用分页组件 */}
+          <Pagination
+            totalPages={pageTotal}
+            currentPage={currentPage}
+            onPageChange={(newPage) => setCurrentPage(newPage)}
+            totalItems={total}
+            pageSize={pageSize}
+          />
         </>
       )}
     </div>

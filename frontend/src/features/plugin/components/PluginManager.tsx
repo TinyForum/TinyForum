@@ -49,13 +49,13 @@ export function PluginManager() {
 
   const handleEdit = async (payload: CreatePluginPayload) => {
     if (!editTarget) return;
-    await handleUpdate({ id: editTarget.id, ...payload });
+    await handleUpdate({ id: editTarget.slug, ...payload });
     setEditTarget(null);
   };
 
   const confirmDelete = () => {
     if (!deleteTarget) return;
-    handleDelete(deleteTarget.id);
+    handleDelete(deleteTarget.slug);
     setDeleteTarget(null);
   };
 
@@ -124,7 +124,7 @@ export function PluginManager() {
                 {plugins.map((plugin) => (
                   <>
                     <tr
-                      key={plugin.id}
+                      key={plugin.slug}
                       className="hover:bg-base-50 transition-colors"
                     >
                       {/* Plugin name + description toggle */}
@@ -133,7 +133,7 @@ export function PluginManager() {
                           className="flex items-center gap-2 text-left group"
                           onClick={() =>
                             setExpandedId(
-                              expandedId === plugin.id ? null : plugin.id,
+                              expandedId === plugin.slug ? null : plugin.slug,
                             )
                           }
                         >
@@ -143,7 +143,7 @@ export function PluginManager() {
                           <div>
                             <div className="font-medium text-sm flex items-center gap-1">
                               {plugin.name}
-                              {expandedId === plugin.id ? (
+                              {expandedId === plugin.slug ? (
                                 <ChevronUp className="w-3 h-3 text-base-content/40" />
                               ) : (
                                 <ChevronDown className="w-3 h-3 text-base-content/40 group-hover:text-base-content/60" />
@@ -201,7 +201,7 @@ export function PluginManager() {
                           {/* Toggle */}
                           <button
                             onClick={() =>
-                              handleToggle(plugin.id, !plugin.enabled)
+                              handleToggle(plugin.slug, !plugin.enabled)
                             }
                             className={`btn btn-xs btn-ghost gap-1 ${
                               plugin.enabled
@@ -239,9 +239,9 @@ export function PluginManager() {
                     </tr>
 
                     {/* Expanded detail row */}
-                    {expandedId === plugin.id && (
+                    {expandedId === plugin.slug && (
                       <tr
-                        key={`${plugin.id}-detail`}
+                        key={`${plugin.slug}-detail`}
                         className="bg-base-200/50"
                       >
                         <td colSpan={6} className="py-3 px-4">

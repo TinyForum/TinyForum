@@ -3,7 +3,7 @@ import { PluginMeta } from "../type/plugin.type";
 export const PLUGIN_EXAMPLES: Record<string, PluginMeta> = {
   /** UI 主题美化 */
   ui_dark_theme: {
-    id: "ui-dark-theme",
+    slug: "ui-dark-theme",
     name: "暗黑极简主题",
     version: "2.3.1",
     summary: "为社区注入专业暗色风格，提升夜间阅读体验",
@@ -75,7 +75,7 @@ export const PLUGIN_EXAMPLES: Record<string, PluginMeta> = {
 
   /** API 接口：AI 摘要 */
   api_openai_summary: {
-    id: "api-openai-summary",
+    slug: "api-openai-summary",
     name: "AI 文章摘要",
     version: "1.1.0",
     summary: "接入 OpenAI 为每篇帖子自动生成 100 字摘要",
@@ -138,7 +138,7 @@ export const PLUGIN_EXAMPLES: Record<string, PluginMeta> = {
 
   /** 知识付费 */
   knowledge_paid_content: {
-    id: "knowledge-paid-content",
+    slug: "knowledge-paid-content",
     name: "知识付费解锁",
     version: "3.0.0",
     summary: "帖子内容分段加密，付费后解锁全文",
@@ -219,7 +219,7 @@ export const PLUGIN_EXAMPLES: Record<string, PluginMeta> = {
 
   /** 社区功能增强：积分系统 */
   community_points: {
-    id: "community-points",
+    slug: "community-points",
     name: "社区积分任务系统",
     version: "1.4.2",
     summary: "签到、发帖、评论赚积分，积分兑换奖励",
@@ -313,7 +313,7 @@ export const PLUGIN_EXAMPLES: Record<string, PluginMeta> = {
 
   /** 本地/同城/O2O */
   local_o2o_nearby: {
-    id: "local-o2o-nearby",
+    slug: "local-o2o-nearby",
     name: "同城信息 & 地图找人",
     version: "1.0.1",
     summary: "帖子附加地理位置，发现附近内容和用户",
@@ -376,7 +376,7 @@ export const PLUGIN_EXAMPLES: Record<string, PluginMeta> = {
 
   /** 视频/直播/音乐 */
   media_live_stream: {
-    id: "media-live-stream",
+    slug: "media-live-stream",
     name: "云直播间",
     version: "2.1.0",
     summary: "为社区集成直播功能，支持连麦与打赏",
@@ -456,7 +456,7 @@ export const PLUGIN_EXAMPLES: Record<string, PluginMeta> = {
 
   /** 营销/活动/投票 */
   marketing_vote: {
-    id: "marketing-vote",
+    slug: "marketing-vote",
     name: "投票 & 问卷活动",
     version: "2.0.5",
     summary: "一键创建投票、问卷、抽奖活动",
@@ -524,7 +524,7 @@ export const PLUGIN_EXAMPLES: Record<string, PluginMeta> = {
 
   /** 商城/返利/分销 */
   shop_distribution: {
-    id: "shop-distribution",
+    slug: "shop-distribution",
     name: "分销返利商城",
     version: "1.5.0",
     summary: "内置商城 + 三级分销返利体系",
@@ -620,7 +620,7 @@ export const PLUGIN_EXAMPLES: Record<string, PluginMeta> = {
 
   /** 任务/悬赏/威客 */
   task_bounty: {
-    id: "task-bounty",
+    slug: "task-bounty",
     name: "悬赏任务平台",
     version: "1.1.0",
     summary: "发布悬赏任务，接单者完成后自动结算",
@@ -700,7 +700,7 @@ export const PLUGIN_EXAMPLES: Record<string, PluginMeta> = {
 
   /** 小说/漫画/问答 */
   content_novel: {
-    id: "content-novel",
+    slug: "content-novel",
     name: "连载小说 & 漫画",
     version: "2.0.0",
     summary: "支持长篇连载、章节订阅、打赏催更",
@@ -783,7 +783,7 @@ export const PLUGIN_EXAMPLES: Record<string, PluginMeta> = {
 
   /** 聊天/问卷/工单 */
   im_chat: {
-    id: "im-chat",
+    slug: "im-chat",
     name: "站内私信 & IM 聊天",
     version: "1.3.1",
     summary: "用户间实时私信，支持图片和文件发送",
@@ -872,7 +872,7 @@ export const PLUGIN_EXAMPLES: Record<string, PluginMeta> = {
 
   /** OSS/COS/对象存储 */
   storage_cos: {
-    id: "storage-cos",
+    slug: "storage-cos",
     name: "腾讯云 COS 存储",
     version: "1.2.0",
     summary: "将用户上传的图片/文件存储到腾讯云 COS",
@@ -940,7 +940,7 @@ export const PLUGIN_EXAMPLES: Record<string, PluginMeta> = {
 
   /** 注册/登录/安全验证 */
   auth_sms_login: {
-    id: "auth-sms-login",
+    slug: "auth-sms-login",
     name: "短信验证码登录",
     version: "1.0.3",
     summary: "支持手机号 + 短信验证码一键登录",
@@ -1027,7 +1027,7 @@ export const PLUGIN_EXAMPLES: Record<string, PluginMeta> = {
 
   /** 教育培训 */
   education_course: {
-    id: "education-course",
+    slug: "education-course",
     name: "在线课程系统",
     version: "1.3.0",
     summary: "发布付费课程、学员管理、学习进度追踪",
@@ -1129,7 +1129,7 @@ export const PLUGIN_EXAMPLES: Record<string, PluginMeta> = {
 
   /** 独立功能系统 */
   system_crm: {
-    id: "system-crm",
+    slug: "system-crm",
     name: "会员 CRM 系统",
     version: "1.0.0",
     summary: "完整会员生命周期管理，标签画像与精准运营",
