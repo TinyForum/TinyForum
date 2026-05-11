@@ -67,16 +67,24 @@ const nextConfig: NextConfig = {
     const sourceApi = proxy.source ?? "/api/v1/:path*";
     const destinationApi = `${cleanUrl}${proxy.destinationPattern ?? "/api/v1/:path*"}`;
 
-    // 新增：代理 /store 静态资源
-    const sourceStatic = "/store/:path*";
-    const destinationStatic = `${cleanUrl}/store/:path*`;
+    // 代理 /store 静态资源
+    const sourceStore = "/store/:path*";
+    const destinationStore = `${cleanUrl}/store/:path*`;
+
+    // 代理 uploads
+    const sourceUploads = "/uploads/:path*";
+    const destinationUploads = `${cleanUrl}/uploads/:path*`;
 
     console.log(`🔁 启用 API 代理: ${sourceApi} → ${destinationApi}`);
-    console.log(`🔁 启用静态资源代理: ${sourceStatic} → ${destinationStatic}`);
+    console.log(`🔁 启用静态资源代理: ${sourceStore} → ${destinationStore}`);
+    console.log(
+      `🔁 启用上传资源代理: ${sourceUploads} → ${destinationUploads}`,
+    );
 
     return [
       { source: sourceApi, destination: destinationApi },
-      { source: sourceStatic, destination: destinationStatic },
+      { source: sourceStore, destination: destinationStore },
+      { source: sourceUploads, destination: destinationUploads },
     ];
   },
 };

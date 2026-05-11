@@ -1,4 +1,3 @@
-// internal/service/upload/engine.go
 package upload
 
 import (
