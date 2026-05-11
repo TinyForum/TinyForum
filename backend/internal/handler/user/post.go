@@ -15,7 +15,7 @@ import (
 // @Produce json
 // @Success 200 {object} common.BasicResponse
 // @Failure 400 {object} common.BasicResponse
-// @Router /users/me/plugins [get]
+// @Router /users/me/posts [get]
 func (h *UserHandler) GetUserPosts(c *gin.Context) {
 	userID := c.GetUint("user_id")
 

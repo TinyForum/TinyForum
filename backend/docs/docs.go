@@ -2424,7 +2424,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/auth.DeleteAccountInput"
+                            "$ref": "#/definitions/request.DeleteAccountRequest"
                         }
                     }
                 ],
@@ -7392,7 +7392,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/users/me/plugins": {
+        "/users/me/posts": {
             "get": {
                 "description": "获取当前登录用户已安装（上传）的插件列表，通常是通过 author_id 查询",
                 "consumes": [
@@ -7642,17 +7642,6 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 5000,
                     "minLength": 1
-                }
-            }
-        },
-        "auth.DeleteAccountInput": {
-            "type": "object",
-            "properties": {
-                "confirm": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
                 }
             }
         },
@@ -8620,6 +8609,17 @@ const docTemplate = `{
                     ]
                 },
                 "version": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.DeleteAccountRequest": {
+            "type": "object",
+            "properties": {
+                "confirm": {
+                    "type": "string"
+                },
+                "password": {
                     "type": "string"
                 }
             }

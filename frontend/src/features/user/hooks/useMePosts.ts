@@ -49,7 +49,6 @@ export function useMePosts(
       const finalParams: GetUserPostsRequest = {
         ...currentParams,
         ...params,
-        // 确保 page 和 page_size 为数字（如果传入 undefined，则回退到 currentParams 的值）
         page: params?.page ?? currentParams.page,
         page_size: params?.page_size ?? currentParams.page_size,
       };
@@ -57,9 +56,8 @@ export function useMePosts(
       setIsLoading(true);
       setError(null);
       try {
-        const response = await userPostApi.getUserPosts(finalParams);
+        const response = await userPostApi.listUserPosts(finalParams);
         if (response.status === 200 && response.data.code === 0) {
-          // 关键修复：处理 response.data.data 可能为 undefined 的情况
           const data: PageData<UserPostsVO> | undefined = response.data.data;
           if (!data) {
             throw new Error("返回数据为空");
