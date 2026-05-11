@@ -62,10 +62,13 @@ func (s *authService) Register(ctx context.Context, input request.RegisterReques
 	if err != nil {
 		return nil, err
 	}
-	return &vo.AuthResultVO{Token: token, User: &vo.UserVO{
-		ID:       user.ID,
-		Username: user.Username,
-		Avatar:   user.Avatar,
-	}}, nil
+	return &vo.AuthResultVO{
+		Token: token,
+		User: &vo.UserPrivateVO{
+			ID:       user.ID,
+			Username: user.Username,
+			Avatar:   user.Avatar,
+			Email:    user.Email,
+		}}, nil
 	// return &userSvc.AuthResult{User: user}, nil
 }

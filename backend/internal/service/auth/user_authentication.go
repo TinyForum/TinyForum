@@ -55,10 +55,16 @@ func (s *authService) Login(ctx context.Context, input userSvc.LoginInput) (*vo.
 
 	return &vo.AuthResultVO{
 		Token: token,
-		User: &vo.UserVO{
-			ID:       user.ID,
-			Username: user.Username,
-			Role:     user.Role,
+		User: &vo.UserPrivateVO{
+			ID:        user.ID,
+			Username:  user.Username,
+			Role:      user.Role,
+			Avatar:    user.Avatar,
+			Bio:       user.Bio,
+			Email:     user.Email,
+			Score:     user.Score,
+			LastLogin: user.LastLogin,
+			CreatedAt: user.CreatedAt,
 		},
 		DeletionStatus: deletionStatus,
 	}, nil
