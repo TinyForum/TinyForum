@@ -40,8 +40,8 @@ type AuthService interface {
 
 	// delete
 
-	DeleteAccount(ctx context.Context, userID uint, input request.DeleteAccountRequest) error // 删除账户
-	RevokeToken(ctx context.Context, jti string) error                                        // 注销token（登出）
+	DeleteAccount(ctx context.Context, userID uint, input request.DeleteAccountRequest) (bool, error) // 删除账户
+	RevokeToken(ctx context.Context, jti string) error                                                // 注销token（登出）
 
 	// query
 

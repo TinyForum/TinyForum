@@ -201,15 +201,15 @@ func (s *authService) GetDeletionStatus(ctx context.Context, userID uint) (*vo.D
 	return status, nil
 }
 
-func (s *authService) DeleteAccount(ctx context.Context, userID uint, input request.DeleteAccountRequest) error {
+func (s *authService) DeleteAccount(ctx context.Context, userID uint, input request.DeleteAccountRequest) (bool, error) {
 	if input.Confirm != "DELETE" {
-		return errors.New("请确认删除操作")
+		return false, errors.New("请确认删除操作")
 	}
 
 	// 通过 repo 软删除
 	if err := s.authRepo.SoftDelete(ctx, userID); err != nil {
-		return errors.New("删除账户失败")
+		return false, errors.New("删除账户失败")
 	}
 
-	return nil
+	return true, nil
 }

@@ -9,13 +9,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type DeleteAccountVO struct {
+	IsDeleted bool `json:"is_deleted"`
+}
+
 // DeleteAccount godoc
 // @Summary 用户注销账户（软删除）
 // @Tags 验证管理
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param request body auth.DeleteAccountInput true "注销请求"
+// @Param request body request.DeleteAccountRequest true "注销请求"
 // @Success 200 {object} common.BasicResponse
 // @Router /auth/account [delete]
 func (h *AuthHandler) DeleteAccount(c *gin.Context) {
@@ -35,15 +39,18 @@ func (h *AuthHandler) DeleteAccount(c *gin.Context) {
 		input = request.DeleteAccountRequest{}
 	}
 
-	err := h.authSvc.DeleteAccount(ctx, userID.(uint), input)
+	isDeelte, err := h.authSvc.DeleteAccount(ctx, userID.(uint), input)
 	if err != nil {
 		response.BadRequest(c, err.Error())
 		return
 	}
 
-	response.Success(c, gin.H{
-		"message": "账户已成功删除",
-	})
+	Result := DeleteAccountVO{
+		IsDeleted: isDeelte,
+	}
+	logger.Infof("用户 %d 注销账户（软删除）", userID)
+
+	response.Success(c, Result)
 }
 
 // GetDeletionStatus godoc

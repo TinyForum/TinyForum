@@ -10,13 +10,6 @@ definitions:
     required:
     - content
     type: object
-  auth.DeleteAccountInput:
-    properties:
-      confirm:
-        type: string
-      password:
-        type: string
-    type: object
   board.CreateBoardInput:
     properties:
       cover:
@@ -708,6 +701,13 @@ definitions:
     - triggerType
     - type
     - version
+    type: object
+  request.DeleteAccountRequest:
+    properties:
+      confirm:
+        type: string
+      password:
+        type: string
     type: object
   request.ListAnnouncements:
     properties:
@@ -2560,7 +2560,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/auth.DeleteAccountInput'
+          $ref: '#/definitions/request.DeleteAccountRequest'
       produces:
       - application/json
       responses:
@@ -5834,7 +5834,7 @@ paths:
       summary: 精简排行榜信息
       tags:
       - 用户排行榜
-  /users/me/plugins:
+  /users/me/posts:
     get:
       consumes:
       - application/json
