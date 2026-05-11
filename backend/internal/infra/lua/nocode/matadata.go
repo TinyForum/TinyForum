@@ -10,7 +10,6 @@ type NocodeMetadata struct {
 
 // NodeMeta 描述一种节点类型的展示信息和参数定义
 type NodeMeta struct {
-	Name        string      `json:"name"`
 	Type        string      `json:"type"`
 	Label       string      `json:"label"`
 	Description string      `json:"description,omitempty"`
