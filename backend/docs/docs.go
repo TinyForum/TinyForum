@@ -2546,7 +2546,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/vo.UserVO"
+                            "$ref": "#/definitions/vo.UserPrivateVO"
                         }
                     }
                 }
@@ -2734,7 +2734,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/common.BasicResponse"
+                            "$ref": "#/definitions/vo.UserPrivateVO"
                         }
                     },
                     "400": {
@@ -7461,6 +7461,35 @@ const docTemplate = `{
                 }
             }
         },
+        "/users/me/violations": {
+            "get": {
+                "description": "获取用户违规记录",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户管理"
+                ],
+                "summary": "获取用户违规记录",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/users/profile": {
             "put": {
                 "security": [
@@ -9026,6 +9055,50 @@ const docTemplate = `{
                 }
             }
         },
+        "vo.UserPrivateVO": {
+            "type": "object",
+            "properties": {
+                "avatar": {
+                    "type": "string"
+                },
+                "bio": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "invited_by_id": {
+                    "type": "integer"
+                },
+                "is_active": {
+                    "type": "boolean"
+                },
+                "is_blocked": {
+                    "type": "boolean"
+                },
+                "last_login": {
+                    "type": "string"
+                },
+                "role": {
+                    "$ref": "#/definitions/do.UserRole"
+                },
+                "score": {
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
         "vo.UserStatsInfo": {
             "type": "object",
             "properties": {
@@ -9076,47 +9149,6 @@ const docTemplate = `{
                 "total_violation": {
                     "description": "总违规数",
                     "type": "integer"
-                }
-            }
-        },
-        "vo.UserVO": {
-            "type": "object",
-            "properties": {
-                "avatar": {
-                    "type": "string"
-                },
-                "bio": {
-                    "type": "string"
-                },
-                "created_at": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "invited_by_id": {
-                    "type": "integer"
-                },
-                "is_active": {
-                    "type": "boolean"
-                },
-                "is_blocked": {
-                    "type": "boolean"
-                },
-                "last_login": {
-                    "type": "string"
-                },
-                "role": {
-                    "$ref": "#/definitions/do.UserRole"
-                },
-                "score": {
-                    "type": "integer"
-                },
-                "updated_at": {
-                    "type": "string"
-                },
-                "username": {
-                    "type": "string"
                 }
             }
         }

@@ -50,7 +50,8 @@ type UserService interface {
 	GetGlobalStatsCount(ctx context.Context, userID uint) (*dto.StatsInfo, error)
 	// posts
 	GetUserPosts(ctx context.Context, req request.GetUserPostsRequest, userID uint) (*common.PageResult[vo.UserPosts], error)
-	ListUserViolation(ctx context.Context, req request.ListUserViolationRequest, userID uint) (*common.PageResult[vo.UserPosts], error)
+	// 违规
+	ListUserViolation(ctx context.Context, req request.ListUserViolationRequest, userID uint) (*common.PageResult[vo.ViolationVO], error)
 }
 type userService struct {
 	repo         userRepo.UserRepository
