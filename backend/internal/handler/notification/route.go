@@ -14,7 +14,7 @@ func (h *NotificationHandler) RegisterRoutes(api *gin.RouterGroup, mw middleware
 	{
 		notifGroup.GET("", h.List)                     // 获取列表
 		notifGroup.GET("/count/unread", h.UnreadCount) // 获取未读数量
-		notifGroup.POST("/:id/read", h.MarkRead)       // 标记已读
+		notifGroup.PATCH("/:id/read", h.MarkRead)      // 标记已读
 	}
 	batchGroup := notifGroup.Group("/batch")
 	{

@@ -26,5 +26,5 @@ export const notificationApi = {
   markBatchRead: (ids: number[]) =>
     apiClient.patch<ApiResponse<null>>("/notifications/batch/read", ids),
   // 标记已读
-  markRead: (id: number) => apiClient.put(`/notifications/${id}/read`),
+  markRead: (id: number) => apiClient.patch(`/notifications/${id}/read`),
 };

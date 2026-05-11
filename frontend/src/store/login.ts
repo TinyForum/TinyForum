@@ -56,8 +56,8 @@ export const useLoginStore = create<LoginState>()((set, get) => ({
       const response = await authApi.login({ email, password });
 
       // 检查响应数据是否存在
-      if (response.data.data?.user) {
-        const { user } = response.data.data;
+      if (response.data.data) {
+        const user = response.data.data;
         // 更新全局认证状态
         useAuthStore.getState().setAuth(user);
         // 清空表单

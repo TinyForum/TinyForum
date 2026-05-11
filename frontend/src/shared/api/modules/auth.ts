@@ -3,7 +3,7 @@
  */
 
 import apiClient from "../client";
-import { AuthResult } from "../types";
+// import { AuthResult } from "../types";
 import { ApiResponse } from "../types/basic.model";
 import { UserDO } from "../types/user.model";
 
@@ -20,11 +20,11 @@ export interface LoginPayload {
 
 export const authApi = {
   register: (data: RegisterPayload) =>
-    apiClient.post<ApiResponse<AuthResult>>("/auth/register", data),
+    apiClient.post<ApiResponse<UserDO>>("/auth/register", data),
 
   // 登录：后端通过 Set-Cookie 设置 HttpOnly Cookie
   login: (data: LoginPayload) =>
-    apiClient.post<ApiResponse<AuthResult>>("/auth/login", data),
+    apiClient.post<ApiResponse<UserDO>>("/auth/login", data),
 
   // 获取当前用户：Cookie 会自动携带
   me: () =>
