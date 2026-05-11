@@ -1,5 +1,9 @@
 package do
 
+import (
+	"tiny-forum/internal/model/common"
+)
+
 type PostType string
 
 const (
@@ -14,6 +18,13 @@ var validPostTypes = map[PostType]bool{
 	PostTypePost:    true,
 	PostTypeArticle: true,
 	PostTypeTopic:   true,
+}
+
+var validPostStatuses = map[PostStatus]bool{
+	PostStatusDraft:     true,
+	PostStatusPending:   true,
+	PostStatusPublished: true,
+	PostStatusHidden:    true,
 }
 
 type PostStatus string
@@ -39,7 +50,7 @@ const (
 // 系统风控状态（由内容安全模块自动判定或管理员审核结果）
 
 type Post struct {
-	BaseModel
+	common.BaseModel
 	Title   string   `gorm:"not null;size:200" json:"title"`
 	Content string   `gorm:"not null;type:text" json:"content"`
 	Summary string   `gorm:"size:500" json:"summary"`
@@ -81,4 +92,16 @@ func ParsePostType(s string) PostType {
 		return pt
 	}
 	return PostTypePost // 默认值
+}
+
+func ParsePostStatus(s string) PostStatus {
+	ps := PostStatus(s)
+	if ps.IsValid() {
+		return ps
+	}
+	return PostStatusDraft // 默认值
+}
+
+func (ps PostStatus) IsValid() bool {
+	return validPostStatuses[ps]
 }

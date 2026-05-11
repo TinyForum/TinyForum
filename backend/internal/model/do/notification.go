@@ -1,8 +1,11 @@
 package do
 
+import "tiny-forum/internal/model/common"
+
 type NotificationType string
+
 type Notification struct {
-	BaseModel
+	common.BaseModel
 	UserID     uint             `gorm:"not null;index" json:"user_id"`
 	SenderID   *uint            `gorm:"index" json:"sender_id"`
 	Type       NotificationType `gorm:"type:varchar(30)" json:"type"`

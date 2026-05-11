@@ -25,6 +25,7 @@
     "axios": "^1.7.2",
     "clsx": "^2.1.1",
     "date-fns": "^3.6.0",
+    "dexie": "^4.4.2",
     "dompurify": "^3.4.0",
     "echarts": "^6.0.0",
     "highlight.js": "^11.11.1",
@@ -40,6 +41,7 @@
     "react-dom": "19.0.0",
     "react-hook-form": "^7.52.0",
     "react-hot-toast": "^2.4.1",
+    "reactflow": "^11.11.4",
     "tailwind-merge": "^2.3.0",
     "zod": "^3.23.8",
     "zustand": "^4.5.2"

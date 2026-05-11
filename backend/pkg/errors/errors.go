@@ -10,35 +10,35 @@ import (
 // 通用(1xxxx) 用户(2xxxx) 内容(3xxxx) 权限(4xxxx) 积分(5xxxx) 公告(6xxxx) 统计(7xxxx) 时间线(8xxxx) 文件(9xxxx)
 const (
 	// 通用 (10000-10099)
-	CodeUnknown             = 10000
-	CodeValidation          = 10001
-	CodeUnauthorized        = 10002
-	CodeForbidden           = 10003
-	CodeNotFound            = 10004
-	CodeTooManyRequests     = 10005
-	CodeInternalError       = 10006
-	CodeInvalidRequest      = 10007
-	CodeSystemBusy          = 10008
-	CodeInvalidConfirmation = 10009
+	CodeUnknown             = 10000 // 未知错误
+	CodeValidation          = 10001 // 参数校验错误
+	CodeUnauthorized        = 10002 // 未授权
+	CodeForbidden           = 10003 // 禁止访问
+	CodeNotFound            = 10004 // 未找到
+	CodeTooManyRequests     = 10005 // 请求过多
+	CodeInternalError       = 10006 // 内部错误
+	CodeInvalidRequest      = 10007 // 无效请求
+	CodeSystemBusy          = 10008 // 系统繁忙
+	CodeInvalidConfirmation = 10009 // 无效确认
 
 	// 用户模块 (20000-20999)
-	CodeUserNotFound           = 20001
-	CodeUserExist              = 20002
-	CodeInvalidEmail           = 20010
-	CodeInvalidPhone           = 20011
-	CodeInvalidPassword        = 20012
-	CodeInvalidUsername        = 20013
-	CodeInvalidAvatar          = 20014
-	CodeInvalidNickname        = 20015
-	CodeInvalidUserID          = 20016
-	CodeInvalidCurrentPassword = 20017
-	CodeInvalidRole            = 20020
-	CodeCannotModifySelf       = 20021
-	CodeCannotChangeOwner      = 20022
-	CodeFollowSelf             = 20040
-	CodeAlreadyFollow          = 20041
-	CodeNotFollow              = 20042
-	CodeScoreNotEnough         = 20060
+	CodeUserNotFound           = 20001 // 用户不存在
+	CodeUserExist              = 20002 // 用户已存在
+	CodeInvalidEmail           = 20010 // 无效邮箱
+	CodeInvalidPhone           = 20011 // 无效手机号
+	CodeInvalidPassword        = 20012 // 无效密码
+	CodeInvalidUsername        = 20013 // 无效用户名
+	CodeInvalidAvatar          = 20014 // 无效头像
+	CodeInvalidNickname        = 20015 // 无效昵称
+	CodeInvalidUserID          = 20016 // 无效用户ID
+	CodeInvalidCurrentPassword = 20017 // 无效当前密码
+	CodeInvalidRole            = 20020 // 无效角色
+	CodeCannotModifySelf       = 20021 // 不能修改自己
+	CodeCannotChangeOwner      = 20022 // 不能修改拥有者
+	CodeFollowSelf             = 20040 // 不能关注自己
+	CodeAlreadyFollow          = 20041 // 已关注
+	CodeNotFollow              = 20042 // 未关注
+	CodeScoreNotEnough         = 20060 // 积分不足
 	CodeUserBlocked            = 20080
 	CodeUserDeleted            = 20081
 
@@ -83,10 +83,15 @@ const (
 	// 时间线模块 (80000-80999)
 	CodeTimelineEmpty = 80001
 
-	// 文件上传模块 (90000-90999)
-	CodeFileTooLarge    = 90001
-	CodeFileTypeInvalid = 90002
-	CodeUploadFailed    = 90003
+	// 文件插件模块 (90000-90999)
+	CodeFileTooLarge        = 90001
+	CodeFileTypeInvalid     = 90002
+	CodeUploadFailed        = 90003
+	CodeInvalidPluginFormat = 90004
+	CodeManifestNotFound    = 90005
+	CodeInvalidManifest     = 90006
+	CodePluginAlreadyExist  = 90007
+	CodePluginEnabledFirst  = 90008
 )
 
 // ========== 核心错误类型 ==========
@@ -215,13 +220,13 @@ func Wrapf(base *AppError, cause error, format string, args ...interface{}) *App
 var (
 	// 通用
 	ErrUnknown             = New(CodeUnknown, "未知错误")
-	ErrValidation          = New(CodeValidation, "参数验证失败")
-	ErrUnauthorized        = New(CodeUnauthorized, "未授权，请先登录")
+	ErrValidation          = New(CodeValidation, "参数验证失败")     // 参数验证失败
+	ErrUnauthorized        = New(CodeUnauthorized, "未授权，请先登录") // 未授权，请先登录
 	ErrForbidden           = New(CodeForbidden, "权限不足")
 	ErrNotFound            = New(CodeNotFound, "资源不存在")
 	ErrTooManyRequests     = New(CodeTooManyRequests, "请求过于频繁，请稍后再试")
 	ErrInternalError       = New(CodeInternalError, "服务器内部错误")
-	ErrInvalidRequest      = New(CodeInvalidRequest, "无效的请求")
+	ErrInvalidRequest      = New(CodeInvalidRequest, "无效的请求") // 无效的请求
 	ErrSystemBusy          = New(CodeSystemBusy, "系统繁忙，请稍后再试")
 	ErrInvalidConfirmation = New(CodeInvalidConfirmation, "无效的确认信息")
 
@@ -330,8 +335,13 @@ var (
 	// 时间线模块
 	ErrTimelineEmpty = New(CodeTimelineEmpty, "时间线暂无内容")
 
-	// 文件上传模块
-	ErrFileTooLarge    = New(CodeFileTooLarge, "文件过大")
-	ErrFileTypeInvalid = New(CodeFileTypeInvalid, "不支持的文件类型")
-	ErrUploadFailed    = New(CodeUploadFailed, "文件上传失败")
+	// 文件插件模块
+	ErrFileTooLarge        = New(CodeFileTooLarge, "文件过大")
+	ErrFileTypeInvalid     = New(CodeFileTypeInvalid, "不支持的文件类型")
+	ErrUploadFailed        = New(CodeUploadFailed, "文件上传失败")
+	ErrInvalidPluginFormat = New(CodeInvalidPluginFormat, "插件格式无效")
+	ErrManifestNotFound    = New(CodeManifestNotFound, "没有找到 manifest.json 文件")
+	ErrInvalidManifest     = New(CodeInvalidManifest, "文件 manifest.json 无效")
+	ErrPluginAlreadyExist  = New(CodePluginAlreadyExist, "插件已存在")
+	ErrPluginEnabledFirst  = New(CodePluginEnabledFirst, "请先禁用插件")
 )

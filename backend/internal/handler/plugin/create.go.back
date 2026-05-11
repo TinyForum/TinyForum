@@ -1,0 +1,44 @@
+// package plugin
+
+// import (
+// 	apperrors "tiny-forum/pkg/errors"
+// 	"tiny-forum/pkg/response"
+
+// 	"github.com/gin-gonic/gin"
+// )
+
+// // UploadPlugin 处理插件包上传
+// // @Summary 上传并安装插件
+// // @Tags 插件管理
+// // @Accept multipart/form-data
+// // @Produce json
+// // @Param file formData file true "插件zip包"
+// // @Success 200 {object} common.BasicResponse{data=do.PluginMeta}
+// // @Router /plugins/upload [post]
+// func (h *PluginHandler) UploadPlugin(c *gin.Context) {
+//     // 获取当前用户ID（需要登录）
+//     userIDVal, exists := c.Get("user_id")
+//     if !exists {
+//         response.Unauthorized(c, "unauthorized")
+//         return
+//     }
+//     userID := userIDVal.(uint)
+
+//     // 获取上传的文件
+//     file, err := c.FormFile("file")
+//     if err != nil {
+//         response.BadRequest(c, "file is required")
+//         return
+//     }
+
+//     // 调用 service 安装插件
+//     pluginMeta, err := h.service.Install(c.Request.Context(), file, userID)
+//     if err != nil {
+//         response.HandleError(c,apperrors.ErrInternalError)
+//         return
+//     }
+
+//     response.Success(c, pluginMeta)
+// }
+
+package plugin

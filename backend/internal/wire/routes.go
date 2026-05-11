@@ -19,9 +19,10 @@ package wire
 
 import (
 	"fmt"
+	"net/http"
 	"tiny-forum/internal/infra/config"
-	"tiny-forum/internal/infra/ratelimit"
 	"tiny-forum/internal/middleware"
+	"tiny-forum/internal/routes"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -55,6 +56,8 @@ func RegisterRoutes(
 	{
 		// 健康检查：完全公开，无需鉴权
 		api.GET("/health", func(c *gin.Context) { c.JSON(200, "pong") })
+		api.GET("/plugins/files", routes.ListPluginFiles)
+		api.GET("/plugins/browser", routes.PluginBrowser)
 	}
 
 	// ── 公开路由（guest 可读，已登录用户可写）────────────────────────────────
@@ -74,7 +77,12 @@ func RegisterRoutes(
 	handlers.Announcement.RegisterRoutes(api, mw)
 	handlers.Stats.RegisterRoutes(api, mw)
 	handlers.Admin.RegisterRoutes(api, mw)
-	handlers.Upload.RegisterRoutes(api, mw)
+	handlers.Attachment.RegisterRoutes(api, mw)
+	handlers.Plugin.RegisterRoutes(api, mw)
+	handlers.Bot.RegisterRoutes(api, mw)
+
+	// 静态路由
+	engine.StaticFS("/store", http.Dir("./store"))
 
 	// ── Admin 路由组（示例：Casbin 替代 AdminRequired）───────────────────────
 	//
@@ -92,7 +100,7 @@ func RegisterRoutes(
 	// 	adminGroup.GET("/boards/applications", handlers.Board.ListApplications)
 	// 	adminGroup.POST("/boards/applications/:application_id/review", handlers.Board.ReviewApplication)
 	// 	adminGroup.GET("/boards", handlers.Board.List)
-	// 	adminGroup.GET("/posts", handlers.Post.AdminList)
+	// adminGroup.GET("/posts", handlers.Post.AdminList)
 	// 	adminGroup.GET("/posts/pending", handlers.Post.AdminGetModerationRequire)
 	// 	adminGroup.PUT("/audit/tasks/:id/approve", handlers.Post.AdminApprovePost)
 	// 	adminGroup.PUT("/audit/tasks/:id/reject", handlers.Post.AdminRejectPost)
@@ -132,5 +140,5 @@ func RegisterRoutes(
 	//       mw.ContentCheck([]string{"title", "content"}),
 	//       handlers.Post.Create,
 	//   )
-	_ = ratelimit.ActionCreatePost // 消除 unused import 提示（实际在 handler 内使用）
+	// _ = ratelimit.ActionCreatePost // 消除 unused import 提示（实际在 handler 内使用）
 }

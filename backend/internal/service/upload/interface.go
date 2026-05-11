@@ -1,45 +1,36 @@
+// internal/service/upload/interface.go
 package upload
 
 import (
 	"context"
 	"mime/multipart"
-	"os"
-	"strings"
-	"tiny-forum/internal/infra/config"
-	"tiny-forum/internal/model/dto"
-	uploadRepo "tiny-forum/internal/repository/upload"
+	"tiny-forum/internal/model/do"
 )
 
-type UploadService interface {
-	UploadFile(ctx context.Context, userID int64, fileHeader *multipart.FileHeader, req *dto.UploadRequest) (*dto.UploadResponse, error)
-	GetFile(ctx context.Context, fileID string) (*dto.FileInfo, error)
-	DeleteFile(ctx context.Context, userID int64, fileID string) error
-	GetUserFiles(ctx context.Context, userID int64, fileType string, page, pageSize int) ([]*dto.FileInfo, int64, error)
-	AssociateWithPost(ctx context.Context, fileID string, postID int64) error
+type Engine interface {
+	// Upload 仅负责存储文件，返回存储结果，不操作数据库
+	Upload(ctx context.Context, req *UploadRequest) (*UploadResult, error)
+	DeleteFile(ctx context.Context, storedPath string) error
 }
 
-type service struct {
-	repo       uploadRepo.UploadRepository
-	uploadDir  string
-	urlPrefix  string
-	maxSize    int64
-	allowedExt map[string]bool
+type UploadRequest struct {
+	UserID   uint
+	PluginID string
+	File     *multipart.FileHeader
+	FileType do.FileType
+	PostID   int64
+	ReplyID  int64
+	ClientIP string
 }
 
-func NewUploadService(repo uploadRepo.UploadRepository, cfg config.UploadConfig) UploadService {
-	allowedMap := make(map[string]bool)
-	for _, ext := range cfg.AllowedExt {
-		allowedMap[strings.ToLower(ext)] = true
-	}
-
-	// 确保上传目录存在
-	os.MkdirAll(cfg.UploadDir, 0755)
-
-	return &service{
-		repo:       repo,
-		uploadDir:  cfg.UploadDir,
-		urlPrefix:  cfg.URLPrefix,
-		maxSize:    cfg.MaxSize,
-		allowedExt: allowedMap,
-	}
+// UploadResult 上传结果，由调用方负责保存到数据库
+type UploadResult struct {
+	FileHash     string
+	StoredPath   string
+	StoredName   string
+	MimeType     string
+	MimeMajor    do.MimeTypeMajor
+	Ext          string
+	Size         int64
+	OriginalName string
 }

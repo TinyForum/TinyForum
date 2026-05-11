@@ -2,6 +2,7 @@ package do
 
 import (
 	"time"
+	"tiny-forum/internal/model/common"
 )
 
 // 定义 context key 常量
@@ -13,7 +14,7 @@ const (
 
 // User 模型
 type User struct {
-	BaseModel
+	common.BaseModel
 	Username           string     `gorm:"uniqueIndex;not null;size:50" json:"username"` // 用户名
 	Email              string     `gorm:"uniqueIndex;not null;size:100" json:"email"`   // 邮箱
 	Password           string     `gorm:"not null" json:"password"`                     // 密码（hash）

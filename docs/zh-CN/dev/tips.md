@@ -1,8 +1,10 @@
-# 提示
+# 其他
 
-## 重新生成 API 文档
+删除表
 
-```bash
-cd backend/docs
-npx swagger-markdown -i ./swagger.json
+```sql
+TRUNCATE attachments;
 ```
+
+
+

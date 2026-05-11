@@ -9,7 +9,9 @@ check_go() {
         return 0
     else
         echo -e "${RED}❌ not found${NC}"
-        echo "     → Install: https://go.dev/dl/"
+        echo "     → On Ubuntu/Debian: sudo apt install golang-go"
+        echo "     → On macOS: brew install go"
+        echo "     → Or download from: https://go.dev/dl/"
         return 1
     fi
 }

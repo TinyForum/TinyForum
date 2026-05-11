@@ -38,5 +38,9 @@ func (p *PageRequest) normalize() {
 }
 
 // Offset / Limit 保持不变
-func (p *PageRequest) Offset() int { return (p.Page - 1) * p.PageSize }
-func (p *PageRequest) Limit() int  { return p.PageSize }
+func (p *PageRequest) Offset() int {
+	return (p.Page - 1) * p.PageSize
+}
+func (p *PageRequest) Limit() int {
+	return p.PageSize
+}

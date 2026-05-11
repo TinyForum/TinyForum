@@ -1,6 +1,8 @@
 package admin
 
-import "tiny-forum/internal/service/admin"
+import (
+	"tiny-forum/internal/service/admin"
+)
 
 type AdminHandler struct {
 	service admin.AdminService

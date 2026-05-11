@@ -2,14 +2,18 @@ package wire
 
 import (
 	"tiny-forum/internal/infra/config"
+	luasdk "tiny-forum/internal/infra/lua/sdk"
 	"tiny-forum/internal/service/admin"
 	"tiny-forum/internal/service/announcement"
+	attachment "tiny-forum/internal/service/attachment"
 	"tiny-forum/internal/service/auth"
 	"tiny-forum/internal/service/board"
+	"tiny-forum/internal/service/bot"
 	"tiny-forum/internal/service/check"
 	"tiny-forum/internal/service/comment"
 	"tiny-forum/internal/service/email"
 	"tiny-forum/internal/service/notification"
+	"tiny-forum/internal/service/plugin"
 	"tiny-forum/internal/service/post"
 	"tiny-forum/internal/service/question"
 	"tiny-forum/internal/service/risk"
@@ -19,6 +23,8 @@ import (
 	"tiny-forum/internal/service/topic"
 	"tiny-forum/internal/service/upload"
 	"tiny-forum/internal/service/user"
+	"tiny-forum/internal/storage"
+	"tiny-forum/internal/strategy"
 	jwtpkg "tiny-forum/pkg/jwt"
 )
 
@@ -38,20 +44,30 @@ type Services struct {
 	Stats        stats.StatsService
 	Risk         risk.RiskService
 	ContentCheck check.ContentCheckService
-	Upload       upload.UploadService
-	admin        admin.AdminService
+	Attachment   attachment.AttachmentService
+	Admin        admin.AdminService
+	Plugin       plugin.PluginService
+	Bot          bot.Service
 }
 
 // NewServices 创建所有 Service 实例
 func NewServices(
 	cfg *config.Config,
+
 	jwtMgr *jwtpkg.JWTManager,
 	repos *Repositories,
 	infra *Infra,
+	userStorage storage.StorageDriver,
+	publicStorage storage.StorageDriver,
+	registry *strategy.HandlerRegistry,
+	forumAPI luasdk.ForumAPI,
+
 ) *Services {
+	// registry := strategy.NewHandlerRegistry()
+	// userStorage := storage.NewLocalStorage("./uploads")
+	// publicStorage := storage.NewLocalStorage("./public")
 	riskSvc := risk.NewRiskService(repos.Risk, infra.RateLimiter)
 	checkSvc := check.NewContentCheckService(repos.Risk, infra.SensitiveFilter)
-
 	// 基础服务
 	notifSvc := notification.NewNotificationService(repos.Notification)
 	userSvc := user.NewUserService(repos.User, jwtMgr, notifSvc, repos.Post, repos.Comment)
@@ -66,8 +82,11 @@ func NewServices(
 	statsSvc := stats.NewStatsService(repos.Stats, repos.Post, repos.Tag, repos.Board, repos.User, repos.Comment)
 	emailSvc := email.NewEmailService(&cfg.Private.Email)
 	authSvc := auth.NewAuthService(repos.Auth, repos.User, jwtMgr, notifSvc, emailSvc, cfg, repos.Token, repos.Transaction, infra.RedisClient)
-	uploadSvc := upload.NewUploadService(repos.Upload, cfg.Basic.Upload)
-	adminSvc := admin.NewAdminService(announcementSvc, userSvc)
+	adminSvc := admin.NewAdminService(announcementSvc, userSvc, postSvc)
+	pluginSvc := plugin.NewPluginService(repos.Plugin, publicStorage, &cfg.Basic.Plugins)
+	engine := upload.NewEngine(userStorage, registry)
+	attachmentSvc := attachment.NewAttachmentService(repos.Attachment, cfg.Basic.Attachment, engine)
+	botSvc := bot.NewService(repos.Bot, repos.Post, repos.Comment, repos.User, repos.Notification)
 
 	return &Services{
 		User:         userSvc,
@@ -84,7 +103,9 @@ func NewServices(
 		Stats:        statsSvc,
 		Risk:         riskSvc,
 		ContentCheck: checkSvc,
-		Upload:       uploadSvc,
-		admin:        adminSvc,
+		Attachment:   attachmentSvc,
+		Admin:        adminSvc,
+		Plugin:       pluginSvc,
+		Bot:          botSvc,
 	}
 }

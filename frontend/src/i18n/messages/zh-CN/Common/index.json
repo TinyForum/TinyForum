@@ -6,6 +6,7 @@
   "user_menu": "用户菜单",
   "user_dashboard": "个人中心",
   "member_dashboard": "会员中心",
+  "system_dashboard": "系统后台",
   "profile": "个人主页",
   "my_timeline": "我的时间线",
   "my_topics": "我的专题",
@@ -32,6 +33,7 @@
     "member": "会员",
     "user": "用户",
     "guest": "访客",
+    "system_maintainer": "系统维护者",
     "bot": "机器人"
   },
 

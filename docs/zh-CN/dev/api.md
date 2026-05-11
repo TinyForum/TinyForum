@@ -10,32 +10,32 @@
 
 ## 2. HTTP 方法与语义
 
-| 方法   | 语义           | 示例                              | 是否幂等 |
-|--------|----------------|-----------------------------------|----------|
-| GET    | 获取资源       | `GET /posts`<br>`GET /posts/1`    | 是       |
-| POST   | 创建资源       | `POST /posts`                     | 否       |
-| PUT    | 全量更新       | `PUT /posts/1`                    | 是       |
-| PATCH  | 部分更新       | `PATCH /posts/1`                  | 否       |
-| DELETE | 删除资源       | `DELETE /posts/1`                 | 是       |
+| 方法   | 语义     | 示例                           | 是否幂等 |
+| ------ | -------- | ------------------------------ | -------- |
+| GET    | 获取资源 | `GET /posts`<br>`GET /posts/1` | 是       |
+| POST   | 创建资源 | `POST /posts`                  | 否       |
+| PUT    | 全量更新 | `PUT /posts/1`                 | 是       |
+| PATCH  | 部分更新 | `PATCH /posts/1`               | 否       |
+| DELETE | 删除资源 | `DELETE /posts/1`              | 是       |
 
 - **POST vs PUT**：POST 用于“创建”，服务端决定新资源 ID；PUT 用于“替换”或“创建在已知 ID”。
 - **具体到你的项目**：点赞用 `POST /posts/{id}/like`，取消点赞用 `DELETE /posts/{id}/like` —— 虽非严格 RESTful，但被广泛接受。
 
 ## 3. 状态码规范
 
-| 状态码 | 含义                     | 使用场景                                         |
-|--------|--------------------------|--------------------------------------------------|
-| 200    | OK                       | GET、PUT、PATCH、DELETE 成功                     |
-| 201    | Created                  | POST 成功创建资源，响应头应含 `Location`         |
-| 204    | No Content               | 删除成功或更新成功但无需返回 body                |
-| 400    | Bad Request              | 请求参数缺失、格式错误、业务校验失败             |
-| 401    | Unauthorized             | 未认证（未提供 token 或 token 无效）             |
-| 403    | Forbidden                | 已认证但无权限（如普通用户调用管理员接口）       |
-| 404    | Not Found                | 资源不存在                                       |
-| 409    | Conflict                 | 资源冲突（如重复创建、状态冲突）                 |
-| 422    | Unprocessable Entity     | 语义错误（比如参数校验失败，更细粒度）           |
-| 429    | Too Many Requests        | 触发限流                                         |
-| 500    | Internal Server Error    | 服务端内部错误                                   |
+| 状态码 | 含义                  | 使用场景                                   |
+| ------ | --------------------- | ------------------------------------------ |
+| 200    | OK                    | GET、PUT、PATCH、DELETE 成功               |
+| 201    | Created               | POST 成功创建资源，响应头应含 `Location`   |
+| 204    | No Content            | 删除成功或更新成功但无需返回 body          |
+| 400    | Bad Request           | 请求参数缺失、格式错误、业务校验失败       |
+| 401    | Unauthorized          | 未认证（未提供 token 或 token 无效）       |
+| 403    | Forbidden             | 已认证但无权限（如普通用户调用管理员接口） |
+| 404    | Not Found             | 资源不存在                                 |
+| 409    | Conflict              | 资源冲突（如重复创建、状态冲突）           |
+| 422    | Unprocessable Entity  | 语义错误（比如参数校验失败，更细粒度）     |
+| 429    | Too Many Requests     | 触发限流                                   |
+| 500    | Internal Server Error | 服务端内部错误                             |
 
 - 你的项目中已有 `response` 包，可以统一封装成功/失败响应。
 
@@ -44,6 +44,7 @@
 - **统一使用 JSON**：`Content-Type: application/json`，`Accept: application/json`。
 - **请求体**：字段使用 `camelCase` 或 `snake_case`，但推荐 `snake_case` 与数据库字段一致（配合 JSON tag）。
 - **成功响应结构**（建议统一）：
+
   ```json
   {
     "code": 0,
@@ -51,9 +52,11 @@
     "data": { ... }
   }
   ```
+
   或直接返回数据（简单场景）。你的项目已有 `response.Success(c, data)`，保持全局统一即可。
 
 - **错误响应结构**：
+
   ```json
   {
     "code": 40001,
@@ -109,7 +112,7 @@
   // @Produce json
   // @Param page query int false "页码"
   // @Param page_size query int false "每页数量"
-  // @Success 200 {object} response.Response{data=[]dto.Post}
+  // @Success 200 {object} vo.BasicResponse{data=[]dto.Post}
   // @Router /posts [get]
   ```
 
@@ -119,4 +122,3 @@
 - **字段命名**：统一风格（如 `user_id` 而非 `userId`）。
 - **错误码**：定义业务错误码表，便于前端处理。
 - **时间格式**：使用 ISO8601，如 `2025-04-25T10:30:00Z`。
-

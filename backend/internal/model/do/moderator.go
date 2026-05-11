@@ -1,6 +1,9 @@
 package do
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"tiny-forum/internal/model/common"
+)
 
 // ── ModeratorPermissions 版主细粒度权限 ──────────────────────────────────────
 
@@ -20,7 +23,7 @@ type ModeratorPermissions struct {
 // Permissions 字段以 JSON 格式持久化在数据库中，
 // 通过 GetPermissions / SetPermissions 读写，上层代码不直接操作 json.RawMessage。
 type Moderator struct {
-	BaseModel
+	common.BaseModel
 	UserID      uint            `gorm:"not null;uniqueIndex:idx_user_board" json:"user_id"`
 	BoardID     uint            `gorm:"not null;uniqueIndex:idx_user_board" json:"board_id"`
 	Permissions json.RawMessage `gorm:"type:json"        json:"permissions" swaggertype:"object" swaggerio:"ignore"`
@@ -85,7 +88,7 @@ const (
 // ModeratorApplication 用户申请成为版主的记录。
 // 一个用户在同一板块同一时间只允许存在一条 pending 申请（unique 约束在 service 层保证）。
 type ModeratorApplication struct {
-	BaseModel
+	common.BaseModel
 	UserID     uint              `gorm:"not null;index"               json:"user_id"`
 	BoardID    uint              `gorm:"not null;index"               json:"board_id"`
 	Reason     string            `gorm:"size:500"                     json:"reason"`

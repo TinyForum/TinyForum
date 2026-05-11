@@ -92,7 +92,7 @@ var defaultPolicies = [][]string{
 	{"user", "/api/v1/questions/*", "GET|POST|PUT|DELETE"},
 	{"user", "/api/v1/answers", "GET|POST"},
 	{"user", "/api/v1/answers/*", "GET|POST|PUT|DELETE"},
-	{"user", "/api/v1/upload", "POST"},
+	{"user", "/api/v1/attachment", "POST"},
 	{"user", "/api/v1/auth/logout", "POST"},
 	{"user", "/api/v1/auth/password", "PUT"},
 	{"user", "/api/v1/auth/me", "GET|PUT"},

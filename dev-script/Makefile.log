@@ -157,6 +157,48 @@ endif
 	   done; \
 	   echo "清理完成"; \
 	 fi
+# 自动检测 Nginx 日志路径
+# 优先检查常见位置，支持 macOS (Homebrew) 和 Linux
+NGINX_ACCESS_LOG := $(firstword $(wildcard \
+    /var/log/nginx/access.log \
+    /usr/local/var/log/nginx/access.log \
+    /opt/homebrew/var/log/nginx/access.log \
+))
+
+NGINX_ERROR_LOG := $(firstword $(wildcard \
+    /var/log/nginx/error.log \
+    /usr/local/var/log/nginx/error.log \
+    /opt/homebrew/var/log/nginx/error.log \
+))
+
+# 检查 Nginx 是否安装/运行（可选）
+check-nginx:
+	@command -v nginx >/dev/null 2>&1 || (echo "Nginx 未安装，请先安装"; exit 1)
+	@pgrep nginx >/dev/null 2>&1 || (echo "Nginx 未运行，请启动 Nginx (e.g., brew services start nginx)"; exit 1)
+
+# @查看 Nginx 访问日志
+nginx-access: check-nginx
+	@if [ -z "$(NGINX_ACCESS_LOG)" ]; then \
+		echo "未找到 Nginx 访问日志，请手动指定路径"; \
+		echo "常见路径:"; \
+		echo "  macOS (Intel): /usr/local/var/log/nginx/access.log"; \
+		echo "  macOS (M1/2):  /opt/homebrew/var/log/nginx/access.log"; \
+		echo "  Ubuntu/Debian: /var/log/nginx/access.log"; \
+		exit 1; \
+	fi
+	@tail -f $(NGINX_ACCESS_LOG)
+
+# @查看 Nginx 错误日志
+nginx-error: check-nginx
+	@if [ -z "$(NGINX_ERROR_LOG)" ]; then \
+		echo "未找到 Nginx 错误日志，请手动指定路径"; \
+		echo "常见路径:"; \
+		echo "  macOS (Intel): /usr/local/var/log/nginx/error.log"; \
+		echo "  macOS (M1/2):  /opt/homebrew/var/log/nginx/error.log"; \
+		echo "  Ubuntu/Debian: /var/log/nginx/error.log"; \
+		exit 1; \
+	fi
+	@tail -f $(NGINX_ERROR_LOG)
 
 # @执行自定义 SQL
 query:
@@ -164,6 +206,7 @@ ifndef SQL
 	$(error 请指定 SQL 参数，例如: make query SQL="SELECT COUNT(*) FROM $(_TABLE_TODAY)")
 endif
 	@$(SQLITE3) -header -column "$(DB_PATH)" "$(SQL)"
+
 
 .PHONY: log-help
 # @此帮助信息

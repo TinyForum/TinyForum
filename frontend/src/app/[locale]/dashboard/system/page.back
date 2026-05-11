@@ -1,0 +1,617 @@
+// app/[locale]/dashboard/system/page.tsx
+"use client";
+
+import { useState } from "react";
+import { Switch } from "@headlessui/react";
+import { Pagination } from "@/features/admin/components/Pagination";
+import SearchBar from "@/shared/ui/nav/SearchBar";
+
+// ---------- 类型定义 ----------
+interface Plugin {
+  id: string;
+  name: string;
+  description: string;
+  version: string;
+  author: string;
+  enabled: boolean;
+}
+
+interface Feature {
+  id: string;
+  name: string;
+  description: string;
+  enabled: boolean;
+  category: string;
+}
+
+interface SiteConfig {
+  siteName: string;
+  siteDescription: string;
+  siteKeywords: string;
+  adminEmail: string;
+  itemsPerPage: number;
+  enableMaintenanceMode: boolean;
+  defaultTheme: "light" | "dark" | "auto";
+}
+
+// ---------- 模拟数据 ----------
+const initialPlugins: Plugin[] = [
+  {
+    id: "1",
+    name: "SEO 优化插件",
+    description: "提供搜索引擎优化功能，自动生成 sitemap 和 meta 标签",
+    version: "2.1.0",
+    author: "SystemCore",
+    enabled: true,
+  },
+  {
+    id: "2",
+    name: "数据分析插件",
+    description: "统计网站访问量、用户行为等数据",
+    version: "1.3.2",
+    author: "Analytics Team",
+    enabled: true,
+  },
+  {
+    id: "3",
+    name: "社交媒体集成",
+    description: "集成微博、微信等社交平台分享功能",
+    version: "3.0.1",
+    author: "SocialTech",
+    enabled: false,
+  },
+  {
+    id: "4",
+    name: "缓存优化插件",
+    description: "提供 Redis 和文件缓存支持，提升访问速度",
+    version: "2.0.0",
+    author: "PerformanceLab",
+    enabled: true,
+  },
+  {
+    id: "5",
+    name: "备份恢复工具",
+    description: "定期备份数据库和文件，支持一键恢复",
+    version: "1.5.0",
+    author: "SecurityTeam",
+    enabled: false,
+  },
+];
+
+const initialFeatures: Feature[] = [
+  {
+    id: "1",
+    name: "用户注册",
+    description: "允许新用户注册账号",
+    enabled: true,
+    category: "用户管理",
+  },
+  {
+    id: "2",
+    name: "评论系统",
+    description: "允许用户在内容下发表评论",
+    enabled: true,
+    category: "互动功能",
+  },
+  {
+    id: "3",
+    name: "内容审核",
+    description: "新发布内容需要管理员审核",
+    enabled: true,
+    category: "安全策略",
+  },
+  {
+    id: "4",
+    name: "API 接口",
+    description: "开放 RESTful API 接口供第三方调用",
+    enabled: false,
+    category: "开发者工具",
+  },
+  {
+    id: "5",
+    name: "邮件通知",
+    description: "发送系统邮件通知（如注册确认、密码重置）",
+    enabled: true,
+    category: "通知系统",
+  },
+  {
+    id: "6",
+    name: "多语言支持",
+    description: "启用多语言界面切换功能",
+    enabled: true,
+    category: "国际化",
+  },
+];
+
+// ---------- 主组件 ----------
+export default function SystemPage() {
+  const [activeMenu, setActiveMenu] = useState<
+    "config" | "plugins" | "features"
+  >("config");
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [keyword, setKeyword] = useState("");
+  const [page, setPage] = useState(1);
+  const [message, setMessage] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
+
+  // 配置状态
+  const [siteConfig, setSiteConfig] = useState<SiteConfig>({
+    siteName: "我的网站",
+    siteDescription: "这是一个功能强大的网站平台",
+    siteKeywords: "系统,管理,配置",
+    adminEmail: "admin@example.com",
+    itemsPerPage: 20,
+    enableMaintenanceMode: false,
+    defaultTheme: "auto",
+  });
+
+  // 插件与功能状态
+  const [plugins, setPlugins] = useState(initialPlugins);
+  const [features, setFeatures] = useState(initialFeatures);
+
+  // 辅助函数：显示临时消息
+  const showMessage = (type: "success" | "error", text: string) => {
+    setMessage({ type, text });
+    setTimeout(() => setMessage(null), 3000);
+  };
+
+  // ---------- 保存配置 ----------
+  const handleSaveConfig = async () => {
+    try {
+      // TODO: 调用 API 保存配置
+      console.log("保存配置:", siteConfig);
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      showMessage("success", "网站配置保存成功！");
+    } catch {
+      showMessage("error", "保存失败，请重试");
+    }
+  };
+
+  // ---------- 切换插件启用状态 (使用 Switch) ----------
+  const togglePlugin = async (pluginId: string, enabled: boolean) => {
+    const plugin = plugins.find((p) => p.id === pluginId);
+    if (!plugin) return;
+    try {
+      // TODO: 调用 API
+      console.log(`${enabled ? "启用" : "禁用"}插件:`, plugin.name);
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      setPlugins((prev) =>
+        prev.map((p) => (p.id === pluginId ? { ...p, enabled } : p)),
+      );
+      showMessage("success", `${plugin.name} 已${enabled ? "启用" : "禁用"}`);
+    } catch {
+      showMessage("error", "操作失败，请重试");
+    }
+  };
+
+  // ---------- 切换功能开关 (使用 Switch) ----------
+  const toggleFeature = async (featureId: string, enabled: boolean) => {
+    const feature = features.find((f) => f.id === featureId);
+    if (!feature) return;
+    try {
+      // TODO: 调用 API
+      console.log(`${enabled ? "开启" : "关闭"}功能:`, feature.name);
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      setFeatures((prev) =>
+        prev.map((f) => (f.id === featureId ? { ...f, enabled } : f)),
+      );
+      showMessage("success", `${feature.name} 已${enabled ? "开启" : "关闭"}`);
+    } catch {
+      showMessage("error", "操作失败，请重试");
+    }
+  };
+
+  // 插件搜索与分页
+  const filteredPlugins = plugins.filter(
+    (plugin) =>
+      plugin.name.toLowerCase().includes(keyword.toLowerCase()) ||
+      plugin.description.toLowerCase().includes(keyword.toLowerCase()),
+  );
+  const pageSize = 5;
+  const paginatedPlugins = filteredPlugins.slice(
+    (page - 1) * pageSize,
+    page * pageSize,
+  );
+
+  // 侧边栏菜单
+  const menus = [
+    { id: "config" as const, label: "网站配置", icon: "⚙️" },
+    { id: "plugins" as const, label: "插件管理", icon: "🔌" },
+    { id: "features" as const, label: "功能开关", icon: "🎛️" },
+  ];
+
+  // ---------- 渲染各个面板 ----------
+  const renderConfigPanel = () => (
+    <div className="space-y-6 animate-fade-in">
+      <div className="rounded-2xl bg-base-200 p-6 shadow-sm">
+        <h2 className="mb-4 text-xl font-semibold text-primary">基本设置</h2>
+        <div className="space-y-4">
+          <div>
+            <label className="label font-medium">网站名称</label>
+            <input
+              type="text"
+              className="input input-bordered w-full"
+              value={siteConfig.siteName}
+              onChange={(e) =>
+                setSiteConfig({ ...siteConfig, siteName: e.target.value })
+              }
+            />
+          </div>
+          <div>
+            <label className="label font-medium">网站描述</label>
+            <textarea
+              className="textarea textarea-bordered w-full"
+              rows={3}
+              value={siteConfig.siteDescription}
+              onChange={(e) =>
+                setSiteConfig({
+                  ...siteConfig,
+                  siteDescription: e.target.value,
+                })
+              }
+            />
+          </div>
+          <div>
+            <label className="label font-medium">网站关键词</label>
+            <input
+              type="text"
+              className="input input-bordered w-full"
+              value={siteConfig.siteKeywords}
+              onChange={(e) =>
+                setSiteConfig({ ...siteConfig, siteKeywords: e.target.value })
+              }
+              placeholder="用英文逗号分隔"
+            />
+          </div>
+          <div>
+            <label className="label font-medium">管理员邮箱</label>
+            <input
+              type="email"
+              className="input input-bordered w-full"
+              value={siteConfig.adminEmail}
+              onChange={(e) =>
+                setSiteConfig({ ...siteConfig, adminEmail: e.target.value })
+              }
+            />
+          </div>
+          <div>
+            <label className="label font-medium">每页显示数量</label>
+            <select
+              className="select select-bordered w-full"
+              value={siteConfig.itemsPerPage}
+              onChange={(e) =>
+                setSiteConfig({
+                  ...siteConfig,
+                  itemsPerPage: Number(e.target.value),
+                })
+              }
+            >
+              <option value={10}>10 条/页</option>
+              <option value={20}>20 条/页</option>
+              <option value={50}>50 条/页</option>
+              <option value={100}>100 条/页</option>
+            </select>
+          </div>
+          <div>
+            <label className="label font-medium">默认主题</label>
+            <select
+              className="select select-bordered w-full"
+              value={siteConfig.defaultTheme}
+              onChange={(e) =>
+                setSiteConfig({
+                  ...siteConfig,
+                  defaultTheme: e.target.value as SiteConfig["defaultTheme"],
+                })
+              }
+            >
+              <option value="light">浅色模式</option>
+              <option value="dark">深色模式</option>
+              <option value="auto">跟随系统</option>
+            </select>
+          </div>
+
+          {/* 维护模式 – 使用 Headless UI Switch */}
+          <div className="flex items-center justify-between rounded-lg bg-base-100 p-4">
+            <div>
+              <div className="font-medium">维护模式</div>
+              <p className="text-sm text-base-content/60">
+                开启后仅管理员可访问网站前台
+              </p>
+            </div>
+            <Switch
+              checked={siteConfig.enableMaintenanceMode}
+              onChange={(checked) =>
+                setSiteConfig({ ...siteConfig, enableMaintenanceMode: checked })
+              }
+              className={`${
+                siteConfig.enableMaintenanceMode ? "bg-primary" : "bg-base-300"
+              } relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2`}
+            >
+              <span
+                className={`${
+                  siteConfig.enableMaintenanceMode
+                    ? "translate-x-6"
+                    : "translate-x-1"
+                } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
+              />
+            </Switch>
+          </div>
+        </div>
+        <div className="mt-6">
+          <button className="btn btn-primary" onClick={handleSaveConfig}>
+            保存配置
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderPluginsPanel = () => (
+    <div className="space-y-4 animate-fade-in">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <SearchBar
+          keyword={keyword}
+          onKeywordChange={(val: string) => {
+            setKeyword(val);
+            setPage(1);
+          }}
+          placeholder="搜索插件名称或描述..."
+        />
+        <button className="btn btn-outline btn-primary btn-sm">
+          + 上传插件
+        </button>
+      </div>
+
+      <div className="space-y-3">
+        {paginatedPlugins.map((plugin) => (
+          <div
+            key={plugin.id}
+            className="rounded-xl bg-base-200 p-4 transition-all hover:shadow-md"
+          >
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div className="flex-1">
+                <div className="mb-1 flex items-center gap-2">
+                  <h3 className="text-lg font-semibold">{plugin.name}</h3>
+                  <span className="badge badge-sm">v{plugin.version}</span>
+                  <span
+                    className={`badge badge-sm ${
+                      plugin.enabled ? "badge-success" : "badge-ghost"
+                    }`}
+                  >
+                    {plugin.enabled ? "已启用" : "已禁用"}
+                  </span>
+                </div>
+                <p className="mb-1 text-sm text-base-content/70">
+                  {plugin.description}
+                </p>
+                <p className="text-xs text-base-content/50">
+                  作者: {plugin.author}
+                </p>
+              </div>
+              <div className="flex items-center gap-3">
+                {plugin.enabled && (
+                  <button className="btn btn-ghost btn-sm">⚙️ 设置</button>
+                )}
+                {/* 使用 Headless UI Switch 控制插件启用/禁用 */}
+                <Switch
+                  checked={plugin.enabled}
+                  onChange={(checked) => togglePlugin(plugin.id, checked)}
+                  className={`${
+                    plugin.enabled ? "bg-primary" : "bg-base-400"
+                  } relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2`}
+                >
+                  <span
+                    className={`${
+                      plugin.enabled ? "translate-x-6" : "translate-x-1"
+                    } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
+                  />
+                </Switch>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {filteredPlugins.length === 0 && (
+        <div className="py-12 text-center text-base-content/50">
+          没有找到相关插件
+        </div>
+      )}
+
+      {filteredPlugins.length > pageSize && (
+        <div className="mt-6">
+          <Pagination
+            currentPage={page}
+            total={filteredPlugins.length}
+            pageSize={pageSize}
+            onPageChange={setPage}
+          />
+        </div>
+      )}
+    </div>
+  );
+
+  const renderFeaturesPanel = () => {
+    const groupedFeatures = features.reduce(
+      (acc, feature) => {
+        if (!acc[feature.category]) acc[feature.category] = [];
+        acc[feature.category].push(feature);
+        return acc;
+      },
+      {} as Record<string, Feature[]>,
+    );
+
+    const enabledCount = features.filter((f) => f.enabled).length;
+
+    return (
+      <div className="space-y-6 animate-fade-in">
+        <div className="rounded-2xl bg-base-200 p-6 shadow-sm">
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-xl font-semibold text-primary">功能开关控制</h2>
+            <button
+              className="btn btn-outline btn-primary btn-sm"
+              onClick={() => {
+                setFeatures(features.map((f) => ({ ...f, enabled: true })));
+                showMessage("success", "已启用所有功能");
+              }}
+            >
+              全部启用
+            </button>
+          </div>
+          <p className="mb-6 text-sm text-base-content/60">
+            控制网站各项功能的启用状态，修改后立即生效
+          </p>
+
+          {Object.entries(groupedFeatures).map(
+            ([category, categoryFeatures]) => (
+              <div key={category} className="mb-6">
+                <h3 className="mb-2 border-b border-base-300 pb-1 text-lg font-medium">
+                  {category}
+                </h3>
+                <div className="space-y-3">
+                  {categoryFeatures.map((feature) => (
+                    <div
+                      key={feature.id}
+                      className="flex items-center justify-between rounded-lg bg-base-100 p-3"
+                    >
+                      <div>
+                        <div className="font-medium">{feature.name}</div>
+                        <div className="text-sm text-base-content/60">
+                          {feature.description}
+                        </div>
+                      </div>
+                      <Switch
+                        checked={feature.enabled}
+                        onChange={(checked) =>
+                          toggleFeature(feature.id, checked)
+                        }
+                        className={`${
+                          feature.enabled ? "bg-primary" : "bg-base-300"
+                        } relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2`}
+                      >
+                        <span
+                          className={`${
+                            feature.enabled ? "translate-x-6" : "translate-x-1"
+                          } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
+                        />
+                      </Switch>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ),
+          )}
+        </div>
+
+        {/* 统计卡片 */}
+        <div className="rounded-2xl bg-base-200 p-6 shadow-sm">
+          <h2 className="mb-3 text-xl font-semibold text-primary">
+            功能使用统计
+          </h2>
+          <div className="stats shadow w-full bg-base-100">
+            <div className="stat">
+              <div className="stat-title">已启用功能</div>
+              <div className="stat-value text-primary">{enabledCount}</div>
+              <div className="stat-desc">共 {features.length} 项功能</div>
+            </div>
+            <div className="stat">
+              <div className="stat-title">启用率</div>
+              <div className="stat-value text-secondary">
+                {Math.round((enabledCount / features.length) * 100)}%
+              </div>
+              <div className="stat-desc">系统运行中</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // ---------- 侧边栏组件 (使用主题色) ----------
+  const SystemSidebar = () => (
+    <div
+      className={`${
+        sidebarCollapsed ? "w-20" : "w-64"
+      } flex flex-col border-r border-base-300 bg-base-200 transition-all duration-300`}
+    >
+      <div className="flex items-center justify-between border-b border-base-300 p-4">
+        {!sidebarCollapsed && (
+          <div>
+            <h2 className="text-xl font-bold text-primary">系统管理</h2>
+            <p className="text-xs text-base-content/60">System Admin</p>
+          </div>
+        )}
+        <button
+          className="btn btn-ghost btn-sm"
+          onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+        >
+          {sidebarCollapsed ? "→" : "←"}
+        </button>
+      </div>
+
+      <nav className="flex-1 space-y-1 p-2">
+        {menus.map((menu) => (
+          <button
+            key={menu.id}
+            className={`flex w-full items-center gap-3 rounded-lg p-3 text-left transition-all ${
+              activeMenu === menu.id
+                ? "bg-primary text-primary-content shadow-md"
+                : "hover:bg-base-300"
+            }`}
+            onClick={() => {
+              setActiveMenu(menu.id);
+              setKeyword("");
+              setPage(1);
+            }}
+          >
+            <span className="text-xl">{menu.icon}</span>
+            {!sidebarCollapsed && <span>{menu.label}</span>}
+          </button>
+        ))}
+      </nav>
+    </div>
+  );
+
+  // ---------- 主布局 ----------
+  return (
+    <div className="flex h-screen bg-base-100">
+      <SystemSidebar />
+
+      <div className="flex-1 overflow-y-auto">
+        <div className="p-6">
+          {/* 页面头部 */}
+          <div className="mb-6">
+            <h1 className="text-2xl font-bold text-primary">
+              系统管理 · {menus.find((m) => m.id === activeMenu)?.label}
+            </h1>
+            <p className="mt-1 text-sm text-base-content/60">
+              修改网站配置、插件与功能开关，所有变更将立即生效
+            </p>
+          </div>
+
+          {/* 消息提示 */}
+          {message && (
+            <div
+              className={`mb-4 rounded-lg p-3 ${
+                message.type === "success"
+                  ? "bg-success/20 text-success"
+                  : "bg-error/20 text-error"
+              } animate-fade-in`}
+            >
+              {message.text}
+            </div>
+          )}
+
+          {/* 内容区域 */}
+          <div className="min-h-[calc(100vh-180px)]">
+            {activeMenu === "config" && renderConfigPanel()}
+            {activeMenu === "plugins" && renderPluginsPanel()}
+            {activeMenu === "features" && renderFeaturesPanel()}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

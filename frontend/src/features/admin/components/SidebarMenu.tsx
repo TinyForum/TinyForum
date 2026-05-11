@@ -1,6 +1,7 @@
 import {
   Award,
   BarChart3,
+  Bot,
   ChevronLeft,
   ChevronRight,
   FileText,
@@ -42,6 +43,12 @@ export function SidebarMenu({
       label: t("announcements"),
       icon: Megaphone,
       color: "text-warning",
+    },
+    {
+      id: "bot",
+      label: t("bot"),
+      icon: Bot,
+      color: "text-error",
     },
     {
       id: "users",

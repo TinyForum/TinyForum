@@ -4,10 +4,13 @@ import (
 	adminHandler "tiny-forum/internal/handler/admin"
 	announcementHandler "tiny-forum/internal/handler/announcement"
 	answerHandler "tiny-forum/internal/handler/answer"
+	"tiny-forum/internal/handler/attachment"
 	authHandler "tiny-forum/internal/handler/auth"
 	boardHandler "tiny-forum/internal/handler/board"
+	botHandler "tiny-forum/internal/handler/bot"
 	commentHandler "tiny-forum/internal/handler/comment"
 	notificationHandler "tiny-forum/internal/handler/notification"
+	pluginHandler "tiny-forum/internal/handler/plugin"
 	postHandler "tiny-forum/internal/handler/post"
 	questionHandler "tiny-forum/internal/handler/questions"
 	riskhandler "tiny-forum/internal/handler/risk"
@@ -15,7 +18,6 @@ import (
 	tagHandler "tiny-forum/internal/handler/tags"
 	timelineHandler "tiny-forum/internal/handler/timelines"
 	topicHandler "tiny-forum/internal/handler/topic"
-	uploadHandler "tiny-forum/internal/handler/upload"
 	userHandler "tiny-forum/internal/handler/user"
 	"tiny-forum/internal/infra/config"
 	"tiny-forum/pkg/timeutil"
@@ -37,8 +39,10 @@ type Handlers struct {
 	Announcement *announcementHandler.AnnouncementHandler
 	Stats        *statsHandler.StatsHandler
 	Risk         *riskhandler.RiskHandler
-	Upload       *uploadHandler.UploadHandler
+	Attachment   *attachment.AttachmentHandler
 	Admin        *adminHandler.AdminHandler
+	Plugin       *pluginHandler.Handler
+	Bot          *botHandler.Handler
 }
 
 // NewHandlers 创建所有 Handler 实例
@@ -57,8 +61,10 @@ func NewHandlers(svc *Services, timeHelpers *timeutil.TimeHelpers, cfg *config.C
 	announcement := announcementHandler.NewAnnouncementHandler(svc.Announcement)
 	stats := statsHandler.NewStatsHandler(svc.Stats, timeHelpers)
 	risk := riskhandler.NewRiskHandler(svc.ContentCheck, svc.Risk)
-	upload := uploadHandler.NewUploadHandler(svc.Upload)
-	admin := adminHandler.NewAdminHandler(svc.admin)
+	attachment := attachment.NewAttachmentHandler(svc.Attachment)
+	admin := adminHandler.NewAdminHandler(svc.Admin)
+	plugin := pluginHandler.NewHandler(svc.Plugin)
+	bot := botHandler.NewHandler(svc.Bot)
 
 	return &Handlers{
 		Auth:         auth,
@@ -75,7 +81,9 @@ func NewHandlers(svc *Services, timeHelpers *timeutil.TimeHelpers, cfg *config.C
 		Announcement: announcement,
 		Stats:        stats,
 		Risk:         risk,
-		Upload:       upload,
+		Attachment:   attachment,
 		Admin:        admin,
+		Plugin:       plugin,
+		Bot:          bot,
 	}
 }

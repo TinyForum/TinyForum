@@ -1,0 +1,43 @@
+// // internal/service/upload_service.go
+// package upload
+
+// import (
+// 	"context"
+// 	"mime/multipart"
+// 	"tiny-forum/internal/model/do"
+// 	"tiny-forum/internal/repository/attachment"
+// 	driver "tiny-forum/internal/storage"
+// 	"tiny-forum/internal/strategy"
+// )
+
+// type UploadService interface {
+// 	Upload(ctx context.Context, req *UploadRequest) (*do.Attachment, error)
+// }
+
+// type UploadRequest struct {
+// 	UserID    int64
+// 	PluginID  string
+// 	File      *multipart.FileHeader
+// 	FileType  do.FileType
+// 	PostID    int64
+// 	ReplyID   int64
+// 	ClientIP  string
+// }
+
+// type uploadServiceImpl struct {
+// 	attachmentRepo attachment.AttachmentRepository
+// 	storage        driver.StorageDriver
+// 	registry       *strategy.HandlerRegistry
+// }
+
+// func NewUploadService(
+// 	attachmentRepo attachment.AttachmentRepository,
+// 	storage driver.StorageDriver,
+// 	registry *strategy.HandlerRegistry,
+// ) UploadService {
+// 	return &uploadServiceImpl{
+// 		attachmentRepo: attachmentRepo,
+// 		storage:        storage,
+// 		registry:       registry,
+// 	}
+// }

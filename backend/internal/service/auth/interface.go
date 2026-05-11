@@ -7,6 +7,7 @@ import (
 	"tiny-forum/internal/infra/config"
 	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/dto"
+	"tiny-forum/internal/model/request"
 	"tiny-forum/internal/repository/auth"
 	"tiny-forum/internal/repository/token"
 	"tiny-forum/internal/repository/transaction"
@@ -36,7 +37,7 @@ type AuthService interface {
 	ResetPassword(ctx context.Context, req *dto.ResetPasswordRequest) error                           // 重置密码
 	ValidateResetToken(ctx context.Context, token string) (bool, error)                               // 验证重置密码token
 	Login(ctx context.Context, input userSvc.LoginInput) (*AuthResult, error)                         // 登录
-	Register(ctx context.Context, input userSvc.RegisterInput) (*userSvc.AuthResult, error)           // 注册
+	Register(ctx context.Context, input request.RegisterRequest) (*userSvc.AuthResult, error)         // 注册
 	ChangePassword(ctx context.Context, userID uint, oldPassword, newPassword string) (string, error) // 修改密码
 	DeleteAccount(ctx context.Context, userID uint, input DeleteAccountInput) error                   // 删除账户
 	CancelDeletion(ctx context.Context, userID uint) error                                            // 取消删除账户

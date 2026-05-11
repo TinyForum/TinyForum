@@ -2,12 +2,13 @@ package user
 
 import (
 	"context"
+	"tiny-forum/internal/model/common"
 	"tiny-forum/internal/model/request"
 	"tiny-forum/internal/model/vo"
 )
 
 // service/user_service.go
-func (s *userService) GetUserPosts(ctx context.Context, req request.GetUserPostsRequest, userID uint) (*vo.BasicPageData, error) {
+func (s *userService) GetUserPosts(ctx context.Context, req request.GetUserPostsRequest, userID uint) (*common.PageResult[vo.UserPosts], error) {
 	// 1. 排序规则白名单（职责：Service 层决定业务允许的排序方式）
 	sortBy := s.resolveSortBy(req.SortBy, req.Order)
 
@@ -17,7 +18,8 @@ func (s *userService) GetUserPosts(ctx context.Context, req request.GetUserPosts
 		return nil, err
 	}
 	if total == 0 {
-		return &vo.BasicPageData{
+
+		return &common.PageResult[vo.UserPosts]{
 			List:     []vo.UserPosts{},
 			Total:    0,
 			Page:     req.Page,
@@ -67,7 +69,7 @@ func (s *userService) GetUserPosts(ctx context.Context, req request.GetUserPosts
 		})
 	}
 
-	return &vo.BasicPageData{
+	return &common.PageResult[vo.UserPosts]{
 		List:     voList,
 		Total:    total,
 		Page:     req.Page,

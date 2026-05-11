@@ -9,6 +9,7 @@ export const UserRole = {
   Admin: "admin",
   SuperAdmin: "super_admin",
   Bot: "bot",
+  SystemMaintainer: "system_maintainer",
 } as const;
 
 export type UserRoleType = (typeof UserRole)[keyof typeof UserRole];
@@ -23,6 +24,7 @@ export const roleDisplayMap: Record<UserRoleType, string> = {
   [UserRole.Admin]: "管理员",
   [UserRole.SuperAdmin]: "超级管理员",
   [UserRole.Bot]: "机器人",
+  [UserRole.SystemMaintainer]: "系统管理员",
 };
 
 // 角色等级（用于权限判断）
@@ -30,10 +32,11 @@ export const roleLevel: Record<UserRoleType, number> = {
   [UserRole.Guest]: 0,
   [UserRole.User]: 1,
   [UserRole.Member]: 2,
-  [UserRole.Bot]: 3,
+  [UserRole.SystemMaintainer]: 3,
   [UserRole.Reviewer]: 10,
   [UserRole.Moderator]: 20,
   [UserRole.Admin]: 50,
+  [UserRole.Bot]: 30,
   [UserRole.SuperAdmin]: 100,
 };
 

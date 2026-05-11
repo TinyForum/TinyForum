@@ -1,0 +1,67 @@
+{
+  "_comment": "零代码机器人示例：关键词触发 → 条件过滤 → 多动作组合",
+  "version": "1",
+
+  "trigger": {
+    "type": "on_keyword",
+    "params": {
+      "keywords": ["广告", "引流", "私加", "微信号"],
+      "scope": "both"
+    }
+  },
+
+  "conditions": [
+    {
+      "type": "user_role_is",
+      "negate": true,
+      "params": { "role": "moderator" }
+    },
+    {
+      "type": "user_role_is",
+      "negate": true,
+      "params": { "role": "admin" }
+    },
+    {
+      "type": "time_range",
+      "params": {
+        "start": "00:00",
+        "end": "23:59",
+        "tz": "Asia/Shanghai"
+      }
+    }
+  ],
+
+  "actions": [
+    {
+      "type": "hide_post",
+      "params": {}
+    },
+    {
+      "type": "send_message",
+      "params": {
+        "content": "您好 {{username}}，您发布的内容「{{matched_kw}}」违反了社区规范，已被隐藏。请查阅《社区守则》后重新发布。"
+      }
+    },
+    {
+      "type": "wait",
+      "params": { "seconds": 2 }
+    },
+    {
+      "type": "stop_if",
+      "params": { "expr": "user_post_count > 50" }
+    },
+    {
+      "type": "ban_user",
+      "params": {
+        "reason": "发布广告/引流内容（关键词：{{matched_kw}}）",
+        "duration_sec": 86400
+      }
+    },
+    {
+      "type": "notify_admin",
+      "params": {
+        "message": "⚠️ 用户 {{username}}（ID={{user_id}}）因发布「{{matched_kw}}」已被自动封禁 24h，帖子 ID={{post_id}}"
+      }
+    }
+  ]
+}

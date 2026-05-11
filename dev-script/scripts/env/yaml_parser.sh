@@ -265,7 +265,7 @@ yaml_parser::load_all() {
   _out[OLLAMA_TEMPERATURE]="${raw_flat[BASIC_OLLAMA_TEMPERATURE]:-}"
   _out[LLAMACPP_BASE_URL]="${raw_flat[BASIC_LLAMACPP_BASE_URL]:-}"
   _out[LLAMACPP_MODEL]="${raw_flat[BASIC_LLAMACPP_MODEL]:-}"
-  # upload
+  # attachment
   _out[UPLOAD_DIR]="${raw_flat[BASIC_UPLOAD_UPLOAD_DIR]:-}"
   _out[UPLOAD_URL_PREFIX]="${raw_flat[BASIC_UPLOAD_URL_PREFIX]:-}"
   _out[UPLOAD_MAX_SIZE]="${raw_flat[BASIC_UPLOAD_MAX_SIZE]:-}"

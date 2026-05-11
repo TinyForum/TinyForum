@@ -2,13 +2,6 @@ package user
 
 import "tiny-forum/internal/model/do"
 
-// RegisterInput 注册请求
-type RegisterInput struct {
-	Username string `json:"username" binding:"required,min=2,max=50"`
-	Email    string `json:"email" binding:"required,email"`
-	Password string `json:"password" binding:"required,min=6"`
-}
-
 // LoginInput 登录请求
 type LoginInput struct {
 	Email    string `json:"email" binding:"required,email"`
@@ -17,7 +10,8 @@ type LoginInput struct {
 
 // AuthResult 认证结果
 type AuthResult struct {
-	Token string   `json:"token"`
+	// Deprecated: 停用
+	Token string   `json:"token"` // token 目前没有用到，作为保留
 	User  *do.User `json:"user"`
 }
 

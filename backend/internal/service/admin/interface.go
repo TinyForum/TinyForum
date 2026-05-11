@@ -2,10 +2,13 @@ package admin
 
 import (
 	"context"
+	"tiny-forum/internal/model/bo"
+	"tiny-forum/internal/model/common"
 	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/request"
 	"tiny-forum/internal/model/vo"
 	announcementSvc "tiny-forum/internal/service/announcement"
+	postSvc "tiny-forum/internal/service/post"
 	userSvc "tiny-forum/internal/service/user"
 )
 
@@ -23,6 +26,8 @@ type AdminService interface {
 	SetBlockedUser(targetID uint, operatorID uint, isBlocked bool) error
 	DeleteUser(operatorID uint, targetID uint) error
 	SetRoleUser(operatorID, targetID uint, newRole string) error
+	// posts
+	ListPosts(ctx context.Context, ListPostsBO *common.PageQuery[bo.ListPosts]) ([]do.Post, int64, error)
 }
 
 type adminService struct {
@@ -32,6 +37,7 @@ type adminService struct {
 	// voteRepo        voteRepo.VoteRepository
 	announcementSvc announcementSvc.AnnouncementService
 	userSvc         userSvc.UserService
+	postSvc         postSvc.PostService
 }
 
 func NewAdminService(
@@ -41,6 +47,7 @@ func NewAdminService(
 	announcementSvc announcementSvc.AnnouncementService,
 	// voteRepo voteRepo.VoteRepository,
 	userSvc userSvc.UserService,
+	postSvc postSvc.PostService,
 ) AdminService {
 	return &adminService{
 		// 	postRepo:        postRepo,
@@ -49,5 +56,6 @@ func NewAdminService(
 		// 	commentRepo:     commentRepo,
 		announcementSvc: announcementSvc,
 		userSvc:         userSvc,
+		postSvc:         postSvc,
 	}
 }

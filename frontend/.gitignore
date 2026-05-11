@@ -3,4 +3,5 @@ node_modules/
 out/
 .env*.local
 *.log
+build
 .DS_Store

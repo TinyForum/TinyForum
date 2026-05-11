@@ -6,13 +6,14 @@ import (
 	"fmt"
 	"net/http"
 	"time"
-	"tiny-forum/internal/model/vo"
+	"tiny-forum/internal/model/common"
 	apperrors "tiny-forum/pkg/errors"
 	"tiny-forum/pkg/logger"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"go.uber.org/zap"
+	"gorm.io/gorm"
 )
 
 // ========== 响应结构体 ==========
@@ -27,26 +28,34 @@ type ValidationError struct {
 // ========== 响应选项 ==========
 
 // Option 响应选项函数，用于在构造响应时附加额外字段
-type Option func(*vo.BasicResponse)
+type Option func(*common.BasicResponse)
 
 // WithTraceID 设置追踪ID
 func WithTraceID(traceID string) Option {
-	return func(r *vo.BasicResponse) { r.TraceID = traceID }
+	return func(r *common.BasicResponse) { r.TraceID = traceID }
 }
 
 // WithMessage 覆盖默认消息
 func WithMessage(msg string) Option {
-	return func(r *vo.BasicResponse) { r.Message = msg }
+	return func(r *common.BasicResponse) { r.Message = msg }
 }
 
 // ========== 成功响应 ==========
 
 // Success 返回成功响应 (HTTP 200)
+// Success 函数用于处理成功的响应
+// 它接收一个 gin.Context 上下文、任意类型的数据和可选的配置选项
+// 然后构造一个响应对象并返回 HTTP 200 状态码
 func Success(c *gin.Context, data any, opts ...Option) {
+	// 创建一个新的响应对象，默认状态码为 0，消息为 "success"
 	resp := newResp(c, 0, "success")
+	// 设置响应状态码为 0（成功）
 	resp.Code = 0
+	// 将传入的数据设置到响应对象中
 	resp.Data = data
+	// 应用传入的可选配置选项
 	applyOpts(&resp, opts)
+	// 将响应对象以 JSON 格式返回，HTTP 状态码为 200（OK）
 	c.JSON(http.StatusOK, resp)
 }
 
@@ -56,19 +65,23 @@ func SuccessWithMessage(c *gin.Context, msg string, data interface{}) {
 }
 
 // SuccessPage 分页成功响应
-func SuccessPage(c *gin.Context, list interface{}, total int64, page, pageSize int) {
+func SuccessPage[T any](c *gin.Context, list []T, total int64, page, pageSize int, opts ...Option) {
 	hasMore := int64(page*pageSize) < total
-	Success(c, vo.BasicPageData{
-		List:     list,
+	result := common.PageResult[T]{ // 确保 PageResult 在作用域内（vo.PageResult 或 common.PageResult）
 		Total:    total,
 		Page:     page,
 		PageSize: pageSize,
+		List:     list,
 		HasMore:  hasMore,
-	})
+	}
+	Success(c, result, opts...)
 }
 
 // Created 创建资源成功响应 (HTTP 201)，同时写入 Location 头
-func Created(c *gin.Context, data interface{}, location string) {
+// c: gin.Context 对象
+// data: 创建的资源数据
+// location: 创建的资源 URL
+func Created(c *gin.Context, data any, location string) {
 	if location != "" {
 		c.Header("Location", location)
 	}
@@ -154,32 +167,30 @@ func HandleError(c *gin.Context, err error) {
 	}
 
 	// 1. 业务错误
-	var appErr *apperrors.AppError
-	if errors.As(err, &appErr) {
+	if appErr, ok := errors.AsType[*apperrors.AppError](err); ok {
 		handleAppError(c, appErr)
 		return
 	}
 
 	// 2. validator 校验错误
-	var ve validator.ValidationErrors
-	if errors.As(err, &ve) {
+	if ve, ok := errors.AsType[validator.ValidationErrors](err); ok {
 		handleValidationErrors(c, ve)
 		return
 	}
 
-	// 3. 标准库 context 错误
-	switch {
-	case errors.Is(err, context.DeadlineExceeded):
-		fail(c, http.StatusGatewayTimeout, apperrors.CodeSystemBusy, "请求超时", nil)
-		return
-	case errors.Is(err, context.Canceled):
-		// 客户端主动取消，不记录错误日志，静默结束
-		c.Status(http.StatusNoContent)
-		c.Abort()
+	// 3. context 错误 -> 转换为 apperrors.AppError
+	if appErr := convertContextError(err); appErr != nil {
+		handleAppError(c, appErr)
 		return
 	}
 
-	// 4. 兜底：记录日志，返回通用 500
+	// 4. GORM 错误 -> 转换为 apperrors.AppError
+	if appErr := convertGormError(err); appErr != nil {
+		handleAppError(c, appErr)
+		return
+	}
+
+	// 5. 兜底：记录日志，返回通用 500
 	logger.Error("unhandled error",
 		zap.Error(err),
 		zap.String("path", c.Request.URL.Path),
@@ -187,6 +198,57 @@ func HandleError(c *gin.Context, err error) {
 		zap.String("client_ip", c.ClientIP()),
 	)
 	InternalError(c, "")
+}
+
+// convertContextError 将 context 错误转换为 *apperrors.AppError
+func convertContextError(err error) *apperrors.AppError {
+	switch {
+	case errors.Is(err, context.DeadlineExceeded):
+		// 使用预定义的系统繁忙错误，无需硬编码状态码或消息
+		return apperrors.ErrSystemBusy.WithCause(err)
+	case errors.Is(err, context.Canceled):
+		// 客户端主动取消：无需返回错误，直接静默结束
+		// 返回 nil 表示不需要处理（不写响应）
+		return nil
+	default:
+		return nil
+	}
+}
+
+// gormErrorMapping 定义 GORM 错误到 AppError 的映射关系
+// 完全使用预定义的 apperrors 实例，无硬编码
+var gormErrorMappings = []struct {
+	gormErr error
+	appErr  *apperrors.AppError
+}{
+	{gorm.ErrRecordNotFound, apperrors.ErrNotFound},
+	{gorm.ErrDuplicatedKey, apperrors.ErrUserExist},
+	{gorm.ErrForeignKeyViolated, apperrors.ErrInvalidRequest},
+	{gorm.ErrCheckConstraintViolated, apperrors.ErrValidation},
+}
+
+// convertGormError 将 GORM 错误转换为 *apperrors.AppError
+// 如果无法识别，返回 nil（走兜底逻辑）
+func convertGormError(err error) *apperrors.AppError {
+	for _, m := range gormErrorMappings {
+		if errors.Is(err, m.gormErr) {
+			// 复制预定义错误并附带原始错误原因
+			return m.appErr.WithCause(err)
+		}
+	}
+	// 对于未知的数据库错误（如连接失败），返回一个通用内部错误（不硬编码）
+	// 或者返回 nil 让上层统一处理成 unknownErr
+	if isDatabaseError(err) {
+		return apperrors.ErrInternalError.WithCause(err).WithDetail("database operation failed")
+	}
+	return nil
+}
+
+// isDatabaseError 简单判断是否与数据库相关（可扩展）
+func isDatabaseError(err error) bool {
+	// 可以根据需要检查 errors.Is(err, gorm.ErrInvalidData) 等
+	return err != nil && (errors.Is(err, gorm.ErrInvalidData) ||
+		errors.Is(err, gorm.ErrInvalidTransaction))
 }
 
 // ========== 内部处理函数 ==========
@@ -310,8 +372,8 @@ func ErrorHandlerMiddleware() gin.HandlerFunc {
 // ========== 内部辅助函数 ==========
 
 // newResp 构造带公共字段的 Response
-func newResp(c *gin.Context, code int, msg string) vo.BasicResponse {
-	return vo.BasicResponse{
+func newResp(c *gin.Context, code int, msg string) common.BasicResponse {
+	return common.BasicResponse{
 		Code:      code,
 		Message:   msg,
 		Timestamp: time.Now().Unix(),
@@ -320,7 +382,9 @@ func newResp(c *gin.Context, code int, msg string) vo.BasicResponse {
 	}
 }
 
-func applyOpts(r *vo.BasicResponse, opts []Option) {
+// applyOpts 函数用于接收一个 BasicResponse 指针和 Option 切片，
+// 并遍历 opts 切片中的每个 Option 函数，对传入的 r 进行配置
+func applyOpts(r *common.BasicResponse, opts []Option) {
 	for _, opt := range opts {
 		opt(r)
 	}

@@ -2,10 +2,11 @@ package do
 
 import (
 	"time"
+	"tiny-forum/internal/model/common"
 )
 
 type Question struct {
-	BaseModel
+	common.BaseModel
 	PostID           uint    `gorm:"uniqueIndex;not null" json:"post_id"`
 	AcceptedAnswerID *uint   `json:"accepted_answer_id"`
 	RewardScore      int     `gorm:"default:0" json:"reward_score"`
@@ -16,7 +17,7 @@ type Question struct {
 }
 
 type AnswerVote struct {
-	BaseModel
+	common.BaseModel
 	UserID    uint   `gorm:"uniqueIndex:idx_user_answer;not null" json:"user_id"`
 	CommentID uint   `gorm:"uniqueIndex:idx_user_answer;not null" json:"comment_id"`
 	VoteType  string `gorm:"type:varchar(10)" json:"vote_type"` // up/down
@@ -42,7 +43,7 @@ type QuestionResponse struct {
 }
 
 type QuestionListResponse struct {
-	BaseModel
+	common.BaseModel
 	Title       string `json:"title"`
 	Summary     string `json:"summary"`
 	BoardID     uint   `json:"board_id"`

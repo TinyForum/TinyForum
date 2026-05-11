@@ -1,11 +1,14 @@
 package post
 
 import (
+	"context"
 	"errors"
 
 	"tiny-forum/internal/middleware"
+	"tiny-forum/internal/model/bo"
+	"tiny-forum/internal/model/common"
+	"tiny-forum/internal/model/converter"
 	"tiny-forum/internal/model/do"
-	"tiny-forum/internal/model/dto"
 
 	"github.com/gin-gonic/gin"
 )
@@ -169,7 +172,26 @@ func (s *postService) GetByID(postID, viewerID uint) (*do.Post, bool, error) {
 	return post, liked, nil
 }
 
-// List 获取帖子列表（支持筛选）
-func (s *postService) List(page, pageSize int, opts dto.PostListOptions) ([]do.Post, int64, error) {
-	return s.postRepo.List(page, pageSize, opts)
+func (s *postService) List(ctx context.Context, listPostsBO *common.PageQuery[bo.ListPosts]) ([]do.Post, int64, error) {
+	// 将 BO 的 Data 字段转换为 DO 的对应结构
+	// var filterDO *do.Post
+	filterDO := converter.ListPostsBOToPostDO(&listPostsBO.Data)
+
+	// 构造 DO 层的查询对象
+	listPostsDO := &common.PageQuery[do.Post]{
+		Page:     listPostsBO.Page,
+		PageSize: listPostsBO.PageSize,
+		Data:     *filterDO,
+		Keyword:  listPostsBO.Keyword,
+		SortBy:   listPostsBO.SortBy,
+		TagNames: listPostsBO.TagNames,
+	}
+
+	if filterDO == nil {
+		listPostsDO.Data = do.Post{}
+	} else {
+		listPostsDO.Data = *filterDO
+	}
+
+	return s.postRepo.AdminList(ctx, listPostsDO)
 }

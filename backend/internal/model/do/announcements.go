@@ -2,11 +2,12 @@ package do
 
 import (
 	"time"
+	"tiny-forum/internal/model/common"
 )
 
 // Announcement 公告模型
 type Announcement struct {
-	BaseModel
+	common.BaseModel
 	Title       string              `gorm:"not null;size:200" json:"title"`        // 公告标题
 	Content     string              `gorm:"type:text;not null" json:"content"`     // 公告内容
 	Summary     string              `gorm:"size:500" json:"summary"`               // 公告摘要

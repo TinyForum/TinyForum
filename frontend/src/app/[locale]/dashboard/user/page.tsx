@@ -15,6 +15,7 @@ import SearchBar from "@/features/moderator/components/SearchBar";
 import { useAuthStore } from "@/store";
 import { useUserRole } from "@/features/user/hooks/useUserRole";
 import { useUserStats } from "@/features/user/hooks/useUserStats";
+import { BotManager } from "@/features/bot/components/BotManager";
 
 // 组件导入
 export default function UserDashboardPage() {
@@ -146,6 +147,14 @@ export default function UserDashboardPage() {
           </div>
         );
 
+      case "bot":
+        return (
+          <>
+            <div className="space-y-4">
+              <BotManager />
+            </div>
+          </>
+        );
       case "notifications":
         return (
           <div className="space-y-4">
