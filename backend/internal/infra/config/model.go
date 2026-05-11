@@ -22,17 +22,23 @@ type ConfigBasic struct {
 	API      APIConfig      `mapstructure:"api" validate:"required"`
 	Log      LogConfig      `mapstructure:"log" validate:"required"`
 	// RateLimit    RateLimitConfig `mapstructure:"rate_limit" validate:"required"`
-	Ollama       Ollama       `mapstructure:"ollama" validate:"required"`
-	AllowOrigins []string     `mapstructure:"allow_origins" validate:"omitempty,dive,url"` // 允许跨域请求的域名
-	Upload       UploadConfig `mapstructure:"upload" validate:"required"`                  // 上传配置
-	Version      string       `mapstructure:"version" validate:"required,semver"`
+	Ollama       Ollama        `mapstructure:"ollama" validate:"required"`
+	AllowOrigins []string      `mapstructure:"allow_origins" validate:"omitempty,dive,url"` // 允许跨域请求的域名
+	Attachment   UploadConfig  `mapstructure:"attachment" validate:"required"`              // 上传配置
+	Version      string        `mapstructure:"version" validate:"required,semver"`
+	Plugins      ConfigPlugins `mapstructure:"plugins" validate:"required"`
+}
+
+type ConfigPlugins struct {
+	StorageDir string `mapstructure:"storage_dir" validate:"required"`
 }
 
 type ConfigPrivate struct {
-	JWT   JWTConfig   `mapstructure:"jwt" validate:"required"`
-	Email EmailConfig `mapstructure:"email" validate:"required"`
-	OAuth OAuthConfig `mapstructure:"oauth" validate:"required"`
-	Admin AdminConfig `mapstructure:"admin" validate:"required"`
+	JWT        JWTConfig        `mapstructure:"jwt" validate:"required"`
+	Email      EmailConfig      `mapstructure:"email" validate:"required"`
+	OAuth      OAuthConfig      `mapstructure:"oauth" validate:"required"`
+	AdminUser  AdminUserConfig  `mapstructure:"admin" validate:"required"`
+	SystemUser SystemUserConfig `mapstructure:"system" validate:"required"`
 }
 type RateLimitConfig struct {
 	RiskControlLevels map[string]map[string]QuotaConfig `yaml:"risk_control_levels" json:"risk_control_levels" mapstructure:"risk_control_levels" validate:"required,min=1"`
@@ -114,7 +120,15 @@ type APIConfig struct {
 
 // =========================================== MARK: 私有子配置
 
-type AdminConfig struct {
+type AdminUserConfig struct {
+	Username string      `mapstructure:"username" validate:"required,min=3,max=32"`
+	Email    string      `mapstructure:"email" validate:"required,email"`
+	Password string      `mapstructure:"password" validate:"required,min=8"`
+	Role     do.UserRole `mapstructure:"role" validate:"required"`
+	Score    int         `mapstructure:"score" validate:"min=0"`
+}
+
+type SystemUserConfig struct {
 	Username string      `mapstructure:"username" validate:"required,min=3,max=32"`
 	Email    string      `mapstructure:"email" validate:"required,email"`
 	Password string      `mapstructure:"password" validate:"required,min=8"`

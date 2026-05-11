@@ -138,9 +138,9 @@ schema::define OLLAMA_TEMPERATURE   "0.7"        "Ollama 温度"          "" 0 0
 schema::define LLAMACPP_BASE_URL    "http://localhost:8080" "llama.cpp API 地址" "validate::url" 0 0
 schema::define LLAMACPP_MODEL       "llama.cpp"  "llama.cpp 模型名"     "" 0 0
 
-# ── [upload] ─────────────────────────────────────────────────────────────────
-schema::define UPLOAD_DIR           "uploads"    "上传目录"             "" 0 0
-schema::define UPLOAD_URL_PREFIX    "/upload"    "上传 URL 前缀"        "" 0 0
+# ── [attachment] ─────────────────────────────────────────────────────────────────
+schema::define UPLOAD_DIR           "attachments"    "上传目录"             "" 0 0
+schema::define UPLOAD_URL_PREFIX    "/attachment"    "上传 URL 前缀"        "" 0 0
 schema::define UPLOAD_MAX_SIZE      "10485760"   "最大上传大小 (bytes)" "validate::bytes" 0 0
 
 # ── [admin] ──────────────────────────────────────────────────────────────────

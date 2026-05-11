@@ -1,9 +1,12 @@
 package do
 
-import "time"
+import (
+	"time"
+	"tiny-forum/internal/model/common"
+)
 
 type Board struct {
-	BaseModel
+	common.BaseModel
 	Name        string   `gorm:"not null;size:50;uniqueIndex" json:"name"`
 	Slug        string   `gorm:"not null;size:50;uniqueIndex" json:"slug"`
 	Description string   `gorm:"size:500" json:"description"`
@@ -43,7 +46,7 @@ type BoardTree struct {
 }
 
 type BoardBan struct {
-	BaseModel
+	common.BaseModel
 	UserID    uint       `gorm:"not null;index" json:"user_id"`
 	BoardID   uint       `gorm:"not null;index" json:"board_id"`
 	BannedBy  uint       `json:"banned_by"`
@@ -56,7 +59,7 @@ type BoardBan struct {
 }
 
 type ModeratorLog struct {
-	BaseModel
+	common.BaseModel
 	ModeratorID uint   `gorm:"not null;index" json:"moderator_id"`
 	BoardID     uint   `gorm:"index" json:"board_id"`
 	Action      string `gorm:"type:varchar(50)" json:"action"`

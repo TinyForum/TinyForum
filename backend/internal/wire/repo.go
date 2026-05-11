@@ -2,10 +2,13 @@ package wire
 
 import (
 	"tiny-forum/internal/repository/announcement"
+	attachment "tiny-forum/internal/repository/attachment"
 	"tiny-forum/internal/repository/auth"
 	"tiny-forum/internal/repository/board"
+	"tiny-forum/internal/repository/bot"
 	"tiny-forum/internal/repository/comment"
 	"tiny-forum/internal/repository/notification"
+	"tiny-forum/internal/repository/plugin"
 	"tiny-forum/internal/repository/post"
 	"tiny-forum/internal/repository/question"
 	"tiny-forum/internal/repository/risk"
@@ -15,7 +18,6 @@ import (
 	"tiny-forum/internal/repository/token"
 	"tiny-forum/internal/repository/topic"
 	"tiny-forum/internal/repository/transaction"
-	"tiny-forum/internal/repository/upload"
 	"tiny-forum/internal/repository/user"
 	"tiny-forum/internal/repository/vote"
 
@@ -41,7 +43,9 @@ type Repositories struct {
 	Auth         auth.AuthRepository
 	Risk         risk.RiskRepository
 	Transaction  transaction.TransactionManager
-	Upload       upload.UploadRepository
+	Attachment   attachment.AttachmentRepository
+	Plugin       plugin.PluginRepository
+	Bot          bot.Repository
 }
 
 // NewRepositories 创建所有 Repository 实例
@@ -66,6 +70,8 @@ func NewRepositories(db *gorm.DB, redis *redis.Client) *Repositories {
 		Auth:         auth.NewAuthRepository(db),
 		Risk:         risk.NewRiskRepository(db),
 		Transaction:  transaction.NewTransactionManager(db),
-		Upload:       upload.NewUploadRepository(db),
+		Attachment:   attachment.NewAttachmentRepository(db),
+		Plugin:       plugin.NewPluginRepository(db),
+		Bot:          bot.NewRepository(db),
 	}
 }

@@ -20,6 +20,7 @@ import { cn } from "@/shared/lib/utils";
 import { PostType, type Tag as TagType } from "@/shared/api";
 import { useAnnouncements } from "@/features/announcements/useAnnouncements";
 import { AnnouncementDO } from "@/shared/api/types/announcement.model";
+import { PluginSlot } from "@/features/plugin/components/PluginSlot";
 
 export type FilterType = "all" | PostType;
 
@@ -125,6 +126,7 @@ export default function LeftSidebar({
 
   return (
     <aside className="space-y-4">
+      <PluginSlot name="sidebar-top" />
       {/* 导航菜单 */}
       <div className="rounded-lg border bg-card shadow-sm">
         <div className="p-3 border-b">
@@ -152,7 +154,7 @@ export default function LeftSidebar({
             {t("all")}
 
             <span className="ml-auto text-xs text-muted-foreground">
-              TODO count
+              {/* TODO count */}
             </span>
           </button>
 
@@ -173,7 +175,7 @@ export default function LeftSidebar({
             <HelpCircle className="w-4 h-4" />
             {t("questions")}
             <span className="ml-auto text-xs text-muted-foreground">
-              TODO count
+              {/* TODO count */}
             </span>
           </button>
 
@@ -194,7 +196,7 @@ export default function LeftSidebar({
             <FileText className="w-4 h-4" />
             {t("articles")}
             <span className="ml-auto text-xs text-muted-foreground">
-              TODO count
+              {/* TODO count */}
             </span>
           </button>
 
@@ -215,7 +217,7 @@ export default function LeftSidebar({
             <PenIcon className="w-4 h-4" />
             {t("posts")}
             <span className="ml-auto text-xs text-muted-foreground">
-              TODO count
+              {/* TODO count */}
             </span>
           </button>
         </div>

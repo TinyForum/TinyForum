@@ -24,6 +24,7 @@ export function RoleBadge({
     reviewer: "bg-indigo-100 text-indigo-600",
     admin: "bg-orange-100 text-orange-600",
     super_admin: "bg-red-100 text-red-600",
+    system_maintainer: "bg-yellow-100 text-yellow-600",
     bot: "bg-gray-200 text-gray-500",
   };
 

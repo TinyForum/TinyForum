@@ -1,7 +1,9 @@
 import { TabType } from "@/shared/type/admin.types";
-import { FileText, Users } from "lucide-react";
+import { FileText, Users, Puzzle } from "lucide-react";
 
-// Tab 切换组件
+// ── TabType 需在 admin.types.ts 中增加 "plugins" ──────────────────────────────
+// export type TabType = "users" | "posts" | "plugins";
+
 export function AdminTabs({
   activeTab,
   onTabChange,
@@ -24,6 +26,12 @@ export function AdminTabs({
         onClick={() => onTabChange("posts")}
       >
         <FileText className="w-4 h-4" /> {t("post_management")}
+      </button>
+      <button
+        className={`tab gap-2 ${activeTab === "plugins" ? "tab-active" : ""}`}
+        onClick={() => onTabChange("plugins")}
+      >
+        <Puzzle className="w-4 h-4" /> Plugins
       </button>
     </div>
   );

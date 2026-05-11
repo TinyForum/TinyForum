@@ -52,6 +52,7 @@ func Load(configDir string) (*Config, error) {
 	fmt.Printf("✅ 所有配置文件成功加载\n")
 	cfg.setDefaults()
 	if err := cfg.validate(); err != nil {
+		fmt.Println("验证失败:", err)
 		return nil, err
 	}
 	return cfg, nil
@@ -121,6 +122,7 @@ func (c *Config) setDefaults() {
 }
 
 func (c *Config) setServerDefaults() {
+	fmt.Println("设置服务默认值")
 	if c.Basic.Server.Port == 0 {
 		c.Basic.Server.Port = 8080
 	}
@@ -136,6 +138,7 @@ func (c *Config) setServerDefaults() {
 }
 
 func (c *Config) setDatabaseDefaults() {
+	fmt.Println("设置数据库默认值")
 	if c.Postgres.SSLMode == "" {
 		c.Postgres.SSLMode = "disable"
 	}
@@ -151,6 +154,7 @@ func (c *Config) setDatabaseDefaults() {
 }
 
 func (c *Config) setJWTDefaults() {
+	fmt.Println("设置 JWT 默认值")
 	if c.Private.JWT.Expire == 0 {
 		c.Private.JWT.Expire = 24 * time.Hour
 	}
@@ -160,6 +164,7 @@ func (c *Config) setJWTDefaults() {
 }
 
 func (c *Config) setLogDefaults() {
+	fmt.Println("设置日志默认值")
 	if c.Basic.Log.Level == "" {
 		c.Basic.Log.Level = "info"
 	}
@@ -175,6 +180,7 @@ func (c *Config) setLogDefaults() {
 }
 
 func (c *Config) setEmailDefaults() {
+	fmt.Println("设置邮箱默认值")
 	if c.Private.Email.PoolSize == 0 {
 		c.Private.Email.PoolSize = 5
 	}

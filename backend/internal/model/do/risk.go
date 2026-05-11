@@ -1,6 +1,9 @@
 package do
 
-import "time"
+import (
+	"time"
+	"tiny-forum/internal/model/common"
+)
 
 // ========================
 // 用户风险等级
@@ -18,6 +21,12 @@ const (
 // ========================
 // 内容审核任务
 // ========================
+
+var validModerationStatuses = map[ModerationStatus]bool{
+	ModerationStatusPending:  true,
+	ModerationStatusApproved: true,
+	ModerationStatusRejected: true,
+}
 
 // 审核状态
 type ModerationStatus string
@@ -40,7 +49,7 @@ const (
 // ContentAuditTask 内容审核任务队列
 // 命中 review 级敏感词或举报聚合触发后写入，由后台异步处理
 type ContentAuditTask struct {
-	BaseModel
+	common.BaseModel
 	TargetType  AuditTargetType  `gorm:"type:varchar(20);not null;index" json:"target_type"`
 	TargetID    uint             `gorm:"not null;index" json:"target_id"`
 	TriggerType string           `gorm:"type:varchar(50);not null" json:"trigger_type"` // "sensitive_word" | "report_aggregate" | "manual"
@@ -73,7 +82,7 @@ const (
 
 // AuditLog 管理员操作审计日志，不可删除，只追加
 type AuditLog struct {
-	BaseModel
+	common.BaseModel
 	OperatorID uint            `gorm:"not null;index" json:"operator_id"`
 	OperatorIP string          `gorm:"type:varchar(45);index"` // 操作者IP
 	Action     AuditActionType `gorm:"type:varchar(50);not null;index" json:"action"`
@@ -97,7 +106,7 @@ func (AuditLog) TableName() string {
 
 // UserRiskRecord 记录用户风险事件，用于计算当前风险等级
 type UserRiskRecord struct {
-	BaseModel
+	common.BaseModel
 	UserID uint `gorm:"not null;index" json:"user_id"` // 用户ID
 	// "report_confirmed" | "sensitive_hit" | "rate_limit_exceeded"
 	EventType   string    `gorm:"type:varchar(50);not null" json:"event_type"` // 事件类型
@@ -151,4 +160,15 @@ func (b *BlockedIP) IsExpired() bool {
 // IsPermanent 是否是永久封禁
 func (b *BlockedIP) IsPermanent() bool {
 	return b.ExpireAt == nil
+}
+
+func (ms ModerationStatus) IsValid() bool {
+	return validModerationStatuses[ms]
+}
+func ParseModerationStatus(s string) ModerationStatus {
+	ms := ModerationStatus(s)
+	if ms.IsValid() {
+		return ms
+	}
+	return ModerationStatusApproved // 默认值
 }

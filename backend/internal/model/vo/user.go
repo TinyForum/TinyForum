@@ -5,6 +5,24 @@ import (
 	"tiny-forum/internal/model/do"
 )
 
+// UserVO 用户脱敏视图（对外暴露）
+type UserVO struct {
+	ID          uint        `json:"id"`
+	CreatedAt   time.Time   `json:"created_at"`
+	UpdatedAt   time.Time   `json:"updated_at"`
+	Username    string      `json:"username"`
+	Avatar      string      `json:"avatar"`
+	Bio         string      `json:"bio"`
+	Role        do.UserRole `json:"role"`
+	Score       int         `json:"score"`
+	IsActive    bool        `json:"is_active"`
+	IsBlocked   bool        `json:"is_blocked"`
+	LastLogin   *time.Time  `json:"last_login,omitempty"`
+	InvitedByID *uint       `json:"invited_by_id,omitempty"`
+	// 如果业务需要展示脱敏邮箱，可以加入如下字段
+	// MaskedEmail string `json:"masked_email,omitempty"`
+}
+
 // LeaderboardItemResponse 排行榜条目响应
 //
 //	type LeaderboardItemVO struct {

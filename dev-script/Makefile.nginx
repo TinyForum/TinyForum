@@ -1,0 +1,23 @@
+# ---------- Nginx 配置 ----------
+.PHONY: nginx-config nginx-reload
+
+# @安装/更新 Nginx 配置（需要 sudo 权限）
+nginx-config:
+	@pwd
+	@echo "$(BLUE)🔧 部署 Nginx 配置...$(NC)"
+	@bash "${SHELL_NGINX_PATH}" 
+# @仅重新加载 Nginx（不修改配置）
+nginx-reload:
+	@echo "$(BLUE)🔄 重新加载 Nginx...$(NC)"
+	@if command -v systemctl >/dev/null; then \
+		sudo systemctl reload nginx; \
+	else \
+		sudo nginx -s reload; \
+	fi
+	@echo "$(GREEN)✅ Nginx 已重新加载$(NC)"
+
+
+.PHONY: nginx-help
+# @此帮助信息
+nginx-help:
+	@$(MAKE) -s _print_help SELF_MAKEFILE_PATH='$(MAKEFILE_NGINX_PATH)'

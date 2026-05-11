@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>静态资源服务 - TinyForum</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            margin-top: 0;
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            display: inline-block;
+            padding-bottom: 0.3rem;
+        }
+        .info {
+            background: #e8f4fd;
+            border-left: 4px solid #3498db;
+            padding: 1rem;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+        .file-list {
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 1rem;
+            font-family: monospace;
+        }
+        .file-list a {
+            display: block;
+            padding: 0.3rem 0;
+            color: #3498db;
+            text-decoration: none;
+            border-bottom: 1px solid #eee;
+        }
+        .file-list a:hover {
+            background: #f0f0f0;
+            padding-left: 0.5rem;
+        }
+        footer {
+            margin-top: 2rem;
+            text-align: center;
+            font-size: 0.8rem;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📁 静态资源目录</h1>
+        <div class="info">
+            <strong>说明：</strong> 这是 TinyForum 的静态文件服务目录（<code>/public</code>）。<br>
+            你可以将上传的图片、附件等放在此处。如需浏览文件列表，请参考下方 JavaScript 动态加载。
+        </div>
+
+        <h2>📂 可用文件</h2>
+        <div id="file-list" class="file-list">
+            <p>正在加载文件列表...</p>
+        </div>
+
+        <footer>
+            TinyForum · 静态资源服务 · <a href="/api/v1/health">健康检查</a>
+        </footer>
+    </div>
+
+    <script>
+        // 动态获取当前目录下的文件列表（需要后端支持目录索引，否则只显示预设或使用静态示例）
+        // 由于 Gin 的 Static 默认不提供目录列表，这里采用两种方案：
+        // 1. 如果后端启用了目录索引（StaticFS），可以直接使用 fetch 获取列表。
+        // 2. 否则，显示友好提示，并给出几个示例文件链接。
+        
+        async function fetchFileList() {
+            try {
+                // 尝试请求当前目录（如果服务器支持目录索引，会返回 HTML 或 JSON）
+                // 注意：Gin 默认不返回 JSON 列表，此 fetch 可能失败或返回 HTML。
+                // 作为一种降级方案，我们直接显示预定义/示例链接。
+                const response = await fetch(window.location.href, {
+                    headers: { 'Accept': 'application/json' }
+                });
+                if (response.ok && response.headers.get('content-type')?.includes('application/json')) {
+                    const files = await response.json();
+                    renderFileList(files);
+                } else {
+                    throw new Error('目录索引未启用，显示静态示例');
+                }
+            } catch (err) {
+                // 降级：显示静态示例链接（用户可以自行修改为实际存在的文件）
+                showStaticExamples();
+            }
+        }
+
+        function renderFileList(files) {
+            const container = document.getElementById('file-list');
+            if (!files || files.length === 0) {
+                container.innerHTML = '<p>当前目录为空</p>';
+                return;
+            }
+            const ul = document.createElement('ul');
+            ul.style.listStyle = 'none';
+            ul.style.padding = '0';
+            files.forEach(file => {
+                const li = document.createElement('li');
+                const a = document.createElement('a');
+                a.href = file.name;
+                a.textContent = file.name + (file.isDir ? '/' : '');
+                li.appendChild(a);
+                ul.appendChild(li);
+            });
+            container.innerHTML = '';
+            container.appendChild(ul);
+        }
+
+        function showStaticExamples() {
+            const container = document.getElementById('file-list');
+            container.innerHTML = `
+                <p>⚠️ 服务器未启用目录索引。你可以通过以下方式访问已知文件：</p>
+                <a href="avatar.jpg">avatar.jpg</a>
+                <a href="plugin-demo.js">plugin-demo.js</a>
+                <a href="/api/v1/plugins/files">plugins</a>
+                <a href="/api/v1/plugins/browser">browser</a>
+                <p style="margin-top:1rem;">💡 提示：将文件放入 <code>./upload</code> 目录后，即可通过 <code>/public/文件名</code> 访问。</p>
+            `;
+        }
+
+        fetchFileList();
+    </script>
+</body>
+</html>

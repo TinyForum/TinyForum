@@ -1,5 +1,7 @@
 package do
 
+import "tiny-forum/internal/model/common"
+
 type CommentStatus string
 
 const (
@@ -9,7 +11,7 @@ const (
 )
 
 type Comment struct {
-	BaseModel
+	common.BaseModel
 	Content   string        `gorm:"not null;type:text" json:"content"`
 	PostID    uint          `gorm:"not null;index" json:"post_id"`
 	AuthorID  uint          `gorm:"not null;index" json:"author_id"`

@@ -1,0 +1,21 @@
+// package plugin
+
+// import (
+// 	"context"
+// 	"tiny-forum/internal/model/do"
+// )
+
+// // internal/repository/plugin/plugin_repo.go
+// func (r *pluginRepository) GetByName(ctx context.Context, name string) (*do.PluginMeta, error) {
+//     var plugin do.PluginMeta
+//     err := r.db.WithContext(ctx).Where("name = ?", name).First(&plugin).Error
+//     if err != nil {
+//         return nil, err
+//     }
+//     return &plugin, nil
+// }
+
+//	func (r *pluginRepository) Create(ctx context.Context, plugin *do.PluginMeta) error {
+//	    return r.db.WithContext(ctx).Create(plugin).Error
+//	}
+package plugin

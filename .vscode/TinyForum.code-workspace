@@ -16,6 +16,19 @@
       "path": "../dev-script",
       "name": "Script (make/shell)",
     },
+
+    {
+      "path": "../nginx",
+      "name": "Nginx (conf)",
+    },
+    {
+      "path": "../docs",
+      "name": "Docs (md)",
+    },
+    {
+      "path": "../plugin",
+      "name": "Plugin (ts)",
+    },
   ],
 
   "settings": {

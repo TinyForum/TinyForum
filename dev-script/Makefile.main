@@ -2,8 +2,9 @@
 # TinyForum 主 Makefile
 # ============================================
 
-.PHONY: help all install build clean test api init-dev
+.PHONY: help all install clean test api init-dev
 
+# .PHONY: build
 
 
 # @初始化配置
@@ -19,12 +20,12 @@ install:
 	@echo "✅ Dependencies installed"
 
 # @构建生产版本
-build:
-	@echo "🔨 Building frontend..."
-	@cd frontend && pnpm run build
-	@echo "🔨 Building backend..."
-	@cd backend && go build -o bin/server ./cmd/server/main.go
-	@echo "✅ Build complete"
+# build:
+# 	@echo "🔨 Building frontend..."
+# 	@cd frontend && pnpm run build
+# 	@echo "🔨 Building backend..."
+# 	@cd backend && go build -o bin/server ./cmd/server/main.go
+# 	@echo "✅ Build complete"
 
 # @安装并构建
 all: install build

@@ -7,6 +7,7 @@ import "../styles/globals.css";
 import Providers from "@/layout/layout/Providers";
 import AuthProvider from "@/layout/providers/AuthProvider";
 import Navbar from "@/shared/ui/nav/Navbar";
+import { InnerProviders } from "@/features/plugin/components/Providers";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const firaCode = Fira_Code({
@@ -64,20 +65,22 @@ export default async function RootLayout({
         suppressHydrationWarning
         className={`${inter.variable} ${firaCode.variable} font-sans h-screen overflow-hidden bg-base-200`}
       >
-        <AuthProvider>
-          <NextIntlClientProvider locale={locale} messages={messages}>
-            <Providers>
-              <div className="flex flex-col h-full">
-                <Navbar />
-                <main className="flex-1 overflow-y-auto custom-scrollbar">
-                  <div className="container mx-auto max-w-7xl px-4 py-6">
-                    {children}
-                  </div>
-                </main>
-              </div>
-            </Providers>
-          </NextIntlClientProvider>
-        </AuthProvider>
+        <InnerProviders>
+          <AuthProvider>
+            <NextIntlClientProvider locale={locale} messages={messages}>
+              <Providers>
+                <div className="flex flex-col h-full">
+                  <Navbar />
+                  <main className="flex-1 overflow-y-auto custom-scrollbar">
+                    <div className="container mx-auto max-w-7xl px-4 py-6">
+                      {children}
+                    </div>
+                  </main>
+                </div>
+              </Providers>
+            </NextIntlClientProvider>
+          </AuthProvider>
+        </InnerProviders>
       </body>
     </html>
   );

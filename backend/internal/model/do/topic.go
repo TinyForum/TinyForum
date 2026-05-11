@@ -1,7 +1,9 @@
 package do
 
+import "tiny-forum/internal/model/common"
+
 type Topic struct {
-	BaseModel
+	common.BaseModel
 	Title         string `gorm:"not null;size:100" json:"title"`
 	Description   string `gorm:"size:500" json:"description"`
 	Cover         string `gorm:"size:500" json:"cover"`
@@ -16,7 +18,7 @@ type Topic struct {
 }
 
 type TopicPost struct {
-	BaseModel
+	common.BaseModel
 	TopicID   uint `gorm:"not null;uniqueIndex:idx_topic_post" json:"topic_id"`
 	PostID    uint `gorm:"not null;uniqueIndex:idx_topic_post" json:"post_id"`
 	SortOrder int  `gorm:"default:0" json:"sort_order"`
@@ -27,7 +29,7 @@ type TopicPost struct {
 }
 
 type TopicFollow struct {
-	BaseModel
+	common.BaseModel
 	UserID  uint `gorm:"not null;uniqueIndex:idx_user_topic" json:"user_id"`
 	TopicID uint `gorm:"not null;uniqueIndex:idx_user_topic" json:"topic_id"`
 
