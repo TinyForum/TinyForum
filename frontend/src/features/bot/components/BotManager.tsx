@@ -3,9 +3,10 @@ import { useState } from "react";
 import { MarketBots } from "./MarketBots";
 import { MyBots } from "./MyBots";
 import { AdminBots } from "./AdminBots";
+import { NocoBot } from "./NocoBot"; // 新增
 import { useAuthStore } from "@/store";
 
-type TabType = "market" | "my" | "admin";
+type TabType = "market" | "my" | "admin" | "nocode"; // 新增 nocode
 
 export function BotManager() {
   const [activeTab, setActiveTab] = useState<TabType>("market");
@@ -39,6 +40,15 @@ export function BotManager() {
         >
           我的机器人
         </button>
+        <button
+          className={`tab ${activeTab === "nocode" ? "tab-active" : ""}`}
+          onClick={() => {
+            setActiveTab("nocode");
+            setPage(1);
+          }}
+        >
+          可视化创建
+        </button>
         {isAdmin && (
           <button
             className={`tab ${activeTab === "admin" ? "tab-active" : ""}`}
@@ -52,7 +62,7 @@ export function BotManager() {
         )}
       </div>
 
-      {/* 内容区域，根据 activeTab 渲染对应组件，切换时会重新创建，避免状态交叉 */}
+      {/* 内容区域 */}
       {activeTab === "market" && (
         <MarketBots
           page={page}
@@ -63,6 +73,7 @@ export function BotManager() {
       {activeTab === "my" && (
         <MyBots page={page} pageSize={pageSize} onPageChange={onPageChange} />
       )}
+      {activeTab === "nocode" && <NocoBot />}
       {activeTab === "admin" && isAdmin && (
         <AdminBots
           page={page}
