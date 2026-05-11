@@ -2458,7 +2458,7 @@ paths:
             $ref: '#/definitions/common.BasicResponse'
       summary: 上传文件
       tags:
-      - attachment
+      - 附件管理
   /attachments/{file_id}:
     delete:
       consumes:
@@ -2487,7 +2487,7 @@ paths:
             $ref: '#/definitions/common.BasicResponse'
       summary: 删除文件
       tags:
-      - attachment
+      - 附件管理
     get:
       consumes:
       - application/json
@@ -2515,7 +2515,7 @@ paths:
             $ref: '#/definitions/common.BasicResponse'
       summary: 获取文件元信息
       tags:
-      - attachment
+      - 附件管理
   /attachments/user/me:
     get:
       consumes:
@@ -2549,7 +2549,7 @@ paths:
             $ref: '#/definitions/common.BasicResponse'
       summary: 获取用户文件列表
       tags:
-      - attachment
+      - 附件管理
   /auth/account:
     delete:
       consumes:
@@ -4016,7 +4016,7 @@ paths:
             $ref: '#/definitions/common.BasicResponse'
       summary: 公开文件下载
       tags:
-      - attachment
+      - 附件管理
   /notifications:
     get:
       description: 分页获取当前用户的通知列表
@@ -4168,7 +4168,7 @@ paths:
             $ref: '#/definitions/common.BasicResponse'
       summary: 删除插件
       tags:
-      - plugin
+      - 插件管理
   /plugins:
     get:
       consumes:
@@ -4210,7 +4210,7 @@ paths:
             $ref: '#/definitions/common.BasicResponse'
       summary: 获取所有插件列表
       tags:
-      - plugin
+      - 插件管理
   /plugins/upload:
     post:
       consumes:
@@ -4235,7 +4235,7 @@ paths:
             $ref: '#/definitions/common.BasicResponse'
       summary: 安装插件
       tags:
-      - plugin
+      - 插件管理
   /plugins/user/me:
     get:
       consumes:
@@ -4254,7 +4254,7 @@ paths:
             $ref: '#/definitions/common.BasicResponse'
       summary: 当前用户安装的插件
       tags:
-      - plugin
+      - 插件管理
   /posts:
     get:
       description: 分页获取帖子列表，支持多种筛选和排序
@@ -5852,7 +5852,7 @@ paths:
             $ref: '#/definitions/common.BasicResponse'
       summary: 获取用户发布的文章
       tags:
-      - plugin
+      - 用户管理
   /users/me/role:
     get:
       consumes:

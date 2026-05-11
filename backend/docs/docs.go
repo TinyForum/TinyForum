@@ -2216,7 +2216,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "attachment"
+                    "附件管理"
                 ],
                 "summary": "上传文件",
                 "parameters": [
@@ -2273,7 +2273,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "attachment"
+                    "附件管理"
                 ],
                 "summary": "获取用户文件列表",
                 "parameters": [
@@ -2324,7 +2324,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "attachment"
+                    "附件管理"
                 ],
                 "summary": "获取文件元信息",
                 "parameters": [
@@ -2366,7 +2366,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "attachment"
+                    "附件管理"
                 ],
                 "summary": "删除文件",
                 "parameters": [
@@ -4677,7 +4677,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "attachment"
+                    "附件管理"
                 ],
                 "summary": "公开文件下载",
                 "parameters": [
@@ -4931,7 +4931,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "plugin"
+                    "插件管理"
                 ],
                 "summary": "删除插件",
                 "responses": {
@@ -4960,7 +4960,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "plugin"
+                    "插件管理"
                 ],
                 "summary": "获取所有插件列表",
                 "parameters": [
@@ -5023,7 +5023,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "plugin"
+                    "插件管理"
                 ],
                 "summary": "安装插件",
                 "parameters": [
@@ -5061,7 +5061,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "plugin"
+                    "插件管理"
                 ],
                 "summary": "当前用户安装的插件",
                 "responses": {
@@ -7402,7 +7402,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "plugin"
+                    "用户管理"
                 ],
                 "summary": "获取用户发布的文章",
                 "responses": {
