@@ -17,9 +17,14 @@ export const notificationApi = {
       "/notifications/count/unread",
     ),
 
-  // 已读所有
+  /**
+   * 已读所有
+   */
   markAllRead: () =>
-    apiClient.post<ApiResponse<null>>("/notifications/read-all"),
+    apiClient.patch<ApiResponse<null>>("/notifications/batch/read"),
+  /** 批量已读 */
+  markBatchRead: (ids: number[]) =>
+    apiClient.patch<ApiResponse<null>>("/notifications/batch/read", ids),
   // 标记已读
   markRead: (id: number) => apiClient.put(`/notifications/${id}/read`),
 };
