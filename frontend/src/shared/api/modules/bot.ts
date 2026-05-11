@@ -3,6 +3,7 @@
  * 机器人管理相关 API（全部需登录）
  */
 
+import { NocodeMetadata, ValidateFlowRequest } from "@/features/bot/noco.type";
 import apiClient from "../client";
 import { ApiResponse } from "../types/basic.model";
 import {
@@ -53,6 +54,7 @@ export const botApi = {
   nocode: {
     getMetadata: () =>
       apiClient.get<ApiResponse<NocodeMetadata>>("/bots/nocode/metadata"),
+
     validateFlow: (data: ValidateFlowRequest) =>
       apiClient.post<ApiResponse<{ valid: boolean; errors?: string[] }>>(
         "/bots/nocode/validate",
@@ -60,28 +62,3 @@ export const botApi = {
       ),
   },
 };
-
-/** 零代码流程校验请求体 */
-export interface ValidateFlowRequest {
-  flow: unknown; // 前端定义的流程结构
-}
-
-export interface NodeMeta {
-  /** 节点类型标识，如 "http_trigger", "condition_equal", "send_email" */
-  type: string;
-  /** 显示名称 */
-  name: string;
-  /** 描述信息 */
-  description?: string;
-  /** 输入参数定义（JSON Schema 或简化结构） */
-  inputs?: Record<string, unknown>;
-  /** 输出参数定义 */
-  outputs?: Record<string, unknown>;
-  // 可根据后端实际字段补充，如 icon、category 等
-}
-
-export interface NocodeMetadata {
-  triggers: NodeMeta[];
-  conditions: NodeMeta[];
-  actions: NodeMeta[];
-}

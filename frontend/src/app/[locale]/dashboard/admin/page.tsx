@@ -213,7 +213,9 @@ export default function AdminPage() {
   };
 
   return (
-    <div className="flex h-screen bg-base-100">
+    // 外层占满视口高度，垂直 flex 布局
+    <div className="flex h-[calc(100vh-8rem)] bg-base-100">
+      {/* 侧边栏 */}
       <SidebarMenu
         activeMenu={activeMenu}
         onMenuChange={setActiveMenu}
@@ -222,17 +224,18 @@ export default function AdminPage() {
         t={t}
       />
 
-      <div className="flex-1 overflow-y-auto">
-        <div className="p-6">
-          <div className="mb-6">
-            <h1 className="text-2xl font-bold">{t(activeMenu)}</h1>
-            <p className="text-sm text-base-content/60 mt-1">
-              {t(`${activeMenu}_description`)}
-            </p>
-          </div>
-
-          <div className="min-h-[calc(100vh-120px)]">{renderContent()}</div>
+      {/* 右侧主区域：flex 列布局 */}
+      <div className="flex flex-col flex-1 overflow-hidden">
+        {/* 固定头部：标题 + 描述 */}
+        <div className="flex-shrink-0 p-6 pb-0">
+          <h1 className="text-2xl font-bold">{t(activeMenu)}</h1>
+          <p className="text-sm text-base-content/60 mt-1">
+            {t(`${activeMenu}_description`)}
+          </p>
         </div>
+
+        {/* 滚动内容区域：占据剩余空间，超出滚动 */}
+        <div className="flex-1 overflow-y-auto p-6 pt-0">{renderContent()}</div>
       </div>
     </div>
   );
