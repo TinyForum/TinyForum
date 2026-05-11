@@ -140,7 +140,7 @@ schema::define LLAMACPP_MODEL       "llama.cpp"  "llama.cpp 模型名"     "" 0 
 
 # ── [attachment] ─────────────────────────────────────────────────────────────────
 schema::define UPLOAD_DIR           "attachments"    "上传目录"             "" 0 0
-schema::define UPLOAD_URL_PREFIX    "/attachment"    "上传 URL 前缀"        "" 0 0
+schema::define UPLOAD_URL_PREFIX    "attachment"    "上传 URL 前缀"        "" 0 0
 schema::define UPLOAD_MAX_SIZE      "10485760"   "最大上传大小 (bytes)" "validate::bytes" 0 0
 
 # ── [admin] ──────────────────────────────────────────────────────────────────

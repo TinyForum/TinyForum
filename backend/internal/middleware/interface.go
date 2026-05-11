@@ -27,19 +27,17 @@ import (
 
 // MiddlewareSet 中间件集合接口
 type MiddlewareSet interface {
-	Auth() gin.HandlerFunc
-	OptionalAuth() gin.HandlerFunc
-	AdminRequired() gin.HandlerFunc
-	// CasbinAuth 路由级 RBAC 鉴权（替代硬编码角色判断）
-	// 需搭配 Auth() 或 OptionalAuth() 使用，确保 user_role 已注入 context
-	CasbinAuth() gin.HandlerFunc
-	RateLimit(action ratelimit.Action) gin.HandlerFunc
-	ContentCheck(fields []string) gin.HandlerFunc
-	ModeratorRequired(boardRepo board.BoardRepository) gin.HandlerFunc
-	CanManageModerator(boardRepo board.BoardRepository) gin.HandlerFunc
-	CanBanUser(boardRepo board.BoardRepository) gin.HandlerFunc
-	CanDeletePost(boardRepo board.BoardRepository) gin.HandlerFunc
-	CanPinPost(boardRepo board.BoardRepository) gin.HandlerFunc
+	Auth() gin.HandlerFunc                                              // 需要登录
+	OptionalAuth() gin.HandlerFunc                                      // 可选登录
+	AdminRequired() gin.HandlerFunc                                     // 需要管理员权限
+	CasbinAuth() gin.HandlerFunc                                        // 路由鉴权（需搭配 Auth() 或 OptionalAuth() 使用，确保 user_role 已注入 context）
+	RateLimit(action ratelimit.Action) gin.HandlerFunc                  // 限流
+	ContentCheck(fields []string) gin.HandlerFunc                       // 内容合规
+	ModeratorRequired(boardRepo board.BoardRepository) gin.HandlerFunc  // 需要版主权限
+	CanManageModerator(boardRepo board.BoardRepository) gin.HandlerFunc // 可管理版主
+	CanBanUser(boardRepo board.BoardRepository) gin.HandlerFunc         // 可封禁用户
+	CanDeletePost(boardRepo board.BoardRepository) gin.HandlerFunc      // 可删除帖子
+	CanPinPost(boardRepo board.BoardRepository) gin.HandlerFunc         // 可置顶帖子
 }
 
 // middlewareSet 私有实现

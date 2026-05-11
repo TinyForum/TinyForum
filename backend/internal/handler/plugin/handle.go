@@ -24,7 +24,7 @@ func NewHandler(svc plugin.PluginService) *Handler {
 // ListPlugins 获取系统插件列表
 // @Summary 获取所有插件列表
 // @Description 获取系统中所有已安装的插件（通常需要管理员权限，可根据业务调整）
-// @Tags plugin
+// @Tags 插件管理
 // @Accept json
 // @Produce json
 // @Param page query int false "页码" default(1)
@@ -77,7 +77,7 @@ func (h *Handler) ListPlugins(c *gin.Context) {
 // UploadPlugin 上传并安装插件
 // @Summary 安装插件
 // @Description 上传一个 ZIP 压缩包，包含 manifest.json 和插件资源，进行插件安装
-// @Tags plugin
+// @Tags 插件管理
 // @Accept multipart/form-data
 // @Produce json
 // @Param file formData file true "插件 ZIP 文件"
@@ -102,7 +102,7 @@ func (h *Handler) UploadPlugin(c *gin.Context) {
 // ListMyPlugins 获取当前用户已安装的插件
 // @Summary 当前用户安装的插件
 // @Description 获取当前登录用户已安装（上传）的插件列表，通常是通过 author_id 查询
-// @Tags plugin
+// @Tags 插件管理
 // @Accept json
 // @Produce json
 // @Success 200 {object} common.BasicResponse
@@ -121,7 +121,7 @@ func (h *Handler) ListMyPlugins(c *gin.Context) {
 // DeletePlugin 删除插件
 // @Summary 删除插件
 // @Description 删除插件
-// @Tags plugin
+// @Tags 插件管理
 // @Accept json
 // @Produce json
 // @Success 200 {object} common.BasicResponse

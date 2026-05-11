@@ -1,85 +1,85 @@
 // components/user/ViolationPanel.tsx
 "use client";
 
+import { useTranslations } from "next-intl";
+import { useState, useEffect, useMemo } from "react";
 import { getViolationStatusBadge } from "@/shared/lib/utils/violation";
 import { ViolationRecord } from "@/shared/type/violation.type";
-import { useTranslations } from "next-intl";
-import { useState, useEffect } from "react";
+import { useUserViolation } from "../hooks/useViolation";
+import type { ViolationVO } from "@/shared/api/modules/user/violation";
 
-// Mock 数据 - 实际应从 API 获取
-const mockViolations: ViolationRecord[] = [
-  // TODO: 替换为真实 API 调用
-  {
-    id: "1",
-    reason: "发布广告信息",
-    date: "2025-03-15",
-    status: "pending",
-    punishment: "禁言 7 天",
-    appealDeadline: "2025-03-22",
-  },
-  {
-    id: "2",
-    reason: "人身攻击",
-    date: "2025-04-01",
-    status: "appealing",
-    punishment: "警告一次",
-    appealDeadline: "2025-04-08",
-  },
-  {
-    id: "3",
-    reason: "刷屏",
-    date: "2025-02-10",
-    status: "resolved",
-    punishment: "禁言 1 天",
-  },
-];
+// 安全的数据转换函数（防御式）
+function toViolationRecord(vo: ViolationVO): ViolationRecord {
+  // 映射 UI 状态
+  let uiStatus: "pending" | "appealing" | "resolved";
+  if (vo.appeal_status && vo.appeal_status !== "none") {
+    uiStatus = "appealing";
+  } else if (vo.status === "resolved" || vo.status === "closed") {
+    uiStatus = "resolved";
+  } else {
+    uiStatus = "pending";
+  }
+
+  // 生成可读的处罚内容
+  let punishmentText = "";
+  if (vo.punish_type) {
+    if (vo.punish_expire_at) {
+      punishmentText = `${vo.punish_type} 至 ${new Date(vo.punish_expire_at).toLocaleDateString()}`;
+    } else {
+      punishmentText = vo.punish_type;
+    }
+  }
+
+  return {
+    id: vo.id,
+    reason: vo.reason,
+    date: new Date(vo.created_at).toLocaleDateString(),
+    status: uiStatus,
+    punishment: punishmentText,
+    appealDeadline: undefined,
+  };
+}
 
 export function ViolationPanel() {
   const t = useTranslations("Violation");
+  const {
+    violations: rawViolations,
+    loadViolations,
+    isLoading,
+    submitAppeal,
+    isAppealing,
+    appealError,
+    error: loadError,
+  } = useUserViolation();
+
+  // 安全转换后的展示数据
   const [violations, setViolations] = useState<ViolationRecord[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [appealModal, setAppealModal] = useState<{
-    open: boolean;
-    violationId: string;
-    reason: string;
-  }>({ open: false, violationId: "", reason: "" });
+  const [appealModal, setAppealModal] = useState({
+    open: false,
+    violationId: "",
+    violationReason: "",
+  });
   const [appealText, setAppealText] = useState("");
 
-  // 获取违规记录
-  useEffect(() => {
-    // 替换为真实 API 调用
-    const fetchViolations = async () => {
-      setLoading(true);
-      try {
-        // const res = await userApi.getViolations();
-        // setViolations(res.data);
-        await new Promise((resolve) => setTimeout(resolve, 500));
-        setViolations(mockViolations);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchViolations();
-  }, []);
-
-  // 提交申诉
-  const handleAppealSubmit = async () => {
-    if (!appealText.trim()) return;
-    try {
-      // await userApi.appealViolation(appealModal.violationId, appealText);
-      // 更新本地状态
-      setViolations((prev) =>
-        prev.map((v) =>
-          v.id === appealModal.violationId ? { ...v, status: "appealing" } : v,
-        ),
-      );
-      setAppealModal({ open: false, violationId: "", reason: "" });
-      setAppealText("");
-      alert(t("appeal_submitted")); // 替换为 toast
-    } catch {
-      alert(t("appeal_failed"));
+  // 始终确保 rawViolations 是数组，如果不是则记录警告并转为空数组
+  const safeViolations = useMemo(() => {
+    if (Array.isArray(rawViolations)) {
+      return rawViolations;
     }
-  };
+    console.warn("useUserViolation 返回的 violations 不是数组:", rawViolations);
+    return [];
+  }, [rawViolations]);
+
+  // 将安全的违规数据转换为 UI 数据
+  useEffect(() => {
+    setViolations(safeViolations.map(toViolationRecord));
+  }, [safeViolations]);
+
+  // 首次加载数据
+  useEffect(() => {
+    loadViolations();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const canAppeal = (record: ViolationRecord) => {
     if (record.status !== "pending") return false;
@@ -88,10 +88,41 @@ export function ViolationPanel() {
     return true;
   };
 
-  if (loading) {
+  const handleAppealSubmit = async () => {
+    if (!appealText.trim()) return;
+    const success = await submitAppeal(appealModal.violationId, appealText);
+    if (success) {
+      setAppealModal({ open: false, violationId: "", violationReason: "" });
+      setAppealText("");
+      // 使用更友好的提示，实际项目可替换为 toast
+      alert(t("appeal_submitted"));
+    } else {
+      alert(appealError || t("appeal_failed"));
+    }
+  };
+
+  // 加载中
+  if (isLoading) {
     return (
       <div className="flex justify-center py-12">
         <span className="loading loading-spinner loading-lg"></span>
+      </div>
+    );
+  }
+
+  // 加载错误
+  if (loadError) {
+    return (
+      <div className="card bg-base-100 border border-error/30">
+        <div className="card-body text-center text-error">
+          <p>{loadError}</p>
+          <button
+            className="btn btn-sm btn-outline mt-2"
+            onClick={loadViolations}
+          >
+            {t("retry")}
+          </button>
+        </div>
       </div>
     );
   }
@@ -133,7 +164,7 @@ export function ViolationPanel() {
                               setAppealModal({
                                 open: true,
                                 violationId: record.id,
-                                reason: record.reason,
+                                violationReason: record.reason,
                               })
                             }
                           >
@@ -176,7 +207,7 @@ export function ViolationPanel() {
           <div className="modal-box">
             <h3 className="font-bold text-lg">{t("appeal_title")}</h3>
             <p className="py-2">
-              {t("appeal_for")}: {appealModal.reason}
+              {t("appeal_for")}: {appealModal.violationReason}
             </p>
             <textarea
               className="textarea textarea-bordered w-full mt-2"
@@ -184,26 +215,48 @@ export function ViolationPanel() {
               placeholder={t("appeal_placeholder")}
               value={appealText}
               onChange={(e) => setAppealText(e.target.value)}
+              disabled={isAppealing}
             />
             <div className="modal-action">
-              <button className="btn btn-primary" onClick={handleAppealSubmit}>
-                {t("submit_appeal")}
+              <button
+                className="btn btn-primary"
+                onClick={handleAppealSubmit}
+                disabled={isAppealing || !appealText.trim()}
+              >
+                {isAppealing ? (
+                  <span className="loading loading-spinner loading-xs"></span>
+                ) : (
+                  t("submit_appeal")
+                )}
               </button>
               <button
                 className="btn btn-ghost"
                 onClick={() =>
-                  setAppealModal({ open: false, violationId: "", reason: "" })
+                  setAppealModal({
+                    open: false,
+                    violationId: "",
+                    violationReason: "",
+                  })
                 }
+                disabled={isAppealing}
               >
                 {t("cancel")}
               </button>
             </div>
+            {appealError && (
+              <p className="text-error text-sm mt-2">{appealError}</p>
+            )}
           </div>
           <form method="dialog" className="modal-backdrop">
             <button
               onClick={() =>
-                setAppealModal({ open: false, violationId: "", reason: "" })
+                setAppealModal({
+                  open: false,
+                  violationId: "",
+                  violationReason: "",
+                })
               }
+              disabled={isAppealing}
             >
               close
             </button>

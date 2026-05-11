@@ -1,7 +1,7 @@
 package auth
 
 import (
-	authService "tiny-forum/internal/service/auth"
+	"tiny-forum/internal/model/request"
 	apperrors "tiny-forum/pkg/errors"
 	"tiny-forum/pkg/logger"
 	"tiny-forum/pkg/response"
@@ -9,13 +9,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type DeleteAccountVO struct {
+	IsDeleted bool `json:"is_deleted"`
+}
+
 // DeleteAccount godoc
 // @Summary 用户注销账户（软删除）
 // @Tags 验证管理
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param request body auth.DeleteAccountInput true "注销请求"
+// @Param request body request.DeleteAccountRequest true "注销请求"
 // @Success 200 {object} common.BasicResponse
 // @Router /auth/account [delete]
 func (h *AuthHandler) DeleteAccount(c *gin.Context) {
@@ -29,21 +33,24 @@ func (h *AuthHandler) DeleteAccount(c *gin.Context) {
 	}
 
 	// 可选：验证密码或确认码
-	var input authService.DeleteAccountInput
+	var input request.DeleteAccountRequest
 	if err := c.ShouldBindJSON(&input); err != nil {
 		// 如果没有额外验证字段，可以忽略绑定错误
-		input = authService.DeleteAccountInput{}
+		input = request.DeleteAccountRequest{}
 	}
 
-	err := h.authSvc.DeleteAccount(ctx, userID.(uint), input)
+	isDeelte, err := h.authSvc.DeleteAccount(ctx, userID.(uint), input)
 	if err != nil {
 		response.BadRequest(c, err.Error())
 		return
 	}
 
-	response.Success(c, gin.H{
-		"message": "账户已成功删除",
-	})
+	Result := DeleteAccountVO{
+		IsDeleted: isDeelte,
+	}
+	logger.Infof("用户 %d 注销账户（软删除）", userID)
+
+	response.Success(c, Result)
 }
 
 // GetDeletionStatus godoc
@@ -119,7 +126,7 @@ func (h *AuthHandler) ConfirmDeletion(c *gin.Context) {
 		return
 	}
 
-	var input authService.DeleteAccountInput
+	var input request.DeleteAccountRequest
 	if err := c.ShouldBindJSON(&input); err != nil {
 		response.HandleError(c, apperrors.ErrInvalidRequest)
 		return

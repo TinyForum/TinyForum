@@ -32,7 +32,7 @@ func (h *AttachmentHandler) RegisterRoutes(api *gin.RouterGroup, mw middleware.M
 		attachments.DELETE("/:file_id", h.DeleteFile) // DELETE /api/v1/attachments/:file_id 删除文件
 	}
 
-	// 公开文件访问（无认证，注意权限控制：只能访问公有文件或带签名 URL）
+	// 公开文件访问（无认证）
 	public := api.Group("/files")
 	{
 		public.GET("/:file_id", h.ServeFile) // GET /api/v1/files/:file_id

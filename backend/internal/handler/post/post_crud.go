@@ -111,6 +111,7 @@ func (h *PostHandler) GetByID(c *gin.Context) {
 // @Router /posts [get]
 func (h *PostHandler) List(c *gin.Context) {
 
+	logger.Infof("用户获取文章列表")
 	var req request.ListPosts
 
 	if err := c.ShouldBindQuery(&req); err != nil {

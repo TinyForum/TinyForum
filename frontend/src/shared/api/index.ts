@@ -28,7 +28,6 @@ export type {
   Topic,
   TopicPost,
   TopicFollow,
-  AuthResult,
 } from "./types";
 
 // ─── Modules ──────────────────────────────────────────────────────────────────

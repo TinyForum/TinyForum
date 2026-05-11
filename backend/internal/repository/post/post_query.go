@@ -2,6 +2,7 @@ package post
 
 import (
 	"context"
+	"fmt"
 	"tiny-forum/internal/model/common"
 	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/request"
@@ -127,54 +128,81 @@ func (r *postRepository) AdminList(ctx context.Context, listPostsDO *common.Page
 	var posts []do.Post
 	var total int64
 
+	// 基础查询
 	query := r.db.Model(&do.Post{})
 
-	// // 状态过滤：不设默认，只有传入时才过滤（后台需要看所有状态）
+	// 动态添加过滤条件
+	// 状态过滤（后台需支持所有状态，仅当传入时才过滤）
 	if listPostsDO.Data.PostStatus != "" {
-		logger.Infof("查询状态: %v", listPostsDO.Data.PostStatus)
+		logger.Infof("查询状态: %s", listPostsDO.Data.PostStatus)
 		query = query.Where("status = ?", listPostsDO.Data.PostStatus)
 	}
 
-	// if listPostsDO.Data.AuthorID > 0 {
-	// 	logger.Infof("查询作者 ID: %v", listPostsDO.Data.AuthorID)
-	// 	query = query.Where("author_id = ?", listPostsDO.Data.AuthorID)
-	// }
-	// if len(listPostsDO.Data.Tags) > 0 {
-	// 	query = query.Joins("JOIN post_tags ON post_tags.post_id = posts.id").
-	// 		Where("post_tags.tag_id = ?", listPostsDO.Data.Tags)
-	// }
+	// 类型过滤
 	if listPostsDO.Data.Type != "" {
-		logger.Infof("查询类型: %v", listPostsDO.Data.Type)
+		logger.Infof("查询类型: %s", listPostsDO.Data.Type)
 		query = query.Where("type = ?", listPostsDO.Data.Type)
 	}
-	if listPostsDO.Keyword != "" {
-		logger.Infof("查询关键字:", listPostsDO.Keyword)
-		query = query.Where("title LIKE ? OR content LIKE ?", "%"+listPostsDO.Keyword+"%", "%"+listPostsDO.Keyword+"%")
-	}
+
+	// 审核状态过滤
 	if listPostsDO.Data.ModerationStatus != "" {
-		logger.Infof("查询审核状态:", listPostsDO.Data.ModerationStatus, "数量: ", query.Count(&total))
+		logger.Infof("查询审核状态: %s", listPostsDO.Data.ModerationStatus)
 		query = query.Where("moderation_status = ?", listPostsDO.Data.ModerationStatus)
 	}
 
-	// 统计
-	if err := query.Count(&total).Error; err != nil {
-		return nil, 0, err
+	// 关键词搜索（标题或内容）
+	if listPostsDO.Keyword != "" {
+		logger.Infof("查询关键字: %s", listPostsDO.Keyword)
+		pattern := "%" + listPostsDO.Keyword + "%"
+		query = query.Where("title LIKE ? OR content LIKE ?", pattern, pattern)
 	}
 
+	// 可选：作者ID过滤（注释保留，按需开启）
+	// if listPostsDO.Data.AuthorID > 0 {
+	//     logger.Infof("查询作者ID: %d", listPostsDO.Data.AuthorID)
+	//     query = query.Where("author_id = ?", listPostsDO.Data.AuthorID)
+	// }
+
+	// 可选：标签过滤（注意多表关联可能影响性能）
+	// if len(listPostsDO.Data.Tags) > 0 {
+	//     query = query.Joins("JOIN post_tags ON post_tags.post_id = posts.id").
+	//         Where("post_tags.tag_id IN ?", listPostsDO.Data.Tags)
+	// }
+
+	// 计算总数（在 offset/limit 之前）
+	if err := query.Count(&total).Error; err != nil {
+		return nil, 0, fmt.Errorf("count posts failed: %w", err)
+	}
+
+	// 无数据时直接返回，避免不必要的查询
+	if total == 0 {
+		return []do.Post{}, 0, nil
+	}
+
+	// 分页参数
 	offset := (listPostsDO.Page - 1) * listPostsDO.PageSize
-	// 排序：默认按创建时间倒序，支持 hot 和 latest（latest 与默认相同）
+
+	// 排序策略
 	orderExpr := "created_at DESC"
 	switch listPostsDO.SortBy {
 	case "hot":
-		orderExpr = "like_count DESC, view_count DESC"
+		orderExpr = "like_count DESC, view_count DESC, created_at DESC"
 	case "latest":
 		orderExpr = "created_at DESC"
 	}
-	// 如果后台需要全局置顶，可以加上：orderExpr = "pin_top DESC, " + orderExpr
 
-	err := query.Preload("Author").Preload("Tags").
+	// 执行查询（预加载关联数据）
+	err := query.
+		Preload("Author").
+		Preload("Tags").
 		Order(orderExpr).
-		Offset(offset).Limit(listPostsDO.PageSize).
+		Offset(offset).
+		Limit(listPostsDO.PageSize).
 		Find(&posts).Error
-	return posts, total, err
+
+	if err != nil {
+		return nil, 0, fmt.Errorf("query posts failed: %w", err)
+	}
+
+	return posts, total, nil
 }

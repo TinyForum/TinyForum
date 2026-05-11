@@ -7,7 +7,16 @@ import { Notification, notificationApi } from "@/shared/api";
 import { useTranslations } from "next-intl";
 import { Fragment, useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { Dialog, Transition, TransitionChild } from "@headlessui/react";
+import {
+  Button,
+  Dialog,
+  DialogPanel,
+  DialogTitle,
+  Transition,
+  TransitionChild,
+} from "@headlessui/react";
+import { formatDate } from "@/shared/lib/utils";
+import { useNotifications } from "@/features/notification/hooks/useNotification";
 
 // interface Notification {
 //   id: number;
@@ -151,7 +160,9 @@ export default function NotificationBell({
     if (content.length <= maxLength) return content;
     return content.substring(0, maxLength) + "...";
   };
+  const { markAsRead } = useNotifications();
 
+  // 处理通知点击事件
   const handleNotificationClick = (notification: Notification) => {
     setSelectedNotification(notification);
     setIsModalOpen(true);
@@ -292,11 +303,11 @@ export default function NotificationBell({
                   leaveFrom="opacity-100 scale-100"
                   leaveTo="opacity-0 scale-95"
                 >
-                  <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 p-6 shadow-xl transition-all">
+                  <DialogPanel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 p-6 shadow-xl transition-all">
                     <div className="flex items-center justify-between mb-4">
-                      <Dialog.Title className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                      <DialogTitle className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                         通知详情
-                      </Dialog.Title>
+                      </DialogTitle>
                       <button
                         onClick={() => setIsModalOpen(false)}
                         className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
@@ -307,18 +318,40 @@ export default function NotificationBell({
 
                     {selectedNotification && (
                       <div className="space-y-4">
-                        <div className="prose prose-sm max-w-none dark:prose-invert">
-                          <p className="text-base leading-relaxed whitespace-pre-wrap break-words text-gray-700 dark:text-gray-300">
-                            {selectedNotification.content}
-                          </p>
+                        <div className="flex flex-col h-full">
+                          <div className="flex-1 overflow-y-auto">
+                            <div className="prose prose-sm max-w-none dark:prose-invert">
+                              <p className="text-base leading-relaxed whitespace-pre-wrap break-words text-gray-700 dark:text-gray-300">
+                                {selectedNotification.content}
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* 按钮区域 - 右下角对齐 */}
+                          {!selectedNotification.is_read && (
+                            <div className="flex justify-end pt-4 mt-4 border-t border-base-200">
+                              <Button
+                                className="btn btn-primary btn-sm"
+                                onClick={() => {
+                                  markAsRead(selectedNotification.id);
+                                  setIsModalOpen(false);
+                                }}
+                              >
+                                已读
+                              </Button>
+                            </div>
+                          )}
                         </div>
                         <div className="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-gray-700">
                           <div className="text-xs text-gray-400 dark:text-gray-500 space-y-1">
                             <div>
-                              发送时间：{selectedNotification.created_at}
+                              发送时间：
+                              {formatDate(selectedNotification.created_at)}
                             </div>
                             {selectedNotification.type && (
-                              <div>类型：{selectedNotification.type}</div>
+                              <div>
+                                类型：{t(`${selectedNotification.type}_notify`)}
+                              </div>
                             )}
                           </div>
                           {selectedNotification.target_id && (
@@ -333,7 +366,7 @@ export default function NotificationBell({
                         </div>
                       </div>
                     )}
-                  </Dialog.Panel>
+                  </DialogPanel>
                 </Transition.Child>
               </div>
             </Dialog>

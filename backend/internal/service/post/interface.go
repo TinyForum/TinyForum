@@ -17,6 +17,7 @@ import (
 )
 
 type PostService interface {
+	// admin
 	AdminList(ctx context.Context, listPostsBO *common.PageQuery[bo.ListPosts]) ([]do.Post, int64, error)
 	SetStatus(postID uint, status do.PostStatus) error
 	TogglePin(postID uint) error
@@ -38,7 +39,7 @@ type postService struct {
 	tagRepo   tagRepo.TagRepository
 	boardRepo boardRepo.BoardRepository
 	userRepo  userRepo.UserRepository
-	notifSvc  notification.NotificationService // 需导入 "tiny-forum/internal/service/notification"
+	notifSvc  notification.NotificationService
 	// riskSvc         *risk.RiskService
 	contentcheckSvc check.ContentCheckService
 }

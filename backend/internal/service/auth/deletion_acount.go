@@ -6,27 +6,14 @@ import (
 	"fmt"
 	"time"
 	"tiny-forum/internal/model/do"
+	"tiny-forum/internal/model/request"
+	"tiny-forum/internal/model/vo"
 
 	"gorm.io/gorm"
 )
 
-func (s *authService) DeleteAccount(ctx context.Context, userID uint, input DeleteAccountInput) error {
-	if input.Confirm != "DELETE" {
-		return errors.New("请确认删除操作")
-	}
-
-	// 通过 repo 软删除
-	if err := s.authRepo.SoftDelete(ctx, userID); err != nil {
-		return errors.New("删除账户失败")
-	}
-
-	return nil
-}
-
-// internal/service/auth/account.go
-
 // ScheduleDeletion 标记账户为待删除（软删除）
-func (s *authService) ScheduleDeletion(ctx context.Context, userID uint, input DeleteAccountInput) error {
+func (s *authService) ScheduleDeletion(ctx context.Context, userID uint, input request.DeleteAccountRequest) error {
 	if input.Confirm != "DELETE" {
 		return errors.New("请确认删除操作")
 	}
@@ -184,14 +171,14 @@ func (s *authService) ConfirmDeletion(ctx context.Context, userID uint) error {
 }
 
 // GetDeletionStatus 获取账户删除状态
-func (s *authService) GetDeletionStatus(ctx context.Context, userID uint) (*DeletionStatus, error) {
+func (s *authService) GetDeletionStatus(ctx context.Context, userID uint) (*vo.DeletionStatus, error) {
 	// 获取用户信息（包括已软删除的）
 	user, err := s.authRepo.GetUserWithDeleted(ctx, userID)
 	if err != nil {
 		return nil, errors.New("获取用户信息失败")
 	}
 
-	status := &DeletionStatus{
+	status := &vo.DeletionStatus{
 		IsDeleted:  false,
 		CanRestore: false,
 	}
@@ -212,4 +199,17 @@ func (s *authService) GetDeletionStatus(ctx context.Context, userID uint) (*Dele
 	}
 
 	return status, nil
+}
+
+func (s *authService) DeleteAccount(ctx context.Context, userID uint, input request.DeleteAccountRequest) (bool, error) {
+	if input.Confirm != "DELETE" {
+		return false, errors.New("请确认删除操作")
+	}
+
+	// 通过 repo 软删除
+	if err := s.authRepo.SoftDelete(ctx, userID); err != nil {
+		return false, errors.New("删除账户失败")
+	}
+
+	return true, nil
 }

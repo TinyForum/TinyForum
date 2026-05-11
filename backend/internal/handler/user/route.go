@@ -15,8 +15,8 @@ func (h *UserHandler) RegisterRoutes(api *gin.RouterGroup, mw middleware.Middlew
 	// 1. 排行榜（独立资源）
 	leaderboard := users.Group("/leaderboard")
 	{
-		leaderboard.GET("/simple", h.LeaderboardSimple) // GET /api/v1/users/leaderboard/simple
-		leaderboard.GET("/detail", h.LeaderboardDetail) // GET /api/v1/users/leaderboard/detail
+		leaderboard.GET("/simple", h.LeaderboardSimple) // GET /api/v1/users/leaderboard/simple 获取排行榜简单信息
+		leaderboard.GET("/detail", h.LeaderboardDetail) // GET /api/v1/users/leaderboard/detail 获取排行榜详细信息
 	}
 
 	// 2. 特定用户的操作
@@ -54,7 +54,10 @@ func (h *UserHandler) RegisterRoutes(api *gin.RouterGroup, mw middleware.Middlew
 		{
 			posts.GET("", h.GetUserPosts) // GET /api/v1/users/me/stats/posts 用户帖子列表
 		}
-
+		violation := me.Group("/violations")
+		{
+			violation.GET("", h.ListUserViolations) // GET /api/v1/users/me/violation 用户违规记录
+		}
 		// me.PATCH("/password", h.ChangePassword) // PATCH /api/v1/users/me/password 修改密码
 	}
 }

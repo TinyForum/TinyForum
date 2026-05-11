@@ -10,7 +10,7 @@ import (
 // ListMyFiles 获取当前用户的文件列表
 // @Summary 获取用户文件列表
 // @Description 分页获取当前登录用户上传的所有文件，可按文件类型过滤
-// @Tags attachment
+// @Tags 附件管理
 // @Accept json
 // @Produce json
 // @Param page query int false "页码" default(1)

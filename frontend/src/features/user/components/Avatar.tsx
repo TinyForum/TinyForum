@@ -1,5 +1,7 @@
 // src/components/user/Avatar.tsx
-import { useState } from "react";
+"use client";
+
+import { useState, useEffect } from "react";
 import Image from "next/image";
 
 interface AvatarProps {
@@ -49,6 +51,36 @@ export default function Avatar({
   zIndex = "auto",
 }: AvatarProps) {
   const [hasError, setHasError] = useState(false);
+  const [normalizedSrc, setNormalizedSrc] = useState<string>("");
+
+  // 将任意格式的图片地址转换为绝对 URL（仅客户端）
+  useEffect(() => {
+    if (!avatarUrl) {
+      setNormalizedSrc("");
+      return;
+    }
+
+    // 已经是绝对路径
+    if (avatarUrl.startsWith("http://") || avatarUrl.startsWith("https://")) {
+      setNormalizedSrc(avatarUrl);
+      return;
+    }
+
+    // 协议相对路径 (//example.com/pic.jpg)
+    if (avatarUrl.startsWith("//")) {
+      setNormalizedSrc(`${window.location.protocol}${avatarUrl}`);
+      return;
+    }
+
+    // 相对路径，如 /uploads/avatar.jpg
+    if (avatarUrl.startsWith("/")) {
+      setNormalizedSrc(`${window.location.origin}${avatarUrl}`);
+      return;
+    }
+
+    // 默认原样返回（可能无效，但避免报错）
+    setNormalizedSrc(avatarUrl);
+  }, [avatarUrl]);
 
   const handleError = () => {
     if (!hasError) {
@@ -81,7 +113,6 @@ export default function Avatar({
   const inlineSizeStyle =
     typeof size === "number" ? { width: size, height: size } : undefined;
 
-  // 重要：外层 div 必须是 relative，且内层 div 使用 absolute 填充
   const wrapperClasses = `relative ${sizeClass} ${className}`.trim();
   const innerClasses = `absolute inset-0 overflow-hidden bg-base-200 flex items-center justify-center ${shapeClass} ${ringClass}`;
 
@@ -98,12 +129,25 @@ export default function Avatar({
     );
   }
 
-  // 正常图片：使用 fill 模式
+  // 等待客户端路径转换完成（避免服务端/客户端不一致）
+  if (!normalizedSrc) {
+    return (
+      <div className={wrapperClasses} style={{ ...inlineSizeStyle, zIndex }}>
+        <div className={innerClasses}>
+          <span className="text-sm font-medium text-base-content">
+            {username?.charAt(0)?.toUpperCase() || "?"}
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  // 正常图片
   return (
     <div className={wrapperClasses} style={{ ...inlineSizeStyle, zIndex }}>
       <div className={innerClasses}>
         <Image
-          src={avatarUrl}
+          src={normalizedSrc}
           alt={username || "用户头像"}
           fill
           className="object-cover"
@@ -116,7 +160,7 @@ export default function Avatar({
                 ? `${size}px`
                 : "40px"
           }
-          unoptimized={!avatarUrl.startsWith("/") && !avatarUrl.includes("cdn")}
+          unoptimized={normalizedSrc.startsWith("data:")}
         />
       </div>
     </div>

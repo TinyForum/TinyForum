@@ -12,6 +12,7 @@ import (
 	postRepo "tiny-forum/internal/repository/post"
 	userRepo "tiny-forum/internal/repository/user"
 	"tiny-forum/internal/service/notification"
+	"tiny-forum/internal/service/violation"
 	jwtpkg "tiny-forum/pkg/jwt"
 )
 
@@ -49,14 +50,17 @@ type UserService interface {
 	GetGlobalStatsCount(ctx context.Context, userID uint) (*dto.StatsInfo, error)
 	// posts
 	GetUserPosts(ctx context.Context, req request.GetUserPostsRequest, userID uint) (*common.PageResult[vo.UserPosts], error)
+	// 违规
+	ListUserViolation(ctx context.Context, req request.ListUserViolationRequest, userID uint) (*common.PageResult[vo.ViolationVO], error)
 }
 type userService struct {
-	repo        userRepo.UserRepository
-	jwtMgr      *jwtpkg.JWTManager
-	notifSvc    notification.NotificationService
-	roleChecker *validator.RoleChangeChecker
-	postRepo    postRepo.PostRepository
-	commentRepo commentRepo.CommentRepository
+	repo         userRepo.UserRepository
+	jwtMgr       *jwtpkg.JWTManager
+	notifSvc     notification.NotificationService
+	roleChecker  *validator.RoleChangeChecker
+	postRepo     postRepo.PostRepository
+	commentRepo  commentRepo.CommentRepository
+	violationSvc violation.ViolationService
 	// roleChange  validator.RoleChangeRequest
 }
 
@@ -66,6 +70,7 @@ func NewUserService(
 	notifSvc notification.NotificationService,
 	postRepo postRepo.PostRepository,
 	commetnRepo commentRepo.CommentRepository,
+	violationSvc violation.ViolationService,
 	// roleChange validator.RoleChangeRequest,
 ) UserService {
 	roleValidator := validator.NewRoleValidator()
@@ -76,8 +81,9 @@ func NewUserService(
 		notifSvc: notifSvc,
 		// roleChecker: validator.RoleChangeChecker{},
 		// roleChange:  validator.RoleChangeRequest{},
-		roleChecker: roleChecker,
-		postRepo:    postRepo,
-		commentRepo: commetnRepo,
+		roleChecker:  roleChecker,
+		postRepo:     postRepo,
+		commentRepo:  commetnRepo,
+		violationSvc: violationSvc,
 	}
 }

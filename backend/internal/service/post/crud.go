@@ -172,9 +172,8 @@ func (s *postService) GetByID(postID, viewerID uint) (*do.Post, bool, error) {
 	return post, liked, nil
 }
 
+// 用户获取文章列表
 func (s *postService) List(ctx context.Context, listPostsBO *common.PageQuery[bo.ListPosts]) ([]do.Post, int64, error) {
-	// 将 BO 的 Data 字段转换为 DO 的对应结构
-	// var filterDO *do.Post
 	filterDO := converter.ListPostsBOToPostDO(&listPostsBO.Data)
 
 	// 构造 DO 层的查询对象
@@ -193,5 +192,5 @@ func (s *postService) List(ctx context.Context, listPostsBO *common.PageQuery[bo
 		listPostsDO.Data = *filterDO
 	}
 
-	return s.postRepo.AdminList(ctx, listPostsDO)
+	return s.postRepo.List(ctx, listPostsDO)
 }

@@ -65,6 +65,7 @@ func (s *service) UploadFile(ctx context.Context, userID uint, fileHeader *multi
 	// 2. 检查是否已存在相同哈希的文件（去重）
 	dup, _ := s.repo.FindDuplicate(ctx, result.FileHash, do.FileType(req.Type))
 	if dup != nil {
+		logger.Infof("文件已存在: %s", s.urlPrefix+"/"+dup.StoredPath)
 		// 已存在，返回已有文件的信息（物理文件已存在，无需重复保存）
 		return &dto.UploadResponse{
 			FileID: dup.FileID,
@@ -97,9 +98,11 @@ func (s *service) UploadFile(ctx context.Context, userID uint, fileHeader *multi
 		return nil, fmt.Errorf("save record: %w", err)
 	}
 
+	url := s.urlPrefix + "/" + meta.StoredPath
+	logger.Infof("文件已上传: %s", url)
 	return &dto.UploadResponse{
 		FileID: meta.FileID,
-		URL:    s.urlPrefix + "/" + meta.StoredPath,
+		URL:    url,
 	}, nil
 }
 

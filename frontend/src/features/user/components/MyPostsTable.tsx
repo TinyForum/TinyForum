@@ -16,10 +16,6 @@ export function MyPostsTable() {
     refresh,
   } = useMePosts();
 
-  useEffect(() => {
-    refresh();
-  }, [refresh]);
-
   // 加载骨架屏
   if (isLoading && posts.length === 0) {
     return (
