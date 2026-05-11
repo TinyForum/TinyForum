@@ -13,7 +13,7 @@ import (
 // @Accept json
 // @Produce json
 // @Param body body request.RegisterRequest true "注册信息"
-// @Success 200 {object} common.BasicResponse
+// @Success 200 {object} vo.UserPrivateVO
 // @Failure 400 {object} common.BasicResponse
 // @Router /auth/register [post]
 func (h *AuthHandler) Register(c *gin.Context) {

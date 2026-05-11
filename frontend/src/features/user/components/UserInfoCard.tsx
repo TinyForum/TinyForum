@@ -17,6 +17,7 @@ export function UserInfoCard({
   isModerator,
 }: UserInfoCardProps) {
   const t = useTranslations("User");
+  console.log("用户信息: ", user);
   return (
     <div className="card bg-base-100 border border-base-300">
       <div className="card-body">

@@ -2546,7 +2546,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/common.BasicResponse"
+                            "$ref": "#/definitions/vo.UserVO"
                         }
                     }
                 }
@@ -8034,6 +8034,53 @@ const docTemplate = `{
                 }
             }
         },
+        "do.UserRole": {
+            "type": "string",
+            "enum": [
+                "guest",
+                "user",
+                "member",
+                "moderator",
+                "reviewer",
+                "admin",
+                "super_admin",
+                "bot",
+                "system_maintainer"
+            ],
+            "x-enum-comments": {
+                "RoleAdmin": "管理员：管理用户、管理帖子、管理评论等（可读写：完全访问，完全读写）",
+                "RoleBot": "系统机器人：自动回复、定时任务等（受限访问，受限读写）",
+                "RoleGuest": "游客：浏览（只读，受限访问）",
+                "RoleMember": "会员：无广告、自定义表情、创建投票等（可读写：受限访问，受限读写）",
+                "RoleModerator": "版主：管理版块、管理帖子、管理评论等（可读写：受限访问，受限读写）",
+                "RoleReviewer": "审核员：审核帖子、评论等（可读写：受限访问，受限读写）",
+                "RoleSuperAdmin": "超级管理员：最高权限（可读写：完全访问，完全读写）",
+                "RoleSystemMaintainer": "系统维护者：系统维护、数据备份等（受限读写，受限访问",
+                "RoleUser": "普通用户：浏览、评论、发帖等（可读写：受限访问，受限读写）"
+            },
+            "x-enum-descriptions": [
+                "游客：浏览（只读，受限访问）",
+                "普通用户：浏览、评论、发帖等（可读写：受限访问，受限读写）",
+                "会员：无广告、自定义表情、创建投票等（可读写：受限访问，受限读写）",
+                "版主：管理版块、管理帖子、管理评论等（可读写：受限访问，受限读写）",
+                "审核员：审核帖子、评论等（可读写：受限访问，受限读写）",
+                "管理员：管理用户、管理帖子、管理评论等（可读写：完全访问，完全读写）",
+                "超级管理员：最高权限（可读写：完全访问，完全读写）",
+                "系统机器人：自动回复、定时任务等（受限访问，受限读写）",
+                "系统维护者：系统维护、数据备份等（受限读写，受限访问"
+            ],
+            "x-enum-varnames": [
+                "RoleGuest",
+                "RoleUser",
+                "RoleMember",
+                "RoleModerator",
+                "RoleReviewer",
+                "RoleAdmin",
+                "RoleSuperAdmin",
+                "RoleBot",
+                "RoleSystemMaintainer"
+            ]
+        },
         "dto.BatchMarkReadRequest": {
             "type": "object",
             "properties": {
@@ -9029,6 +9076,47 @@ const docTemplate = `{
                 "total_violation": {
                     "description": "总违规数",
                     "type": "integer"
+                }
+            }
+        },
+        "vo.UserVO": {
+            "type": "object",
+            "properties": {
+                "avatar": {
+                    "type": "string"
+                },
+                "bio": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "invited_by_id": {
+                    "type": "integer"
+                },
+                "is_active": {
+                    "type": "boolean"
+                },
+                "is_blocked": {
+                    "type": "boolean"
+                },
+                "last_login": {
+                    "type": "string"
+                },
+                "role": {
+                    "$ref": "#/definitions/do.UserRole"
+                },
+                "score": {
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
                 }
             }
         }

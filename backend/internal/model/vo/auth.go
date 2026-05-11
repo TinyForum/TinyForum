@@ -6,7 +6,7 @@ import (
 
 type AuthResultVO struct {
 	Token          string          `json:"token"`
-	User           *UserVO         `json:"user"`
+	User           *UserPrivateVO  `json:"user"`
 	DeletionStatus *DeletionStatus `json:"deletion_status,omitempty"`
 }
 

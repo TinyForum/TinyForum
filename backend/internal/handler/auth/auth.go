@@ -15,7 +15,7 @@ import (
 // @Accept json
 // @Produce json
 // @Param body body user.LoginInput true "登录信息"
-// @Success 200 {object} common.BasicResponse
+// @Success 200 {object} vo.UserPrivateVO
 // @Router /auth/login [post]
 func (h *AuthHandler) Login(c *gin.Context) {
 
@@ -49,10 +49,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 
 	c.Header("Set-Cookie", cookieValue)
 
-	// 响应体只返回用户信息，不暴露 token
-	response.Success(c, gin.H{
-		"user": result.User,
-	})
+	response.Success(c, result.User)
 }
 
 // Logout godoc
