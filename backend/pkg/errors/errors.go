@@ -46,7 +46,7 @@ var (
 
 	// 密码校验
 	ErrPasswordNotMatch  = New(CodeUnauthorized, "密码不匹配")                  // 密码不匹配
-	ErrPasswordTooShort  = New(CodePasswordTooShort, "密码长度至少为6位")          // 密码长度至少为6位
+	ErrPasswordTooShort  = New(CodePasswordTooShort, "密码长度至少为 8 位")        // 密码长度至少为6位
 	ErrPasswordTooLong   = New(CodeInvalidPassword, "密码长度不能超过32位")         // 密码长度不能超过32位
 	ErrPasswordSameAsOld = New(CodePasswordSameAsOld, "新密码不能与旧密码相同")       // 新密码不能与旧密码相同
 	ErrWeakPassword      = New(CodeInvalidPassword, "密码强度太弱，请使用更长且更复杂的密码") // 密码强度太弱，请使用更长且更复杂的密码
