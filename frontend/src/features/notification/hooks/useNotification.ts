@@ -62,6 +62,7 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
     }
   }, [loading, hasMore, currentPage, loadNotifications]);
 
+  /** 标记已读 */
   const markAsRead = useCallback(async (notificationId: number) => {
     try {
       const response = await notificationApi.markRead(notificationId);

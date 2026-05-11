@@ -332,7 +332,10 @@ export default function NotificationBell({
                             <div className="flex justify-end pt-4 mt-4 border-t border-base-200">
                               <Button
                                 className="btn btn-primary btn-sm"
-                                onClick={() => markAsRead}
+                                onClick={() => {
+                                  markAsRead(selectedNotification.id);
+                                  setIsModalOpen(false);
+                                }}
                               >
                                 已读
                               </Button>

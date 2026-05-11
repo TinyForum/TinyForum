@@ -185,9 +185,9 @@ export interface TopicFollow {
   topic_id: number;
 }
 
-export interface AuthResult {
-  user: UserDO;
-}
+// export interface AuthResult {
+//   user: UserDO;
+// }
 
 // lib/api/types/index.ts 中添加
 // export interface Announcement {
