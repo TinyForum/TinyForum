@@ -83,6 +83,7 @@ func RegisterRoutes(
 
 	// 静态路由
 	engine.StaticFS("/store", http.Dir("./store"))
+	engine.StaticFS("/uploads", http.Dir("./uploads"))
 
 	// ── Admin 路由组（示例：Casbin 替代 AdminRequired）───────────────────────
 	//

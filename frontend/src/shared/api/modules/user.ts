@@ -44,7 +44,7 @@ export const userApi = {
 
   /** 更新当前用户资料 (需登录) */
   updateProfile: (data: UpdateProfilePayload) =>
-    apiClient.put<ApiResponse<UserDO>>("/users/mine/profile", data),
+    apiClient.put<ApiResponse<UserDO>>("/users/me/profile", data),
 
   // ---------- 关注/取关 ----------
   /** 关注用户 (需登录) */

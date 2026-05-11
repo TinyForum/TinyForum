@@ -217,7 +217,7 @@ ${allow_origins_yaml}
 
 attachment:
   upload_dir: ${upload_dir}
-  url_prefix: /${upload_url_prefix}
+  url_prefix: ${upload_url_prefix}
   allowed_ext: ${upload_allowed_ext}
   max_size: 10485760
   allowed_types:
