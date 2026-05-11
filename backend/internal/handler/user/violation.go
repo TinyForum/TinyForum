@@ -14,9 +14,8 @@ import (
 // @Produce json
 // @Success 200 {object} common.BasicResponse
 // @Failure 400 {object} common.BasicResponse
-// @Router /users/me/violation [get]
-func (h *UserHandler) ListUserViolation(c *gin.Context) {
-	// TODO implement me
+// @Router /users/me/violations [get]
+func (h *UserHandler) ListUserViolations(c *gin.Context) {
 	userID := c.GetUint("user_id")
 
 	var req request.ListUserViolationRequest
@@ -32,5 +31,4 @@ func (h *UserHandler) ListUserViolation(c *gin.Context) {
 	}
 
 	response.Success(c, result)
-	panic("implement me")
 }

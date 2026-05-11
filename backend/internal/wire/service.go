@@ -23,6 +23,7 @@ import (
 	"tiny-forum/internal/service/topic"
 	"tiny-forum/internal/service/upload"
 	"tiny-forum/internal/service/user"
+	"tiny-forum/internal/service/violation"
 	"tiny-forum/internal/storage"
 	"tiny-forum/internal/strategy"
 	jwtpkg "tiny-forum/pkg/jwt"
@@ -63,6 +64,7 @@ func NewServices(
 	forumAPI luasdk.ForumAPI,
 
 ) *Services {
+	// FIXME: 优先考虑横向调用（service），再考虑纵向调用（repo）
 	// registry := strategy.NewHandlerRegistry()
 	// userStorage := storage.NewLocalStorage("./uploads")
 	// publicStorage := storage.NewLocalStorage("./public")
@@ -70,7 +72,8 @@ func NewServices(
 	checkSvc := check.NewContentCheckService(repos.Risk, infra.SensitiveFilter)
 	// 基础服务
 	notifSvc := notification.NewNotificationService(repos.Notification)
-	userSvc := user.NewUserService(repos.User, jwtMgr, notifSvc, repos.Post, repos.Comment)
+	violation := violation.NewViolationService(repos.Violation)
+	userSvc := user.NewUserService(repos.User, jwtMgr, notifSvc, repos.Post, repos.Comment, violation)
 	tagSvc := tag.NewTagService(repos.Tag)
 	boardSvc := board.NewBoardService(repos.Board, repos.User, repos.Post, notifSvc)
 	timelineSvc := timeline.NewTimelineService(repos.Timeline, repos.User, repos.Post, repos.Comment)

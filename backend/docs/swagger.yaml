@@ -992,6 +992,35 @@ definitions:
       username:
         type: string
     type: object
+  vo.UserPrivateVO:
+    properties:
+      avatar:
+        type: string
+      bio:
+        type: string
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      invited_by_id:
+        type: integer
+      is_active:
+        type: boolean
+      is_blocked:
+        type: boolean
+      last_login:
+        type: string
+      role:
+        $ref: '#/definitions/do.UserRole'
+      score:
+        type: integer
+      updated_at:
+        type: string
+      username:
+        type: string
+    type: object
   vo.UserStatsInfo:
     properties:
       total_answer:
@@ -1032,33 +1061,6 @@ definitions:
       total_violation:
         description: 总违规数
         type: integer
-    type: object
-  vo.UserVO:
-    properties:
-      avatar:
-        type: string
-      bio:
-        type: string
-      created_at:
-        type: string
-      id:
-        type: integer
-      invited_by_id:
-        type: integer
-      is_active:
-        type: boolean
-      is_blocked:
-        type: boolean
-      last_login:
-        type: string
-      role:
-        $ref: '#/definitions/do.UserRole'
-      score:
-        type: integer
-      updated_at:
-        type: string
-      username:
-        type: string
     type: object
 host: localhost:8080
 info:
@@ -2707,7 +2709,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/vo.UserVO'
+            $ref: '#/definitions/vo.UserPrivateVO'
       summary: 用户登录
       tags:
       - 验证管理
@@ -2824,7 +2826,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/common.BasicResponse'
+            $ref: '#/definitions/vo.UserPrivateVO'
         "400":
           description: Bad Request
           schema:
@@ -5945,6 +5947,25 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: 获取当前用户角色
+      tags:
+      - 用户管理
+  /users/me/violations:
+    get:
+      consumes:
+      - application/json
+      description: 获取用户违规记录
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+      summary: 获取用户违规记录
       tags:
       - 用户管理
   /users/profile:

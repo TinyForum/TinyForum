@@ -19,6 +19,7 @@ import (
 	"tiny-forum/internal/repository/topic"
 	"tiny-forum/internal/repository/transaction"
 	"tiny-forum/internal/repository/user"
+	"tiny-forum/internal/repository/violation"
 	"tiny-forum/internal/repository/vote"
 
 	"github.com/redis/go-redis/v9"
@@ -30,6 +31,7 @@ type Repositories struct {
 	Token        token.TokenRepository
 	User         user.UserRepository
 	Post         post.PostRepository
+	Violation    violation.ViolationRepository
 	Comment      comment.CommentRepository
 	Tag          tag.TagRepository
 	Notification notification.NotificationRepository
@@ -52,10 +54,12 @@ type Repositories struct {
 func NewRepositories(db *gorm.DB, redis *redis.Client) *Repositories {
 	tokenRepo := token.NewTokenRepository(db, redis)
 	postRepo := post.NewPostRepository(db)
+	violation := violation.NewPostRepository(db)
 
 	return &Repositories{
 		Token:        tokenRepo,
 		Post:         postRepo,
+		Violation:    violation,
 		User:         user.NewUserRepository(db, tokenRepo, postRepo),
 		Comment:      comment.NewCommentRepository(db),
 		Tag:          tag.NewTagRepository(db),

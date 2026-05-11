@@ -54,9 +54,9 @@ func (h *UserHandler) RegisterRoutes(api *gin.RouterGroup, mw middleware.Middlew
 		{
 			posts.GET("", h.GetUserPosts) // GET /api/v1/users/me/stats/posts 用户帖子列表
 		}
-		violation := me.Group("/violation")
+		violation := me.Group("/violations")
 		{
-			violation.GET("", h.ListUserViolation) // GET /api/v1/users/me/violation 用户违规记录
+			violation.GET("", h.ListUserViolations) // GET /api/v1/users/me/violation 用户违规记录
 		}
 		// me.PATCH("/password", h.ChangePassword) // PATCH /api/v1/users/me/password 修改密码
 	}
