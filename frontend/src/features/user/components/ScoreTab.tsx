@@ -8,7 +8,7 @@ interface NotificationsListProps {
   notifications: Notification[];
 }
 
-export function ViolationsList({ notifications }: NotificationsListProps) {
+export function ScoreTab({ notifications }: NotificationsListProps) {
   const t = useTranslations("Common");
   if (notifications.length === 0) {
     return (
