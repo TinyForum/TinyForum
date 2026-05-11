@@ -1,6 +1,6 @@
-// Package lua 提供安全的 Lua 脚本执行沙箱。
-// 替换原 engine.go，整合 BotSDK 注入；每次执行创建新 LState，线程安全。
 package luaengine
+
+// Package lua 提供安全的 Lua 脚本执行沙箱。
 
 import (
 	"context"

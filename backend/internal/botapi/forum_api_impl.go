@@ -1,5 +1,3 @@
-// Package bot 提供 luaengine.ForumAPI 的真实实现。
-// 使用项目中已有的 Repository 接口，不自实现任何数据访问。
 package botapi
 
 import (

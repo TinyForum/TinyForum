@@ -136,7 +136,7 @@ const SystemBotID = 1
 
 var DefaultSystemBot = &Bot{
 	Name:        "系统助手",
-	Version:     "1.0.0",
+	Version:     "0.1.0",
 	Description: "论坛内置机器人，提供基础自动化服务（定时统计、欢迎新用户等）。",
 	Summary:     "系统机器人",
 	Type:        BotTypeTask,

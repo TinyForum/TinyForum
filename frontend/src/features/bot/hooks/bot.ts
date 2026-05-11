@@ -1,19 +1,18 @@
 // hooks/useBots.ts
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "react-hot-toast";
-import { botApi } from "@/shared/api/modules/bot";
 import {
   BotVO,
   BotListResponse,
   CreateBotRequest,
   UpdateBotRequest,
 } from "@/shared/api/types/bot.model";
+import { botApi, NocodeMetadata, RunEventData } from "@/shared/api/modules/bot";
 
-// 工具函数：从未知错误中提取消息
+// 工具函数：从未知错误中提取消息（保持不变）
 const getErrorMessage = (err: unknown): string => {
   if (err instanceof Error) return err.message;
   if (typeof err === "string") return err;
-  // 检查 Axios 错误结构
   if (err && typeof err === "object" && "response" in err) {
     const response = (err as { response?: { data?: { message?: string } } })
       .response;
@@ -21,6 +20,8 @@ const getErrorMessage = (err: unknown): string => {
   }
   return "发生未知错误";
 };
+
+// ==================== 原有 hooks（保持功能不变，仅调整导入） ====================
 
 interface UseBotsOptions {
   autoLoad?: boolean;
@@ -48,7 +49,6 @@ export function useBots(options: UseBotsOptions = {}): UseBotsReturn {
   const loadBots = useCallback(async (): Promise<void> => {
     setLoading(true);
     setError(null);
-
     try {
       const response = await botApi.list({ page, pageSize });
       if (response.data.code === 0) {
@@ -70,15 +70,12 @@ export function useBots(options: UseBotsOptions = {}): UseBotsReturn {
   const refresh = useCallback(() => loadBots(), [loadBots]);
 
   useEffect(() => {
-    if (autoLoad) {
-      loadBots();
-    }
+    if (autoLoad) loadBots();
   }, [autoLoad, loadBots]);
 
   return { bots, loading, error, total, loadBots, refresh };
 }
 
-// hooks/useMyBots.ts
 interface UseMyBotsOptions {
   autoLoad?: boolean;
   page?: number;
@@ -105,7 +102,6 @@ export function useMyBots(options: UseMyBotsOptions = {}): UseMyBotsReturn {
   const loadMyBots = useCallback(async (): Promise<void> => {
     setLoading(true);
     setError(null);
-
     try {
       const response = await botApi.listMy({ page, pageSize });
       if (response.data.code === 0) {
@@ -127,15 +123,12 @@ export function useMyBots(options: UseMyBotsOptions = {}): UseMyBotsReturn {
   const refresh = useCallback(() => loadMyBots(), [loadMyBots]);
 
   useEffect(() => {
-    if (autoLoad) {
-      loadMyBots();
-    }
+    if (autoLoad) loadMyBots();
   }, [autoLoad, loadMyBots]);
 
   return { bots, loading, error, total, loadMyBots, refresh };
 }
 
-// hooks/useBotDetail.ts
 interface UseBotDetailOptions {
   autoLoad?: boolean;
 }
@@ -163,7 +156,6 @@ export function useBotDetail(
     setLoading(true);
     setError(null);
     setCurrentId(id);
-
     try {
       const response = await botApi.get(id);
       if (response.data.code === 0) {
@@ -182,9 +174,7 @@ export function useBotDetail(
   }, []);
 
   const refresh = useCallback(async (): Promise<void> => {
-    if (currentId !== null) {
-      await loadBot(currentId);
-    }
+    if (currentId !== null) await loadBot(currentId);
   }, [loadBot, currentId]);
 
   const clear = useCallback(() => {
@@ -194,20 +184,17 @@ export function useBotDetail(
   }, []);
 
   useEffect(() => {
-    if (autoLoad && currentId !== null) {
-      loadBot(currentId);
-    }
+    if (autoLoad && currentId !== null) loadBot(currentId);
   }, [autoLoad, currentId, loadBot]);
 
   return { bot, loading, error, loadBot, refresh, clear };
 }
 
-// hooks/useBotActions.ts
 interface UseBotActionsReturn {
   createBot: (data: CreateBotRequest) => Promise<number | null>;
   updateBot: (id: number, data: UpdateBotRequest) => Promise<boolean>;
   deleteBot: (id: number) => Promise<boolean>;
-  runBot: (id: number, eventData?: Record<string, unknown>) => Promise<boolean>;
+  runBot: (id: number, eventData?: RunEventData) => Promise<boolean>;
   loading: boolean;
   error: string | null;
 }
@@ -287,10 +274,7 @@ export function useBotActions(): UseBotActionsReturn {
   }, []);
 
   const runBot = useCallback(
-    async (
-      id: number,
-      eventData?: Record<string, unknown>,
-    ): Promise<boolean> => {
+    async (id: number, eventData?: RunEventData): Promise<boolean> => {
       setLoading(true);
       setError(null);
       try {
@@ -314,4 +298,90 @@ export function useBotActions(): UseBotActionsReturn {
   );
 
   return { createBot, updateBot, deleteBot, runBot, loading, error };
+}
+
+// ==================== 新增：零代码相关 hooks ====================
+
+interface UseNocodeMetadataReturn {
+  metadata: NocodeMetadata | null;
+  loading: boolean;
+  error: string | null;
+  fetchMetadata: () => Promise<void>;
+}
+
+export function useNocodeMetadata(): UseNocodeMetadataReturn {
+  const [metadata, setMetadata] = useState<NocodeMetadata | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchMetadata = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await botApi.nocode.getMetadata();
+      if (response.data.code === 0) {
+        setMetadata(response.data.data ?? null);
+      } else {
+        throw new Error(response.data.message || "获取元数据失败");
+      }
+    } catch (err: unknown) {
+      const errorMsg = getErrorMessage(err);
+      setError(errorMsg);
+      toast.error(errorMsg);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  return { metadata, loading, error, fetchMetadata };
+}
+
+export interface FlowNode {
+  id: string;
+  type: string; // 对应 NodeMeta.type
+  config?: Record<string, unknown>;
+  // 连线关系等
+}
+
+export interface Flow {
+  nodes: FlowNode[];
+  edges?: Array<{ source: string; target: string }>;
+}
+
+// 在 ValidateFlowRequest 中使用
+export interface ValidateFlowRequest {
+  flow: Flow;
+}
+
+interface UseValidateFlowReturn {
+  validate: (flow: unknown) => Promise<{ valid: boolean; errors?: string[] }>;
+  loading: boolean;
+  error: string | null;
+}
+
+export function useValidateFlow(): UseValidateFlowReturn {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const validate = useCallback(async (flow: unknown) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await botApi.nocode.validateFlow({ flow });
+      if (response.data.code === 0) {
+        return response.data.data as { valid: boolean; errors?: string[] };
+      } else {
+        throw new Error(response.data.message || "流程校验失败");
+      }
+    } catch (err: unknown) {
+      const errorMsg = getErrorMessage(err);
+      setError(errorMsg);
+      toast.error(errorMsg);
+      return { valid: false, errors: [errorMsg] };
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  return { validate, loading, error };
 }
