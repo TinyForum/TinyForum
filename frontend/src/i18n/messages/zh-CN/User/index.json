@@ -26,5 +26,7 @@
   "violation": "违规记录",
   "total_likes": "总点赞数",
   "total_violations": "总违规数",
+  "bot": "机器人",
+  "score": "积分",
   "search_my_posts": "搜索我的帖子"
 }
