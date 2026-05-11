@@ -7,7 +7,8 @@ import {
   CreateBotRequest,
   UpdateBotRequest,
 } from "@/shared/api/types/bot.model";
-import { botApi, NocodeMetadata, RunEventData } from "@/shared/api/modules/bot";
+import { botApi, RunEventData } from "@/shared/api/modules/bot";
+import { NocodeMetadata } from "../noco.type";
 
 // 工具函数：从未知错误中提取消息（保持不变）
 const getErrorMessage = (err: unknown): string => {
@@ -298,90 +299,4 @@ export function useBotActions(): UseBotActionsReturn {
   );
 
   return { createBot, updateBot, deleteBot, runBot, loading, error };
-}
-
-// ==================== 新增：零代码相关 hooks ====================
-
-interface UseNocodeMetadataReturn {
-  metadata: NocodeMetadata | null;
-  loading: boolean;
-  error: string | null;
-  fetchMetadata: () => Promise<void>;
-}
-
-export function useNocodeMetadata(): UseNocodeMetadataReturn {
-  const [metadata, setMetadata] = useState<NocodeMetadata | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const fetchMetadata = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await botApi.nocode.getMetadata();
-      if (response.data.code === 0) {
-        setMetadata(response.data.data ?? null);
-      } else {
-        throw new Error(response.data.message || "获取元数据失败");
-      }
-    } catch (err: unknown) {
-      const errorMsg = getErrorMessage(err);
-      setError(errorMsg);
-      toast.error(errorMsg);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  return { metadata, loading, error, fetchMetadata };
-}
-
-export interface FlowNode {
-  id: string;
-  type: string; // 对应 NodeMeta.type
-  config?: Record<string, unknown>;
-  // 连线关系等
-}
-
-export interface Flow {
-  nodes: FlowNode[];
-  edges?: Array<{ source: string; target: string }>;
-}
-
-// 在 ValidateFlowRequest 中使用
-export interface ValidateFlowRequest {
-  flow: Flow;
-}
-
-interface UseValidateFlowReturn {
-  validate: (flow: unknown) => Promise<{ valid: boolean; errors?: string[] }>;
-  loading: boolean;
-  error: string | null;
-}
-
-export function useValidateFlow(): UseValidateFlowReturn {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const validate = useCallback(async (flow: unknown) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await botApi.nocode.validateFlow({ flow });
-      if (response.data.code === 0) {
-        return response.data.data as { valid: boolean; errors?: string[] };
-      } else {
-        throw new Error(response.data.message || "流程校验失败");
-      }
-    } catch (err: unknown) {
-      const errorMsg = getErrorMessage(err);
-      setError(errorMsg);
-      toast.error(errorMsg);
-      return { valid: false, errors: [errorMsg] };
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  return { validate, loading, error };
 }

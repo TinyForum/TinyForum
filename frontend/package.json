@@ -25,6 +25,7 @@
     "axios": "^1.7.2",
     "clsx": "^2.1.1",
     "date-fns": "^3.6.0",
+    "dexie": "^4.4.2",
     "dompurify": "^3.4.0",
     "echarts": "^6.0.0",
     "highlight.js": "^11.11.1",
