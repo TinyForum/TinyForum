@@ -3,7 +3,6 @@ package auth
 import (
 	"crypto/rand"
 	"encoding/hex"
-	"errors"
 	"regexp"
 	"strings"
 	apperrors "tiny-forum/pkg/errors"
@@ -25,7 +24,7 @@ var usernameRegex = regexp.MustCompile(`^[a-zA-Z0-9_-]{3,30}$`)
 // 规则：至少 8 位，包含字母和数字
 func validatePasswordStrength(password string) error {
 	if len(password) < 8 {
-		return errors.New("密码长度不得少于 8 位")
+		return apperrors.ErrPasswordTooShort
 	}
 	hasLetter := regexp.MustCompile(`[a-zA-Z]`).MatchString(password)
 	hasDigit := regexp.MustCompile(`[0-9]`).MatchString(password)

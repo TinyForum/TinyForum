@@ -7,6 +7,8 @@ import (
 	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/request"
 	"tiny-forum/internal/model/vo"
+	apperrors "tiny-forum/pkg/errors"
+	"tiny-forum/pkg/logger"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -20,19 +22,22 @@ func (s *authService) Register(ctx context.Context, input request.RegisterReques
 
 	// 检查保留用户名
 	if reservedUsernames[strings.ToLower(input.Username)] {
-		return nil, errors.New("该用户名不可用，请换一个")
+		return nil, apperrors.ErrInvalidUsername
 	}
 
 	// 邮箱格式严格校验（防止换行符等邮件头注入）
 	if !isValidEmail(input.Email) {
-		return nil, errors.New("邮箱格式无效")
+		logger.Debugf("无效的邮箱格式: %s", input.Email)
+		return nil, apperrors.ErrInvalidEmail
 	}
 
 	if _, err := s.userRepo.FindByUsername(input.Username); err == nil {
-		return nil, errors.New("用户名已被占用")
+		logger.Debugf("用户名已被注册: %s", input.Username)
+		return nil, apperrors.ErrUserExist
 	}
 	if _, err := s.userRepo.FindByEmail(ctx, input.Email); err == nil {
-		return nil, errors.New("邮箱已被注册")
+		logger.Debugf("邮箱已被注册: %s", input.Email)
+		return nil, apperrors.ErrInvalidEmail
 	}
 
 	// 注册时强制密码强度校验
@@ -42,7 +47,8 @@ func (s *authService) Register(ctx context.Context, input request.RegisterReques
 
 	hashed, err := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.DefaultCost)
 	if err != nil {
-		return nil, err
+		logger.Errorf("密码加密失败: %v", err)
+		return nil, apperrors.ErrInternalError
 	}
 
 	user := &do.User{
@@ -60,7 +66,8 @@ func (s *authService) Register(ctx context.Context, input request.RegisterReques
 
 	token, err := s.jwtMgr.Generate(user.ID, user.Username, string(user.Role))
 	if err != nil {
-		return nil, err
+		logger.Errorf("生成 jwt 失败: %v", err)
+		return nil, apperrors.ErrInternalError
 	}
 	return &vo.AuthResultVO{
 		Token: token,
@@ -70,5 +77,4 @@ func (s *authService) Register(ctx context.Context, input request.RegisterReques
 			Avatar:   user.Avatar,
 			Email:    user.Email,
 		}}, nil
-	// return &userSvc.AuthResult{User: user}, nil
 }
