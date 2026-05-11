@@ -63,7 +63,7 @@ allow_origins:
 
 upload:
   upload_dir: uploads
-  url_prefix: //upload
+  url_prefix: uploads
   allowed_ext: png,jpg,jpeg,gif,mp4,webm,mp3,avi,mkv
   max_size: 10485760
   allowed_types:

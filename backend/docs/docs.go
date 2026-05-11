@@ -2216,7 +2216,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "attachment"
+                    "附件管理"
                 ],
                 "summary": "上传文件",
                 "parameters": [
@@ -2273,7 +2273,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "attachment"
+                    "附件管理"
                 ],
                 "summary": "获取用户文件列表",
                 "parameters": [
@@ -2324,7 +2324,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "attachment"
+                    "附件管理"
                 ],
                 "summary": "获取文件元信息",
                 "parameters": [
@@ -2366,7 +2366,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "attachment"
+                    "附件管理"
                 ],
                 "summary": "删除文件",
                 "parameters": [
@@ -2424,7 +2424,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/auth.DeleteAccountInput"
+                            "$ref": "#/definitions/request.DeleteAccountRequest"
                         }
                     }
                 ],
@@ -2546,7 +2546,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/common.BasicResponse"
+                            "$ref": "#/definitions/vo.UserPrivateVO"
                         }
                     }
                 }
@@ -2734,7 +2734,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/common.BasicResponse"
+                            "$ref": "#/definitions/vo.UserPrivateVO"
                         }
                     },
                     "400": {
@@ -4677,7 +4677,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "attachment"
+                    "附件管理"
                 ],
                 "summary": "公开文件下载",
                 "parameters": [
@@ -4931,7 +4931,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "plugin"
+                    "插件管理"
                 ],
                 "summary": "删除插件",
                 "responses": {
@@ -4960,7 +4960,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "plugin"
+                    "插件管理"
                 ],
                 "summary": "获取所有插件列表",
                 "parameters": [
@@ -5023,7 +5023,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "plugin"
+                    "插件管理"
                 ],
                 "summary": "安装插件",
                 "parameters": [
@@ -5061,7 +5061,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "plugin"
+                    "插件管理"
                 ],
                 "summary": "当前用户安装的插件",
                 "responses": {
@@ -7392,7 +7392,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/users/me/plugins": {
+        "/users/me/posts": {
             "get": {
                 "description": "获取当前登录用户已安装（上传）的插件列表，通常是通过 author_id 查询",
                 "consumes": [
@@ -7402,7 +7402,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "plugin"
+                    "用户管理"
                 ],
                 "summary": "获取用户发布的文章",
                 "responses": {
@@ -7454,6 +7454,35 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "用户不存在",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/me/violations": {
+            "get": {
+                "description": "获取用户违规记录",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户管理"
+                ],
+                "summary": "获取用户违规记录",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/common.BasicResponse"
                         }
@@ -7642,17 +7671,6 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 5000,
                     "minLength": 1
-                }
-            }
-        },
-        "auth.DeleteAccountInput": {
-            "type": "object",
-            "properties": {
-                "confirm": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
                 }
             }
         },
@@ -8044,6 +8062,53 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        },
+        "do.UserRole": {
+            "type": "string",
+            "enum": [
+                "guest",
+                "user",
+                "member",
+                "moderator",
+                "reviewer",
+                "admin",
+                "super_admin",
+                "bot",
+                "system_maintainer"
+            ],
+            "x-enum-comments": {
+                "RoleAdmin": "管理员：管理用户、管理帖子、管理评论等（可读写：完全访问，完全读写）",
+                "RoleBot": "系统机器人：自动回复、定时任务等（受限访问，受限读写）",
+                "RoleGuest": "游客：浏览（只读，受限访问）",
+                "RoleMember": "会员：无广告、自定义表情、创建投票等（可读写：受限访问，受限读写）",
+                "RoleModerator": "版主：管理版块、管理帖子、管理评论等（可读写：受限访问，受限读写）",
+                "RoleReviewer": "审核员：审核帖子、评论等（可读写：受限访问，受限读写）",
+                "RoleSuperAdmin": "超级管理员：最高权限（可读写：完全访问，完全读写）",
+                "RoleSystemMaintainer": "系统维护者：系统维护、数据备份等（受限读写，受限访问",
+                "RoleUser": "普通用户：浏览、评论、发帖等（可读写：受限访问，受限读写）"
+            },
+            "x-enum-descriptions": [
+                "游客：浏览（只读，受限访问）",
+                "普通用户：浏览、评论、发帖等（可读写：受限访问，受限读写）",
+                "会员：无广告、自定义表情、创建投票等（可读写：受限访问，受限读写）",
+                "版主：管理版块、管理帖子、管理评论等（可读写：受限访问，受限读写）",
+                "审核员：审核帖子、评论等（可读写：受限访问，受限读写）",
+                "管理员：管理用户、管理帖子、管理评论等（可读写：完全访问，完全读写）",
+                "超级管理员：最高权限（可读写：完全访问，完全读写）",
+                "系统机器人：自动回复、定时任务等（受限访问，受限读写）",
+                "系统维护者：系统维护、数据备份等（受限读写，受限访问"
+            ],
+            "x-enum-varnames": [
+                "RoleGuest",
+                "RoleUser",
+                "RoleMember",
+                "RoleModerator",
+                "RoleReviewer",
+                "RoleAdmin",
+                "RoleSuperAdmin",
+                "RoleBot",
+                "RoleSystemMaintainer"
+            ]
         },
         "dto.BatchMarkReadRequest": {
             "type": "object",
@@ -8624,6 +8689,17 @@ const docTemplate = `{
                 }
             }
         },
+        "request.DeleteAccountRequest": {
+            "type": "object",
+            "properties": {
+                "confirm": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
         "request.ListAnnouncements": {
             "type": "object",
             "properties": {
@@ -8973,6 +9049,50 @@ const docTemplate = `{
                 },
                 "score": {
                     "type": "integer"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "vo.UserPrivateVO": {
+            "type": "object",
+            "properties": {
+                "avatar": {
+                    "type": "string"
+                },
+                "bio": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "invited_by_id": {
+                    "type": "integer"
+                },
+                "is_active": {
+                    "type": "boolean"
+                },
+                "is_blocked": {
+                    "type": "boolean"
+                },
+                "last_login": {
+                    "type": "string"
+                },
+                "role": {
+                    "$ref": "#/definitions/do.UserRole"
+                },
+                "score": {
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
                 },
                 "username": {
                     "type": "string"

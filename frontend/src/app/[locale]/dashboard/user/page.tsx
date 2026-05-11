@@ -10,12 +10,25 @@ import { MyPostsTable } from "@/features/user/components/MyPostsTable";
 import { ViolationPanel } from "@/features/user/components/ViolationPanel";
 import { StatCard } from "@/features/user/components/StatCard";
 import { UserInfoCard } from "@/features/user/components/UserInfoCard";
-import { ViolationsList } from "@/features/user/components/NotificationsList";
+import { ScoreTab } from "@/features/user/components/ScoreTab";
 import SearchBar from "@/features/moderator/components/SearchBar";
 import { useAuthStore } from "@/store";
 import { useUserRole } from "@/features/user/hooks/useUserRole";
 import { useUserStats } from "@/features/user/hooks/useUserStats";
 import { BotManager } from "@/features/bot/components/BotManager";
+import {
+  Ban,
+  BanIcon,
+  BellIcon,
+  BotIcon,
+  Heart,
+  HeartIcon,
+  KanbanSquareIcon,
+  Lollipop,
+  LollipopIcon,
+  MessageCircleIcon,
+  NotebookIcon,
+} from "lucide-react";
 
 // 组件导入
 export default function UserDashboardPage() {
@@ -32,6 +45,7 @@ export default function UserDashboardPage() {
     total_like,
     total_post,
     total_violation,
+    total_score,
     isLoading,
     loadStats,
   } = useUserStats();
@@ -41,27 +55,46 @@ export default function UserDashboardPage() {
   if (isLoading) return <div>Loading...</div>;
 
   const tabs = [
-    { id: "overview", label: t("overview"), icon: "📊" },
-    { id: "posts", label: t("my_posts"), icon: "📝", badge: total_post },
+    {
+      id: "overview",
+      label: t("overview"),
+      icon: <KanbanSquareIcon />,
+    },
+    {
+      id: "posts",
+      label: t("my_posts"),
+      icon: <NotebookIcon />,
+      badge: total_post,
+    },
     {
       id: "comments",
       label: t("my_comments"),
-      icon: "💬",
+      icon: <MessageCircleIcon />,
       badge: total_comment,
     },
     {
       id: "likes",
       label: t("likes"),
-      icon: "❤️",
+      icon: <HeartIcon />,
       badge: total_like,
     },
     {
-      id: "notifications",
-      label: t("notifications"),
-      icon: "🔔",
+      id: "bot",
+      label: t("bot"),
+      icon: <BotIcon />,
+    },
+    {
+      id: "score",
+      label: t("score"),
+      icon: <LollipopIcon />,
+      badge: total_score,
+    },
+    {
+      id: "violation",
+      label: t("violation"),
+      icon: <BanIcon />,
       badge: total_violation,
     },
-    { id: "violation", label: t("violation"), icon: "🚫" },
   ];
 
   const renderContent = () => {
@@ -78,26 +111,27 @@ export default function UserDashboardPage() {
               <StatCard
                 title={t("total_posts")}
                 value={total_post}
-                icon="📝"
-                color="text-primary"
+                icon={<NotebookIcon />}
+                color="text-primary/10"
               />
               <StatCard
                 title={t("total_comments")}
                 value={total_comment}
-                icon="💬"
-                color="text-secondary"
+                icon={<MessageCircleIcon />}
+                color="text-secondary/10"
               />
               <StatCard
                 title={t("total_likes")}
                 value={total_like}
-                icon="❤️"
-                color="text-error"
+                icon={<HeartIcon />}
+                color="text-error/10"
+                // footer={t("total_likes_footer")}
               />
               <StatCard
                 title={t("total_violations")}
                 value={total_violation}
-                icon="🚫"
-                color="text-warning"
+                icon={<BanIcon />}
+                color="text-warning/10"
               />
             </div>
           </div>
@@ -155,10 +189,10 @@ export default function UserDashboardPage() {
             </div>
           </>
         );
-      case "notifications":
+      case "score":
         return (
           <div className="space-y-4">
-            <ViolationsList notifications={[]} />
+            <ScoreTab notifications={[]} />
             <Pagination
               currentPage={page}
               total={total_violation}

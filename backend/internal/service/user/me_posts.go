@@ -7,7 +7,6 @@ import (
 	"tiny-forum/internal/model/vo"
 )
 
-// service/user_service.go
 func (s *userService) GetUserPosts(ctx context.Context, req request.GetUserPostsRequest, userID uint) (*common.PageResult[vo.UserPosts], error) {
 	// 1. 排序规则白名单（职责：Service 层决定业务允许的排序方式）
 	sortBy := s.resolveSortBy(req.SortBy, req.Order)

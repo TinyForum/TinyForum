@@ -24,27 +24,29 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
       isHydrated: false,
 
+      // 设置验证信息
       setAuth: (user) => {
         set({ user, isAuthenticated: true });
       },
 
+      // 登出
       logout: async () => {
         await authApi.logout();
-        // 清除所有存储
         localStorage.removeItem("tiny-auth");
         sessionStorage.clear();
         set({ user: null, isAuthenticated: false });
       },
 
+      // 更新用户信息
       updateUser: (partial) =>
         set((state) => ({
           user: state.user ? { ...state.user, ...partial } : null,
         })),
 
+      // 设置是否已经从持久化存储中恢复
       setHydrated: (state) => set({ isHydrated: state }),
 
       // 刷新用户信息
-      // store/auth.ts
       refreshUser: async () => {
         try {
           const currentUser = get().user;
@@ -61,14 +63,12 @@ export const useAuthStore = create<AuthState>()(
               role: role,
             };
 
-            // ✅ 只调用 set，让 Zustand persist 中间件自动处理 localStorage
             set({ user: updatedUser, isAuthenticated: true });
 
             console.log("用户角色已刷新:", role);
           }
         } catch (error) {
           console.error("刷新用户信息失败:", error);
-          // 如果刷新失败，可能是 token 过期，自动登出
           await get().logout();
         }
       },

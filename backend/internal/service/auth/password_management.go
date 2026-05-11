@@ -291,3 +291,54 @@ func (s *authService) ResetPasswordWithToken(ctx context.Context, token, newPass
 	logger.Infof("Password reset successfully for user: %s", user.Email)
 	return nil
 }
+
+// ChangePassword 修改密码
+func (s *authService) ChangePassword(ctx context.Context, userID uint, oldPassword, newPassword string) (string, error) {
+	// 1. 获取用户信息
+	user, err := s.userRepo.FindByID(userID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return "", apperrors.ErrUserNotFound
+		}
+		return "", fmt.Errorf("查询用户失败: %w", err)
+	}
+
+	// 2. 验证旧密码
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(oldPassword)); err != nil {
+		return "", apperrors.ErrInvalidCurrentPassword
+	}
+
+	// 3. 禁止与旧密码相同
+	if oldPassword == newPassword {
+		return "", apperrors.ErrPasswordSameAsOld
+	}
+
+	// 4. 密码强度校验
+	if err := validatePasswordStrength(newPassword); err != nil {
+		return "", err
+	}
+
+	// 5. 加密新密码
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
+	if err != nil {
+		return "", fmt.Errorf("密码加密失败: %w", err)
+	}
+
+	// 6. 更新密码
+	if err := s.userRepo.UpdatePassword(ctx, userID, string(hashedPassword)); err != nil {
+		return "", fmt.Errorf("更新密码失败: %w", err)
+	}
+
+	// 7. 吊销所有 refresh token（强制其他设备下线）
+	if err := s.tokenRepo.RevokeAllUserTokens(ctx, userID); err != nil {
+		// 记录日志但不影响主流程
+		logger.Warnf("警告: 吊销 token 失败: %v", err)
+	}
+
+	// 8. 返回消息（根据密码强度）
+	strength := s.checkPasswordStrength(newPassword)
+	if strength == "weak" {
+		return "密码修改成功，但密码强度较弱，建议使用更复杂的密码", nil
+	}
+	return "密码修改成功", nil
+}

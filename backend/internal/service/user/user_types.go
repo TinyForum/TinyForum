@@ -1,6 +1,8 @@
 package user
 
-import "tiny-forum/internal/model/do"
+import (
+	"tiny-forum/internal/model/do"
+)
 
 // LoginInput 登录请求
 type LoginInput struct {
@@ -9,11 +11,11 @@ type LoginInput struct {
 }
 
 // AuthResult 认证结果
-type AuthResult struct {
-	// Deprecated: 停用
-	Token string   `json:"token"` // token 目前没有用到，作为保留
-	User  *do.User `json:"user"`
-}
+// type AuthResult struct {
+// 	// Deprecated: 停用
+// 	Token string     `json:"token"` // token 目前没有用到，作为保留
+// 	User  *vo.UserVO `json:"user"`
+// }
 
 // UserProfileResponse 用户资料响应（含关注统计）
 type UserProfileResponse struct {

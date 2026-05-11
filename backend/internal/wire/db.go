@@ -116,6 +116,11 @@ func InitDB(cfg *config.Config) (*gorm.DB, error) {
 	if err != nil {
 		log.Fatal("初始化系统机器人失败: ", err)
 	}
+	// 初始化默认板块
+	_, err = initdata.InitDefaultBorad(db)
+	if err != nil {
+		logger.Warnf("初始化默认板块失败: %v", err)
+	}
 	// 核心配置：避免打爆 PostgreSQL
 	sqlDB.SetMaxOpenConns(80)                 // 最大打开连接数（PG 默认 max_connections=100）
 	sqlDB.SetMaxIdleConns(20)                 // 空闲连接池大小
