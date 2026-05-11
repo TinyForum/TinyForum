@@ -1,7 +1,7 @@
 package auth
 
 import (
-	authService "tiny-forum/internal/service/auth"
+	"tiny-forum/internal/model/request"
 	apperrors "tiny-forum/pkg/errors"
 	"tiny-forum/pkg/logger"
 	"tiny-forum/pkg/response"
@@ -29,10 +29,10 @@ func (h *AuthHandler) DeleteAccount(c *gin.Context) {
 	}
 
 	// 可选：验证密码或确认码
-	var input authService.DeleteAccountInput
+	var input request.DeleteAccountRequest
 	if err := c.ShouldBindJSON(&input); err != nil {
 		// 如果没有额外验证字段，可以忽略绑定错误
-		input = authService.DeleteAccountInput{}
+		input = request.DeleteAccountRequest{}
 	}
 
 	err := h.authSvc.DeleteAccount(ctx, userID.(uint), input)
@@ -119,7 +119,7 @@ func (h *AuthHandler) ConfirmDeletion(c *gin.Context) {
 		return
 	}
 
-	var input authService.DeleteAccountInput
+	var input request.DeleteAccountRequest
 	if err := c.ShouldBindJSON(&input); err != nil {
 		response.HandleError(c, apperrors.ErrInvalidRequest)
 		return

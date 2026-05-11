@@ -11,7 +11,7 @@ import (
 // UploadFile 上传文件
 // @Summary 上传文件
 // @Description 上传附件，支持图片、文档等，通过 type 字段区分业务类型（post_image, comment_file, avatar 等）
-// @Tags attachment
+// @Tags 附件管理
 // @Accept multipart/form-data
 // @Produce json
 // @Param file formData file true "文件"
@@ -44,7 +44,7 @@ func (h *AttachmentHandler) UploadFile(c *gin.Context) {
 // GetFile 获取文件元信息
 // @Summary 获取文件元信息
 // @Description 根据文件ID获取文件的元数据（不包含文件内容）
-// @Tags attachment
+// @Tags 附件管理
 // @Accept json
 // @Produce json
 // @Param file_id path string true "文件ID"
@@ -66,7 +66,7 @@ func (h *AttachmentHandler) GetFile(c *gin.Context) {
 // DeleteFile 删除文件
 // @Summary 删除文件
 // @Description 删除用户上传的文件（仅文件所有者可操作）
-// @Tags attachment
+// @Tags 附件管理
 // @Accept json
 // @Produce json
 // @Param file_id path string true "文件ID"
@@ -87,7 +87,7 @@ func (h *AttachmentHandler) DeleteFile(c *gin.Context) {
 // ServeFile 公开访问文件
 // @Summary 公开文件下载
 // @Description 根据文件ID直接返回文件内容（适用于图片、附件下载）
-// @Tags attachment
+// @Tags 附件管理
 // @Accept json
 // @Param file_id path string true "文件ID"
 // @Success 200 {file} binary "文件内容"

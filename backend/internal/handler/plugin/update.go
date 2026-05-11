@@ -8,6 +8,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// @Summary 切换插件状态
+// @Description 切换插件状态
+// @Tags 插件管理
+// @Param id path int true "插件ID"
+// @Success 200 {object} response.Response
+// @Failure 400 {object} response.Response
+// @Router /plugin/{id}/toggle [put]
+
 func (h *Handler) TogglePlugin(c *gin.Context) {
 	// 1. 获取当前用户ID
 	// userID := c.GetUint("user_id")

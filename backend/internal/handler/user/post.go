@@ -10,7 +10,7 @@ import (
 // GetUserPosts 获取用户发布的文章
 // @Summary 获取用户发布的文章
 // @Description 获取当前登录用户已安装（上传）的插件列表，通常是通过 author_id 查询
-// @Tags plugin
+// @Tags 用户管理
 // @Accept json
 // @Produce json
 // @Success 200 {object} common.BasicResponse

@@ -2,6 +2,7 @@ package auth
 
 import "strings"
 
+// 辅助函数：解析 Accept-Language 头
 func parseAcceptLanguage(header string) string {
 	if header == "" {
 		return ""
@@ -18,20 +19,20 @@ func parseAcceptLanguage(header string) string {
 }
 
 // 辅助函数：隐藏邮箱中间部分
-func maskEmail(email string) string {
-	parts := strings.Split(email, "@")
-	if len(parts) != 2 {
-		return email
-	}
+// func maskEmail(email string) string {
+// 	parts := strings.Split(email, "@")
+// 	if len(parts) != 2 {
+// 		return email
+// 	}
 
-	local := parts[0]
-	if len(local) <= 2 {
-		return "***@" + parts[1]
-	}
+// 	local := parts[0]
+// 	if len(local) <= 2 {
+// 		return "***@" + parts[1]
+// 	}
 
-	masked := local[:2] + strings.Repeat("*", len(local)-2) + "@" + parts[1]
-	return masked
-}
+// 	masked := local[:2] + strings.Repeat("*", len(local)-2) + "@" + parts[1]
+// 	return masked
+// }
 
 // 辅助函数
 func getUnifiedMessage(locale string) string {
