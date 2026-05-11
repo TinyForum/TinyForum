@@ -4,7 +4,6 @@ import {
   loadConvertedConfig,
   getRemotePatterns,
   getAllowedDevOrigins,
-  checkBackendReachable,
 } from "@/shared/lib/yaml/loadConfig";
 import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";

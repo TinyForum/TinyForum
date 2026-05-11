@@ -112,7 +112,8 @@ func InitDB(cfg *config.Config) (*gorm.DB, error) {
 	if err := initdata.CreateSystemUser(db, &cfg.Private.SystemUser); err != nil {
 		logger.Warnf("创建系统维护者员失败: %v", err)
 	}
-	if err := initdata.InitDefaultBot(db); err != nil {
+	_, err = initdata.InitDefaultBot(db)
+	if err != nil {
 		log.Fatal("初始化系统机器人失败: ", err)
 	}
 	// 核心配置：避免打爆 PostgreSQL

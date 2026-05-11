@@ -4,7 +4,7 @@
  */
 
 import apiClient from "../client";
-import { ApiResponse, PageData } from "../types/basic.model";
+import { ApiResponse } from "../types/basic.model";
 import {
   BotListResponse,
   BotVO,
@@ -13,7 +13,7 @@ import {
 } from "../types/bot.model";
 
 /** 手动触发时的事件数据（任意对象） */
-export type RunEventData = Record<string, any>;
+export type RunEventData = Record<string, unknown>;
 
 // ========== API 方法 ==========
 export const botApi = {

@@ -1,7 +1,6 @@
 // hooks/useBots.ts
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "react-hot-toast";
-import { ApiResponse } from "@/shared/api/types/basic.model";
 import { botApi } from "@/shared/api/modules/bot";
 import {
   BotVO,
@@ -9,6 +8,19 @@ import {
   CreateBotRequest,
   UpdateBotRequest,
 } from "@/shared/api/types/bot.model";
+
+// 工具函数：从未知错误中提取消息
+const getErrorMessage = (err: unknown): string => {
+  if (err instanceof Error) return err.message;
+  if (typeof err === "string") return err;
+  // 检查 Axios 错误结构
+  if (err && typeof err === "object" && "response" in err) {
+    const response = (err as { response?: { data?: { message?: string } } })
+      .response;
+    if (response?.data?.message) return response.data.message;
+  }
+  return "发生未知错误";
+};
 
 interface UseBotsOptions {
   autoLoad?: boolean;
@@ -46,9 +58,8 @@ export function useBots(options: UseBotsOptions = {}): UseBotsReturn {
       } else {
         throw new Error(response.data.message || "加载机器人列表失败");
       }
-    } catch (err: any) {
-      const errorMsg =
-        err.response?.data?.message || err.message || "加载机器人列表失败";
+    } catch (err: unknown) {
+      const errorMsg = getErrorMessage(err);
       setError(errorMsg);
       toast.error(errorMsg);
     } finally {
@@ -104,9 +115,8 @@ export function useMyBots(options: UseMyBotsOptions = {}): UseMyBotsReturn {
       } else {
         throw new Error(response.data.message || "加载我的机器人失败");
       }
-    } catch (err: any) {
-      const errorMsg =
-        err.response?.data?.message || err.message || "加载我的机器人失败";
+    } catch (err: unknown) {
+      const errorMsg = getErrorMessage(err);
       setError(errorMsg);
       toast.error(errorMsg);
     } finally {
@@ -161,9 +171,8 @@ export function useBotDetail(
       } else {
         throw new Error(response.data.message || "获取机器人详情失败");
       }
-    } catch (err: any) {
-      const errorMsg =
-        err.response?.data?.message || err.message || "获取机器人详情失败";
+    } catch (err: unknown) {
+      const errorMsg = getErrorMessage(err);
       setError(errorMsg);
       toast.error(errorMsg);
       setBot(null);
@@ -198,7 +207,7 @@ interface UseBotActionsReturn {
   createBot: (data: CreateBotRequest) => Promise<number | null>;
   updateBot: (id: number, data: UpdateBotRequest) => Promise<boolean>;
   deleteBot: (id: number) => Promise<boolean>;
-  runBot: (id: number, eventData?: Record<string, any>) => Promise<boolean>;
+  runBot: (id: number, eventData?: Record<string, unknown>) => Promise<boolean>;
   loading: boolean;
   error: string | null;
 }
@@ -220,9 +229,8 @@ export function useBotActions(): UseBotActionsReturn {
         } else {
           throw new Error(response.data.message || "创建机器人失败");
         }
-      } catch (err: any) {
-        const errorMsg =
-          err.response?.data?.message || err.message || "创建机器人失败";
+      } catch (err: unknown) {
+        const errorMsg = getErrorMessage(err);
         setError(errorMsg);
         toast.error(errorMsg);
         return null;
@@ -245,9 +253,8 @@ export function useBotActions(): UseBotActionsReturn {
         } else {
           throw new Error(response.data.message || "更新机器人失败");
         }
-      } catch (err: any) {
-        const errorMsg =
-          err.response?.data?.message || err.message || "更新机器人失败";
+      } catch (err: unknown) {
+        const errorMsg = getErrorMessage(err);
         setError(errorMsg);
         toast.error(errorMsg);
         return false;
@@ -269,9 +276,8 @@ export function useBotActions(): UseBotActionsReturn {
       } else {
         throw new Error(response.data.message || "删除机器人失败");
       }
-    } catch (err: any) {
-      const errorMsg =
-        err.response?.data?.message || err.message || "删除机器人失败";
+    } catch (err: unknown) {
+      const errorMsg = getErrorMessage(err);
       setError(errorMsg);
       toast.error(errorMsg);
       return false;
@@ -281,7 +287,10 @@ export function useBotActions(): UseBotActionsReturn {
   }, []);
 
   const runBot = useCallback(
-    async (id: number, eventData?: Record<string, any>): Promise<boolean> => {
+    async (
+      id: number,
+      eventData?: Record<string, unknown>,
+    ): Promise<boolean> => {
       setLoading(true);
       setError(null);
       try {
@@ -292,9 +301,8 @@ export function useBotActions(): UseBotActionsReturn {
         } else {
           throw new Error(response.data.message || "触发机器人失败");
         }
-      } catch (err: any) {
-        const errorMsg =
-          err.response?.data?.message || err.message || "触发机器人失败";
+      } catch (err: unknown) {
+        const errorMsg = getErrorMessage(err);
         setError(errorMsg);
         toast.error(errorMsg);
         return false;

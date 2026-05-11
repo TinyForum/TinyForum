@@ -26,7 +26,7 @@ class PluginRegistry {
 
   // ── 插件注册 ─────────────────────────────────
   registerPlugin(meta: PluginMeta): void {
-    this.plugins.set(meta.id, { meta, status: "loading" });
+    this.plugins.set(meta.slug, { meta, status: "loading" });
     this.notify();
   }
 

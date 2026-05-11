@@ -2,6 +2,7 @@ package wire
 
 import (
 	"tiny-forum/internal/infra/config"
+	luasdk "tiny-forum/internal/infra/lua/sdk"
 	"tiny-forum/internal/service/admin"
 	"tiny-forum/internal/service/announcement"
 	attachment "tiny-forum/internal/service/attachment"
@@ -52,12 +53,14 @@ type Services struct {
 // NewServices 创建所有 Service 实例
 func NewServices(
 	cfg *config.Config,
+
 	jwtMgr *jwtpkg.JWTManager,
 	repos *Repositories,
 	infra *Infra,
 	userStorage storage.StorageDriver,
 	publicStorage storage.StorageDriver,
 	registry *strategy.HandlerRegistry,
+	forumAPI luasdk.ForumAPI,
 
 ) *Services {
 	// registry := strategy.NewHandlerRegistry()
@@ -83,7 +86,7 @@ func NewServices(
 	pluginSvc := plugin.NewPluginService(repos.Plugin, publicStorage, &cfg.Basic.Plugins)
 	engine := upload.NewEngine(userStorage, registry)
 	attachmentSvc := attachment.NewAttachmentService(repos.Attachment, cfg.Basic.Attachment, engine)
-	botSvc := bot.NewService(repos.Bot)
+	botSvc := bot.NewService(repos.Bot, repos.Post, repos.Comment, repos.User, repos.Notification)
 
 	return &Services{
 		User:         userSvc,

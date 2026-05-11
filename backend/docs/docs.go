@@ -4036,13 +4036,6 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "分页查询所有机器人",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
                 "tags": [
                     "机器人管理"
                 ],
@@ -4051,7 +4044,6 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "default": 1,
-                        "example": 1,
                         "description": "页码",
                         "name": "page",
                         "in": "query"
@@ -4059,55 +4051,12 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "default": 20,
-                        "example": 20,
                         "description": "每页条数",
                         "name": "pageSize",
                         "in": "query"
                     }
                 ],
-                "responses": {
-                    "200": {
-                        "description": "返回机器人列表及总数",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/common.BasicResponse"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object",
-                                            "properties": {
-                                                "list": {
-                                                    "type": "array"
-                                                },
-                                                "page": {
-                                                    "type": "integer"
-                                                },
-                                                "total": {
-                                                    "type": "integer"
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "请求参数错误",
-                        "schema": {
-                            "$ref": "#/definitions/common.BasicResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "未授权",
-                        "schema": {
-                            "$ref": "#/definitions/common.BasicResponse"
-                        }
-                    }
-                }
+                "responses": {}
             },
             "post": {
                 "security": [
@@ -4115,7 +4064,6 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "在指定板块下创建新的机器人",
                 "consumes": [
                     "application/json"
                 ],
@@ -4128,13 +4076,6 @@ const docTemplate = `{
                 "summary": "创建机器人",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "板块ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
                         "description": "机器人创建信息",
                         "name": "body",
                         "in": "body",
@@ -4146,7 +4087,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "创建成功，返回机器人ID",
+                        "description": "OK",
                         "schema": {
                             "allOf": [
                                 {
@@ -4156,35 +4097,111 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "type": "object"
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer"
+                                                }
+                                            }
                                         }
                                     }
                                 }
                             ]
                         }
-                    },
-                    "400": {
-                        "description": "请求参数错误（如板块ID无效、机器人信息不合法）",
+                    }
+                }
+            }
+        },
+        "/bots/nocode/metadata": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "返回所有内置 Trigger/Condition/Action 的类型和参数定义，供前端拖拽编辑器使用",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "机器人管理"
+                ],
+                "summary": "获取零代码节点元数据",
+                "responses": {
+                    "200": {
+                        "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/common.BasicResponse"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.BasicResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/nocode.NocodeMetadata"
+                                        }
+                                    }
+                                }
+                            ]
                         }
-                    },
-                    "401": {
-                        "description": "未授权",
+                    }
+                }
+            }
+        },
+        "/bots/nocode/validate": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "机器人管理"
+                ],
+                "summary": "校验零代码流程",
+                "parameters": [
+                    {
+                        "description": "Flow 配置",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
                         "schema": {
-                            "$ref": "#/definitions/common.BasicResponse"
+                            "$ref": "#/definitions/bot.ValidateFlowRequest"
                         }
-                    },
-                    "403": {
-                        "description": "无权限（需要版主或管理员权限）",
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/common.BasicResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "不存在",
-                        "schema": {
-                            "$ref": "#/definitions/common.BasicResponse"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.BasicResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "errors": {
+                                                    "type": "array"
+                                                },
+                                                "valid": {
+                                                    "type": "boolean"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     }
                 }
@@ -4197,13 +4214,6 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "分页查询当前用户创建的所有机器人",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
                 "tags": [
                     "机器人管理"
                 ],
@@ -4212,7 +4222,6 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "default": 1,
-                        "example": 1,
                         "description": "页码",
                         "name": "page",
                         "in": "query"
@@ -4220,55 +4229,12 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "default": 20,
-                        "example": 20,
                         "description": "每页条数",
                         "name": "pageSize",
                         "in": "query"
                     }
                 ],
-                "responses": {
-                    "200": {
-                        "description": "返回机器人列表及总数",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/common.BasicResponse"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object",
-                                            "properties": {
-                                                "list": {
-                                                    "type": "array"
-                                                },
-                                                "page": {
-                                                    "type": "integer"
-                                                },
-                                                "total": {
-                                                    "type": "integer"
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "请求参数错误",
-                        "schema": {
-                            "$ref": "#/definitions/common.BasicResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "未授权",
-                        "schema": {
-                            "$ref": "#/definitions/common.BasicResponse"
-                        }
-                    }
-                }
+                "responses": {}
             }
         },
         "/bots/{id}": {
@@ -4277,13 +4243,6 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
-                ],
-                "description": "根据ID获取机器人详细信息（公开信息，不需要鉴权？注意代码中未使用userID，但路由挂在Auth中间件下，实际仍需要认证）",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
                 ],
                 "tags": [
                     "机器人管理"
@@ -4298,57 +4257,13 @@ const docTemplate = `{
                         "required": true
                     }
                 ],
-                "responses": {
-                    "200": {
-                        "description": "返回机器人视图对象（botVO）",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/common.BasicResponse"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "请求参数错误",
-                        "schema": {
-                            "$ref": "#/definitions/common.BasicResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "未授权",
-                        "schema": {
-                            "$ref": "#/definitions/common.BasicResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "机器人不存在",
-                        "schema": {
-                            "$ref": "#/definitions/common.BasicResponse"
-                        }
-                    }
-                }
+                "responses": {}
             },
             "put": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
-                ],
-                "description": "更新指定机器人的配置信息（只能操作自己的机器人）",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
                 ],
                 "tags": [
                     "机器人管理"
@@ -4363,7 +4278,7 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "机器人更新信息",
+                        "description": "更新信息",
                         "name": "body",
                         "in": "body",
                         "required": true,
@@ -4372,63 +4287,13 @@ const docTemplate = `{
                         }
                     }
                 ],
-                "responses": {
-                    "200": {
-                        "description": "更新成功，返回空数据",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/common.BasicResponse"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "请求参数错误",
-                        "schema": {
-                            "$ref": "#/definitions/common.BasicResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "未授权",
-                        "schema": {
-                            "$ref": "#/definitions/common.BasicResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "无权限（非本人机器人）",
-                        "schema": {
-                            "$ref": "#/definitions/common.BasicResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "机器人不存在",
-                        "schema": {
-                            "$ref": "#/definitions/common.BasicResponse"
-                        }
-                    }
-                }
+                "responses": {}
             },
             "delete": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
-                ],
-                "description": "删除指定机器人（只能删除自己的机器人）",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
                 ],
                 "tags": [
                     "机器人管理"
@@ -4443,50 +4308,7 @@ const docTemplate = `{
                         "required": true
                     }
                 ],
-                "responses": {
-                    "200": {
-                        "description": "删除成功，返回空数据",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/common.BasicResponse"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "请求参数错误",
-                        "schema": {
-                            "$ref": "#/definitions/common.BasicResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "未授权",
-                        "schema": {
-                            "$ref": "#/definitions/common.BasicResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "无权限（非本人机器人）",
-                        "schema": {
-                            "$ref": "#/definitions/common.BasicResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "机器人不存在",
-                        "schema": {
-                            "$ref": "#/definitions/common.BasicResponse"
-                        }
-                    }
-                }
+                "responses": {}
             }
         },
         "/bots/{id}/run": {
@@ -4496,17 +4318,10 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "立即执行指定机器人脚本一次，可附带事件数据（可选）",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
                 "tags": [
                     "机器人管理"
                 ],
-                "summary": "手动触发机器人执行",
+                "summary": "手动触发执行",
                 "parameters": [
                     {
                         "type": "integer",
@@ -4524,55 +4339,7 @@ const docTemplate = `{
                         }
                     }
                 ],
-                "responses": {
-                    "200": {
-                        "description": "触发成功，返回message",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/common.BasicResponse"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object",
-                                            "properties": {
-                                                "message": {
-                                                    "type": "string"
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "请求参数错误",
-                        "schema": {
-                            "$ref": "#/definitions/common.BasicResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "未授权",
-                        "schema": {
-                            "$ref": "#/definitions/common.BasicResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "无权限（非本人机器人）",
-                        "schema": {
-                            "$ref": "#/definitions/common.BasicResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "机器人不存在",
-                        "schema": {
-                            "$ref": "#/definitions/common.BasicResponse"
-                        }
-                    }
-                }
+                "responses": {}
             }
         },
         "/comments": {
@@ -7965,6 +7732,17 @@ const docTemplate = `{
                 }
             }
         },
+        "bot.ValidateFlowRequest": {
+            "type": "object",
+            "required": [
+                "flow"
+            ],
+            "properties": {
+                "flow": {
+                    "$ref": "#/definitions/nocode.Flow"
+                }
+            }
+        },
         "comment.CreateCommentInput": {
             "type": "object",
             "required": [
@@ -8372,6 +8150,238 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        },
+        "nocode.ActionNode": {
+            "type": "object",
+            "properties": {
+                "params": {
+                    "type": "object",
+                    "additionalProperties": {}
+                },
+                "type": {
+                    "$ref": "#/definitions/nocode.ActionType"
+                }
+            }
+        },
+        "nocode.ActionType": {
+            "type": "string",
+            "enum": [
+                "reply_post",
+                "delete_post",
+                "hide_post",
+                "pin_post",
+                "lock_post",
+                "create_post",
+                "delete_comment",
+                "ban_user",
+                "send_message",
+                "webhook",
+                "notify_admin",
+                "wait",
+                "set_variable",
+                "stop_if"
+            ],
+            "x-enum-varnames": [
+                "ActionReplyPost",
+                "ActionDeletePost",
+                "ActionHidePost",
+                "ActionPinPost",
+                "ActionLockPost",
+                "ActionCreatePost",
+                "ActionDeleteComment",
+                "ActionBanUser",
+                "ActionSendMessage",
+                "ActionWebhook",
+                "ActionNotifyAdmin",
+                "ActionWait",
+                "ActionSetVariable",
+                "ActionStopIf"
+            ]
+        },
+        "nocode.CondNode": {
+            "type": "object",
+            "properties": {
+                "negate": {
+                    "description": "true → NOT 取反",
+                    "type": "boolean"
+                },
+                "params": {
+                    "type": "object",
+                    "additionalProperties": {}
+                },
+                "type": {
+                    "$ref": "#/definitions/nocode.CondType"
+                }
+            }
+        },
+        "nocode.CondType": {
+            "type": "string",
+            "enum": [
+                "post_title_contains",
+                "post_content_contains",
+                "user_role_is",
+                "user_post_count_gte",
+                "board_id_in",
+                "time_range",
+                "custom_expr"
+            ],
+            "x-enum-varnames": [
+                "CondPostTitleContains",
+                "CondPostContentContains",
+                "CondUserRoleIs",
+                "CondUserPostCountGte",
+                "CondBoardIDIn",
+                "CondTimeRange",
+                "CondCustomExpr"
+            ]
+        },
+        "nocode.Flow": {
+            "type": "object",
+            "properties": {
+                "actions": {
+                    "description": "顺序执行的动作列表",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/nocode.ActionNode"
+                    }
+                },
+                "conditions": {
+                    "description": "前置条件，全部满足才执行 Actions",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/nocode.CondNode"
+                    }
+                },
+                "trigger": {
+                    "description": "触发器（唯一）",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/nocode.TriggerNode"
+                        }
+                    ]
+                },
+                "version": {
+                    "description": "目前固定 \"1\"",
+                    "type": "string"
+                }
+            }
+        },
+        "nocode.NocodeMetadata": {
+            "type": "object",
+            "properties": {
+                "actions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/nocode.NodeMeta"
+                    }
+                },
+                "conditions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/nocode.NodeMeta"
+                    }
+                },
+                "triggers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/nocode.NodeMeta"
+                    }
+                }
+            }
+        },
+        "nocode.NodeMeta": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "icon": {
+                    "type": "string"
+                },
+                "label": {
+                    "type": "string"
+                },
+                "params": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/nocode.ParamMeta"
+                    }
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "nocode.OptionMeta": {
+            "type": "object",
+            "properties": {
+                "label": {
+                    "type": "string"
+                },
+                "value": {}
+            }
+        },
+        "nocode.ParamMeta": {
+            "type": "object",
+            "properties": {
+                "default": {},
+                "key": {
+                    "type": "string"
+                },
+                "label": {
+                    "type": "string"
+                },
+                "options": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/nocode.OptionMeta"
+                    }
+                },
+                "placeholder": {
+                    "type": "string"
+                },
+                "required": {
+                    "type": "boolean"
+                },
+                "type": {
+                    "description": "text|number|boolean|select|textarea|tags|cron",
+                    "type": "string"
+                }
+            }
+        },
+        "nocode.TriggerNode": {
+            "type": "object",
+            "properties": {
+                "params": {
+                    "type": "object",
+                    "additionalProperties": {}
+                },
+                "type": {
+                    "$ref": "#/definitions/nocode.TriggerType"
+                }
+            }
+        },
+        "nocode.TriggerType": {
+            "type": "string",
+            "enum": [
+                "on_schedule",
+                "on_new_post",
+                "on_new_comment",
+                "on_user_register",
+                "on_keyword",
+                "on_manual"
+            ],
+            "x-enum-varnames": [
+                "TriggerOnSchedule",
+                "TriggerOnNewPost",
+                "TriggerOnNewComment",
+                "TriggerOnUserRegister",
+                "TriggerOnKeyword",
+                "TriggerOnManual"
+            ]
         },
         "post.CreatePostInput": {
             "type": "object",

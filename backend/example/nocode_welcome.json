@@ -1,0 +1,27 @@
+
+{
+  "_comment": "零代码欢迎机器人：新用户注册 → 发送欢迎私信 → 在新手指引帖留言",
+  "version": "1",
+
+  "trigger": {
+    "type": "on_user_register",
+    "params": {}
+  },
+
+  "conditions": [],
+
+  "actions": [
+    {
+      "type": "send_message",
+      "params": {
+        "content": "🎉 欢迎 {{username}} 加入论坛！\n\n这里是友善的技术交流社区，请遵守《社区公约》。\n\n有任何问题欢迎在新手专区发帖提问！"
+      }
+    },
+    {
+      "type": "reply_post",
+      "params": {
+        "content": "👋 欢迎新成员 @{{username}} 加入！快来介绍一下自己吧~"
+      }
+    }
+  ]
+}

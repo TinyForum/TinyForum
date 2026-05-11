@@ -1,6 +1,9 @@
 package request
 
-import "tiny-forum/internal/model/do"
+import (
+	"tiny-forum/internal/infra/lua/nocode"
+	"tiny-forum/internal/model/do"
+)
 
 type CreateBotRequest struct {
 	Name          string              `json:"name" binding:"required,min=1,max=100"`
@@ -46,4 +49,8 @@ type UpdateBotRequest struct {
 	ConfigSchema  []do.BotConfigField `json:"configSchema,omitempty"`
 	ConfigValues  map[string]any      `json:"configValues,omitempty"`
 	Enabled       *bool               `json:"enabled,omitempty"`
+}
+
+type ValidateFlowRequest struct {
+	Flow nocode.Flow `json:"flow"`
 }

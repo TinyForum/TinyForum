@@ -64,6 +64,7 @@ export function useAdminPlugins() {
     },
   });
   const enabledPlugins: PluginMeta[] = extractPluginList(enabledPluginsRaw);
+  const pageTotal = Math.ceil(total / PAGE_SIZE);
 
   // ── 通用成功回调 ──────────────────────────────────────────────────────────
   const invalidateAndToast = (msg: string) => {
@@ -128,6 +129,7 @@ export function useAdminPlugins() {
     isLoading,
     page,
     pageSize: PAGE_SIZE,
+    pageTotal,
     enabledPlugins, // PluginMeta[]，正确的数组类型
     setPage,
     upload,

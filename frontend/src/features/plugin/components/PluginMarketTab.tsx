@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useAdminPlugins } from "../useAdminPlugins";
 import { CreatePluginPayload } from "@/shared/api/modules/plugin/plugins";
+import Image from "next/image";
 
 export function PluginMarketTab() {
   const {
@@ -112,17 +113,16 @@ export function PluginMarketTab() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {filteredPlugins.map((plugin) => (
             <div
-              key={plugin.id}
+              key={plugin.slug}
               className="card card-bordered bg-base-100 shadow-sm hover:shadow-md transition-shadow"
             >
               <div className="card-body p-4">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
-                      {/* icon 可能不存在于类型定义中，使用类型断言安全访问 */}
-                      {(plugin as any).icon && (
-                        <img
-                          src={(plugin as any).icon}
+                      {plugin.iconUrl && (
+                        <Image
+                          src={plugin.iconUrl}
                           alt=""
                           className="w-6 h-6"
                         />
@@ -145,7 +145,7 @@ export function PluginMarketTab() {
                       className={`btn btn-xs btn-square ${
                         plugin.enabled ? "btn-success" : "btn-outline"
                       }`}
-                      onClick={() => handleToggle(plugin.id, !plugin.enabled)}
+                      onClick={() => handleToggle(plugin.slug, !plugin.enabled)}
                       disabled={isUpdating || isDeleting}
                       title={plugin.enabled ? "禁用" : "启用"}
                     >
@@ -184,7 +184,7 @@ export function PluginMarketTab() {
                     {/* 删除按钮 */}
                     <button
                       className="btn btn-xs btn-square btn-outline btn-error"
-                      onClick={() => handleDelete(plugin.id)}
+                      onClick={() => handleDelete(plugin.slug)}
                       disabled={isDeleting}
                       title="卸载"
                     >

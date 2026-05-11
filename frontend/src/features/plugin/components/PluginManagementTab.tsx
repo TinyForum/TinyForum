@@ -104,18 +104,20 @@ export function PluginManagementTab() {
         ) : (
           <div className="divide-y divide-base-200">
             {filtered.map((plugin) => (
-              <div key={plugin.id}>
+              <div key={plugin.slug}>
                 <PluginRow
                   plugin={plugin}
-                  expanded={expandedId === plugin.id}
+                  expanded={expandedId === plugin.slug}
                   onExpand={() =>
-                    setExpandedId(expandedId === plugin.id ? null : plugin.id)
+                    setExpandedId(
+                      expandedId === plugin.slug ? null : plugin.slug,
+                    )
                   }
-                  onToggle={() => handleToggle(plugin.id, !plugin.enabled)}
+                  onToggle={() => handleToggle(plugin.slug, !plugin.enabled)}
                   onEdit={() => setEditTarget(plugin)}
                   onDelete={() => setDeleteTarget(plugin)}
                 />
-                {expandedId === plugin.id && <PluginDetail plugin={plugin} />}
+                {expandedId === plugin.slug && <PluginDetail plugin={plugin} />}
               </div>
             ))}
           </div>
@@ -178,7 +180,7 @@ export function PluginManagementTab() {
           <PluginUploadForm
             initial={editTarget}
             onSubmit={async (p) => {
-              await handleUpdate({ id: editTarget.id, ...p });
+              await handleUpdate({ id: editTarget.slug, ...p });
               setEditTarget(null);
             }}
             onCancel={() => setEditTarget(null)}
@@ -214,7 +216,7 @@ export function PluginManagementTab() {
             <button
               onClick={() => {
                 if (deleteTarget) {
-                  handleDelete(deleteTarget.id);
+                  handleDelete(deleteTarget.slug);
                   setDeleteTarget(null);
                 }
               }}

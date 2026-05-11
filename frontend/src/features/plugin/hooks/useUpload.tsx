@@ -1,6 +1,5 @@
 // hooks/useUpload.ts
 import { ListPluginRequest, uploadApi } from "@/shared/api/modules/attachments";
-import { ApiResponse, PageData } from "@/shared/api/types/basic.model";
 import { useState } from "react";
 import { PluginMeta } from "@/shared/type/plugin.type";
 type UploadType = "post" | "comment" | "plugin";
