@@ -12,7 +12,7 @@ import (
 	"time"
 
 	"tiny-forum/internal/botapi"
-	luaengine "tiny-forum/internal/infra/lua/lua"
+	"tiny-forum/internal/infra/lua/engine"
 	"tiny-forum/internal/infra/lua/nocode"
 	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/request"
@@ -54,7 +54,7 @@ type Service interface {
 
 type service struct {
 	repo        botrepo.Repository
-	sandbox     *luaengine.LuaSandbox
+	sandbox     *engine.LuaSandbox
 	cron        *cron.Cron
 	eventBus    *EventBus
 	postRepo    postrepo.PostRepository
@@ -73,7 +73,7 @@ func NewService(
 ) Service {
 	return &service{
 		repo:        repo,
-		sandbox:     luaengine.NewLuaSandbox(30, []string{"0.0.0.0", "127.0.0.1"}),
+		sandbox:     engine.NewLuaSandbox(30, []string{"0.0.0.0", "127.0.0.1"}),
 		cron:        cron.New(),
 		eventBus:    NewEventBus(),
 		postRepo:    postRepo,
@@ -336,7 +336,12 @@ func (s *service) recordLog(botID uint, success bool, durationMs int64, logs []s
 // ─── 零代码 ───────────────────────────────────────────────────────────────
 
 func (s *service) GetNocodeMetadata() *nocode.NocodeMetadata {
-	return &nocode.NocodeMetadata{}
+	// 获取所有支持的 nocode 元数据
+	return &nocode.NocodeMetadata{
+		Triggers:   nocode.BuiltinActions,
+		Actions:    nocode.BuiltinActions,
+		Conditions: nocode.BuiltinConditions,
+	}
 }
 
 func (s *service) ValidateFlow(flow *nocode.Flow) []error {

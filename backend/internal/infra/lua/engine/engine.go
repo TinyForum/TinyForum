@@ -1,4 +1,4 @@
-package luaengine
+package engine
 
 // Package lua 提供安全的 Lua 脚本执行沙箱。
 
