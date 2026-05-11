@@ -21,17 +21,17 @@ export function StatCard({
     <div
       className={`card bg-base-100 border border-base-300 hover:shadow-lg transition-shadow overflow-hidden relative ${className}`}
     >
-      {/* 右侧图标容器：占右侧1/3，隐藏超出部分 */}
-      <div className="absolute right-0 bottom-0 w-1/3 h-full overflow-hidden pointer-events-none flex items-end justify-end">
-        {/* 图标包装：控制尺寸和颜色，使其足够大超出父容器 */}
-        <div
-          className={`${color} w-32 h-32 flex items-center justify-center scale-[3] pt-2`}
-        >
+      {/* 固定位置的图标容器：始终在右下角，固定尺寸 */}
+      <div
+        className="absolute pointer-events-none"
+        style={{ right: "-20px", bottom: "-20px", scale: "3" }}
+      >
+        <div className={`${color} w-32 h-32 flex items-center justify-center`}>
           {icon}
         </div>
       </div>
 
-      {/* 左侧内容区 */}
+      {/* 左侧内容区（保持不变） */}
       <div className="card-body p-5 relative z-10">
         <div>
           <p className="text-base-content/60 text-sm font-medium">{title}</p>

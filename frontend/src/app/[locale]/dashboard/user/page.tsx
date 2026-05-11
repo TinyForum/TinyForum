@@ -112,25 +112,26 @@ export default function UserDashboardPage() {
                 title={t("total_posts")}
                 value={total_post}
                 icon={<NotebookIcon />}
-                color="text-primary/20"
+                color="text-primary/10"
               />
               <StatCard
                 title={t("total_comments")}
                 value={total_comment}
                 icon={<MessageCircleIcon />}
-                color="text-secondary/20"
+                color="text-secondary/10"
               />
               <StatCard
                 title={t("total_likes")}
                 value={total_like}
                 icon={<HeartIcon />}
-                color="text-error/20"
+                color="text-error/10"
+                // footer={t("total_likes_footer")}
               />
               <StatCard
                 title={t("total_violations")}
                 value={total_violation}
                 icon={<BanIcon />}
-                color="text-warning/20"
+                color="text-warning/10"
               />
             </div>
           </div>
