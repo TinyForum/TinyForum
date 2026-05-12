@@ -27,7 +27,7 @@ func (r *reportsRepository) List(ctx context.Context, listReportBO *common.PageQ
 	query := r.db.Model(&do.Report{})
 
 	// 2. 动态添加过滤条件（基于 listReportBO.Data）
-	if listReportBO != nil && &listReportBO.Data != nil {
+	if listReportBO != nil {
 		data := listReportBO.Data
 
 		if data.ID != 0 {
