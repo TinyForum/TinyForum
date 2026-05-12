@@ -57,7 +57,7 @@ package attachment
 // 	// 调用 Service
 // 	pageVO, err := h.service.ListUserPlugins(c.Request.Context(), queryBO)
 // 	if err != nil {
-// 		response.InternalError(c, err.Error())
+// 		response.HandleError(c, err)
 // 		return
 // 	}
 

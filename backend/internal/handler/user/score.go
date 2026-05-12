@@ -34,12 +34,12 @@ func (h *UserHandler) GetScore(c *gin.Context) {
 	if idParam != "" {
 		userID, err := strconv.ParseUint(idParam, 10, 64)
 		if err != nil {
-			response.BadRequest(c, "无效的用户ID")
+			response.HandleError(c, err)
 			return
 		}
 		targetID = uint(userID)
 		if viewerUint != targetID && viewerRoleStr != "admin" && viewerRoleStr != "super_admin" {
-			response.Forbidden(c, "权限不足，只能查询自己的积分")
+			response.HandleError(c, err)
 			return
 		}
 	} else {
@@ -52,7 +52,7 @@ func (h *UserHandler) GetScore(c *gin.Context) {
 			response.NotFound(c, "用户不存在")
 			return
 		}
-		response.InternalError(c, "查询积分失败: "+err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.Success(c, gin.H{

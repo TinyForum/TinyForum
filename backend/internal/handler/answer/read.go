@@ -25,7 +25,7 @@ import (
 func (h *AnswerHandler) GetAnswer(c *gin.Context) {
 	answerID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的回答ID")
+		response.HandleError(c, err)
 		return
 	}
 
@@ -54,7 +54,7 @@ func (h *AnswerHandler) GetAnswer(c *gin.Context) {
 func (h *AnswerHandler) GetQuestionAnswers(c *gin.Context) {
 	postID, err := strconv.ParseUint(c.Param("post_id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的帖子ID")
+		response.HandleError(c, err)
 		return
 	}
 
@@ -63,7 +63,7 @@ func (h *AnswerHandler) GetQuestionAnswers(c *gin.Context) {
 
 	question, answers, total, err := h.questionSvc.GetQuestionWithAnswers(uint(postID), page, pageSize)
 	if err != nil {
-		response.NotFound(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 
@@ -94,7 +94,7 @@ func (h *AnswerHandler) GetQuestionAnswers(c *gin.Context) {
 func (h *AnswerHandler) GetVoteStatus(c *gin.Context) {
 	answerID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的回答ID")
+		response.HandleError(c, err)
 		return
 	}
 
@@ -102,13 +102,13 @@ func (h *AnswerHandler) GetVoteStatus(c *gin.Context) {
 
 	userVote, err := h.commentSvc.GetUserVoteStatus(uint(answerID), userID)
 	if err != nil {
-		response.InternalError(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 
 	upCount, downCount, err := h.commentSvc.GetVoteStatistics(uint(answerID))
 	if err != nil {
-		response.InternalError(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	fmt.Printf("user_vote: %+v\n", userVote)

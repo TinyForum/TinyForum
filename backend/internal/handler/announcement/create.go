@@ -26,13 +26,13 @@ import (
 func (h *AnnouncementHandler) Create(c *gin.Context) {
 	var req request.CreateAnnouncement
 	if err := c.ShouldBindJSON(&req); err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	userID := c.GetUint("user_id")
 	announcement, err := h.service.Create(c.Request.Context(), &req, userID)
 	if err != nil {
-		response.InternalError(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.Success(c, announcement)

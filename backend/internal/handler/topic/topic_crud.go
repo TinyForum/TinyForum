@@ -25,14 +25,14 @@ import (
 func (h *TopicHandler) Create(c *gin.Context) {
 	var input topicService.CreateTopicInput
 	if err := c.ShouldBindJSON(&input); err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 
 	userID := c.GetUint("user_id")
 	topic, err := h.topicSvc.Create(userID, input)
 	if err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.Success(c, topic)
@@ -56,19 +56,19 @@ func (h *TopicHandler) Create(c *gin.Context) {
 func (h *TopicHandler) Update(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的话题ID")
+		response.HandleError(c, err)
 		return
 	}
 
 	var input topicService.CreateTopicInput
 	if err := c.ShouldBindJSON(&input); err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 
 	topic, err := h.topicSvc.Update(uint(id), input)
 	if err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.Success(c, topic)
@@ -99,7 +99,7 @@ func (h *TopicHandler) Delete(c *gin.Context) {
 	isAdmin := role == "admin"
 
 	if err := h.topicSvc.Delete(uint(id), userID, isAdmin); err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.Success(c, gin.H{"message": "删除成功"})
@@ -118,13 +118,13 @@ func (h *TopicHandler) Delete(c *gin.Context) {
 func (h *TopicHandler) GetByID(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的话题ID")
+		response.HandleError(c, err)
 		return
 	}
 
 	topic, err := h.topicSvc.GetByID(uint(id))
 	if err != nil {
-		response.NotFound(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.Success(c, topic)
@@ -146,7 +146,7 @@ func (h *TopicHandler) List(c *gin.Context) {
 
 	topics, total, err := h.topicSvc.List(page, pageSize)
 	if err != nil {
-		response.InternalError(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.SuccessPage(c, topics, total, page, pageSize)
@@ -167,7 +167,7 @@ func (h *TopicHandler) List(c *gin.Context) {
 func (h *TopicHandler) GetByCreator(c *gin.Context) {
 	creatorID, err := strconv.ParseUint(c.Param("creator_id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的用户ID")
+		response.HandleError(c, err)
 		return
 	}
 
@@ -176,7 +176,7 @@ func (h *TopicHandler) GetByCreator(c *gin.Context) {
 
 	topics, total, err := h.topicSvc.GetByCreator(uint(creatorID), page, pageSize)
 	if err != nil {
-		response.InternalError(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.SuccessPage(c, topics, total, page, pageSize)

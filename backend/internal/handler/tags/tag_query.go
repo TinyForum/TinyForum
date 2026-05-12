@@ -18,7 +18,7 @@ import (
 func (h *TagHandler) List(c *gin.Context) {
 	tags, err := h.tagSvc.List()
 	if err != nil {
-		response.InternalError(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.Success(c, tags)
@@ -37,12 +37,12 @@ func (h *TagHandler) Get(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的标签ID")
+		response.HandleError(c, err)
 		return
 	}
 	tag, err := h.tagSvc.Get(uint(id))
 	if err != nil {
-		response.InternalError(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.Success(c, tag)

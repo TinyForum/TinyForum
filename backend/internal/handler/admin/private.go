@@ -10,7 +10,7 @@ import (
 func parseAnnouncementID(c *gin.Context) (uint, bool) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
-		response.BadRequest(c, "无效的公告ID")
+		response.HandleError(c, err)
 		return 0, false
 	}
 	return uint(id), true

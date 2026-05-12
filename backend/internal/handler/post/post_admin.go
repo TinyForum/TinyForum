@@ -45,7 +45,7 @@ func (h *PostHandler) AdminList(c *gin.Context) {
 	}
 	posts, total, err := h.postSvc.AdminLists(c, listPostsBO)
 	if err != nil {
-		response.InternalError(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.SuccessPage(c, posts, total, page, pageSize)
@@ -67,16 +67,16 @@ func (h *PostHandler) AdminList(c *gin.Context) {
 func (h *PostHandler) AdminTogglePin(c *gin.Context) {
 	postID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的帖子ID")
+		response.HandleError(c, err)
 		return
 	}
 
 	if err := h.postSvc.TogglePin(uint(postID)); err != nil {
 		if errors.Is(err, apperrors.ErrPostNotFound) {
-			response.NotFound(c, err.Error())
+			response.HandleError(c, err)
 			return
 		}
-		response.InternalError(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 
@@ -113,7 +113,7 @@ func (h *PostHandler) AdminGetModerationRequire(c *gin.Context) {
 	}
 	posts, total, err := h.postSvc.AdminLists(c, listPostsBO)
 	if err != nil {
-		response.InternalError(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.SuccessPage(c, posts, total, page, pageSize)
@@ -136,7 +136,7 @@ func (h *PostHandler) AdminGetModerationRequire(c *gin.Context) {
 func (h *PostHandler) AdminApprovePost(c *gin.Context) {
 	postID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的帖子ID")
+		response.HandleError(c, err)
 		return
 	}
 
@@ -173,7 +173,7 @@ func (h *PostHandler) AdminApprovePost(c *gin.Context) {
 func (h *PostHandler) AdminRejectPost(c *gin.Context) {
 	postID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的帖子ID")
+		response.HandleError(c, err)
 		return
 	}
 

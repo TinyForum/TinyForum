@@ -31,7 +31,7 @@ func (h *AdminHandler) ListApplications(c *gin.Context) {
 	if raw := c.Query("board_id"); raw != "" {
 		id, err := strconv.ParseUint(raw, 10, 64)
 		if err != nil {
-			response.BadRequest(c, "无效的板块ID")
+			response.HandleError(c, err)
 			return
 		}
 		uid := uint(id)
@@ -44,7 +44,7 @@ func (h *AdminHandler) ListApplications(c *gin.Context) {
 
 	apps, total, err := h.service.ListApplications(boardID, status, page, pageSize)
 	if err != nil {
-		response.InternalError(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.SuccessPage(c, apps, total, page, pageSize)
@@ -68,7 +68,7 @@ func (h *AdminHandler) ListApplications(c *gin.Context) {
 func (h *AdminHandler) ReviewApplication(c *gin.Context) {
 	applicationID, err := strconv.ParseUint(c.Param("application_id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的申请ID")
+		response.HandleError(c, err)
 		return
 	}
 
@@ -82,7 +82,7 @@ func (h *AdminHandler) ReviewApplication(c *gin.Context) {
 		CanBanUser         *bool  `json:"can_ban_user"`
 	}
 	if err := c.ShouldBindJSON(&body); err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 
@@ -99,7 +99,7 @@ func (h *AdminHandler) ReviewApplication(c *gin.Context) {
 	}
 
 	if err := h.service.ReviewApplication(c.Request.Context(), input, reviewerID); err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.Success(c, gin.H{"message": "审批完成"})

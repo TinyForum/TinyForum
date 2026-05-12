@@ -29,7 +29,7 @@ func (h *AdminHandler) ListReports(c *gin.Context) {
 	if raw := c.Query("board_id"); raw != "" {
 		id, err := strconv.ParseUint(raw, 10, 64)
 		if err != nil {
-			response.BadRequest(c, "无效的板块ID")
+			response.HandleError(c, err)
 			return
 		}
 		uid := uint(id)
@@ -42,7 +42,7 @@ func (h *AdminHandler) ListReports(c *gin.Context) {
 
 	apps, total, err := h.service.ListApplications(boardID, status, page, pageSize)
 	if err != nil {
-		response.InternalError(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.SuccessPage(c, apps, total, page, pageSize)

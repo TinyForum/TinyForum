@@ -28,13 +28,13 @@ import (
 func (h *BoardHandler) ApplyModerator(c *gin.Context) {
 	boardID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的板块ID")
+		response.HandleError(c, err)
 		return
 	}
 
 	var input do.ApplyModeratorInput
 	if err := c.ShouldBindJSON(&input); err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 
@@ -44,7 +44,7 @@ func (h *BoardHandler) ApplyModerator(c *gin.Context) {
 	input.BoardID = uint(boardID)
 
 	if err := h.boardSvc.ApplyModerator(input); err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.Success(c, gin.H{"message": "申请已提交，请等待管理员审核"})
@@ -66,13 +66,13 @@ func (h *BoardHandler) ApplyModerator(c *gin.Context) {
 func (h *BoardHandler) CancelApplication(c *gin.Context) {
 	applicationID, err := strconv.ParseUint(c.Param("application_id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的申请ID")
+		response.HandleError(c, err)
 		return
 	}
 	userID := c.GetUint("user_id")
 
 	if err := h.boardSvc.CancelApplication(uint(applicationID), userID); err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.Success(c, gin.H{"message": "申请已撤销"})
@@ -97,7 +97,7 @@ func (h *BoardHandler) GetUserApplications(c *gin.Context) {
 
 	applications, total, err := h.boardSvc.GetUserApplications(userID, page, pageSize)
 	if err != nil {
-		response.InternalError(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	resp := common.PageResult[do.ModeratorApplication]{
@@ -129,7 +129,7 @@ func (h *BoardHandler) GetUserApplications(c *gin.Context) {
 func (h *BoardHandler) ReviewApplication(c *gin.Context) {
 	applicationID, err := strconv.ParseUint(c.Param("application_id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的申请ID")
+		response.HandleError(c, err)
 		return
 	}
 
@@ -143,7 +143,7 @@ func (h *BoardHandler) ReviewApplication(c *gin.Context) {
 		CanBanUser         *bool  `json:"can_ban_user"`
 	}
 	if err := c.ShouldBindJSON(&body); err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 
@@ -160,7 +160,7 @@ func (h *BoardHandler) ReviewApplication(c *gin.Context) {
 	}
 
 	if err := h.boardSvc.ReviewApplication(c.Request.Context(), input, reviewerID); err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.Success(c, gin.H{"message": "审批完成"})
@@ -188,7 +188,7 @@ func (h *BoardHandler) ListApplications(c *gin.Context) {
 	if raw := c.Query("board_id"); raw != "" {
 		id, err := strconv.ParseUint(raw, 10, 64)
 		if err != nil {
-			response.BadRequest(c, "无效的板块ID")
+			response.HandleError(c, err)
 			return
 		}
 		uid := uint(id)
@@ -201,7 +201,7 @@ func (h *BoardHandler) ListApplications(c *gin.Context) {
 
 	apps, total, err := h.boardSvc.ListApplications(boardID, status, page, pageSize)
 	if err != nil {
-		response.InternalError(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.SuccessPage(c, apps, total, page, pageSize)

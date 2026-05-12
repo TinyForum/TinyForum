@@ -27,7 +27,7 @@ func (h *TimelineHandler) GetHomeTimeline(c *gin.Context) {
 
 	events, total, err := h.timelineSvc.GetHomeTimeline(userID, page, pageSize)
 	if err != nil {
-		response.InternalError(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.SuccessPage(c, events, total, page, pageSize)
@@ -52,7 +52,7 @@ func (h *TimelineHandler) GetFollowingTimeline(c *gin.Context) {
 
 	events, total, err := h.timelineSvc.GetFollowingTimeline(userID, page, pageSize)
 	if err != nil {
-		response.InternalError(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.SuccessPage(c, events, total, page, pageSize)

@@ -41,7 +41,7 @@ func (h *AuthHandler) DeleteAccount(c *gin.Context) {
 
 	isDeelte, err := h.authSvc.DeleteAccount(ctx, userID.(uint), input)
 	if err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 
@@ -74,7 +74,7 @@ func (h *AuthHandler) DeletionStatus(c *gin.Context) {
 	// 获取用户删除状态
 	status, err := h.authSvc.GetDeletionStatus(ctx, userID.(uint))
 	if err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 
@@ -100,7 +100,7 @@ func (h *AuthHandler) CancelDeletion(c *gin.Context) {
 
 	err := h.authSvc.CancelDeletion(ctx, userID.(uint))
 	if err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 

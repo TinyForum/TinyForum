@@ -3,7 +3,6 @@ package user
 import (
 	"strconv"
 	"time"
-	apperrors "tiny-forum/pkg/errors"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -31,12 +30,12 @@ import (
 func (h *UserHandler) AdminSetScore(c *gin.Context) {
 	targetID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, apperrors.ErrInvalidUserID.Error())
+		response.HandleError(c, err)
 		return
 	}
 	var req AdminSetScoreRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		response.BadRequest(c, "请求参数错误: "+err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	currentScore, err := h.userSvc.GetScoreById(uint(targetID))

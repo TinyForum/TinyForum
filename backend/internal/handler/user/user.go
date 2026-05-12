@@ -59,11 +59,11 @@ package user
 // 	userID := c.GetUint("user_id")
 // 	var input do.UpdateProfileInput
 // 	if err := c.ShouldBindJSON(&input); err != nil {
-// 		response.BadRequest(c, err.Error())
+// 		response.HandleError(c, err)
 // 		return
 // 	}
 // 	if err := h.userSvc.UpdateProfile(userID, input); err != nil {
-// 		response.InternalError(c, err.Error())
+// 		response.HandleError(c, err)
 // 		return
 // 	}
 // 	user, _ := h.userSvc.GetProfile(userID)
@@ -132,7 +132,7 @@ package user
 // 		return
 // 	}
 // 	if err := h.userSvc.Follow(followerID, uint(targetID)); err != nil {
-// 		response.BadRequest(c, err.Error())
+// 		response.HandleError(c, err)
 // 		return
 // 	}
 // 	response.Success(c, gin.H{"message": "关注成功"})
@@ -153,7 +153,7 @@ package user
 // 		return
 // 	}
 // 	if err := h.userSvc.Unfollow(followerID, uint(targetID)); err != nil {
-// 		response.InternalError(c, err.Error())
+// 		response.HandleError(c, err)
 // 		return
 // 	}
 // 	response.Success(c, gin.H{"message": "已取消关注"})
@@ -215,7 +215,7 @@ package user
 
 // 	items, err := h.userSvc.GetLeaderboard(c.Request.Context(), req.Limit, req.Fields)
 // 	if err != nil {
-// 		response.InternalError(c, err.Error())
+// 		response.HandleError(c, err)
 // 		return
 // 	}
 
@@ -251,7 +251,7 @@ package user
 // 	pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "20"))
 // 	followers, total, err := h.userSvc.GetFollowers(uint(userID), page, pageSize)
 // 	if err != nil {
-// 		response.InternalError(c, err.Error())
+// 		response.HandleError(c, err)
 // 		return
 // 	}
 // 	response.SuccessPage(c, followers, total, page, pageSize)
@@ -273,7 +273,7 @@ package user
 // 	pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "20"))
 // 	following, total, err := h.userSvc.GetFollowing(uint(userID), page, pageSize)
 // 	if err != nil {
-// 		response.InternalError(c, err.Error())
+// 		response.HandleError(c, err)
 // 		return
 // 	}
 // 	response.SuccessPage(c, following, total, page, pageSize)
@@ -407,7 +407,7 @@ package user
 // 	keyword := c.Query("keyword")
 // 	users, total, err := h.userSvc.List(page, pageSize, keyword)
 // 	if err != nil {
-// 		response.InternalError(c, err.Error())
+// 		response.HandleError(c, err)
 // 		return
 // 	}
 // 	response.SuccessPage(c, users, total, page, pageSize)

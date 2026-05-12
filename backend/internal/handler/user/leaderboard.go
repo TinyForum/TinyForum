@@ -21,14 +21,14 @@ import (
 func (h *UserHandler) LeaderboardSimple(c *gin.Context) {
 	var req request.LeaderboardRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
-		response.BadRequest(c, "参数错误: "+err.Error())
+		response.HandleError(c, err)
 		return
 	}
 
 	// 调用 service 获取原始数据（返回 do.User 切片或自定义结构）
 	users, err := h.userSvc.GetSimpleLeaderboardData(c.Request.Context(), req.Limit)
 	if err != nil {
-		response.InternalError(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 
@@ -54,13 +54,13 @@ func (h *UserHandler) LeaderboardSimple(c *gin.Context) {
 func (h *UserHandler) LeaderboardDetail(c *gin.Context) {
 	var req request.LeaderboardRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
-		response.BadRequest(c, "参数错误: "+err.Error())
+		response.HandleError(c, err)
 		return
 	}
 
 	users, err := h.userSvc.GetDetailLeaderboardData(c.Request.Context(), req.Limit)
 	if err != nil {
-		response.InternalError(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 
