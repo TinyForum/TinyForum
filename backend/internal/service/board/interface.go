@@ -5,6 +5,7 @@ import (
 
 	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/dto"
+	"tiny-forum/internal/model/request"
 	boardRepo "tiny-forum/internal/repository/board"
 	postRepo "tiny-forum/internal/repository/post"
 	userRepo "tiny-forum/internal/repository/user"
@@ -16,7 +17,7 @@ type BoardService interface {
 	ApplyModerator(input do.ApplyModeratorInput) error
 	CancelApplication(applicationID, userID uint) error
 	GetUserApplications(userID uint, page, pageSize int) ([]do.ModeratorApplication, int64, error)
-	ReviewApplication(_ context.Context, input ReviewApplicationInput, reviewerID uint) error
+	ReviewApplication(_ context.Context, input request.ReviewApplicationRequest, reviewerID uint) error
 	ListApplications(boardID *uint, status do.ApplicationStatus, page, pageSize int) ([]do.ModeratorApplication, int64, error)
 	// ban
 	BanUser(input BanUserInput, bannerID uint) error

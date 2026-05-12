@@ -34,8 +34,6 @@ type LeaderboardItem struct {
 	Rank     int    `json:"rank"`
 }
 
-
-
 // LoginResult 登录结果（可选）
 type LoginResult struct {
 	Token string    `json:"-"`

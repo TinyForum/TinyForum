@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"time"
 	"tiny-forum/internal/model/do"
+	"tiny-forum/internal/model/request"
 )
 
 type ApplicationStatusDetail struct {
@@ -21,17 +22,6 @@ type ApplicationStatusDetail struct {
 	CanResubmit    bool            `json:"can_resubmit"`
 	RequestedPerms map[string]bool `json:"requested_perms,omitempty"`
 	CanApply       bool            `json:"can_apply"`
-}
-
-type ReviewApplicationInput struct {
-	ApplicationID      uint   `json:"application_id" binding:"required"`
-	Approve            bool   `json:"approve"`
-	ReviewNote         string `json:"review_note" binding:"max=500"`
-	CanDeletePost      *bool  `json:"can_delete_post"`
-	CanPinPost         *bool  `json:"can_pin_post"`
-	CanEditAnyPost     *bool  `json:"can_edit_any_post"`
-	CanManageModerator *bool  `json:"can_manage_moderator"`
-	CanBanUser         *bool  `json:"can_ban_user"`
 }
 
 func (s *boardService) ApplyModerator(input do.ApplyModeratorInput) error {
@@ -88,7 +78,7 @@ func (s *boardService) GetUserApplications(userID uint, page, pageSize int) ([]d
 	return s.boardRepo.GetApplicationsByUserID(userID, page, pageSize)
 }
 
-func (s *boardService) ReviewApplication(_ context.Context, input ReviewApplicationInput, reviewerID uint) error {
+func (s *boardService) ReviewApplication(_ context.Context, input request.ReviewApplicationRequest, reviewerID uint) error {
 	app, err := s.boardRepo.GetApplicationByID(input.ApplicationID)
 	if err != nil || app == nil {
 		return errors.New("申请不存在")

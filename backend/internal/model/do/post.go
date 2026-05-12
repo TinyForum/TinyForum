@@ -99,7 +99,7 @@ func ParsePostStatus(s string) PostStatus {
 	if ps.IsValid() {
 		return ps
 	}
-	return PostStatusDraft // 默认值
+	return PostStatusPublished // 默认值
 }
 
 func (ps PostStatus) IsValid() bool {

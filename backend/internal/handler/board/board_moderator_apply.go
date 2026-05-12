@@ -5,7 +5,7 @@ import (
 
 	"tiny-forum/internal/model/common"
 	"tiny-forum/internal/model/do"
-	boardService "tiny-forum/internal/service/board"
+	"tiny-forum/internal/model/request"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -125,6 +125,7 @@ func (h *BoardHandler) GetUserApplications(c *gin.Context) {
 // @Failure 403 {object} common.BasicResponse"无权限（需要管理员权限）"
 // @Failure 404 {object} common.BasicResponse"申请不存在"
 // @Router /admin/boards/applications/{application_id}/review [post]
+// Deprecated: 迁移到 adminHandler.ReviewApplication
 func (h *BoardHandler) ReviewApplication(c *gin.Context) {
 	applicationID, err := strconv.ParseUint(c.Param("application_id"), 10, 64)
 	if err != nil {
@@ -147,7 +148,7 @@ func (h *BoardHandler) ReviewApplication(c *gin.Context) {
 	}
 
 	reviewerID := c.GetUint("user_id")
-	input := boardService.ReviewApplicationInput{
+	input := request.ReviewApplicationRequest{
 		ApplicationID:      uint(applicationID),
 		Approve:            body.Approve,
 		ReviewNote:         body.ReviewNote,
@@ -181,6 +182,7 @@ func (h *BoardHandler) ReviewApplication(c *gin.Context) {
 // @Failure 403 {object} common.BasicResponse"无权限（需要管理员权限）"
 // @Failure 500 {object} common.BasicResponse"服务器内部错误"
 // @Router /admin/boards/applications [get]
+// Deprecated: 迁移到 adminHandler.ListApplications
 func (h *BoardHandler) ListApplications(c *gin.Context) {
 	var boardID *uint
 	if raw := c.Query("board_id"); raw != "" {

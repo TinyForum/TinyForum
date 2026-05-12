@@ -43,7 +43,7 @@ func (h *PostHandler) AdminList(c *gin.Context) {
 			Keyword:    keyword,
 		},
 	}
-	posts, total, err := h.postSvc.AdminList(c, listPostsBO)
+	posts, total, err := h.postSvc.AdminLists(c, listPostsBO)
 	if err != nil {
 		response.InternalError(c, err.Error())
 		return
@@ -97,6 +97,7 @@ func (h *PostHandler) AdminTogglePin(c *gin.Context) {
 // @Failure 403 {object} common.BasicResponse"无权限"
 // @Failure 500 {object} common.BasicResponse"服务器内部错误"
 // @Router /admin/posts/pending [get]
+// Deprecated: 迁移到 adminHandler.ListReviewRequire
 func (h *PostHandler) AdminGetModerationRequire(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "20"))
@@ -110,7 +111,7 @@ func (h *PostHandler) AdminGetModerationRequire(c *gin.Context) {
 			Keyword:    keyword,
 		},
 	}
-	posts, total, err := h.postSvc.AdminList(c, listPostsBO)
+	posts, total, err := h.postSvc.AdminLists(c, listPostsBO)
 	if err != nil {
 		response.InternalError(c, err.Error())
 		return

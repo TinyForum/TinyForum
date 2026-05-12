@@ -8,7 +8,7 @@ import (
 
 // 列出所用用户用户积分
 func (s *adminService) ListUsersScore(ctx context.Context) ([]vo.UserScoreVO, error) {
-	users, err := s.userSvc.ListUsersScore()//GetEveryoneUsersScore()
+	users, err := s.userSvc.ListUsersScore() //GetEveryoneUsersScore()
 	if err != nil {
 		return nil, err
 	}
@@ -17,14 +17,13 @@ func (s *adminService) ListUsersScore(ctx context.Context) ([]vo.UserScoreVO, er
 
 // 获取单个用户积分
 func (s *adminService) GetUserScore(ctx context.Context, userID uint) (*vo.UserScoreVO, error) {
-	score, err := s.userSvc.GetScoreById(userID)//GetEveryoneUsersScore()
+	score, err := s.userSvc.GetScoreById(userID) //GetEveryoneUsersScore()
 	if err != nil {
-	    return nil,apperrors.ErrInternalError
+		return nil, apperrors.ErrInternalError
 	}
 	scoreVO := &vo.UserScoreVO{
-		ID: userID,
-	    Score: score,
+		ID:    userID,
+		Score: score,
 	}
 	return scoreVO, nil
 }
-

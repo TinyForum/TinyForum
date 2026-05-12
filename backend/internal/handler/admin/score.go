@@ -22,15 +22,14 @@ import (
 // @Failure 500 {object} common.BasicResponse
 // @Router /admin/users/score [get]
 func (h *AdminHandler) ListUsersScore(c *gin.Context) {
-		users, err := h.service.ListUsersScore(c)
-		if err != nil {
-			response.InternalError(c, "查询用户积分失败")
-			return
-		}
-		response.Success(c, users)
+	users, err := h.service.ListUsersScore(c)
+	if err != nil {
+		response.InternalError(c, "查询用户积分失败")
 		return
+	}
+	response.Success(c, users)
+	return
 }
-
 
 // AdminGetUserScore 获取用户积分
 // @Summary 获取用户积分
@@ -47,18 +46,18 @@ func (h *AdminHandler) ListUsersScore(c *gin.Context) {
 // @Failure 500 {object} common.BasicResponse
 // @Router /admin/users/score [get]
 func (h *AdminHandler) GetUserScore(c *gin.Context) {
-var 	req request.GetUserScoreRequest
+	var req request.GetUserScoreRequest
 	err := c.BindQuery(&req)
 	if err != nil {
-	    response.HandleError(c, err)
+		response.HandleError(c, err)
 		return
 	}
 
-		scoreVO, err := h.service.GetUserScore(c,req.UserID)
-		if err != nil {
-			response.HandleError(c, err)
-			return
-		}
-		response.Success(c, scoreVO)
-	
+	scoreVO, err := h.service.GetUserScore(c, req.UserID)
+	if err != nil {
+		response.HandleError(c, err)
+		return
+	}
+	response.Success(c, scoreVO)
+
 }

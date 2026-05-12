@@ -27,7 +27,7 @@ type UserService interface {
 	GetScoreById(userID uint) (int, error) // 获取用户积分
 	SetScoreById(userID uint, score int) error
 	onScoreChanged(userID uint, newScore int) error // TODO: 未完成
-	ListUsersScore() ([]vo.UserScoreVO, error) // 获取用户及其积分
+	ListUsersScore() ([]vo.UserScoreVO, error)      // 获取用户及其积分
 	// user status
 	SetBlocked(targetID uint, operatorID uint, isBlocked bool) error
 	SetActive(targetID uint, operatorID uint, isActive bool) error
