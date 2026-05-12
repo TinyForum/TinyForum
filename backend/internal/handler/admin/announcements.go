@@ -29,7 +29,7 @@ import (
 func (h *AdminHandler) ListAnnouncements(c *gin.Context) {
 	var req request.ListAnnouncements
 	if err := c.ShouldBindQuery(&req); err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	allStatus := do.AnnouncementStatus(do.AnnouncementStatusFilterAll)
@@ -71,7 +71,8 @@ func (h *AdminHandler) CreateAnnouncement(c *gin.Context) {
 	var req request.CreateAnnouncement
 	if err := c.ShouldBindJSON(&req); err != nil {
 		logger.Errorf("绑定请求失败: user: %d result error: %v", userID, err)
-		response.BadRequest(c, apperrors.ErrInvalidRequest.Message)
+		response.HandleError(c, err)
+
 		return
 	}
 	logger.Infof("用户请求创建公告: user: %d request: %v", userID, req)
@@ -80,7 +81,7 @@ func (h *AdminHandler) CreateAnnouncement(c *gin.Context) {
 
 	if err != nil {
 		logger.Errorf("创建公告失败: user: %d result: %v", userID, err)
-		response.InternalError(c, apperrors.ErrInternalError.Message)
+		response.HandleError(c, err)
 		return
 	}
 	logger.Infof("创建公告: user: %d result: %v", userID, announcement.ID)
@@ -109,7 +110,7 @@ func (h *AdminHandler) UpdateAnnouncement(c *gin.Context) {
 	}
 	var req request.UpdateAnnouncement
 	if err := c.ShouldBindJSON(&req); err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	userID := c.GetUint("user_id")
@@ -231,7 +232,7 @@ func (h *AdminHandler) PinAnnouncement(c *gin.Context) {
 		Pinned bool `json:"pinned"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	userID := c.GetUint("user_id")

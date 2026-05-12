@@ -26,12 +26,12 @@ import (
 func (h *TagHandler) Create(c *gin.Context) {
 	var input tagService.CreateTagInput
 	if err := c.ShouldBindJSON(&input); err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	tag, err := h.tagSvc.Create(input)
 	if err != nil {
-		response.InternalError(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.Success(c, tag)
@@ -56,17 +56,17 @@ func (h *TagHandler) Create(c *gin.Context) {
 func (h *TagHandler) Update(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的标签ID")
+		response.HandleError(c, err)
 		return
 	}
 	var input tagService.CreateTagInput
 	if err := c.ShouldBindJSON(&input); err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	tag, err := h.tagSvc.Update(uint(id), input)
 	if err != nil {
-		response.InternalError(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.Success(c, tag)
@@ -89,11 +89,11 @@ func (h *TagHandler) Update(c *gin.Context) {
 func (h *TagHandler) Delete(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的标签ID")
+		response.HandleError(c, err)
 		return
 	}
 	if err := h.tagSvc.Delete(uint(id)); err != nil {
-		response.InternalError(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.Success(c, gin.H{"message": "删除成功"})

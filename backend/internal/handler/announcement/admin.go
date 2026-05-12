@@ -33,7 +33,7 @@ import (
 func (h *AnnouncementHandler) AdminList(c *gin.Context) {
 	var req request.ListAnnouncements
 	if err := c.ShouldBindQuery(&req); err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	allStatus := do.AnnouncementStatus(do.AnnouncementStatusFilterAll)

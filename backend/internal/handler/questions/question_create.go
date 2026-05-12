@@ -37,7 +37,7 @@ func (h *QuestionHandler) CreateQuestion(c *gin.Context) {
 
 	var input dto.CreateQuestionRequest
 	if err := c.ShouldBindJSON(&input); err != nil {
-		response.BadRequest(c, "参数错误: "+err.Error())
+		response.HandleError(c, err)
 		return
 	}
 
@@ -61,7 +61,7 @@ func (h *QuestionHandler) CreateQuestion(c *gin.Context) {
 		case "积分不足":
 			c.JSON(http.StatusForbidden, gin.H{"message": err.Error()})
 		default:
-			response.BadRequest(c, err.Error())
+			response.HandleError(c, err)
 		}
 		return
 	}

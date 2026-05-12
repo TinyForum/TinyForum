@@ -24,18 +24,19 @@ import (
 func (h *TimelineHandler) Subscribe(c *gin.Context) {
 	userID, err := strconv.ParseUint(c.Param("user_id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的用户ID")
+		response.HandleError(c, err)
 		return
 	}
 
 	subscriberID := c.GetUint("user_id")
 	if subscriberID == uint(userID) {
+
 		response.BadRequest(c, "不能关注自己")
 		return
 	}
 
 	if err := h.timelineSvc.Subscribe(subscriberID, uint(userID)); err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.Success(c, gin.H{"message": "关注成功"})
@@ -57,14 +58,14 @@ func (h *TimelineHandler) Subscribe(c *gin.Context) {
 func (h *TimelineHandler) Unsubscribe(c *gin.Context) {
 	userID, err := strconv.ParseUint(c.Param("user_id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的用户ID")
+		response.HandleError(c, err)
 		return
 	}
 
 	subscriberID := c.GetUint("user_id")
 
 	if err := h.timelineSvc.Unsubscribe(subscriberID, uint(userID)); err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.Success(c, gin.H{"message": "取消关注成功"})
@@ -85,7 +86,7 @@ func (h *TimelineHandler) GetSubscriptions(c *gin.Context) {
 
 	subscriptions, err := h.timelineSvc.GetSubscriptions(userID)
 	if err != nil {
-		response.InternalError(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.Success(c, subscriptions)
@@ -106,7 +107,7 @@ func (h *TimelineHandler) GetSubscriptions(c *gin.Context) {
 func (h *TimelineHandler) IsSubscribed(c *gin.Context) {
 	userID, err := strconv.ParseUint(c.Param("user_id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的用户ID")
+		response.HandleError(c, err)
 		return
 	}
 
@@ -114,7 +115,7 @@ func (h *TimelineHandler) IsSubscribed(c *gin.Context) {
 
 	isSubscribed, err := h.timelineSvc.IsSubscribed(subscriberID, uint(userID))
 	if err != nil {
-		response.InternalError(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.Success(c, gin.H{"is_subscribed": isSubscribed})

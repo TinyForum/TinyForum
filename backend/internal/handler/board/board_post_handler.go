@@ -25,12 +25,12 @@ import (
 func (h *BoardHandler) DeletePost(c *gin.Context) {
 	boardID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的板块ID")
+		response.HandleError(c, err)
 		return
 	}
 	postID, err := strconv.ParseUint(c.Param("post_id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的帖子ID")
+		response.HandleError(c, err)
 		return
 	}
 
@@ -39,7 +39,7 @@ func (h *BoardHandler) DeletePost(c *gin.Context) {
 	isAdmin := role == "admin" || role == "super_admin"
 
 	if err := h.boardSvc.DeletePost(uint(boardID), uint(postID), userID, isAdmin); err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.Success(c, gin.H{"message": "删除成功"})
@@ -65,12 +65,12 @@ func (h *BoardHandler) DeletePost(c *gin.Context) {
 func (h *BoardHandler) PinPost(c *gin.Context) {
 	boardID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的板块ID")
+		response.HandleError(c, err)
 		return
 	}
 	postID, err := strconv.ParseUint(c.Param("post_id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的帖子ID")
+		response.HandleError(c, err)
 		return
 	}
 
@@ -78,12 +78,12 @@ func (h *BoardHandler) PinPost(c *gin.Context) {
 		PinInBoard bool `json:"pin_in_board"`
 	}
 	if err := c.ShouldBindJSON(&body); err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 
 	if err := h.boardSvc.PinPost(uint(boardID), uint(postID), body.PinInBoard); err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.Success(c, gin.H{"message": "操作成功"})

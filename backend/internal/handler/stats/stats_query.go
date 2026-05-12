@@ -28,7 +28,7 @@ import (
 func (h *StatsHandler) GetStatsDay(c *gin.Context) {
 	var req dto.StatsDayQuery
 	if err := c.ShouldBindQuery(&req); err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	if req.Type == "" {
@@ -42,7 +42,7 @@ func (h *StatsHandler) GetStatsDay(c *gin.Context) {
 
 	date, err := h.timeHelpers.SingleParser.Parse(dateStr, time.Now(), time.Local, false)
 	if err != nil {
-		response.BadRequest(c, "无效的日期格式: "+err.Error())
+		response.HandleError(c, err)
 		return
 	}
 
@@ -79,7 +79,7 @@ func (h *StatsHandler) GetStatsTotal(c *gin.Context) {
 	}
 
 	if err := c.ShouldBindQuery(&req); err != nil {
-		response.BadRequest(c, "invalid parameters: "+err.Error())
+		response.HandleError(c, err)
 		return
 	}
 
@@ -89,7 +89,7 @@ func (h *StatsHandler) GetStatsTotal(c *gin.Context) {
 
 	date, err := h.timeHelpers.RangeParser.Parse(req.StartDate, req.EndDate)
 	if err != nil {
-		response.BadRequest(c, "invalid date range: "+err.Error())
+		response.HandleError(c, err)
 		return
 	}
 
@@ -124,13 +124,13 @@ func (h *StatsHandler) GetStatsTotal(c *gin.Context) {
 func (h *StatsHandler) GetStatsTrend(c *gin.Context) {
 	var req dto.AdminStatsTrendRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 
 	date, err := h.timeHelpers.RangeParser.Parse(req.StartDate, req.EndDate)
 	if err != nil {
-		response.BadRequest(c, "invalid date range: "+err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	if req.Interval == "" {
@@ -139,7 +139,7 @@ func (h *StatsHandler) GetStatsTrend(c *gin.Context) {
 
 	trend, err := h.statsSvc.GetTrendStats(c.Request.Context(), date.Start, date.End, req.Type, req.Interval)
 	if err != nil {
-		response.InternalError(c, "获取趋势数据失败: "+err.Error())
+		response.HandleError(c, err)
 		return
 	}
 

@@ -25,12 +25,12 @@ func (h *AttachmentHandler) UploadFile(c *gin.Context) {
 	userID := c.GetUint("user_id")
 	file, err := c.FormFile("file")
 	if err != nil {
-		response.BadRequest(c, "file is required")
+		response.HandleError(c, err)
 		return
 	}
 	var req request.UploadPostFileRequest
 	if err := c.ShouldBind(&req); err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	resp, err := h.svc.UploadFile(c.Request.Context(), userID, file, &req, c.ClientIP())

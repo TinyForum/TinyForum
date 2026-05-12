@@ -26,7 +26,7 @@ import (
 func (h *CommentHandler) VoteAnswer(c *gin.Context) {
 	commentID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的评论ID")
+		response.HandleError(c, err)
 		return
 	}
 
@@ -34,7 +34,7 @@ func (h *CommentHandler) VoteAnswer(c *gin.Context) {
 		VoteType string `json:"vote_type" binding:"required,oneof=up down"`
 	}
 	if err := c.ShouldBindJSON(&input); err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 
@@ -46,7 +46,7 @@ func (h *CommentHandler) VoteAnswer(c *gin.Context) {
 
 	result, err := h.questionSvc.VoteAnswer(userID, voteInput)
 	if err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.Success(c, result)
@@ -65,14 +65,14 @@ func (h *CommentHandler) VoteAnswer(c *gin.Context) {
 func (h *CommentHandler) GetAnswerVoteStatus(c *gin.Context) {
 	commentID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的评论ID")
+		response.HandleError(c, err)
 		return
 	}
 
 	userID := c.GetUint("user_id")
 	status, err := h.questionSvc.GetAnswerVoteStatus(userID, uint(commentID))
 	if err != nil {
-		response.InternalError(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.Success(c, status)
@@ -95,26 +95,26 @@ func (h *CommentHandler) GetAnswerVoteStatus(c *gin.Context) {
 func (h *CommentHandler) AcceptAnswer(c *gin.Context) {
 	commentID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的评论ID")
+		response.HandleError(c, err)
 		return
 	}
 
 	postIDStr := c.Query("post_id")
 	if postIDStr == "" {
-		response.BadRequest(c, "缺少帖子ID")
+		response.HandleError(c, err)
 		return
 	}
 
 	postID, err := strconv.ParseUint(postIDStr, 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的帖子ID")
+		response.HandleError(c, err)
 		return
 	}
 
 	userID := c.GetUint("user_id")
 
 	if err := h.questionSvc.AcceptAnswer(uint(postID), uint(commentID), userID); err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.Success(c, gin.H{"message": "采纳答案成功"})

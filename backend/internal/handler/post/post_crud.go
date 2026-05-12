@@ -34,7 +34,7 @@ func (h *PostHandler) Create(c *gin.Context) {
 
 	var input postService.CreatePostInput
 	if err := c.ShouldBindJSON(&input); err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 
@@ -48,7 +48,7 @@ func (h *PostHandler) Create(c *gin.Context) {
 
 	post, err := h.postSvc.Create(c, authorID, input)
 	if err != nil {
-		response.InternalError(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.Success(c, post)
@@ -138,7 +138,7 @@ func (h *PostHandler) List(c *gin.Context) {
 
 	posts, total, err := h.postSvc.List(c, listPostsBO)
 	if err != nil {
-		response.InternalError(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.SuccessPage(c, posts, total, req.Page, req.PageSize)
@@ -162,7 +162,7 @@ func (h *PostHandler) List(c *gin.Context) {
 func (h *PostHandler) Update(c *gin.Context) {
 	postID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的帖子ID")
+		response.HandleError(c, err)
 		return
 	}
 	userID := c.GetUint("user_id")
@@ -171,12 +171,12 @@ func (h *PostHandler) Update(c *gin.Context) {
 
 	var input postService.UpdatePostInput
 	if err := c.ShouldBindJSON(&input); err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	post, err := h.postSvc.Update(uint(postID), userID, isAdmin, input)
 	if err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.Success(c, post)
@@ -198,7 +198,7 @@ func (h *PostHandler) Update(c *gin.Context) {
 func (h *PostHandler) Delete(c *gin.Context) {
 	postID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的帖子ID")
+		response.HandleError(c, err)
 		return
 	}
 	userID := c.GetUint("user_id")
@@ -206,7 +206,7 @@ func (h *PostHandler) Delete(c *gin.Context) {
 	isAdmin := role == "admin"
 
 	if err := h.postSvc.Delete(uint(postID), userID, isAdmin); err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.Success(c, gin.H{"message": "删除成功"})

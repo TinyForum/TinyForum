@@ -27,7 +27,7 @@ import (
 func (h *TopicHandler) AddPost(c *gin.Context) {
 	topicID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的话题ID")
+		response.HandleError(c, err)
 		return
 	}
 
@@ -36,7 +36,7 @@ func (h *TopicHandler) AddPost(c *gin.Context) {
 		SortOrder int  `json:"sort_order"`
 	}
 	if err := c.ShouldBindJSON(&input); err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 
@@ -48,7 +48,7 @@ func (h *TopicHandler) AddPost(c *gin.Context) {
 	}
 
 	if err := h.topicSvc.AddPostToTopic(addInput, userID); err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.Success(c, gin.H{"message": "添加帖子成功"})
@@ -71,20 +71,20 @@ func (h *TopicHandler) AddPost(c *gin.Context) {
 func (h *TopicHandler) RemovePost(c *gin.Context) {
 	topicID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的话题ID")
+		response.HandleError(c, err)
 		return
 	}
 
 	postID, err := strconv.ParseUint(c.Param("post_id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的帖子ID")
+		response.HandleError(c, err)
 		return
 	}
 
 	userID := c.GetUint("user_id")
 
 	if err := h.topicSvc.RemovePostFromTopic(uint(topicID), uint(postID), userID); err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.Success(c, gin.H{"message": "移除帖子成功"})
@@ -105,7 +105,7 @@ func (h *TopicHandler) RemovePost(c *gin.Context) {
 func (h *TopicHandler) GetTopicPosts(c *gin.Context) {
 	topicID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的话题ID")
+		response.HandleError(c, err)
 		return
 	}
 
@@ -114,7 +114,7 @@ func (h *TopicHandler) GetTopicPosts(c *gin.Context) {
 
 	posts, total, err := h.topicSvc.GetTopicPosts(uint(topicID), page, pageSize)
 	if err != nil {
-		response.InternalError(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.SuccessPage(c, posts, total, page, pageSize)

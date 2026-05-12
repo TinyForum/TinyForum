@@ -41,7 +41,7 @@ func ModeratorRequired(jwtMgr *jwt.JWTManager, boardRepo boardRepo.BoardReposito
 
 		boardID, err := strconv.ParseUint(boardIDStr, 10, 64)
 		if err != nil {
-			response.BadRequest(c, "无效的板块ID")
+			response.HandleError(c, err)
 			c.Abort()
 			return
 		}
@@ -95,7 +95,7 @@ func SpecificModeratorPermission(jwtMgr *jwt.JWTManager, boardRepo boardRepo.Boa
 
 		boardID, err := strconv.ParseUint(boardIDStr, 10, 64)
 		if err != nil {
-			response.BadRequest(c, "无效的板块ID")
+			response.HandleError(c, err)
 			c.Abort()
 			return
 		}

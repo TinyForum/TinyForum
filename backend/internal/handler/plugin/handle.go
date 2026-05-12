@@ -88,7 +88,7 @@ func (h *Handler) UploadPlugin(c *gin.Context) {
 	userID := c.GetUint("user_id")
 	file, err := c.FormFile("file")
 	if err != nil {
-		response.BadRequest(c, "file is required")
+		response.HandleError(c, err)
 		return
 	}
 	meta, err := h.svc.Create(c.Request.Context(), file, userID)

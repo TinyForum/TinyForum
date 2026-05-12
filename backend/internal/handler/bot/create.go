@@ -32,7 +32,7 @@ func (h *Handler) Create(c *gin.Context) {
 	userID := c.GetUint("user_id")
 	var req request.CreateBotRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	bot, err := h.svc.Create(c.Request.Context(), userID, &req)
@@ -55,7 +55,7 @@ func (h *Handler) Update(c *gin.Context) {
 	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 	var req request.UpdateBotRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	if err := h.svc.Update(c.Request.Context(), userID, uint(id), &req); err != nil {
@@ -186,7 +186,7 @@ type ValidateFlowRequest struct {
 func (h *Handler) ValidateFlow(c *gin.Context) {
 	var req ValidateFlowRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	errs := h.svc.ValidateFlow(&req.Flow)

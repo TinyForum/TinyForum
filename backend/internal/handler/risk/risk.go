@@ -58,7 +58,7 @@ type resolveTaskInput struct {
 func (h *RiskHandler) ApproveTask(c *gin.Context) {
 	taskID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的任务ID")
+		response.HandleError(c, err)
 		return
 	}
 
@@ -95,13 +95,13 @@ func (h *RiskHandler) ApproveTask(c *gin.Context) {
 func (h *RiskHandler) RejectTask(c *gin.Context) {
 	taskID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的任务ID")
+		response.HandleError(c, err)
 		return
 	}
 
 	var input resolveTaskInput
 	if err := c.ShouldBindJSON(&input); err != nil {
-		response.BadRequest(c, "参数错误")
+		response.HandleError(c, err)
 		return
 	}
 
@@ -144,7 +144,7 @@ func (h *RiskHandler) ListAuditLogs(c *gin.Context) {
 	if targetIDStr != "" {
 		id, err := strconv.ParseUint(targetIDStr, 10, 64)
 		if err != nil {
-			response.BadRequest(c, "无效的 target_id")
+			response.HandleError(c, err)
 			return
 		}
 		targetID = uint(id)

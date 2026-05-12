@@ -22,7 +22,7 @@ import (
 func (h *NotificationHandler) List(c *gin.Context) {
 	var req dto.NotificationListRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
-		response.BadRequest(c, "参数错误")
+		response.HandleError(c, err)
 		return
 	}
 
@@ -41,7 +41,7 @@ func (h *NotificationHandler) List(c *gin.Context) {
 	// 调用 Service，获取 BO
 	result, err := h.notifSvc.List(userID, page, pageSize)
 	if err != nil {
-		response.InternalError(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 
@@ -93,7 +93,7 @@ func (h *NotificationHandler) UnreadCount(c *gin.Context) {
 	userID := c.GetUint("user_id")
 	count, err := h.notifSvc.UnreadCount(userID)
 	if err != nil {
-		response.InternalError(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.Success(c, gin.H{"count": count})

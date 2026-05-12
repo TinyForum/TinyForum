@@ -25,7 +25,7 @@ func (h *AdminHandler) ListReviewRequire(c *gin.Context) {
 	}
 	posts, total, err := h.service.ListReviewRequire(c, listPostsBO)
 	if err != nil {
-		response.InternalError(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.SuccessPage(c, posts, total, page, pageSize)

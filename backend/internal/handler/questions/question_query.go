@@ -27,7 +27,7 @@ func (h *QuestionHandler) GetQuestionsList(c *gin.Context) {
 
 	posts, total, err := h.questionSvc.GetQuestionsList(page, pageSize, unanswered)
 	if err != nil {
-		response.InternalError(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.SuccessPage(c, posts, total, page, pageSize)
@@ -50,7 +50,7 @@ func (h *QuestionHandler) GetQuestionDetail(c *gin.Context) {
 	questionID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	logger.Infof("查询问题, questionID: %d", questionID)
 	if err != nil {
-		response.BadRequest(c, "无效的问题 ID")
+		response.HandleError(c, err)
 		return
 	}
 
@@ -60,13 +60,13 @@ func (h *QuestionHandler) GetQuestionDetail(c *gin.Context) {
 
 	question, err := h.questionSvc.GetQuestionDetail(uint(questionID))
 	if err != nil {
-		response.NotFound(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 
 	answers, total, err := h.commentSvc.GetAnswersByPostID(uint(question.PostID), page, pageSize, sortBy)
 	if err != nil {
-		response.InternalError(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 
@@ -121,7 +121,7 @@ func (h *QuestionHandler) GetQuestionSimple(c *gin.Context) {
 
 	questions, total, err := h.questionSvc.GetQuestionSimpleList(pageSize, offset, boardID, filter, sort, keyword)
 	if err != nil {
-		response.InternalError(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 

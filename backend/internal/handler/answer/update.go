@@ -28,13 +28,13 @@ import (
 func (h *AnswerHandler) AcceptAnswer(c *gin.Context) {
 	postID, err := strconv.ParseUint(c.Param("question_id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的帖子ID")
+		response.HandleError(c, err)
 		return
 	}
 
 	commentID, err := strconv.ParseUint(c.Param("answer_id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的评论ID")
+		response.HandleError(c, err)
 		return
 	}
 
@@ -43,11 +43,11 @@ func (h *AnswerHandler) AcceptAnswer(c *gin.Context) {
 	if err := h.questionSvc.AcceptAnswer(uint(postID), uint(commentID), userID); err != nil {
 		switch {
 		case errors.Is(err, apperrors.ErrPostNotFound):
-			response.NotFound(c, err.Error())
+			response.HandleError(c, err)
 		case errors.Is(err, apperrors.ErrAcceptForbidden):
-			response.Forbidden(c, err.Error())
+			response.HandleError(c, err)
 		default:
-			response.BadRequest(c, err.Error())
+			response.HandleError(c, err)
 		}
 		return
 	}
@@ -72,7 +72,7 @@ func (h *AnswerHandler) UnacceptAnswer(c *gin.Context) {
 	// 1. 获取回答ID
 	answerID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的回答ID")
+		response.HandleError(c, err)
 		return
 	}
 
@@ -85,15 +85,15 @@ func (h *AnswerHandler) UnacceptAnswer(c *gin.Context) {
 	if err := h.commentSvc.UnacceptAnswer(uint(answerID), userID, isAdmin); err != nil {
 		switch err.Error() {
 		case "回答不存在":
-			response.NotFound(c, err.Error())
+			response.HandleError(c, err)
 		case "问题不存在":
-			response.NotFound(c, err.Error())
+			response.HandleError(c, err)
 		case "该回答未被接受为答案":
-			response.BadRequest(c, err.Error())
+			response.HandleError(c, err)
 		case "没有权限操作":
-			response.Forbidden(c, err.Error())
+			response.HandleError(c, err)
 		default:
-			response.InternalError(c, err.Error())
+			response.HandleError(c, err)
 		}
 		return
 	}
@@ -122,7 +122,7 @@ func (h *AnswerHandler) UnacceptAnswer(c *gin.Context) {
 func (h *AnswerHandler) VoteAnswer(c *gin.Context) {
 	answerID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的回答ID")
+		response.HandleError(c, err)
 		return
 	}
 
@@ -130,7 +130,7 @@ func (h *AnswerHandler) VoteAnswer(c *gin.Context) {
 		VoteType string `json:"vote_type" binding:"required,oneof=up down"`
 	}
 	if err := c.ShouldBindJSON(&input); err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 
@@ -144,7 +144,7 @@ func (h *AnswerHandler) VoteAnswer(c *gin.Context) {
 
 	comment, err := h.commentSvc.VoteAnswer(uint(answerID), userID, voteValue)
 	if err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 

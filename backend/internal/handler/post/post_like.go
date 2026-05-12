@@ -23,12 +23,12 @@ import (
 func (h *PostHandler) Like(c *gin.Context) {
 	postID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的帖子ID")
+		response.HandleError(c, err)
 		return
 	}
 	userID := c.GetUint("user_id")
 	if err := h.postSvc.Like(userID, uint(postID)); err != nil {
-		response.InternalError(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.Success(c, gin.H{"message": "点赞成功"})
@@ -49,12 +49,12 @@ func (h *PostHandler) Like(c *gin.Context) {
 func (h *PostHandler) Unlike(c *gin.Context) {
 	postID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的帖子ID")
+		response.HandleError(c, err)
 		return
 	}
 	userID := c.GetUint("user_id")
 	if err := h.postSvc.Unlike(userID, uint(postID)); err != nil {
-		response.InternalError(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.Success(c, gin.H{"message": "已取消点赞"})

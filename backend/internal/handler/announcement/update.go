@@ -31,7 +31,7 @@ func (h *AnnouncementHandler) Update(c *gin.Context) {
 	}
 	var req request.UpdateAnnouncement
 	if err := c.ShouldBindJSON(&req); err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	userID := c.GetUint("user_id")
@@ -126,7 +126,7 @@ func (h *AnnouncementHandler) Pin(c *gin.Context) {
 		Pinned bool `json:"pinned"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	userID := c.GetUint("user_id")
