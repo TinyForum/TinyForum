@@ -28,6 +28,9 @@ type AdminService interface {
 	SetRoleUser(operatorID, targetID uint, newRole string) error
 	// posts
 	ListPosts(ctx context.Context, ListPostsBO *common.PageQuery[bo.ListPosts]) ([]do.Post, int64, error)
+	// score
+	 ListUsersScore(ctx context.Context) ([]vo.UserScoreVO, error)
+	 GetUserScore(ctx context.Context, userID uint) (*vo.UserScoreVO, error)
 }
 
 type adminService struct {

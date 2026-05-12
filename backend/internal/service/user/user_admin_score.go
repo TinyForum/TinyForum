@@ -3,6 +3,7 @@ package user
 import (
 	"errors"
 	"fmt"
+	"tiny-forum/internal/model/vo"
 )
 
 // GetScoreById 获取用户积分
@@ -29,25 +30,12 @@ func (s *userService) onScoreChanged(userID uint, newScore int) error {
 	return nil
 }
 
-// GetAllUsersWithScore 获取所有用户积分（用于管理员）
-func (s *userService) GetAllUsersWithScore() ([]UserScoreResponse, error) {
-	users, err := s.repo.GetEveryoneUsersScore()
+// 列出所有用户积分
+func (s *userService) ListUsersScore() ([]vo.UserScoreVO, error) {
+	scoreVO, err := s.repo.ListUsersScore()
 	if err != nil {
 		return nil, err
 	}
 
-	var result []UserScoreResponse
-	for _, user := range users {
-		basicInfo, err := s.repo.GetUserBasicInfoById(user.ID)
-		if err != nil {
-			continue
-		}
-		result = append(result, UserScoreResponse{
-			ID:       user.ID,
-			Username: basicInfo.Username,
-			Avatar:   basicInfo.Avatar,
-			Score:    user.Score,
-		})
-	}
-	return result, nil
+	return scoreVO, nil
 }

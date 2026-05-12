@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"tiny-forum/internal/model/do"
+	"tiny-forum/internal/model/vo"
 
 	"gorm.io/gorm"
 )
@@ -20,8 +21,8 @@ func (r *userRepository) GetUsersScoreTotal() (int, error) {
 	return int(totalScore), err
 }
 
-func (r *userRepository) GetEveryoneUsersScore() ([]do.User, error) {
-	var users []do.User
+func (r *userRepository) ListUsersScore() ([]vo.UserScoreVO, error) {
+	var users []vo.UserScoreVO
 	err := r.db.Model(&do.User{}).Select("id, score").Find(&users).Error
 	return users, err
 }

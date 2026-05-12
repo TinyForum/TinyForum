@@ -96,7 +96,7 @@ func RegisterRoutes(
 	// {
 	// 	adminGroup.PUT("/users/:id/role", handlers.User.AdminSetRole)
 	// 	adminGroup.POST("/users/:id/reset-password", handlers.User.AdminResetUserPassword)
-	// 	adminGroup.GET("/users/score", handlers.User.AdminGetUserScore)
+	// 	adminGroup.GET("/users/score", handlers.User.)
 	// 	adminGroup.PUT("/users/:id/score", handlers.User.AdminSetScore)
 	// 	adminGroup.GET("/boards/applications", handlers.Board.ListApplications)
 	// 	adminGroup.POST("/boards/applications/:application_id/review", handlers.Board.ReviewApplication)

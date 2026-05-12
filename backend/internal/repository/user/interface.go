@@ -5,6 +5,7 @@ import (
 	"time"
 	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/dto"
+	"tiny-forum/internal/model/vo"
 	"tiny-forum/internal/repository/post"
 	"tiny-forum/internal/repository/token" // 假设 token 包路径
 
@@ -57,7 +58,7 @@ type UserRepository interface {
 	// score
 	GetScoreById(userID uint) (int, error)                 // 根据ID获取用户积分
 	GetUsersScoreTotal() (int, error)                      // 获取所有用户的总积分
-	GetEveryoneUsersScore() ([]do.User, error)             // 获取所有用户的积分
+	ListUsersScore() ([]vo.UserScoreVO, error)             // 获取所有用户的积分
 	AddScore(userID uint, score int) error                 // 增加用户积分
 	DeductScore(tx *gorm.DB, userID uint, score int) error // 扣除用户积分
 	SetScoreById(id uint, score int) error                 // 设置用户积分
