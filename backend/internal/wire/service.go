@@ -85,7 +85,7 @@ func NewServices(
 	statsSvc := stats.NewStatsService(repos.Stats, repos.Post, repos.Tag, repos.Board, repos.User, repos.Comment)
 	emailSvc := email.NewEmailService(&cfg.Private.Email)
 	authSvc := auth.NewAuthService(repos.Auth, repos.User, jwtMgr, notifSvc, emailSvc, cfg, repos.Token, repos.Transaction, infra.RedisClient)
-	adminSvc := admin.NewAdminService(announcementSvc, userSvc, postSvc)
+	adminSvc := admin.NewAdminService(announcementSvc, userSvc, postSvc, boardSvc)
 	pluginSvc := plugin.NewPluginService(repos.Plugin, publicStorage, &cfg.Basic.Plugins)
 	engine := upload.NewEngine(userStorage, registry)
 	attachmentSvc := attachment.NewAttachmentService(repos.Attachment, cfg.Basic.Attachment, engine)

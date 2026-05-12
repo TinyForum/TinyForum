@@ -1,6 +1,6 @@
+// 版主
 import apiClient from "../client";
 import { ApiResponse } from "../types/basic.model";
-// import { ApiResponse } from "../types";
 
 export interface ApplyModeratorForm {
   reason: string;

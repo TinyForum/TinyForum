@@ -18,7 +18,7 @@ import (
 
 type PostService interface {
 	// admin
-	AdminList(ctx context.Context, listPostsBO *common.PageQuery[bo.ListPosts]) ([]do.Post, int64, error)
+	AdminLists(ctx context.Context, listPostsBO *common.PageQuery[bo.ListPosts]) ([]do.Post, int64, error)
 	SetStatus(postID uint, status do.PostStatus) error
 	TogglePin(postID uint) error
 	AdminSetReviewPost(postID uint, status do.ModerationStatus) error

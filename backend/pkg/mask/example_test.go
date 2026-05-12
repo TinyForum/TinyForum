@@ -17,7 +17,7 @@ type User struct {
 	IDCard   string   `mask:"idcard"`
 	BankCard string   `mask:"bankcard"`
 	Password string   `mask:"full"`
-	Addr     Address  `mask:"-"` // 忽略标签，但内部字段仍会处理（因为Address内部有标签）
+	Addr     Address  `mask:"-"`
 	Tags     []string `mask:"full"`
 	Nick     *string  `mask:"name"`
 	Ignore   string   `mask:"-"`

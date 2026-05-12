@@ -15,7 +15,7 @@ import (
 )
 
 // AdminList 管理员获取帖子列表
-func (s *postService) AdminList(ctx context.Context, listPostsBO *common.PageQuery[bo.ListPosts]) ([]do.Post, int64, error) {
+func (s *postService) AdminLists(ctx context.Context, listPostsBO *common.PageQuery[bo.ListPosts]) ([]do.Post, int64, error) {
 	// 将 BO 的 Data 字段转换为 DO 的对应结构
 	// var filterDO *do.Post
 	filterDO := converter.ListPostsBOToPostDO(&listPostsBO.Data)
@@ -24,7 +24,7 @@ func (s *postService) AdminList(ctx context.Context, listPostsBO *common.PageQue
 	listPostsDO := &common.PageQuery[do.Post]{
 		Page:     listPostsBO.Page,
 		PageSize: listPostsBO.PageSize,
-		Data:     *filterDO, // 注意：filterDO 是指针，但如果 PageQuery[do.Post] 要求 Data 为 do.Post 值类型，则需解引用
+		Data:     *filterDO,
 		Keyword:  listPostsBO.Keyword,
 		SortBy:   listPostsBO.SortBy,
 		TagNames: listPostsBO.TagNames,
@@ -36,6 +36,7 @@ func (s *postService) AdminList(ctx context.Context, listPostsBO *common.PageQue
 	} else {
 		listPostsDO.Data = *filterDO
 	}
+	filterDO.PostStatus = do.PostStatusPublished
 
 	return s.postRepo.AdminList(ctx, listPostsDO)
 }

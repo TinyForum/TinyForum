@@ -138,7 +138,6 @@ func (r *postRepository) AdminList(ctx context.Context, listPostsDO *common.Page
 		query = query.Where("post_status = ?", listPostsDO.Data.PostStatus)
 	}
 
-	
 	// 类型过滤
 	if listPostsDO.Data.Type != "" {
 		logger.Infof("查询类型: %s", listPostsDO.Data.Type)

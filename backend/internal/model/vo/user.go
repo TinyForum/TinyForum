@@ -19,9 +19,6 @@ type UserVO struct {
 	IsBlocked   bool        `json:"is_blocked"`
 	LastLogin   *time.Time  `json:"last_login,omitempty"`
 	InvitedByID *uint       `json:"invited_by_id,omitempty"`
-
-	// 如果业务需要展示脱敏邮箱，可以加入如下字段
-	// MaskedEmail string `json:"masked_email,omitempty"`
 }
 
 type UserPrivateVO struct {
@@ -38,34 +35,7 @@ type UserPrivateVO struct {
 	LastLogin   *time.Time  `json:"last_login,omitempty"`
 	InvitedByID *uint       `json:"invited_by_id,omitempty"`
 	Email       string      `json:"email"`
-	// 如果业务需要展示脱敏邮箱，可以加入如下字段
-	// MaskedEmail string `json:"masked_email,omitempty"`
 }
-
-// LeaderboardItemResponse 排行榜条目响应
-//
-//	type LeaderboardItemVO struct {
-//		ID       uint   `json:"id"`
-//		Username string `json:"username"`
-//		Avatar   string `json:"avatar"`
-//		Score    int    `json:"score"`
-//		Rank     int    `json:"rank"`
-//	}
-//
-// SimpleLeaderboardItem 精简版（仅核心字段）
-type SimpleLeaderboardItem struct {
-	ID       uint   `json:"id"`
-	Username string `json:"username"`
-	Score    int    `json:"score"`
-	Rank     int    `json:"rank"`
-}
-
-// type Statistics struct {
-// 	TotalPosts          int64 `json:"total_posts"`
-// 	TotalComments       int64 `json:"total_comments"`
-// 	TotalFavorites      int64 `json:"total_favorites"`
-// 	UnreadNotifications int64 `json:"unread_notifications"`
-// }
 
 type UserPosts struct {
 	ID               uint                `json:"id"`                                          // 帖子ID
@@ -84,4 +54,11 @@ type UserPosts struct {
 	Tags             []string            `json:"tags"`                                        // 标签列表
 	BoardName        string              `gorm:"index" json:"board_name"`                     // 所属板块
 	PinInBoard       bool                `gorm:"default:false" json:"pin_in_board"`           // 板块置顶
+}
+
+// 不包含手机号、邮箱、IP 等
+type UserPublicVO struct {
+	ID     uint   `json:"id"`       // 用户ID
+	Name   string `json:"nickname"` // 用户昵称
+	Avatar string `json:"avatar"`   // 用户头像
 }
