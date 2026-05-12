@@ -24,10 +24,10 @@ type UserService interface {
 	ResetUserPasswordWithTemp(operatorID uint, targetID uint) (string, error)
 	ResetUserPassword(operatorID uint, targetID uint, newPassword string) error
 	// adin score
-	GetScoreById(userID uint) (int, error)
+	GetScoreById(userID uint) (int, error) // 获取用户积分
 	SetScoreById(userID uint, score int) error
 	onScoreChanged(userID uint, newScore int) error // TODO: 未完成
-	GetAllUsersWithScore() ([]UserScoreResponse, error)
+	ListUsersScore() ([]vo.UserScoreVO, error) // 获取用户及其积分
 	// user status
 	SetBlocked(targetID uint, operatorID uint, isBlocked bool) error
 	SetActive(targetID uint, operatorID uint, isActive bool) error

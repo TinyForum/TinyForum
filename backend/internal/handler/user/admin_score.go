@@ -94,29 +94,31 @@ func (h *UserHandler) AdminSetScore(c *gin.Context) {
 // @Failure 403 {object} common.BasicResponse
 // @Failure 500 {object} common.BasicResponse
 // @Router /admin/users/score [get]
+// Deprecated: 已弃用，短期内，将移除
 func (h *UserHandler) AdminGetUserScore(c *gin.Context) {
-	targetID := c.Query("id")
-	if targetID == "" {
-		users, err := h.userSvc.GetAllUsersWithScore()
-		if err != nil {
-			response.InternalError(c, "查询用户积分失败")
-			return
-		}
-		response.Success(c, users)
-		return
-	}
-	id, err := strconv.ParseUint(targetID, 10, 64)
-	if err != nil {
-		response.BadRequest(c, apperrors.ErrInvalidUserID.Error())
-		return
-	}
-	score, err := h.userSvc.GetScoreById(uint(id))
-	if err != nil {
-		response.InternalError(c, apperrors.ErrFailedToQueryScore.Error())
-		return
-	}
-	response.Success(c, gin.H{
-		"user_id": id,
-		"score":   score,
-	})
+	// targetID := c.Query("id")
+	// if targetID == "" {
+	// 	users, err := h.userSvc.ListUsersScore()
+	// 	if err != nil {
+	// 		response.InternalError(c, "查询用户积分失败")
+	// 		return
+	// 	}
+	// 	response.Success(c, users)
+	// 	return
+	// }
+	// id, err := strconv.ParseUint(targetID, 10, 64)
+	// if err != nil {
+	// 	response.BadRequest(c, apperrors.ErrInvalidUserID.Error())
+	// 	return
+	// }
+	// score, err := h.userSvc.GetScoreById(uint(id))
+	// if err != nil {
+	// 	response.InternalError(c, apperrors.ErrFailedToQueryScore.Error())
+	// 	return
+	// }
+	// response.Success(c, gin.H{
+	// 	"user_id": id,
+	// 	"score":   score,
+	// })
+	panic("方法已被弃用，请使用 admin 实现")
 }

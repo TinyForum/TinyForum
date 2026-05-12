@@ -55,7 +55,7 @@ func (h *AdminHandler) ListPosts(c *gin.Context) {
 	}
 	posts, total, err := h.service.ListPosts(c, listPostsBO)
 	if err != nil {
-		response.InternalError(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.SuccessPage(c, posts, total, req.Page, req.PageSize)

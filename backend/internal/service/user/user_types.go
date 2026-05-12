@@ -34,13 +34,7 @@ type LeaderboardItem struct {
 	Rank     int    `json:"rank"`
 }
 
-// UserScoreResponse 积分响应（用于列表）
-type UserScoreResponse struct {
-	ID       uint   `json:"id"`
-	Username string `json:"username"`
-	Avatar   string `json:"avatar_url"`
-	Score    int    `json:"score"`
-}
+
 
 // LoginResult 登录结果（可选）
 type LoginResult struct {
