@@ -54,7 +54,7 @@ func (s *userService) GetUserPosts(ctx context.Context, req request.GetUserPosts
 			UpdatedAt:        p.UpdatedAt,
 			Title:            p.Title,
 			Summary:          p.Summary,
-			Cover:            p.Cover,
+			Cover:            p.CoverUrl,
 			Type:             p.Type,
 			PostStatus:       p.PostStatus,
 			ModerationStatus: p.ModerationStatus,

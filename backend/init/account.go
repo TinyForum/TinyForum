@@ -62,7 +62,7 @@ func createUserIfNotExists(db *gorm.DB, email, username, password string, role d
 	}
 
 	// 默认头像根据用户名生成
-	user.Avatar = fmt.Sprintf("https://api.dicebear.com/8.x/lorelei/svg?seed=%s", username)
+	user.AvatarUrl = fmt.Sprintf("https://api.dicebear.com/8.x/lorelei/svg?seed=%s", username)
 
 	// 应用额外的配置选项
 	for _, opt := range opts {

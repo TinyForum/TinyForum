@@ -127,7 +127,8 @@ export default function PostCard({ post, commentCount }: PostCardProps) {
             >
               <div className="w-20 h-16 rounded-lg overflow-hidden relative">
                 <Image
-                  src={post.cover}
+                  // src={`http://${post.cover}`}
+                  src="/logo"
                   alt={post.title}
                   fill
                   className="object-cover"

@@ -54,7 +54,7 @@ type Post struct {
 	Title   string   `gorm:"not null;size:200" json:"title"`
 	Content string   `gorm:"not null;type:text" json:"content"`
 	Summary string   `gorm:"size:500" json:"summary"`
-	Cover   string   `gorm:"size:500" json:"cover"`
+	CoverUrl   string   `gorm:"size:500" json:"cover_url"`
 	Type    PostType `gorm:"type:varchar(20);default:'post'" json:"type"`
 
 	// 用户状态 - 用户自己控制/感知的状态
