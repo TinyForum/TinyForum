@@ -56,7 +56,7 @@ func (s *authService) Register(ctx context.Context, input request.RegisterReques
 		Email:    input.Email,
 		Password: string(hashed),
 		Role:     do.RoleUser,
-		Avatar:   avatarURL(input.Username),
+		AvatarUrl:   avatarURL(input.Username),
 	}
 	if err := s.userRepo.Create(user); err != nil {
 		return nil, err
@@ -74,7 +74,7 @@ func (s *authService) Register(ctx context.Context, input request.RegisterReques
 		User: &vo.UserPrivateVO{
 			ID:       user.ID,
 			Username: user.Username,
-			Avatar:   user.Avatar,
+			Avatar:   user.AvatarUrl,
 			Email:    user.Email,
 		}}, nil
 }

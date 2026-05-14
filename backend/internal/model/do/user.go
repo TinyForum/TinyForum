@@ -18,7 +18,7 @@ type User struct {
 	Username           string     `gorm:"uniqueIndex;not null;size:50" json:"username"` // 用户名
 	Email              string     `gorm:"uniqueIndex;not null;size:100" json:"email"`   // 邮箱
 	Password           string     `gorm:"not null" json:"password"`                     // 密码（hash）
-	Avatar             string     `gorm:"size:500" json:"avatar"`                       // 用户的头像，目前为链接（暂不支持图片上传）
+	AvatarUrl             string     `gorm:"size:500" json:"avatar_url"`                       // 用户的头像，目前为链接（暂不支持图片上传）
 	Bio                string     `gorm:"size:500" json:"bio"`                          // 用户的简介
 	Role               UserRole   `gorm:"type:varchar(20);default:'user'" json:"role"`  // 用户的角色，默认为普通用户
 	Score              int        `gorm:"default:0" json:"score"`                       // 用户的积分

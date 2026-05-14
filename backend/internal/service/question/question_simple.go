@@ -66,7 +66,7 @@ func (s *questionService) GetQuestionSimpleList(pageSize, offset int, boardID *u
 				authorMap[authors[i].ID] = &SimpleAuthor{
 					ID:     authors[i].ID,
 					Name:   authors[i].Username,
-					Avatar: authors[i].Avatar,
+					Avatar: authors[i].AvatarUrl,
 				}
 			}
 		}
@@ -124,7 +124,7 @@ func (s *questionService) GetQuestionSimpleByID(questionID uint) (*QuestionSimpl
 		simpleAuthor = &SimpleAuthor{
 			ID:     author.ID,
 			Name:   author.Username,
-			Avatar: author.Avatar,
+			Avatar: author.AvatarUrl,
 		}
 	}
 	simpleTags := []SimpleTag{}

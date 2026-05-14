@@ -60,7 +60,7 @@ func (s *postService) Create(ctx *gin.Context, authorID uint, input CreatePostIn
 		Title:            input.Title,
 		Content:          input.Content,
 		Summary:          input.Summary,
-		Cover:            input.Cover,
+		CoverUrl:            input.Cover,
 		Type:             postType,
 		AuthorID:         authorID,
 		BoardID:          board.ID,
@@ -128,7 +128,7 @@ func (s *postService) Update(postID, userID uint, isAdmin bool, input UpdatePost
 		post.Summary = input.Summary
 	}
 	if input.Cover != "" {
-		post.Cover = input.Cover
+		post.CoverUrl = input.Cover
 	}
 	if len(input.TagIDs) > 0 {
 		var tags []do.Tag
