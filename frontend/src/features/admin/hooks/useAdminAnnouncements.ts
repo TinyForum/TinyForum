@@ -1,5 +1,5 @@
 // hooks/admin/useAdminAnnouncements.ts
-import { announcementApi } from "@/shared/api";
+import { announcementApi } from "@/shared/api/modules/announcements";
 import { adminAnnouncementApi } from "@/shared/api/modules/admin/announcements";
 import {
   CreateAnnouncementPayload,

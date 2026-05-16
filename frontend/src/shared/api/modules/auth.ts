@@ -3,20 +3,10 @@
  */
 
 import apiClient from "../client";
+import { LoginPayload, RegisterPayload } from "../types/auth.model";
 // import { AuthResult } from "../types";
 import { ApiResponse } from "../types/basic.model";
 import { UserDO } from "../types/user.model";
-
-export interface RegisterPayload {
-  username: string;
-  email: string;
-  password: string;
-}
-
-export interface LoginPayload {
-  email: string;
-  password: string;
-}
 
 export const authApi = {
   register: (data: RegisterPayload) =>

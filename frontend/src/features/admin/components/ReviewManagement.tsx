@@ -10,7 +10,7 @@ import {
   FileText,
   AlertTriangle,
 } from "lucide-react";
-import type { Post } from "@/shared/api/types";
+import type { Post } from "@/shared/api/types/post.model";
 import DOMPurify from "dompurify";
 import Image from "next/image";
 import { adminPostsApi } from "@/shared/api/modules/admin/post";

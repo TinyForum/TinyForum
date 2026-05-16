@@ -1,7 +1,7 @@
 // components/question/AnswerForm.tsx
 "use client";
 
-import { questionApi } from "@/shared/api";
+import { questionApi } from "@/shared/api/modules/questions";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
 import {

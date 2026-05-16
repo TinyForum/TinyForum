@@ -7,7 +7,7 @@ import {
   useRemoveModerator,
   useUpdateModeratorPermissions,
 } from "../hooks/useAdminModerator";
-import { Moderator } from "@/shared/api/modules/moderator";
+import { Moderator } from "@/shared/api/types/moderator.model";
 
 // 类型定义
 interface ModeratorPermission {

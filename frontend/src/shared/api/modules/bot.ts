@@ -10,11 +10,9 @@ import {
   BotListResponse,
   BotVO,
   CreateBotRequest,
+  RunEventData,
   UpdateBotRequest,
 } from "../types/bot.model";
-
-/** 手动触发时可携带的事件数据（任意 JSON 对象） */
-export type RunEventData = Record<string, unknown>;
 
 // ========== API 方法 ==========
 export const botApi = {

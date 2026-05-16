@@ -278,3 +278,5 @@ export interface UpdateBotRequest {
   configValues?: Record<string, unknown>; // 替换 any
   enabled?: boolean;
 }
+/** 手动触发时可携带的事件数据（任意 JSON 对象） */
+export type RunEventData = Record<string, unknown>;

@@ -13,8 +13,8 @@ import {
   RectangleGroupIcon,
 } from "@heroicons/react/24/outline";
 import { BoardCard } from "@/features/boards/components/BoardCard";
-import { boardApi } from "@/shared/api";
 import { Board } from "@/shared/api/types/board.model";
+import { boardApi } from "@/shared/api/modules/boards";
 
 export default function BoardsPage() {
   const { user } = useAuthStore();

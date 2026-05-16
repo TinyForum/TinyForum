@@ -2,17 +2,6 @@
 
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import {
-  postApi,
-  tagApi,
-  boardApi,
-  timelineApi,
-  notificationApi,
-  questionApi,
-  Tag,
-  Post,
-  TimelineEvent,
-} from "@/shared/api";
 import { useAuthStore } from "@/store/auth";
 import LeftSidebar, { FilterType } from "@/layout/home/LeftSidebar";
 import { SortBy } from "@/shared/type/posts.types";
@@ -21,6 +10,15 @@ import RightSidebar from "@/layout/home/RightSidebar";
 import PostFilterBar from "@/layout/home/mid/PostFilterBar";
 import PostList from "@/layout/home/mid/PostList";
 import { Board } from "@/shared/api/types/board.model";
+import { boardApi } from "@/shared/api/modules/boards";
+import { notificationApi } from "@/shared/api/modules/notifications";
+import { postApi } from "@/shared/api/modules/posts";
+import { questionApi } from "@/shared/api/modules/questions";
+import { tagApi } from "@/shared/api/modules/tags";
+import { timelineApi } from "@/shared/api/modules/timeline";
+import { Tag } from "@/shared/api/types/tag.model";
+import { TimelineEvent } from "@/shared/api/types/timeline.model";
+import { Post } from "@/shared/api/types/post.model";
 
 export default function HomePage() {
   const { isAuthenticated, user } = useAuthStore();

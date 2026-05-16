@@ -1,15 +1,16 @@
 // hooks/useModerator.ts
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  moderatorApi,
-  ApplyModeratorForm,
-  BanUserRequest,
-  ModeratorBoard,
-} from "@/shared/api/modules/moderator";
+
 import toast from "react-hot-toast";
 import { useTranslations } from "next-intl";
 import { useAuthStore } from "@/store";
 import { ApiResponse } from "@/shared/api/types/basic.model";
+import { moderatorApi } from "@/shared/api/modules/moderator";
+import {
+  ApplyModeratorForm,
+  BanUserRequest,
+  ModeratorBoard,
+} from "@/shared/api/types/moderator.model";
 
 // ========== 类型定义 ==========
 interface ErrorResponse {

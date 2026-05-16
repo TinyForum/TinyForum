@@ -13,14 +13,14 @@ import {
   ExclamationTriangleIcon,
   PencilSquareIcon,
 } from "@heroicons/react/24/outline";
+import { moderatorApi } from "@/shared/api/modules/moderator";
+import { adminModeratorApi } from "@/shared/api/modules/admin/moderator";
+import { Board } from "@/shared/api/types/board.model";
 import {
   ApplyModeratorForm,
-  moderatorApi,
   ModeratorApplication,
-} from "@/shared/api/modules/moderator";
-import { adminModeratorApi } from "@/shared/api/modules/admin/moderator";
-import { boardApi } from "@/shared/api";
-import { Board } from "@/shared/api/types/board.model";
+} from "@/shared/api/types/moderator.model";
+import { boardApi } from "@/shared/api/modules/boards";
 
 type AppStatus = ModeratorApplication["status"];
 

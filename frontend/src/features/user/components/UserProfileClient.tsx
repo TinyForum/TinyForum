@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { userAPI } from "@/shared/api";
+import { userApi } from "@/shared/api/modules/user";
 import { useAuthStore } from "@/store/auth";
 import toast from "react-hot-toast";
 import { useTranslations } from "next-intl";
@@ -31,7 +31,7 @@ export default function UserProfileClient({ userId }: { userId: number }) {
   const { data: profile, isLoading } = useQuery({
     queryKey: ["user", userId],
     queryFn: () =>
-      userAPI
+      userApi
         .getProfile(userId)
         .then((r: { data: ApiResponse<UserDO> }) => r.data.data),
   });
@@ -40,8 +40,8 @@ export default function UserProfileClient({ userId }: { userId: number }) {
   const { data: followersData } = useQuery({
     queryKey: ["user-followers-count", userId],
     queryFn: () =>
-      userAPI
-        .follwowers(userId, { page: 1, page_size: 1 })
+      userApi
+        .getFollowers(userId, { page: 1, page_size: 1 })
         .then((r: { data: ApiResponse<FollowersResponse> }) => r.data.data),
   });
 
@@ -49,8 +49,8 @@ export default function UserProfileClient({ userId }: { userId: number }) {
   const { data: followingData } = useQuery({
     queryKey: ["user-following-count", userId],
     queryFn: () =>
-      userAPI
-        .following(userId, { page: 1, page_size: 1 })
+      userApi
+        .getFollowing(userId, { page: 1, page_size: 1 })
         .then((r: { data: ApiResponse<FollowersResponse> }) => r.data.data),
   });
 
@@ -58,8 +58,8 @@ export default function UserProfileClient({ userId }: { userId: number }) {
   const { data: followersDetail, isLoading: followersLoading } = useQuery({
     queryKey: ["user-followers-detail", userId],
     queryFn: () =>
-      userAPI
-        .follwowers(userId, { page: 1, page_size: 100 })
+      userApi
+        .getFollowers(userId, { page: 1, page_size: 100 })
         .then((r: { data: ApiResponse<FollowersResponse> }) => r.data.data),
     enabled: showFollowers,
   });
@@ -68,8 +68,8 @@ export default function UserProfileClient({ userId }: { userId: number }) {
   const { data: followingDetail, isLoading: followingLoading } = useQuery({
     queryKey: ["user-following-detail", userId],
     queryFn: () =>
-      userAPI
-        .following(userId, { page: 1, page_size: 100 })
+      userApi
+        .getFollowing(userId, { page: 1, page_size: 100 })
         .then((r: { data: ApiResponse<FollowersResponse> }) => r.data.data),
     enabled: showFollowing,
   });
@@ -79,7 +79,7 @@ export default function UserProfileClient({ userId }: { userId: number }) {
     queryKey: ["check-following", userId, currentUser?.id],
     queryFn: async () => {
       if (!currentUser || currentUser.id === userId) return false;
-      const res = await userAPI.following(currentUser.id, {
+      const res = await userApi.getFollowing(currentUser.id, {
         page: 1,
         page_size: 100,
       });
@@ -91,7 +91,7 @@ export default function UserProfileClient({ userId }: { userId: number }) {
 
   // 关注/取消关注 mutation
   const followMutation = useMutation({
-    mutationFn: () => userAPI.follow(userId),
+    mutationFn: () => userApi.follow(userId),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["user-followers-count", userId],
@@ -112,7 +112,7 @@ export default function UserProfileClient({ userId }: { userId: number }) {
   });
 
   const unfollowMutation = useMutation({
-    mutationFn: () => userAPI.unfollow(userId),
+    mutationFn: () => userApi.unfollow(userId),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["user-followers-count", userId],

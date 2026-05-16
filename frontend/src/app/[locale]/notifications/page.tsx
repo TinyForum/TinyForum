@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { Notification } from "@/shared/api";
+import type { Notification } from "@/shared/api/types/notification.model";
 import { useAuthStore } from "@/store/auth";
 import { useRouter } from "next/navigation";
 import {

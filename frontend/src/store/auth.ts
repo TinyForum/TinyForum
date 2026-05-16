@@ -1,5 +1,5 @@
 // store/auth.ts
-import { authApi } from "@/shared/api";
+import { authApi } from "@/shared/api/modules/auth";
 import { userApi } from "@/shared/api/modules/user";
 import { UserDO } from "@/shared/api/types/user.model";
 import { create } from "zustand";

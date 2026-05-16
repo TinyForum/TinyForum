@@ -3,8 +3,8 @@
  */
 
 import apiClient from "../client";
-import type { TimelineEvent, Subscription } from "../types";
 import { ApiResponse, PageData } from "../types/basic.model";
+import { Subscription, TimelineEvent } from "../types/timeline.model";
 
 export const timelineApi = {
   getHome: (params?: { page?: number; page_size?: number }) =>

@@ -17,7 +17,7 @@ import { useQuestionDetail } from "@/features/qustion/hooks/useQuestionDetail";
 import { AnswerCard } from "@/layout/question/AnswerCard";
 import { AnswerForm } from "@/layout/question/AnswerForm";
 import { QuestionHeader } from "@/layout/question/QuestionHeader";
-import { postApi } from "@/shared/api";
+import { postApi } from "@/shared/api/modules/posts";
 import toast from "react-hot-toast";
 
 // 错误响应类型

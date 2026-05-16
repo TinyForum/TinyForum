@@ -1,7 +1,6 @@
 // components/topic/TopicCard.tsx
 "use client";
 
-import { Topic, topicApi } from "@/shared/api";
 import { useAuthStore } from "@/store/auth";
 import {
   DocumentTextIcon,
@@ -15,6 +14,8 @@ import Link from "next/link";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import { Topic } from "@/shared/api/types/topic.model";
+import { topicApi } from "@/shared/api/modules/topics";
 
 // 类型定义
 interface ErrorResponse {

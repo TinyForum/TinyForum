@@ -1,4 +1,5 @@
-import { Post, postApi } from "@/shared/api";
+import { postApi } from "@/shared/api/modules/posts";
+import { Post } from "@/shared/api/types/post.model";
 import { ChatBubbleLeftRightIcon } from "@heroicons/react/24/outline";
 import { Link, EyeIcon, HeartIcon, HeartCrack } from "lucide-react";
 import { useState } from "react";

@@ -8,31 +8,31 @@ export type TabType =
   | "plugins"
   | "statistics";
 
-export interface User {
-  id: number;
-  username: string;
-  email: string;
-  role: "user" | "moderator" | "reviewer" | "bot" | "admin" | "super_admin";
-  is_active: boolean;
-  score: number;
-  created_at: string;
-  avatar?: string;
-  last_login?: string;
-  post_count?: number;
-}
+// export interface User {
+//   id: number;
+//   username: string;
+//   email: string;
+//   role: "user" | "moderator" | "reviewer" | "bot" | "admin" | "super_admin";
+//   is_active: boolean;
+//   score: number;
+//   created_at: string;
+//   avatar?: string;
+//   last_login?: string;
+//   post_count?: number;
+// }
 
-export interface Post {
-  id: number;
-  title: string;
-  type: "article" | "topic" | "post";
-  status: "published" | "draft" | "hidden";
-  pin_top: boolean;
-  view_count: number;
-  like_count: number;
-  comment_count: number;
-  created_at: string;
-  author?: { id: number; username: string };
-}
+// export interface Post {
+//   id: number;
+//   title: string;
+//   type: "article" | "topic" | "post";
+//   status: "published" | "draft" | "hidden";
+//   pin_top: boolean;
+//   view_count: number;
+//   like_count: number;
+//   comment_count: number;
+//   created_at: string;
+//   author?: { id: number; username: string };
+// }
 
 // export interface Announcement {
 //   id: number;

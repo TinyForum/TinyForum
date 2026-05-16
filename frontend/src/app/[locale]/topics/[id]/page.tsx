@@ -20,7 +20,8 @@ import {
   ShareIcon,
 } from "@heroicons/react/24/outline";
 import { HeartIcon as HeartSolidIcon } from "@heroicons/react/24/solid";
-import type { Topic, Post } from "@/shared/api/types";
+import type { Topic } from "@/shared/api/types/topic.model";
+import type { Post } from "@/shared/api/types/post.model";
 import Image from "next/image";
 import { TopicPostCard } from "@/layout/topic/TopicPostCard";
 

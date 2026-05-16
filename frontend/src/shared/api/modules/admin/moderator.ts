@@ -1,6 +1,9 @@
 import apiClient from "../../client";
 import { ApiResponse } from "../../types/basic.model";
-import { ModeratorApplication, ReviewApplicationRequest } from "../moderator";
+import {
+  ModeratorApplication,
+  ReviewApplicationRequest,
+} from "../../types/moderator.model";
 
 export const adminModeratorApi = {
   /**
