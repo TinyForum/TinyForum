@@ -11,7 +11,7 @@ type UserVO struct {
 	CreatedAt   time.Time   `json:"created_at"`
 	UpdatedAt   time.Time   `json:"updated_at"`
 	Username    string      `json:"username"`
-	Avatar      string      `json:"avatar"`
+	AvatarUrl   string      `json:"avatar_url"`
 	Bio         string      `json:"bio"`
 	Role        do.UserRole `json:"role"`
 	Score       int         `json:"score"`
@@ -26,7 +26,7 @@ type UserPrivateVO struct {
 	CreatedAt   time.Time   `json:"created_at"`
 	UpdatedAt   time.Time   `json:"updated_at"`
 	Username    string      `json:"username"`
-	Avatar      string      `json:"avatar"`
+	AvatarUrl   string      `json:"avatar_url"`
 	Bio         string      `json:"bio"`
 	Role        do.UserRole `json:"role"`
 	Score       int         `json:"score"`
@@ -58,9 +58,9 @@ type UserPosts struct {
 
 // 不包含手机号、邮箱、IP 等
 type UserPublicVO struct {
-	ID     uint   `json:"id"`       // 用户ID
-	Name   string `json:"nickname"` // 用户昵称
-	Avatar string `json:"avatar"`   // 用户头像
+	ID        uint   `json:"id"`         // 用户ID
+	Name      string `json:"nickname"`   // 用户昵称
+	AvatarUrl string `json:"avatar_url"` // 用户头像
 }
 
 type UserProfileVO struct {

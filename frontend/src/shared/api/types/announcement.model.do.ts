@@ -28,7 +28,7 @@ export interface AnnouncementDO {
   creator?: {
     id: number;
     username: string;
-    avatar?: string;
+    avatar_url?: string;
   } | null;
 }
 

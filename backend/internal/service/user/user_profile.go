@@ -21,8 +21,8 @@ func (s *userService) UpdateProfile(userID uint, input do.UpdateProfileInput) er
 	if input.Bio != "" {
 		fields["bio"] = input.Bio
 	}
-	if input.Avatar != "" {
-		fields["avatar"] = input.Avatar
+	if input.AvatarUrl != "" {
+		fields["avatar_url"] = input.AvatarUrl
 	}
 	if input.Email != "" {
 		fields["email"] = input.Email

@@ -72,9 +72,9 @@ func (s *authService) Register(ctx context.Context, input request.RegisterReques
 	return &vo.AuthResultVO{
 		Token: token,
 		User: &vo.UserPrivateVO{
-			ID:       user.ID,
-			Username: user.Username,
-			Avatar:   user.AvatarUrl,
-			Email:    user.Email,
+			ID:        user.ID,
+			Username:  user.Username,
+			AvatarUrl: user.AvatarUrl,
+			Email:     user.Email,
 		}}, nil
 }

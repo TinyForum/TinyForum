@@ -46,7 +46,7 @@ export default function CommentItem({
           <div className="w-8 h-8 rounded-full">
             <Avatar
               username={comment.author?.username}
-              avatarUrl={comment.author?.avatar} // 数据库中的头像
+              avatarUrl={comment.author?.avatar_url} // 数据库中的头像
               size="md"
             />
           </div>

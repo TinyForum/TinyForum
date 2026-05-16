@@ -16,7 +16,7 @@ interface TimelineEvent {
   actor?: {
     id: number;
     username: string;
-    avatar: string;
+    avatar_url: string;
   };
 }
 
@@ -28,20 +28,14 @@ interface RightSidebarProps {
   timelineEvents: TimelineEvent[];
 }
 
-export default function RightSidebar({
+export function RightSidebar({
   isAuthenticated,
   userProfile,
   leaderboard,
   unreadCount,
   timelineEvents,
 }: RightSidebarProps) {
-  console.log("RightSidebar", {
-    isAuthenticated,
-    userProfile,
-    leaderboard,
-    unreadCount,
-    timelineEvents,
-  });
+  console.log("RightSidebar 用户信息:", userProfile);
   return (
     <aside className="space-y-4">
       {/* 用户信息卡片 */}

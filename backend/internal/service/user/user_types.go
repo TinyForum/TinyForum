@@ -17,11 +17,11 @@ type LoginInput struct {
 
 // LeaderboardItem 排行榜条目
 type LeaderboardItem struct {
-	ID       uint   `json:"id"`
-	Username string `json:"username"`
-	Avatar   string `json:"avatar"`
-	Score    int    `json:"score"`
-	Rank     int    `json:"rank"`
+	ID        uint   `json:"id"`
+	Username  string `json:"username"`
+	AvatarUrl string `json:"avatar_url"`
+	Score     int    `json:"score"`
+	Rank      int    `json:"rank"`
 }
 
 // LoginResult 登录结果（可选）

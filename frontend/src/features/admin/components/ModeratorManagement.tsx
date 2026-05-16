@@ -6,7 +6,7 @@ import toast from "react-hot-toast";
 interface User {
   id: number;
   username: string;
-  avatar?: string;
+  avatar_url?: string;
   email?: string;
 }
 

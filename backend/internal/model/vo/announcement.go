@@ -33,9 +33,9 @@ type AnnouncementVO struct {
 
 	// 脱敏后的创建人信息（可选，如果需要展示用户名）
 	Creator struct {
-		ID       uint   `json:"id"`
-		Username string `json:"username"`
-		Avatar   string `json:"avatar,omitempty"`
+		ID        uint   `json:"id"`
+		Username  string `json:"username"`
+		AvatarUrl string `json:"avatar_url,omitempty"`
 	} `json:"creator,omitempty"`
 
 	// 脱敏后的板块信息（可选，如果前端需要展示板块名称）

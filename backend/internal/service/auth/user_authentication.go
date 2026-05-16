@@ -59,7 +59,7 @@ func (s *authService) Login(ctx context.Context, input userSvc.LoginInput) (*vo.
 			ID:        user.ID,
 			Username:  user.Username,
 			Role:      user.Role,
-			Avatar:    user.AvatarUrl,
+			AvatarUrl: user.AvatarUrl,
 			Bio:       user.Bio,
 			Email:     user.Email,
 			Score:     user.Score,

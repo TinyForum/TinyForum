@@ -67,13 +67,13 @@ func (h *UserHandler) LeaderboardDetail(c *gin.Context) {
 	items := make([]dto.LeaderboardUserDetail, len(users))
 	for i, u := range users {
 		items[i] = dto.LeaderboardUserDetail{
-			ID:       u.ID,
-			Username: u.Username,
-			Avatar:   u.Avatar,
-			Email:    u.Email,
-			Role:     u.Role,
-			Score:    u.Score,
-			Rank:     i + 1,
+			ID:        u.ID,
+			Username:  u.Username,
+			AvatarUrl: u.AvatarUrl,
+			Email:     u.Email,
+			Role:      u.Role,
+			Score:     u.Score,
+			Rank:      i + 1,
 		}
 	}
 	response.Success(c, items)

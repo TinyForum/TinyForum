@@ -84,7 +84,7 @@ export interface ReportResponse {
 export interface UserPublicVO {
   id: number;
   nickname: string; // 昵称（推荐，不要返回真名）
-  avatar: string; // 头像URL
+  avatar_url: string; // 头像URL
 }
 
 // 被举报对象的摘要信息

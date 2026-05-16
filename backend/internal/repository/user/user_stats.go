@@ -39,9 +39,9 @@ func (r *userRepository) CountActiveByDateRange(ctx context.Context, startDate, 
 }
 
 type ActiveUserRow struct {
-	ID       uint
-	Username string
-	Avatar   string
+	ID        uint
+	Username  string
+	AvatarUrl string
 }
 
 func (r *userRepository) GetActiveUsersByDateRange(

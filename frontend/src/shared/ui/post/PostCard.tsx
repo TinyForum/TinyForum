@@ -69,7 +69,7 @@ export default function PostCard({ post, commentCount }: PostCardProps) {
           <Link href={`/users/${post.author_id}`} className="flex-none">
             <Avatar
               username={author?.username || `用户${post.author_id}`}
-              avatarUrl={author?.avatar}
+              avatarUrl={author?.avatar_url}
               size="md"
             />
           </Link>

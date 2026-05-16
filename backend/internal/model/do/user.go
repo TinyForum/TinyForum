@@ -39,10 +39,10 @@ type User struct {
 }
 
 type UpdateProfileInput struct {
-	Username string `json:"username"` // 用户名
-	Bio      string `json:"bio" binding:"max=500"`
-	Avatar   string `json:"avatar"`
-	Email    string `json:"email"` // 邮箱
+	Username  string `json:"username"` // 用户名
+	Bio       string `json:"bio" binding:"max=500"`
+	AvatarUrl string `json:"avatar_url"`
+	Email     string `json:"email"` // 邮箱
 }
 
 type ChangePasswordInput struct {

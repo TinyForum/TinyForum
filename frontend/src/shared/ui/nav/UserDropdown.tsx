@@ -259,7 +259,7 @@ export default function UserDropdown({ user }: UserDropdownProps) {
               >
                 <Avatar
                   username={user.username}
-                  avatarUrl={user.avatar}
+                  avatarUrl={user.avatar_url}
                   size="full"
                   className="h-full w-full"
                 />
@@ -298,7 +298,7 @@ export default function UserDropdown({ user }: UserDropdownProps) {
                                     <div className="w-12 rounded-full ring-2 ring-primary/20 ring-offset-2 ring-offset-base-100">
                                       <Avatar
                                         username={user?.username}
-                                        avatarUrl={user?.avatar}
+                                        avatarUrl={user?.avatar_url}
                                         size="lg"
                                       />
                                     </div>

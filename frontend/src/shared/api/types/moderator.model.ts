@@ -94,7 +94,7 @@ export interface Moderator {
   user?: {
     id: number;
     username: string;
-    avatar?: string;
+    avatar_url?: string;
   };
   board?: {
     id: number;
@@ -195,7 +195,7 @@ export interface BannedUser {
   id: number;
   user_id: number;
   username: string;
-  avatar?: string;
+  avatar_url?: string;
   board_id: number;
   reason: string;
   expires_at?: string;

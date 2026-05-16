@@ -17,7 +17,7 @@ import { ApiResponse } from "@/shared/api/types/basic.model";
 interface UserScoreRecord {
   id: number;
   username: string;
-  avatar: string;
+  avatar_url: string;
   score: number;
   created_at?: string;
   updated_at?: string;
@@ -389,10 +389,10 @@ export function PointsManager() {
                     <tr key={record.id}>
                       <td>
                         <div className="flex items-center gap-2">
-                          {record.avatar && (
+                          {record.avatar_url && (
                             <div className="relative w-6 h-6 rounded-full overflow-hidden">
                               <Image
-                                src={record.avatar}
+                                src={record.avatar_url}
                                 alt={record.username}
                                 fill
                                 className="object-cover"

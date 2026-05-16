@@ -30,7 +30,7 @@ var DefaultSystemUserConfig = config.SystemUserConfig{
 
 // createUserIfNotExists 公共的创建用户方法
 // 如果用户已存在（通过 email 或 username 判断），则跳过创建并返回 nil
-// 否则创建新用户，支持自定义额外字段（如 Score, Avatar 等）
+// 否则创建新用户，支持自定义额外字段
 func createUserIfNotExists(db *gorm.DB, email, username, password string, role do.UserRole, opts ...func(*do.User)) error {
 	// 检查是否已存在
 	var existingUser do.User
