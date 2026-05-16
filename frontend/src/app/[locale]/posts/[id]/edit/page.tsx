@@ -16,6 +16,8 @@ import { postApi } from "@/shared/api/modules/posts";
 import { tagApi } from "@/shared/api/modules/tags";
 import { Post } from "@/shared/api/types/post.model";
 import { Tag } from "@/shared/api/types/tag.model";
+import { ImageUploader } from "@/shared/ui/editor/ImageUploader";
+import { uploadApi } from "@/shared/api/modules/uploads";
 
 const schema = z.object({
   title: z.string().min(2, "标题至少2个字符").max(200, "标题最多200个字符"),
@@ -186,22 +188,18 @@ export default function EditPostPage({
               </div>
             </div>
 
-            <div className="form-control">
-              <label className="label pb-1">
-                <span className="label-text font-medium">封面图片URL</span>
-              </label>
-              <input
-                {...register("cover")}
-                type="text"
-                placeholder="https://example.com/image.jpg"
-                className="input input-bordered focus:outline-none focus:border-primary"
-              />
-              {errors.cover && (
-                <span className="text-error text-sm mt-1">
-                  {errors.cover.message}
-                </span>
-              )}
-            </div>
+            <ImageUploader
+              initialImages={[{ url: "https://example.com/1.jpg" }]}
+              uploadFn={async (file) => {
+                const res = await uploadApi.uploadPostFile(postId, file);
+                return { url: res.data.data };
+              }}
+              maxCount={6}
+              supportCover={true}
+              layout="grid"
+              gridSize={3}
+              onChange={(images) => console.log("images changed", images)}
+            />
 
             <div className="form-control">
               <label className="label pb-1">
