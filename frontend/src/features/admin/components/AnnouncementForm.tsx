@@ -9,9 +9,9 @@ import { Modal } from "./Modal";
 import Image from "next/image";
 import { AnnouncementFormValues } from "@/shared/type/announcement.type";
 import {
-  AnnouncementType,
   AnnouncementStatus,
-} from "@/shared/api/types/announcement.model";
+  AnnouncementType,
+} from "@/shared/api/types/announcement.model.do";
 
 // 表单验证 Schema - 直接使用数字枚举
 const announcementSchema = z

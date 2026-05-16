@@ -1,10 +1,8 @@
-// features/bot/components/NocoBot.tsx
 import { useState, useCallback, useMemo, useRef } from "react";
 import ReactFlow, {
   addEdge,
   Background,
   Connection,
-  Edge,
   Node,
   useNodesState,
   useEdgesState,
@@ -19,11 +17,12 @@ import "reactflow/dist/style.css";
 import { NodeMeta, Flow, NocodeMetadata } from "../noco.type";
 import { useBotActions } from "../hooks/bot";
 import { useNocodeMetadata, useValidateFlow } from "../hooks/useNocodeMetadata";
+import { CreateBotRequest } from "@/shared/api/types/bot.model"; // 假设存在
 
 // 定义画布节点结构（扩展 React Flow 节点）
 interface FlowNodeData {
-  nodeMeta: NodeMeta; // 元数据
-  config: Record<string, any>; // 用户配置
+  nodeMeta: NodeMeta;
+  config: Record<string, unknown>; // 原 any -> Record<string, unknown>
   label: string;
 }
 
@@ -42,13 +41,23 @@ const toReactFlowNode = (
   },
 });
 
-// 节点配置弹窗组件
-const NodeConfigModal = ({ node, onSave, onClose }: any) => {
-  const [config, setConfig] = useState(node.data.config);
+// 节点配置弹窗组件 - 严格类型
+interface NodeConfigModalProps {
+  node: Node<FlowNodeData>;
+  onSave: (nodeId: string, config: Record<string, unknown>) => void;
+  onClose: () => void;
+}
+
+const NodeConfigModal = ({ node, onSave, onClose }: NodeConfigModalProps) => {
+  const [config, setConfig] = useState<Record<string, unknown>>(
+    node.data.config,
+  );
+
   const handleSave = () => {
     onSave(node.id, config);
     onClose();
   };
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white p-4 rounded shadow-lg w-96">
@@ -59,7 +68,11 @@ const NodeConfigModal = ({ node, onSave, onClose }: any) => {
           value={JSON.stringify(config, null, 2)}
           onChange={(e) => {
             try {
-              setConfig(JSON.parse(e.target.value));
+              const parsed = JSON.parse(e.target.value) as Record<
+                string,
+                unknown
+              >;
+              setConfig(parsed);
             } catch {
               // 如果 JSON 解析失败，保留原文本
             }
@@ -140,7 +153,7 @@ function NocoBotInner() {
     [setEdges],
   );
 
-  // 点击左侧节点列表 —— 添加到画布中心（修复问题2）
+  // 点击左侧节点列表 —— 添加到画布中心
   const addNodeToCanvas = useCallback(
     (nodeMeta: NodeMeta) => {
       if (containerRef.current) {
@@ -171,7 +184,7 @@ function NocoBotInner() {
   };
 
   const updateNodeConfig = useCallback(
-    (nodeId: string, config: any) => {
+    (nodeId: string, config: Record<string, unknown>) => {
       setNodes((nds) =>
         nds.map((n) =>
           n.id === nodeId ? { ...n, data: { ...n.data, config } } : n,
@@ -187,7 +200,7 @@ function NocoBotInner() {
       nodes: nodes.map((n) => ({
         id: n.id,
         type: n.data.nodeMeta.type,
-        config: n.data.config,
+        config: n.data.config, // 现在是 Record<string, unknown>
       })),
       edges: edges.map((e) => ({ source: e.source, target: e.target })),
     };
@@ -213,13 +226,18 @@ function NocoBotInner() {
       return;
     }
 
-    const requestData = {
+    // 构造符合 CreateBotRequest 的数据（假设 type 支持 "nocode" 且 flow 字段存在）
+    const requestData: CreateBotRequest = {
       name: "未命名零代码机器人",
+      version: "1.0.0",
       description: "通过节点图创建",
-      type: "nocode",
-      flow: flow,
+      type: "task",
+      scriptCode: "",
+      triggerType: "manual",
+      configValues: { flow },
     };
-    const id = await createBot(requestData as any);
+
+    const id = await createBot(requestData);
     if (id) {
       alert(`机器人创建成功！ID: ${id}`);
       setNodes([]);

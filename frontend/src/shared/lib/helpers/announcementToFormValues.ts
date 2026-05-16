@@ -1,6 +1,6 @@
-import { AnnouncementDO } from "@/shared/api/types/announcement.model";
 import { AnnouncementFormValues } from "@/shared/type/announcement.type";
 import { toDateTimeLocal } from "./toDateTimeLocal";
+import { AnnouncementDO } from "@/shared/api/types/announcement.model.do";
 
 // 转换公告数据为表单数据
 export const announcementToFormValues = (

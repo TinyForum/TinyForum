@@ -2,8 +2,8 @@ import apiClient from "../client";
 import {
   AnnouncementListParams,
   AnnouncementListResponse,
-  AnnouncementDO,
 } from "../types/announcement.model";
+import { AnnouncementDO } from "../types/announcement.model.do";
 import { ApiResponse } from "../types/basic.model";
 
 // ============ API 方法 ============
@@ -14,7 +14,7 @@ export const announcementApi = {
   /**
    * 获取公告列表（支持分页和过滤）
    * @param params 查询参数
-   * @returns 分页的公告列表
+   * @returns 分页的公告列
    */
   list: (params: AnnouncementListParams) =>
     apiClient.get<ApiResponse<AnnouncementListResponse>>("/announcements", {

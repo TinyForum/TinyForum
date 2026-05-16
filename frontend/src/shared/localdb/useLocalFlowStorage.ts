@@ -1,5 +1,5 @@
 // hooks/useLocalFlowStorage.ts
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Dexie, { Table } from "dexie";
 import { Node, Edge } from "reactflow";
 

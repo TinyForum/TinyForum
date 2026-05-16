@@ -1,60 +1,11 @@
-export enum AnnouncementType {
-  Normal = 0, // 普通
-  Important = 1, // 重要
-  Emergency = 2, // 紧急
-  Event = 3, // 活动
-}
-export enum AnnouncementStatus {
-  /** 仅用于查询：所有状态 */
-  All = -1,
-  /** 草稿 */
-  Draft = 0,
-  /** 已发布 */
-  Published = 1,
-  /** 已归档 */
-  Archived = 2,
-}
-
-export type CreateAnnouncementStatus = Exclude<
-  AnnouncementStatus,
-  AnnouncementStatus.All
->;
-
-// 公告数据结构
-export interface AnnouncementDO {
-  id: number;
-  title: string;
-  content: string;
-  summary: string;
-  cover: string;
-  type: AnnouncementType;
-  status: CreateAnnouncementStatus;
-  is_pinned: boolean;
-  is_global: boolean;
-  board_id: number | null;
-  published_at: string | null;
-  expired_at: string | null;
-  view_count: number;
-  created_by: number;
-  updated_by: number;
-  created_at: string;
-  updated_at: string;
-  deleted_at: string | null;
-
-  // 关联数据
-  board?: {
-    id: number;
-    name: string;
-    slug: string;
-  } | null;
-  creator?: {
-    id: number;
-    username: string;
-    avatar?: string;
-  } | null;
-}
-
 // ============ 请求参数类型 ============
+
+import {
+  AnnouncementType,
+  CreateAnnouncementStatus,
+  AnnouncementStatus,
+  AnnouncementDO,
+} from "./announcement.model.do";
 
 // 创建公告请求
 export interface CreateAnnouncementPayload {

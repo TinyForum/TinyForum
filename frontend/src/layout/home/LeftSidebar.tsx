@@ -19,8 +19,8 @@ import { useTranslations } from "next-intl";
 import { cn } from "@/shared/lib/utils";
 import { PostType, type Tag as TagType } from "@/shared/api";
 import { useAnnouncements } from "@/features/announcements/useAnnouncements";
-import { AnnouncementDO } from "@/shared/api/types/announcement.model";
 import { PluginSlot } from "@/features/plugin/components/PluginSlot";
+import { AnnouncementDO } from "@/shared/api/types/announcement.model.do";
 
 export type FilterType = "all" | PostType;
 

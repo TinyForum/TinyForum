@@ -15,8 +15,8 @@ import {
   UserIcon,
   AlertTriangleIcon,
 } from "lucide-react";
-import { AnnouncementDO } from "@/shared/api/types/announcement.model";
 import { useTranslations } from "next-intl";
+import { AnnouncementDO } from "@/shared/api/types/announcement.model.do";
 
 // 错误响应类型
 interface ErrorResponse {

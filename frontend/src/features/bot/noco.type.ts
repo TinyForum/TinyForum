@@ -57,12 +57,12 @@ export interface ParamMeta {
   label: string;
   type: string;
   required: boolean;
-  default?: any;
+  // default?: any;
   placeholder?: string;
-  options?: OptionMeta[];
+  // options?: OptionMeta[];
 }
 
-export interface OptionMeta {
-  label: string;
-  value: any;
-}
+// export interface OptionMeta {
+//   label: string;
+//   value: any;
+// }

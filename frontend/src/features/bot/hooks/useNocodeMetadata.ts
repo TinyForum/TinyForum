@@ -4,7 +4,7 @@ import { botApi } from "@/shared/api/modules/bot";
 import { getErrorMessage } from "@/shared/lib/utils";
 import { useState, useCallback, useEffect } from "react";
 import toast from "react-hot-toast";
-import { Flow, NocodeMetadata, ValidateFlowRequest } from "../noco.type";
+import { Flow, NocodeMetadata } from "../noco.type";
 
 interface UseNocodeMetadataReturn {
   metadata: NocodeMetadata | null;

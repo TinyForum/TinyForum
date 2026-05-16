@@ -14,7 +14,7 @@ import { AnnouncementCard } from "@/features/announcements/components/Announceme
 import {
   AnnouncementDO,
   AnnouncementStatus,
-} from "@/shared/api/types/announcement.model";
+} from "@/shared/api/types/announcement.model.do";
 
 // 分页组件
 function Pagination({

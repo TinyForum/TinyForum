@@ -2,17 +2,6 @@
 // import { ApiResponse, PageData } from "../types/basic.model";
 // import { PluginMeta } from "@/shared/type/plugin.type";
 
-// export interface ListPluginRequest {
-//   page?: number;
-//   page_size?: number;
-//   author_id?: number;
-//   tags?: string[];
-//   type?: string;
-//   keyword?: string;
-//   sort_by?: string;
-//   status?: "active" | "inactive" | "all";
-// }
-
 // export const uploadApi = {
 //   // ========== 上传相关 API ==========
 //   /** 上传帖子文件 */

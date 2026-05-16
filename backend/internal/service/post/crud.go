@@ -60,7 +60,7 @@ func (s *postService) Create(ctx *gin.Context, authorID uint, input CreatePostIn
 		Title:            input.Title,
 		Content:          input.Content,
 		Summary:          input.Summary,
-		CoverUrl:            input.Cover,
+		CoverUrl:         input.Cover,
 		Type:             postType,
 		AuthorID:         authorID,
 		BoardID:          board.ID,
