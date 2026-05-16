@@ -7,10 +7,14 @@ import (
 )
 
 // UpdateLastRead 更新用户某个时间线的最后阅读时间
-func (r *timelineRepository) UpdateLastRead(userID uint, timelineType string) error {
-	var userTimeline do.UserTimeline
+func (r *timelineRepository) UpdateLastRead(userID uint, timelineStr string) error {
 
-	err := r.db.Where("user_id = ? AND timeline_type = ?", userID, timelineType).
+	timelineType, err := do.ParseTimelineType(timelineStr)
+	if err != nil {
+		return err
+	}
+	var userTimeline do.UserTimeline
+	err = r.db.Where("user_id = ? AND timeline_type = ?", userID, timelineStr).
 		First(&userTimeline).Error
 
 	if err == gorm.ErrRecordNotFound {

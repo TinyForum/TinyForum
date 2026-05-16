@@ -3,6 +3,8 @@ package timeline
 import (
 	"encoding/json"
 	"tiny-forum/internal/model/do"
+
+	"gorm.io/datatypes"
 )
 
 type CreateEventInput struct {
@@ -17,14 +19,18 @@ type CreateEventInput struct {
 
 func (s *timelineService) CreateEvent(input CreateEventInput) error {
 	payloadJSON, _ := json.Marshal(input.Payload)
+	targetType, err := do.ParseTilelineTargetType(input.TargetType)
+	if err != nil {
+		return err
+	}
 
 	event := &do.TimelineEvent{
 		UserID:     input.UserID,
 		ActorID:    input.ActorID,
 		Action:     input.Action,
 		TargetID:   input.TargetID,
-		TargetType: input.TargetType,
-		Payload:    string(payloadJSON),
+		TargetType: targetType,
+		Payload:    datatypes.JSON(payloadJSON),
 		Score:      input.Score,
 	}
 

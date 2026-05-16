@@ -34,13 +34,13 @@ func (Announcement) TableName() string {
 }
 
 // AnnouncementType 公告类型（可存储）
-type AnnouncementType int
+type AnnouncementType string
 
 const (
-	AnnouncementTypeNormal    AnnouncementType = 0 // 普通公告
-	AnnouncementTypeImportant AnnouncementType = 1 // 重要公告
-	AnnouncementTypeEmergency AnnouncementType = 2 // 紧急公告
-	AnnouncementTypeEvent     AnnouncementType = 3 // 活动公告
+	AnnouncementTypeNormal    AnnouncementType = "normal"    // 普通公告
+	AnnouncementTypeImportant AnnouncementType = "important" // 重要公告
+	AnnouncementTypeEmergency AnnouncementType = "emergency" // 紧急公告
+	AnnouncementTypeEvent     AnnouncementType = "event"     // 活动公告
 )
 
 // IsValid 检查公告类型是否合法
@@ -49,12 +49,12 @@ func (t AnnouncementType) IsValid() bool {
 }
 
 // AnnouncementStatus 公告状态（可存储）
-type AnnouncementStatus int
+type AnnouncementStatus string
 
 const (
-	AnnouncementStatusDraft     AnnouncementStatus = 0 // 草稿
-	AnnouncementStatusPublished AnnouncementStatus = 1 // 已发布
-	AnnouncementStatusArchived  AnnouncementStatus = 2 // 已归档
+	AnnouncementStatusDraft     AnnouncementStatus = "draft"     // 草稿
+	AnnouncementStatusPublished AnnouncementStatus = "published" // 已发布
+	AnnouncementStatusArchived  AnnouncementStatus = "archived"  // 已归档
 )
 
 // IsValid 检查公告状态是否合法（用于存储）
@@ -63,13 +63,13 @@ func (s AnnouncementStatus) IsValid() bool {
 }
 
 // AnnouncementStatusFilter 公告状态查询筛选（可包含 All）
-type AnnouncementStatusFilter int
+type AnnouncementStatusFilter string
 
 const (
-	AnnouncementStatusFilterAll       AnnouncementStatusFilter = -1 // 全部（仅查询）
-	AnnouncementStatusFilterDraft     AnnouncementStatusFilter = 0
-	AnnouncementStatusFilterPublished AnnouncementStatusFilter = 1
-	AnnouncementStatusFilterArchived  AnnouncementStatusFilter = 2
+	AnnouncementStatusFilterAll       AnnouncementStatusFilter = "all" // 全部（仅查询）
+	AnnouncementStatusFilterDraft     AnnouncementStatusFilter = "draft"
+	AnnouncementStatusFilterPublished AnnouncementStatusFilter = "published"
+	AnnouncementStatusFilterArchived  AnnouncementStatusFilter = "archived"
 )
 
 // FromStatus 将存储状态转换为筛选状态

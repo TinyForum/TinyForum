@@ -14,13 +14,13 @@ import (
 
 type BoardService interface {
 	// applys
-	ApplyModerator(input do.ApplyModeratorInput) error
+	ApplyModerator(ctx context.Context, input request.ApplyModeratorRequest) error
 	CancelApplication(applicationID, userID uint) error
 	GetUserApplications(userID uint, page, pageSize int) ([]do.ModeratorApplication, int64, error)
 	ReviewApplication(_ context.Context, input request.ReviewApplicationRequest, reviewerID uint) error
 	ListApplications(boardID *uint, status do.ApplicationStatus, page, pageSize int) ([]do.ModeratorApplication, int64, error)
 	// ban
-	BanUser(input BanUserInput, bannerID uint) error
+	BanUser(ctx context.Context, input BanUserInput, bannerID uint) error
 	UnbanUser(userID, boardID uint) error
 	IsBanned(userID, boardID uint) (bool, error)
 	// crud
@@ -34,12 +34,12 @@ type BoardService interface {
 	GetTree() ([]do.Board, error)
 	GetPosts(boardID uint, page, pageSize int) ([]do.Post, int64, error)
 	// moderator
-	AddModerator(_ context.Context, input AddModeratorInput, operatorID uint) error
+	AddModerator(_ context.Context, input request.AddModeratorRequest, operatorID uint) error
 	RemoveModerator(_ context.Context, userID, boardID uint, operatorID uint) error
 	GetModerators(boardID uint) ([]do.Moderator, error)
 	IsModerator(userID, boardID uint) (bool, error)
-	UpdateModeratorPermissions(_ context.Context, input UpdateModeratorPermissionsInput, operatorID uint) error
-	CheckModeratorPermission(_ context.Context, userID, boardID uint, permission string) (bool, error)
+	UpdateModeratorPermissions(_ context.Context, input request.UpdateModeratorPermissionsRequest, operatorID uint) error
+	CheckModeratorPermission(_ context.Context, userID, boardID uint, permission do.ModeratorPermission) (bool, error)
 	GetModeratorBoardsWithPermissions(userID uint) ([]ModeratorBoardWithPerms, error)
 	// post
 	DeletePost(boardID, postID, userID uint, isAdmin bool) error

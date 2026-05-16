@@ -47,14 +47,14 @@ _get_default() {
         db_host)            echo "${PSQL_HOST:-localhost}" ;;
         db_port)            echo "${PSQL_PORT:-5432}" ;;
         db_user)            echo "${PG_FINAL_USER:-${PSQL_USER:-tinyforum}}" ;;
-        db_pass)            echo "${PG_FINAL_PASS:-${PSQL_PASS:-tf@password}}" ;;
+        db_pass)            echo "${PG_FINAL_PASS:-${PSQL_PASS:-tf-password}}" ;;
         db_name)            echo "${PSQL_DB_NAME:-tiny_forum}" ;;
         db_sslmode)         echo "${DB_SSLMODE:-disable}" ;;
         db_timezone)        echo "${DB_TIMEZONE:-Asia/Shanghai}" ;;
         redis_host)         echo "${REDIS_HOST:-localhost}" ;;
         redis_port)         echo "${REDIS_PORT:-6379}" ;;
         redis_user)         echo "${REDIS_FINAL_USER:-${REDIS_USER:-tinyforum}}" ;;
-        redis_pass)         echo "${REDIS_FINAL_PASS:-${REDIS_PASSWORD:-tf@password}}" ;;
+        redis_pass)         echo "${REDIS_FINAL_PASS:-${REDIS_PASSWORD:-tf-password}}" ;;
         redis_db)           echo "${REDIS_DB:-0}" ;;
         # admin
         admin_email)        echo "${ADMIN_EMAIL:-admin@test.com}" ;;

@@ -40,7 +40,7 @@ type BoardRepository interface {
 	IsModerator(userID, boardID uint) (bool, error)
 	CreateModeratorLog(log *do.ModeratorLog) error
 	GetModeratorLogs(boardID uint, limit, offset int) ([]do.ModeratorLog, int64, error)
-	GetModeratorBoardsWithPermissions(userID uint) ([]ModeratorBoardInfo, error)
+	GetModeratorBoardsWithPermissions(userID uint) ([]do.ModeratorBoardWithPerms, error)
 	// repo
 	Create(board *do.Board) error
 	Update(board *do.Board) error

@@ -36,7 +36,7 @@ func (r *userRepository) GetTopScoreUsersDetail(ctx context.Context, limit int, 
 	var users []dto.LeaderboardUserDetail
 	db := r.db.WithContext(ctx).Model(&do.User{}).
 		Where("score IS NOT NULL").
-		Select("id", "username", "avatar", "score", "email", "role").
+		Select("id", "username", "avatarUrl", "score", "email", "role").
 		Order("score DESC").
 		Limit(limit)
 	if excludeBlocked {

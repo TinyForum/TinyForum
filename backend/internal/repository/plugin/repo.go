@@ -17,9 +17,10 @@ type PluginRepository interface {
 	GetByName(ctx context.Context, name string) (*do.PluginMeta, error)          // 获取插件
 	ListByAuthorID(ctx context.Context, authorID uint) ([]*do.PluginMeta, error) // 获取作者的所有插件
 	ListEnabled(ctx context.Context) ([]*do.PluginMeta, error)                   // 获取所有已启用的插件
+	GetBySlug(ctx context.Context, slug string) (*do.PluginMeta, error)
 	// update
-	Update(ctx context.Context, plugin *do.PluginMeta) error     // 更新
-	TogglePluginStatus(ctx context.Context, pluginID uint) error // 切换插件状态
+	Update(ctx context.Context, plugin *do.PluginMeta) error         // 更新
+	TogglePluginStatus(ctx context.Context, pluginSlug string) error // 切换插件状态
 	// delete
 	DeleteByID(ctx context.Context, id uint) error                               // 硬删除
 	GetByID(ctx context.Context, id uint) (*do.PluginMeta, error)                // 软删除后查询

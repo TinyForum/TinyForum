@@ -9,14 +9,14 @@ import (
 )
 
 type VoteAnswerInput struct {
-	CommentID uint   `json:"comment_id" binding:"required"`
-	VoteType  string `json:"vote_type" binding:"required,oneof=up down"`
+	CommentID uint               `json:"comment_id" binding:"required"`
+	VoteType  *do.AnswerVoteType `json:"vote_type" binding:"required,oneof=up down"`
 }
 
 type VoteAnswerResult struct {
-	VoteType  string `json:"vote_type"`
-	VoteCount int    `json:"vote_count"`
-	Action    string `json:"action"`
+	VoteType  *do.AnswerVoteType `json:"vote_type"`
+	VoteCount int                `json:"vote_count"`
+	Action    string             `json:"action"`
 }
 
 // AcceptAnswer 采纳答案
@@ -71,13 +71,15 @@ func (s *questionService) VoteAnswer(userID uint, input VoteAnswerInput) (*VoteA
 	existingVote, _ := s.questionRepo.FindAnswerVote(userID, input.CommentID)
 	var result VoteAnswerResult
 	var action string
+	// 如果用户已经投过票，则更新投票类型
 	if existingVote != nil && existingVote.ID != 0 {
 		if existingVote.VoteType == input.VoteType {
 			if err := s.questionRepo.DeleteAnswerVote(userID, input.CommentID); err != nil {
 				return nil, err
 			}
+			// 如果投票类型相同，则删除投票记录
 			action = "removed"
-			result.VoteType = ""
+			result.VoteType = nil
 		} else {
 			existingVote.VoteType = input.VoteType
 			if err := s.questionRepo.UpdateAnswerVote(existingVote); err != nil {

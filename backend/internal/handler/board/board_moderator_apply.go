@@ -6,6 +6,7 @@ import (
 	"tiny-forum/internal/model/common"
 	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/request"
+	apperrors "tiny-forum/pkg/errors"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -26,28 +27,62 @@ import (
 // @Failure 403 {object} common.BasicResponse"无权限或已申请"
 // @Router /boards/{id}/moderators/apply [post]
 func (h *BoardHandler) ApplyModerator(c *gin.Context) {
+	// 1. 解析并校验 boardID
 	boardID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil || boardID == 0 {
+		response.HandleError(c, err) // 使用预定义错误
+		return
+	}
+
+	// 2. 绑定并校验请求体
+	var req request.ApplyModeratorRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.HandleError(c, err)
+		return
+	}
+	if err := req.Validate(); err != nil {
+		response.HandleError(c, err)
+		return
+	}
+
+	// 3. 从认证上下文获取用户信息
+	uid, err := getAuthenticatedUserID(c)
 	if err != nil {
 		response.HandleError(c, err)
 		return
 	}
 
-	var input do.ApplyModeratorInput
-	if err := c.ShouldBindJSON(&input); err != nil {
+	// 4. 组装 Service 输入对象
+	input := request.ApplyModeratorRequest{
+		UserID:               uid,
+		BoardID:              uint(boardID),
+		Reason:               req.Reason,
+		RequestedPermissions: req.RequestedPermissions,
+	}
+
+	// 5. 调用 Service
+	if err := h.boardSvc.ApplyModerator(c.Request.Context(), input); err != nil {
 		response.HandleError(c, err)
 		return
 	}
 
-	// 从 JWT 上下文注入，不信任客户端传参
-	input.UserID = c.GetUint("user_id")
-	input.Username = c.GetString("username")
-	input.BoardID = uint(boardID)
+	// 6. 成功响应
+	response.Success(c, gin.H{
+		"message": "申请已提交，请等待管理员审核",
+	})
+}
 
-	if err := h.boardSvc.ApplyModerator(input); err != nil {
-		response.HandleError(c, err)
-		return
+// getAuthenticatedUserID 从 Gin Context 中安全获取用户 ID
+func getAuthenticatedUserID(c *gin.Context) (uint, error) {
+	val, exists := c.Get("user_id")
+	if !exists {
+		return 0, apperrors.ErrUnauthorized
 	}
-	response.Success(c, gin.H{"message": "申请已提交，请等待管理员审核"})
+	uid, ok := val.(uint)
+	if !ok {
+		return 0, apperrors.ErrInternalError
+	}
+	return uid, nil
 }
 
 // CancelApplication 用户撤销自己的版主申请

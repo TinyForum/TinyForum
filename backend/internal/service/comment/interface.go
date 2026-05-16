@@ -27,9 +27,9 @@ type CommentService interface {
 	GetAnswerVoteCount(commentID uint) (int, error)
 	GetVoteStatistics(answerID uint) (upCount, downCount int, err error)
 	// vote
-	VoteAnswer(answerID uint, userID uint, voteType int) (*do.Comment, error)
+	VoteAnswer(answerID uint, userID uint, voteType do.AnswerVoteType) (*do.Comment, error)
 	RemoveVote(answerID uint, userID uint) (*do.Comment, error)
-	GetUserVoteStatus(answerID uint, userID uint) (int, error)
+	GetUserVoteStatus(answerID uint, userID uint) (*do.AnswerVoteType, error)
 }
 
 type commentService struct {

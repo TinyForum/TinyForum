@@ -3,6 +3,8 @@ package do
 import (
 	"time"
 	"tiny-forum/internal/model/common"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 // 定义 context key 常量
@@ -17,8 +19,8 @@ type User struct {
 	common.BaseModel
 	Username           string     `gorm:"uniqueIndex;not null;size:50" json:"username"` // 用户名
 	Email              string     `gorm:"uniqueIndex;not null;size:100" json:"email"`   // 邮箱
-	Password           string     `gorm:"not null" json:"password"`                     // 密码（hash）
-	AvatarUrl             string     `gorm:"size:500" json:"avatar_url"`                       // 用户的头像，目前为链接（暂不支持图片上传）
+	Password           string     `gorm:"not null" json:"-"`                            // 密码（hash）
+	AvatarUrl          string     `gorm:"size:500" json:"avatar_url"`                   // 用户的头像，目前为链接（暂不支持图片上传）
 	Bio                string     `gorm:"size:500" json:"bio"`                          // 用户的简介
 	Role               UserRole   `gorm:"type:varchar(20);default:'user'" json:"role"`  // 用户的角色，默认为普通用户
 	Score              int        `gorm:"default:0" json:"score"`                       // 用户的积分
@@ -48,18 +50,21 @@ type ChangePasswordInput struct {
 	NewPassword string `json:"new_password" binding:"required"`
 }
 
-// MARK: Helper
-// 检查用户是否拥有指定权限
-func (u *User) Can(perm Permission) bool {
-	return HasPermission(u.Role, perm)
-}
-
-// 检查用户是否是管理员
 func (u *User) IsAdmin() bool {
 	return u.Role == RoleAdmin || u.Role == RoleSuperAdmin
 }
 
-// 检查用户是否是版主
 func (u *User) IsModerator() bool {
-	return u.Role == RoleModerator || u.IsAdmin()
+	return u.Role == RoleModerator // 严格判断角色
+}
+
+// Can 检查权限（假设 Permission 和角色权限映射已定义）
+func (u *User) Can(perm Permission) bool {
+	return HasPermission(u.Role, perm)
+}
+
+// ComparePassword 验证密码（需实现）
+func (u *User) ComparePassword(plain string) bool {
+	// 调用 bcrypt 比较
+	return bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(plain)) == nil
 }

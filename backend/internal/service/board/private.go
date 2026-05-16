@@ -45,11 +45,19 @@ func boolVal(ptr *bool, fallback bool) bool {
 
 // writeLog 记录版主操作日志（忽略错误）
 func (s *boardService) writeLog(moderatorID, boardID uint, action, targetType string, targetID uint, reason string) {
+	modAction, err := do.ParsemoderatorActionType(action)
+	if err != nil {
+		return
+	}
+	modTargetType, err := do.ParseModeratorTargetType(targetType)
+	if err != nil {
+		return
+	}
 	log := &do.ModeratorLog{
 		ModeratorID: moderatorID,
 		BoardID:     boardID,
-		Action:      action,
-		TargetType:  targetType,
+		Action:      modAction,
+		TargetType:  modTargetType,
 		TargetID:    targetID,
 		Reason:      reason,
 	}
@@ -58,11 +66,19 @@ func (s *boardService) writeLog(moderatorID, boardID uint, action, targetType st
 
 // writeLogWithValues 同 writeLog，额外写入 OldValue / NewValue
 func (s *boardService) writeLogWithValues(moderatorID, boardID uint, action, targetType string, targetID uint, reason, oldValue, newValue string) {
+	modAction, err := do.ParsemoderatorActionType(action)
+	if err != nil {
+		return
+	}
+	modTargetType, err := do.ParseModeratorTargetType(targetType)
+	if err != nil {
+		return
+	}
 	log := &do.ModeratorLog{
 		ModeratorID: moderatorID,
 		BoardID:     boardID,
-		Action:      action,
-		TargetType:  targetType,
+		Action:      modAction,
+		TargetType:  modTargetType,
 		TargetID:    targetID,
 		Reason:      reason,
 		OldValue:    oldValue,

@@ -16,13 +16,6 @@ type Question struct {
 	AcceptedAnswer   Comment `gorm:"foreignKey:AcceptedAnswerID" json:"accepted_answer,omitempty"`
 }
 
-type AnswerVote struct {
-	common.BaseModel
-	UserID    uint   `gorm:"uniqueIndex:idx_user_answer;not null" json:"user_id"`
-	CommentID uint   `gorm:"uniqueIndex:idx_user_answer;not null" json:"comment_id"`
-	VoteType  string `gorm:"type:varchar(10)" json:"vote_type"` // up/down
-}
-
 // CreateQuestionInput 创建问答输入
 
 type QuestionResponse struct {
