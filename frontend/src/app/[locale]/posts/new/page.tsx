@@ -363,12 +363,9 @@ function PostEditor({ content, setContent }: PostEditorProps) {
 
       <div className="flex-1 min-h-[400px]">
         {mode === "edit" ? (
-          // <RichEditor
-          //   content={content}
-          //   onChange={onChange}
-          //   placeholder={placeholder}
-          // />
+          // 添加 key={mode} 强制重新创建编辑器实例，避免 DOM 冲突
           <RichTextEditor
+            key="rich-editor"
             value={content}
             onChange={setContent}
             placeholder="撰写帖子内容..."
