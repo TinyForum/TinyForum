@@ -10,7 +10,6 @@ import { useAuthStore } from "@/store/auth";
 import toast from "react-hot-toast";
 import { getErrorMessage } from "@/shared/lib/utils";
 import { Save, X } from "lucide-react";
-import RichEditor from "@/layout/common/RichEditor";
 import { ApiResponse } from "@/shared/api/types/basic.model";
 import { postApi } from "@/shared/api/modules/posts";
 import { tagApi } from "@/shared/api/modules/tags";
@@ -18,6 +17,7 @@ import { Post } from "@/shared/api/types/post.model";
 import { Tag } from "@/shared/api/types/tag.model";
 import { ImageUploader } from "@/shared/ui/editor/ImageUploader";
 import { uploadApi } from "@/shared/api/modules/uploads";
+import { RichTextEditor } from "@/shared/ui/editor/RichTextEditor";
 
 const schema = z.object({
   title: z.string().min(2, "标题至少2个字符").max(200, "标题最多200个字符"),
@@ -228,10 +228,12 @@ export default function EditPostPage({
             name="content"
             control={control}
             render={({ field }) => (
-              <RichEditor
-                content={field.value}
+              <RichTextEditor
+                value={field.value}
                 onChange={field.onChange}
-                placeholder="请输入帖子内容..."
+                placeholder="撰写帖子内容..."
+                maxLength={20000}
+                defaultMode="rich"
               />
             )}
           />

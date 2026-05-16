@@ -1,11 +1,12 @@
 // ImageUploader.tsx
 import { uploadApi } from "@/shared/api/modules/uploads";
-import React, { useState, useCallback, useRef, useEffect } from "react";
+import Image from "next/image";
+import React, { useState, useRef, useEffect } from "react";
 
 export type LayoutMode = "grid" | "waterfall" | "horizontal" | "tile";
 export type GridSize = 2 | 3 | 4;
 
-interface ImageItem {
+export interface ImageItem {
   id: string;
   url: string;
   file?: File;
@@ -113,7 +114,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
               : img,
           ),
         );
-      } catch (error) {
+      } catch {
         setImages((prev) =>
           prev.map((img) =>
             img.id === item.id
@@ -209,7 +210,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
         className="relative group rounded-lg overflow-hidden border border-base-300 bg-base-100 shadow-sm"
       >
         <div className="relative aspect-square">
-          <img
+          <Image
             src={image.url}
             alt="预览"
             className="w-full h-full object-cover"

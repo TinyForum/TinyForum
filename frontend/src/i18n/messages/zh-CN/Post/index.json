@@ -61,5 +61,24 @@
   "cancel": "取消",
   "publish_post": "发布帖子",
 
+  "board": "板块",
+  "select_board": "选择板块",
+  "loading": "加载中...",
+  "status": "状态",
+  "status_draft": "草稿",
+  "status_draft_desc": "草稿内容，仅自己可见",
+  "status_published": "已发布",
+  "status_published_desc": "已发布的帖子",
+  "status_pending": "待审核",
+  "status_pending_desc": "待审核的帖子",
+  "status_hidden": "隐藏",
+  "status_hidden_desc": "隐藏的帖子",
+  "draft_hint": "草稿内容，仅自己可见",
+  "cover": "封面",
+  "cover_hint": "可选，填写图片链接",
+  "cover_upload_failed": "封面上传失败",
+  "select_board_error": "请选择板块",
+  "save_draft": "保存草稿",
+
   "share": "分享"
 }
