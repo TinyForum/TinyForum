@@ -1,9 +1,5 @@
 package user
 
-import (
-	"tiny-forum/internal/model/do"
-)
-
 // LoginInput 登录请求
 type LoginInput struct {
 	Email    string `json:"email" binding:"required,email"`
@@ -18,12 +14,6 @@ type LoginInput struct {
 // }
 
 // UserProfileResponse 用户资料响应（含关注统计）
-type UserProfileResponse struct {
-	*do.User
-	FollowerCount  int64 `json:"follower_count"`
-	FollowingCount int64 `json:"following_count"`
-	IsFollowing    bool  `json:"is_following"`
-}
 
 // LeaderboardItem 排行榜条目
 type LeaderboardItem struct {

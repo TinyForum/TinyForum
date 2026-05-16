@@ -43,7 +43,7 @@ type UserService interface {
 	// profile
 	GetProfile(userID uint) (*do.User, error)
 	UpdateProfile(userID uint, input do.UpdateProfileInput) error
-	GetUserProfile(targetID, viewerID uint) (*UserProfileResponse, error)
+	GetUserProfile(targetID, viewerID uint) (*vo.UserProfileVO, error)
 	GetUserBasicInfo(userID uint) (*do.User, error)
 	GetUserRoleById(userID uint) (string, error)
 	// stats

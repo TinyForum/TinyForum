@@ -11,14 +11,14 @@ import {
   UpdateProfilePayload,
 } from "../types/user.model";
 import { ApiResponse, PageData } from "../types/basic.model";
-import { UserDO } from "../types/user.model.do";
+import { ProfileResponse, UserDO } from "../types/user.model.do";
 
 // ========== API 方法 ==========
 export const userApi = {
   // ---------- 用户公开信息 ----------
   /** 获取指定用户公开资料 (无需登录) */
   getProfile: (id: number) =>
-    apiClient.get<ApiResponse<UserDO>>(`/users/${id}`),
+    apiClient.get<ApiResponse<ProfileResponse>>(`/users/${id}`),
 
   /** 获取当前用户的角色 (需登录) */
   getMeRole: () => apiClient.get<ApiResponse<RoleResponse>>("/users/me/role"),

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"tiny-forum/internal/model/do"
+	"tiny-forum/internal/model/vo"
 	apperrors "tiny-forum/pkg/errors"
 
 	"gorm.io/gorm"
@@ -33,7 +34,7 @@ func (s *userService) UpdateProfile(userID uint, input do.UpdateProfileInput) er
 }
 
 // GetUserProfile 获取他人资料（含关注统计）
-func (s *userService) GetUserProfile(targetID, viewerID uint) (*UserProfileResponse, error) {
+func (s *userService) GetUserProfile(targetID, viewerID uint) (*vo.UserProfileVO, error) {
 	user, err := s.repo.FindByID(targetID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -42,7 +43,7 @@ func (s *userService) GetUserProfile(targetID, viewerID uint) (*UserProfileRespo
 		return nil, fmt.Errorf("查询用户失败: %w", err)
 	}
 
-	resp := &UserProfileResponse{
+	resp := &vo.UserProfileVO{
 		User:           user,
 		FollowerCount:  s.repo.GetFollowerCount(targetID),
 		FollowingCount: s.repo.GetFollowingCount(targetID),

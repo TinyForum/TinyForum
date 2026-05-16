@@ -15,20 +15,10 @@ import {
   Link as LinkIcon,
 } from "lucide-react";
 import Avatar from "./Avatar";
+import { ProfileResponse } from "@/shared/api/types/user.model.do";
 
 interface ProfileSidebarProps {
-  profile: {
-    id: number;
-    username: string;
-    avatar: string;
-    bio: string;
-    score: number;
-    created_at: string;
-    role?: string;
-    email?: string;
-    location?: string;
-    website?: string;
-  };
+  profile: ProfileResponse;
   isSelf: boolean;
   isAuthenticated: boolean;
   isFollowing?: boolean;
@@ -63,7 +53,7 @@ export function ProfileSidebar({
             <div className="w-28 h-28 rounded-2xl ring-4 ring-base-100 shadow-xl">
               <Avatar
                 username={profile.username}
-                avatarUrl={profile.avatar}
+                avatarUrl={profile.avatar_url}
                 shape="square"
               />
             </div>
@@ -126,27 +116,6 @@ export function ProfileSidebar({
               {t("joined")} {new Date(profile.created_at).toLocaleDateString()}
             </span>
           </div>
-
-          {profile.location && (
-            <div className="flex items-center gap-2 text-base-content/60">
-              <MapPin className="w-4 h-4 flex-shrink-0" />
-              <span>{profile.location}</span>
-            </div>
-          )}
-
-          {profile.website && (
-            <div className="flex items-center gap-2 text-base-content/60">
-              <LinkIcon className="w-4 h-4 flex-shrink-0" />
-              <a
-                href={profile.website}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-primary truncate"
-              >
-                {profile.website}
-              </a>
-            </div>
-          )}
 
           {profile.email && isSelf && (
             <div className="flex items-center gap-2 text-base-content/60">

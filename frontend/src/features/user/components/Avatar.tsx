@@ -50,6 +50,7 @@ export default function Avatar({
   ringOffsetColor = "base-100",
   zIndex = "auto",
 }: AvatarProps) {
+  console.log("avatarUrl: ", avatarUrl);
   const [hasError, setHasError] = useState(false);
   const [normalizedSrc, setNormalizedSrc] = useState<string>("");
 
