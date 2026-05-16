@@ -14,7 +14,7 @@ import {
 } from "@heroicons/react/24/outline";
 import type { Topic } from "@/shared/api/types/topic.model";
 import { TopicCard } from "@/layout/topic/TopicCard";
-import { ImageUploader } from "@/shared/ui/editor/ImageUploader";
+import { ImageItem, ImageUploader } from "@/shared/ui/editor/ImageUploader";
 import { uploadApi } from "@/shared/api/modules/uploads";
 
 // 错误响应类型
@@ -220,7 +220,7 @@ function CreateTopicModal({
   };
 
   // 当上传组件发生改变时，获取上传后的图片 URL（取第一张为封面）
-  const handleImagesChange = (images: any[]) => {
+  const handleImagesChange = (images: ImageItem[]) => {
     if (images.length > 0 && images[0].url) {
       setForm((prev) => ({ ...prev, cover: images[0].url }));
     } else {

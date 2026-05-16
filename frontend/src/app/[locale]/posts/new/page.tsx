@@ -2,7 +2,13 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { useForm, Controller, useWatch } from "react-hook-form";
+import {
+  useForm,
+  Controller,
+  useWatch,
+  UseFormRegister,
+  FieldErrors,
+} from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useAuthStore } from "@/store/auth";
@@ -11,7 +17,6 @@ import { getErrorMessage } from "@/shared/lib/utils";
 import { FileText, Send, X, FolderOpen, Eye, Edit } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
-import RichEditor from "@/layout/common/RichEditor";
 import { Board } from "@/shared/api/types/board.model";
 import { ApiResponse } from "@/shared/api/types/basic.model";
 import { boardApi } from "@/shared/api/modules/boards";
@@ -21,6 +26,7 @@ import { Tag } from "@/shared/api/types/tag.model";
 import { ImageUploader, ImageItem } from "@/shared/ui/editor/ImageUploader";
 import { uploadApi } from "@/shared/api/modules/uploads";
 import DOMPurify from "dompurify";
+import { RichTextEditor } from "@/shared/ui/editor/RichTextEditor";
 
 // ---------- 表单验证 ----------
 const postSchema = z
@@ -60,8 +66,8 @@ interface BoardListResponse {
 
 // ---------- 左侧：帖子设置组件（类型优化）----------
 interface PostSettingsProps {
-  register: any;
-  errors: any;
+  register: UseFormRegister<PostForm>;
+  errors: FieldErrors<PostForm>;
   boards: Board[];
   tags: Tag[];
   boardsLoading: boolean;
@@ -321,11 +327,11 @@ function PostSettings({
 // ---------- 右侧：编辑器 + 预览组件 ----------
 interface PostEditorProps {
   content: string;
-  onChange: (value: string) => void;
+  setContent: (value: string) => void;
   placeholder?: string;
 }
 
-function PostEditor({ content, onChange, placeholder = "" }: PostEditorProps) {
+function PostEditor({ content, setContent }: PostEditorProps) {
   const [mode, setMode] = useState<"edit" | "preview">("edit");
   const sanitizedHtml = useMemo(() => DOMPurify.sanitize(content), [content]);
 
@@ -357,10 +363,17 @@ function PostEditor({ content, onChange, placeholder = "" }: PostEditorProps) {
 
       <div className="flex-1 min-h-[400px]">
         {mode === "edit" ? (
-          <RichEditor
-            content={content}
-            onChange={onChange}
-            placeholder={placeholder}
+          // <RichEditor
+          //   content={content}
+          //   onChange={onChange}
+          //   placeholder={placeholder}
+          // />
+          <RichTextEditor
+            value={content}
+            onChange={setContent}
+            placeholder="撰写帖子内容..."
+            maxLength={20000}
+            defaultMode="rich"
           />
         ) : (
           <div className="prose prose-sm max-w-none p-4 overflow-auto h-full">
@@ -524,7 +537,7 @@ export default function NewPostPage() {
               render={({ field }) => (
                 <PostEditor
                   content={field.value}
-                  onChange={field.onChange}
+                  setContent={field.onChange}
                   placeholder={t("post_content_placeholder")}
                 />
               )}
