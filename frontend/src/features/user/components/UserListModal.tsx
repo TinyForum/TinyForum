@@ -71,7 +71,7 @@ export function UserListModal({
                     <div className="w-10 h-10 rounded-full">
                       <Avatar
                         username={user.username}
-                        avatarUrl={user.avatar}
+                        avatarUrl={user.avatar_url}
                         size="md"
                       />
                     </div>

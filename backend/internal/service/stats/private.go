@@ -198,7 +198,7 @@ func (s *statsService) getActiveUserInfo(ctx context.Context, startDate, endDate
 		list = append(list, &dto.ActiveUserDetail{
 			UserID:       int64(u.ID),
 			Username:     u.Username,
-			Avatar:       u.Avatar,
+			AvatarUrl:    u.AvatarUrl,
 			LastActiveAt: time.Now(),
 		})
 	}

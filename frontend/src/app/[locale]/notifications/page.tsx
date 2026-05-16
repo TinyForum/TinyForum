@@ -160,7 +160,7 @@ function NotificationCard({
               <div className="w-9 h-9 rounded-full">
                 <Avatar
                   username={notification.sender.username}
-                  avatarUrl={notification.sender.avatar}
+                  avatarUrl={notification.sender.avatar_url}
                   size="md"
                 />
               </div>

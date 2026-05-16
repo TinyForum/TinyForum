@@ -25,9 +25,9 @@ func modelToBO(notif *do.Notification) *bo.NotificationBO {
 
 	if notif.Sender != nil {
 		notificationBO.Sender = &bo.UserBO{
-			ID:       notif.Sender.ID,
-			Username: notif.Sender.Username,
-			Avatar:   notif.Sender.AvatarUrl,
+			ID:        notif.Sender.ID,
+			Username:  notif.Sender.Username,
+			AvatarUrl: notif.Sender.AvatarUrl,
 		}
 	}
 

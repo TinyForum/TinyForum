@@ -45,7 +45,7 @@ export interface GetUserPostsRequest extends PageRequest {
 
 export interface UpdateProfilePayload {
   bio?: string;
-  avatar?: string;
+  avatar_url?: string;
 }
 
 export interface RoleResponse {

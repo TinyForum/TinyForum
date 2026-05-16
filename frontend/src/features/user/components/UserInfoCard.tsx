@@ -24,7 +24,7 @@ export function UserInfoCard({
         <div className="flex items-center gap-4">
           <div className="avatar">
             <div className="w-20 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
-              <Avatar avatarUrl={user?.avatar} size={"full"} />
+              <Avatar avatarUrl={user?.avatar_url} size={"full"} />
             </div>
           </div>
           <div>

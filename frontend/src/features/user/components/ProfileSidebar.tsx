@@ -11,8 +11,6 @@ import {
   Calendar,
   Shield,
   Mail,
-  MapPin,
-  Link as LinkIcon,
 } from "lucide-react";
 import Avatar from "./Avatar";
 import { ProfileResponse } from "@/shared/api/types/user.model.do";

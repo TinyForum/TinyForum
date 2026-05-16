@@ -144,10 +144,10 @@ function TimelineEventCard({ event }: { event: TimelineEvent }) {
         <div className="flex gap-4">
           {/* 用户头像 */}
           <Link href={`/users/${event.actor_id}`} className="flex-shrink-0">
-            {event.actor?.avatar ? (
+            {event.actor?.avatar_url ? (
               <div className="relative w-12 h-12">
                 <Image
-                  src={event.actor.avatar}
+                  src={event.actor.avatar_url}
                   alt={event.actor.username}
                   fill
                   className="rounded-full object-cover ring-2 ring-primary/20"
@@ -244,7 +244,7 @@ function SubscribeCard({
   user: subUser,
   onUnsubscribe,
 }: {
-  user: { id: number; username: string; avatar?: string; bio?: string };
+  user: { id: number; username: string; avatar_url?: string; bio?: string };
   onUnsubscribe: (userId: number) => void;
 }) {
   return (
@@ -253,10 +253,10 @@ function SubscribeCard({
         href={`/users/${subUser.id}`}
         className="flex items-center gap-3 flex-1 min-w-0"
       >
-        {subUser.avatar ? (
+        {subUser.avatar_url ? (
           <div className="relative w-10 h-10">
             <Image
-              src={subUser.avatar}
+              src={subUser.avatar_url}
               alt={subUser.username}
               fill
               className="rounded-full object-cover ring-2 ring-primary/20"
@@ -551,7 +551,7 @@ export default function Timeline() {
                     user={{
                       id: sub.target_user_id,
                       username: `用户${sub.target_user_id}`,
-                      avatar: "",
+                      avatar_url: "",
                     }}
                     onUnsubscribe={handleUnsubscribe}
                   />

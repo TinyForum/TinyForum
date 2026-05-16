@@ -42,7 +42,7 @@ interface Follower {
   user?: {
     id: number;
     username: string;
-    avatar?: string;
+    avatar_url?: string;
   };
   // created_at:string// 可能不在返回的数据中
 }

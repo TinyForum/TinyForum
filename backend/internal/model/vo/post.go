@@ -19,9 +19,9 @@ type PostVO struct {
 	AuthorID uint `json:"author_id"`
 	// 脱敏后的作者信息
 	Author struct {
-		ID       uint   `json:"id"`
-		Username string `json:"username"`
-		Avatar   string `json:"avatar,omitempty"`
+		ID        uint   `json:"id"`
+		Username  string `json:"username"`
+		AvatarUrl string `json:"avatar_url,omitempty"`
 	} `json:"author,omitempty"`
 
 	BoardID uint `json:"board_id"`

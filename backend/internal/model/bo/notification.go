@@ -14,9 +14,9 @@ type NotificationBO struct {
 }
 
 type UserBO struct {
-	ID       uint
-	Username string
-	Avatar   string
+	ID        uint
+	Username  string
+	AvatarUrl string
 }
 
 // NotificationListResult 分页结果

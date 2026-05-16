@@ -32,7 +32,7 @@ export interface QuestionSimple extends BaseModel {
   author: {
     id: number;
     username: string;
-    avatar?: string;
+    avatar_url?: string;
   };
   tags: Array<{
     id: number;

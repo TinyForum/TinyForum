@@ -117,7 +117,7 @@ export default function MobileMenu({
                 >
                   <Avatar
                     username={user.username}
-                    avatarUrl={user.avatar}
+                    avatarUrl={user.avatar_url}
                     size="md"
                   />
                   <div className="flex-1">

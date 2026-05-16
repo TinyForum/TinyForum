@@ -111,7 +111,7 @@ export function UsersTable({
                       <div className="w-8 h-8 rounded-full">
                         <Avatar
                           username={user.username}
-                          avatarUrl={user.avatar}
+                          avatarUrl={user.avatar_url}
                           size="md"
                         />
                       </div>

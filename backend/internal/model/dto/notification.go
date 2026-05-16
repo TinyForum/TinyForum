@@ -7,9 +7,9 @@ type NotificationListRequest struct {
 	PageSize int `form:"page_size" json:"page_size" binding:"min=1,max=100"`
 }
 type NotificationSenderResponse struct {
-	ID       uint   `json:"id"`
-	Username string `json:"username"`
-	Avatar   string `json:"avatar,omitempty"`
+	ID        uint   `json:"id"`
+	Username  string `json:"username"`
+	AvatarUrl string `json:"avatar_url,omitempty"`
 }
 
 type NotificationResponse struct {

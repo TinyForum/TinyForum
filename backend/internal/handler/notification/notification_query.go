@@ -67,9 +67,9 @@ func (h *NotificationHandler) List(c *gin.Context) {
 
 		if notif.Sender != nil {
 			item.Sender = &dto.NotificationSenderResponse{
-				ID:       notif.Sender.ID,
-				Username: notif.Sender.Username,
-				Avatar:   notif.Sender.Avatar,
+				ID:        notif.Sender.ID,
+				Username:  notif.Sender.Username,
+				AvatarUrl: notif.Sender.AvatarUrl,
 			}
 		}
 

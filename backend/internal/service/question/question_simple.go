@@ -6,9 +6,9 @@ import (
 
 // SimpleAuthor 精简的作者信息
 type SimpleAuthor struct {
-	ID     uint   `json:"id"`
-	Name   string `json:"name"`
-	Avatar string `json:"avatar"`
+	ID        uint   `json:"id"`
+	Name      string `json:"name"`
+	AvatarUrl string `json:"avatar_url"`
 }
 
 // SimpleTag 精简的标签信息
@@ -64,9 +64,9 @@ func (s *questionService) GetQuestionSimpleList(pageSize, offset int, boardID *u
 		if err == nil {
 			for i := range authors {
 				authorMap[authors[i].ID] = &SimpleAuthor{
-					ID:     authors[i].ID,
-					Name:   authors[i].Username,
-					Avatar: authors[i].AvatarUrl,
+					ID:        authors[i].ID,
+					Name:      authors[i].Username,
+					AvatarUrl: authors[i].AvatarUrl,
 				}
 			}
 		}
@@ -122,9 +122,9 @@ func (s *questionService) GetQuestionSimpleByID(questionID uint) (*QuestionSimpl
 	author, err := s.userRepo.FindByID(question.AuthorID)
 	if err == nil && author != nil {
 		simpleAuthor = &SimpleAuthor{
-			ID:     author.ID,
-			Name:   author.Username,
-			Avatar: author.AvatarUrl,
+			ID:        author.ID,
+			Name:      author.Username,
+			AvatarUrl: author.AvatarUrl,
 		}
 	}
 	simpleTags := []SimpleTag{}
