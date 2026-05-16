@@ -1,6 +1,5 @@
 import apiClient from "../../client";
-import { ApiResponse, PageRequest } from "../../types/basic.model";
-import { UserStatsVO } from "../../types/user.model";
+import { ApiResponse } from "../../types/basic.model";
 
 /** 用户违规 */
 export const userViolationApi = {

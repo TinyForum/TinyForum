@@ -128,8 +128,8 @@ export const useRegisterStore = create<RegisterState>()((set, get) => ({
     try {
       const res = await authApi.register({ username, email, password });
 
-      if (res.data.data?.user) {
-        const { user } = res.data.data;
+      if (res.data.data) {
+        const user = res.data.data;
         useAuthStore.getState().setAuth(user);
         resetForm();
         return { success: true, message: "注册成功" };

@@ -20,7 +20,7 @@ import { AnnouncementFormValues } from "@/shared/type/announcement.type";
 import { formValuesToPayload } from "@/shared/lib/helpers/formValuesToPayload";
 import { formatDate } from "@/shared/lib/format/formatDate";
 import { announcementToFormValues } from "@/shared/lib/helpers/announcementToFormValues";
-import { AnnouncementDO } from "@/shared/api/types/announcement.model";
+import { AnnouncementDO } from "@/shared/api/types/announcement.model.do";
 
 export function AnnouncementsManager({ t }: { t: (key: string) => string }) {
   const [announcementType, setAnnouncementType] = useState<"global" | "board">(

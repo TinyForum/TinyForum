@@ -78,6 +78,7 @@ export async function loadPluginScript(
     };
 
     script.onerror = (event) => {
+      console.log("事件: ", event);
       clearTimeout(timer);
       script.remove();
       reject(

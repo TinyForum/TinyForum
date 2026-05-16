@@ -1,7 +1,8 @@
+import {} from "../api/types/announcement.model";
 import {
   AnnouncementType,
   CreateAnnouncementStatus,
-} from "../api/types/announcement.model";
+} from "../api/types/announcement.model.do";
 
 // 类型定义 - 让可选字段真正可选
 export interface AnnouncementFormValues {

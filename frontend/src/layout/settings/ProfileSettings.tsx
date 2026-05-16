@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useCallback } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useAuthStore } from "@/store/auth";
@@ -34,7 +34,7 @@ export default function ProfileSettings({ user }: ProfileSettingsProps) {
     register,
     handleSubmit,
     setValue,
-    watch,
+    control,
     formState: { errors, isDirty },
   } = useForm<ProfileForm>({
     resolver: zodResolver(profileSchema),
@@ -44,9 +44,10 @@ export default function ProfileSettings({ user }: ProfileSettingsProps) {
     },
     mode: "onChange",
   });
-
-  const currentAvatar = watch("avatar");
-  const bioValue = watch("bio");
+  const currentAvatar = useWatch({ control, name: "avatar" });
+  const bioValue = useWatch({ control, name: "bio" });
+  // const currentAvatar = watch("avatar");
+  // const bioValue = watch("bio");
 
   // 处理文件选择并上传头像
   const handleFileSelect = useCallback(

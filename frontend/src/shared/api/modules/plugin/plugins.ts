@@ -17,6 +17,17 @@ export interface UpdatePluginPayload extends Partial<CreatePluginPayload> {
   id: string;
 }
 
+// export interface ListPluginRequest {
+//   page?: number;
+//   page_size?: number;
+//   author_id?: number;
+//   tags?: string[];
+//   type?: string;
+//   keyword?: string;
+//   sort_by?: string;
+//   status?: "active" | "inactive" | "all";
+// }
+
 export interface PluginListParams {
   enabled?: boolean;
   page?: number;

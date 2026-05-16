@@ -1,4 +1,4 @@
-import { AnnouncementDO } from "@/shared/api/types/announcement.model";
+import { AnnouncementDO } from "@/shared/api/types/announcement.model.do";
 import {
   getAnnouncementTypeBadge,
   getAnnouncementStatusBadge,

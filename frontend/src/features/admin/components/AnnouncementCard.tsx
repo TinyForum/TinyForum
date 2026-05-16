@@ -1,8 +1,8 @@
 import {
   AnnouncementDO,
-  AnnouncementType,
   AnnouncementStatus,
-} from "@/shared/api/types/announcement.model";
+  AnnouncementType,
+} from "@/shared/api/types/announcement.model.do";
 import {
   Pin,
   Eye,

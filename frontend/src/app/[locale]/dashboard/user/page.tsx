@@ -17,14 +17,10 @@ import { useUserRole } from "@/features/user/hooks/useUserRole";
 import { useUserStats } from "@/features/user/hooks/useUserStats";
 import { BotManager } from "@/features/bot/components/BotManager";
 import {
-  Ban,
   BanIcon,
-  BellIcon,
   BotIcon,
-  Heart,
   HeartIcon,
   KanbanSquareIcon,
-  Lollipop,
   LollipopIcon,
   MessageCircleIcon,
   NotebookIcon,

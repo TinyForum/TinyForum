@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { announcementApi } from "@/shared/api/modules/announcements";
 import toast from "react-hot-toast";
-import { AnnouncementDO } from "@/shared/api/types/announcement.model";
 import { ApiResponse } from "@/shared/api/types/basic.model";
+import { AnnouncementDO } from "@/shared/api/types/announcement.model.do";
 
 // ============ 用于单个公告的 Hook ============
 interface UseAdminAnnouncementOptions {

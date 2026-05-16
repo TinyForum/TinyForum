@@ -1,11 +1,8 @@
 import { Search, Pin, Trash2 } from "lucide-react";
 import { useState, useEffect } from "react";
 
-import type { Post } from "@/shared/api/types"; // 确保这个 Post 包含 reply_count, is_pinned 等
-import type { PageData } from "@/shared/api/types/basic.model";
+import type { Post } from "@/shared/api/types";
 import { useAdminGetPosts, useAdminTogglePin } from "../hooks/useAdminPosts";
-
-// 不再需要局部 interface
 
 export function PostManagement() {
   const [keyword, setKeyword] = useState<string>("");

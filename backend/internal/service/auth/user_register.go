@@ -52,11 +52,11 @@ func (s *authService) Register(ctx context.Context, input request.RegisterReques
 	}
 
 	user := &do.User{
-		Username: input.Username,
-		Email:    input.Email,
-		Password: string(hashed),
-		Role:     do.RoleUser,
-		AvatarUrl:   avatarURL(input.Username),
+		Username:  input.Username,
+		Email:     input.Email,
+		Password:  string(hashed),
+		Role:      do.RoleUser,
+		AvatarUrl: avatarURL(input.Username),
 	}
 	if err := s.userRepo.Create(user); err != nil {
 		return nil, err

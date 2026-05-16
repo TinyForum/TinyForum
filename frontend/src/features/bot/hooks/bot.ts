@@ -8,7 +8,6 @@ import {
   UpdateBotRequest,
 } from "@/shared/api/types/bot.model";
 import { botApi, RunEventData } from "@/shared/api/modules/bot";
-import { NocodeMetadata } from "../noco.type";
 
 // 工具函数：从未知错误中提取消息（保持不变）
 const getErrorMessage = (err: unknown): string => {

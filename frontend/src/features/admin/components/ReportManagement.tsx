@@ -26,7 +26,7 @@ export function ReportManagement() {
   } = useAdminGetReports({
     page,
     pageSize,
-    status: status as any, // 类型断言，后端接受 pending/resolved/rejected
+    status: status,
   });
 
   const { mutate: handleReport, isPending: isHandling } =

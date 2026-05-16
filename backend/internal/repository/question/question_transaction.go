@@ -22,7 +22,7 @@ func (r *questionRepository) CreateWithTransaction(userID uint, input dto.Create
 		Title:      input.Title,
 		Content:    input.Content,
 		Summary:    input.Summary,
-		CoverUrl:      input.Cover,
+		CoverUrl:   input.Cover,
 		BoardID:    input.BoardID,
 		AuthorID:   userID,
 		Type:       do.PostTypeQuestion,
