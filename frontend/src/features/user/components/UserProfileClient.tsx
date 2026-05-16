@@ -1,82 +1,55 @@
 "use client";
 
-import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { userApi } from "@/shared/api/modules/user";
+import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useAuthStore } from "@/store/auth";
 import toast from "react-hot-toast";
 import { useTranslations } from "next-intl";
 import { ProfileSidebar } from "./ProfileSidebar";
 import { ProfileContent } from "./ProfileContent";
 import { UserListModal } from "./UserListModal";
+import { useUserProfile } from "../hooks/useUserProfile";
+import { userApi } from "@/shared/api/modules/user";
 import { UserDO } from "@/shared/api/types/user.model.do";
-
-import { ApiResponse } from "@/shared/api/types/basic.model";
-
-// 类型定义
-interface FollowersResponse {
-  list: UserDO[];
-  total: number;
-  page: number;
-  page_size: number;
-}
+import { useFollowAction } from "../hooks/useFollowAction";
+import { useFollowList } from "../hooks/useFollowList";
 
 export default function UserProfileClient({ userId }: { userId: number }) {
   const { user: currentUser, isAuthenticated } = useAuthStore();
-  const queryClient = useQueryClient();
-  const [showFollowers, setShowFollowers] = useState(false);
-  const [showFollowing, setShowFollowing] = useState(false);
   const t = useTranslations("Profile");
 
-  // 获取用户资料
-  const { data: profile, isLoading } = useQuery({
-    queryKey: ["user", userId],
-    queryFn: () =>
-      userApi
-        .getProfile(userId)
-        .then((r: { data: ApiResponse<UserDO> }) => r.data.data),
-  });
+  // 弹窗状态
+  const [showFollowers, setShowFollowers] = useState(false);
+  const [showFollowing, setShowFollowing] = useState(false);
 
-  // 获取粉丝列表（用于获取粉丝数）
-  const { data: followersData } = useQuery({
-    queryKey: ["user-followers-count", userId],
-    queryFn: () =>
-      userApi
-        .getFollowers(userId, { page: 1, page_size: 1 })
-        .then((r: { data: ApiResponse<FollowersResponse> }) => r.data.data),
-  });
+  // 1. 用户资料
+  const {
+    profile: profile,
+    loading: profileLoading,
+    loadProfile,
+  } = useUserProfile();
 
-  // 获取关注列表（用于获取关注数）
-  const { data: followingData } = useQuery({
-    queryKey: ["user-following-count", userId],
-    queryFn: () =>
-      userApi
-        .getFollowing(userId, { page: 1, page_size: 1 })
-        .then((r: { data: ApiResponse<FollowersResponse> }) => r.data.data),
-  });
+  // 2. 粉丝列表（独立实例）
+  const {
+    users: followersList,
+    total: followersTotal,
+    loading: followersLoading,
+    loadFollowers,
+  } = useFollowList();
 
-  // 获取粉丝详细列表（弹窗用）
-  const { data: followersDetail, isLoading: followersLoading } = useQuery({
-    queryKey: ["user-followers-detail", userId],
-    queryFn: () =>
-      userApi
-        .getFollowers(userId, { page: 1, page_size: 100 })
-        .then((r: { data: ApiResponse<FollowersResponse> }) => r.data.data),
-    enabled: showFollowers,
-  });
+  // 3. 关注列表（独立实例）
+  const {
+    users: followingList,
+    total: followingTotal,
+    loading: followingLoading,
+    loadFollowing,
+  } = useFollowList();
 
-  // 获取关注详细列表（弹窗用）
-  const { data: followingDetail, isLoading: followingLoading } = useQuery({
-    queryKey: ["user-following-detail", userId],
-    queryFn: () =>
-      userApi
-        .getFollowing(userId, { page: 1, page_size: 100 })
-        .then((r: { data: ApiResponse<FollowersResponse> }) => r.data.data),
-    enabled: showFollowing,
-  });
+  // 4. 关注操作
+  const { follow, unfollow, loading: followActionLoading } = useFollowAction();
 
-  // 检查当前用户是否关注了该用户
-  const { data: isFollowing } = useQuery({
+  // 5. 当前用户是否已关注该用户（通过查询当前用户的关注列表判断）
+  const { data: isFollowing, refetch: refetchFollowStatus } = useQuery({
     queryKey: ["check-following", userId, currentUser?.id],
     queryFn: async () => {
       if (!currentUser || currentUser.id === userId) return false;
@@ -84,60 +57,49 @@ export default function UserProfileClient({ userId }: { userId: number }) {
         page: 1,
         page_size: 100,
       });
-      const data = res.data.data as FollowersResponse;
-      return data.list?.some((u: UserDO) => u.id === userId) ?? false;
+      const data = res.data.data;
+      return data?.list?.some((u: UserDO) => u.id === userId) ?? false;
     },
     enabled: !!currentUser && currentUser.id !== userId,
   });
 
-  // 关注/取消关注 mutation
-  const followMutation = useMutation({
-    mutationFn: () => userApi.follow(userId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["user-followers-count", userId],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["user-following-count", userId],
-      });
-      queryClient.invalidateQueries({ queryKey: ["check-following", userId] });
-      queryClient.invalidateQueries({
-        queryKey: ["user-followers-detail", userId],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["user-following-detail", userId],
-      });
-      toast.success(t("followed"));
-    },
-    onError: () => toast.error(t("operation_failed")),
-  });
+  // 加载用户资料
+  useEffect(() => {
+    if (userId) {
+      loadProfile(userId);
+    }
+  }, [userId, loadProfile]);
 
-  const unfollowMutation = useMutation({
-    mutationFn: () => userApi.unfollow(userId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["user-followers-count", userId],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["user-following-count", userId],
-      });
-      queryClient.invalidateQueries({ queryKey: ["check-following", userId] });
-      queryClient.invalidateQueries({
-        queryKey: ["user-followers-detail", userId],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["user-following-detail", userId],
-      });
-      toast.success(t("unfollowed"));
-    },
-    onError: () => toast.error(t("operation_failed")),
-  });
+  // 弹窗打开时加载对应列表
+  useEffect(() => {
+    if (showFollowers) {
+      loadFollowers(userId, 1, 100);
+    }
+  }, [showFollowers, userId, loadFollowers]);
 
-  const handleFollowAction = () => {
+  useEffect(() => {
+    if (showFollowing) {
+      loadFollowing(userId, 1, 100);
+    }
+  }, [showFollowing, userId, loadFollowing]);
+
+  // 关注/取消关注后的回调：刷新关注状态和粉丝/关注数量
+  const handleFollowAction = async () => {
     if (isFollowing) {
-      unfollowMutation.mutate();
+      const success = await unfollow(userId);
+      if (success) {
+        refetchFollowStatus();
+        // 刷新粉丝/关注列表（如果有弹窗打开）
+        if (showFollowers) loadFollowers(userId, 1, 100);
+        if (showFollowing) loadFollowing(userId, 1, 100);
+      }
     } else {
-      followMutation.mutate();
+      const success = await follow(userId);
+      if (success) {
+        refetchFollowStatus();
+        if (showFollowers) loadFollowers(userId, 1, 100);
+        if (showFollowing) loadFollowing(userId, 1, 100);
+      }
     }
   };
 
@@ -145,7 +107,7 @@ export default function UserProfileClient({ userId }: { userId: number }) {
     window.location.href = `/users/${clickedUserId}`;
   };
 
-  if (isLoading) {
+  if (profileLoading) {
     return (
       <div className="flex gap-6 max-w-6xl mx-auto">
         <div className="w-80 flex-shrink-0">
@@ -168,8 +130,9 @@ export default function UserProfileClient({ userId }: { userId: number }) {
   }
 
   const isSelf = currentUser?.id === userId;
-  const followerCount = followersData?.total ?? 0;
-  const followingCount = followingData?.total ?? 0;
+  // 粉丝/关注总数可从 profile 中获取（若有），否则从列表中取
+  const followerCount = profile.follower_count ?? followersTotal;
+  const followingCount = profile.following_count ?? followingTotal;
 
   return (
     <div className="flex gap-6 max-w-6xl mx-auto">
@@ -179,15 +142,13 @@ export default function UserProfileClient({ userId }: { userId: number }) {
           profile={profile}
           isSelf={isSelf}
           isAuthenticated={isAuthenticated}
-          isFollowing={isFollowing}
+          isFollowing={!!isFollowing}
           followerCount={followerCount}
           followingCount={followingCount}
           onFollow={handleFollowAction}
           onShowFollowers={() => setShowFollowers(true)}
           onShowFollowing={() => setShowFollowing(true)}
-          isFollowPending={
-            followMutation.isPending || unfollowMutation.isPending
-          }
+          isFollowPending={followActionLoading}
         />
       </div>
 
@@ -200,8 +161,8 @@ export default function UserProfileClient({ userId }: { userId: number }) {
       {showFollowers && (
         <UserListModal
           title={t("followers")}
-          users={followersDetail?.list || []}
-          total={followersDetail?.total || 0}
+          users={followersList}
+          total={followersTotal}
           isLoading={followersLoading}
           onClose={() => setShowFollowers(false)}
           onUserClick={handleUserClick}
@@ -212,8 +173,8 @@ export default function UserProfileClient({ userId }: { userId: number }) {
       {showFollowing && (
         <UserListModal
           title={t("following")}
-          users={followingDetail?.list || []}
-          total={followingDetail?.total || 0}
+          users={followingList}
+          total={followingTotal}
           isLoading={followingLoading}
           onClose={() => setShowFollowing(false)}
           onUserClick={handleUserClick}

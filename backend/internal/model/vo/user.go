@@ -62,3 +62,10 @@ type UserPublicVO struct {
 	Name   string `json:"nickname"` // 用户昵称
 	Avatar string `json:"avatar"`   // 用户头像
 }
+
+type UserProfileVO struct {
+	*do.User
+	FollowerCount  int64 `json:"follower_count"`
+	FollowingCount int64 `json:"following_count"`
+	IsFollowing    bool  `json:"is_following"`
+}
