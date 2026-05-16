@@ -1,4 +1,3 @@
-// components/ui/RichTextEditor.tsx
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
@@ -35,10 +34,8 @@ import {
   Code2,
 } from "lucide-react";
 
-// 初始化 lowlight (代码高亮)
 const lowlight = createLowlight(all);
 
-// Turndown: HTML -> Markdown
 const turndownService = new TurndownService({
   headingStyle: "atx",
   codeBlockStyle: "fenced",
@@ -53,25 +50,20 @@ turndownService.addRule("fencedCodeBlock", {
   },
 });
 
-// Marked: Markdown -> HTML
 marked.setOptions({ gfm: true, breaks: true });
 
 export type EditorMode = "rich" | "markdown";
 
 interface RichTextEditorProps {
-  /** HTML 内容（富文本模式存储） */
   value?: string;
-  /** 内容变化回调，返回 HTML */
   onChange?: (html: string) => void;
   placeholder?: string;
   disabled?: boolean;
   className?: string;
   defaultMode?: EditorMode;
-  /** 字符数限制，默认 50000，设为 0 禁用 */
   maxLength?: number;
 }
 
-// 工具栏按钮（提取外部避免运行时创建）
 interface ToolbarButtonProps {
   onClick: () => void;
   active?: boolean;
@@ -110,10 +102,9 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
   const [mode, setMode] = useState<EditorMode>(defaultMode);
   const [markdownContent, setMarkdownContent] = useState("");
 
-  // 扩展列表（根据模式动态启用/禁用部分扩展？不需要，编辑器仅在富文本模式可编辑）
   const extensions = [
     StarterKit.configure({
-      codeBlock: false, // 使用 CodeBlockLowlight 替代
+      codeBlock: false,
     }),
     CodeBlockLowlight.configure({ lowlight }),
     Placeholder.configure({ placeholder }),
@@ -128,7 +119,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
   const editor = useEditor({
     extensions,
     content: value,
-    editable: !disabled && mode === "rich",
+    editable: !disabled && mode === "rich", // 初始值
     onUpdate: ({ editor }) => {
       const html = editor.getHTML();
       onChange?.(html);
@@ -137,13 +128,27 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
       }
     },
   });
+  useEffect(() => {
+    if (editor) {
+      editor.setEditable(!disabled && mode === "rich");
+    }
+  }, [editor, disabled, mode]);
 
-  // 当外部 value 变化时同步编辑器内容（仅富文本模式）
+  // 同步外部 value 到编辑器
   useEffect(() => {
     if (editor && value !== editor.getHTML() && mode === "rich") {
       editor.commands.setContent(value);
     }
   }, [value, editor, mode]);
+
+  // 组件卸载时销毁编辑器（必须放在条件返回之前）
+  useEffect(() => {
+    return () => {
+      if (editor && !editor.isDestroyed) {
+        editor.destroy();
+      }
+    };
+  }, [editor]);
 
   // 切换到 Markdown 模式
   const switchToMarkdown = useCallback(() => {
@@ -167,7 +172,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
     }
   }, [editor, markdownContent, onChange]);
 
-  // Markdown 编辑变化
+  // Markdown 内容变化
   const handleMarkdownChange = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
       const newMd = e.target.value;
@@ -179,6 +184,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
     [onChange],
   );
 
+  // 条件返回必须放在所有 Hooks 之后
   if (!editor) return null;
 
   const characterCount = editor.storage.characterCount?.characters() || 0;
@@ -189,7 +195,6 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
     >
       {/* 工具栏区域 */}
       <div className="flex flex-wrap items-center gap-0.5 p-2 border-b border-base-300 bg-base-200">
-        {/* 模式切换 */}
         <div className="flex gap-1 mr-2 border-r border-base-300 pr-2">
           <button
             onClick={() => mode === "markdown" && switchToRich()}
@@ -342,57 +347,48 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
 
       {/* 编辑区域 */}
       <div className="bg-base-100">
-        {mode === "rich" && (
-          <>
-            <EditorContent
-              editor={editor}
-              className="tiptap p-4 min-h-[300px] focus:outline-none"
-            />
-            {editor && (
-              <>
-                <BubbleMenu editor={editor} tippyOptions={{ duration: 100 }}>
-                  <div className="flex gap-1 bg-base-100 shadow-lg rounded border border-base-300 p-1">
-                    <ToolbarButton
-                      onClick={() => editor.chain().focus().toggleBold().run()}
-                    >
-                      <Bold className="w-3 h-3" />
-                    </ToolbarButton>
-                    <ToolbarButton
-                      onClick={() =>
-                        editor.chain().focus().toggleItalic().run()
-                      }
-                    >
-                      <Italic className="w-3 h-3" />
-                    </ToolbarButton>
-                    <ToolbarButton
-                      onClick={() => editor.chain().focus().toggleCode().run()}
-                    >
-                      <Code className="w-3 h-3" />
-                    </ToolbarButton>
-                  </div>
-                </BubbleMenu>
-                <FloatingMenu editor={editor} tippyOptions={{ duration: 100 }}>
-                  <div className="bg-base-100 shadow-lg rounded border border-base-300 p-1">
-                    <ToolbarButton
-                      onClick={() =>
-                        editor.chain().focus().toggleHeading({ level: 2 }).run()
-                      }
-                    >
-                      H2
-                    </ToolbarButton>
-                    <ToolbarButton
-                      onClick={() =>
-                        editor.chain().focus().toggleBulletList().run()
-                      }
-                    >
-                      列表
-                    </ToolbarButton>
-                  </div>
-                </FloatingMenu>
-              </>
-            )}
-          </>
-        )}
+        <div style={{ display: mode === "rich" ? "block" : "none" }}>
+          <EditorContent
+            editor={editor}
+            className="tiptap p-4 min-h-[300px] focus:outline-none"
+          />
+          <BubbleMenu editor={editor} tippyOptions={{ duration: 100 }}>
+            <div className="flex gap-1 bg-base-100 shadow-lg rounded border border-base-300 p-1">
+              <ToolbarButton
+                onClick={() => editor.chain().focus().toggleBold().run()}
+              >
+                <Bold className="w-3 h-3" />
+              </ToolbarButton>
+              <ToolbarButton
+                onClick={() => editor.chain().focus().toggleItalic().run()}
+              >
+                <Italic className="w-3 h-3" />
+              </ToolbarButton>
+              <ToolbarButton
+                onClick={() => editor.chain().focus().toggleCode().run()}
+              >
+                <Code className="w-3 h-3" />
+              </ToolbarButton>
+            </div>
+          </BubbleMenu>
+          <FloatingMenu editor={editor} tippyOptions={{ duration: 100 }}>
+            <div className="bg-base-100 shadow-lg rounded border border-base-300 p-1">
+              <ToolbarButton
+                onClick={() =>
+                  editor.chain().focus().toggleHeading({ level: 2 }).run()
+                }
+              >
+                H2
+              </ToolbarButton>
+              <ToolbarButton
+                onClick={() => editor.chain().focus().toggleBulletList().run()}
+              >
+                列表
+              </ToolbarButton>
+            </div>
+          </FloatingMenu>
+        </div>
+
         {mode === "markdown" && (
           <textarea
             value={markdownContent}
