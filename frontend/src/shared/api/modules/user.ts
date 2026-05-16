@@ -9,9 +9,9 @@ import {
   LeaderboardRequest,
   RoleResponse,
   UpdateProfilePayload,
-  UserDO,
 } from "../types/user.model";
 import { ApiResponse, PageData } from "../types/basic.model";
+import { UserDO } from "../types/user.model.do";
 
 // ========== API 方法 ==========
 export const userApi = {

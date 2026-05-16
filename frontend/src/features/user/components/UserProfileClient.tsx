@@ -9,7 +9,8 @@ import { useTranslations } from "next-intl";
 import { ProfileSidebar } from "./ProfileSidebar";
 import { ProfileContent } from "./ProfileContent";
 import { UserListModal } from "./UserListModal";
-import { UserDO } from "@/shared/api/types/user.model";
+import { UserDO } from "@/shared/api/types/user.model.do";
+
 import { ApiResponse } from "@/shared/api/types/basic.model";
 
 // 类型定义

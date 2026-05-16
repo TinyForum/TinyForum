@@ -1,4 +1,4 @@
-import { UserDO } from "./user.model";
+import { UserDO } from "./user.model.do";
 
 export type NotificationType =
   | "comment"

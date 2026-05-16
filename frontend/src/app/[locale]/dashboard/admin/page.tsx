@@ -18,7 +18,7 @@ import { useAdminAuth } from "@/features/admin/hooks/useAdminAuth";
 import { usePostsData } from "@/features/admin/hooks/usePostsData";
 import { useQAData } from "@/features/admin/hooks/useQAData";
 import { useUsersData } from "@/features/admin/hooks/useUsersData";
-import { UserDO } from "@/shared/api/types/user.model";
+import { UserDO } from "@/shared/api/types/user.model.do";
 import { BotManager } from "@/features/bot/components/BotManager";
 
 // 导入类型

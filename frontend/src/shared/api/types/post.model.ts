@@ -1,7 +1,7 @@
 import { Board } from "./board.model";
 import { Question } from "./question.model";
 import { Tag } from "./tag.model";
-import { UserDO } from "./user.model";
+import { UserDO } from "./user.model.do";
 
 // ─── 普通帖子 ─────────────────────────────────────────────────────────────────
 export type PostType = "post" | "article" | "topic" | "question";

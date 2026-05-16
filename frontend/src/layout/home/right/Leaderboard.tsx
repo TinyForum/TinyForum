@@ -53,7 +53,7 @@ export function Leaderboard({ leaderboard }: LeaderboardProps) {
               {getRankIcon(index)}
             </div>
             <div className="relative w-7 h-7 flex-shrink-0">
-              <Avatar username={user.username} avatarUrl={user.avatar} />
+              <Avatar username={user.username} avatarUrl={user.avatar_url} />
             </div>
             <span className="flex-1 text-sm truncate font-medium">
               {user.username}

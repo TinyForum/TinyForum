@@ -1,5 +1,5 @@
 import { Post } from "./post.model";
-import { UserDO } from "./user.model";
+import { UserDO } from "./user.model.do";
 
 export interface Topic {
   id: number;

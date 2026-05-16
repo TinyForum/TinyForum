@@ -20,7 +20,7 @@ import {
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import Avatar from "@/features/user/components/Avatar";
-import { UserDO } from "@/shared/api/types/user.model";
+import { UserDO } from "@/shared/api/types/user.model.do";
 
 interface NavItem {
   key: string;

@@ -10,7 +10,8 @@ import NotificationBell from "@/shared/ui/nav/NotificationBell";
 import QuickActions from "@/shared/ui/nav/QuickActions";
 import UserDropdown from "@/shared/ui/nav/UserDropdown";
 import LanguageSwitcher from "./LanguageSwitcher";
-import { UserDO } from "@/shared/api/types/user.model";
+import { UserDO } from "@/shared/api/types/user.model.do";
+
 // User 类型直接从项目 store 引入，与 UserDropdown 期望的类型保持一致
 
 // ─────────────────────────────────────────────

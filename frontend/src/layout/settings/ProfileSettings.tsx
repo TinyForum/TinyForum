@@ -10,7 +10,8 @@ import { getErrorMessage } from "@/shared/lib/utils";
 import { Save, AlertCircle, Camera } from "lucide-react";
 import Avatar from "@/features/user/components/Avatar";
 import { userApi } from "@/shared/api/modules/user";
-import { UserDO } from "@/shared/api/types/user.model";
+import { UserDO } from "@/shared/api/types/user.model.do";
+
 import { useUpload } from "@/features/upload/hooks/useUpload";
 
 // 移除 avatar 的 URL 校验，允许任意字符串（包括相对路径、协议相对路径）

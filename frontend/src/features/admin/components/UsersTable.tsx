@@ -7,7 +7,7 @@ import { useTranslations } from "next-intl";
 import Avatar from "@/features/user/components/Avatar";
 import { RoleBadge } from "@/layout/common/RoleBadge";
 import { UserRoleType } from "@/shared/api/types/roles.model";
-import { UserDO } from "@/shared/api/types/user.model";
+import { UserDO } from "@/shared/api/types/user.model.do";
 
 // 翻译函数的类型定义
 
