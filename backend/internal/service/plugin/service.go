@@ -20,10 +20,10 @@ type pluginService struct {
 }
 type PluginService interface {
 	// create
-	Create(ctx context.Context, fileHeader *multipart.FileHeader, userID uint) (*do.PluginMeta, error) // 创建插件（用户上传）
+	Create(ctx context.Context, fileHeader *multipart.FileHeader, userID uint) (*do.PluginManifest, error) // 创建插件（用户上传）
 	// query
 	ListPlugins(ctx context.Context, queryBO *bo.PageQuery[bo.PluginQueryBO]) (*common.PageResult[vo.PluginMetaVO], error) // 获取插件列表
-	ListUserPlugins(ctx context.Context, userID uint) ([]*do.PluginMeta, error)                                            // 获取当前用户创建的插件列表
+	ListUserPlugins(ctx context.Context, userID uint) ([]*do.PluginManifest, error)                                        // 获取当前用户创建的插件列表
 	// delete
 	DeletePlugin(ctx context.Context, pluginSlug string, userID uint) error // 删除插件
 	// update

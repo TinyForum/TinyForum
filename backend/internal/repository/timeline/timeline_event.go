@@ -32,7 +32,7 @@ func (r *timelineRepository) GetFollowingTimeline(userID uint, limit, offset int
 	var total int64
 
 	subQuery := r.db.Table("timeline_subscriptions").
-		Select("target_user_id").
+		Select("target_id").
 		Where("subscriber_id = ? AND target_type = ? AND is_active = ?", userID, "user", true)
 
 	query := r.db.Model(&do.TimelineEvent{}).

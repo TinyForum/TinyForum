@@ -27,7 +27,7 @@ import (
 // @Failure 500 {object} common.BasicResponse "服务器内部错误"
 // @Router /admin/announcements/list [get]
 func (h *AdminHandler) ListAnnouncements(c *gin.Context) {
-	var req request.ListAnnouncements
+	var req request.ListAnnouncementsRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
 		response.HandleError(c, err)
 		return

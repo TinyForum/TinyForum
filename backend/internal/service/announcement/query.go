@@ -23,14 +23,14 @@ func (s *announcementService) GetByID(ctx context.Context, id uint) (*do.Announc
 	return announcement, nil
 }
 
-func (s *announcementService) List(ctx context.Context, req *request.ListAnnouncements) (*vo.ListAnnouncements, error) {
+func (s *announcementService) List(ctx context.Context, req *request.ListAnnouncementsRequest) (*vo.ListAnnouncements, error) {
 	if req.Page <= 0 {
 		req.Page = 1
 	}
 	if req.PageSize <= 0 {
 		req.PageSize = 20
 	}
-	repoReq := &request.ListAnnouncements{
+	repoReq := &request.ListAnnouncementsRequest{
 
 		Page:      req.Page,
 		PageSize:  req.PageSize,

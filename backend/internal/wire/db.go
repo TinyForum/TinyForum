@@ -96,7 +96,7 @@ func InitDB(cfg *config.Config) (*gorm.DB, error) {
 		&do.BlockedIP{},        // 被封禁IP
 		&do.Violation{},        // 违规
 		&do.Favorite{},         // 收藏
-		&do.PluginMeta{},       // 插件元数据
+		&do.PluginManifest{},   // 插件元数据
 		// 机器人
 		&do.Bot{}, // 机器人
 	); err != nil {

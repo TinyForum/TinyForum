@@ -3,6 +3,7 @@ package board
 import (
 	"fmt"
 	"regexp"
+	"strings"
 	"tiny-forum/internal/model/do"
 )
 
@@ -85,4 +86,16 @@ func (s *boardService) writeLogWithValues(moderatorID, boardID uint, action, tar
 		NewValue:    newValue,
 	}
 	_ = s.boardRepo.CreateModeratorLog(log)
+}
+
+// 辅助函数：格式化权限切片用于日志/通知
+func formatPermissions(perms do.ModeratorPermissionSet) string {
+	if len(perms) == 0 {
+		return "无"
+	}
+	strs := make([]string, len(perms))
+	for i, p := range perms {
+		strs[i] = string(p)
+	}
+	return strings.Join(strs, "、")
 }

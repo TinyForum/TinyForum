@@ -63,20 +63,33 @@ func RegisterRoutes(
 	// ── 公开路由（guest 可读，已登录用户可写）────────────────────────────────
 	// OptionalAuth：有 token 则注入角色，没有 token 则注入 guest
 	// CasbinAuth：根据角色决策，guest 只能 GET，user 可以 POST/PUT/DELETE
+	// 验证
 	handlers.Auth.RegisterRoutes(api, mw)
+	handlers.User.RegisterRoutes(api, mw)
+
+	// 创作者
 	handlers.Tag.RegisterRoutes(api, mw)
 	handlers.Post.RegisterRoutes(api, mw)
-	handlers.Comment.RegisterRoutes(api, mw)
-	handlers.User.RegisterRoutes(api, mw)
-	handlers.Notification.RegisterRoutes(api, mw)
+	handlers.Question.RegisterRoutes(api, mw)
 	handlers.Board.RegisterRoutes(api, mw, repos.Board)
 	handlers.Timeline.RegisterRoutes(api, mw)
 	handlers.Topic.RegisterRoutes(api, mw)
+
+	// 互动
+	handlers.Comment.RegisterRoutes(api, mw)
 	handlers.Answer.RegisterRoutes(api, mw)
-	handlers.Question.RegisterRoutes(api, mw)
+
+	// 通告
+	handlers.Notification.RegisterRoutes(api, mw)
 	handlers.Announcement.RegisterRoutes(api, mw)
+
+	// 维护
 	handlers.Stats.RegisterRoutes(api, mw)
+	handlers.Risk.RegisterRoutes(api, mw)
+
+	// 公务
 	handlers.Admin.RegisterRoutes(api, mw)
+	// 资产
 	handlers.Attachment.RegisterRoutes(api, mw)
 	handlers.Plugin.RegisterRoutes(api, mw)
 	handlers.Bot.RegisterRoutes(api, mw)

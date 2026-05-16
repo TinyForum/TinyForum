@@ -12,23 +12,6 @@ import (
 	"gorm.io/gorm"
 )
 
-// ScheduleDeletion 标记账户为待删除（软删除）
-func (s *authService) ScheduleDeletion(ctx context.Context, userID uint, input request.DeleteAccountRequest) error {
-	if input.Confirm != "DELETE" {
-		return errors.New("请确认删除操作")
-	}
-
-	// 可选：验证密码
-	if input.Password != "" {
-		// if err := s.authRepo.VerifyPassword(ctx, userID, input.Password); err != nil {
-		//     return errors.New("密码错误")
-		// }
-	}
-
-	// 软删除用户（设置 deleted_at）
-	return s.authRepo.SoftDelete(ctx, userID)
-}
-
 // CancelDeletion 取消注销，恢复账户
 func (s *authService) CancelDeletion(ctx context.Context, userID uint) error {
 	// 恢复账户：将 deleted_at 设置为 NULL

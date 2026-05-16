@@ -2,7 +2,7 @@ package answer
 
 import (
 	"strconv"
-	commentService "tiny-forum/internal/service/comment"
+	"tiny-forum/internal/model/bo"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -51,7 +51,7 @@ func (h *AnswerHandler) CreateAnswer(c *gin.Context) {
 	authorID := c.GetUint("user_id")
 
 	// 6. 构建输入
-	input := commentService.CreateCommentInput{
+	input := bo.CreateCommentInput{
 		PostID:  postID,
 		Content: req.Content,
 	}

@@ -12,21 +12,21 @@ import (
 )
 
 // GetByName 根据名称获取未软删除的插件
-func (r *pluginRepo) GetByName(ctx context.Context, name string) (*do.PluginMeta, error) {
-	var p do.PluginMeta
+func (r *pluginRepo) GetByName(ctx context.Context, name string) (*do.PluginManifest, error) {
+	var p do.PluginManifest
 	err := r.db.WithContext(ctx).Where("name = ?", name).First(&p).Error
 	return &p, err
 }
 
-func (r *pluginRepo) GetBySlug(ctx context.Context, slug string) (*do.PluginMeta, error) {
-	var p do.PluginMeta
+func (r *pluginRepo) GetBySlug(ctx context.Context, slug string) (*do.PluginManifest, error) {
+	var p do.PluginManifest
 	err := r.db.WithContext(ctx).Where("slug = ?", slug).First(&p).Error
 	return &p, err
 }
 
 // IsExist 检查插件是否存在
 func (r *pluginRepo) IsExist(ctx context.Context, name string) (bool, error) {
-	var p do.PluginMeta
+	var p do.PluginManifest
 	err := r.db.WithContext(ctx).Where("name = ?", name).First(&p).Error
 	if err == nil {
 		return true, err
@@ -39,22 +39,22 @@ func (r *pluginRepo) IsExist(ctx context.Context, name string) (bool, error) {
 }
 
 // Create 创建插件
-func (r *pluginRepo) ListByAuthorID(ctx context.Context, authorID uint) ([]*do.PluginMeta, error) {
-	var list []*do.PluginMeta
+func (r *pluginRepo) ListByAuthorID(ctx context.Context, authorID uint) ([]*do.PluginManifest, error) {
+	var list []*do.PluginManifest
 	err := r.db.WithContext(ctx).Where("author_id = ?", authorID).Find(&list).Error
 	return list, err
 }
 
 // ListEnabled 获取所有已启用的插件
-func (r *pluginRepo) ListEnabled(ctx context.Context) ([]*do.PluginMeta, error) {
-	var list []*do.PluginMeta
+func (r *pluginRepo) ListEnabled(ctx context.Context) ([]*do.PluginManifest, error) {
+	var list []*do.PluginManifest
 	err := r.db.WithContext(ctx).Where("enabled = ?", true).Find(&list).Error
 	return list, err
 }
 
 // GetByID 根据ID获取未软删除的插件
-func (r *pluginRepo) GetByID(ctx context.Context, id uint) (*do.PluginMeta, error) {
-	var plugin do.PluginMeta
+func (r *pluginRepo) GetByID(ctx context.Context, id uint) (*do.PluginManifest, error) {
+	var plugin do.PluginManifest
 	err := r.db.WithContext(ctx).
 		Where("id = ? AND deleted_at IS NULL", id).
 		First(&plugin).Error
@@ -64,9 +64,9 @@ func (r *pluginRepo) GetByID(ctx context.Context, id uint) (*do.PluginMeta, erro
 	return &plugin, nil
 }
 
-func (r *pluginRepo) List(ctx context.Context, queryBO *common.PageQuery[do.PluginMeta]) ([]*do.PluginMeta, int64, error) {
+func (r *pluginRepo) List(ctx context.Context, queryBO *common.PageQuery[do.PluginManifest]) ([]*do.PluginManifest, int64, error) {
 	logger.Infof("列出所有插件 %+v", queryBO)
-	db := r.db.WithContext(ctx).Model(&do.PluginMeta{})
+	db := r.db.WithContext(ctx).Model(&do.PluginManifest{})
 
 	// 软删除过滤
 	db = db.Where("deleted_at IS NULL")
@@ -112,7 +112,7 @@ func (r *pluginRepo) List(ctx context.Context, queryBO *common.PageQuery[do.Plug
 
 	}
 
-	var plugins []*do.PluginMeta
+	var plugins []*do.PluginManifest
 	offset := (queryBO.Page - 1) * queryBO.PageSize
 	err := db.Offset(offset).Limit(queryBO.PageSize).Find(&plugins).Error
 	return plugins, total, err

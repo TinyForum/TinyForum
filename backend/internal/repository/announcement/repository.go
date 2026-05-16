@@ -14,7 +14,7 @@ type AnnouncementRepository interface {
 	Update(ctx context.Context, announcement *do.Announcement) error
 	Delete(ctx context.Context, id uint) error
 	GetByID(ctx context.Context, id uint) (*do.Announcement, error)
-	List(ctx context.Context, req *request.ListAnnouncements) ([]do.Announcement, int64, error)
+	List(ctx context.Context, req *request.ListAnnouncementsRequest) ([]do.Announcement, int64, error)
 	GetPinned(ctx context.Context, boardID *uint) ([]do.Announcement, error)
 	IncrementViewCount(ctx context.Context, id uint) error
 	BatchDelete(ctx context.Context, ids []uint) error

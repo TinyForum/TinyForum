@@ -4,36 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"strings"
 	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/request"
 	"tiny-forum/pkg/logger"
 )
-
-// type AddModeratorInput struct {
-// 	UserID             uint `json:"user_id"              binding:"required"`
-// 	BoardID            uint `json:"board_id"             binding:"required"`
-// 	CanDeletePost      bool `json:"can_delete_post"`
-// 	CanPinPost         bool `json:"can_pin_post"`
-// 	CanEditAnyPost     bool `json:"can_edit_any_post"`
-// 	CanManageModerator bool `json:"can_manage_moderator"`
-// 	CanBanUser         bool `json:"can_ban_user"`
-// }
-
-// type UpdateModeratorPermissionsInput struct {
-// 	UserID             uint `json:"user_id"              binding:"required"`
-// 	BoardID            uint `json:"board_id"             binding:"required"`
-// 	CanDeletePost      bool `json:"can_delete_post"`
-// 	CanPinPost         bool `json:"can_pin_post"`
-// 	CanEditAnyPost     bool `json:"can_edit_any_post"`
-// 	CanManageModerator bool `json:"can_manage_moderator"`
-// 	CanBanUser         bool `json:"can_ban_user"`
-// }
-
-// type ModeratorBoardWithPerms struct {
-// 	do.Board
-// 	Permissions do.ModeratorPermissions `json:"permissions"`
-// }
 
 // AddModerator 直接添加版主（管理员操作）
 func (s *boardService) AddModerator(ctx context.Context, input request.AddModeratorRequest, operatorID uint) error {
@@ -94,18 +68,6 @@ func (s *boardService) AddModerator(ctx context.Context, input request.AddModera
 
 	return nil
 }
-
-// formatPermissions 辅助函数，将权限切片格式化为可读字符串（用于通知）
-// func formatPermissions(perms do.ModeratorPermissionSet) string {
-// 	if len(perms) == 0 {
-// 		return "无"
-// 	}
-// 	strs := make([]string, len(perms))
-// 	for i, p := range perms {
-// 		strs[i] = string(p)
-// 	}
-// 	return strings.Join(strs, "、")
-// }
 
 func (s *boardService) RemoveModerator(_ context.Context, userID, boardID uint, operatorID uint) error {
 	isMod, _ := s.boardRepo.IsModerator(userID, boardID)
@@ -218,26 +180,10 @@ func (s *boardService) GetModeratorBoardsWithPermissions(userID uint) ([]Moderat
 
 	results := make([]ModeratorBoardWithPerms, 0, len(repoResults))
 	for _, repo := range repoResults {
-		// 直接使用 repo.Permissions（类型为 do.ModeratorPermissionSet），无需反序列化
-		// 如果 repo 中 Permissions 是 JSON 字符串，则需扫描；假设 repo 已处理为结构体
-		// 注意：这里假设 boardRepo 返回的 result 已包含正确的 Permissions 字段（类型为 do.ModeratorPermissionSet）
-		// 如果仍是字符串，需添加扫描逻辑（参考下方备选）
 		results = append(results, ModeratorBoardWithPerms{
 			Board:       repo.Board,
-			Permissions: repo.Permissions, // 直接使用切片
+			Permissions: repo.Permissions,
 		})
 	}
 	return results, nil
-}
-
-// 辅助函数：格式化权限切片用于日志/通知
-func formatPermissions(perms do.ModeratorPermissionSet) string {
-	if len(perms) == 0 {
-		return "无"
-	}
-	strs := make([]string, len(perms))
-	for i, p := range perms {
-		strs[i] = string(p)
-	}
-	return strings.Join(strs, "、")
 }

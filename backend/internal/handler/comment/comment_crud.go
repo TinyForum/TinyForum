@@ -3,7 +3,7 @@ package comment
 import (
 	"strconv"
 
-	commentService "tiny-forum/internal/service/comment"
+	"tiny-forum/internal/model/bo"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -23,7 +23,7 @@ import (
 // @Router /comments [post]
 func (h *CommentHandler) Create(c *gin.Context) {
 	authorID := c.GetUint("user_id")
-	var input commentService.CreateCommentInput
+	var input bo.CreateCommentInput
 	if err := c.ShouldBindJSON(&input); err != nil {
 		response.HandleError(c, err)
 		return
