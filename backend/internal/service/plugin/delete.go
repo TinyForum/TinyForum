@@ -10,9 +10,9 @@ import (
 )
 
 // DeletePlugin 删除插件（软删除）
-func (s *pluginService) DeletePlugin(ctx context.Context, pluginID, userID uint) error {
+func (s *pluginService) DeletePlugin(ctx context.Context, pluginSlug string, userID uint) error {
 	// 1. 查询插件是否存在（包括已软删除的，不允许重复删除）
-	plugin, err := s.repo.GetByID(ctx, pluginID)
+	plugin, err := s.repo.GetBySlug(ctx, pluginSlug)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return apperrors.ErrNotFound
@@ -26,7 +26,7 @@ func (s *pluginService) DeletePlugin(ctx context.Context, pluginID, userID uint)
 	}
 
 	// 4. 逻辑删除
-	if err := s.repo.DeleteByID(ctx, pluginID); err != nil {
+	if err := s.repo.DeleteByID(ctx, plugin.ID); err != nil {
 		return fmt.Errorf("delete plugin failed: %w", err)
 	}
 

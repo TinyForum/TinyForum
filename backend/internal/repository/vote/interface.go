@@ -8,12 +8,12 @@ import (
 
 type VoteRepository interface {
 	// crud
-	CreateOrUpdateVote(commentID, userID uint, value int) error
+	CreateOrUpdateVote(commentID, userID uint, value do.AnswerVoteType) error
 	RemoveVote(commentID, userID uint) error
 	// query
-	GetUserVote(commentID, userID uint) (int, error)
+	GetUserVote(commentID, userID uint) (*do.AnswerVoteType, error)
 	GetVoteCount(commentID uint) (int, error)
-	GetVoteUsers(commentID uint, voteType int) ([]do.User, error)
+	GetVoteUsers(commentID uint, voteType do.AnswerVoteType) ([]do.User, error)
 }
 
 type voteRepository struct {

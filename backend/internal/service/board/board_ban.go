@@ -1,6 +1,7 @@
 package board
 
 import (
+	"context"
 	"errors"
 	"time"
 	"tiny-forum/internal/model/do"
@@ -13,7 +14,7 @@ type BanUserInput struct {
 	ExpiresAt *time.Time `json:"expires_at"`
 }
 
-func (s *boardService) BanUser(input BanUserInput, bannerID uint) error {
+func (s *boardService) BanUser(ctx context.Context, input BanUserInput, bannerID uint) error {
 	user, err := s.userRepo.FindByID(input.UserID)
 	if err != nil {
 		return errors.New("用户不存在")

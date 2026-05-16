@@ -2,21 +2,21 @@ package do
 
 import "tiny-forum/internal/model/common"
 
-type NotificationType string
-
 type Notification struct {
 	common.BaseModel
-	UserID     uint             `gorm:"not null;index" json:"user_id"`
-	SenderID   *uint            `gorm:"index" json:"sender_id"`
-	Type       NotificationType `gorm:"type:varchar(30)" json:"type"`
-	Content    string           `gorm:"size:500" json:"content"`
-	TargetID   *uint            `json:"target_id"`
-	TargetType string           `gorm:"size:50" json:"target_type"`
-	IsRead     bool             `gorm:"default:false" json:"is_read"`
+	UserID     uint             `gorm:"not null;index" json:"user_id"` // 接收者
+	SenderID   *uint            `gorm:"index" json:"sender_id"`        // 发送者
+	Type       NotificationType `gorm:"type:varchar(30)" json:"type"`  // 通知类型
+	Content    string           `gorm:"size:500" json:"content"`       // 通知内容
+	TargetID   *uint            `json:"target_id"`                     // 目标ID
+	TargetType string           `gorm:"size:50" json:"target_type"`    // 目标类型
+	IsRead     bool             `gorm:"default:false" json:"is_read"`  // 是否已读
 
-	User   User  `gorm:"foreignKey:UserID" json:"-"`
-	Sender *User `gorm:"foreignKey:SenderID" json:"sender,omitempty"`
+	User   User  `gorm:"foreignKey:UserID" json:"-"`                  // 接收者
+	Sender *User `gorm:"foreignKey:SenderID" json:"sender,omitempty"` // 发送者
 }
+
+type NotificationType string
 
 const (
 	// ==================== 1. 系统类 ====================
@@ -145,3 +145,5 @@ const (
 	NotifyFeedback NotificationType = "feedback" // 反馈回复
 	NotifySurvey   NotificationType = "survey"   // 问卷调查邀请
 )
+
+// enum [system, announcement,maintenance,upgrade,]

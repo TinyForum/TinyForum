@@ -46,7 +46,7 @@ print_summary() {
 
     if command -v redis-cli >/dev/null 2>&1 && \
        redis-cli --user "${REDIS_FINAL_USER:-tinyforum}" \
-                 --pass "${REDIS_FINAL_PASS:-tf@password}" \
+                 --pass "${REDIS_FINAL_PASS:-tf-password}" \
                  PING >/dev/null 2>&1; then
         echo -e "     Redis      : ${GREEN}✅ OK${NC}"
     else

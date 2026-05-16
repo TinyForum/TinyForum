@@ -60,7 +60,7 @@ func (h *BoardHandler) BanUser(c *gin.Context) {
 	}
 
 	operatorID := c.GetUint("user_id")
-	if err := h.boardSvc.BanUser(banInput, operatorID); err != nil {
+	if err := h.boardSvc.BanUser(c, banInput, operatorID); err != nil {
 		response.HandleError(c, err)
 		return
 	}

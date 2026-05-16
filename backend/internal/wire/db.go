@@ -60,10 +60,11 @@ func InitDB(cfg *config.Config) (*gorm.DB, error) {
 	if err := db.AutoMigrate(
 		// 用户
 		&do.RefreshToken{},
-		&do.User{},                 // 用户
-		&do.Follow{},               // 关注
-		&do.Tag{},                  // 标签
-		&do.Post{},                 // 帖子
+		&do.User{},   // 用户
+		&do.Follow{}, // 关注
+		&do.Tag{},    // 标签
+		&do.Post{},   // 帖子
+		// 互动
 		&do.Comment{},              // 评论
 		&do.Like{},                 // 点赞
 		&do.Notification{},         // 通知
@@ -84,7 +85,7 @@ func InitDB(cfg *config.Config) (*gorm.DB, error) {
 		&do.Announcement{},         // 公告
 		&do.ModeratorApplication{}, // 版主申请
 		&do.Moderator{},            // 版主
-		&do.Vote{},
+		&do.AnswerVote{},
 		// 审计
 		&do.ContentAuditTask{}, // 内容审核任务
 		&do.AuditLog{},         // 审计日志

@@ -120,7 +120,7 @@ setup_redis() {
     local redis_host="${REDIS_HOST:-localhost}"
     local redis_port="${REDIS_PORT:-6379}"
     local default_user="${REDIS_USER:-tinyforum}"
-    local default_pass="${REDIS_PASSWORD:-tf@password}"
+    local default_pass="${REDIS_PASSWORD:-tf-password}"
     local admin_user="" admin_pass=""
 
     echo ""

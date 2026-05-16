@@ -4,35 +4,21 @@ import "tiny-forum/internal/model/common"
 
 type Topic struct {
 	common.BaseModel
-	Title         string `gorm:"not null;size:100" json:"title"`
-	Description   string `gorm:"size:500" json:"description"`
-	Cover         string `gorm:"size:500" json:"cover"`
-	CreatorID     uint   `gorm:"not null;index" json:"creator_id"`
-	IsPublic      bool   `gorm:"default:true" json:"is_public"`
-	PostCount     int    `gorm:"default:0" json:"post_count"`
-	FollowerCount int    `gorm:"default:0" json:"follower_count"`
+	Title         string `gorm:"not null;size:150;uniqueIndex;comment:话题标题" json:"title"` // 话题标题
+	Slug          string `gorm:"size:180;uniqueIndex;comment:URL标识" json:"slug"`          // URL标识
+	Description   string `gorm:"size:500;comment:话题描述" json:"description"`                // 话题描述
+	Cover         string `gorm:"size:500;comment:封面图URL" json:"cover"`                    // 封面图URL
+	CreatorID     uint   `gorm:"not null;index;comment:创建者ID" json:"creator_id"`          // 创建者ID
+	IsPublic      bool   `gorm:"default:true;index;comment:是否公开" json:"is_public"`        // 是否公开
+	PostCount     int    `gorm:"default:0;comment:帖子数量" json:"post_count"`                // 帖子数量
+	FollowerCount int    `gorm:"default:0;comment:关注者数量" json:"follower_count"`           // 关注者数量
 
-	Creator   User          `gorm:"foreignKey:CreatorID" json:"creator,omitempty"`
-	Posts     []TopicPost   `gorm:"foreignKey:TopicID" json:"-"`
-	Followers []TopicFollow `gorm:"foreignKey:TopicID" json:"-"`
+	Creator   User          `gorm:"foreignKey:CreatorID" json:"creator,omitempty"` // 创建者
+	Posts     []TopicPost   `gorm:"foreignKey:TopicID" json:"-"`                   // 帖子
+	Followers []TopicFollow `gorm:"foreignKey:TopicID" json:"-"`                   // 关注者
 }
 
-type TopicPost struct {
-	common.BaseModel
-	TopicID   uint `gorm:"not null;uniqueIndex:idx_topic_post" json:"topic_id"`
-	PostID    uint `gorm:"not null;uniqueIndex:idx_topic_post" json:"post_id"`
-	SortOrder int  `gorm:"default:0" json:"sort_order"`
-	AddedBy   uint `json:"added_by"`
-
-	Topic Topic `gorm:"foreignKey:TopicID" json:"-"`
-	Post  Post  `gorm:"foreignKey:PostID" json:"post,omitempty"`
-}
-
-type TopicFollow struct {
-	common.BaseModel
-	UserID  uint `gorm:"not null;uniqueIndex:idx_user_topic" json:"user_id"`
-	TopicID uint `gorm:"not null;uniqueIndex:idx_user_topic" json:"topic_id"`
-
-	User  User  `gorm:"foreignKey:UserID" json:"-"`
-	Topic Topic `gorm:"foreignKey:TopicID" json:"-"`
+// 表名
+func (Topic) TableName() string {
+	return "topics"
 }

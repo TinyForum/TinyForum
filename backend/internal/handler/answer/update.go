@@ -3,6 +3,7 @@ package answer
 import (
 	"errors"
 	"strconv"
+	"tiny-forum/internal/model/do"
 	apperrors "tiny-forum/pkg/errors"
 	"tiny-forum/pkg/response"
 
@@ -120,12 +121,14 @@ func (h *AnswerHandler) UnacceptAnswer(c *gin.Context) {
 // @Failure      400      {object}  object  "请求参数错误（如无效ID、缺失或非法的投票类型）"
 // @Router       /answers/{id}/vote [post]
 func (h *AnswerHandler) VoteAnswer(c *gin.Context) {
+	// 1. 解析并校验 answerID
 	answerID, err := strconv.ParseUint(c.Param("id"), 10, 64)
-	if err != nil {
+	if err != nil || answerID == 0 {
 		response.HandleError(c, err)
 		return
 	}
 
+	// 2. 绑定并校验请求体
 	var input struct {
 		VoteType string `json:"vote_type" binding:"required,oneof=up down"`
 	}
@@ -134,26 +137,39 @@ func (h *AnswerHandler) VoteAnswer(c *gin.Context) {
 		return
 	}
 
+	// 3. 获取当前用户ID（必须已登录）
 	userID := c.GetUint("user_id")
-
-	// 转换 vote_type: "up" -> 1, "down" -> -1
-	voteValue := 1
-	if input.VoteType == "down" {
-		voteValue = -1
+	if userID == 0 {
+		response.HandleError(c, err)
+		return
 	}
 
-	comment, err := h.commentSvc.VoteAnswer(uint(answerID), userID, voteValue)
+	// 4. 转换 vote_type 为 do.AnswerVoteType 枚举
+	var voteType do.AnswerVoteType
+	switch input.VoteType {
+	case "up":
+		voteType = do.AnswerVoteTypeUp
+	case "down":
+		voteType = do.AnswerVoteTypeDown
+	default:
+		response.HandleError(c, err)
+		return
+	}
+
+	// 5. 调用 Service 层投票
+	comment, err := h.commentSvc.VoteAnswer(uint(answerID), userID, voteType)
 	if err != nil {
 		response.HandleError(c, err)
 		return
 	}
 
-	// 获取用户当前投票状态
+	// 6. 获取用户最新的投票状态（可能因取消投票变为 nil）
 	userVote, _ := h.commentSvc.GetUserVoteStatus(uint(answerID), userID)
 
+	// 7. 返回响应
 	response.Success(c, gin.H{
 		"message":    "操作成功",
-		"vote_count": comment.VoteCount, // 赞同票数
-		"user_vote":  userVote,          // 0:未投票, 1:赞同, -1:反对
+		"vote_count": comment.VoteCount,
+		"user_vote":  userVote, // 值为 "up", "down" 或 null
 	})
 }

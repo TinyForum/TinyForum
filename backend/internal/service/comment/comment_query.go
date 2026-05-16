@@ -48,11 +48,11 @@ func (s *commentService) GetAnswerVoteCount(commentID uint) (int, error) {
 
 // GetVoteStatistics 获取投票统计（赞成/反对数）
 func (s *commentService) GetVoteStatistics(answerID uint) (upCount, downCount int, err error) {
-	upUsers, err := s.voteRepo.GetVoteUsers(answerID, 1)
+	upUsers, err := s.voteRepo.GetVoteUsers(answerID, do.AnswerVoteTypeUp)
 	if err != nil {
 		return 0, 0, err
 	}
-	downUsers, err := s.voteRepo.GetVoteUsers(answerID, -1)
+	downUsers, err := s.voteRepo.GetVoteUsers(answerID, do.AnswerVoteTypeDown)
 	if err != nil {
 		return 0, 0, err
 	}

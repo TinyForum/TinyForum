@@ -18,6 +18,12 @@ func (r *pluginRepo) GetByName(ctx context.Context, name string) (*do.PluginMeta
 	return &p, err
 }
 
+func (r *pluginRepo) GetBySlug(ctx context.Context, slug string) (*do.PluginMeta, error) {
+	var p do.PluginMeta
+	err := r.db.WithContext(ctx).Where("slug = ?", slug).First(&p).Error
+	return &p, err
+}
+
 // IsExist 检查插件是否存在
 func (r *pluginRepo) IsExist(ctx context.Context, name string) (bool, error) {
 	var p do.PluginMeta

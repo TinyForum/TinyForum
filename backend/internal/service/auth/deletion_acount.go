@@ -54,7 +54,7 @@ func (s *authService) ConfirmDeletion(ctx context.Context, userID uint) error {
 		}
 
 		// 3. 投票
-		if err := tx.Where("user_id = ?", userID).Delete(&do.Vote{}).Error; err != nil {
+		if err := tx.Where("user_id = ?", userID).Delete(&do.AnswerVote{}).Error; err != nil {
 			return fmt.Errorf("删除投票失败: %w", err)
 		}
 

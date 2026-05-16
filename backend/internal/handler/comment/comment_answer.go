@@ -3,6 +3,7 @@ package comment
 import (
 	"strconv"
 
+	"tiny-forum/internal/model/do"
 	questionService "tiny-forum/internal/service/question"
 	"tiny-forum/pkg/response"
 
@@ -37,11 +38,16 @@ func (h *CommentHandler) VoteAnswer(c *gin.Context) {
 		response.HandleError(c, err)
 		return
 	}
+	voteType, err := do.ParseAnswerVoteType(input.VoteType)
+	if err != nil {
+		response.HandleError(c, err)
+		return
+	}
 
 	userID := c.GetUint("user_id")
 	voteInput := questionService.VoteAnswerInput{
 		CommentID: uint(commentID),
-		VoteType:  input.VoteType,
+		VoteType:  &voteType,
 	}
 
 	result, err := h.questionSvc.VoteAnswer(userID, voteInput)

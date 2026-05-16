@@ -11,7 +11,7 @@ set -euo pipefail
 : "${DB_PORT:=5432}"
 : "${DB_NAME:=tiny_forum}"
 : "${DB_USER:=simons}"
-: "${DB_PASS:=tf@password}"              # 空则使用 .pgpass 或 trust 认证
+: "${DB_PASS:=tf-password}"              # 空则使用 .pgpass 或 trust 认证
 
 # 各表数据量（设为 0 则跳过）
 : "${USERS:=500}"

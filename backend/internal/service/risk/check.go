@@ -96,14 +96,13 @@ func (s *riskService) RecordRiskEventByIP(ip, eventType, detail string, ttl time
 func (s *riskService) WriteAuditLogByIP(ip string, action do.AuditActionType,
 	targetType string, targetID uint, before, after, reason string) error {
 	log := &do.AuditLog{
-		OperatorIP: ip, // 需要在 AuditLog 模型中添加 OperatorIP 字段
+		OperatorIP: ip,
 		Action:     action,
 		TargetType: targetType,
 		TargetID:   targetID,
 		Before:     before,
 		After:      after,
 		Reason:     reason,
-		IP:         ip,
 	}
 	return s.repo.CreateAuditLog(log)
 }

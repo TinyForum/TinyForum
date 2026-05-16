@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"tiny-forum/internal/infra/sensitive"
 	"tiny-forum/internal/model/do"
+	apperrors "tiny-forum/pkg/errors"
 )
 
 // CheckResult 内容检测结果
@@ -50,10 +51,14 @@ func (s *contentCheckService) CreateAuditTaskForPost(postID uint, triggerType st
 	meta, _ := json.Marshal(map[string]interface{}{
 		"hit_words": hitWords,
 	})
+	auditTriggerType, err := do.ParseAuditTriggerType(triggerType)
+	if err != nil {
+		return apperrors.ErrValidation
+	}
 	task := &do.ContentAuditTask{
 		TargetType:  do.AuditTargetPost,
 		TargetID:    postID,
-		TriggerType: triggerType,
+		TriggerType: auditTriggerType,
 		TriggerMeta: string(meta),
 		Status:      do.ModerationStatusPending,
 	}
@@ -65,10 +70,14 @@ func (s *contentCheckService) CreateAuditTaskForComment(commentID uint, triggerT
 	meta, _ := json.Marshal(map[string]interface{}{
 		"hit_words": hitWords,
 	})
+	auditTriggerType, err := do.ParseAuditTriggerType(triggerType)
+	if err != nil {
+		return apperrors.ErrValidation
+	}
 	task := &do.ContentAuditTask{
 		TargetType:  do.AuditTargetComment,
 		TargetID:    commentID,
-		TriggerType: triggerType,
+		TriggerType: auditTriggerType,
 		TriggerMeta: string(meta),
 		Status:      do.ModerationStatusPending,
 	}
