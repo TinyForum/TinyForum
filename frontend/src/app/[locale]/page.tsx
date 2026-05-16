@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuthStore } from "@/store/auth";
 import LeftSidebar, { FilterType } from "@/layout/home/LeftSidebar";
-import { SortBy } from "@/shared/type/posts.types";
 import { useLeaderboard } from "@/features/leader/hooks/useLeaderboard";
 import RightSidebar from "@/layout/home/RightSidebar";
 import PostFilterBar from "@/layout/home/mid/PostFilterBar";
@@ -19,6 +18,7 @@ import { timelineApi } from "@/shared/api/modules/timeline";
 import { Tag } from "@/shared/api/types/tag.model";
 import { TimelineEvent } from "@/shared/api/types/timeline.model";
 import { Post } from "@/shared/api/types/post.model";
+import { SortBy } from "@/shared/ui/type/home.type";
 
 export default function HomePage() {
   const { isAuthenticated, user } = useAuthStore();

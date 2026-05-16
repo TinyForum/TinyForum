@@ -11,8 +11,8 @@ import {
   X,
   Plus,
 } from "lucide-react";
-import { PluginMeta, SLOT_NAMES } from "@/shared/type/plugin.type";
 import { CreatePluginPayload } from "@/shared/api/modules/plugin/plugins";
+import { PluginMeta, SLOT_NAMES } from "@/shared/api/types/plugin.model";
 
 interface PluginUploadFormProps {
   initial?: PluginMeta;

@@ -7,8 +7,8 @@ import { Loader2 } from "lucide-react";
 import { useEffect } from "react";
 import { Modal } from "./Modal";
 import Image from "next/image";
-import { AnnouncementFormValues } from "@/shared/type/announcement.type";
 import {
+  AnnouncementFormValues,
   AnnouncementStatus,
   AnnouncementType,
 } from "@/shared/api/types/announcement.model.do";

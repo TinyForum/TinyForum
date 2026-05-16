@@ -1,4 +1,4 @@
-import { TabType } from "@/shared/type/admin.types";
+import { TabType } from "@/shared/ui/type/admin.types";
 import { FileText, Users, Puzzle } from "lucide-react";
 
 // ── TabType 需在 admin.types.ts 中增加 "plugins" ──────────────────────────────

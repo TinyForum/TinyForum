@@ -1,8 +1,8 @@
 // hooks/useUpload.ts
 import { useState } from "react";
-import { PluginMeta } from "@/shared/type/plugin.type";
 import { uploadApi } from "@/shared/api/modules/uploads";
 import { PluginListParams } from "@/shared/api/modules/plugin/plugins";
+import { PluginMeta } from "@/shared/api/types/plugin.model";
 type UploadType = "post" | "comment" | "plugin";
 
 interface FileInfo {

@@ -1,4 +1,4 @@
-import { ViolationRecord } from "@/shared/type/violation.type";
+import { ViolationRecord } from "@/shared/api/types/violation.model";
 
 export const getViolationStatusBadge = (
   status: ViolationRecord["status"],

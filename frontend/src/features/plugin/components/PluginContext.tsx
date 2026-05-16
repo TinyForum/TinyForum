@@ -8,9 +8,9 @@ import React, {
   useCallback,
   useRef,
 } from "react";
-import { PluginMeta, RegisteredPlugin } from "@/shared/type/plugin.type";
 import { loadPlugins } from "../PluginLoader";
 import { pluginRegistry } from "../PluginRegistry";
+import { PluginMeta, RegisteredPlugin } from "@/shared/api/types/plugin.model";
 
 interface PluginContextValue {
   plugins: RegisteredPlugin[];

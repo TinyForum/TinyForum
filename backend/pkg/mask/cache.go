@@ -43,15 +43,23 @@ func collectFields(t reflect.Type, parentIndex []int, info *typeInfo) {
 	for i := 0; i < t.NumField(); i++ {
 		field := t.Field(i)
 		tag := field.Tag.Get("mask")
-		if tag == "-" {
-			continue
-		}
 		index := make([]int, len(parentIndex)+1)
 		copy(index, parentIndex)
 		index[len(parentIndex)] = i
 
-		if tag != "" && tag != "-" {
-			// 当前字段有 mask 标签
+		if tag == "-" {
+			// 仍然递归结构体内部字段
+			fieldType := field.Type
+			if fieldType.Kind() == reflect.Ptr {
+				fieldType = fieldType.Elem()
+			}
+			if fieldType.Kind() == reflect.Struct {
+				collectFields(fieldType, index, info)
+			}
+			continue
+		}
+
+		if tag != "" {
 			name, params := parseTag(tag)
 			if name != "" {
 				info.fields = append(info.fields, fieldInfo{
@@ -62,7 +70,6 @@ func collectFields(t reflect.Type, parentIndex []int, info *typeInfo) {
 			}
 		}
 
-		// 如果是结构体或结构体指针，继续递归
 		fieldType := field.Type
 		if fieldType.Kind() == reflect.Ptr {
 			fieldType = fieldType.Elem()

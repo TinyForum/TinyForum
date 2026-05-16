@@ -1,4 +1,4 @@
-import { UserRoleType } from "@/shared/type/roles.types";
+import { UserRoleType } from "@/shared/api/types/roles.model";
 
 export interface Board {
   id: number;

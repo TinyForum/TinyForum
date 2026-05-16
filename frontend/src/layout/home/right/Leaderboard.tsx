@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { TrendingUp } from "lucide-react";
-import { LeaderboardItemResponse } from "@/shared/api/modules/users";
 import Avatar from "@/features/user/components/Avatar";
+import { LeaderboardItemResponse } from "@/shared/api/types/user.model";
 
 interface LeaderboardProps {
   leaderboard: LeaderboardItemResponse[];

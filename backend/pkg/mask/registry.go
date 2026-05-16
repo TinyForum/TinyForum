@@ -1,7 +1,6 @@
 package mask
 
 import (
-	"strconv"
 	"strings"
 	"sync"
 )
@@ -70,14 +69,7 @@ func applyStrategy(name string, s string, params map[string]string) string {
 		}
 		return applyRegex(s, pattern, replace)
 	case "address":
-		keepStr := params["keep"]
-		keep := 6 // 默认保留6个字符
-		if keepStr != "" {
-			if k, err := strconv.Atoi(keepStr); err == nil && k > 0 {
-				keep = k
-			}
-		}
-		return maskAddressKeepN(s, keep)
+		return maskAddressKeepN(s, 0) // keep 参数被忽略
 	default:
 		fn, ok := GetStrategy(name)
 		if !ok {

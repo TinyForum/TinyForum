@@ -6,7 +6,7 @@ import {
   CreatePluginPayload,
   UpdatePluginPayload,
 } from "@/shared/api/modules/plugin/plugins";
-import { PluginMeta } from "@/shared/type/plugin.type";
+import { PluginMeta } from "@/shared/api/types/plugin.model";
 
 const PAGE_SIZE = 10;
 

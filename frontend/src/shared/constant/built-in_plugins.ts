@@ -1,4 +1,4 @@
-import { PluginMeta } from "../type/plugin.type";
+import { PluginMeta } from "../api/types/plugin.model";
 
 export const PLUGIN_EXAMPLES: Record<string, PluginMeta> = {
   /** UI 主题美化 */

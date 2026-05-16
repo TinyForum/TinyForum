@@ -1,11 +1,10 @@
 "use client";
 
-import { LeaderboardItemResponse } from "@/shared/api/modules/user";
 import { GuestCard } from "./right/GuestCard";
 import { Leaderboard } from "./right/Leaderboard";
 import { TimelineEvents } from "./right/TimelineEvents";
 import { UserProfileCard } from "./right/UserProfileCard";
-import { UserDO } from "@/shared/api/types/user.model";
+import { LeaderboardItemResponse, UserDO } from "@/shared/api/types/user.model";
 
 interface TimelineEvent {
   id: number;

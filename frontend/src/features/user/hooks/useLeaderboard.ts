@@ -1,5 +1,5 @@
 import { userApi } from "@/shared/api/modules/user";
-import { LeaderboardItemResponse } from "@/shared/api/modules/users";
+import { LeaderboardItemResponse } from "@/shared/api/types/user.model";
 import { useState, useCallback } from "react";
 import toast from "react-hot-toast";
 import { ErrorResponse } from "./useUserProfile";

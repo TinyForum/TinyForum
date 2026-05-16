@@ -18,10 +18,6 @@ import {
   ArrowRightIcon,
 } from "@heroicons/react/24/outline";
 
-import {
-  userAPI,
-  type LeaderboardItemResponse,
-} from "@/shared/api/modules/users";
 import { ActiveUserCard } from "@/layout/explore/ActiveUserCard";
 import { HotPostCard } from "@/layout/explore/HotPostCard";
 import { HotTagCard } from "@/layout/explore/HotTagCard";
@@ -32,6 +28,8 @@ import { tagApi } from "@/shared/api/modules/tags";
 import { topicApi } from "@/shared/api/modules/topics";
 import { Post } from "@/shared/api/types/post.model";
 import { Tag } from "@/shared/api/types/tag.model";
+import { userApi } from "@/shared/api/modules/user";
+import { LeaderboardItemResponse } from "@/shared/api/types/user.model";
 
 // 分类 Tab
 const exploreTabs = [
@@ -87,7 +85,7 @@ export default function Explore() {
           postApi.list({ page: 1, page_size: 10, sort_by: currentTab?.sortBy }),
           tagApi.list(),
           topicApi.list({ page: 1, page_size: 8 }),
-          userAPI.getLeaderboardSimple({ limit: 10 }),
+          userApi.getLeaderboardSimple({ limit: 10 }),
         ]);
       // 添加安全检查
       if (postsResponse.data.code === 0 && postsResponse.data.data) {

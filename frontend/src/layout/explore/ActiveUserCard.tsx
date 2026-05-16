@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { LeaderboardItemResponse } from "@/shared/api/modules/users";
 import Image from "next/image";
+import { LeaderboardItemResponse } from "@/shared/api/types/user.model";
 
 // 活跃用户卡片
 interface ActiveUserCardProps {
