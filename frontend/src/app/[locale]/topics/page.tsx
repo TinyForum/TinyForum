@@ -1,4 +1,4 @@
-// app/[locale]/topics/page.tsx (话题列表页)
+// app/[locale]/topics/page.tsx (优化版)
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
@@ -14,6 +14,8 @@ import {
 } from "@heroicons/react/24/outline";
 import type { Topic } from "@/shared/api/types/topic.model";
 import { TopicCard } from "@/layout/topic/TopicCard";
+import { ImageUploader } from "@/shared/ui/editor/ImageUploader";
+import { uploadApi } from "@/shared/api/modules/uploads";
 
 // 错误响应类型
 interface ErrorResponse {
@@ -182,7 +184,7 @@ function Pagination({
   );
 }
 
-// 创建话题模态框组件
+// 优化后的创建话题模态框组件
 function CreateTopicModal({
   isOpen,
   onClose,
@@ -204,6 +206,27 @@ function CreateTopicModal({
     is_public: true,
   });
   const [creating, setCreating] = useState(false);
+
+  // 封面图上传函数（使用通用上传接口）
+  const handleUploadCover = async (file: File): Promise<{ url: string }> => {
+    try {
+      // 使用上传插件文件的接口（或单独的上传接口，返回 URL）
+      const res = await uploadApi.uploadPluginFile(file, "topic_cover");
+      return { url: res.data.data }; // 假设返回 { data: "url" }
+    } catch (error) {
+      toast.error("封面上传失败");
+      throw error;
+    }
+  };
+
+  // 当上传组件发生改变时，获取上传后的图片 URL（取第一张为封面）
+  const handleImagesChange = (images: any[]) => {
+    if (images.length > 0 && images[0].url) {
+      setForm((prev) => ({ ...prev, cover: images[0].url }));
+    } else {
+      setForm((prev) => ({ ...prev, cover: "" }));
+    }
+  };
 
   const handleSubmit = async () => {
     if (!form.title.trim()) {
@@ -294,32 +317,25 @@ function CreateTopicModal({
               </label>
             </div>
 
+            {/* 封面图上传：只允许单张，作为封面 */}
             <div className="form-control">
               <label className="label">
-                <span className="label-text font-medium">封面图 URL</span>
+                <span className="label-text font-medium">封面图</span>
               </label>
-              <input
-                type="url"
-                value={form.cover}
-                onChange={(e) =>
-                  setForm((prev) => ({ ...prev, cover: e.target.value }))
-                }
-                placeholder="https://example.com/cover.jpg"
-                className="input input-bordered w-full focus:input-primary"
+              <ImageUploader
+                initialImages={form.cover ? [{ url: form.cover }] : []}
+                uploadFn={handleUploadCover}
+                maxCount={1}
+                supportCover={false}
+                layout="grid"
+                gridSize={2}
+                onChange={handleImagesChange}
               />
-              {form.cover && (
-                <div className="mt-3 rounded-xl overflow-hidden border border-base-200">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={form.cover}
-                    alt="封面预览"
-                    className="w-full h-32 object-cover"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).style.display = "none";
-                    }}
-                  />
-                </div>
-              )}
+              <label className="label">
+                <span className="label-text-alt text-base-content/40">
+                  可选，建议尺寸 1200x630
+                </span>
+              </label>
             </div>
 
             <div className="form-control bg-base-200/50 rounded-xl p-4">
@@ -382,7 +398,6 @@ export default function TopicsPage() {
     try {
       const response = await topicApi.list({ page, page_size: pageSize });
       if (response.data.code === 0) {
-        // 修复：安全地访问 data 属性
         const data = response.data.data;
         setTopics(data?.list || []);
         setTotal(data?.total || 0);
@@ -432,8 +447,6 @@ export default function TopicsPage() {
   }, [loadTopics]);
 
   const totalPages = Math.ceil(total / pageSize);
-
-  // 计算统计数据 - 使用正确的属性名 follower_count
   const totalFollowers = topics.reduce(
     (sum, topic) => sum + (topic.follower_count || 0),
     0,
