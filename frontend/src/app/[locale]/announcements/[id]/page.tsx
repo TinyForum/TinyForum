@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { announcementApi } from "@/shared/api";
+import { announcementApi } from "@/shared/api/modules/announcements";
 import {
   MegaphoneIcon,
   CalendarIcon,

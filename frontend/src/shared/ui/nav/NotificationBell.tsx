@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { Bell, X } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Notification, notificationApi } from "@/shared/api";
 import { useTranslations } from "next-intl";
 import { Fragment, useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
@@ -17,6 +16,8 @@ import {
 } from "@headlessui/react";
 import { formatDate } from "@/shared/lib/utils";
 import { useNotifications } from "@/features/notification/hooks/useNotification";
+import { notificationApi } from "@/shared/api/modules/notifications";
+import { Notification } from "@/shared/api/types/notification.model";
 
 // interface Notification {
 //   id: number;

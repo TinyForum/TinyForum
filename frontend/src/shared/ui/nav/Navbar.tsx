@@ -2,7 +2,6 @@
 
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store";
-import { notificationApi, timelineApi } from "@/shared/api";
 import { useQuery } from "@tanstack/react-query";
 import {
   Trophy,
@@ -19,6 +18,8 @@ import MobileMenu from "../nav/MobileMenu";
 import DesktopNavbar from "./DesktopNavbar";
 import MobileNavbar from "./MobileNavbar";
 import { useMediaQuery } from "@/features/common/hooks/useMediaQuery";
+import { notificationApi } from "@/shared/api/modules/notifications";
+import { timelineApi } from "@/shared/api/modules/timeline";
 
 // ─────────────────────────────────────────────
 // Navbar — 入口组件，只负责：

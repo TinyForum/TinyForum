@@ -4,20 +4,9 @@
  */
 
 import apiClient from "../client";
-import type { Comment, VoteType } from "../types";
 import { ApiResponse, PageData } from "../types/basic.model";
-
-export interface CreateCommentPayload {
-  post_id: number;
-  content: string;
-  parent_id?: number;
-}
-
-export interface VoteStatusResult {
-  has_voted: boolean;
-  vote_type: VoteType | "";
-  vote_count: number;
-}
+import { CreateCommentPayload } from "../types/comment.model";
+import { Comment } from "../types/comment.model";
 
 export const commentApi = {
   listByPost: (

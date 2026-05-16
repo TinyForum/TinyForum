@@ -20,7 +20,8 @@ import {
   UserPlusIcon,
   HomeIcon,
 } from "@heroicons/react/24/outline";
-import type { TimelineEvent, Subscription } from "@/shared/api/types";
+import { TimelineEvent } from "@/shared/api/types/timeline.model";
+import { Subscription } from "@/shared/api/types/timeline.model";
 
 // 错误响应类型
 interface ErrorResponse {

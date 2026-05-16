@@ -1,5 +1,5 @@
 // hooks/useAnnouncements.ts
-import { announcementApi } from "@/shared/api";
+import { announcementApi } from "@/shared/api/modules/announcements";
 import {
   AnnouncementListParams,
   AnnouncementListResponse,

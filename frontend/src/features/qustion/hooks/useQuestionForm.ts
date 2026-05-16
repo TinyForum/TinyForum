@@ -2,7 +2,7 @@
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
-import { questionApi } from "@/shared/api";
+import { questionApi } from "@/shared/api/modules/questions";
 import { useAuthStore } from "@/store/auth";
 import { toast } from "react-hot-toast";
 import {

@@ -17,14 +17,21 @@ import {
   SparklesIcon,
   ArrowRightIcon,
 } from "@heroicons/react/24/outline";
-import { postApi, tagApi, topicApi, userAPI } from "@/shared/api";
 
-import type { LeaderboardItemResponse } from "@/shared/api/modules/users";
-import { Post, Tag, Topic } from "@/shared/api/types";
+import {
+  userAPI,
+  type LeaderboardItemResponse,
+} from "@/shared/api/modules/users";
 import { ActiveUserCard } from "@/layout/explore/ActiveUserCard";
 import { HotPostCard } from "@/layout/explore/HotPostCard";
 import { HotTagCard } from "@/layout/explore/HotTagCard";
 import { HotTopicCard } from "@/layout/explore/HotTopicCard";
+import { Topic } from "@/shared/api/types/topic.model";
+import { postApi } from "@/shared/api/modules/posts";
+import { tagApi } from "@/shared/api/modules/tags";
+import { topicApi } from "@/shared/api/modules/topics";
+import { Post } from "@/shared/api/types/post.model";
+import { Tag } from "@/shared/api/types/tag.model";
 
 // 分类 Tab
 const exploreTabs = [

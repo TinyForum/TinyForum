@@ -12,7 +12,7 @@ import {
   XMarkIcon,
   FireIcon,
 } from "@heroicons/react/24/outline";
-import type { Topic } from "@/shared/api/types";
+import type { Topic } from "@/shared/api/types/topic.model";
 import { TopicCard } from "@/layout/topic/TopicCard";
 
 // 错误响应类型

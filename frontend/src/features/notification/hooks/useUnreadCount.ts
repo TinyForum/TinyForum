@@ -1,7 +1,7 @@
 // hooks/useUnreadCount.ts
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "react-hot-toast";
-import { notificationApi } from "@/shared/api";
+import { notificationApi } from "@/shared/api/modules/notifications";
 
 export function useUnreadCount() {
   const [unreadCount, setUnreadCount] = useState<number>(0);

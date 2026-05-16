@@ -3,8 +3,8 @@
  */
 
 import apiClient from "../client";
-import type { Topic, TopicPost, TopicFollow } from "../types";
 import { ApiResponse, PageData } from "../types/basic.model";
+import { Topic, TopicFollow, TopicPost } from "../types/topic.model";
 
 export interface CreateTopicPayload {
   title: string;

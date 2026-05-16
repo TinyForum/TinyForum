@@ -1,4 +1,4 @@
-import { Topic } from "@/shared/api";
+import { Topic } from "@/shared/api/types/topic.model";
 import Link from "next/link";
 import {
   ChatBubbleLeftRightIcon,

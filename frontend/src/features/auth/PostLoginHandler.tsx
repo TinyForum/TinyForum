@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/auth";
-import { authApi } from "@/shared/api";
+import { authApi } from "@/shared/api/modules/auth";
 import toast from "react-hot-toast";
 import RestoreDialog from "./RestoreDialog";
 import { ApiResponse } from "@/shared/api/types/basic.model";

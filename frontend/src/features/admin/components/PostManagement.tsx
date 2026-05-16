@@ -1,7 +1,7 @@
 import { Search, Pin, Trash2 } from "lucide-react";
 import { useState, useEffect } from "react";
 
-import type { Post } from "@/shared/api/types";
+import type { Post } from "@/shared/api/types/post.model";
 import { useAdminGetPosts, useAdminTogglePin } from "../hooks/useAdminPosts";
 
 export function PostManagement() {

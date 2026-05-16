@@ -1,6 +1,6 @@
 // components/moderator/BannedUsersTable.tsx
 
-import { BannedUser } from "@/shared/api/modules/moderator";
+import { BannedUser } from "@/shared/api/types/moderator.model";
 
 // export interface BannedUser {
 //   id: number;

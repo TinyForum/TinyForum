@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import toast from "react-hot-toast";
 import { adminPostsApi } from "@/shared/api/modules/admin/post";
-import { Post } from "@/shared/api";
+import { Post } from "@/shared/api/types/post.model";
 import { ApiResponse, PageData } from "@/shared/api/types/basic.model";
 
 type AdminApiListResponse = { data: ApiResponse<PageData<Post>> };

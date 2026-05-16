@@ -2,9 +2,9 @@
 "use client";
 
 import { useState } from "react";
-import { ModeratorReport } from "@/shared/api/modules/moderator";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
+import { ModeratorReport } from "@/shared/api/types/moderator.model";
 
 interface ReportedContentTableProps {
   reports: ModeratorReport[];
