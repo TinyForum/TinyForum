@@ -40,7 +40,7 @@ export function UserRankCard({
               <div className="w-11 h-11 rounded-full ring-2 ring-primary/20 ring-offset-2">
                 <Avatar
                   // username={user.username}
-                  avatarUrl={user.avatar}
+                  avatarUrl={user.avatar_url}
                   size="md"
                 />
               </div>

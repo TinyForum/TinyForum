@@ -24,7 +24,7 @@ import toast from "react-hot-toast";
 import { UsersIcon } from "@heroicons/react/24/solid";
 import { useTranslations } from "next-intl";
 import { UserRoleType } from "@/shared/api/types/roles.model";
-import { UserDO } from "@/shared/api/types/user.model";
+import { UserDO } from "@/shared/api/types/user.model.do";
 
 // 类型定义
 

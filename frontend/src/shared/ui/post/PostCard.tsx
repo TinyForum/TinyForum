@@ -7,7 +7,8 @@ import { timeAgo, truncate } from "@/shared/lib/utils";
 import { Eye, Heart, MessageSquare, Pin, Tag, HelpCircle } from "lucide-react";
 import Avatar from "@/features/user/components/Avatar";
 import { userApi } from "@/shared/api/modules/user";
-import { UserDO } from "@/shared/api/types/user.model";
+import { UserDO } from "@/shared/api/types/user.model.do";
+
 import { Post } from "@/shared/api/types/post.model";
 
 interface PostCardProps {
