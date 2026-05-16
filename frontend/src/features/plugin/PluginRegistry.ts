@@ -5,7 +5,7 @@ import {
   PluginMeta,
   SlotName,
   PluginEvent,
-} from "@/shared/type/plugin.type";
+} from "@/shared/api/types/plugin.model";
 
 type Listener = () => void;
 

@@ -1,4 +1,4 @@
-import { UserRoleType } from "@/shared/type/roles.types";
+import { UserRoleType } from "@/shared/api/types/roles.model";
 import { PageRequest } from "./basic.model";
 
 export interface UserStatsVO {
@@ -55,4 +55,27 @@ export interface GetUserPostsRequest extends PageRequest {
   moderation_status?: string;
   tag?: string;
   board_name?: string;
+}
+
+export interface UpdateProfilePayload {
+  bio?: string;
+  avatar?: string;
+}
+
+export interface RoleResponse {
+  user_id: number;
+  role: UserRoleType;
+}
+export interface LeaderboardRequest {
+  limit?: number;
+  // fields?: string;
+}
+
+export interface LeaderboardItemResponse {
+  id: number;
+  username: string;
+  avatar: string;
+  score: number;
+  rank: number;
+  bio: string;
 }

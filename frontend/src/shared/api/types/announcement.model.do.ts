@@ -53,3 +53,17 @@ export type CreateAnnouncementStatus = Exclude<
   AnnouncementStatus,
   AnnouncementStatus.All
 >;
+
+export interface AnnouncementFormValues {
+  title: string;
+  content: string;
+  summary?: string;
+  cover?: string;
+  type: AnnouncementType;
+  is_pinned: boolean;
+  status: CreateAnnouncementStatus;
+  is_global: boolean;
+  board_id?: number | null;
+  published_at?: string | null;
+  expired_at?: string | null;
+}

@@ -1,7 +1,7 @@
 // src/features/plugin/PluginLoader.ts
+import { PluginEntryFn, PluginMeta } from "@/shared/api/types/plugin.model";
 import { createPluginAPI } from "./PluginAPI";
 import { pluginRegistry } from "./PluginRegistry";
-import { PluginEntryFn, PluginMeta } from "@/shared/type/plugin.type";
 
 interface LoaderOptions {
   getUser: () => { id: string; username: string; role: string } | null;

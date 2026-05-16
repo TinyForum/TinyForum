@@ -2,12 +2,12 @@ import { Modal } from "@/features/admin/components/Modal";
 import { EmptyState } from "@/features/system/components/DetailRow";
 import { PluginDetail } from "@/features/system/components/PluginDetail";
 import { PluginRow } from "@/features/system/components/PluginRow";
-import { PluginMeta } from "@/shared/type/plugin.type";
 import { Puzzle, Plus, Search, X, AlertCircle, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { useAdminPlugins } from "../useAdminPlugins";
 import { PluginUploadForm } from "./PluginUploadForm";
+import { PluginMeta } from "@/shared/api/types/plugin.model";
 
 // ==================== 子组件：插件管理（含自定义安装入口） ====================
 export function PluginManagementTab() {

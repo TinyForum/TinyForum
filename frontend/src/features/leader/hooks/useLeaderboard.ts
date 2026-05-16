@@ -1,9 +1,10 @@
 // hooks/useLeaderboard.ts
+
+import { userApi } from "@/shared/api/modules/user";
 import {
-  LeaderboardRequest,
   LeaderboardItemResponse,
-  userAPI,
-} from "@/shared/api/modules/users";
+  LeaderboardRequest,
+} from "@/shared/api/types/user.model";
 import { useQuery, UseQueryOptions } from "@tanstack/react-query";
 
 /**
@@ -21,7 +22,7 @@ export const useLeaderboard = (
   return useQuery({
     queryKey: ["leaderboard", params?.limit],
     queryFn: async (): Promise<LeaderboardItemResponse[]> => {
-      const { data } = await userAPI.getLeaderboardDetail(params);
+      const { data } = await userApi.getLeaderboardDetail(params);
       // 确保返回数组，如果 data.data 为 undefined 则返回空数组
       return data.data || [];
     },

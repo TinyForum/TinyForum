@@ -4,33 +4,14 @@
  */
 
 import apiClient from "../client";
-import { UserRoleType } from "@/shared/type/roles.types";
-import { UserDO } from "../types/user.model";
+import {
+  LeaderboardItemResponse,
+  LeaderboardRequest,
+  RoleResponse,
+  UpdateProfilePayload,
+  UserDO,
+} from "../types/user.model";
 import { ApiResponse, PageData } from "../types/basic.model";
-
-// ========== 请求/响应类型 ==========
-export interface UpdateProfilePayload {
-  bio?: string;
-  avatar?: string;
-}
-
-export interface RoleResponse {
-  user_id: number;
-  role: UserRoleType;
-}
-
-export interface LeaderboardRequest {
-  limit?: number;
-}
-
-export interface LeaderboardItemResponse {
-  id: number;
-  username: string;
-  avatar: string;
-  score: number;
-  rank: number;
-  bio: string;
-}
 
 // ========== API 方法 ==========
 export const userApi = {

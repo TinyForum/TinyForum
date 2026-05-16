@@ -1,6 +1,6 @@
 // ── Sub-components ─────────────────────────────────────────────────────────────
 
-import { PluginMeta } from "@/shared/type/plugin.type";
+import { PluginMeta } from "@/shared/api/types/plugin.model";
 import { Switch } from "@headlessui/react";
 import {
   Code2,

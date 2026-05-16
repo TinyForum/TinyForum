@@ -16,10 +16,10 @@ import {
   ChevronUp,
 } from "lucide-react";
 import { Modal } from "@/features/admin/components/Modal";
-import { PluginMeta } from "@/shared/type/plugin.type";
 import { useAdminPlugins } from "../useAdminPlugins";
 import { PluginUploadForm } from "./PluginUploadForm";
 import { CreatePluginPayload } from "@/shared/api/modules/plugin/plugins";
+import { PluginMeta } from "@/shared/api/types/plugin.model";
 
 export function PluginManager() {
   const {

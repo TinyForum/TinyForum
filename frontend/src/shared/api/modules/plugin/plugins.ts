@@ -1,6 +1,6 @@
-import { PluginMeta } from "@/shared/type/plugin.type";
 import { ApiResponse, PageData } from "../../types/basic.model";
 import apiClient from "../../client";
+import { PluginMeta } from "../../types/plugin.model";
 
 export interface CreatePluginPayload {
   name: string;

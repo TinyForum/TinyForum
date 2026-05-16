@@ -1,9 +1,9 @@
 import Avatar from "@/features/user/components/Avatar";
-import { LeaderboardItemResponse } from "@/shared/api/modules/users";
 import { Crown, Star } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { RankBadge } from "./RankBadge";
 import Link from "next/link";
+import { LeaderboardItemResponse } from "@/shared/api/types/user.model";
 
 // 用户卡片组件
 export function UserRankCard({

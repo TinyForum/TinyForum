@@ -1,9 +1,8 @@
 // hooks/user/useUserInfo.ts
 import { useState, useCallback } from "react";
-import { UpdateProfilePayload } from "@/shared/api/modules/user";
 import { toast } from "react-hot-toast";
 import { userApi } from "@/shared/api/modules/user";
-import { UserDO } from "@/shared/api/types/user.model";
+import { UpdateProfilePayload, UserDO } from "@/shared/api/types/user.model";
 
 export interface ErrorResponse {
   response?: { data?: { message?: string } };
