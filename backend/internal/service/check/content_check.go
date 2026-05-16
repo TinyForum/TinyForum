@@ -5,19 +5,12 @@ import (
 	"fmt"
 	"tiny-forum/internal/infra/sensitive"
 	"tiny-forum/internal/model/do"
+	"tiny-forum/internal/model/vo"
 	apperrors "tiny-forum/pkg/errors"
 )
 
-// CheckResult 内容检测结果
-type CheckResult struct {
-	Passed   bool            // false 表示直接拦截
-	Level    sensitive.Level // 命中等级
-	HitWords []string        // 命中词
-	Replaced string          // 替换后的内容
-}
-
 // CheckPostContent 检测帖子内容（title + content）
-func (s *contentCheckService) CheckPostContent(title, content string) CheckResult {
+func (s *contentCheckService) CheckPostContent(title, content string) vo.CheckResult {
 	// title 和 content 分别检测，取最高等级
 	titleResult := s.filter.Check(title)
 	contentResult := s.filter.Check(content)
@@ -27,7 +20,7 @@ func (s *contentCheckService) CheckPostContent(title, content string) CheckResul
 		higher = contentResult
 	}
 
-	return CheckResult{
+	return vo.CheckResult{
 		Passed:   higher.Level != sensitive.LevelBlock,
 		Level:    higher.Level,
 		HitWords: append(titleResult.HitWords, contentResult.HitWords...),
@@ -36,9 +29,9 @@ func (s *contentCheckService) CheckPostContent(title, content string) CheckResul
 }
 
 // CheckText 检测单段文本（评论、简介等）
-func (s *contentCheckService) CheckText(text string) CheckResult {
+func (s *contentCheckService) CheckText(text string) vo.CheckResult {
 	r := s.filter.Check(text)
-	return CheckResult{
+	return vo.CheckResult{
 		Passed:   r.Level != sensitive.LevelBlock,
 		Level:    r.Level,
 		HitWords: r.HitWords,

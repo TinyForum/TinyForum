@@ -49,7 +49,7 @@ func (h *AnnouncementHandler) GetByID(c *gin.Context) {
 // @Failure 500 {object} common.BasicResponse"服务器内部错误"
 // @Router /announcements [get]
 func (h *AnnouncementHandler) List(c *gin.Context) {
-	var req request.ListAnnouncements
+	var req request.ListAnnouncementsRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
 		response.HandleError(c, err)
 		return
@@ -57,6 +57,11 @@ func (h *AnnouncementHandler) List(c *gin.Context) {
 	// 强制只查已发布
 	published := do.AnnouncementStatusPublished
 	req.Status = &published
+	// 检查格式是否正确
+	if err := req.Validate(); err != nil {
+		response.HandleError(c, err)
+		return
+	}
 
 	resp, err := h.service.List(c.Request.Context(), &req)
 	if err != nil {

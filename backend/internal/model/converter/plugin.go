@@ -25,7 +25,7 @@ func PluginListBOToQueryDTO(b *bo.PluginQueryBO) *dto.PluginQueryDTO {
 }
 
 // ========== DO ↔ BO ==========
-func PluginDOToBO(d *do.PluginMeta) *bo.PluginMeta {
+func PluginDOToBO(d *do.PluginManifest) *bo.PluginMeta {
 	if d == nil {
 		return nil
 	}
@@ -41,11 +41,11 @@ func PluginDOToBO(d *do.PluginMeta) *bo.PluginMeta {
 	}
 }
 
-func PluginBOToDO(b *bo.PluginMeta) *do.PluginMeta {
+func PluginBOToDO(b *bo.PluginMeta) *do.PluginManifest {
 	if b == nil {
 		return nil
 	}
-	return &do.PluginMeta{
+	return &do.PluginManifest{
 		BaseModel: common.BaseModel{ // 通过嵌入类型名初始化
 			ID:        b.ID,
 			CreatedAt: b.CreatedAt,
@@ -60,7 +60,7 @@ func PluginBOToDO(b *bo.PluginMeta) *do.PluginMeta {
 }
 
 // ========== PageResult[DO] ↔ PageResult[BO] ==========
-func PageDOToPageBO(pageDO *common.PageResult[do.PluginMeta], mapper func(*do.PluginMeta) *bo.PluginMeta) *common.PageResult[bo.PluginMeta] {
+func PageDOToPageBO(pageDO *common.PageResult[do.PluginManifest], mapper func(*do.PluginManifest) *bo.PluginMeta) *common.PageResult[bo.PluginMeta] {
 	if pageDO == nil {
 		return nil
 	}
@@ -83,7 +83,7 @@ func PageDOToPageBO(pageDO *common.PageResult[do.PluginMeta], mapper func(*do.Pl
 // converter/plugin_converter.go
 
 // PluginDOToVO 将 do.PluginMeta 转换为 vo.PluginMetaVO
-func PluginDOToVO(d *do.PluginMeta) *vo.PluginMetaVO {
+func PluginDOToVO(d *do.PluginManifest) *vo.PluginMetaVO {
 	if d == nil {
 		return nil
 	}
@@ -111,8 +111,8 @@ func PluginDOToVO(d *do.PluginMeta) *vo.PluginMetaVO {
 		AuthorURL: d.AuthorURL,
 
 		// 加载配置
-		ScriptURL:   d.ScriptURL,
-		ServerEntry: d.ServerEntry,
+		ScriptURL:   d.ViewEntryUrl,
+		ServerEntry: d.ServerEntryUrl,
 		Slots:       d.Slots,
 		Routes:      d.Routes,
 
@@ -148,7 +148,7 @@ func PluginDOToVO(d *do.PluginMeta) *vo.PluginMetaVO {
 
 // ========== PageResult[DO] ↔ PageResult[VO] ==========
 // PageDOToPageVO 直接将分页的 do.PluginMeta 转换为 vo.PluginMetaVO
-func PageDOToPageVO(pageDO *common.PageResult[do.PluginMeta]) *common.PageResult[vo.PluginMetaVO] {
+func PageDOToPageVO(pageDO *common.PageResult[do.PluginManifest]) *common.PageResult[vo.PluginMetaVO] {
 	if pageDO == nil {
 		return nil
 	}
@@ -254,9 +254,9 @@ func PluginListRequestToBO(req *request.PluginListRequest) *bo.PluginQueryBO {
 	}
 }
 
-func ListPluginQueryBoToListPluguinQueryDO(query *bo.PluginQueryBO) *do.PluginMeta {
+func ListPluginQueryBoToListPluguinQueryDO(query *bo.PluginQueryBO) *do.PluginManifest {
 	//
-	return &do.PluginMeta{
+	return &do.PluginManifest{
 
 		Name:     query.Name,
 		Version:  query.Version,

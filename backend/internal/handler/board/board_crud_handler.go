@@ -4,8 +4,8 @@ import (
 	"errors"
 	"strconv"
 
+	"tiny-forum/internal/model/bo"
 	"tiny-forum/internal/model/dto"
-	boardService "tiny-forum/internal/service/board"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -26,7 +26,7 @@ import (
 // @Failure 403 {object} common.BasicResponse"无权限"
 // @Router /boards [post]
 func (h *BoardHandler) Create(c *gin.Context) {
-	var input boardService.CreateBoardInput
+	var input bo.CreateBoardInput
 	if err := c.ShouldBindJSON(&input); err != nil {
 		response.HandleError(c, err)
 		return
@@ -60,7 +60,7 @@ func (h *BoardHandler) Update(c *gin.Context) {
 		response.HandleError(c, err)
 		return
 	}
-	var input boardService.CreateBoardInput
+	var input bo.CreateBoardInput
 	if err := c.ShouldBindJSON(&input); err != nil {
 		response.HandleError(c, err)
 		return

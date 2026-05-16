@@ -6,10 +6,10 @@ import (
 )
 
 type ListPlugin struct {
-	Total         int64           `json:"total"`
-	Page          int             `json:"page"`
-	PageSize      int             `json:"page_size"`
-	Announcements []do.PluginMeta `json:"announcements"`
+	Total         int64               `json:"total"`
+	Page          int                 `json:"page"`
+	PageSize      int                 `json:"page_size"`
+	Announcements []do.PluginManifest `json:"announcements"`
 }
 
 type PluginListOptions struct {

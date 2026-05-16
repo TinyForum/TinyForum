@@ -1,6 +1,7 @@
 package comment
 
 import (
+	"tiny-forum/internal/model/bo"
 	"tiny-forum/internal/model/do"
 	commentRepo "tiny-forum/internal/repository/comment"
 	postRepo "tiny-forum/internal/repository/post"
@@ -14,8 +15,8 @@ type CommentService interface {
 	MarkAsAnswer(commentID, userID uint, isAdmin bool, isAnswer bool) error
 	UnacceptAnswer(answerID, userID uint, isAdmin bool) error
 	// create
-	Create(authorID uint, input CreateCommentInput) (*do.Comment, error)
-	CreateAnswer(authorID uint, input CreateCommentInput) (*do.Comment, error)
+	Create(authorID uint, input bo.CreateCommentInput) (*do.Comment, error)
+	CreateAnswer(authorID uint, input bo.CreateCommentInput) (*do.Comment, error)
 	// delete
 	Delete(commentID, userID uint, isAdmin bool) error
 	DeleteAnswer(commentID, userID uint, isAdmin bool) error

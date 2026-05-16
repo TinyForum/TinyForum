@@ -2,17 +2,12 @@ package comment
 
 import (
 	"errors"
+	"tiny-forum/internal/model/bo"
 	"tiny-forum/internal/model/do"
 )
 
-type CreateCommentInput struct {
-	PostID   uint   `json:"post_id" binding:"required"`
-	Content  string `json:"content" binding:"required,min=1,max=2000"`
-	ParentID *uint  `json:"parent_id"`
-}
-
 // Create 创建普通评论
-func (s *commentService) Create(authorID uint, input CreateCommentInput) (*do.Comment, error) {
+func (s *commentService) Create(authorID uint, input bo.CreateCommentInput) (*do.Comment, error) {
 	post, err := s.postRepo.FindByID(input.PostID)
 	if err != nil {
 		return nil, errors.New("帖子不存在")
@@ -53,7 +48,7 @@ func (s *commentService) Create(authorID uint, input CreateCommentInput) (*do.Co
 }
 
 // CreateAnswer 创建回答（仅限问答帖）
-func (s *commentService) CreateAnswer(authorID uint, input CreateCommentInput) (*do.Comment, error) {
+func (s *commentService) CreateAnswer(authorID uint, input bo.CreateCommentInput) (*do.Comment, error) {
 	post, err := s.postRepo.FindByID(input.PostID)
 	if err != nil {
 		return nil, errors.New("帖子不存在")

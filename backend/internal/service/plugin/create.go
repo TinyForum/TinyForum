@@ -20,30 +20,7 @@ import (
 	"tiny-forum/pkg/logger"
 )
 
-// PluginManifest 表示插件压缩包内 manifest.json 的结构
-type PluginManifest struct {
-	Name        string            `json:"name"`
-	Slug        string            `json:"slug"`
-	Version     string            `json:"version"`
-	Description string            `json:"description"`
-	Type        do.PluginType     `json:"type"`
-	Category    do.PluginCategory `json:"category"`
-	Entry       string            `json:"entry"` // 插件入口文件（相对路径）
-}
-
 // Validate 校验 manifest 必填字段
-func (m *PluginManifest) Validate() error {
-	if m.Name == "" {
-		return fmt.Errorf("%w: missing name", apperrors.ErrInvalidManifest)
-	}
-	if m.Version == "" {
-		return fmt.Errorf("%w: missing version", apperrors.ErrInvalidManifest)
-	}
-	if m.Entry == "" {
-		return fmt.Errorf("%w: missing entry", apperrors.ErrInvalidManifest)
-	}
-	return nil
-}
 
 const (
 	defaultStorageDir = "./plugins"
@@ -63,7 +40,7 @@ const (
 //  4. 查询同名插件（含软删除）
 //  5. 解压插件到持久化目录
 //  6. 写入或更新数据库记录（失败时回滚文件）
-func (s *pluginService) Create(ctx context.Context, fileHeader *multipart.FileHeader, userID uint) (*do.PluginMeta, error) {
+func (s *pluginService) Create(ctx context.Context, fileHeader *multipart.FileHeader, userID uint) (*do.PluginManifest, error) {
 	// 1. 校验文件扩展名
 	if !strings.HasSuffix(fileHeader.Filename, zipExtension) {
 		return nil, apperrors.ErrInvalidPluginFormat
@@ -148,27 +125,27 @@ func (s *pluginService) saveToTempFile(fileHeader *multipart.FileHeader) (tmpPat
 
 // parseManifestFromZip 从 ZIP 归档中定位并解析 manifest.json。
 // 返回解析结果、manifest 所在目录（相对于 ZIP 根）和错误。
-func (s *pluginService) parseManifestFromZip(zipPath string) (PluginManifest, string, error) {
+func (s *pluginService) parseManifestFromZip(zipPath string) (do.PluginManifest, string, error) {
 	logger.Infof("解析 ZIP 文件: %s", zipPath)
 
 	r, err := zip.OpenReader(zipPath)
 	if err != nil {
-		return PluginManifest{}, "", fmt.Errorf("打开 ZIP 文件失败: %w", err)
+		return do.PluginManifest{}, "", fmt.Errorf("打开 ZIP 文件失败: %w", err)
 	}
 	defer r.Close()
 
 	manifestFile, manifestDir, err := findManifestInZip(r.File)
 	if err != nil {
-		return PluginManifest{}, "", err
+		return do.PluginManifest{}, "", err
 	}
 
 	manifest, err := readAndParseManifest(manifestFile)
 	if err != nil {
-		return PluginManifest{}, "", err
+		return do.PluginManifest{}, "", err
 	}
 
 	if err := manifest.Validate(); err != nil {
-		return PluginManifest{}, "", err
+		return do.PluginManifest{}, "", err
 	}
 
 	return manifest, manifestDir, nil
@@ -196,21 +173,21 @@ func findManifestInZip(files []*zip.File) (*zip.File, string, error) {
 }
 
 // readAndParseManifest 从 zip.File 中读取并反序列化 manifest.json。
-func readAndParseManifest(f *zip.File) (PluginManifest, error) {
+func readAndParseManifest(f *zip.File) (do.PluginManifest, error) {
 	rc, err := f.Open()
 	if err != nil {
-		return PluginManifest{}, fmt.Errorf("打开 manifest.json 失败: %w", err)
+		return do.PluginManifest{}, fmt.Errorf("打开 manifest.json 失败: %w", err)
 	}
 	defer rc.Close()
 
 	data, err := io.ReadAll(rc)
 	if err != nil {
-		return PluginManifest{}, fmt.Errorf("读取 manifest.json 失败: %w", err)
+		return do.PluginManifest{}, fmt.Errorf("读取 manifest.json 失败: %w", err)
 	}
 
-	var manifest PluginManifest
+	var manifest do.PluginManifest
 	if err := json.Unmarshal(data, &manifest); err != nil {
-		return PluginManifest{}, fmt.Errorf("解析 manifest.json 失败: %w", err)
+		return do.PluginManifest{}, fmt.Errorf("解析 manifest.json 失败: %w", err)
 	}
 
 	return manifest, nil
@@ -296,15 +273,15 @@ func (s *pluginService) extractSingleFile(f *zip.File, targetDir, manifestDir st
 // saveOrUpdatePluginMeta 根据是否存在同名记录，执行插入或更新操作。
 func (s *pluginService) saveOrUpdatePluginMeta(
 	ctx context.Context,
-	existing *do.PluginMeta,
-	manifest PluginManifest,
+	existing *do.PluginManifest,
+	manifest do.PluginManifest,
 	targetDir string,
 	userID uint,
-) (*do.PluginMeta, error) {
+) (*do.PluginManifest, error) {
 	logger.Infof("持久化插件元数据: id=%s name=%s version=%s", manifest.Slug, manifest.Name, manifest.Version)
 
 	// ScriptURL 格式：/store/plugins/<id>/<version>/<entry>
-	scriptURL := "/store/plugins/" + path.Join(manifest.Slug, manifest.Version, manifest.Entry)
+	scriptURL := "/store/plugins/" + path.Join(manifest.Slug, manifest.Version, manifest.ViewEntryUrl)
 
 	if existing != nil {
 		return s.overwritePluginMeta(ctx, existing, manifest, targetDir, scriptURL, userID)
@@ -315,12 +292,12 @@ func (s *pluginService) saveOrUpdatePluginMeta(
 // overwritePluginMeta 更新已有插件记录，并在版本变更时删除旧版本目录。
 func (s *pluginService) overwritePluginMeta(
 	ctx context.Context,
-	existing *do.PluginMeta,
-	manifest PluginManifest,
+	existing *do.PluginManifest,
+	manifest do.PluginManifest,
 	newTargetDir string,
 	scriptURL string,
 	userID uint,
-) (*do.PluginMeta, error) {
+) (*do.PluginManifest, error) {
 	// 版本不同时，删除旧版本的物理目录
 	oldDir := s.buildTargetDir(existing.Name, existing.Version)
 	if oldDir != newTargetDir {
@@ -336,7 +313,7 @@ func (s *pluginService) overwritePluginMeta(
 	existing.Description = manifest.Description
 	existing.Type = manifest.Type
 	existing.Category = manifest.Category
-	existing.ScriptURL = scriptURL
+	existing.ViewEntryUrl = scriptURL
 	existing.Enabled = false
 	existing.Status = do.PluginStatusInactive
 	existing.AuthorID = userID
@@ -352,21 +329,21 @@ func (s *pluginService) overwritePluginMeta(
 // createPluginMeta 创建全新的插件元数据记录。
 func (s *pluginService) createPluginMeta(
 	ctx context.Context,
-	manifest PluginManifest,
+	manifest do.PluginManifest,
 	scriptURL string,
 	userID uint,
-) (*do.PluginMeta, error) {
-	pluginMeta := &do.PluginMeta{
-		Name:        manifest.Name,
-		Slug:        manifest.Slug,
-		Version:     manifest.Version,
-		Description: manifest.Description,
-		Type:        manifest.Type,
-		Category:    manifest.Category,
-		ScriptURL:   scriptURL,
-		Enabled:     false,
-		Status:      do.PluginStatusInactive,
-		AuthorID:    userID,
+) (*do.PluginManifest, error) {
+	pluginMeta := &do.PluginManifest{
+		Name:         manifest.Name,
+		Slug:         manifest.Slug,
+		Version:      manifest.Version,
+		Description:  manifest.Description,
+		Type:         manifest.Type,
+		Category:     manifest.Category,
+		ViewEntryUrl: scriptURL,
+		Enabled:      false,
+		Status:       do.PluginStatusInactive,
+		AuthorID:     userID,
 	}
 
 	if err := s.repo.Create(ctx, pluginMeta); err != nil {
@@ -378,7 +355,7 @@ func (s *pluginService) createPluginMeta(
 }
 
 // findExistingPlugin 查询同名插件（含软删除），未找到时返回 nil, nil。
-func (s *pluginService) findExistingPlugin(ctx context.Context, name string) (*do.PluginMeta, error) {
+func (s *pluginService) findExistingPlugin(ctx context.Context, name string) (*do.PluginManifest, error) {
 	existing, err := s.repo.FindByNameUnscoped(ctx, name)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {

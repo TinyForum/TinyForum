@@ -15,7 +15,7 @@ type AnnouncementService interface {
 	Update(ctx context.Context, id uint, req *request.UpdateAnnouncement, userID uint) error
 	Delete(ctx context.Context, id uint, userID uint) error
 	GetByID(ctx context.Context, id uint) (*do.Announcement, error)
-	List(ctx context.Context, req *request.ListAnnouncements) (*vo.ListAnnouncements, error)
+	List(ctx context.Context, req *request.ListAnnouncementsRequest) (*vo.ListAnnouncements, error)
 	GetPinned(ctx context.Context, boardID *uint) ([]do.Announcement, error)
 	Publish(ctx context.Context, id uint, userID uint) error
 	Archive(ctx context.Context, id uint, userID uint) error

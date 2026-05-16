@@ -3,6 +3,7 @@ package board
 import (
 	"context"
 
+	"tiny-forum/internal/model/bo"
 	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/dto"
 	"tiny-forum/internal/model/request"
@@ -24,8 +25,8 @@ type BoardService interface {
 	UnbanUser(userID, boardID uint) error
 	IsBanned(userID, boardID uint) (bool, error)
 	// crud
-	Create(input CreateBoardInput) (*do.Board, error)
-	Update(id uint, input CreateBoardInput) (*do.Board, error)
+	Create(input bo.CreateBoardInput) (*do.Board, error)
+	Update(id uint, input bo.CreateBoardInput) (*do.Board, error)
 	Delete(id uint) error
 	GetByID(id uint) (*do.Board, error)
 	GetBoardBySlug(slug string) (*do.Board, error)

@@ -14,7 +14,7 @@ import (
 )
 
 type AdminService interface {
-	ListAnnouncements(ctx context.Context, req *request.ListAnnouncements) (*vo.ListAnnouncements, error)
+	ListAnnouncements(ctx context.Context, req *request.ListAnnouncementsRequest) (*vo.ListAnnouncements, error)
 	CreateAnnouncement(ctx context.Context, req *request.CreateAnnouncement, userID uint) (*do.Announcement, error)
 	UpdateAnnouncement(ctx context.Context, id uint, req *request.UpdateAnnouncement, userID uint) error
 	DeleteAnnouncement(ctx context.Context, id uint, userID uint) error

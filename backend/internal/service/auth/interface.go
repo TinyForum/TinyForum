@@ -34,13 +34,13 @@ type AuthService interface {
 	ValidateResetToken(ctx context.Context, token string) (bool, error)                               // 验证重置密码token
 	ChangePassword(ctx context.Context, userID uint, oldPassword, newPassword string) (string, error) // 修改密码
 	CancelDeletion(ctx context.Context, userID uint) error                                            // 取消删除账户
-	ConfirmDeletion(ctx context.Context, userID uint) error                                           // 确认删除账户
+	ConfirmDeletion(ctx context.Context, userID uint) error                                           // 确认删除账户（硬删除）
 	GetUserEmailByResetToken(ctx context.Context, token string) (string, error)                       // 根据重置密码token获取用户邮箱
 	ResetPasswordWithToken(ctx context.Context, token, newPassword string) error                      // 根据重置密码token重置密码
 
 	// delete
 
-	DeleteAccount(ctx context.Context, userID uint, input request.DeleteAccountRequest) (bool, error) // 删除账户
+	DeleteAccount(ctx context.Context, userID uint, input request.DeleteAccountRequest) (bool, error) // 删除账户（软删除）
 	RevokeToken(ctx context.Context, jti string) error                                                // 注销token（登出）
 
 	// query
