@@ -1,7 +1,8 @@
 // hooks/useUpload.ts
-import { ListPluginRequest, uploadApi } from "@/shared/api/modules/attachments";
 import { useState } from "react";
-import { PluginMeta } from "@/shared/type/plugin.type";
+import { uploadApi } from "@/shared/api/modules/uploads";
+import { PluginListParams } from "@/shared/api/modules/plugin/plugins";
+import { PluginMeta } from "@/shared/api/types/plugin.model";
 type UploadType = "post" | "comment" | "plugin";
 
 interface FileInfo {
@@ -35,7 +36,7 @@ interface UseUploadReturn {
     page_size?: number;
   }) => Promise<FileInfo>;
   getFileInfo: (type: UploadType, fileId: string) => Promise<FileInfo>;
-  getUserPluginsList: (params: ListPluginRequest) => Promise<PluginMeta[]>;
+  getUserPluginsList: (params: PluginListParams) => Promise<PluginMeta[]>;
   deleteFile: (type: UploadType, fileId: string) => Promise<boolean>;
   serveFile: (fileId: string) => Promise<Blob | null>;
   resetError: () => void;
@@ -121,10 +122,10 @@ export function useUpload(): UseUploadReturn {
   };
 
   // 获取用户插件列表
-  const getUserPluginsList = async (params: ListPluginRequest) => {
+  const getUserPluginsList = async (params: PluginListParams) => {
     setIsUploading(true);
     setError(null);
-    params.type = "plugin";
+    // params.type = "plugin";
 
     try {
       const res = await uploadApi.getUserPlugins(params);

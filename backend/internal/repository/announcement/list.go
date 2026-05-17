@@ -7,7 +7,7 @@ import (
 	"tiny-forum/internal/model/request"
 )
 
-func (r *announcementRepository) List(ctx context.Context, req *request.ListAnnouncements) ([]do.Announcement, int64, error) {
+func (r *announcementRepository) List(ctx context.Context, req *request.ListAnnouncementsRequest) ([]do.Announcement, int64, error) {
 	var announcements []do.Announcement
 	var total int64
 

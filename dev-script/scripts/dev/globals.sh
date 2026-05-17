@@ -29,13 +29,13 @@ PSQL_HOST="localhost"
 PSQL_PORT="5432"
 PSQL_DB_NAME="tiny_forum"
 PSQL_USER="tinyforum"
-PSQL_PASS="tf@password"
+PSQL_PASS="tf-password"
 
 # ----- Redis 配置 -----
 REDIS_HOST="localhost"
 REDIS_PORT="6379"
 REDIS_USER="tinyforum"
-REDIS_PASSWORD="tf@password"
+REDIS_PASSWORD="tf-password"
 
 # ----- Node.js 配置 -----
 NODE_ENV="development"

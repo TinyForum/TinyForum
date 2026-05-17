@@ -1,9 +1,9 @@
 import apiClient from "../../client";
 import {
   CreateAnnouncementPayload,
-  AnnouncementDO,
   UpdateAnnouncementPayload,
 } from "../../types/announcement.model";
+import { AnnouncementDO } from "../../types/announcement.model.do";
 import { ApiResponse } from "../../types/basic.model";
 
 export const adminAnnouncementApi = {

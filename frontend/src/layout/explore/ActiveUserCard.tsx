@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { LeaderboardItemResponse } from "@/shared/api/modules/users";
 import Image from "next/image";
+import { LeaderboardItemResponse } from "@/shared/api/types/user.model";
 
 // 活跃用户卡片
 interface ActiveUserCardProps {
@@ -52,11 +52,11 @@ export function ActiveUserCard({ user, rank }: ActiveUserCardProps) {
             )}
 
             {/* 头像 */}
-            {user.avatar ? (
+            {user.avatar_url ? (
               <div className="avatar">
                 <div className="w-10 h-10 rounded-full ring-1 ring-base-200 group-hover:ring-primary transition-all">
                   <Image
-                    src={user.avatar}
+                    src={user.avatar_url}
                     alt={user.username}
                     className="object-cover"
                   />

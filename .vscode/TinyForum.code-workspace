@@ -62,7 +62,7 @@
         "program": "${workspaceFolder:Backend (Go)}/cmd/server",
         "env": {
           "GO_ENV": "development",
-          "DATABASE_URL": "postgres://caoyang:tf@password@localhost:5432/tiny_forum",
+          "DATABASE_URL": "postgres://caoyang:tf-password@localhost:5432/tiny_forum",
         },
         "args": [],
       },

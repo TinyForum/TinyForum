@@ -1,8 +1,8 @@
 package answer
 
 import (
-	"fmt"
 	"strconv"
+	"tiny-forum/internal/model/do"
 	apperrors "tiny-forum/pkg/errors"
 	"tiny-forum/pkg/response"
 
@@ -25,7 +25,7 @@ import (
 func (h *AnswerHandler) GetAnswer(c *gin.Context) {
 	answerID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的回答ID")
+		response.HandleError(c, err)
 		return
 	}
 
@@ -54,7 +54,7 @@ func (h *AnswerHandler) GetAnswer(c *gin.Context) {
 func (h *AnswerHandler) GetQuestionAnswers(c *gin.Context) {
 	postID, err := strconv.ParseUint(c.Param("post_id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的帖子ID")
+		response.HandleError(c, err)
 		return
 	}
 
@@ -63,7 +63,7 @@ func (h *AnswerHandler) GetQuestionAnswers(c *gin.Context) {
 
 	question, answers, total, err := h.questionSvc.GetQuestionWithAnswers(uint(postID), page, pageSize)
 	if err != nil {
-		response.NotFound(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 
@@ -91,35 +91,41 @@ func (h *AnswerHandler) GetQuestionAnswers(c *gin.Context) {
 // @Failure      401  {object}  common.BasicResponse "未授权"
 // @Failure      500  {object}  common.BasicResponse "服务器内部错误"
 // @Router       /answers/{id}/status [get]
+
+// GetVoteStatus 获取用户对指定答案的投票状态及统计信息
 func (h *AnswerHandler) GetVoteStatus(c *gin.Context) {
+	// 1. 解析并校验 answerID
 	answerID, err := strconv.ParseUint(c.Param("id"), 10, 64)
-	if err != nil {
-		response.BadRequest(c, "无效的回答ID")
+	if err != nil || answerID == 0 {
+		response.HandleError(c, err)
 		return
 	}
 
+	// 2. 获取当前用户ID（未登录则为 0）
 	userID := c.GetUint("user_id")
 
-	userVote, err := h.commentSvc.GetUserVoteStatus(uint(answerID), userID)
-	if err != nil {
-		response.InternalError(c, err.Error())
-		return
+	// 3. 获取用户投票状态（仅登录用户）
+	var userVote *do.AnswerVoteType
+	if userID != 0 {
+		userVote, err = h.commentSvc.GetUserVoteStatus(uint(answerID), userID)
+		if err != nil {
+			response.HandleError(c, err)
+			return
+		}
 	}
 
+	// 4. 获取投票统计（up/down 数量）
 	upCount, downCount, err := h.commentSvc.GetVoteStatistics(uint(answerID))
 	if err != nil {
-		response.InternalError(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
-	fmt.Printf("user_vote: %+v\n", userVote)
-	fmt.Printf("up_count: %d, down_count: %d, total: %d\n", upCount, downCount, upCount+downCount)
 
-	stats := VoteStatusResponse{
+	// 5. 返回结果
+	response.Success(c, VoteStatusResponse{
 		UserVote:  userVote,
 		UpCount:   upCount,
 		DownCount: downCount,
-		// Total:     upCount + downCount,
-	}
-
-	response.Success(c, stats)
+		Total:     upCount + downCount,
+	})
 }

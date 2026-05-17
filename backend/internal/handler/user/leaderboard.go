@@ -21,14 +21,14 @@ import (
 func (h *UserHandler) LeaderboardSimple(c *gin.Context) {
 	var req request.LeaderboardRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
-		response.BadRequest(c, "参数错误: "+err.Error())
+		response.HandleError(c, err)
 		return
 	}
 
 	// 调用 service 获取原始数据（返回 do.User 切片或自定义结构）
 	users, err := h.userSvc.GetSimpleLeaderboardData(c.Request.Context(), req.Limit)
 	if err != nil {
-		response.InternalError(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 
@@ -54,26 +54,26 @@ func (h *UserHandler) LeaderboardSimple(c *gin.Context) {
 func (h *UserHandler) LeaderboardDetail(c *gin.Context) {
 	var req request.LeaderboardRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
-		response.BadRequest(c, "参数错误: "+err.Error())
+		response.HandleError(c, err)
 		return
 	}
 
 	users, err := h.userSvc.GetDetailLeaderboardData(c.Request.Context(), req.Limit)
 	if err != nil {
-		response.InternalError(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 
 	items := make([]dto.LeaderboardUserDetail, len(users))
 	for i, u := range users {
 		items[i] = dto.LeaderboardUserDetail{
-			ID:       u.ID,
-			Username: u.Username,
-			Avatar:   u.Avatar,
-			Email:    u.Email,
-			Role:     u.Role,
-			Score:    u.Score,
-			Rank:     i + 1,
+			ID:        u.ID,
+			Username:  u.Username,
+			AvatarUrl: u.AvatarUrl,
+			Email:     u.Email,
+			Role:      u.Role,
+			Score:     u.Score,
+			Rank:      i + 1,
 		}
 	}
 	response.Success(c, items)

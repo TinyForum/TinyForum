@@ -17,7 +17,7 @@ type User struct {
 	IDCard   string   `mask:"idcard"`
 	BankCard string   `mask:"bankcard"`
 	Password string   `mask:"full"`
-	Addr     Address  `mask:"-"` // 忽略标签，但内部字段仍会处理（因为Address内部有标签）
+	Addr     Address  `mask:"-"`
 	Tags     []string `mask:"full"`
 	Nick     *string  `mask:"name"`
 	Ignore   string   `mask:"-"`
@@ -45,10 +45,10 @@ func ExampleMask() {
 		panic(err)
 	}
 
-	fmt.Printf("%+v\n", u)
+	fmt.Printf("Name: %s, Phone: %s, Email: %s, IDCard: %s, BankCard: %s, Password: %s, Addr: %+v, Tags: %v, Nick: %s, Ignore: %s\n",
+		u.Name, u.Phone, u.Email, u.IDCard, u.BankCard, u.Password, u.Addr, u.Tags, *u.Nick, u.Ignore)
 	// Output:
-	// &{Name:欧** Phone:138****5678 Email:f***@example.com IDCard:110101**********X BankCard:622202***********0123 Password:******** Addr:{Detail:上海**** City:**} Tags:[**** ****] Nick:0xc0000103c0 Ignore:should not show}
-	// 注意 Nick 指针指向的值会被脱敏为 "小*"
+	// Name: 欧**, Phone: 138****5678, Email: f***@example.com, IDCard: 110101**********X, BankCard: 622202***********0123, Password: ********, Addr: {Detail:上海**** City:**}, Tags: [**** ****], Nick: 小**, Ignore: should not show
 }
 
 func ExampleMaskCopy() {

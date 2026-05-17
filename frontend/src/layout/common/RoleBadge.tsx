@@ -1,5 +1,5 @@
 // components/common/RoleBadge.tsx
-import { UserRoleType } from "@/shared/type/roles.types";
+import { UserRoleType } from "@/shared/api/types/roles.model";
 import { useTranslations } from "next-intl";
 // import { UserRoleType, roleLevel } from "@/constants/roles";
 

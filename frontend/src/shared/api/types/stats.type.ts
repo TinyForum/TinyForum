@@ -40,7 +40,7 @@ export interface StatsIllegalInfo {
 export interface ActiveUserDetail {
   user_id: number;
   username: string;
-  avatar: string;
+  avatar_url: string;
   article_count: number;
   comment_count: number;
   last_active_at: string; // ISO 8601 时间字符串

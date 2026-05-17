@@ -1,6 +1,62 @@
 package do
 
-import "tiny-forum/internal/model/common"
+import (
+	"fmt"
+	"tiny-forum/internal/model/common"
+	apperrors "tiny-forum/pkg/errors"
+)
+
+// PluginMeta 插件元数据（数据库模型）
+type PluginManifest struct {
+	common.BaseModel
+	// 基础标识
+	Name        string   `json:"name" gorm:"type:varchar(100);not null;index:idx_name"` // 插件名称
+	Slug        string   `json:"slug" gorm:"type:varchar(100);not null;index:idx_slug"` // 插件标识
+	Version     string   `json:"version" gorm:"type:varchar(50);not null"`              // 插件版本
+	Description string   `json:"description" gorm:"type:text"`                          // 插件描述
+	Summary     string   `json:"summary,omitempty" gorm:"type:varchar(300)"`            // 一句话简介
+	IconURL     string   `json:"iconUrl,omitempty" gorm:"type:varchar(255)"`            // 插件图标
+	Screenshots []string `json:"screenshots,omitempty" gorm:"type:json"`                // 截图列表
+	HomepageURL string   `json:"homepageUrl,omitempty" gorm:"type:varchar(255)"`        // 官网地址
+
+	// 分类与类型
+	Type     PluginType     `json:"type" gorm:"type:varchar(20);not null;index"`     // 插件类型（对于服务端）
+	Category PluginCategory `json:"category" gorm:"type:varchar(30);not null;index"` // 插件分类（对于业务）
+	Tags     []string       `json:"tags,omitempty" gorm:"type:json"`                 // 标签列表
+
+	// 作者信息
+	AuthorID    uint   `json:"authorId,omitempty" gorm:"type:bigint"`
+	AuthorEmail string `json:"authorEmail,omitempty" gorm:"type:varchar(100)"` // 作者邮箱
+	AuthorURL   string `json:"authorUrl,omitempty" gorm:"type:varchar(255)"`   // 作者主页
+
+	// 加载配置
+	ViewEntryUrl   string   `json:"scriptUrl" gorm:"type:varchar(500);not null"`    // 前端脚本入口
+	ServerEntryUrl string   `json:"serverEntry,omitempty" gorm:"type:varchar(255)"` // 后端服务入口
+	Slots          []string `json:"slots,omitempty" gorm:"type:json"`               // 注入的插槽名称列表
+	Routes         []string `json:"routes,omitempty" gorm:"type:json"`              // 注册的路由路径
+
+	// 价格与兼容性
+	Pricing       PluginPricing       `json:"pricing" gorm:"type:json;serializer:json"`       // 价格信息
+	Compatibility PluginCompatibility `json:"compatibility" gorm:"type:json;serializer:json"` // 兼容性信息
+
+	// 权限
+	Permissions []PluginPermission `json:"permissions,omitempty" gorm:"type:json"` // 权限声明
+
+	// 运行时（服务端写入，前端只读）
+	Enabled      bool         `json:"enabled" gorm:"default:false;index"`                // 是否启用
+	Status       PluginStatus `json:"status" gorm:"type:varchar(20);default:'inactive'"` // 插件状态
+	InstallCount int          `json:"installCount" gorm:"default:0"`                     // 安装次数
+	Rating       float32      `json:"rating" gorm:"type:decimal(2,1);default:0"`         // 评分 0~5
+
+	// 配置
+	ConfigSchema []PluginConfigField `json:"configSchema,omitempty" gorm:"type:json;serializer:json"` // 配置字段定义
+	Config       map[string]any      `json:"config,omitempty" gorm:"type:json;serializer:json"`       // 配置值
+}
+
+// TableName 指定表名
+func (PluginManifest) TableName() string {
+	return "plugins"
+}
 
 // PluginStatus 插件运行状态
 type PluginStatus string
@@ -136,58 +192,6 @@ const (
 	PermNetwork       PluginPermission = "network"
 )
 
-// PluginMeta 插件元数据（数据库模型）
-type PluginMeta struct {
-	common.BaseModel
-	// 基础标识
-	Name        string   `json:"name" gorm:"type:varchar(100);not null;index:idx_name"`
-	Slug        string   `json:"slug" gorm:"type:varchar(100);not null;index:idx_slug"`
-	Version     string   `json:"version" gorm:"type:varchar(50);not null"`       // 插件版本
-	Description string   `json:"description" gorm:"type:text"`                   // 插件描述
-	Summary     string   `json:"summary,omitempty" gorm:"type:varchar(300)"`     // 一句话简介
-	IconURL     string   `json:"iconUrl,omitempty" gorm:"type:varchar(255)"`     // 插件图标
-	Screenshots []string `json:"screenshots,omitempty" gorm:"type:json"`         // 截图列表
-	HomepageURL string   `json:"homepageUrl,omitempty" gorm:"type:varchar(255)"` // 官网地址
-
-	// 分类与类型
-	Type     PluginType     `json:"type" gorm:"type:varchar(20);not null;index"`     // 插件类型（对于服务端）
-	Category PluginCategory `json:"category" gorm:"type:varchar(30);not null;index"` // 插件分类（对于业务）
-	Tags     []string       `json:"tags,omitempty" gorm:"type:json"`                 // 标签列表
-
-	// 作者信息
-	AuthorID    uint   `json:"authorId,omitempty" gorm:"type:bigint"`
-	AuthorEmail string `json:"authorEmail,omitempty" gorm:"type:varchar(100)"` // 作者邮箱
-	AuthorURL   string `json:"authorUrl,omitempty" gorm:"type:varchar(255)"`   // 作者主页
-
-	// 加载配置
-	ScriptURL   string   `json:"scriptUrl" gorm:"type:varchar(500);not null"`    // 前端脚本入口
-	ServerEntry string   `json:"serverEntry,omitempty" gorm:"type:varchar(255)"` // 后端服务入口
-	Slots       []string `json:"slots,omitempty" gorm:"type:json"`               // 注入的插槽名称列表
-	Routes      []string `json:"routes,omitempty" gorm:"type:json"`              // 注册的路由路径
-
-	// 价格与兼容性
-	Pricing       PluginPricing       `json:"pricing" gorm:"type:json;serializer:json"`       // 价格信息
-	Compatibility PluginCompatibility `json:"compatibility" gorm:"type:json;serializer:json"` // 兼容性信息
-
-	// 权限
-	Permissions []PluginPermission `json:"permissions,omitempty" gorm:"type:json"` // 权限声明
-
-	// 运行时（服务端写入，前端只读）
-	Enabled      bool         `json:"enabled" gorm:"default:false;index"`                // 是否启用
-	Status       PluginStatus `json:"status" gorm:"type:varchar(20);default:'inactive'"` // 插件状态
-	InstallCount int          `json:"installCount" gorm:"default:0"`                     // 安装次数
-	Rating       float32      `json:"rating" gorm:"type:decimal(2,1);default:0"`         // 评分 0~5
-
-	// 配置
-	ConfigSchema []PluginConfigField `json:"configSchema,omitempty" gorm:"type:json;serializer:json"` // 配置字段定义
-	Config       map[string]any      `json:"config,omitempty" gorm:"type:json;serializer:json"`       // 配置值
-}
-
-// TableName 指定表名
-func (PluginMeta) TableName() string {
-	return "plugins"
-}
-
 // 有效的插件状态
 var validPluginStatuses = map[PluginStatus]bool{
 	PluginStatusActive:   true,
@@ -206,4 +210,28 @@ func ParsePluginStatus(s string) PluginStatus {
 
 func (ps PluginStatus) IsValid() bool {
 	return validPluginStatuses[ps]
+}
+
+// PluginManifest 表示插件压缩包内 manifest.json 的结构
+// type PluginManifest struct {
+// 	Name        string         `json:"name"`
+// 	Slug        string         `json:"slug"`
+// 	Version     string         `json:"version"`
+// 	Description string         `json:"description"`
+// 	Type        PluginType     `json:"type"`
+// 	Category    PluginCategory `json:"category"`
+// 	Entry       string         `json:"entry"`
+// }
+
+func (m *PluginManifest) Validate() error {
+	if m.Name == "" {
+		return fmt.Errorf("%w: missing name", apperrors.ErrInvalidManifest)
+	}
+	if m.Version == "" {
+		return fmt.Errorf("%w: missing version", apperrors.ErrInvalidManifest)
+	}
+	if m.ViewEntryUrl == "" || m.ServerEntryUrl == "" {
+		return fmt.Errorf("%w: missing entry", apperrors.ErrInvalidManifest)
+	}
+	return nil
 }

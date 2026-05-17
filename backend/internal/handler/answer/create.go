@@ -2,7 +2,7 @@ package answer
 
 import (
 	"strconv"
-	commentService "tiny-forum/internal/service/comment"
+	"tiny-forum/internal/model/bo"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -26,14 +26,14 @@ func (h *AnswerHandler) CreateAnswer(c *gin.Context) {
 	// 1. 获取问题ID（URL 参数）
 	questionID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的问题 ID")
+		response.HandleError(c, err)
 		return
 	}
 
 	// 2. 通过 questionID 查询 Question 记录，获取 postID
 	question, err := h.questionSvc.GetQuestionByID(uint(questionID))
 	if err != nil {
-		response.BadRequest(c, "问题不存在")
+		response.HandleError(c, err)
 		return
 	}
 
@@ -43,7 +43,7 @@ func (h *AnswerHandler) CreateAnswer(c *gin.Context) {
 	// 4. 绑定请求参数
 	var req CreateAnswerRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 
@@ -51,7 +51,7 @@ func (h *AnswerHandler) CreateAnswer(c *gin.Context) {
 	authorID := c.GetUint("user_id")
 
 	// 6. 构建输入
-	input := commentService.CreateCommentInput{
+	input := bo.CreateCommentInput{
 		PostID:  postID,
 		Content: req.Content,
 	}
@@ -59,7 +59,7 @@ func (h *AnswerHandler) CreateAnswer(c *gin.Context) {
 	// 7. 创建回答
 	comment, err := h.commentSvc.CreateAnswer(authorID, input)
 	if err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 

@@ -24,15 +24,13 @@ import (
 // @Failure 403 {object} common.BasicResponse"无权限"
 // @Failure 500 {object} common.BasicResponse"服务器内部错误"
 // @Router /admin/posts [get]
-//
-// Deprecated: 迁移到 adminHandler.ListPosts
 func (h *AdminHandler) ListPosts(c *gin.Context) {
 	// page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	// pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "20"))
 	// keyword := c.Query("keyword")
 	var req request.ListPosts
 	if err := c.ShouldBindQuery(&req); err != nil {
-		response.BadRequest(c, "invalid parameters: "+err.Error())
+		response.HandleError(c, err)
 		return
 	}
 
@@ -55,7 +53,7 @@ func (h *AdminHandler) ListPosts(c *gin.Context) {
 	}
 	posts, total, err := h.service.ListPosts(c, listPostsBO)
 	if err != nil {
-		response.InternalError(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.SuccessPage(c, posts, total, req.Page, req.PageSize)

@@ -9,12 +9,13 @@ import (
 	"tiny-forum/internal/model/common"
 	"tiny-forum/internal/model/converter"
 	"tiny-forum/internal/model/do"
+	"tiny-forum/internal/model/request"
 
 	"github.com/gin-gonic/gin"
 )
 
 // Create 创建帖子
-func (s *postService) Create(ctx *gin.Context, authorID uint, input CreatePostInput) (*do.Post, error) {
+func (s *postService) Create(ctx *gin.Context, authorID uint, input request.CreatePostRequest) (*do.Post, error) {
 	// 1. 帖子类型校验
 	postType := do.PostType(input.Type)
 	if postType == "" || !postType.IsValid() {
@@ -60,7 +61,7 @@ func (s *postService) Create(ctx *gin.Context, authorID uint, input CreatePostIn
 		Title:            input.Title,
 		Content:          input.Content,
 		Summary:          input.Summary,
-		Cover:            input.Cover,
+		CoverUrl:         input.Cover,
 		Type:             postType,
 		AuthorID:         authorID,
 		BoardID:          board.ID,
@@ -110,7 +111,7 @@ func (s *postService) Create(ctx *gin.Context, authorID uint, input CreatePostIn
 }
 
 // Update 更新帖子
-func (s *postService) Update(postID, userID uint, isAdmin bool, input UpdatePostInput) (*do.Post, error) {
+func (s *postService) Update(postID, userID uint, isAdmin bool, input request.UpdatePostRequest) (*do.Post, error) {
 	post, err := s.postRepo.FindByID(postID)
 	if err != nil {
 		return nil, errors.New("帖子不存在")
@@ -128,7 +129,7 @@ func (s *postService) Update(postID, userID uint, isAdmin bool, input UpdatePost
 		post.Summary = input.Summary
 	}
 	if input.Cover != "" {
-		post.Cover = input.Cover
+		post.CoverUrl = input.Cover
 	}
 	if len(input.TagIDs) > 0 {
 		var tags []do.Tag

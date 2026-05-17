@@ -5,7 +5,7 @@ import {
   adminUsersApi,
   ResetPasswordResponse,
 } from "@/shared/api/modules/admin/user";
-import { UserDO } from "@/shared/api/types/user.model";
+import { UserDO } from "@/shared/api/types/user.model.do";
 import { PageData } from "@/shared/api/types/basic.model";
 
 // 查询键

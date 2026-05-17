@@ -2,6 +2,7 @@ package topic
 
 import (
 	"tiny-forum/internal/model/do"
+	"tiny-forum/internal/model/request"
 	postRepo "tiny-forum/internal/repository/post"
 	topicRepo "tiny-forum/internal/repository/topic"
 	userRepo "tiny-forum/internal/repository/user"
@@ -9,8 +10,8 @@ import (
 )
 
 type TopicService interface {
-	Create(creatorID uint, input CreateTopicInput) (*do.Topic, error)
-	Update(id uint, input CreateTopicInput) (*do.Topic, error)
+	Create(creatorID uint, input request.CreateTopicReqeust) (*do.Topic, error)
+	Update(id uint, input request.CreateTopicReqeust) (*do.Topic, error)
 	Delete(id uint, userID uint, isAdmin bool) error
 	GetByID(id uint) (*do.Topic, error)
 	List(page, pageSize int) ([]do.Topic, int64, error)
@@ -21,7 +22,7 @@ type TopicService interface {
 	IsFollowing(userID, topicID uint) (bool, error)
 	GetFollowers(topicID uint, page, pageSize int) ([]do.TopicFollow, int64, error)
 	// post
-	AddPostToTopic(input AddPostToTopicInput, userID uint) error
+	AddPostToTopic(input request.AddPostToTopicRequest, userID uint) error
 	RemovePostFromTopic(topicID, postID uint, userID uint) error
 	GetTopicPosts(topicID uint, page, pageSize int) ([]do.TopicPost, int64, error)
 }

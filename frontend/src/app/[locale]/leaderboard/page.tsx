@@ -1,13 +1,13 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import type { LeaderboardItemResponse } from "@/shared/api/modules/users";
 import { useLeaderboard } from "@/features/leader/hooks/useLeaderboard";
 import { UserRankCard } from "@/shared/ui/rank/UserRankCard";
 import { LoadingSkeleton } from "@/shared/ui/common/LoadingSkeleton";
 import { EmptyState } from "@/shared/ui/common/EmptyState";
 import { StatsCards } from "@/shared/ui/rank/StatsCards";
 import { Trophy } from "lucide-react";
+import { LeaderboardItemResponse } from "@/shared/api/types/user.model";
 
 export default function LeaderboardPage() {
   const { data, isLoading, error } = useLeaderboard({

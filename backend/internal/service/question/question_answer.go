@@ -5,19 +5,10 @@ import (
 	"fmt"
 
 	"tiny-forum/internal/model/do"
+	"tiny-forum/internal/model/request"
+	"tiny-forum/internal/model/vo"
 	apperrors "tiny-forum/pkg/errors"
 )
-
-type VoteAnswerInput struct {
-	CommentID uint   `json:"comment_id" binding:"required"`
-	VoteType  string `json:"vote_type" binding:"required,oneof=up down"`
-}
-
-type VoteAnswerResult struct {
-	VoteType  string `json:"vote_type"`
-	VoteCount int    `json:"vote_count"`
-	Action    string `json:"action"`
-}
 
 // AcceptAnswer 采纳答案
 func (s *questionService) AcceptAnswer(postID, commentID uint, userID uint) error {
@@ -57,7 +48,7 @@ func (s *questionService) AcceptAnswer(postID, commentID uint, userID uint) erro
 }
 
 // VoteAnswer 投票回答
-func (s *questionService) VoteAnswer(userID uint, input VoteAnswerInput) (*VoteAnswerResult, error) {
+func (s *questionService) VoteAnswer(userID uint, input request.VoteAnswerRequest) (*vo.VoteAnswerVO, error) {
 	comment, err := s.commentRepo.FindByID(input.CommentID)
 	if err != nil {
 		return nil, errors.New("回答不存在")
@@ -69,15 +60,17 @@ func (s *questionService) VoteAnswer(userID uint, input VoteAnswerInput) (*VoteA
 		return nil, errors.New("不能给自己的答案投票")
 	}
 	existingVote, _ := s.questionRepo.FindAnswerVote(userID, input.CommentID)
-	var result VoteAnswerResult
+	var result vo.VoteAnswerVO
 	var action string
+	// 如果用户已经投过票，则更新投票类型
 	if existingVote != nil && existingVote.ID != 0 {
 		if existingVote.VoteType == input.VoteType {
 			if err := s.questionRepo.DeleteAnswerVote(userID, input.CommentID); err != nil {
 				return nil, err
 			}
+			// 如果投票类型相同，则删除投票记录
 			action = "removed"
-			result.VoteType = ""
+			result.VoteType = nil
 		} else {
 			existingVote.VoteType = input.VoteType
 			if err := s.questionRepo.UpdateAnswerVote(existingVote); err != nil {

@@ -4,28 +4,16 @@ import (
 	"context"
 	"time"
 	"tiny-forum/internal/model/do"
+	"tiny-forum/internal/model/vo"
 )
-
-// HotArticleRow 热门文章查询结果行
-type HotArticleRow struct {
-	ID           int64
-	Title        string
-	BoardID      int64
-	BoardName    string
-	AuthorID     int64
-	AuthorName   string
-	ViewCount    int64
-	CommentCount int64
-	LikeCount    int64
-}
 
 // GetHotArticlesByDateRange 查询指定时间段内热门文章（按综合热度排序）
 func (r *statsRepository) GetHotArticlesByDateRange(
 	ctx context.Context,
 	startDate, endDate time.Time,
 	limit int,
-) ([]*HotArticleRow, error) {
-	var rows []*HotArticleRow
+) ([]*vo.HotArticleRowVO, error) {
+	var rows []*vo.HotArticleRowVO
 
 	err := r.db.WithContext(ctx).
 		Table("posts p").

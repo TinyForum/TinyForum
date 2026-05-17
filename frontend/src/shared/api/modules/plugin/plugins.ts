@@ -1,6 +1,6 @@
-import { apiClient } from "@/shared/api";
-import { PluginMeta } from "@/shared/type/plugin.type";
 import { ApiResponse, PageData } from "../../types/basic.model";
+import apiClient from "../../client";
+import { PluginMeta } from "../../types/plugin.model";
 
 export interface CreatePluginPayload {
   name: string;
@@ -16,6 +16,17 @@ export interface CreatePluginPayload {
 export interface UpdatePluginPayload extends Partial<CreatePluginPayload> {
   id: string;
 }
+
+// export interface ListPluginRequest {
+//   page?: number;
+//   page_size?: number;
+//   author_id?: number;
+//   tags?: string[];
+//   type?: string;
+//   keyword?: string;
+//   sort_by?: string;
+//   status?: "active" | "inactive" | "all";
+// }
 
 export interface PluginListParams {
   enabled?: boolean;

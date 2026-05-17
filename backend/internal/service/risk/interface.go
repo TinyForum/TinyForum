@@ -14,7 +14,7 @@ type RiskService interface {
 	CheckRateLimit(ctx context.Context, user *do.User, action ratelimit.Action) (ratelimit.Result, error)
 	RecordRiskEvent(userID uint, eventType, detail string, ttl time.Duration) error
 	WriteAuditLog(operatorID uint, action do.AuditActionType,
-		targetType string, targetID uint, before, after, reason, ip string) error
+		targetType string, targetID uint, before, after, reason, operatorIP string) error
 	GetAnonymousRiskLevel(ip string) (do.RiskLevel, error)
 	// ip
 	CheckRateLimitByIP(ctx context.Context, ip string, action ratelimit.Action) (ratelimit.Result, error)

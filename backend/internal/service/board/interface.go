@@ -3,8 +3,10 @@ package board
 import (
 	"context"
 
+	"tiny-forum/internal/model/bo"
 	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/dto"
+	"tiny-forum/internal/model/request"
 	boardRepo "tiny-forum/internal/repository/board"
 	postRepo "tiny-forum/internal/repository/post"
 	userRepo "tiny-forum/internal/repository/user"
@@ -13,18 +15,18 @@ import (
 
 type BoardService interface {
 	// applys
-	ApplyModerator(input do.ApplyModeratorInput) error
+	ApplyModerator(ctx context.Context, input request.ApplyModeratorRequest) error
 	CancelApplication(applicationID, userID uint) error
 	GetUserApplications(userID uint, page, pageSize int) ([]do.ModeratorApplication, int64, error)
-	ReviewApplication(_ context.Context, input ReviewApplicationInput, reviewerID uint) error
+	ReviewApplication(_ context.Context, input request.ReviewApplicationRequest, reviewerID uint) error
 	ListApplications(boardID *uint, status do.ApplicationStatus, page, pageSize int) ([]do.ModeratorApplication, int64, error)
 	// ban
-	BanUser(input BanUserInput, bannerID uint) error
+	BanUser(ctx context.Context, input request.BoardBanUserRequest, bannerID uint) error
 	UnbanUser(userID, boardID uint) error
 	IsBanned(userID, boardID uint) (bool, error)
 	// crud
-	Create(input CreateBoardInput) (*do.Board, error)
-	Update(id uint, input CreateBoardInput) (*do.Board, error)
+	Create(input bo.CreateBoardInput) (*do.Board, error)
+	Update(id uint, input bo.CreateBoardInput) (*do.Board, error)
 	Delete(id uint) error
 	GetByID(id uint) (*do.Board, error)
 	GetBoardBySlug(slug string) (*do.Board, error)
@@ -33,12 +35,12 @@ type BoardService interface {
 	GetTree() ([]do.Board, error)
 	GetPosts(boardID uint, page, pageSize int) ([]do.Post, int64, error)
 	// moderator
-	AddModerator(_ context.Context, input AddModeratorInput, operatorID uint) error
+	AddModerator(_ context.Context, input request.AddModeratorRequest, operatorID uint) error
 	RemoveModerator(_ context.Context, userID, boardID uint, operatorID uint) error
 	GetModerators(boardID uint) ([]do.Moderator, error)
 	IsModerator(userID, boardID uint) (bool, error)
-	UpdateModeratorPermissions(_ context.Context, input UpdateModeratorPermissionsInput, operatorID uint) error
-	CheckModeratorPermission(_ context.Context, userID, boardID uint, permission string) (bool, error)
+	UpdateModeratorPermissions(_ context.Context, input request.UpdateModeratorPermissionsRequest, operatorID uint) error
+	CheckModeratorPermission(_ context.Context, userID, boardID uint, permission do.ModeratorPermission) (bool, error)
 	GetModeratorBoardsWithPermissions(userID uint) ([]ModeratorBoardWithPerms, error)
 	// post
 	DeletePost(boardID, postID, userID uint, isAdmin bool) error

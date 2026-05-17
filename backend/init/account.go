@@ -30,7 +30,7 @@ var DefaultSystemUserConfig = config.SystemUserConfig{
 
 // createUserIfNotExists 公共的创建用户方法
 // 如果用户已存在（通过 email 或 username 判断），则跳过创建并返回 nil
-// 否则创建新用户，支持自定义额外字段（如 Score, Avatar 等）
+// 否则创建新用户，支持自定义额外字段
 func createUserIfNotExists(db *gorm.DB, email, username, password string, role do.UserRole, opts ...func(*do.User)) error {
 	// 检查是否已存在
 	var existingUser do.User
@@ -62,7 +62,7 @@ func createUserIfNotExists(db *gorm.DB, email, username, password string, role d
 	}
 
 	// 默认头像根据用户名生成
-	user.Avatar = fmt.Sprintf("https://api.dicebear.com/8.x/lorelei/svg?seed=%s", username)
+	user.AvatarUrl = fmt.Sprintf("https://api.dicebear.com/8.x/lorelei/svg?seed=%s", username)
 
 	// 应用额外的配置选项
 	for _, opt := range opts {

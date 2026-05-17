@@ -1,7 +1,7 @@
 import { userApi } from "@/shared/api/modules/user";
-import { RoleResponse } from "@/shared/api/modules/users";
 import { useState, useCallback } from "react";
 import { ErrorResponse } from "./useUserProfile";
+import { RoleResponse } from "@/shared/api/types/user.model";
 
 // ========== 用户角色 ==========
 interface UseUserRoleReturn {

@@ -2,12 +2,12 @@
 
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { postApi } from "@/shared/api";
 import { useTranslations } from "next-intl";
 import { FileText, MessageSquare, BookOpen, Hash } from "lucide-react";
-import type { PostType } from "@/shared/api/types";
 import { ViolationStatus } from "./ViolationStatus";
 import PostCard from "@/shared/ui/post/PostCard";
+import { postApi } from "@/shared/api/modules/posts";
+import { PostType } from "@/shared/api/types/post.model";
 
 interface ProfileContentProps {
   userId: number;

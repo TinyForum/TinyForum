@@ -1,4 +1,4 @@
-import { TabType } from "@/shared/type/admin.types";
+import { TabType } from "@/shared/ui/type/admin.types";
 import { Search } from "lucide-react";
 
 // 搜索栏组件

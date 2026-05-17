@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { announcementApi } from "@/shared/api";
+import { announcementApi } from "@/shared/api/modules/announcements";
 import { toast } from "react-hot-toast";
 import {
   MegaphoneIcon,
@@ -14,7 +14,7 @@ import { AnnouncementCard } from "@/features/announcements/components/Announceme
 import {
   AnnouncementDO,
   AnnouncementStatus,
-} from "@/shared/api/types/announcement.model";
+} from "@/shared/api/types/announcement.model.do";
 
 // 分页组件
 function Pagination({

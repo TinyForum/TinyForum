@@ -26,7 +26,7 @@ import (
 func (h *StatsHandler) GetStatsRange(c *gin.Context) {
 	var req dto.StatsRangeRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 
@@ -42,7 +42,7 @@ func (h *StatsHandler) GetStatsRange(c *gin.Context) {
 	if req.EndDate != "" {
 		parsed, err := time.Parse("2006-01-02", req.EndDate)
 		if err != nil {
-			response.BadRequest(c, "结束日期格式错误: "+err.Error())
+			response.HandleError(c, err)
 			return
 		}
 		endDate = parsed
@@ -50,7 +50,7 @@ func (h *StatsHandler) GetStatsRange(c *gin.Context) {
 	if req.StartDate != "" {
 		parsed, err := time.Parse("2006-01-02", req.StartDate)
 		if err != nil {
-			response.BadRequest(c, "开始日期格式错误: "+err.Error())
+			response.HandleError(c, err)
 			return
 		}
 		startDate = parsed

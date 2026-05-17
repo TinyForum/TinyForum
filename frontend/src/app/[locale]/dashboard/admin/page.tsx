@@ -18,7 +18,7 @@ import { useAdminAuth } from "@/features/admin/hooks/useAdminAuth";
 import { usePostsData } from "@/features/admin/hooks/usePostsData";
 import { useQAData } from "@/features/admin/hooks/useQAData";
 import { useUsersData } from "@/features/admin/hooks/useUsersData";
-import { UserDO } from "@/shared/api/types/user.model";
+import { UserDO } from "@/shared/api/types/user.model.do";
 import { BotManager } from "@/features/bot/components/BotManager";
 
 // 导入类型
@@ -88,17 +88,22 @@ export default function AdminPage() {
   // 渲染右侧内容
   const renderContent = () => {
     switch (activeMenu) {
+      // 仪表盘
       case "dashboard":
         return <Dashboard t={t} />;
 
+      // 任务管理
       case "tasks":
         return <AdminTasks />;
 
+      // 机器人管理
       case "bot":
         return <BotManager />;
+      // 公告管理
       case "announcements":
         return <AnnouncementsManager t={t} />;
 
+      // 用户管理
       case "users":
         return (
           <div className="space-y-4">
@@ -133,9 +138,11 @@ export default function AdminPage() {
           </div>
         );
 
+      // 版主管理
       case "moderators_management":
         return <ModeratorsTable boardId={0} />;
 
+      // 帖子管理
       case "posts":
         return (
           <div className="space-y-4">
@@ -163,6 +170,7 @@ export default function AdminPage() {
           </div>
         );
 
+      // 问答
       case "qa":
         return (
           <div className="space-y-4">
@@ -189,12 +197,15 @@ export default function AdminPage() {
           </div>
         );
 
+      // 积分
       case "points":
         return <PointsManager />;
 
+      // 系统统计
       case "statistics":
         return <Statistics />;
 
+      // 设置
       case "settings":
         return (
           <div className="card bg-base-100 border border-base-300">

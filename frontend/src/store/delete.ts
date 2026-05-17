@@ -1,8 +1,8 @@
 // store/deleteAccount.ts
 import { create } from "zustand";
-import { authApi } from "@/shared/api";
 import { useAuthStore } from "./auth";
 import { ApiError } from "@/shared/api/types/basic.model";
+import { authApi } from "@/shared/api/modules/auth";
 
 interface DeletionStatus {
   is_deleted: boolean;

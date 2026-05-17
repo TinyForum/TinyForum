@@ -42,7 +42,7 @@ func (h *NotificationHandler) BatchMarkRead(c *gin.Context) {
 	}
 
 	if err != nil {
-		response.InternalError(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 
@@ -73,7 +73,7 @@ func (h *NotificationHandler) MarkRead(c *gin.Context) {
 	// 参数验证在 Handler 层
 	notifID, err := strconv.ParseUint(notifIDStr, 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的通知ID")
+		response.HandleError(c, err)
 		return
 	}
 
@@ -81,11 +81,11 @@ func (h *NotificationHandler) MarkRead(c *gin.Context) {
 	if err := h.notifSvc.MarkRead(uint(notifID), userID); err != nil {
 		switch err.Error() {
 		case "通知不存在":
-			response.NotFound(c, err.Error())
+			response.HandleError(c, err)
 		case "无权操作此通知":
 			response.Forbidden(c, err.Error())
 		default:
-			response.InternalError(c, err.Error())
+			response.HandleError(c, err)
 		}
 		return
 	}

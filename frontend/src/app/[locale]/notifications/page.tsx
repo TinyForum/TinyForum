@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { Notification } from "@/shared/api";
+import type { Notification } from "@/shared/api/types/notification.model";
 import { useAuthStore } from "@/store/auth";
 import { useRouter } from "next/navigation";
 import {
@@ -160,7 +160,7 @@ function NotificationCard({
               <div className="w-9 h-9 rounded-full">
                 <Avatar
                   username={notification.sender.username}
-                  avatarUrl={notification.sender.avatar}
+                  avatarUrl={notification.sender.avatar_url}
                   size="md"
                 />
               </div>

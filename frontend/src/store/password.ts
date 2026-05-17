@@ -2,8 +2,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import { authApi } from "@/shared/api";
 import { getErrorMessage } from "@/shared/lib/utils";
+import { authApi } from "@/shared/api/modules/auth";
 
 interface UseChangePasswordOptions {
   onSuccess?: () => void; // 成功后的额外回调

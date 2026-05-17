@@ -23,7 +23,7 @@ interface TimelineEvent {
   actor?: {
     id: number;
     username: string;
-    avatar: string;
+    avatar_url: string;
   };
 }
 

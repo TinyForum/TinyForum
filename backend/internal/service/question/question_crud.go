@@ -36,7 +36,7 @@ func (s *questionService) GetQuestionDetail(questionID uint) (*do.QuestionRespon
 		Title:            question.Post.Title,
 		Content:          question.Post.Content,
 		Summary:          question.Post.Summary,
-		Cover:            question.Post.Cover,
+		Cover:            question.Post.CoverUrl,
 		BoardID:          question.Post.BoardID,
 		AuthorID:         question.Post.AuthorID,
 		RewardScore:      question.RewardScore,

@@ -4,8 +4,8 @@ import (
 	"errors"
 	"strconv"
 
+	"tiny-forum/internal/model/bo"
 	"tiny-forum/internal/model/dto"
-	boardService "tiny-forum/internal/service/board"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -26,14 +26,14 @@ import (
 // @Failure 403 {object} common.BasicResponse"无权限"
 // @Router /boards [post]
 func (h *BoardHandler) Create(c *gin.Context) {
-	var input boardService.CreateBoardInput
+	var input bo.CreateBoardInput
 	if err := c.ShouldBindJSON(&input); err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	board, err := h.boardSvc.Create(input)
 	if err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.Success(c, board)
@@ -57,17 +57,17 @@ func (h *BoardHandler) Create(c *gin.Context) {
 func (h *BoardHandler) Update(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的板块ID")
+		response.HandleError(c, err)
 		return
 	}
-	var input boardService.CreateBoardInput
+	var input bo.CreateBoardInput
 	if err := c.ShouldBindJSON(&input); err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	board, err := h.boardSvc.Update(uint(id), input)
 	if err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.Success(c, board)
@@ -89,11 +89,11 @@ func (h *BoardHandler) Update(c *gin.Context) {
 func (h *BoardHandler) Delete(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的板块ID")
+		response.HandleError(c, err)
 		return
 	}
 	if err := h.boardSvc.Delete(uint(id)); err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.Success(c, gin.H{"message": "删除成功"})
@@ -112,12 +112,12 @@ func (h *BoardHandler) Delete(c *gin.Context) {
 func (h *BoardHandler) GetByID(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的板块ID")
+		response.HandleError(c, err)
 		return
 	}
 	board, err := h.boardSvc.GetByID(uint(id))
 	if err != nil {
-		response.NotFound(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.Success(c, board)
@@ -136,7 +136,7 @@ func (h *BoardHandler) GetBoardBySlug(c *gin.Context) {
 	slug := c.Param("slug")
 	board, err := h.boardSvc.GetBoardBySlug(slug)
 	if err != nil {
-		response.NotFound(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.Success(c, board)
@@ -157,7 +157,7 @@ func (h *BoardHandler) List(c *gin.Context) {
 	pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "20"))
 	boards, total, err := h.boardSvc.List(page, pageSize)
 	if err != nil {
-		response.InternalError(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.SuccessPage(c, boards, total, page, pageSize)
@@ -174,7 +174,7 @@ func (h *BoardHandler) List(c *gin.Context) {
 func (h *BoardHandler) GetTree(c *gin.Context) {
 	tree, err := h.boardSvc.GetTree()
 	if err != nil {
-		response.InternalError(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.Success(c, tree)
@@ -203,7 +203,7 @@ func (h *BoardHandler) GetPostsBySlug(c *gin.Context) {
 	var req dto.GetBoardPostsRequest
 	// 绑定查询参数 (page, page_size)
 	if err := c.ShouldBindQuery(&req); err != nil {
-		response.BadRequest(c, "分页参数错误")
+		response.HandleError(c, err)
 		return
 	}
 	// 设置默认值（若未传或为0）
@@ -222,7 +222,7 @@ func (h *BoardHandler) GetPostsBySlug(c *gin.Context) {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			response.NotFound(c, "板块不存在")
 		} else {
-			response.InternalError(c, err.Error())
+			response.HandleError(c, err)
 		}
 		return
 	}

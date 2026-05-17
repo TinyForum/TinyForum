@@ -1,7 +1,7 @@
 import {
   AnnouncementStatus,
   AnnouncementType,
-} from "@/shared/api/types/announcement.model";
+} from "@/shared/api/types/announcement.model.do";
 
 /**
  * 判断公告是否过期

@@ -1,9 +1,7 @@
 // hooks/useAdminModerator.ts
 import { adminModeratorApi } from "@/shared/api/modules/admin/moderator";
-import {
-  moderatorApi,
-  ReviewApplicationRequest,
-} from "@/shared/api/modules/moderator";
+import { moderatorApi } from "@/shared/api/modules/moderator";
+import { ReviewApplicationRequest } from "@/shared/api/types/moderator.model";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 // import { ApiResponse } from "@/shared/api/types";

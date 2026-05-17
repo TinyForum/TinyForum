@@ -7,7 +7,7 @@ import (
 	"tiny-forum/internal/model/vo"
 )
 
-func (s *adminService) ListAnnouncements(ctx context.Context, req *request.ListAnnouncements) (*vo.ListAnnouncements, error) {
+func (s *adminService) ListAnnouncements(ctx context.Context, req *request.ListAnnouncementsRequest) (*vo.ListAnnouncements, error) {
 	return s.announcementSvc.List(ctx, req)
 }
 

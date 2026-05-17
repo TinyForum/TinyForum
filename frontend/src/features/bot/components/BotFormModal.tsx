@@ -19,8 +19,8 @@ function DynamicConfigForm({
   onChange,
 }: {
   schema: BotConfigField[];
-  values: Record<string, any>;
-  onChange: (key: string, value: any) => void;
+  values: Record<string, unknown>;
+  onChange: (key: string, value: string | boolean) => void;
 }) {
   if (!schema?.length) return null;
   return (
@@ -42,13 +42,13 @@ function DynamicConfigForm({
             <textarea
               className="textarea textarea-bordered"
               placeholder={field.placeholder}
-              value={values[field.key] ?? field.defaultValue ?? ""}
+              value={String(values[field.key] ?? field.defaultValue ?? "")}
               onChange={(e) => onChange(field.key, e.target.value)}
             />
           ) : field.type === "select" ? (
             <select
               className="select select-bordered"
-              value={values[field.key] ?? field.defaultValue ?? ""}
+              value={String(values[field.key] ?? field.defaultValue ?? "")}
               onChange={(e) => onChange(field.key, e.target.value)}
             >
               <option value="">请选择</option>
@@ -70,7 +70,7 @@ function DynamicConfigForm({
               type={field.type === "secret" ? "password" : field.type}
               className="input input-bordered"
               placeholder={field.placeholder}
-              value={values[field.key] ?? field.defaultValue ?? ""}
+              value={String(values[field.key] ?? field.defaultValue ?? "")}
               onChange={(e) => onChange(field.key, e.target.value)}
             />
           )}

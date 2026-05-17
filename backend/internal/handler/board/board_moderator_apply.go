@@ -5,7 +5,8 @@ import (
 
 	"tiny-forum/internal/model/common"
 	"tiny-forum/internal/model/do"
-	boardService "tiny-forum/internal/service/board"
+	"tiny-forum/internal/model/request"
+	apperrors "tiny-forum/pkg/errors"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -26,28 +27,62 @@ import (
 // @Failure 403 {object} common.BasicResponse"无权限或已申请"
 // @Router /boards/{id}/moderators/apply [post]
 func (h *BoardHandler) ApplyModerator(c *gin.Context) {
+	// 1. 解析并校验 boardID
 	boardID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil || boardID == 0 {
+		response.HandleError(c, err) // 使用预定义错误
+		return
+	}
+
+	// 2. 绑定并校验请求体
+	var req request.ApplyModeratorRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.HandleError(c, err)
+		return
+	}
+	if err := req.Validate(); err != nil {
+		response.HandleError(c, err)
+		return
+	}
+
+	// 3. 从认证上下文获取用户信息
+	uid, err := getAuthenticatedUserID(c)
 	if err != nil {
-		response.BadRequest(c, "无效的板块ID")
+		response.HandleError(c, err)
 		return
 	}
 
-	var input do.ApplyModeratorInput
-	if err := c.ShouldBindJSON(&input); err != nil {
-		response.BadRequest(c, err.Error())
+	// 4. 组装 Service 输入对象
+	input := request.ApplyModeratorRequest{
+		UserID:               uid,
+		BoardID:              uint(boardID),
+		Reason:               req.Reason,
+		RequestedPermissions: req.RequestedPermissions,
+	}
+
+	// 5. 调用 Service
+	if err := h.boardSvc.ApplyModerator(c.Request.Context(), input); err != nil {
+		response.HandleError(c, err)
 		return
 	}
 
-	// 从 JWT 上下文注入，不信任客户端传参
-	input.UserID = c.GetUint("user_id")
-	input.Username = c.GetString("username")
-	input.BoardID = uint(boardID)
+	// 6. 成功响应
+	response.Success(c, gin.H{
+		"message": "申请已提交，请等待管理员审核",
+	})
+}
 
-	if err := h.boardSvc.ApplyModerator(input); err != nil {
-		response.BadRequest(c, err.Error())
-		return
+// getAuthenticatedUserID 从 Gin Context 中安全获取用户 ID
+func getAuthenticatedUserID(c *gin.Context) (uint, error) {
+	val, exists := c.Get("user_id")
+	if !exists {
+		return 0, apperrors.ErrUnauthorized
 	}
-	response.Success(c, gin.H{"message": "申请已提交，请等待管理员审核"})
+	uid, ok := val.(uint)
+	if !ok {
+		return 0, apperrors.ErrInternalError
+	}
+	return uid, nil
 }
 
 // CancelApplication 用户撤销自己的版主申请
@@ -66,13 +101,13 @@ func (h *BoardHandler) ApplyModerator(c *gin.Context) {
 func (h *BoardHandler) CancelApplication(c *gin.Context) {
 	applicationID, err := strconv.ParseUint(c.Param("application_id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的申请ID")
+		response.HandleError(c, err)
 		return
 	}
 	userID := c.GetUint("user_id")
 
 	if err := h.boardSvc.CancelApplication(uint(applicationID), userID); err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.Success(c, gin.H{"message": "申请已撤销"})
@@ -97,7 +132,7 @@ func (h *BoardHandler) GetUserApplications(c *gin.Context) {
 
 	applications, total, err := h.boardSvc.GetUserApplications(userID, page, pageSize)
 	if err != nil {
-		response.InternalError(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	resp := common.PageResult[do.ModeratorApplication]{
@@ -125,10 +160,11 @@ func (h *BoardHandler) GetUserApplications(c *gin.Context) {
 // @Failure 403 {object} common.BasicResponse"无权限（需要管理员权限）"
 // @Failure 404 {object} common.BasicResponse"申请不存在"
 // @Router /admin/boards/applications/{application_id}/review [post]
+// Deprecated: 迁移到 adminHandler.ReviewApplication
 func (h *BoardHandler) ReviewApplication(c *gin.Context) {
 	applicationID, err := strconv.ParseUint(c.Param("application_id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的申请ID")
+		response.HandleError(c, err)
 		return
 	}
 
@@ -142,12 +178,12 @@ func (h *BoardHandler) ReviewApplication(c *gin.Context) {
 		CanBanUser         *bool  `json:"can_ban_user"`
 	}
 	if err := c.ShouldBindJSON(&body); err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 
 	reviewerID := c.GetUint("user_id")
-	input := boardService.ReviewApplicationInput{
+	input := request.ReviewApplicationRequest{
 		ApplicationID:      uint(applicationID),
 		Approve:            body.Approve,
 		ReviewNote:         body.ReviewNote,
@@ -159,7 +195,7 @@ func (h *BoardHandler) ReviewApplication(c *gin.Context) {
 	}
 
 	if err := h.boardSvc.ReviewApplication(c.Request.Context(), input, reviewerID); err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.Success(c, gin.H{"message": "审批完成"})
@@ -181,12 +217,13 @@ func (h *BoardHandler) ReviewApplication(c *gin.Context) {
 // @Failure 403 {object} common.BasicResponse"无权限（需要管理员权限）"
 // @Failure 500 {object} common.BasicResponse"服务器内部错误"
 // @Router /admin/boards/applications [get]
+// Deprecated: 迁移到 adminHandler.ListApplications
 func (h *BoardHandler) ListApplications(c *gin.Context) {
 	var boardID *uint
 	if raw := c.Query("board_id"); raw != "" {
 		id, err := strconv.ParseUint(raw, 10, 64)
 		if err != nil {
-			response.BadRequest(c, "无效的板块ID")
+			response.HandleError(c, err)
 			return
 		}
 		uid := uint(id)
@@ -199,7 +236,7 @@ func (h *BoardHandler) ListApplications(c *gin.Context) {
 
 	apps, total, err := h.boardSvc.ListApplications(boardID, status, page, pageSize)
 	if err != nil {
-		response.InternalError(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.SuccessPage(c, apps, total, page, pageSize)

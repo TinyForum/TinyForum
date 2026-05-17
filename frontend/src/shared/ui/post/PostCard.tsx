@@ -5,10 +5,11 @@ import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
 import { timeAgo, truncate } from "@/shared/lib/utils";
 import { Eye, Heart, MessageSquare, Pin, Tag, HelpCircle } from "lucide-react";
-import { Post } from "@/shared/api";
 import Avatar from "@/features/user/components/Avatar";
 import { userApi } from "@/shared/api/modules/user";
-import { UserDO } from "@/shared/api/types/user.model";
+import { UserDO } from "@/shared/api/types/user.model.do";
+
+import { Post } from "@/shared/api/types/post.model";
 
 interface PostCardProps {
   post: Post;
@@ -68,7 +69,7 @@ export default function PostCard({ post, commentCount }: PostCardProps) {
           <Link href={`/users/${post.author_id}`} className="flex-none">
             <Avatar
               username={author?.username || `用户${post.author_id}`}
-              avatarUrl={author?.avatar}
+              avatarUrl={author?.avatar_url}
               size="md"
             />
           </Link>
@@ -127,7 +128,8 @@ export default function PostCard({ post, commentCount }: PostCardProps) {
             >
               <div className="w-20 h-16 rounded-lg overflow-hidden relative">
                 <Image
-                  src={post.cover}
+                  // src={`http://${post.cover}`}
+                  src="/logo"
                   alt={post.title}
                   fill
                   className="object-cover"

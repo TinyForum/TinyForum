@@ -2,25 +2,23 @@
 
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import {
-  postApi,
-  tagApi,
-  boardApi,
-  timelineApi,
-  notificationApi,
-  questionApi,
-  Tag,
-  Post,
-  TimelineEvent,
-} from "@/shared/api";
 import { useAuthStore } from "@/store/auth";
 import LeftSidebar, { FilterType } from "@/layout/home/LeftSidebar";
-import { SortBy } from "@/shared/type/posts.types";
 import { useLeaderboard } from "@/features/leader/hooks/useLeaderboard";
-import RightSidebar from "@/layout/home/RightSidebar";
+import { RightSidebar } from "@/layout/home/RightSidebar";
 import PostFilterBar from "@/layout/home/mid/PostFilterBar";
 import PostList from "@/layout/home/mid/PostList";
 import { Board } from "@/shared/api/types/board.model";
+import { boardApi } from "@/shared/api/modules/boards";
+import { postApi } from "@/shared/api/modules/posts";
+import { questionApi } from "@/shared/api/modules/questions";
+import { tagApi } from "@/shared/api/modules/tags";
+import { timelineApi } from "@/shared/api/modules/timeline";
+import { Tag } from "@/shared/api/types/tag.model";
+import { TimelineEvent } from "@/shared/api/types/timeline.model";
+import { Post } from "@/shared/api/types/post.model";
+import { SortBy } from "@/shared/ui/type/home.type";
+import { useUnreadCount } from "@/features/notification/hooks/useUnreadCount";
 
 export default function HomePage() {
   const { isAuthenticated, user } = useAuthStore();
@@ -99,31 +97,18 @@ export default function HomePage() {
       boardApi.getTree().then((r) => (r.data.data as Board[]) || []),
   });
 
-  // 用户信息（已登录时）
-  // const { data: userProfile } = useQuery({
-  //   queryKey: ["user-profile", user?.id],
-  //   queryFn: () =>
-  //     userAPI.getProfile(user!.id).then((r) => r.data.data as UserProfile),
-  //   enabled: isAuthenticated && !!user?.id,
-  // });
-  // const { profile: userProfile, refresh: fetchUserProfile } = useUserProfile(
-  //   user?.id,
-  //   false,
-  // );
-  // // 导入自定义 hooks
-  // const { user  } = useProfile();
-
   // 未读通知数
-  const { data: unreadCount } = useQuery({
-    queryKey: ["unread-count"],
-    queryFn: () =>
-      notificationApi.unreadCount().then((r) => {
-        const data = r.data.data as { count: number } | undefined;
-        return data?.count || 0;
-      }),
-    enabled: isAuthenticated,
-    refetchInterval: 30000,
-  });
+  const { unreadCount } = useUnreadCount();
+  // const { data: unreadCount } = useQuery({
+  //   queryKey: ["unread-count"],
+  //   queryFn: () =>
+  //     notificationApi.unreadCount().then((r) => {
+  //       const data = r.data.data as { count: number } | undefined;
+  //       return data?.count || 0;
+  //     }),
+  //   enabled: isAuthenticated,
+  //   refetchInterval: 30000,
+  // });
 
   // 时间线事件
   const { data: timelineEvents } = useQuery({
@@ -160,7 +145,7 @@ export default function HomePage() {
     setFilterType(type);
     setPage(1);
   };
-
+  console.log("page 用户信息: ", user);
   return (
     <div className="h-full">
       <div className="container mx-auto max-w-7xl px-4 h-full">

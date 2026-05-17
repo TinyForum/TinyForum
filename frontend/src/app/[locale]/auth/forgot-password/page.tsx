@@ -9,7 +9,7 @@ import { z } from "zod";
 import toast from "react-hot-toast";
 import { Mail, ArrowLeft, Send, CheckCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { authApi } from "@/shared/api";
+import { authApi } from "@/shared/api/modules/auth";
 
 const forgotPasswordSchema = z.object({
   email: z.string().email("请输入有效的邮箱"),

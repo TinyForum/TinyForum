@@ -2,34 +2,25 @@ package upload
 
 import (
 	"context"
-	"mime/multipart"
-	"tiny-forum/internal/model/do"
+	"tiny-forum/internal/model/request"
+	"tiny-forum/internal/model/vo"
+	"tiny-forum/internal/storage"
+	"tiny-forum/internal/strategy"
 )
 
 type Engine interface {
 	// Upload 仅负责存储文件，返回存储结果，不操作数据库
-	Upload(ctx context.Context, req *UploadRequest) (*UploadResult, error)
+	Upload(ctx context.Context, req *request.UploadRequest) (*vo.UploadResult, error)
 	DeleteFile(ctx context.Context, storedPath string) error
 }
-
-type UploadRequest struct {
-	UserID   uint
-	PluginID string
-	File     *multipart.FileHeader
-	FileType do.FileType
-	PostID   int64
-	ReplyID  int64
-	ClientIP string
+type engine struct {
+	storage  storage.StorageDriver
+	registry *strategy.HandlerRegistry
 }
 
-// UploadResult 上传结果，由调用方负责保存到数据库
-type UploadResult struct {
-	FileHash     string
-	StoredPath   string
-	StoredName   string
-	MimeType     string
-	MimeMajor    do.MimeTypeMajor
-	Ext          string
-	Size         int64
-	OriginalName string
+func NewEngine(storage storage.StorageDriver, registry *strategy.HandlerRegistry) Engine {
+	return &engine{
+		storage:  storage,
+		registry: registry,
+	}
 }

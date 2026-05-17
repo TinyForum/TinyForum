@@ -55,3 +55,12 @@ type TokenRepository interface {
 	// FIX #48: 重置密码后清除所有旧会话
 	RevokeAllUserTokens(ctx context.Context, userID uint) error
 }
+
+// type tokenRepository struct {
+// 	db    *gorm.DB
+// 	redis *redis.Client
+// }
+
+// func NewTokenRepository(db *gorm.DB, redis *redis.Client) TokenRepository {
+// 	return &tokenRepository{db: db, redis: redis}
+// }

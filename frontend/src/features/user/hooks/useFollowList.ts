@@ -2,7 +2,7 @@
 import { useState, useCallback } from "react";
 import { toast } from "react-hot-toast";
 import { userApi } from "@/shared/api/modules/user";
-import { UserDO } from "@/shared/api/types/user.model";
+import { UserDO } from "@/shared/api/types/user.model.do";
 
 interface ErrorResponse {
   response?: { data?: { message?: string } };

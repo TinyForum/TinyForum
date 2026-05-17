@@ -3,6 +3,7 @@ package user
 import (
 	"strconv"
 	"tiny-forum/internal/model/request"
+	"tiny-forum/internal/model/vo"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -22,7 +23,7 @@ func (h *UserHandler) AdminList(c *gin.Context) {
 	keyword := c.Query("keyword")
 	users, total, err := h.userSvc.List(page, pageSize, keyword)
 	if err != nil {
-		response.InternalError(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.SuccessPage(c, users, total, page, pageSize)
@@ -143,12 +144,12 @@ func (h *UserHandler) AdminSetRole(c *gin.Context) {
 	}
 	targetID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的用户ID")
+		response.HandleError(c, err)
 		return
 	}
 	var body request.SetUserRoleRequest
 	if err := c.ShouldBindJSON(&body); err != nil {
-		response.BadRequest(c, "请求参数错误: "+err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	if err := h.userSvc.SetRole(operatorID.(uint), uint(targetID), body.Role); err != nil {
@@ -245,7 +246,7 @@ func (h *UserHandler) AdminResetUserPassword(c *gin.Context) {
 		return
 	}
 	h.sendTempPasswordNotification(uint(targetID), operatorUint, tempPassword)
-	response.Success(c, AdminResetUserPasswordResponse{
+	response.Success(c, vo.AdminResetUserPasswordResponse{
 		Message:    "临时密码已生成并发送给用户",
 		UserID:     uint(targetID),
 		OperatorID: operatorUint,

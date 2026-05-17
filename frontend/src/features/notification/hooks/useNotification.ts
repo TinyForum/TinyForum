@@ -1,8 +1,8 @@
 // hooks/useNotifications.ts
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "react-hot-toast";
-import { notificationApi } from "@/shared/api";
-import { Notification } from "@/shared/api/types";
+import { notificationApi } from "@/shared/api/modules/notifications";
+import { Notification } from "@/shared/api/types/notification.model";
 
 interface UseNotificationsOptions {
   pageSize?: number;

@@ -1,11 +1,13 @@
 // hooks/useAnnouncements.ts
-import { announcementApi } from "@/shared/api";
+import { announcementApi } from "@/shared/api/modules/announcements";
 import {
-  AnnouncementDO,
   AnnouncementListParams,
-  AnnouncementStatus,
   AnnouncementListResponse,
 } from "@/shared/api/types/announcement.model";
+import {
+  AnnouncementDO,
+  AnnouncementStatus,
+} from "@/shared/api/types/announcement.model.do";
 import { ApiResponse } from "@/shared/api/types/basic.model";
 import { useState, useEffect, useCallback } from "react";
 

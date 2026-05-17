@@ -1,78 +1,37 @@
 import { Search, Pin, Trash2 } from "lucide-react";
 import { useState, useEffect } from "react";
-import {
-  useAdminBoardPosts,
-  useAdminDeletePost,
-  useAdminPinPost,
-} from "../hooks/useAdminModerator";
 
-// 类型定义
-interface Author {
-  id: number;
-  username: string;
-  avatar?: string;
-}
-
-interface Post {
-  id: number;
-  title: string;
-  content: string;
-  author_id: number;
-  author?: Author;
-  reply_count: number;
-  view_count: number;
-  is_pinned: boolean;
-  status: string;
-  created_at: string;
-  updated_at: string;
-}
-
-interface PostsResponse {
-  list: Post[];
-  total: number;
-  page: number;
-  page_size: number;
-}
+import type { Post } from "@/shared/api/types/post.model";
+import { useAdminGetPosts, useAdminTogglePin } from "../hooks/useAdminPosts";
 
 export function PostManagement() {
-  const [selectedBoardId, setSelectedBoardId] = useState<number>(1);
   const [keyword, setKeyword] = useState<string>("");
   const [debouncedKeyword, setDebouncedKeyword] = useState<string>("");
+  const [page, setPage] = useState(1);
+  const pageSize = 20;
 
   const {
-    data: posts,
+    data: postsData,
     isLoading,
     refetch,
-  } = useAdminBoardPosts(selectedBoardId, {
-    page: 1,
-    page_size: 20,
-    keyword: debouncedKeyword,
+  } = useAdminGetPosts({
+    page,
+    page_size: pageSize,
+    keyword: debouncedKeyword || undefined,
   });
 
-  const deletePost = useAdminDeletePost();
-  const pinPost = useAdminPinPost();
+  const togglePin = useAdminTogglePin();
 
-  // 防抖搜索
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedKeyword(keyword);
+      setPage(1);
     }, 500);
-
     return () => clearTimeout(timer);
   }, [keyword]);
 
-  const handleDeletePost = (boardId: number, postId: number) => {
-    if (confirm("确定要删除该帖子吗？此操作不可恢复。")) {
-      deletePost.mutate({ boardId, postId });
-    }
-  };
-
-  const handlePinPost = (
-    boardId: number,
-    postId: number,
-    pinInBoard: boolean,
-  ) => {
-    pinPost.mutate({ boardId, postId, pinInBoard });
+  const handleTogglePin = (postId: number) => {
+    togglePin.mutate(postId);
   };
 
   if (isLoading) {
@@ -83,26 +42,14 @@ export function PostManagement() {
     );
   }
 
-  // 安全获取帖子列表
-  const postList = (posts as unknown as PostsResponse)?.list || [];
+  const postList = postsData?.list || [];
+  const total = postsData?.total || 0;
+  const totalPages = Math.ceil(total / pageSize);
 
   return (
     <div className="space-y-4">
+      {/* 搜索框部分保持不变 */}
       <div className="flex gap-4 flex-wrap">
-        <div className="form-control">
-          <label className="label">
-            <span className="label-text">板块 ID</span>
-          </label>
-          <input
-            type="number"
-            placeholder="板块 ID"
-            value={selectedBoardId}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setSelectedBoardId(parseInt(e.target.value) || 1)
-            }
-            className="input input-bordered w-32"
-          />
-        </div>
         <div className="flex-1">
           <div className="form-control">
             <label className="label">
@@ -112,28 +59,21 @@ export function PostManagement() {
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <input
-                  placeholder="搜索帖子..."
+                  placeholder="搜索帖子（标题/内容）..."
                   value={keyword}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setKeyword(e.target.value)
-                  }
-                  onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) =>
+                  onChange={(e) => setKeyword(e.target.value)}
+                  onKeyDown={(e) =>
                     e.key === "Enter" && setDebouncedKeyword(keyword)
                   }
                   className="input input-bordered w-full pl-9"
                 />
               </div>
               <button
-                className="btn btn-primary"
-                onClick={() => setDebouncedKeyword(keyword)}
-              >
-                搜索
-              </button>
-              <button
                 className="btn btn-outline"
                 onClick={() => {
                   setKeyword("");
                   setDebouncedKeyword("");
+                  setPage(1);
                   refetch();
                 }}
               >
@@ -145,85 +85,109 @@ export function PostManagement() {
       </div>
 
       <div className="space-y-3">
-        {postList.map((post: Post) => (
-          <div
-            key={post.id}
-            className="card bg-base-100 shadow-sm border border-base-200 hover:shadow-md transition-shadow"
-          >
-            <div className="card-body p-4">
-              <div className="space-y-2">
-                <div className="flex justify-between items-start flex-wrap gap-2">
-                  <div className="flex-1">
-                    <h3 className="font-medium flex items-center gap-2 text-base">
-                      {post.title}
-                      {post.is_pinned && (
-                        <Pin className="w-4 h-4 text-primary" />
-                      )}
-                    </h3>
-                    <div className="flex items-center gap-3 mt-1 text-xs text-base-content/50">
-                      <span>
-                        作者: {post.author?.username || `用户${post.author_id}`}
-                      </span>
-                      <span>回复: {post.reply_count || 0}</span>
-                      <span>浏览: {post.view_count || 0}</span>
-                      <span>
-                        {new Date(post.created_at).toLocaleDateString()}
-                      </span>
+        {postList.map(
+          (
+            post: Post, // 现在 Post 类型已正确
+          ) => (
+            <div
+              key={post.id}
+              className="card bg-base-100 shadow-sm border border-base-200 hover:shadow-md transition-shadow"
+            >
+              <div className="card-body p-4">
+                <div className="space-y-2">
+                  <div className="flex justify-between items-start flex-wrap gap-2">
+                    <div className="flex-1">
+                      <h3 className="font-medium flex items-center gap-2 text-base">
+                        {post.title}
+                        {post.pin_top && (
+                          <Pin className="w-4 h-4 text-primary" />
+                        )}
+                      </h3>
+                      <div className="flex items-center gap-3 mt-1 text-xs text-base-content/50">
+                        <span>
+                          作者:{" "}
+                          {post.author?.username || `用户${post.author_id}`}
+                        </span>
+                        {/* <span>回复: {post. || 0}</span> */}
+                        <span>浏览: {post.view_count || 0}</span>
+                        <span>
+                          {new Date(post.created_at).toLocaleDateString()}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex gap-1">
+                      <button
+                        className="btn btn-ghost btn-sm"
+                        onClick={() => handleTogglePin(post.id)}
+                        disabled={togglePin.isPending}
+                        title={post.pin_top ? "取消置顶" : "置顶"}
+                      >
+                        <Pin className="w-4 h-4" />
+                      </button>
+                      <button
+                        className="btn btn-ghost btn-sm text-error hover:text-error"
+                        disabled
+                        title="删除功能暂未开放"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
                     </div>
                   </div>
-                  <div className="flex gap-1">
-                    <button
-                      className="btn btn-ghost btn-sm"
-                      onClick={() =>
-                        handlePinPost(selectedBoardId, post.id, !post.is_pinned)
-                      }
-                      disabled={pinPost.isPending}
-                      title={post.is_pinned ? "取消置顶" : "置顶"}
-                    >
-                      <Pin className="w-4 h-4" />
-                    </button>
-                    <button
-                      className="btn btn-ghost btn-sm text-error hover:text-error"
-                      onClick={() => handleDeletePost(selectedBoardId, post.id)}
-                      disabled={deletePost.isPending}
-                      title="删除"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                  {post.content && (
+                    <p className="text-sm text-base-content/70 line-clamp-2">
+                      {post.content}
+                    </p>
+                  )}
+                  <div className="flex gap-2 flex-wrap">
+                    {post.pin_top && (
+                      <span className="badge badge-primary badge-sm">置顶</span>
+                    )}
+                    {post.status === "published" && (
+                      <span className="badge badge-error badge-sm">已发布</span>
+                    )}
                   </div>
-                </div>
-
-                {post.content && (
-                  <p className="text-sm text-base-content/70 line-clamp-2">
-                    {post.content}
-                  </p>
-                )}
-
-                <div className="flex gap-2 flex-wrap">
-                  {post.is_pinned && (
-                    <span className="badge badge-primary badge-sm">置顶</span>
-                  )}
-                  {post.status === "deleted" && (
-                    <span className="badge badge-error badge-sm">已删除</span>
-                  )}
                 </div>
               </div>
             </div>
-          </div>
-        ))}
-
+          ),
+        )}
         {postList.length === 0 && (
           <div className="text-center py-12 text-base-content/50">
             <Search className="w-12 h-12 mx-auto mb-3 opacity-30" />
             <p>暂无帖子</p>
-            {keyword && (
+            {debouncedKeyword && (
               <p className="text-sm mt-2">
-                没有找到 &quot;{keyword}&quot; 相关的帖子
+                没有找到 &quot;{debouncedKeyword}&quot; 相关的帖子
               </p>
             )}
           </div>
         )}
       </div>
+
+      {/* 分页 */}
+      {totalPages > 1 && (
+        <div className="flex justify-center mt-4">
+          <div className="join">
+            <button
+              className="join-item btn btn-sm"
+              disabled={page <= 1}
+              onClick={() => setPage((p) => p - 1)}
+            >
+              «
+            </button>
+            <span className="join-item btn btn-sm">
+              第 {page} / {totalPages} 页
+            </span>
+            <button
+              className="join-item btn btn-sm"
+              disabled={page >= totalPages}
+              onClick={() => setPage((p) => p + 1)}
+            >
+              »
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

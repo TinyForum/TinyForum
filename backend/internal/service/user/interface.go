@@ -24,10 +24,10 @@ type UserService interface {
 	ResetUserPasswordWithTemp(operatorID uint, targetID uint) (string, error)
 	ResetUserPassword(operatorID uint, targetID uint, newPassword string) error
 	// adin score
-	GetScoreById(userID uint) (int, error)
+	GetScoreById(userID uint) (int, error) // 获取用户积分
 	SetScoreById(userID uint, score int) error
 	onScoreChanged(userID uint, newScore int) error // TODO: 未完成
-	GetAllUsersWithScore() ([]UserScoreResponse, error)
+	ListUsersScore() ([]vo.UserScoreVO, error)      // 获取用户及其积分
 	// user status
 	SetBlocked(targetID uint, operatorID uint, isBlocked bool) error
 	SetActive(targetID uint, operatorID uint, isActive bool) error
@@ -43,7 +43,7 @@ type UserService interface {
 	// profile
 	GetProfile(userID uint) (*do.User, error)
 	UpdateProfile(userID uint, input do.UpdateProfileInput) error
-	GetUserProfile(targetID, viewerID uint) (*UserProfileResponse, error)
+	GetUserProfile(targetID, viewerID uint) (*vo.UserProfileVO, error)
 	GetUserBasicInfo(userID uint) (*do.User, error)
 	GetUserRoleById(userID uint) (string, error)
 	// stats
@@ -53,6 +53,7 @@ type UserService interface {
 	// 违规
 	ListUserViolation(ctx context.Context, req request.ListUserViolationRequest, userID uint) (*common.PageResult[vo.ViolationVO], error)
 }
+
 type userService struct {
 	repo         userRepo.UserRepository
 	jwtMgr       *jwtpkg.JWTManager

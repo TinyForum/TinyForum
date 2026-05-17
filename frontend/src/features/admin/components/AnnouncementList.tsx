@@ -1,12 +1,12 @@
 // components/admin/AnnouncementList.tsx
 
-import {
-  AnnouncementDO,
-  AnnouncementType,
-  AnnouncementStatus,
-} from "@/shared/api/types/announcement.model";
 import { Loader2, Pin } from "lucide-react";
 import { AnnouncementCard } from "./AnnouncementCard";
+import {
+  AnnouncementDO,
+  AnnouncementStatus,
+  AnnouncementType,
+} from "@/shared/api/types/announcement.model.do";
 
 interface AnnouncementListProps {
   announcements: AnnouncementDO[];

@@ -52,11 +52,11 @@ func (s *authService) Register(ctx context.Context, input request.RegisterReques
 	}
 
 	user := &do.User{
-		Username: input.Username,
-		Email:    input.Email,
-		Password: string(hashed),
-		Role:     do.RoleUser,
-		Avatar:   avatarURL(input.Username),
+		Username:  input.Username,
+		Email:     input.Email,
+		Password:  string(hashed),
+		Role:      do.RoleUser,
+		AvatarUrl: avatarURL(input.Username),
 	}
 	if err := s.userRepo.Create(user); err != nil {
 		return nil, err
@@ -72,9 +72,9 @@ func (s *authService) Register(ctx context.Context, input request.RegisterReques
 	return &vo.AuthResultVO{
 		Token: token,
 		User: &vo.UserPrivateVO{
-			ID:       user.ID,
-			Username: user.Username,
-			Avatar:   user.Avatar,
-			Email:    user.Email,
+			ID:        user.ID,
+			Username:  user.Username,
+			AvatarUrl: user.AvatarUrl,
+			Email:     user.Email,
 		}}, nil
 }

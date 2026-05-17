@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useCallback } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useAuthStore } from "@/store/auth";
@@ -10,13 +10,14 @@ import { getErrorMessage } from "@/shared/lib/utils";
 import { Save, AlertCircle, Camera } from "lucide-react";
 import Avatar from "@/features/user/components/Avatar";
 import { userApi } from "@/shared/api/modules/user";
-import { UserDO } from "@/shared/api/types/user.model";
+import { UserDO } from "@/shared/api/types/user.model.do";
+
 import { useUpload } from "@/features/upload/hooks/useUpload";
 
 // 移除 avatar 的 URL 校验，允许任意字符串（包括相对路径、协议相对路径）
 const profileSchema = z.object({
   bio: z.string().max(500, "个人简介最多500字").optional().default(""),
-  avatar: z.string().optional().default(""),
+  avatar_url: z.string().optional().default(""),
 });
 
 type ProfileForm = z.infer<typeof profileSchema>;
@@ -34,19 +35,20 @@ export default function ProfileSettings({ user }: ProfileSettingsProps) {
     register,
     handleSubmit,
     setValue,
-    watch,
+    control,
     formState: { errors, isDirty },
   } = useForm<ProfileForm>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
       bio: user?.bio || "",
-      avatar: user?.avatar || "",
+      avatar_url: user?.avatar_url || "",
     },
     mode: "onChange",
   });
-
-  const currentAvatar = watch("avatar");
-  const bioValue = watch("bio");
+  const currentAvatar = useWatch({ control, name: "avatar_url" });
+  const bioValue = useWatch({ control, name: "bio" });
+  // const currentAvatar = watch("avatar");
+  // const bioValue = watch("bio");
 
   // 处理文件选择并上传头像
   const handleFileSelect = useCallback(
@@ -67,7 +69,7 @@ export default function ProfileSettings({ user }: ProfileSettingsProps) {
       try {
         const uploadedUrl = await uploadAvatar(file);
         if (uploadedUrl) {
-          setValue("avatar", uploadedUrl, {
+          setValue("avatar_url", uploadedUrl, {
             shouldDirty: true,
             shouldValidate: true,
           });
@@ -113,7 +115,7 @@ export default function ProfileSettings({ user }: ProfileSettingsProps) {
               <div className="avatar">
                 <div className="w-28 h-28 rounded-2xl ring-2 ring-primary/20 ring-offset-2 transition-all group-hover:ring-primary/40">
                   <Avatar
-                    avatarUrl={currentAvatar || user.avatar}
+                    avatarUrl={currentAvatar || user.avatar_url}
                     username={user.username}
                     shape="square"
                   />
@@ -131,7 +133,7 @@ export default function ProfileSettings({ user }: ProfileSettingsProps) {
                   <Camera className="w-3 h-3" />
                 )}
               </button>
-              {currentAvatar !== user?.avatar && currentAvatar && (
+              {currentAvatar !== user?.avatar_url && currentAvatar && (
                 <div className="absolute -top-2 -right-2 badge badge-primary badge-sm animate-pulse">
                   未保存
                 </div>

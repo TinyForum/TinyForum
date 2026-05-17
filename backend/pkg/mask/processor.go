@@ -13,17 +13,16 @@ func processStruct(v reflect.Value) error {
 	info := getTypeInfo(t)
 
 	for _, fi := range info.fields {
-		// 根据索引路径获取字段值
 		field := v.FieldByIndex(fi.index)
 		if !field.CanSet() {
 			continue
 		}
-		// 支持 string 和 *string
 		switch field.Kind() {
 		case reflect.String:
 			orig := field.String()
 			masked := applyStrategy(fi.name, orig, fi.params)
 			field.SetString(masked)
+
 		case reflect.Ptr:
 			if field.IsNil() {
 				continue
@@ -33,6 +32,22 @@ func processStruct(v reflect.Value) error {
 				orig := elem.String()
 				masked := applyStrategy(fi.name, orig, fi.params)
 				elem.SetString(masked)
+			}
+
+		case reflect.Slice, reflect.Array:
+			for i := 0; i < field.Len(); i++ {
+				elem := field.Index(i)
+				if elem.Kind() == reflect.String {
+					if elem.CanSet() {
+						orig := elem.String()
+						masked := applyStrategy(fi.name, orig, fi.params)
+						elem.SetString(masked)
+					}
+				} else if elem.Kind() == reflect.Ptr && elem.Type().Elem().Kind() == reflect.String && !elem.IsNil() {
+					orig := elem.Elem().String()
+					masked := applyStrategy(fi.name, orig, fi.params)
+					elem.Elem().SetString(masked)
+				}
 			}
 		}
 	}

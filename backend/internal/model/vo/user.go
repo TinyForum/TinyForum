@@ -11,7 +11,7 @@ type UserVO struct {
 	CreatedAt   time.Time   `json:"created_at"`
 	UpdatedAt   time.Time   `json:"updated_at"`
 	Username    string      `json:"username"`
-	Avatar      string      `json:"avatar"`
+	AvatarUrl   string      `json:"avatar_url"`
 	Bio         string      `json:"bio"`
 	Role        do.UserRole `json:"role"`
 	Score       int         `json:"score"`
@@ -19,9 +19,6 @@ type UserVO struct {
 	IsBlocked   bool        `json:"is_blocked"`
 	LastLogin   *time.Time  `json:"last_login,omitempty"`
 	InvitedByID *uint       `json:"invited_by_id,omitempty"`
-
-	// 如果业务需要展示脱敏邮箱，可以加入如下字段
-	// MaskedEmail string `json:"masked_email,omitempty"`
 }
 
 type UserPrivateVO struct {
@@ -29,7 +26,7 @@ type UserPrivateVO struct {
 	CreatedAt   time.Time   `json:"created_at"`
 	UpdatedAt   time.Time   `json:"updated_at"`
 	Username    string      `json:"username"`
-	Avatar      string      `json:"avatar"`
+	AvatarUrl   string      `json:"avatar_url"`
 	Bio         string      `json:"bio"`
 	Role        do.UserRole `json:"role"`
 	Score       int         `json:"score"`
@@ -38,34 +35,7 @@ type UserPrivateVO struct {
 	LastLogin   *time.Time  `json:"last_login,omitempty"`
 	InvitedByID *uint       `json:"invited_by_id,omitempty"`
 	Email       string      `json:"email"`
-	// 如果业务需要展示脱敏邮箱，可以加入如下字段
-	// MaskedEmail string `json:"masked_email,omitempty"`
 }
-
-// LeaderboardItemResponse 排行榜条目响应
-//
-//	type LeaderboardItemVO struct {
-//		ID       uint   `json:"id"`
-//		Username string `json:"username"`
-//		Avatar   string `json:"avatar"`
-//		Score    int    `json:"score"`
-//		Rank     int    `json:"rank"`
-//	}
-//
-// SimpleLeaderboardItem 精简版（仅核心字段）
-type SimpleLeaderboardItem struct {
-	ID       uint   `json:"id"`
-	Username string `json:"username"`
-	Score    int    `json:"score"`
-	Rank     int    `json:"rank"`
-}
-
-// type Statistics struct {
-// 	TotalPosts          int64 `json:"total_posts"`
-// 	TotalComments       int64 `json:"total_comments"`
-// 	TotalFavorites      int64 `json:"total_favorites"`
-// 	UnreadNotifications int64 `json:"unread_notifications"`
-// }
 
 type UserPosts struct {
 	ID               uint                `json:"id"`                                          // 帖子ID
@@ -84,4 +54,48 @@ type UserPosts struct {
 	Tags             []string            `json:"tags"`                                        // 标签列表
 	BoardName        string              `gorm:"index" json:"board_name"`                     // 所属板块
 	PinInBoard       bool                `gorm:"default:false" json:"pin_in_board"`           // 板块置顶
+}
+
+// 不包含手机号、邮箱、IP 等
+type UserPublicVO struct {
+	ID        uint   `json:"id"`         // 用户ID
+	Name      string `json:"nickname"`   // 用户昵称
+	AvatarUrl string `json:"avatar_url"` // 用户头像
+}
+
+type UserProfileVO struct {
+	*do.User
+	FollowerCount  int64 `json:"follower_count"`
+	FollowingCount int64 `json:"following_count"`
+	IsFollowing    bool  `json:"is_following"`
+}
+
+// AdminSetScoreResponse 管理员设置积分响应
+type AdminSetScoreResponse struct {
+	UserID     uint64 `json:"user_id"`
+	OldScore   int    `json:"old_score"`
+	NewScore   int    `json:"new_score"`
+	Change     int    `json:"change"`
+	Operation  string `json:"operation"`
+	OperatorID uint   `json:"operator_id"`
+	Reason     string `json:"reason"`
+	Timestamp  int64  `json:"timestamp"`
+}
+
+// AdminResetUserPasswordResponse 重置密码响应
+type AdminResetUserPasswordResponse struct {
+	Message    string `json:"message"`
+	UserID     uint   `json:"user_id"`
+	OperatorID uint   `json:"operator_id"`
+}
+
+type GetCurrentUserRoleResponse struct {
+	UserID uint   `json:"user_id"`
+	Role   string `json:"role"`
+}
+
+type ActiveUserRowVO struct {
+	ID        uint
+	Username  string
+	AvatarUrl string
 }

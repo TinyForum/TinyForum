@@ -2,8 +2,8 @@ import { useState, useRef, useEffect } from "react";
 import { MarketBots } from "./MarketBots";
 import { MyBots } from "./MyBots";
 import { AdminBots } from "./AdminBots";
-import { NocoBot } from "./NocoBot";
 import { useAuthStore } from "@/store";
+import { BotFlowEditor } from "@/shared/ui/editor/bot/BotFlowEditor";
 
 type TabType = "market" | "my" | "admin" | "nocode";
 
@@ -95,7 +95,7 @@ export function BotManager() {
               onPageChange={onPageChange}
             />
           )}
-          {activeTab === "nocode" && <NocoBot />}
+          {activeTab === "nocode" && <BotFlowEditor />}
           {activeTab === "admin" && isAdmin && (
             <AdminBots
               page={page}

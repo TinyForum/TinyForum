@@ -1,7 +1,7 @@
 // components/user/ViolationsList.tsx
 "use client";
 
-import { Notification } from "@/shared/api";
+import { Notification } from "@/shared/api/types/notification.model";
 import { useTranslations } from "next-intl";
 
 interface NotificationsListProps {

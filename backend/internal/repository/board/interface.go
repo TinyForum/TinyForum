@@ -6,8 +6,8 @@ import (
 
 	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/dto"
+	"tiny-forum/internal/model/vo"
 	"tiny-forum/internal/repository/stats"
-	statsRepo "tiny-forum/internal/repository/stats"
 
 	"gorm.io/gorm"
 )
@@ -40,7 +40,7 @@ type BoardRepository interface {
 	IsModerator(userID, boardID uint) (bool, error)
 	CreateModeratorLog(log *do.ModeratorLog) error
 	GetModeratorLogs(boardID uint, limit, offset int) ([]do.ModeratorLog, int64, error)
-	GetModeratorBoardsWithPermissions(userID uint) ([]ModeratorBoardInfo, error)
+	GetModeratorBoardsWithPermissions(userID uint) ([]do.ModeratorBoardWithPerms, error)
 	// repo
 	Create(board *do.Board) error
 	Update(board *do.Board) error
@@ -60,7 +60,7 @@ type BoardRepository interface {
 		ctx context.Context,
 		startDate, endDate time.Time,
 		limit int,
-	) ([]*statsRepo.HotBoardRow, error)
+	) ([]*vo.HotBoardRowVO, error)
 }
 
 type boardRepository struct {

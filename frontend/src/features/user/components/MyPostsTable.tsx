@@ -3,7 +3,6 @@
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useMePosts } from "@/features/user/hooks/useMePosts";
-import { useEffect } from "react";
 
 export function MyPostsTable() {
   const t = useTranslations("User");

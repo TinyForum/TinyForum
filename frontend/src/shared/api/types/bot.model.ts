@@ -59,38 +59,39 @@ export type BotPermission =
 
 /** 机器人视图对象（后端 vo.BotResponse） */
 export interface BotVO {
-  id: number;
+  // id: number;
+  slug: string;
   name: string;
   version: string;
   description: string;
   summary: string;
-  avatarUrl: string;
+  avatar_url: string;
   screenshots: string[];
-  homepageUrl: string;
+  homepage_url: string;
   type: BotType;
   tags: string[];
-  creatorId: number;
-  creatorName: string;
-  scriptCode: string; // Lua 脚本
-  scriptUrl?: string; // 可选外部 URL
-  triggerType: BotTriggerType;
-  cronExpr: string;
-  eventFilter: string;
-  timeoutSec: number;
-  retryTimes: number;
+  creator_id: number;
+  creator_name: string;
+  script_code: string; // Lua 脚本
+  script_url?: string; // 可选外部 URL
+  trigger_type: BotTriggerType;
+  cron_expr: string;
+  event_filter: string;
+  timeout_sec: number;
+  retry_times: number;
   envVars: Record<string, string>;
-  resourceLimit?: ResourceLimit;
+  resource_limit?: ResourceLimit;
   pricing: BotPricing;
   permissions: BotPermission[];
   enabled: boolean;
   status: BotStatus;
-  execCount: number;
-  lastExecAt?: string;
-  errorMsg: string;
-  configSchema: BotConfigField[];
-  configValues: Record<string, unknown>; // 替换 Record<string, any>
-  createdAt: string;
-  updatedAt: string;
+  exec_count: number;
+  last_exec_at?: string;
+  error_msg: string;
+  config_schema: BotConfigField[];
+  config_values: Record<string, unknown>; // 替换 Record<string, any>
+  created_at: string;
+  updated_at: string;
 }
 
 /** 机器人列表分页响应（后端返回格式） */
@@ -278,3 +279,5 @@ export interface UpdateBotRequest {
   configValues?: Record<string, unknown>; // 替换 any
   enabled?: boolean;
 }
+/** 手动触发时可携带的事件数据（任意 JSON 对象） */
+export type RunEventData = Record<string, unknown>;

@@ -3,7 +3,7 @@ import {
   PluginEvent,
   PluginEventHandler,
   SlotName,
-} from "@/shared/type/plugin.type";
+} from "@/shared/api/types/plugin.model";
 import { pluginRegistry } from "./PluginRegistry";
 
 interface UserContext {

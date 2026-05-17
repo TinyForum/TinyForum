@@ -8,12 +8,13 @@ import (
 	"tiny-forum/internal/model/request"
 	"tiny-forum/internal/model/vo"
 	announcementSvc "tiny-forum/internal/service/announcement"
+	"tiny-forum/internal/service/board"
 	postSvc "tiny-forum/internal/service/post"
 	userSvc "tiny-forum/internal/service/user"
 )
 
 type AdminService interface {
-	ListAnnouncements(ctx context.Context, req *request.ListAnnouncements) (*vo.ListAnnouncements, error)
+	ListAnnouncements(ctx context.Context, req *request.ListAnnouncementsRequest) (*vo.ListAnnouncements, error)
 	CreateAnnouncement(ctx context.Context, req *request.CreateAnnouncement, userID uint) (*do.Announcement, error)
 	UpdateAnnouncement(ctx context.Context, id uint, req *request.UpdateAnnouncement, userID uint) error
 	DeleteAnnouncement(ctx context.Context, id uint, userID uint) error
@@ -28,6 +29,13 @@ type AdminService interface {
 	SetRoleUser(operatorID, targetID uint, newRole string) error
 	// posts
 	ListPosts(ctx context.Context, ListPostsBO *common.PageQuery[bo.ListPosts]) ([]do.Post, int64, error)
+	ListReviewRequire(ctx context.Context, ListPostsBO *common.PageQuery[bo.ListPosts]) ([]do.Post, int64, error)
+	// score
+	ListUsersScore(ctx context.Context) ([]vo.UserScoreVO, error)
+	GetUserScore(ctx context.Context, userID uint) (*vo.UserScoreVO, error)
+	// board
+	ListApplications(boardID *uint, status do.ApplicationStatus, page, pageSize int) ([]do.ModeratorApplication, int64, error)
+	ReviewApplication(ctx context.Context, input request.ReviewApplicationRequest, reviewerID uint) error
 }
 
 type adminService struct {
@@ -37,6 +45,7 @@ type adminService struct {
 	// voteRepo        voteRepo.VoteRepository
 	announcementSvc announcementSvc.AnnouncementService
 	userSvc         userSvc.UserService
+	boardSvc        board.BoardService
 	postSvc         postSvc.PostService
 }
 
@@ -48,6 +57,7 @@ func NewAdminService(
 	// voteRepo voteRepo.VoteRepository,
 	userSvc userSvc.UserService,
 	postSvc postSvc.PostService,
+	boardSvc board.BoardService,
 ) AdminService {
 	return &adminService{
 		// 	postRepo:        postRepo,
@@ -57,5 +67,6 @@ func NewAdminService(
 		announcementSvc: announcementSvc,
 		userSvc:         userSvc,
 		postSvc:         postSvc,
+		boardSvc:        boardSvc,
 	}
 }

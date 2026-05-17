@@ -4,25 +4,13 @@ import (
 	"errors"
 	"fmt"
 
+	"tiny-forum/internal/model/bo"
 	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/dto"
 	apperrors "tiny-forum/pkg/errors"
 )
 
-type CreateBoardInput struct {
-	Name        string `json:"name"        binding:"required,min=2,max=50"`
-	Slug        string `json:"slug"        binding:"required,min=2,max=50"`
-	Description string `json:"description" binding:"max=500"`
-	Icon        string `json:"icon"        binding:"max=100"`
-	Cover       string `json:"cover"       binding:"max=500"`
-	ParentID    *uint  `json:"parent_id"`
-	SortOrder   int    `json:"sort_order"`
-	ViewRole    string `json:"view_role"`
-	PostRole    string `json:"post_role"`
-	ReplyRole   string `json:"reply_role"`
-}
-
-func (s *boardService) Create(input CreateBoardInput) (*do.Board, error) {
+func (s *boardService) Create(input bo.CreateBoardInput) (*do.Board, error) {
 	if input.ParentID != nil && *input.ParentID != 0 {
 		parent, err := s.boardRepo.FindByID(*input.ParentID)
 		if err != nil || parent == nil || parent.ID == 0 {
@@ -70,7 +58,7 @@ func (s *boardService) Create(input CreateBoardInput) (*do.Board, error) {
 	return s.boardRepo.FindByID(board.ID)
 }
 
-func (s *boardService) Update(id uint, input CreateBoardInput) (*do.Board, error) {
+func (s *boardService) Update(id uint, input bo.CreateBoardInput) (*do.Board, error) {
 	board, err := s.boardRepo.FindByID(id)
 	if err != nil {
 		return nil, errors.New("板块不存在")

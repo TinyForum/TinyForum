@@ -134,8 +134,8 @@ func (r *postRepository) AdminList(ctx context.Context, listPostsDO *common.Page
 	// 动态添加过滤条件
 	// 状态过滤（后台需支持所有状态，仅当传入时才过滤）
 	if listPostsDO.Data.PostStatus != "" {
-		logger.Infof("查询状态: %s", listPostsDO.Data.PostStatus)
-		query = query.Where("status = ?", listPostsDO.Data.PostStatus)
+		logger.Infof("查询文章状态: %s", listPostsDO.Data.PostStatus)
+		query = query.Where("post_status = ?", listPostsDO.Data.PostStatus)
 	}
 
 	// 类型过滤

@@ -10,9 +10,18 @@ import (
 
 // 保留用户名黑名单（防止注册 admin、root 等特权名）
 var reservedUsernames = map[string]bool{
-	"admin": true, "root": true, "system": true, "moderator": true,
-	"support": true, "help": true, "info": true, "contact": true,
-	"superadmin": true, "administrator": true, "staff": true, "official": true,
+	"admin":         true,
+	"root":          true,
+	"system":        true,
+	"moderator":     true,
+	"support":       true,
+	"help":          true,
+	"info":          true,
+	"contact":       true,
+	"superadmin":    true,
+	"administrator": true,
+	"staff":         true,
+	"official":      true,
 }
 
 // 只允许字母、数字、下划线、连字符，长度 3-30，防止用户名包含 XSS/注入特殊字符

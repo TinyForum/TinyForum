@@ -3,6 +3,8 @@ package question
 import (
 	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/dto"
+	"tiny-forum/internal/model/request"
+	"tiny-forum/internal/model/vo"
 	commentRepo "tiny-forum/internal/repository/comment"
 	postRepo "tiny-forum/internal/repository/post"
 	questionRepo "tiny-forum/internal/repository/question"
@@ -15,7 +17,7 @@ import (
 
 type QuestionService interface {
 	AcceptAnswer(postID, commentID uint, userID uint) error
-	VoteAnswer(userID uint, input VoteAnswerInput) (*VoteAnswerResult, error)
+	VoteAnswer(userID uint, input request.VoteAnswerRequest) (*vo.VoteAnswerVO, error)
 	GetAnswerVoteStatus(userID, commentID uint) (map[string]interface{}, error)
 	GetQuestionWithAnswers(postID uint, page, pageSize int) (*do.Question, []do.Comment, int64, error)
 	// crud
@@ -24,8 +26,8 @@ type QuestionService interface {
 	GetQuestionsList(page, pageSize int, unanswered bool) ([]do.Post, int64, error)
 	GetQuestionByID(questionID uint) (*do.Question, error)
 	// simple
-	GetQuestionSimpleList(pageSize, offset int, boardID *uint, filter, sort, keyword string) ([]QuestionSimpleResponse, int64, error)
-	GetQuestionSimpleByID(questionID uint) (*QuestionSimpleResponse, error)
+	GetQuestionSimpleList(pageSize, offset int, boardID *uint, filter, sort, keyword string) ([]vo.QuestionSimpleVO, int64, error)
+	GetQuestionSimpleByID(questionID uint) (*vo.QuestionSimpleVO, error)
 }
 
 type questionService struct {

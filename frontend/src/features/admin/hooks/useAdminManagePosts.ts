@@ -1,4 +1,4 @@
-import { Post } from "@/shared/api";
+import { Post } from "@/shared/api/types/post.model";
 import { adminPostsApi } from "@/shared/api/modules/admin/post";
 import { PageData } from "@/shared/api/types/basic.model";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";

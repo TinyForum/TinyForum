@@ -17,7 +17,7 @@ func (r *postRepository) IncrLikeCount(id uint, delta int) error {
 }
 
 func (r *postRepository) AddLike(userID, postID uint) error {
-	like := &do.Like{UserID: userID, PostID: &postID}
+	like := &do.Like{UserID: userID, TargetType: do.LikeTargetPost, TargetID: postID}
 	return r.db.Where("user_id = ? AND post_id = ?", userID, postID).
 		FirstOrCreate(like).Error
 }

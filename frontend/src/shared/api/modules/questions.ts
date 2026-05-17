@@ -1,14 +1,15 @@
 // src/lib/api/modules/questions.ts
 import apiClient from "../client";
-import type {
-  QuestionSimple,
-  Question,
-  Post,
-  Comment,
-  QuestionResponse,
-} from "../types";
+
+import { AnswerListParams } from "../types/answer.model";
 import { ApiResponse, PageData } from "../types/basic.model";
-import { AnswerListParams } from "./answer";
+import { Post } from "../types/post.model";
+import {
+  Question,
+  QuestionResponse,
+  QuestionSimple,
+} from "../types/question.model";
+import { Comment } from "../types/comment.model";
 
 export interface QuestionListParams {
   page?: number;

@@ -2,7 +2,7 @@
 import { create } from "zustand";
 import { useAuthStore } from "./auth";
 import { ApiError } from "@/shared/api/types/basic.model";
-import { authApi } from "@/shared/api";
+import { authApi } from "@/shared/api/modules/auth";
 
 interface RegisterState {
   username: string;
@@ -128,8 +128,8 @@ export const useRegisterStore = create<RegisterState>()((set, get) => ({
     try {
       const res = await authApi.register({ username, email, password });
 
-      if (res.data.data?.user) {
-        const { user } = res.data.data;
+      if (res.data.data) {
+        const user = res.data.data;
         useAuthStore.getState().setAuth(user);
         resetForm();
         return { success: true, message: "注册成功" };

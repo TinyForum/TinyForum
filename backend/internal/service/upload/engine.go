@@ -2,7 +2,6 @@ package upload
 
 import (
 	"context"
-	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
 	"io"
@@ -10,25 +9,11 @@ import (
 	"strings"
 
 	"tiny-forum/internal/model/do"
-	"tiny-forum/internal/storage"
-	"tiny-forum/internal/strategy"
-
-	"github.com/google/uuid"
+	"tiny-forum/internal/model/request"
+	"tiny-forum/internal/model/vo"
 )
 
-type engine struct {
-	storage  storage.StorageDriver
-	registry *strategy.HandlerRegistry
-}
-
-func NewEngine(storage storage.StorageDriver, registry *strategy.HandlerRegistry) Engine {
-	return &engine{
-		storage:  storage,
-		registry: registry,
-	}
-}
-
-func (e *engine) Upload(ctx context.Context, req *UploadRequest) (*UploadResult, error) {
+func (e *engine) Upload(ctx context.Context, req *request.UploadRequest) (*vo.UploadResult, error) {
 	src, err := req.File.Open()
 	if err != nil {
 		return nil, fmt.Errorf("open file: %w", err)
@@ -76,7 +61,7 @@ func (e *engine) Upload(ctx context.Context, req *UploadRequest) (*UploadResult,
 	}
 
 	// 返回结果，由调用方负责保存元数据到数据库
-	return &UploadResult{
+	return &vo.UploadResult{
 		FileHash:     fileHash,
 		StoredPath:   storagePath,
 		StoredName:   meta.StoredName,
@@ -88,33 +73,6 @@ func (e *engine) Upload(ctx context.Context, req *UploadRequest) (*UploadResult,
 	}, nil
 }
 
-func computeHash(r io.Reader) ([]byte, error) {
-	h := sha256.New()
-	if _, err := io.Copy(h, r); err != nil {
-		return nil, err
-	}
-	return h.Sum(nil), nil
-}
-
-func generateStoredName(original string) string {
-	ext := strings.ToLower(filepath.Ext(original))
-	return uuid.New().String() + ext
-}
-
-func extractMimeMajor(mime string) do.MimeTypeMajor {
-	switch {
-	case strings.HasPrefix(mime, "image/"):
-		return do.MimeImage
-	case strings.HasPrefix(mime, "video/"):
-		return do.MimeVideo
-	case strings.HasPrefix(mime, "audio/"):
-		return do.MimeAudio
-	case strings.Contains(mime, "pdf") || strings.Contains(mime, "document") || strings.Contains(mime, "text"):
-		return do.MimeDocument
-	default:
-		return do.MimeOther
-	}
-}
 func (e *engine) DeleteFile(ctx context.Context, storedPath string) error {
 	return e.storage.Delete(storedPath)
 }

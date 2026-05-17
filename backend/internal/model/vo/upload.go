@@ -16,3 +16,15 @@ type FileInfoVO struct {
 	Status       do.AttachmentStatus `json:"status"`
 	CreatedAt    string              `json:"created_at"`
 }
+
+// UploadResult 上传结果，由调用方负责保存到数据库
+type UploadResult struct {
+	FileHash     string
+	StoredPath   string
+	StoredName   string
+	MimeType     string
+	MimeMajor    do.MimeTypeMajor
+	Ext          string
+	Size         int64
+	OriginalName string
+}

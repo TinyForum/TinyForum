@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Trophy, ChevronRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Avatar from "@/features/user/components/Avatar";
-import { UserDO } from "@/shared/api/types/user.model";
+import { UserDO } from "@/shared/api/types/user.model.do";
 
 interface LeaderboardListProps {
   leaderboard: UserDO[];
@@ -75,7 +75,7 @@ function LeaderboardItem({ user, rank }: { user: UserDO; rank: number }) {
         {rank}
       </span>
 
-      <Avatar username={user.username} avatarUrl={user.avatar} size="md" />
+      <Avatar username={user.username} avatarUrl={user.avatar_url} size="md" />
 
       <span className="flex-1 text-sm truncate">{user.username}</span>
       <span className="text-xs text-warning font-medium">{user.score}</span>

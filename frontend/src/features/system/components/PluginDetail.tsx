@@ -1,4 +1,4 @@
-import { PluginMeta } from "@/shared/type/plugin.type";
+import { PluginMeta } from "@/shared/api/types/plugin.model";
 import { DetailRow } from "./DetailRow";
 
 export function PluginDetail({ plugin }: { plugin: PluginMeta }) {

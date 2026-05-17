@@ -21,3 +21,13 @@ type BoardVO struct {
 	ThreadCount int       `json:"thread_count"`
 	TodayCount  int       `json:"today_count"`
 }
+
+// HotBoardRow 热门板块查询结果行
+type HotBoardRowVO struct {
+	ID           int64
+	Name         string
+	Icon         string
+	ArticleCount int64
+	CommentCount int64
+	ActiveUser   int64
+}

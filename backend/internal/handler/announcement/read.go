@@ -49,18 +49,23 @@ func (h *AnnouncementHandler) GetByID(c *gin.Context) {
 // @Failure 500 {object} common.BasicResponse"服务器内部错误"
 // @Router /announcements [get]
 func (h *AnnouncementHandler) List(c *gin.Context) {
-	var req request.ListAnnouncements
+	var req request.ListAnnouncementsRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	// 强制只查已发布
 	published := do.AnnouncementStatusPublished
 	req.Status = &published
+	// 检查格式是否正确
+	if err := req.Validate(); err != nil {
+		response.HandleError(c, err)
+		return
+	}
 
 	resp, err := h.service.List(c.Request.Context(), &req)
 	if err != nil {
-		response.InternalError(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.SuccessPage(c, resp.Announcements, resp.Total, resp.Page, resp.PageSize)
@@ -87,7 +92,7 @@ func (h *AnnouncementHandler) GetPinned(c *gin.Context) {
 	}
 	announcements, err := h.service.GetPinned(c.Request.Context(), boardID)
 	if err != nil {
-		response.InternalError(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.Success(c, announcements)

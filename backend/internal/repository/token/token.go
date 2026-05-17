@@ -9,10 +9,6 @@ import (
 	"gorm.io/gorm"
 )
 
-// ---- Password Reset Token ----
-
-// SaveResetToken 保存重置密码 token
-
 // FindUserByResetToken 通过 reset token 查找对应 user ID（自动过滤已过期、已使用）
 func (r *tokenRepository) FindUserByResetToken(ctx context.Context, token string) (uint, error) {
 	var resetToken do.RefreshToken
@@ -60,8 +56,6 @@ func (r *tokenRepository) MarkResetTokenAsUsed(ctx context.Context, token string
 		}).Error
 }
 
-// ---- JWT Token Blacklist ----
-
 // RevokeToken 将 JWT 的 JTI 加入黑名单（用于注销）
 func (r *tokenRepository) RevokeToken(ctx context.Context, jti string, expiresAt time.Time) error {
 	if jti == "" {
@@ -104,8 +98,6 @@ func (r *tokenRepository) IsTokenRevoked(ctx context.Context, jti string) (bool,
 
 	return false, nil
 }
-
-// ---- Session Management ----
 
 // RevokeAllUserTokens 吊销某用户的所有 token（改密/删号后全端下线）
 func (r *tokenRepository) RevokeAllUserTokens(ctx context.Context, userID uint) error {

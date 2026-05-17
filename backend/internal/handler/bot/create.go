@@ -2,22 +2,11 @@ package bot
 
 import (
 	"strconv"
-	"tiny-forum/internal/infra/lua/nocode"
 	"tiny-forum/internal/model/request"
-	botservice "tiny-forum/internal/service/bot"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
 )
-
-// Handler bot HTTP 处理器
-type Handler struct {
-	svc botservice.Service
-}
-
-func NewHandler(svc botservice.Service) *Handler {
-	return &Handler{svc: svc}
-}
 
 // Create 创建机器人（支持 Lua 脚本 / 零代码两种模式）
 // @Summary 创建机器人
@@ -32,7 +21,7 @@ func (h *Handler) Create(c *gin.Context) {
 	userID := c.GetUint("user_id")
 	var req request.CreateBotRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	bot, err := h.svc.Create(c.Request.Context(), userID, &req)
@@ -55,7 +44,7 @@ func (h *Handler) Update(c *gin.Context) {
 	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 	var req request.UpdateBotRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	if err := h.svc.Update(c.Request.Context(), userID, uint(id), &req); err != nil {
@@ -167,35 +156,4 @@ func (h *Handler) RunNow(c *gin.Context) {
 // @Router /bots/nocode/metadata [get]
 func (h *Handler) GetNocodeMetadata(c *gin.Context) {
 	response.Success(c, h.svc.GetNocodeMetadata())
-}
-
-// ValidateFlowRequest 零代码流程校验请求
-type ValidateFlowRequest struct {
-	Flow nocode.Flow `json:"flow" binding:"required"`
-}
-
-// ValidateFlow 校验零代码 Flow 配置（不执行）
-// @Summary 校验零代码流程
-// @Tags 机器人管理
-// @Accept json
-// @Produce json
-// @Security ApiKeyAuth
-// @Param body body ValidateFlowRequest true "Flow 配置"
-// @Success 200 {object} common.BasicResponse{data=object{valid=bool,errors=array}}
-// @Router /bots/nocode/validate [post]
-func (h *Handler) ValidateFlow(c *gin.Context) {
-	var req ValidateFlowRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		response.BadRequest(c, err.Error())
-		return
-	}
-	errs := h.svc.ValidateFlow(&req.Flow)
-	msgs := make([]string, 0, len(errs))
-	for _, e := range errs {
-		msgs = append(msgs, e.Error())
-	}
-	response.Success(c, gin.H{
-		"valid":  len(errs) == 0,
-		"errors": msgs,
-	})
 }

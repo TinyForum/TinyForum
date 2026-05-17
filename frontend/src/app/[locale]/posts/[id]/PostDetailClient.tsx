@@ -2,7 +2,7 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { postApi } from "@/shared/api";
+import { postApi } from "@/shared/api/modules/posts";
 import { useAuthStore } from "@/store/auth";
 import Image from "next/image";
 import Link from "next/link";
@@ -137,7 +137,7 @@ export default function PostDetailClient({ postId }: { postId: number }) {
                 <div className="w-10 h-10 rounded-full">
                   <Avatar
                     username={post.author?.username}
-                    avatarUrl={post.author?.avatar} // 数据库中的头像
+                    avatarUrl={post.author?.avatar_url} // 数据库中的头像
                     size="md"
                   />
                 </div>

@@ -1,62 +1,65 @@
 import { Flag, CheckCircle, XCircle, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { useAdminReports } from "../hooks/useAdminModerator";
 
-// 类型定义
-interface Reporter {
-  id: number;
-  username: string;
-  avatar?: string;
-}
+import type { ReportResponse } from "@/shared/api/modules/admin/report";
+import {
+  useAdminGetReports,
+  useAdminHandleReport,
+} from "../hooks/useAdminReport";
 
-interface Report {
-  id: number;
-  reporter_id: number;
-  reporter?: Reporter;
-  target_id: number;
-  target_type: string;
+// 扩展类型（如果目标对象信息需要）
+interface ReportWithTarget extends ReportResponse {
   target_title?: string;
-  content_preview: string;
-  reason: string;
-  status: "pending" | "resolved" | "rejected";
-  created_at: string;
-  updated_at: string;
-}
-
-interface ReportsResponse {
-  list: Report[];
-  total: number;
-  page: number;
-  page_size: number;
+  content_preview?: string;
 }
 
 export function ReportManagement() {
-  const [selectedBoardId, setSelectedBoardId] = useState<number>(1);
   const [status, setStatus] = useState<string>("pending");
+  const [page, setPage] = useState(1);
+  const pageSize = 20;
 
+  // 使用标准 hook 获取举报列表
   const {
-    data: reports,
+    data: pageData,
     isLoading,
     refetch,
-  } = useAdminReports(selectedBoardId, {
-    page: 1,
-    page_size: 20,
-    status,
+  } = useAdminGetReports({
+    page,
+    pageSize,
+    status: status,
   });
 
+  const { mutate: handleReport, isPending: isHandling } =
+    useAdminHandleReport();
+
+  // 处理通过举报
   const handleResolve = (reportId: number) => {
-    // TODO: 实现通过举报
-    console.log("通过举报:", reportId);
+    handleReport({
+      id: reportId,
+      data: {
+        status: "resolved",
+        handle_note: "内容违规，已处理",
+      },
+    });
   };
 
-  const handleReject = (reportId: number) => {
-    // TODO: 实现驳回举报
-    console.log("驳回举报:", reportId);
+  // 处理驳回举报
+  const handleReject = (reportId: number, reason?: string) => {
+    const rejectReason = reason || "举报不成立";
+    handleReport({
+      id: reportId,
+      data: {
+        status: "rejected",
+        handle_note: rejectReason,
+        reject_reason: rejectReason,
+      },
+    });
   };
 
+  // 删除被举报内容（需单独实现 API，暂留空）
   const handleDeleteContent = (reportId: number) => {
-    // TODO: 实现删除被举报内容
     console.log("删除内容:", reportId);
+    // TODO: 调用删除内容 API
   };
 
   if (isLoading) {
@@ -67,26 +70,11 @@ export function ReportManagement() {
     );
   }
 
-  // 安全获取报告列表
-  const reportList = (reports as unknown as ReportsResponse)?.list || [];
+  const reportList = pageData?.list || [];
 
   return (
     <div className="space-y-4">
       <div className="flex gap-4 flex-wrap">
-        <div className="form-control">
-          <label className="label">
-            <span className="label-text">板块 ID</span>
-          </label>
-          <input
-            type="number"
-            placeholder="板块 ID"
-            value={selectedBoardId}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setSelectedBoardId(parseInt(e.target.value) || 1)
-            }
-            className="input input-bordered w-32"
-          />
-        </div>
         <div className="form-control">
           <label className="label">
             <span className="label-text">状态</span>
@@ -94,9 +82,7 @@ export function ReportManagement() {
           <select
             className="select select-bordered w-32"
             value={status}
-            onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-              setStatus(e.target.value)
-            }
+            onChange={(e) => setStatus(e.target.value)}
           >
             <option value="pending">待处理</option>
             <option value="resolved">已处理</option>
@@ -114,7 +100,7 @@ export function ReportManagement() {
       </div>
 
       <div className="space-y-3">
-        {reportList.map((report: Report) => (
+        {reportList.map((report: ReportResponse) => (
           <div
             key={report.id}
             className="card bg-base-100 shadow-sm border border-base-200 hover:shadow-md transition-shadow"
@@ -148,19 +134,24 @@ export function ReportManagement() {
 
                 <p className="text-sm">
                   <strong className="text-base-content/70">举报人:</strong>{" "}
-                  {report.reporter?.username || `用户${report.reporter_id}`}
+                  {report.is_anonymous
+                    ? "匿名用户"
+                    : report.reporter?.nickname || `用户${report.reporter?.id}`}
                 </p>
 
-                {report.target_title && (
+                {/* 目标标题如果有，可以从 target_info 获取 */}
+                {(report as ReportWithTarget).target_title && (
                   <p className="text-sm">
                     <strong className="text-base-content/70">标题:</strong>{" "}
-                    {report.target_title}
+                    {(report as ReportWithTarget).target_title}
                   </p>
                 )}
 
                 <p className="text-sm">
                   <strong className="text-base-content/70">被举报内容:</strong>{" "}
-                  <span className="line-clamp-2">{report.content_preview}</span>
+                  <span className="line-clamp-2">
+                    {report.content_snapshot || "无内容预览"}
+                  </span>
                 </p>
 
                 <p className="text-sm">
@@ -173,6 +164,7 @@ export function ReportManagement() {
                     <button
                       className="btn btn-sm btn-success gap-1"
                       onClick={() => handleResolve(report.id)}
+                      disabled={isHandling}
                     >
                       <CheckCircle className="w-4 h-4" />
                       通过
@@ -180,6 +172,7 @@ export function ReportManagement() {
                     <button
                       className="btn btn-sm btn-outline gap-1"
                       onClick={() => handleReject(report.id)}
+                      disabled={isHandling}
                     >
                       <XCircle className="w-4 h-4" />
                       驳回
@@ -187,6 +180,7 @@ export function ReportManagement() {
                     <button
                       className="btn btn-sm btn-error gap-1"
                       onClick={() => handleDeleteContent(report.id)}
+                      disabled={isHandling}
                     >
                       <Trash2 className="w-4 h-4" />
                       删除内容
@@ -205,6 +199,31 @@ export function ReportManagement() {
           </div>
         )}
       </div>
+
+      {/* 分页组件可选 */}
+      {pageData && pageData.total > pageSize && (
+        <div className="flex justify-center mt-4">
+          <div className="join">
+            <button
+              className="join-item btn btn-sm"
+              disabled={page <= 1}
+              onClick={() => setPage((p) => p - 1)}
+            >
+              «
+            </button>
+            <span className="join-item btn btn-sm">
+              第 {page} / {Math.ceil(pageData.total / pageSize)} 页
+            </span>
+            <button
+              className="join-item btn btn-sm"
+              disabled={page >= Math.ceil(pageData.total / pageSize)}
+              onClick={() => setPage((p) => p + 1)}
+            >
+              »
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

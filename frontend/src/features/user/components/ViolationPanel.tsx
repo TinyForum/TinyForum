@@ -4,7 +4,7 @@
 import { useTranslations } from "next-intl";
 import { useState, useEffect, useMemo } from "react";
 import { getViolationStatusBadge } from "@/shared/lib/utils/violation";
-import { ViolationRecord } from "@/shared/type/violation.type";
+import { ViolationRecord } from "@/shared/api/types/violation.model";
 import { useUserViolation } from "../hooks/useViolation";
 import type { ViolationVO } from "@/shared/api/modules/user/violation";
 

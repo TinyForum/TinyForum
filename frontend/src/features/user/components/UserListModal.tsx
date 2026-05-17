@@ -2,7 +2,7 @@
 
 import { X } from "lucide-react";
 import Avatar from "./Avatar";
-import { UserDO } from "@/shared/api/types/user.model";
+import { UserDO } from "@/shared/api/types/user.model.do";
 
 interface UserListModalProps {
   title: string;
@@ -71,7 +71,7 @@ export function UserListModal({
                     <div className="w-10 h-10 rounded-full">
                       <Avatar
                         username={user.username}
-                        avatarUrl={user.avatar}
+                        avatarUrl={user.avatar_url}
                         size="md"
                       />
                     </div>

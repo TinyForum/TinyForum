@@ -1,7 +1,7 @@
 // components/member/MemberPostsTable.tsx
 "use client";
 
-import { Post } from "@/shared/api";
+import { Post } from "@/shared/api/types/post.model";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 

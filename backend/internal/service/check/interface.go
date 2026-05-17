@@ -3,12 +3,13 @@ package check
 import (
 	"tiny-forum/internal/infra/sensitive"
 	"tiny-forum/internal/model/do"
+	"tiny-forum/internal/model/vo"
 	riskrepo "tiny-forum/internal/repository/risk"
 )
 
 type ContentCheckService interface {
-	CheckPostContent(title, content string) CheckResult
-	CheckText(text string) CheckResult
+	CheckPostContent(title, content string) vo.CheckResult
+	CheckText(text string) vo.CheckResult
 	CreateAuditTaskForPost(postID uint, triggerType string, hitWords []string) error
 	CreateAuditTaskForComment(commentID uint, triggerType string, hitWords []string) error
 	HandleReportAggregate(targetType do.AuditTargetType, targetID uint) (triggered bool, err error)
