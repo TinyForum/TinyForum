@@ -3,6 +3,7 @@ package user
 import (
 	"strconv"
 	"tiny-forum/internal/model/request"
+	"tiny-forum/internal/model/vo"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -245,7 +246,7 @@ func (h *UserHandler) AdminResetUserPassword(c *gin.Context) {
 		return
 	}
 	h.sendTempPasswordNotification(uint(targetID), operatorUint, tempPassword)
-	response.Success(c, AdminResetUserPasswordResponse{
+	response.Success(c, vo.AdminResetUserPasswordResponse{
 		Message:    "临时密码已生成并发送给用户",
 		UserID:     uint(targetID),
 		OperatorID: operatorUint,

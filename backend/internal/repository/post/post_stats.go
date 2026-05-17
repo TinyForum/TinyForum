@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 	"tiny-forum/internal/model/do"
-	"tiny-forum/internal/repository/stats"
+	"tiny-forum/internal/model/vo"
 )
 
 // HotArticleRow 热门文章行结构（需与 StatsRepository 返回类型匹配）
@@ -40,6 +40,6 @@ func (r *postRepository) GetHotArticlesByDateRange(
 	ctx context.Context,
 	startDate, endDate time.Time,
 	limit int,
-) ([]*stats.HotArticleRow, error) {
+) ([]*vo.HotArticleRowVO, error) {
 	return r.stats.GetHotArticlesByDateRange(ctx, startDate, endDate, limit)
 }

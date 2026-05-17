@@ -3,6 +3,7 @@ package stats
 import (
 	"context"
 	"time"
+	"tiny-forum/internal/model/vo"
 
 	"gorm.io/gorm"
 )
@@ -16,12 +17,12 @@ type StatsRepository interface {
 		ctx context.Context,
 		startDate, endDate time.Time,
 		limit int,
-	) ([]*HotArticleRow, error)
+	) ([]*vo.HotArticleRowVO, error)
 	GetHotBoardsByDateRange(
 		ctx context.Context,
 		startDate, endDate time.Time,
 		limit int,
-	) ([]*HotBoardRow, error)
+	) ([]*vo.HotBoardRowVO, error)
 }
 
 func NewStatsRepository(db *gorm.DB) StatsRepository {

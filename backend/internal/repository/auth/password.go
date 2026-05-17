@@ -9,8 +9,6 @@ import (
 	"gorm.io/gorm"
 )
 
-// "tiny-forum/internal/model/po
-
 // 验证密码是否有效
 // - 用户新密码
 // - 用户id

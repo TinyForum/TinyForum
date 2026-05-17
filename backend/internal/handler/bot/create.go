@@ -4,20 +4,10 @@ import (
 	"strconv"
 	"tiny-forum/internal/infra/lua/nocode"
 	"tiny-forum/internal/model/request"
-	botservice "tiny-forum/internal/service/bot"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
 )
-
-// Handler bot HTTP 处理器
-type Handler struct {
-	svc botservice.Service
-}
-
-func NewHandler(svc botservice.Service) *Handler {
-	return &Handler{svc: svc}
-}
 
 // Create 创建机器人（支持 Lua 脚本 / 零代码两种模式）
 // @Summary 创建机器人

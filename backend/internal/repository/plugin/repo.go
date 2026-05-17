@@ -35,14 +35,3 @@ type pluginRepo struct {
 func NewPluginRepository(db *gorm.DB) PluginRepository {
 	return &pluginRepo{db: db}
 }
-
-func (r *pluginRepo) FindByNameUnscoped(ctx context.Context, name string) (*do.PluginManifest, error) {
-	var plugin do.PluginManifest
-	err := r.db.WithContext(ctx).Unscoped().
-		Where("name = ?", name).
-		First(&plugin).Error
-	if err != nil {
-		return nil, err
-	}
-	return &plugin, nil
-}

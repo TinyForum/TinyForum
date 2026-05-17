@@ -3,7 +3,7 @@ package tag
 import (
 	"strconv"
 
-	tagService "tiny-forum/internal/service/tag"
+	"tiny-forum/internal/model/request"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -24,7 +24,7 @@ import (
 // @Failure 500 {object} common.BasicResponse"服务器内部错误"
 // @Router /tags [post]
 func (h *TagHandler) Create(c *gin.Context) {
-	var input tagService.CreateTagInput
+	var input request.CreateTagRequest
 	if err := c.ShouldBindJSON(&input); err != nil {
 		response.HandleError(c, err)
 		return
@@ -59,7 +59,7 @@ func (h *TagHandler) Update(c *gin.Context) {
 		response.HandleError(c, err)
 		return
 	}
-	var input tagService.CreateTagInput
+	var input request.CreateTagRequest
 	if err := c.ShouldBindJSON(&input); err != nil {
 		response.HandleError(c, err)
 		return

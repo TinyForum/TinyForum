@@ -3,7 +3,7 @@ package topic
 import (
 	"strconv"
 
-	topicService "tiny-forum/internal/service/topic"
+	"tiny-forum/internal/model/request"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -23,7 +23,7 @@ import (
 // @Failure 403 {object} common.BasicResponse"无权限"
 // @Router /topics [post]
 func (h *TopicHandler) Create(c *gin.Context) {
-	var input topicService.CreateTopicInput
+	var input request.CreateTopicReqeust
 	if err := c.ShouldBindJSON(&input); err != nil {
 		response.HandleError(c, err)
 		return
@@ -60,7 +60,7 @@ func (h *TopicHandler) Update(c *gin.Context) {
 		return
 	}
 
-	var input topicService.CreateTopicInput
+	var input request.CreateTopicReqeust
 	if err := c.ShouldBindJSON(&input); err != nil {
 		response.HandleError(c, err)
 		return

@@ -4,7 +4,7 @@ import (
 	"strconv"
 
 	"tiny-forum/internal/model/do"
-	questionService "tiny-forum/internal/service/question"
+	"tiny-forum/internal/model/request"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -45,7 +45,7 @@ func (h *CommentHandler) VoteAnswer(c *gin.Context) {
 	}
 
 	userID := c.GetUint("user_id")
-	voteInput := questionService.VoteAnswerInput{
+	voteInput := request.VoteAnswerRequest{
 		CommentID: uint(commentID),
 		VoteType:  &voteType,
 	}

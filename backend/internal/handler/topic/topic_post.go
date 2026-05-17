@@ -3,7 +3,7 @@ package topic
 import (
 	"strconv"
 
-	topicService "tiny-forum/internal/service/topic"
+	"tiny-forum/internal/model/request"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -41,7 +41,7 @@ func (h *TopicHandler) AddPost(c *gin.Context) {
 	}
 
 	userID := c.GetUint("user_id")
-	addInput := topicService.AddPostToTopicInput{
+	addInput := request.AddPostToTopicRequest{
 		TopicID:   uint(topicID),
 		PostID:    input.PostID,
 		SortOrder: input.SortOrder,

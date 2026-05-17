@@ -1,5 +1,7 @@
 package request
 
+import "time"
+
 type ReviewApplicationRequest struct {
 	ApplicationID      uint   `json:"application_id" binding:"required"`
 	Approve            bool   `json:"approve"`
@@ -9,4 +11,11 @@ type ReviewApplicationRequest struct {
 	CanEditAnyPost     *bool  `json:"can_edit_any_post"`
 	CanManageModerator *bool  `json:"can_manage_moderator"`
 	CanBanUser         *bool  `json:"can_ban_user"`
+}
+
+type BoardBanUserRequest struct {
+	UserID    uint       `json:"user_id"  binding:"required"`
+	BoardID   uint       `json:"board_id" binding:"required"`
+	Reason    string     `json:"reason"   binding:"required,max=500"`
+	ExpiresAt *time.Time `json:"expires_at"`
 }

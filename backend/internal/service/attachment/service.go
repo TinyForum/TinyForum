@@ -10,7 +10,6 @@ import (
 	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/dto"
 	"tiny-forum/internal/model/request"
-	"tiny-forum/internal/service/upload"
 	apperrors "tiny-forum/pkg/errors"
 	"tiny-forum/pkg/logger"
 
@@ -20,7 +19,7 @@ import (
 
 func (s *service) UploadFile(ctx context.Context, userID uint, fileHeader *multipart.FileHeader, req *request.UploadPostFileRequest, clientIP string) (*dto.UploadResponse, error) {
 	// 1. 先调用上传引擎存储文件（不写入数据库）
-	uploadReq := &upload.UploadRequest{
+	uploadReq := &request.UploadRequest{
 		UserID:   userID,
 		File:     fileHeader,
 		FileType: do.FileType(req.Type),

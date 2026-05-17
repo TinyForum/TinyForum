@@ -6,6 +6,7 @@ import (
 	"tiny-forum/internal/model/common"
 	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/request"
+	"tiny-forum/internal/model/vo"
 	statsRepo "tiny-forum/internal/repository/stats"
 
 	"gorm.io/gorm"
@@ -49,8 +50,8 @@ type PostRepository interface {
 
 	// 统计
 	Count(ctx context.Context) (int64, error)
-	CountByDateRange(ctx context.Context, startDate, endDate time.Time) (int64, error)                                          // 按日期范围统计
-	GetHotArticlesByDateRange(ctx context.Context, startDate, endDate time.Time, limit int) ([]*statsRepo.HotArticleRow, error) // 按日期范围获取热门文章
+	CountByDateRange(ctx context.Context, startDate, endDate time.Time) (int64, error)                                     // 按日期范围统计
+	GetHotArticlesByDateRange(ctx context.Context, startDate, endDate time.Time, limit int) ([]*vo.HotArticleRowVO, error) // 按日期范围获取热门文章
 }
 
 type postRepository struct {

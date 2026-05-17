@@ -38,3 +38,16 @@ type PostVO struct {
 	PinTop     bool `json:"pin_top"`
 	PinInBoard bool `json:"pin_in_board"`
 }
+
+// HotArticleRow 热门文章查询结果行
+type HotArticleRowVO struct {
+	ID           int64
+	Title        string
+	BoardID      int64
+	BoardName    string
+	AuthorID     int64
+	AuthorName   string
+	ViewCount    int64
+	CommentCount int64
+	LikeCount    int64
+}

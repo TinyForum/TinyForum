@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"tiny-forum/internal/model/bo"
 	"tiny-forum/internal/model/vo"
 	"tiny-forum/pkg/logger"
 
@@ -165,7 +166,7 @@ func (s *emailService) SendWelcomeEmail(to, username, locale, appURL string) err
 		return nil
 	}
 
-	data := EmailData{
+	data := bo.EmailData{
 		Username:     username,
 		Year:         time.Now().Year(),
 		AppName:      "TinyForum",
@@ -191,7 +192,7 @@ func (s *emailService) SendVerificationEmail(to, token, username, locale, appURL
 
 	verifyURL := fmt.Sprintf("%s/%s/auth/verify-email?token=%s", appURL, locale, token)
 
-	data := EmailData{
+	data := bo.EmailData{
 		Username:     username,
 		ResetURL:     verifyURL,
 		Year:         time.Now().Year(),

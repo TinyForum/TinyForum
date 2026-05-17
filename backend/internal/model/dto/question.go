@@ -1,6 +1,8 @@
 package dto
 
-import "tiny-forum/internal/model/do"
+import (
+	"tiny-forum/internal/model/do"
+)
 
 type CreateQuestionRequest struct {
 	Title       string        `json:"title" binding:"required,max=100"`

@@ -33,6 +33,7 @@ type CommentRepository interface {
 	// 查询评论数
 	BatchCountByPostIDs(ctx context.Context, postIDs []uint) (map[uint]int64, error)
 }
+
 type commentRepository struct {
 	db *gorm.DB
 }

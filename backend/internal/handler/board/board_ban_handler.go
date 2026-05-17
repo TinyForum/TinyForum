@@ -4,7 +4,7 @@ import (
 	"strconv"
 	"time"
 
-	boardService "tiny-forum/internal/service/board"
+	"tiny-forum/internal/model/request"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -45,7 +45,7 @@ func (h *BoardHandler) BanUser(c *gin.Context) {
 		return
 	}
 
-	banInput := boardService.BanUserInput{
+	banInput := request.BoardBanUserRequest{
 		UserID:  body.UserID,
 		BoardID: uint(boardID),
 		Reason:  body.Reason,

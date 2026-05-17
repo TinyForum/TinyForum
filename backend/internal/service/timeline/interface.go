@@ -2,6 +2,7 @@ package timeline
 
 import (
 	"tiny-forum/internal/model/do"
+	"tiny-forum/internal/model/request"
 	commentRepo "tiny-forum/internal/repository/comment"
 	postRepo "tiny-forum/internal/repository/post"
 	timelineRepo "tiny-forum/internal/repository/timeline"
@@ -9,7 +10,7 @@ import (
 )
 
 type TimelineService interface {
-	CreateEvent(input CreateEventInput) error
+	CreateEvent(input request.CreateEventRequest) error
 	GetHomeTimeline(userID uint, page, pageSize int) ([]do.TimelineEvent, int64, error)
 	GetFollowingTimeline(userID uint, page, pageSize int) ([]do.TimelineEvent, int64, error)
 	Subscribe(subscriberID, targetUserID uint) error

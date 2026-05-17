@@ -3,18 +3,11 @@ package board
 import (
 	"context"
 	"errors"
-	"time"
 	"tiny-forum/internal/model/do"
+	"tiny-forum/internal/model/request"
 )
 
-type BanUserInput struct {
-	UserID    uint       `json:"user_id"  binding:"required"`
-	BoardID   uint       `json:"board_id" binding:"required"`
-	Reason    string     `json:"reason"   binding:"required,max=500"`
-	ExpiresAt *time.Time `json:"expires_at"`
-}
-
-func (s *boardService) BanUser(ctx context.Context, input BanUserInput, bannerID uint) error {
+func (s *boardService) BanUser(ctx context.Context, input request.BoardBanUserRequest, bannerID uint) error {
 	user, err := s.userRepo.FindByID(input.UserID)
 	if err != nil {
 		return errors.New("用户不存在")

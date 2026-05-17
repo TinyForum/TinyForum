@@ -2,6 +2,7 @@ package question
 
 import (
 	"tiny-forum/internal/model/do"
+	"tiny-forum/internal/model/vo"
 	"tiny-forum/pkg/logger"
 )
 
@@ -46,8 +47,8 @@ func (r *questionRepository) FindSimple(pageSize, offset int, boardID *uint) ([]
 }
 
 // FindSimpleQuestions 查询问题基础数据（支持过滤、排序、关键词）
-func (r *questionRepository) FindSimpleQuestions(pageSize, offset int, boardID *uint, filter, sort, keyword string) ([]QuestionSimpleData, int64, error) {
-	var questions []QuestionSimpleData
+func (r *questionRepository) FindSimpleQuestions(pageSize, offset int, boardID *uint, filter, sort, keyword string) ([]vo.QuestionSimpleDataVO, int64, error) {
+	var questions []vo.QuestionSimpleDataVO
 	var total int64
 	logger.Info("[Repository] FindSimpleQuestions")
 
@@ -112,8 +113,8 @@ func (r *questionRepository) FindSimpleQuestions(pageSize, offset int, boardID *
 }
 
 // FindQuestionSimpleByID 根据ID查询单个问题基础数据
-func (r *questionRepository) FindQuestionSimpleByID(questionID uint) (*QuestionSimpleData, error) {
-	var question QuestionSimpleData
+func (r *questionRepository) FindQuestionSimpleByID(questionID uint) (*vo.QuestionSimpleDataVO, error) {
+	var question vo.QuestionSimpleDataVO
 	err := r.db.Table("questions").
 		Select(`
 			questions.id,

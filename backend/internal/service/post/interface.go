@@ -5,6 +5,7 @@ import (
 	"tiny-forum/internal/model/bo"
 	"tiny-forum/internal/model/common"
 	"tiny-forum/internal/model/do"
+	"tiny-forum/internal/model/request"
 	boardRepo "tiny-forum/internal/repository/board"
 	postRepo "tiny-forum/internal/repository/post"
 	tagRepo "tiny-forum/internal/repository/tag"
@@ -23,8 +24,8 @@ type PostService interface {
 	TogglePin(postID uint) error
 	AdminSetReviewPost(postID uint, status do.ModerationStatus) error
 	// crud
-	Create(ctx *gin.Context, authorID uint, input CreatePostInput) (*do.Post, error)
-	Update(postID, userID uint, isAdmin bool, input UpdatePostInput) (*do.Post, error)
+	Create(ctx *gin.Context, authorID uint, input request.CreatePostRequest) (*do.Post, error)
+	Update(postID, userID uint, isAdmin bool, input request.UpdatePostRequest) (*do.Post, error)
 	Delete(postID, userID uint, isAdmin bool) error
 	GetByID(postID, viewerID uint) (*do.Post, bool, error)
 	// List(ctx context.Context, page, pageSize int, opts bo.ListPosts) ([]do.Post, int64, error)

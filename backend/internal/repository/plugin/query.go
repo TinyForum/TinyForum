@@ -118,3 +118,14 @@ func (r *pluginRepo) List(ctx context.Context, queryBO *common.PageQuery[do.Plug
 	return plugins, total, err
 
 }
+
+func (r *pluginRepo) FindByNameUnscoped(ctx context.Context, name string) (*do.PluginManifest, error) {
+	var plugin do.PluginManifest
+	err := r.db.WithContext(ctx).Unscoped().
+		Where("name = ?", name).
+		First(&plugin).Error
+	if err != nil {
+		return nil, err
+	}
+	return &plugin, nil
+}

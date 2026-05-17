@@ -2,16 +2,13 @@ package auth
 
 import (
 	"tiny-forum/internal/model/request"
+	"tiny-forum/internal/model/vo"
 	apperrors "tiny-forum/pkg/errors"
 	"tiny-forum/pkg/logger"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
 )
-
-type DeleteAccountVO struct {
-	IsDeleted bool `json:"is_deleted"`
-}
 
 // DeleteAccount godoc
 // @Summary 用户注销账户（软删除）
@@ -45,7 +42,7 @@ func (h *AuthHandler) DeleteAccount(c *gin.Context) {
 		return
 	}
 
-	Result := DeleteAccountVO{
+	Result := vo.DeleteAccountVO{
 		IsDeleted: isDeelte,
 	}
 	logger.Infof("用户 %d 注销账户（软删除）", userID)

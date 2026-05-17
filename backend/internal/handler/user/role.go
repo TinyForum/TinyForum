@@ -2,16 +2,12 @@ package user
 
 import (
 	"errors"
+	"tiny-forum/internal/model/vo"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
-
-type GetCurrentUserRoleResponse struct {
-	UserID uint   `json:"user_id"`
-	Role   string `json:"role"`
-}
 
 // GetCurrentUserRole 获取当前登录用户的角色
 // @Summary 获取当前用户角色
@@ -44,7 +40,7 @@ func (h *UserHandler) GetCurrentUserRole(c *gin.Context) {
 		response.InternalError(c, "查询用户角色失败")
 		return
 	}
-	response.Success(c, GetCurrentUserRoleResponse{
+	response.Success(c, vo.GetCurrentUserRoleResponse{
 		UserID: userIDUint,
 		Role:   role,
 	})

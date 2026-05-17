@@ -69,3 +69,33 @@ type UserProfileVO struct {
 	FollowingCount int64 `json:"following_count"`
 	IsFollowing    bool  `json:"is_following"`
 }
+
+// AdminSetScoreResponse 管理员设置积分响应
+type AdminSetScoreResponse struct {
+	UserID     uint64 `json:"user_id"`
+	OldScore   int    `json:"old_score"`
+	NewScore   int    `json:"new_score"`
+	Change     int    `json:"change"`
+	Operation  string `json:"operation"`
+	OperatorID uint   `json:"operator_id"`
+	Reason     string `json:"reason"`
+	Timestamp  int64  `json:"timestamp"`
+}
+
+// AdminResetUserPasswordResponse 重置密码响应
+type AdminResetUserPasswordResponse struct {
+	Message    string `json:"message"`
+	UserID     uint   `json:"user_id"`
+	OperatorID uint   `json:"operator_id"`
+}
+
+type GetCurrentUserRoleResponse struct {
+	UserID uint   `json:"user_id"`
+	Role   string `json:"role"`
+}
+
+type ActiveUserRowVO struct {
+	ID        uint
+	Username  string
+	AvatarUrl string
+}

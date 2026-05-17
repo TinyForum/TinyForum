@@ -6,15 +6,6 @@ import (
 	"path/filepath"
 )
 
-type LocalStorage struct {
-	baseDir string
-}
-
-func NewLocalStorage(baseDir string) *LocalStorage {
-	os.MkdirAll(baseDir, 0755)
-	return &LocalStorage{baseDir: baseDir}
-}
-
 func (s *LocalStorage) fullPath(relative string) string {
 	return filepath.Join(s.baseDir, relative)
 }
