@@ -3,7 +3,7 @@
  * 机器人管理相关 API（全部需登录）
  */
 
-import { NocodeMetadata, ValidateFlowRequest } from "@/features/bot/noco.type";
+import { NocodeMetadata } from "@/features/bot/noco.type";
 import apiClient from "../client";
 import { ApiResponse } from "../types/basic.model";
 import {
@@ -13,6 +13,7 @@ import {
   RunEventData,
   UpdateBotRequest,
 } from "../types/bot.model";
+import { Flow } from "@/shared/ui/editor/bot/BotFlowEditor";
 
 // ========== API 方法 ==========
 export const botApi = {
@@ -53,7 +54,7 @@ export const botApi = {
     getMetadata: () =>
       apiClient.get<ApiResponse<NocodeMetadata>>("/bots/nocode/metadata"),
 
-    validateFlow: (data: ValidateFlowRequest) =>
+    validateFlow: (data: Flow) =>
       apiClient.post<ApiResponse<{ valid: boolean; errors?: string[] }>>(
         "/bots/nocode/validate",
         data,

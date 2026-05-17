@@ -13,10 +13,13 @@ import {
   useSortable,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { useNocodeMetadata, useValidateFlow } from "../hooks/useNocodeMetadata";
-import { useBotActions } from "../hooks/bot";
 import { CreateBotRequest } from "@/shared/api/types/bot.model";
-import { NodeMeta, NocodeMetadata } from "../noco.type";
+import { useBotActions } from "@/features/bot/hooks/bot";
+import {
+  useNocodeMetadata,
+  useValidateFlow,
+} from "@/features/bot/hooks/useNocodeMetadata";
+import { NodeMeta, NocodeMetadata } from "@/features/bot/noco.type";
 
 // ---------- 类型定义（与后端 Go 模型对齐）----------
 export type TriggerType =
@@ -76,13 +79,20 @@ export interface Flow {
 }
 
 // ---------- 辅助函数 ----------
-function getNodeLabel(nodeMeta: NodeMeta): string {
-  return nodeMeta.label;
-}
+// function _getNodeLabel(nodeMeta: NodeMeta): string {
+//   console.log("获取节点标签: ", nodeMeta);
+//   return nodeMeta.label;
+// }
 
+/**
+ * 创建默认节点参数的函数
+ * @param nodeMeta - 节点的元数据信息，包含schema等信息
+ * @returns 返回一个包含默认参数的Record对象
+ */
 function createDefaultParams(nodeMeta: NodeMeta): Record<string, unknown> {
+  console.log("创建默认节点参数: ", nodeMeta); // 输出创建默认参数时的节点元数据信息
   // 可从 nodeMeta.schema 生成默认值，此处简单返回空对象
-  return {};
+  return {}; // 返回一个空对象作为默认参数
 }
 
 // ---------- 可拖拽卡片组件（SortableItem）----------

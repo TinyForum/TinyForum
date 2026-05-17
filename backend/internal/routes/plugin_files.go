@@ -11,8 +11,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-
-
 func ListPluginFiles(c *gin.Context) {
 
 	// 允许访问的根目录
