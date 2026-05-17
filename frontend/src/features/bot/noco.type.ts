@@ -23,15 +23,15 @@ export interface FlowEdge {
   target: string;
 }
 
-export interface Flow {
-  nodes: FlowNode[];
-  edges: FlowEdge[];
-}
+// export interface Flow {
+//   nodes: FlowNode[];
+//   edges: FlowEdge[];
+// }
 
 // 用于 validate 请求
-export interface ValidateFlowRequest {
-  flow: Flow;
-}
+// export interface ValidateFlowRequest {
+//   flow: Flow;
+// }
 
 //-----
 

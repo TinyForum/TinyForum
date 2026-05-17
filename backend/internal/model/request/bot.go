@@ -1,7 +1,6 @@
 package request
 
 import (
-	"tiny-forum/internal/infra/lua/nocode"
 	"tiny-forum/internal/model/do"
 )
 
@@ -51,6 +50,30 @@ type UpdateBotRequest struct {
 	Enabled       *bool               `json:"enabled,omitempty"`
 }
 
+// type ValidateFlowRequest struct {
+// 	Flow nocode.Flow `json:"flow"`
+// }
+
+// ValidateFlowRequest 零代码流程校验请求
 type ValidateFlowRequest struct {
-	Flow nocode.Flow `json:"flow"`
+	Flow Flow `json:"flow" binding:"required"`
+}
+
+// Flow 表示一个完整的零代码机器人流程
+type Flow struct {
+	Nodes []Node `json:"nodes"`
+	Edges []Edge `json:"edges"`
+}
+
+// Node 表示流程中的一个节点（触发器/条件/动作）
+type Node struct {
+	ID     string                 `json:"id"`     // 节点唯一标识
+	Type   string                 `json:"type"`   // 节点类型，如 "http_trigger", "condition_if", "send_message" 等
+	Config map[string]interface{} `json:"config"` // 节点配置，键值对形式
+}
+
+// Edge 表示节点之间的连接关系
+type Edge struct {
+	Source string `json:"source"` // 起始节点 ID
+	Target string `json:"target"` // 目标节点 ID
 }
