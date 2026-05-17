@@ -44,4 +44,3 @@ func FormatDuration(d time.Duration) string {
 	// 如果天和小时都为0，只返回分钟数的格式化字符串
 	return fmt.Sprintf("%d分钟", minutes)
 }
-

@@ -2,8 +2,8 @@ import { useState, useRef, useEffect } from "react";
 import { MarketBots } from "./MarketBots";
 import { MyBots } from "./MyBots";
 import { AdminBots } from "./AdminBots";
-import { BotFlowEditor } from "./BotFlowEditor";
 import { useAuthStore } from "@/store";
+import { BotFlowEditor } from "@/shared/ui/editor/bot/BotFlowEditor";
 
 type TabType = "market" | "my" | "admin" | "nocode";
 
