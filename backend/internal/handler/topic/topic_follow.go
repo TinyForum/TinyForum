@@ -23,14 +23,14 @@ import (
 func (h *TopicHandler) Follow(c *gin.Context) {
 	topicID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的话题ID")
+		response.HandleError(c, err)
 		return
 	}
 
 	userID := c.GetUint("user_id")
 
 	if err := h.topicSvc.Follow(userID, uint(topicID)); err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.Success(c, gin.H{"message": "关注成功"})
@@ -51,14 +51,14 @@ func (h *TopicHandler) Follow(c *gin.Context) {
 func (h *TopicHandler) Unfollow(c *gin.Context) {
 	topicID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的话题ID")
+		response.HandleError(c, err)
 		return
 	}
 
 	userID := c.GetUint("user_id")
 
 	if err := h.topicSvc.Unfollow(userID, uint(topicID)); err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.Success(c, gin.H{"message": "取消关注成功"})
@@ -79,7 +79,7 @@ func (h *TopicHandler) Unfollow(c *gin.Context) {
 func (h *TopicHandler) IsFollowing(c *gin.Context) {
 	topicID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的话题ID")
+		response.HandleError(c, err)
 		return
 	}
 
@@ -87,7 +87,7 @@ func (h *TopicHandler) IsFollowing(c *gin.Context) {
 
 	isFollowing, err := h.topicSvc.IsFollowing(userID, uint(topicID))
 	if err != nil {
-		response.InternalError(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.Success(c, gin.H{"is_following": isFollowing})
@@ -108,7 +108,7 @@ func (h *TopicHandler) IsFollowing(c *gin.Context) {
 func (h *TopicHandler) GetFollowers(c *gin.Context) {
 	topicID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的话题ID")
+		response.HandleError(c, err)
 		return
 	}
 
@@ -117,7 +117,7 @@ func (h *TopicHandler) GetFollowers(c *gin.Context) {
 
 	followers, total, err := h.topicSvc.GetFollowers(uint(topicID), page, pageSize)
 	if err != nil {
-		response.InternalError(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.SuccessPage(c, followers, total, page, pageSize)

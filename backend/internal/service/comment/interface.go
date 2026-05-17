@@ -1,6 +1,7 @@
 package comment
 
 import (
+	"tiny-forum/internal/model/bo"
 	"tiny-forum/internal/model/do"
 	commentRepo "tiny-forum/internal/repository/comment"
 	postRepo "tiny-forum/internal/repository/post"
@@ -14,8 +15,8 @@ type CommentService interface {
 	MarkAsAnswer(commentID, userID uint, isAdmin bool, isAnswer bool) error
 	UnacceptAnswer(answerID, userID uint, isAdmin bool) error
 	// create
-	Create(authorID uint, input CreateCommentInput) (*do.Comment, error)
-	CreateAnswer(authorID uint, input CreateCommentInput) (*do.Comment, error)
+	Create(authorID uint, input bo.CreateCommentInput) (*do.Comment, error)
+	CreateAnswer(authorID uint, input bo.CreateCommentInput) (*do.Comment, error)
 	// delete
 	Delete(commentID, userID uint, isAdmin bool) error
 	DeleteAnswer(commentID, userID uint, isAdmin bool) error
@@ -27,9 +28,9 @@ type CommentService interface {
 	GetAnswerVoteCount(commentID uint) (int, error)
 	GetVoteStatistics(answerID uint) (upCount, downCount int, err error)
 	// vote
-	VoteAnswer(answerID uint, userID uint, voteType int) (*do.Comment, error)
+	VoteAnswer(answerID uint, userID uint, voteType do.AnswerVoteType) (*do.Comment, error)
 	RemoveVote(answerID uint, userID uint) (*do.Comment, error)
-	GetUserVoteStatus(answerID uint, userID uint) (int, error)
+	GetUserVoteStatus(answerID uint, userID uint) (*do.AnswerVoteType, error)
 }
 
 type commentService struct {

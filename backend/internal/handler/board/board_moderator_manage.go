@@ -3,7 +3,7 @@ package board
 import (
 	"strconv"
 
-	boardService "tiny-forum/internal/service/board"
+	"tiny-forum/internal/model/request"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -30,41 +30,55 @@ import (
 // @Failure 403 {object} common.BasicResponse"无权限（需要管理员或 manage_moderator 权限）"
 // @Failure 404 {object} common.BasicResponse"板块不存在"
 // @Router /boards/{id}/moderators [post]
+// AddModerator 管理员直接添加版主
+// POST /api/boards/:id/moderators
 func (h *BoardHandler) AddModerator(c *gin.Context) {
+	// 1. 解析并校验板块ID
 	boardID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil || boardID == 0 {
+		response.HandleError(c, err)
+		return
+	}
+
+	// 2. 绑定请求体（使用已定义的 DTO）
+	var req request.AddModeratorRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.HandleError(c, err)
+		return
+	}
+	req.BoardID = uint(boardID)
+
+	// 3. 请求参数校验（非空、权限合法性等）
+	if req.UserID == 0 {
+		response.HandleError(c, err)
+		return
+	}
+	if err := req.Validate(); err != nil {
+		response.HandleError(c, err)
+		return
+	}
+
+	// 4. 获取操作人ID（从认证上下文）
+	operatorID, err := getAuthenticatedUserID(c)
 	if err != nil {
-		response.BadRequest(c, "无效的板块ID")
+		response.HandleError(c, err)
 		return
 	}
 
-	var body struct {
-		UserID             uint `json:"user_id"              binding:"required"`
-		CanDeletePost      bool `json:"can_delete_post"`
-		CanPinPost         bool `json:"can_pin_post"`
-		CanEditAnyPost     bool `json:"can_edit_any_post"`
-		CanManageModerator bool `json:"can_manage_moderator"`
-		CanBanUser         bool `json:"can_ban_user"`
-	}
-	if err := c.ShouldBindJSON(&body); err != nil {
-		response.BadRequest(c, err.Error())
-		return
+	// 5. 构建 Service 层输入参数
+	input := request.AddModeratorRequest{
+		UserID:      req.UserID,
+		BoardID:     req.BoardID,
+		Permissions: req.Permissions,
 	}
 
-	operatorID := c.GetUint("user_id")
-	input := boardService.AddModeratorInput{
-		UserID:             body.UserID,
-		BoardID:            uint(boardID),
-		CanDeletePost:      body.CanDeletePost,
-		CanPinPost:         body.CanPinPost,
-		CanEditAnyPost:     body.CanEditAnyPost,
-		CanManageModerator: body.CanManageModerator,
-		CanBanUser:         body.CanBanUser,
-	}
-
+	// 6. 调用 Service
 	if err := h.boardSvc.AddModerator(c.Request.Context(), input, operatorID); err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
+
+	// 7. 成功响应
 	response.Success(c, gin.H{"message": "添加版主成功"})
 }
 
@@ -85,18 +99,18 @@ func (h *BoardHandler) AddModerator(c *gin.Context) {
 func (h *BoardHandler) RemoveModerator(c *gin.Context) {
 	boardID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的板块ID")
+		response.HandleError(c, err)
 		return
 	}
 	userID, err := strconv.ParseUint(c.Param("user_id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的用户ID")
+		response.HandleError(c, err)
 		return
 	}
 
 	operatorID := c.GetUint("user_id")
 	if err := h.boardSvc.RemoveModerator(c.Request.Context(), uint(userID), uint(boardID), operatorID); err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.Success(c, gin.H{"message": "移除版主成功"})
@@ -115,12 +129,12 @@ func (h *BoardHandler) RemoveModerator(c *gin.Context) {
 func (h *BoardHandler) GetModerators(c *gin.Context) {
 	boardID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的板块ID")
+		response.HandleError(c, err)
 		return
 	}
 	moderators, err := h.boardSvc.GetModerators(uint(boardID))
 	if err != nil {
-		response.InternalError(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.Success(c, moderators)
@@ -150,40 +164,30 @@ func (h *BoardHandler) GetModerators(c *gin.Context) {
 func (h *BoardHandler) UpdateModeratorPermissions(c *gin.Context) {
 	boardID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的板块ID")
+		response.HandleError(c, err)
 		return
 	}
 	userID, err := strconv.ParseUint(c.Param("user_id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的用户ID")
+		response.HandleError(c, err)
 		return
 	}
 
-	var body struct {
-		CanDeletePost      bool `json:"can_delete_post"`
-		CanPinPost         bool `json:"can_pin_post"`
-		CanEditAnyPost     bool `json:"can_edit_any_post"`
-		CanManageModerator bool `json:"can_manage_moderator"`
-		CanBanUser         bool `json:"can_ban_user"`
-	}
-	if err := c.ShouldBindJSON(&body); err != nil {
-		response.BadRequest(c, err.Error())
+	var req request.UpdateModeratorPermissionsRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.HandleError(c, err)
 		return
 	}
 
 	operatorID := c.GetUint("user_id")
-	input := boardService.UpdateModeratorPermissionsInput{
-		UserID:             uint(userID),
-		BoardID:            uint(boardID),
-		CanDeletePost:      body.CanDeletePost,
-		CanPinPost:         body.CanPinPost,
-		CanEditAnyPost:     body.CanEditAnyPost,
-		CanManageModerator: body.CanManageModerator,
-		CanBanUser:         body.CanBanUser,
+	input := request.UpdateModeratorPermissionsRequest{
+		UserID:      uint(userID),
+		BoardID:     uint(boardID),
+		Permissions: req.Permissions,
 	}
 
 	if err := h.boardSvc.UpdateModeratorPermissions(c.Request.Context(), input, operatorID); err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.Success(c, gin.H{"message": "权限更新成功"})
@@ -208,7 +212,7 @@ func (h *BoardHandler) GetUserModeratorBoards(c *gin.Context) {
 
 	boards, err := h.boardSvc.GetModeratorBoardsWithPermissions(userID)
 	if err != nil {
-		response.InternalError(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 

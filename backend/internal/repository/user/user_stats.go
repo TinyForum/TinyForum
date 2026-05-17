@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 	"tiny-forum/internal/model/do"
+	"tiny-forum/internal/model/vo"
 )
 
 func (r *userRepository) Count(ctx context.Context) (int64, error) {
@@ -38,18 +39,12 @@ func (r *userRepository) CountActiveByDateRange(ctx context.Context, startDate, 
 	return count, err
 }
 
-type ActiveUserRow struct {
-	ID       uint
-	Username string
-	Avatar   string
-}
-
 func (r *userRepository) GetActiveUsersByDateRange(
 	ctx context.Context,
 	startDate, endDate time.Time,
 	limit int,
-) ([]*ActiveUserRow, error) {
-	var rows []*ActiveUserRow
+) ([]*vo.ActiveUserRowVO, error) {
+	var rows []*vo.ActiveUserRowVO
 	err := r.db.WithContext(ctx).
 		Table("users u").
 		Select("u.id, u.username, u.avatar").

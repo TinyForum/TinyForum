@@ -1,14 +1,14 @@
 // hooks/admin/useAnnouncementsData.ts
 import { useState, useEffect, useCallback } from "react";
 import { adminAnnouncementApi } from "@/shared/api/modules/admin/announcements";
-import { announcementApi } from "@/shared/api";
 import {
   AnnouncementListParams,
-  AnnouncementDO,
   CreateAnnouncementPayload,
   UpdateAnnouncementPayload,
 } from "@/shared/api/types/announcement.model";
 import toast from "react-hot-toast";
+import { AnnouncementDO } from "@/shared/api/types/announcement.model.do";
+import { announcementApi } from "@/shared/api/modules/announcements";
 
 // ============ 配置选项 ============
 interface UseAnnouncementsDataOptions {

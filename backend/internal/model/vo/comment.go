@@ -12,9 +12,9 @@ type CommentVO struct {
 	AuthorID uint `json:"author_id"`
 	// 可选：脱敏后的作者信息（需额外查询填充）
 	Author struct {
-		ID       uint   `json:"id"`
-		Username string `json:"username"`
-		Avatar   string `json:"avatar,omitempty"`
+		ID        uint   `json:"id"`
+		Username  string `json:"username"`
+		AvatarUrl string `json:"avatar_url,omitempty"`
 	} `json:"author,omitempty"`
 
 	PostID   uint  `json:"post_id"`

@@ -1,9 +1,9 @@
 // hooks/user/useUserInfo.ts
 import { useState, useCallback } from "react";
-import { UpdateProfilePayload } from "@/shared/api/modules/user";
 import { toast } from "react-hot-toast";
 import { userApi } from "@/shared/api/modules/user";
-import { UserDO } from "@/shared/api/types/user.model";
+import { UpdateProfilePayload } from "@/shared/api/types/user.model";
+import { ProfileResponse, UserDO } from "@/shared/api/types/user.model.do";
 
 export interface ErrorResponse {
   response?: { data?: { message?: string } };
@@ -13,6 +13,7 @@ export interface ErrorResponse {
 // ========== 用户资料 ==========
 interface UseProfileReturn {
   user: UserDO | null;
+  profile: ProfileResponse | null;
   loading: boolean;
   error: string | null;
   loadProfile: (id: number) => Promise<void>;
@@ -21,6 +22,7 @@ interface UseProfileReturn {
 
 export function useUserProfile(): UseProfileReturn {
   const [user, setUser] = useState<UserDO | null>(null);
+  const [profile, setProfile] = useState<ProfileResponse | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -30,7 +32,8 @@ export function useUserProfile(): UseProfileReturn {
     try {
       const response = await userApi.getProfile(id);
       if (response.data.code === 0 && response.data.data) {
-        setUser(response.data.data);
+        setProfile(response.data.data);
+        console.log("用户信息：", response.data.data);
       } else {
         throw new Error(response.data.message || "获取用户信息失败");
       }
@@ -72,5 +75,5 @@ export function useUserProfile(): UseProfileReturn {
     [],
   );
 
-  return { user, loading, error, loadProfile, updateProfile };
+  return { user, profile, loading, error, loadProfile, updateProfile };
 }

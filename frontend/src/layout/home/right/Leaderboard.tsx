@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { TrendingUp } from "lucide-react";
-import { LeaderboardItemResponse } from "@/shared/api/modules/users";
 import Avatar from "@/features/user/components/Avatar";
+import { LeaderboardItemResponse } from "@/shared/api/types/user.model";
 
 interface LeaderboardProps {
   leaderboard: LeaderboardItemResponse[];
@@ -53,7 +53,7 @@ export function Leaderboard({ leaderboard }: LeaderboardProps) {
               {getRankIcon(index)}
             </div>
             <div className="relative w-7 h-7 flex-shrink-0">
-              <Avatar username={user.username} avatarUrl={user.avatar} />
+              <Avatar username={user.username} avatarUrl={user.avatar_url} />
             </div>
             <span className="flex-1 text-sm truncate font-medium">
               {user.username}

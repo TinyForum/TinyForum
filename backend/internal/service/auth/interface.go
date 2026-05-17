@@ -4,7 +4,6 @@ package auth
 import (
 	"context"
 	"tiny-forum/internal/infra/config"
-	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/dto"
 	"tiny-forum/internal/model/request"
 	"tiny-forum/internal/model/vo"
@@ -34,13 +33,13 @@ type AuthService interface {
 	ValidateResetToken(ctx context.Context, token string) (bool, error)                               // 验证重置密码token
 	ChangePassword(ctx context.Context, userID uint, oldPassword, newPassword string) (string, error) // 修改密码
 	CancelDeletion(ctx context.Context, userID uint) error                                            // 取消删除账户
-	ConfirmDeletion(ctx context.Context, userID uint) error                                           // 确认删除账户
+	ConfirmDeletion(ctx context.Context, userID uint) error                                           // 确认删除账户（硬删除）
 	GetUserEmailByResetToken(ctx context.Context, token string) (string, error)                       // 根据重置密码token获取用户邮箱
 	ResetPasswordWithToken(ctx context.Context, token, newPassword string) error                      // 根据重置密码token重置密码
 
 	// delete
 
-	DeleteAccount(ctx context.Context, userID uint, input request.DeleteAccountRequest) (bool, error) // 删除账户
+	DeleteAccount(ctx context.Context, userID uint, input request.DeleteAccountRequest) (bool, error) // 删除账户（软删除）
 	RevokeToken(ctx context.Context, jti string) error                                                // 注销token（登出）
 
 	// query
@@ -65,13 +64,13 @@ type authService struct {
 }
 
 // Repository 定义数据访问接口
-type Repository interface {
-	FindByEmail(ctx context.Context, email string) (*do.User, error)
-	FindByResetToken(ctx context.Context, token string) (*do.User, error)
-	FindByID(ctx context.Context, id uint) (*do.User, error)
-	Update(ctx context.Context, user *do.User) error
-	Create(ctx context.Context, user *do.User) error
-}
+// type Repository interface {
+// 	FindByEmail(ctx context.Context, email string) (*do.User, error)
+// 	FindByResetToken(ctx context.Context, token string) (*do.User, error)
+// 	FindByID(ctx context.Context, id uint) (*do.User, error)
+// 	Update(ctx context.Context, user *do.User) error
+// 	Create(ctx context.Context, user *do.User) error
+// }
 
 func NewAuthService(
 	authRepo auth.AuthRepository,

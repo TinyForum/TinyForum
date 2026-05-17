@@ -25,7 +25,7 @@ func (h *AnswerHandler) DeleteAnswer(c *gin.Context) {
 	// 1. 获取并验证回答ID
 	answerID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的回答ID")
+		response.HandleError(c, err)
 		return
 	}
 
@@ -33,7 +33,7 @@ func (h *AnswerHandler) DeleteAnswer(c *gin.Context) {
 	userID := c.GetUint("user_id")
 	role, exists := c.Get("user_role")
 	if !exists {
-		response.Unauthorized(c, "未获取到用户信息")
+		response.HandleError(c, err)
 		return
 	}
 
@@ -48,14 +48,14 @@ func (h *AnswerHandler) DeleteAnswer(c *gin.Context) {
 	if err := h.commentSvc.DeleteAnswer(uint(answerID), userID, isAdmin); err != nil {
 		// 根据错误类型返回不同的响应
 		if err.Error() == "回答不存在" {
-			response.NotFound(c, err.Error())
+			response.HandleError(c, err)
 			return
 		}
 		if err.Error() == "没有权限删除此回答" {
-			response.Forbidden(c, err.Error())
+			response.HandleError(c, err)
 			return
 		}
-		response.InternalError(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 
@@ -81,7 +81,7 @@ func (h *AnswerHandler) DeleteAnswer(c *gin.Context) {
 func (h *AnswerHandler) RemoveVote(c *gin.Context) {
 	answerID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的回答ID")
+		response.HandleError(c, err)
 		return
 	}
 
@@ -90,7 +90,7 @@ func (h *AnswerHandler) RemoveVote(c *gin.Context) {
 	// 调用取消投票的服务方法
 	comment, err := h.commentSvc.RemoveVote(uint(answerID), userID)
 	if err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 

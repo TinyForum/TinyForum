@@ -5,7 +5,7 @@
 
 import apiClient from "../../client";
 import { ApiResponse, PageData } from "../../types/basic.model";
-import { UserDO } from "../../types/user.model";
+import { UserDO } from "../../types/user.model.do";
 
 // ========== 类型定义 ==========
 export interface ResetPasswordResponse {

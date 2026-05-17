@@ -6,8 +6,8 @@ import { UserActionMenu } from "./UserActionMenu";
 import { useTranslations } from "next-intl";
 import Avatar from "@/features/user/components/Avatar";
 import { RoleBadge } from "@/layout/common/RoleBadge";
-import { UserRoleType } from "@/shared/type/roles.types";
-import { UserDO } from "@/shared/api/types/user.model";
+import { UserRoleType } from "@/shared/api/types/roles.model";
+import { UserDO } from "@/shared/api/types/user.model.do";
 
 // 翻译函数的类型定义
 
@@ -111,7 +111,7 @@ export function UsersTable({
                       <div className="w-8 h-8 rounded-full">
                         <Avatar
                           username={user.username}
-                          avatarUrl={user.avatar}
+                          avatarUrl={user.avatar_url}
                           size="md"
                         />
                       </div>

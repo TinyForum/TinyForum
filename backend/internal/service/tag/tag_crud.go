@@ -1,14 +1,11 @@
 package tag
 
-import "tiny-forum/internal/model/do"
+import (
+	"tiny-forum/internal/model/do"
+	"tiny-forum/internal/model/request"
+)
 
-type CreateTagInput struct {
-	Name        string `json:"name" binding:"required,min=1,max=50"`
-	Description string `json:"description"`
-	Color       string `json:"color"`
-}
-
-func (s *tagService) Create(input CreateTagInput) (*do.Tag, error) {
+func (s *tagService) Create(input request.CreateTagRequest) (*do.Tag, error) {
 	color := input.Color
 	if color == "" {
 		color = "#6366f1"
@@ -31,7 +28,7 @@ func (s *tagService) Get(id uint) (*do.Tag, error) {
 	return s.tagRepo.FindByID(id)
 }
 
-func (s *tagService) Update(id uint, input CreateTagInput) (*do.Tag, error) {
+func (s *tagService) Update(id uint, input request.CreateTagRequest) (*do.Tag, error) {
 	tag, err := s.tagRepo.FindByID(id)
 	if err != nil {
 		return nil, err

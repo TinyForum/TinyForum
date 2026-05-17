@@ -26,8 +26,8 @@ import { useModeratorBannedUsers } from "@/features/moderator/hooks/useModerator
 import { useModeratorPosts } from "@/features/moderator/hooks/useModeratorPosts";
 import { useModeratorReports } from "@/features/moderator/hooks/useModeratorReports";
 import { ReportedContentTable } from "@/layout/reviewer/ReportedContentTable";
-import { ModeratorBoard } from "@/shared/api/modules/moderator";
 import SearchBar from "@/shared/ui/nav/SearchBar";
+import { ModeratorBoard } from "@/shared/api/types/moderator.model";
 
 export default function ModeratorPage() {
   const t = useTranslations("Moderator");

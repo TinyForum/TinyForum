@@ -1,9 +1,9 @@
 import Avatar from "@/features/user/components/Avatar";
-import { LeaderboardItemResponse } from "@/shared/api/modules/users";
 import { Crown, Star } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { RankBadge } from "./RankBadge";
 import Link from "next/link";
+import { LeaderboardItemResponse } from "@/shared/api/types/user.model";
 
 // 用户卡片组件
 export function UserRankCard({
@@ -40,7 +40,7 @@ export function UserRankCard({
               <div className="w-11 h-11 rounded-full ring-2 ring-primary/20 ring-offset-2">
                 <Avatar
                   // username={user.username}
-                  avatarUrl={user.avatar}
+                  avatarUrl={user.avatar_url}
                   size="md"
                 />
               </div>

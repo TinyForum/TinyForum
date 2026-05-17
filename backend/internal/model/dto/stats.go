@@ -61,7 +61,7 @@ type StatsActiveUserInfo struct {
 type ActiveUserDetail struct {
 	UserID       int64     `json:"user_id"`        // 用户ID
 	Username     string    `json:"username"`       // 用户名
-	Avatar       string    `json:"avatar"`         // 头像
+	AvatarUrl    string    `json:"avatar_url"`     // 头像
 	ArticleCount int       `json:"article_count"`  // 今日发文数
 	CommentCount int       `json:"comment_count"`  // 今日评论数
 	LastActiveAt time.Time `json:"last_active_at"` // 最后活跃时间

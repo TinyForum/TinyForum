@@ -1,4 +1,4 @@
-import { SortBy } from "@/shared/type/posts.types";
+import { SortBy } from "@/shared/ui/type/home.type";
 import {
   MenuButton,
   Transition,

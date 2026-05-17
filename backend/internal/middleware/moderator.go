@@ -3,6 +3,7 @@ package middleware
 import (
 	"strconv"
 
+	"tiny-forum/internal/model/do"
 	boardRepo "tiny-forum/internal/repository/board"
 	"tiny-forum/pkg/jwt"
 	"tiny-forum/pkg/response"
@@ -41,7 +42,7 @@ func ModeratorRequired(jwtMgr *jwt.JWTManager, boardRepo boardRepo.BoardReposito
 
 		boardID, err := strconv.ParseUint(boardIDStr, 10, 64)
 		if err != nil {
-			response.BadRequest(c, "无效的板块ID")
+			response.HandleError(c, err)
 			c.Abort()
 			return
 		}
@@ -65,7 +66,7 @@ func ModeratorRequired(jwtMgr *jwt.JWTManager, boardRepo boardRepo.BoardReposito
 }
 
 // SpecificModeratorPermission 检查版主是否有特定权限
-func SpecificModeratorPermission(jwtMgr *jwt.JWTManager, boardRepo boardRepo.BoardRepository, permission string) gin.HandlerFunc {
+func SpecificModeratorPermission(jwtMgr *jwt.JWTManager, boardRepo boardRepo.BoardRepository, permission do.ModeratorPermission) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// 获取用户ID
 		userID, exists := c.Get("user_id")
@@ -95,7 +96,7 @@ func SpecificModeratorPermission(jwtMgr *jwt.JWTManager, boardRepo boardRepo.Boa
 
 		boardID, err := strconv.ParseUint(boardIDStr, 10, 64)
 		if err != nil {
-			response.BadRequest(c, "无效的板块ID")
+			response.HandleError(c, err)
 			c.Abort()
 			return
 		}

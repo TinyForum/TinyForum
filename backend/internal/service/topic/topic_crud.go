@@ -3,17 +3,11 @@ package topic
 import (
 	"errors"
 	"tiny-forum/internal/model/do"
+	"tiny-forum/internal/model/request"
 )
 
-type CreateTopicInput struct {
-	Title       string `json:"title" binding:"required,min=2,max=100"`
-	Description string `json:"description" binding:"max=500"`
-	Cover       string `json:"cover" binding:"max=500"`
-	IsPublic    bool   `json:"is_public"`
-}
-
 // Create 创建专题
-func (s *topicService) Create(creatorID uint, input CreateTopicInput) (*do.Topic, error) {
+func (s *topicService) Create(creatorID uint, input request.CreateTopicReqeust) (*do.Topic, error) {
 	topic := &do.Topic{
 		Title:       input.Title,
 		Description: input.Description,
@@ -28,7 +22,7 @@ func (s *topicService) Create(creatorID uint, input CreateTopicInput) (*do.Topic
 }
 
 // Update 更新专题
-func (s *topicService) Update(id uint, input CreateTopicInput) (*do.Topic, error) {
+func (s *topicService) Update(id uint, input request.CreateTopicReqeust) (*do.Topic, error) {
 	topic, err := s.topicRepo.FindByID(id)
 	if err != nil {
 		return nil, errors.New("专题不存在")

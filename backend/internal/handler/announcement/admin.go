@@ -31,9 +31,9 @@ import (
 //
 // Deprecated: 迁移到 adminHandler.ListAnnouncements
 func (h *AnnouncementHandler) AdminList(c *gin.Context) {
-	var req request.ListAnnouncements
+	var req request.ListAnnouncementsRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	allStatus := do.AnnouncementStatus(do.AnnouncementStatusFilterAll)

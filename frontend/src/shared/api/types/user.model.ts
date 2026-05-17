@@ -1,5 +1,5 @@
-import { UserRoleType } from "@/shared/type/roles.types";
 import { PageRequest } from "./basic.model";
+import { UserRoleType } from "./roles.model";
 
 export interface UserStatsVO {
   total_post: number;
@@ -16,20 +16,6 @@ export interface UserStatsVO {
   total_score: number;
 }
 
-export interface UserDO {
-  id: number;
-  username: string;
-  email: string;
-  avatar: string;
-  bio: string;
-  role: UserRoleType;
-  score: number;
-  is_active: boolean;
-  is_blocked: boolean;
-  last_login?: string;
-  created_at: string;
-  updated_at: string;
-}
 export interface UserPostsVO {
   id: number;
   title: string;
@@ -55,4 +41,27 @@ export interface GetUserPostsRequest extends PageRequest {
   moderation_status?: string;
   tag?: string;
   board_name?: string;
+}
+
+export interface UpdateProfilePayload {
+  bio?: string;
+  avatar_url?: string;
+}
+
+export interface RoleResponse {
+  user_id: number;
+  role: UserRoleType;
+}
+export interface LeaderboardRequest {
+  limit?: number;
+  // fields?: string;
+}
+
+export interface LeaderboardItemResponse {
+  id: number;
+  username: string;
+  avatar_url: string;
+  score: number;
+  rank: number;
+  bio: string;
 }

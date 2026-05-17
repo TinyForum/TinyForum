@@ -19,9 +19,9 @@ type PostVO struct {
 	AuthorID uint `json:"author_id"`
 	// 脱敏后的作者信息
 	Author struct {
-		ID       uint   `json:"id"`
-		Username string `json:"username"`
-		Avatar   string `json:"avatar,omitempty"`
+		ID        uint   `json:"id"`
+		Username  string `json:"username"`
+		AvatarUrl string `json:"avatar_url,omitempty"`
 	} `json:"author,omitempty"`
 
 	BoardID uint `json:"board_id"`
@@ -37,4 +37,17 @@ type PostVO struct {
 	LikeCount  int  `json:"like_count"`
 	PinTop     bool `json:"pin_top"`
 	PinInBoard bool `json:"pin_in_board"`
+}
+
+// HotArticleRow 热门文章查询结果行
+type HotArticleRowVO struct {
+	ID           int64
+	Title        string
+	BoardID      int64
+	BoardName    string
+	AuthorID     int64
+	AuthorName   string
+	ViewCount    int64
+	CommentCount int64
+	LikeCount    int64
 }

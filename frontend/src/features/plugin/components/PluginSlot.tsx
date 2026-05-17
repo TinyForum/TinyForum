@@ -2,7 +2,7 @@
 
 import React, { useSyncExternalStore, useCallback } from "react";
 import { pluginRegistry } from "../PluginRegistry";
-import type { SlotComponent } from "@/shared/type/plugin.type";
+import { SlotComponent } from "@/shared/api/types/plugin.model";
 
 interface PluginSlotProps {
   name: string;

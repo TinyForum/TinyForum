@@ -3,28 +3,25 @@ package timeline
 import (
 	"encoding/json"
 	"tiny-forum/internal/model/do"
+	"tiny-forum/internal/model/request"
+
+	"gorm.io/datatypes"
 )
 
-type CreateEventInput struct {
-	UserID     uint
-	ActorID    uint
-	Action     do.ActionType
-	TargetID   uint
-	TargetType string
-	Payload    interface{}
-	Score      int
-}
-
-func (s *timelineService) CreateEvent(input CreateEventInput) error {
+func (s *timelineService) CreateEvent(input request.CreateEventRequest) error {
 	payloadJSON, _ := json.Marshal(input.Payload)
+	targetType, err := do.ParseTilelineTargetType(input.TargetType)
+	if err != nil {
+		return err
+	}
 
 	event := &do.TimelineEvent{
 		UserID:     input.UserID,
 		ActorID:    input.ActorID,
 		Action:     input.Action,
 		TargetID:   input.TargetID,
-		TargetType: input.TargetType,
-		Payload:    string(payloadJSON),
+		TargetType: targetType,
+		Payload:    datatypes.JSON(payloadJSON),
 		Score:      input.Score,
 	}
 

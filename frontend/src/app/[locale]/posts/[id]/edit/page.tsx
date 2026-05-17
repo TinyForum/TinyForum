@@ -6,13 +6,18 @@ import { useQuery } from "@tanstack/react-query";
 import { useForm, Controller, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Post, postApi, Tag, tagApi } from "@/shared/api";
 import { useAuthStore } from "@/store/auth";
 import toast from "react-hot-toast";
 import { getErrorMessage } from "@/shared/lib/utils";
 import { Save, X } from "lucide-react";
-import RichEditor from "@/layout/common/RichEditor";
 import { ApiResponse } from "@/shared/api/types/basic.model";
+import { postApi } from "@/shared/api/modules/posts";
+import { tagApi } from "@/shared/api/modules/tags";
+import { Post } from "@/shared/api/types/post.model";
+import { Tag } from "@/shared/api/types/tag.model";
+import { ImageUploader } from "@/shared/ui/editor/ImageUploader";
+import { uploadApi } from "@/shared/api/modules/uploads";
+import { RichTextEditor } from "@/shared/ui/editor/RichTextEditor";
 
 const schema = z.object({
   title: z.string().min(2, "标题至少2个字符").max(200, "标题最多200个字符"),
@@ -183,22 +188,18 @@ export default function EditPostPage({
               </div>
             </div>
 
-            <div className="form-control">
-              <label className="label pb-1">
-                <span className="label-text font-medium">封面图片URL</span>
-              </label>
-              <input
-                {...register("cover")}
-                type="text"
-                placeholder="https://example.com/image.jpg"
-                className="input input-bordered focus:outline-none focus:border-primary"
-              />
-              {errors.cover && (
-                <span className="text-error text-sm mt-1">
-                  {errors.cover.message}
-                </span>
-              )}
-            </div>
+            <ImageUploader
+              initialImages={[{ url: "https://example.com/1.jpg" }]}
+              uploadFn={async (file) => {
+                const res = await uploadApi.uploadPostFile(postId, file);
+                return { url: res.data.data };
+              }}
+              maxCount={6}
+              supportCover={true}
+              layout="grid"
+              gridSize={3}
+              onChange={(images) => console.log("images changed", images)}
+            />
 
             <div className="form-control">
               <label className="label pb-1">
@@ -227,10 +228,12 @@ export default function EditPostPage({
             name="content"
             control={control}
             render={({ field }) => (
-              <RichEditor
-                content={field.value}
+              <RichTextEditor
+                value={field.value}
                 onChange={field.onChange}
-                placeholder="请输入帖子内容..."
+                placeholder="撰写帖子内容..."
+                maxLength={20000}
+                defaultMode="rich"
               />
             )}
           />

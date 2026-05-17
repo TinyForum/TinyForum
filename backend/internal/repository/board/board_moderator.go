@@ -68,15 +68,9 @@ func (r *boardRepository) GetModeratorLogs(boardID uint, limit, offset int) ([]d
 	return logs, total, err
 }
 
-// ModeratorBoardInfo 用户管理的板块信息（含权限）
-type ModeratorBoardInfo struct {
-	do.Board
-	Permissions string `gorm:"column:permissions" json:"permissions"`
-}
-
 // GetModeratorBoardsWithPermissions 获取用户管理的板块及权限
-func (r *boardRepository) GetModeratorBoardsWithPermissions(userID uint) ([]ModeratorBoardInfo, error) {
-	var results []ModeratorBoardInfo
+func (r *boardRepository) GetModeratorBoardsWithPermissions(userID uint) ([]do.ModeratorBoardWithPerms, error) {
+	var results []do.ModeratorBoardWithPerms
 
 	err := r.db.Raw(`
         SELECT 

@@ -31,22 +31,11 @@ func (r *moderatorRepository) HasPermission(ctx context.Context, userID, boardID
 		}
 		return false, err
 	}
-	perms, err := moderator.GetPermissions()
+
+	perm, err := do.ParsePermission(permission)
 	if err != nil {
-		return false, err
-	}
-	switch permission {
-	case "delete_post":
-		return perms.CanDeletePost, nil
-	case "pin_post":
-		return perms.CanPinPost, nil
-	case "edit_any_post":
-		return perms.CanEditAnyPost, nil
-	case "manage_moderator":
-		return perms.CanManageModerator, nil
-	case "ban_user":
-		return perms.CanBanUser, nil
-	default:
 		return false, nil
 	}
+	return moderator.HasPermission(perm), nil
+
 }

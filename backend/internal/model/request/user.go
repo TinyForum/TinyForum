@@ -27,3 +27,8 @@ type ListUserViolationRequest struct {
 	Tag              string `form:"tag"`               // 标签名称（注意不是 ID）
 	BoardName        string `form:"board_name"`
 }
+type AdminSetScoreRequest struct {
+	Operation string `json:"operation" binding:"required,oneof=set add subtract"`
+	Score     int    `json:"score" binding:"required,gte=0,lte=999999"`
+	Reason    string `json:"reason" binding:"required,max=200"`
+}

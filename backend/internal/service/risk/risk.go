@@ -60,9 +60,13 @@ func (s *riskService) CheckRateLimit(ctx context.Context, user *do.User, action 
 // RecordRiskEvent 记录一次风险事件（举报成立、命中敏感词等）
 // ttl: 该事件计入风险分的有效期
 func (s *riskService) RecordRiskEvent(userID uint, eventType, detail string, ttl time.Duration) error {
+	riskEventType, err := do.ParseRiskEventType(eventType)
+	if err != nil {
+		return err
+	}
 	record := &do.UserRiskRecord{
 		UserID:      userID,
-		EventType:   eventType,
+		EventType:   riskEventType,
 		EventDetail: detail,
 		ExpireAt:    time.Now().Add(ttl),
 	}
@@ -71,16 +75,16 @@ func (s *riskService) RecordRiskEvent(userID uint, eventType, detail string, ttl
 
 // WriteAuditLog 写入操作审计日志
 func (s *riskService) WriteAuditLog(operatorID uint, action do.AuditActionType,
-	targetType string, targetID uint, before, after, reason, ip string) error {
+	targetType string, targetID uint, before, after, reason, operatorIP string) error {
 	log := &do.AuditLog{
 		OperatorID: operatorID,
+		OperatorIP: operatorIP,
 		Action:     action,
 		TargetType: targetType,
 		TargetID:   targetID,
 		Before:     before,
 		After:      after,
 		Reason:     reason,
-		IP:         ip,
 	}
 	return s.repo.CreateAuditLog(log)
 }

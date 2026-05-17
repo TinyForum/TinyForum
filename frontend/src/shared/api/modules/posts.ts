@@ -4,47 +4,14 @@
  */
 
 import apiClient from "../client";
-import type { Post, PostType } from "../types";
 import { ApiResponse, PageData } from "../types/basic.model";
-
-// ─── 普通帖子 ─────────────────────────────────────────────────────────────────
-
-export interface PostListParams {
-  page?: number;
-  page_size?: number;
-  keyword?: string;
-  sort_by?: string;
-  type?: PostType;
-  author_id?: number;
-  tag_id?: number;
-  board_id?: number;
-}
-
-export interface CreatePostPayload {
-  title: string;
-  content: string;
-  summary?: string;
-  cover?: string;
-  type?: PostType;
-  board_id?: number;
-  tag_ids?: number[];
-  status?: PostStatus;
-}
-
-export type PostStatus = "draft" | "published" | "pending" | "hidden";
-
-export interface UpdatePostPayload {
-  title?: string;
-  content?: string;
-  summary?: string;
-  cover?: string;
-  tag_ids?: number[];
-}
-
-export interface PostDetailResult {
-  post: Post;
-  liked: boolean;
-}
+import {
+  PostListParams,
+  Post,
+  PostDetailResult,
+  CreatePostPayload,
+  UpdatePostPayload,
+} from "../types/post.model";
 
 // ─── API ──────────────────────────────────────────────────────────────────────
 

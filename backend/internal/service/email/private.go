@@ -6,12 +6,13 @@ import (
 	"path/filepath"
 	"text/template"
 	"time"
+	"tiny-forum/internal/model/bo"
 	"tiny-forum/internal/model/vo"
 	"tiny-forum/pkg/logger"
 )
 
 // renderTemplate 渲染邮件模板
-func (s *emailService) renderTemplate(templateName string, data EmailData) (string, error) {
+func (s *emailService) renderTemplate(templateName string, data bo.EmailData) (string, error) {
 
 	path := filepath.Join(s.templateDir, templateName)
 	var tmpl *template.Template

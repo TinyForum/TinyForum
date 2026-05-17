@@ -1,7 +1,7 @@
 // components/member/MemberCommentsTable.tsx
 "use client";
 
-import { Comment } from "@/shared/api";
+import { Comment } from "@/shared/api/types/comment.model";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 

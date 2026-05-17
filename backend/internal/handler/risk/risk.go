@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strconv"
 	"tiny-forum/internal/model/do"
+	"tiny-forum/internal/model/request"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -39,10 +40,6 @@ func (h *RiskHandler) ListAuditTasks(c *gin.Context) {
 	})
 }
 
-type resolveTaskInput struct {
-	Note string `json:"note" binding:"max=500"`
-}
-
 // ApproveTask
 // @Summary      审核通过
 // @Description  将指定审核任务标记为通过，恢复内容为 published 状态，并记录操作日志
@@ -58,11 +55,11 @@ type resolveTaskInput struct {
 func (h *RiskHandler) ApproveTask(c *gin.Context) {
 	taskID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的任务ID")
+		response.HandleError(c, err)
 		return
 	}
 
-	var input resolveTaskInput
+	var input request.ResolveTaskInput
 	_ = c.ShouldBindJSON(&input)
 
 	reviewerID := c.GetUint(do.ContextUserID)
@@ -95,13 +92,13 @@ func (h *RiskHandler) ApproveTask(c *gin.Context) {
 func (h *RiskHandler) RejectTask(c *gin.Context) {
 	taskID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的任务ID")
+		response.HandleError(c, err)
 		return
 	}
 
-	var input resolveTaskInput
+	var input request.ResolveTaskInput
 	if err := c.ShouldBindJSON(&input); err != nil {
-		response.BadRequest(c, "参数错误")
+		response.HandleError(c, err)
 		return
 	}
 
@@ -144,7 +141,7 @@ func (h *RiskHandler) ListAuditLogs(c *gin.Context) {
 	if targetIDStr != "" {
 		id, err := strconv.ParseUint(targetIDStr, 10, 64)
 		if err != nil {
-			response.BadRequest(c, "无效的 target_id")
+			response.HandleError(c, err)
 			return
 		}
 		targetID = uint(id)

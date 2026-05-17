@@ -37,7 +37,7 @@ func (s *pluginService) ListPlugins(ctx context.Context, queryBO *bo.PageQuery[b
 	}
 
 	// 4. 构建 Repository 查询参数（内联转换，简洁清晰）
-	repoQuery := do.PluginMeta{
+	repoQuery := do.PluginManifest{
 		Name:     queryBO.Options.Name,
 		Slug:     queryBO.Options.Slug,
 		AuthorID: queryBO.Options.AuthorID,
@@ -47,7 +47,7 @@ func (s *pluginService) ListPlugins(ctx context.Context, queryBO *bo.PageQuery[b
 		Status:   queryBO.Options.Status,
 		Version:  queryBO.Options.Version,
 	}
-	queryDO := &common.PageQuery[do.PluginMeta]{
+	queryDO := &common.PageQuery[do.PluginManifest]{
 		Page:     page,
 		PageSize: pageSize,
 		SortBy:   "created_at",
@@ -83,8 +83,8 @@ func (s *pluginService) ListPlugins(ctx context.Context, queryBO *bo.PageQuery[b
 			Tags:          p.Tags, // []string
 			AuthorID:      p.AuthorID,
 			AuthorURL:     p.AuthorURL,
-			ScriptURL:     p.ScriptURL,
-			ServerEntry:   p.ServerEntry,
+			ScriptURL:     p.ViewEntryUrl,
+			ServerEntry:   p.ServerEntryUrl,
 			Slots:         p.Slots,
 			Routes:        p.Routes,
 			Pricing:       p.Pricing,
@@ -107,6 +107,6 @@ func (s *pluginService) ListPlugins(ctx context.Context, queryBO *bo.PageQuery[b
 }
 
 // ListUserPlugins 获取用户安装的插件
-func (s *pluginService) ListUserPlugins(ctx context.Context, userID uint) ([]*do.PluginMeta, error) {
+func (s *pluginService) ListUserPlugins(ctx context.Context, userID uint) ([]*do.PluginManifest, error) {
 	return s.repo.ListByAuthorID(ctx, userID)
 }

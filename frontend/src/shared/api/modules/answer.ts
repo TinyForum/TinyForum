@@ -1,21 +1,7 @@
 import apiClient from "../client";
 import { ApiResponse } from "../types/basic.model";
+import { VoteStatusResponse } from "../types/vote.model";
 
-export interface AnswerListParams {
-  page?: number;
-  page_size?: number;
-  sort?: "vote" | "newest" | "oldest";
-}
-
-export interface VoteAnswerPayload {
-  vote_type: "up" | "down";
-}
-
-export interface VoteStatusResponse {
-  down_count: number;
-  up_count: number;
-  user_vote: number; // 1: 赞同, -1: 反对, 0: 未投票
-}
 export const answerApi = {
   // 获取单个答案
   getAnswer: (id: number) =>

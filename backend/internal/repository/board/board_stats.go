@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 	"tiny-forum/internal/model/do"
-	statsRepo "tiny-forum/internal/repository/stats"
+	"tiny-forum/internal/model/vo"
 )
 
 // Count 统计板块总数
@@ -29,6 +29,6 @@ func (r *boardRepository) GetHotBoardsByDateRange(
 	ctx context.Context,
 	startDate, endDate time.Time,
 	limit int,
-) ([]*statsRepo.HotBoardRow, error) {
+) ([]*vo.HotBoardRowVO, error) {
 	return r.stats.GetHotBoardsByDateRange(ctx, startDate, endDate, limit)
 }

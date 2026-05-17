@@ -8,7 +8,7 @@ import Avatar from "@/features/user/components/Avatar";
 interface UserProfile {
   id: number;
   username: string;
-  avatar: string;
+  avatar_url: string;
   bio: string;
   score: number;
   created_at: string;
@@ -24,6 +24,7 @@ export function UserProfileCard({
   unreadCount,
 }: UserProfileCardProps) {
   const t = useTranslations("Sidebar");
+  console.log("用户信息：", userProfile);
 
   return (
     <div className="rounded-lg border bg-card shadow-sm hover:shadow-md transition-shadow duration-200 z-0">
@@ -32,7 +33,7 @@ export function UserProfileCard({
           <div className="relative w-16 h-16 mx-auto mb-2 z-0">
             <Avatar
               username={userProfile.username}
-              avatarUrl={userProfile.avatar}
+              avatarUrl={userProfile.avatar_url}
               size="lg"
             />
           </div>

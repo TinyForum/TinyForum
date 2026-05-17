@@ -3,7 +3,7 @@ package comment
 import (
 	"strconv"
 
-	commentService "tiny-forum/internal/service/comment"
+	"tiny-forum/internal/model/bo"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -23,14 +23,14 @@ import (
 // @Router /comments [post]
 func (h *CommentHandler) Create(c *gin.Context) {
 	authorID := c.GetUint("user_id")
-	var input commentService.CreateCommentInput
+	var input bo.CreateCommentInput
 	if err := c.ShouldBindJSON(&input); err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	comment, err := h.commentSvc.Create(authorID, input)
 	if err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.Success(c, comment)
@@ -51,7 +51,7 @@ func (h *CommentHandler) Create(c *gin.Context) {
 func (h *CommentHandler) List(c *gin.Context) {
 	postID, err := strconv.ParseUint(c.Param("post_id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的帖子ID")
+		response.HandleError(c, err)
 		return
 	}
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
@@ -59,7 +59,7 @@ func (h *CommentHandler) List(c *gin.Context) {
 
 	comments, total, err := h.commentSvc.List(uint(postID), page, pageSize)
 	if err != nil {
-		response.InternalError(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.SuccessPage(c, comments, total, page, pageSize)
@@ -81,7 +81,7 @@ func (h *CommentHandler) List(c *gin.Context) {
 func (h *CommentHandler) Delete(c *gin.Context) {
 	commentID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的评论ID")
+		response.HandleError(c, err)
 		return
 	}
 	userID := c.GetUint("user_id")
@@ -89,7 +89,7 @@ func (h *CommentHandler) Delete(c *gin.Context) {
 	isAdmin := role == "admin"
 
 	if err := h.commentSvc.Delete(uint(commentID), userID, isAdmin); err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.Success(c, gin.H{"message": "删除成功"})

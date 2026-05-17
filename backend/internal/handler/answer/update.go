@@ -3,6 +3,7 @@ package answer
 import (
 	"errors"
 	"strconv"
+	"tiny-forum/internal/model/do"
 	apperrors "tiny-forum/pkg/errors"
 	"tiny-forum/pkg/response"
 
@@ -28,13 +29,13 @@ import (
 func (h *AnswerHandler) AcceptAnswer(c *gin.Context) {
 	postID, err := strconv.ParseUint(c.Param("question_id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的帖子ID")
+		response.HandleError(c, err)
 		return
 	}
 
 	commentID, err := strconv.ParseUint(c.Param("answer_id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的评论ID")
+		response.HandleError(c, err)
 		return
 	}
 
@@ -43,11 +44,11 @@ func (h *AnswerHandler) AcceptAnswer(c *gin.Context) {
 	if err := h.questionSvc.AcceptAnswer(uint(postID), uint(commentID), userID); err != nil {
 		switch {
 		case errors.Is(err, apperrors.ErrPostNotFound):
-			response.NotFound(c, err.Error())
+			response.HandleError(c, err)
 		case errors.Is(err, apperrors.ErrAcceptForbidden):
-			response.Forbidden(c, err.Error())
+			response.HandleError(c, err)
 		default:
-			response.BadRequest(c, err.Error())
+			response.HandleError(c, err)
 		}
 		return
 	}
@@ -72,7 +73,7 @@ func (h *AnswerHandler) UnacceptAnswer(c *gin.Context) {
 	// 1. 获取回答ID
 	answerID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的回答ID")
+		response.HandleError(c, err)
 		return
 	}
 
@@ -85,15 +86,15 @@ func (h *AnswerHandler) UnacceptAnswer(c *gin.Context) {
 	if err := h.commentSvc.UnacceptAnswer(uint(answerID), userID, isAdmin); err != nil {
 		switch err.Error() {
 		case "回答不存在":
-			response.NotFound(c, err.Error())
+			response.HandleError(c, err)
 		case "问题不存在":
-			response.NotFound(c, err.Error())
+			response.HandleError(c, err)
 		case "该回答未被接受为答案":
-			response.BadRequest(c, err.Error())
+			response.HandleError(c, err)
 		case "没有权限操作":
-			response.Forbidden(c, err.Error())
+			response.HandleError(c, err)
 		default:
-			response.InternalError(c, err.Error())
+			response.HandleError(c, err)
 		}
 		return
 	}
@@ -120,40 +121,55 @@ func (h *AnswerHandler) UnacceptAnswer(c *gin.Context) {
 // @Failure      400      {object}  object  "请求参数错误（如无效ID、缺失或非法的投票类型）"
 // @Router       /answers/{id}/vote [post]
 func (h *AnswerHandler) VoteAnswer(c *gin.Context) {
+	// 1. 解析并校验 answerID
 	answerID, err := strconv.ParseUint(c.Param("id"), 10, 64)
-	if err != nil {
-		response.BadRequest(c, "无效的回答ID")
+	if err != nil || answerID == 0 {
+		response.HandleError(c, err)
 		return
 	}
 
+	// 2. 绑定并校验请求体
 	var input struct {
 		VoteType string `json:"vote_type" binding:"required,oneof=up down"`
 	}
 	if err := c.ShouldBindJSON(&input); err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 
+	// 3. 获取当前用户ID（必须已登录）
 	userID := c.GetUint("user_id")
-
-	// 转换 vote_type: "up" -> 1, "down" -> -1
-	voteValue := 1
-	if input.VoteType == "down" {
-		voteValue = -1
-	}
-
-	comment, err := h.commentSvc.VoteAnswer(uint(answerID), userID, voteValue)
-	if err != nil {
-		response.BadRequest(c, err.Error())
+	if userID == 0 {
+		response.HandleError(c, err)
 		return
 	}
 
-	// 获取用户当前投票状态
+	// 4. 转换 vote_type 为 do.AnswerVoteType 枚举
+	var voteType do.AnswerVoteType
+	switch input.VoteType {
+	case "up":
+		voteType = do.AnswerVoteTypeUp
+	case "down":
+		voteType = do.AnswerVoteTypeDown
+	default:
+		response.HandleError(c, err)
+		return
+	}
+
+	// 5. 调用 Service 层投票
+	comment, err := h.commentSvc.VoteAnswer(uint(answerID), userID, voteType)
+	if err != nil {
+		response.HandleError(c, err)
+		return
+	}
+
+	// 6. 获取用户最新的投票状态（可能因取消投票变为 nil）
 	userVote, _ := h.commentSvc.GetUserVoteStatus(uint(answerID), userID)
 
+	// 7. 返回响应
 	response.Success(c, gin.H{
 		"message":    "操作成功",
-		"vote_count": comment.VoteCount, // 赞同票数
-		"user_vote":  userVote,          // 0:未投票, 1:赞同, -1:反对
+		"vote_count": comment.VoteCount,
+		"user_vote":  userVote, // 值为 "up", "down" 或 null
 	})
 }

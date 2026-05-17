@@ -8,122 +8,140 @@ import (
 type BotStatus string
 
 const (
-	BotStatusActive   BotStatus = "active"
-	BotStatusInactive BotStatus = "inactive"
-	BotStatusError    BotStatus = "error"
-	BotStatusLoading  BotStatus = "loading"
-	BotStatusStopped  BotStatus = "stopped"
+	BotStatusActive   BotStatus = "active"   // 激活
+	BotStatusInactive BotStatus = "inactive" // 未激活
+	BotStatusError    BotStatus = "error"    // 错误
+	BotStatusLoading  BotStatus = "loading"  // 加载中
+	BotStatusStopped  BotStatus = "stopped"  // 停止
 )
+
+// enun [active, inactive, error, loading, stopped]
 
 type BotType string
 
 const (
-	BotTypeChat     BotType = "chat"
-	BotTypeModerate BotType = "moderate"
-	BotTypeNotify   BotType = "notify"
-	BotTypeSync     BotType = "sync"
-	BotTypeTask     BotType = "task"
-	BotTypeWebhook  BotType = "webhook"
-	BotTypeAnalysis BotType = "analysis"
+	BotTypeChat     BotType = "chat"     // 聊天
+	BotTypeModerate BotType = "moderate" // 审核
+	BotTypeNotify   BotType = "notify"   // 通知
+	BotTypeSync     BotType = "sync"     // 同步
+	BotTypeTask     BotType = "task"     // 任务
+	BotTypeWebhook  BotType = "webhook"  // webhook
+	BotTypeAnalysis BotType = "analysis" // 分析
 )
+
+//
 
 type BotTriggerType string
 
 const (
-	TriggerSchedule BotTriggerType = "schedule"
-	TriggerEvent    BotTriggerType = "event"
-	TriggerWebhook  BotTriggerType = "webhook"
-	TriggerManual   BotTriggerType = "manual"
+	TriggerSchedule BotTriggerType = "schedule" // 定时
+	TriggerEvent    BotTriggerType = "event"    // 事件
+	TriggerWebhook  BotTriggerType = "webhook"  // webhook
+	TriggerManual   BotTriggerType = "manual"   // 手动
 )
+
+//
 
 type BotPricingModel string
 
 const (
-	BotPricingFree      BotPricingModel = "free"
-	BotPricingFreemium  BotPricingModel = "freemium"
-	BotPricingPaid      BotPricingModel = "paid"
-	PricingSubscription BotPricingModel = "subscription"
+	BotPricingFree      BotPricingModel = "free"         // 免费
+	BotPricingFreemium  BotPricingModel = "freemium"     // 试用
+	BotPricingPaid      BotPricingModel = "paid"         // 付费
+	PricingSubscription BotPricingModel = "subscription" // 订阅
 )
 
 type BotPermission string
 
 const (
-	BotPermReadUser      BotPermission = "read:user"
-	BotPermReadPosts     BotPermission = "read:posts"
-	BotPermWritePosts    BotPermission = "write:posts"
-	BotPermReadComments  BotPermission = "read:comments"
-	BotPermWriteComments BotPermission = "write:comments"
-	PermSendMessage      BotPermission = "send:message"
-	PermManageContent    BotPermission = "manage:content"
-	PermReadStats        BotPermission = "read:stats"
+	BotPermReadUser      BotPermission = "read:user"      // 读取用户信息
+	BotPermReadPosts     BotPermission = "read:posts"     // 读取帖子信息
+	BotPermWritePosts    BotPermission = "write:posts"    // 写入帖子信息
+	BotPermReadComments  BotPermission = "read:comments"  // 读取评论信息
+	BotPermWriteComments BotPermission = "write:comments" // 写入评论信息
+	PermSendMessage      BotPermission = "send:message"   // 发送消息
+	PermManageContent    BotPermission = "manage:content" // 管理内容
+	PermReadStats        BotPermission = "read:stats"     // 读取统计信息
 )
 
 type BotPricing struct {
-	Model       BotPricingModel `json:"model" gorm:"type:varchar(20)"`
-	Price       *float64        `json:"price,omitempty" gorm:"type:decimal(10,2)"`
-	Cycle       string          `json:"cycle,omitempty" gorm:"type:varchar(20)"`
-	FreeLimit   string          `json:"freeLimit,omitempty" gorm:"type:text"`
-	PurchaseURL string          `json:"purchaseUrl,omitempty" gorm:"type:varchar(255)"`
+	Model       BotPricingModel `json:"model" gorm:"type:varchar(20)"`                  // 定价模型
+	Price       *float64        `json:"price,omitempty" gorm:"type:decimal(10,2)"`      // 价格
+	Cycle       string          `json:"cycle,omitempty" gorm:"type:varchar(20)"`        // 周期
+	FreeLimit   string          `json:"freeLimit,omitempty" gorm:"type:text"`           // 免费限制
+	PurchaseURL string          `json:"purchaseUrl,omitempty" gorm:"type:varchar(255)"` // 购买链接
 }
 
 type BotConfigField struct {
-	Key          string      `json:"key"`
-	Label        string      `json:"label"`
-	Type         string      `json:"type"` // text, number, boolean, select, textarea, secret
-	DefaultValue interface{} `json:"defaultValue,omitempty"`
-	Placeholder  string      `json:"placeholder,omitempty"`
-	Description  string      `json:"description,omitempty"`
-	Required     bool        `json:"required"`
+	Key          string             `json:"key"`                    // 唯一标识
+	Label        string             `json:"label"`                  // 显示名称
+	Type         BotConfigFieldType `json:"type"`                   // 类型
+	DefaultValue interface{}        `json:"defaultValue,omitempty"` // 默认值
+	Placeholder  string             `json:"placeholder,omitempty"`  // 占位符
+	Description  string             `json:"description,omitempty"`  // 描述
+	Required     bool               `json:"required"`               // 是否必填
 	Options      []struct {
-		Label string      `json:"label"`
-		Value interface{} `json:"value"`
-	} `json:"options,omitempty"`
+		Label string      `json:"label"` // 显示名称
+		Value interface{} `json:"value"` // 值
+	} `json:"options,omitempty"` // 选项
 }
 
+type BotConfigFieldType string
+
+const (
+	FieldTypeText     BotConfigFieldType = "text"     // 文本
+	FieldTypeNumber   BotConfigFieldType = "number"   // 数字
+	FieldTypeBool     BotConfigFieldType = "bool"     // 布尔
+	FieldTypeSelect   BotConfigFieldType = "select"   // 选择
+	FieldTypeTextArea BotConfigFieldType = "textarea" // 多行文本
+	FieldTypeSecret   BotConfigFieldType = "secret"   // 密码
+	FieldTypeArray    BotConfigFieldType = "array"    // 数组
+)
+
 type ResourceLimit struct {
-	MaxMemoryMB int `json:"maxMemoryMB"`
-	MaxCPU      int `json:"maxCPU"`
+	MaxMemoryMB int `json:"maxMemoryMB"` // 最大内存（MB）
+	MaxCPU      int `json:"maxCPU"`      // 最大 CPU 核心数
 }
 
 type Bot struct {
 	common.BaseModel
-	Name        string   `json:"name" gorm:"type:varchar(100);not null;index"`
-	Version     string   `json:"version" gorm:"type:varchar(50);not null"`
-	Description string   `json:"description" gorm:"type:text"`
-	Summary     string   `json:"summary" gorm:"type:varchar(300)"`
-	AvatarURL   string   `json:"avatar_url" gorm:"type:varchar(255)"`
-	Screenshots []string `json:"screenshots" gorm:"type:json;serializer:json"` // 添加 serializer
-	HomepageURL string   `json:"homepage_url" gorm:"type:varchar(255)"`
+	Name        string   `json:"name" gorm:"type:varchar(100);not null;index"` // 名称
+	Version     string   `json:"version" gorm:"type:varchar(50);not null"`     // 版本
+	Description string   `json:"description" gorm:"type:text"`                 // 描述
+	Summary     string   `json:"summary" gorm:"type:varchar(300)"`             // 摘要
+	AvatarURL   string   `json:"avatar_url" gorm:"type:varchar(255)"`          // 头像
+	Screenshots []string `json:"screenshots" gorm:"type:json;serializer:json"` // 截图
+	HomepageURL string   `json:"homepage_url" gorm:"type:varchar(255)"`        // 官网
 
-	Type BotType  `json:"type" gorm:"type:varchar(30);not null;index"`
-	Tags []string `json:"tags" gorm:"type:json;serializer:json"` // 添加 serializer
+	Type BotType  `json:"type" gorm:"type:varchar(30);not null;index"` // 类型
+	Tags []string `json:"tags" gorm:"type:json;serializer:json"`       // 标签
 
-	CreatorID   uint   `json:"creator_id" gorm:"type:bigint;not null;index"`
-	CreatorName string `json:"creator_name" gorm:"type:varchar(100)"`
+	CreatorID   uint   `json:"creator_id" gorm:"type:bigint;not null;index"` // 创建者 ID
+	CreatorName string `json:"creator_name" gorm:"type:varchar(100)"`        // 创建者名称
 
-	ScriptCode string `json:"script_code" gorm:"type:text"`
-	ScriptURL  string `json:"script_url" gorm:"type:varchar(500)"`
+	ScriptCode string `json:"script_code" gorm:"type:text"`        // 脚本代码
+	ScriptURL  string `json:"script_url" gorm:"type:varchar(500)"` // 脚本 URL
 
-	TriggerType BotTriggerType `json:"trigger_type" gorm:"type:varchar(20);not null"`
-	CronExpr    string         `json:"cron_expr" gorm:"type:varchar(100)"`
-	EventFilter string         `json:"event_filter" gorm:"type:varchar(200)"`
+	TriggerType BotTriggerType `json:"trigger_type" gorm:"type:varchar(20);not null"` // 触发类型
+	CronExpr    string         `json:"cron_expr" gorm:"type:varchar(100)"`            // Cron 表达式
+	EventFilter string         `json:"event_filter" gorm:"type:varchar(200)"`         // 事件过滤器
 
-	TimeoutSec    int               `json:"timeout_sec" gorm:"default:10"` // 注意 JSON 标签建议用下划线
-	RetryTimes    int               `json:"retry_times" gorm:"default:0"`
-	EnvVars       map[string]string `json:"env_vars" gorm:"type:json;serializer:json"`       // 添加 serializer
-	ResourceLimit *ResourceLimit    `json:"resource_limit" gorm:"type:json;serializer:json"` // 添加 serializer
+	TimeoutSec    int               `json:"timeout_sec" gorm:"default:10"`                   // 超时时间（秒）
+	RetryTimes    int               `json:"retry_times" gorm:"default:0"`                    // 重试次数
+	EnvVars       map[string]string `json:"env_vars" gorm:"type:json;serializer:json"`       // 环境变量
+	ResourceLimit *ResourceLimit    `json:"resource_limit" gorm:"type:json;serializer:json"` // 资源限制
 
-	Pricing     BotPricing      `json:"pricing" gorm:"type:json;serializer:json"`
-	Permissions []BotPermission `json:"permissions" gorm:"type:json;serializer:json"` // 添加 serializer
+	Pricing     BotPricing      `json:"pricing" gorm:"type:json;serializer:json"`     // 定价
+	Permissions []BotPermission `json:"permissions" gorm:"type:json;serializer:json"` // 权限
 
-	Enabled    bool       `json:"enabled" gorm:"default:false;index"`
-	Status     BotStatus  `json:"status" gorm:"type:varchar(20);default:'inactive'"`
-	ExecCount  int64      `json:"exec_count" gorm:"default:0"`
-	LastExecAt *time.Time `json:"last_exec_at" gorm:"type:timestamp"`
+	Enabled    bool       `json:"enabled" gorm:"default:false;index"`                // 启用状态
+	Status     BotStatus  `json:"status" gorm:"type:varchar(20);default:'inactive'"` // 状态
+	ExecCount  int64      `json:"exec_count" gorm:"default:0"`                       // 执行次数
+	LastExecAt *time.Time `json:"last_exec_at" gorm:"type:timestamp"`                // 最后执行时间
 	ErrorMsg   string     `json:"error_msg" gorm:"type:text"`
 
-	ConfigSchema []BotConfigField `json:"config_schema" gorm:"type:json;serializer:json"` // 添加 serializer
-	ConfigValues map[string]any   `json:"config_values" gorm:"type:json;serializer:json"` // 添加 serializer
+	ConfigSchema []BotConfigField `json:"config_schema" gorm:"type:json;serializer:json"` // 配置项
+	ConfigValues map[string]any   `json:"config_values" gorm:"type:json;serializer:json"` // 配置值
 }
 
 func (Bot) TableName() string {

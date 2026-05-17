@@ -3,16 +3,11 @@ package topic
 import (
 	"errors"
 	"tiny-forum/internal/model/do"
+	"tiny-forum/internal/model/request"
 )
 
-type AddPostToTopicInput struct {
-	TopicID   uint `json:"topic_id" binding:"required"`
-	PostID    uint `json:"post_id" binding:"required"`
-	SortOrder int  `json:"sort_order"`
-}
-
 // AddPostToTopic 添加帖子到专题
-func (s *topicService) AddPostToTopic(input AddPostToTopicInput, userID uint) error {
+func (s *topicService) AddPostToTopic(input request.AddPostToTopicRequest, userID uint) error {
 	topic, err := s.topicRepo.FindByID(input.TopicID)
 	if err != nil {
 		return errors.New("专题不存在")

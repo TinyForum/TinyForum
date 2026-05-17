@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   CheckCircle2,
@@ -35,10 +35,13 @@ export function MyPluginsTab() {
   } = useUpload();
   const { upload, plugins, page, pageSize, total, pageTotal } =
     useAdminPlugins();
-  setCurrentPage(page);
+  // setCurrentPage(page);
 
+  useEffect(() => {
+    setCurrentPage(page);
+  }, [page]); // 仅在 page 变化时更新
   // 查询我的插件列表（假设返回分页对象）
-  const { data, isLoading } = useQuery({
+  const { isLoading } = useQuery({
     queryKey: ["myPlugins", page, pageSize],
     queryFn: () => getUserPluginsList({ page, page_size: pageSize }),
     // 如果 getUserPluginsList 仍返回数组，请使用下方 adapter

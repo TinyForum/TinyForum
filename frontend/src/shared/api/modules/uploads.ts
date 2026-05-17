@@ -1,4 +1,4 @@
-import { apiClient } from "@/shared/api";
+import apiClient from "../client";
 import { ApiResponse } from "../types/basic.model";
 
 export const uploadApi = {

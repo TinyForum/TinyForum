@@ -1,10 +1,10 @@
-import { Tag } from "@/shared/api";
 import Link from "next/link";
 import {
   HashtagIcon,
   DocumentTextIcon,
   ArrowRightIcon,
 } from "@heroicons/react/24/outline";
+import { Tag } from "@/shared/api/types/tag.model";
 
 interface HotTagCardProps {
   tag: Tag;

@@ -12,30 +12,13 @@ import (
 	"gorm.io/gorm"
 )
 
-// ScheduleDeletion 标记账户为待删除（软删除）
-func (s *authService) ScheduleDeletion(ctx context.Context, userID uint, input request.DeleteAccountRequest) error {
-	if input.Confirm != "DELETE" {
-		return errors.New("请确认删除操作")
-	}
-
-	// 可选：验证密码
-	if input.Password != "" {
-		// if err := s.authRepo.VerifyPassword(ctx, userID, input.Password); err != nil {
-		//     return errors.New("密码错误")
-		// }
-	}
-
-	// 软删除用户（设置 deleted_at）
-	return s.authRepo.SoftDelete(ctx, userID)
-}
-
 // CancelDeletion 取消注销，恢复账户
 func (s *authService) CancelDeletion(ctx context.Context, userID uint) error {
 	// 恢复账户：将 deleted_at 设置为 NULL
 	return s.authRepo.Restore(ctx, userID)
 }
 
-// ConfirmDeletion 永久删除账户（硬删除）
+// ConfirmDeletion 永久删除账户
 func (s *authService) ConfirmDeletion(ctx context.Context, userID uint) error {
 	return s.txManager.ExecuteInTransaction(ctx, func(tx *gorm.DB) error {
 		// ========== 第一组：直接关联 user_id 的表 ==========
@@ -54,7 +37,7 @@ func (s *authService) ConfirmDeletion(ctx context.Context, userID uint) error {
 		}
 
 		// 3. 投票
-		if err := tx.Where("user_id = ?", userID).Delete(&do.Vote{}).Error; err != nil {
+		if err := tx.Where("user_id = ?", userID).Delete(&do.AnswerVote{}).Error; err != nil {
 			return fmt.Errorf("删除投票失败: %w", err)
 		}
 

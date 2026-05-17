@@ -1,4 +1,4 @@
-import { AnnouncementFormValues } from "@/shared/type/announcement.type";
+import { AnnouncementFormValues } from "@/shared/api/types/announcement.model.do";
 import { fromDateTimeLocal } from "../format/fromDateTimeLocal";
 import { CreateAnnouncementPayload } from "@/shared/api/types/announcement.model";
 

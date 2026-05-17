@@ -23,7 +23,7 @@ interface UserScoreResponse {
 type AllUserScoreResponse = Array<{
   id: number;
   username: string;
-  avatar: string;
+  avatar_url: string;
   score: number;
 }>;
 // 查询参数

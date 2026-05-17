@@ -15,10 +15,11 @@ import {
   SparklesIcon,
 } from "@heroicons/react/24/outline";
 import { HeartIcon as HeartSolidIcon } from "@heroicons/react/24/solid";
-import type { Post, Tag } from "@/shared/api/types";
 import { formatDistanceToNow } from "date-fns";
 import { zhCN } from "date-fns/locale";
 import { toast } from "react-hot-toast";
+import { Post } from "@/shared/api/types/post.model";
+import { Tag } from "@/shared/api/types/tag.model";
 
 interface QuestionHeaderProps {
   question: Post;

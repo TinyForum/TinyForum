@@ -1,4 +1,4 @@
-import { UserDO } from "@/shared/api/types/user.model";
+import { UserDO } from "@/shared/api/types/user.model.do";
 import { Mail, Shield } from "lucide-react";
 import { History } from "lucide-react";
 interface SecurityOverviewProps {

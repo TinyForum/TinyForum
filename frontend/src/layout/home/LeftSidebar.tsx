@@ -12,15 +12,16 @@ import {
   Megaphone,
   ChevronDown,
   ChevronRight,
-  Tag,
+  TagIcon,
   PenIcon,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/shared/lib/utils";
-import { PostType, type Tag as TagType } from "@/shared/api";
 import { useAnnouncements } from "@/features/announcements/useAnnouncements";
-import { AnnouncementDO } from "@/shared/api/types/announcement.model";
 import { PluginSlot } from "@/features/plugin/components/PluginSlot";
+import { AnnouncementDO } from "@/shared/api/types/announcement.model.do";
+import { PostType } from "@/shared/api/types/post.model";
+import { Tag } from "@/shared/api/types/tag.model";
 
 export type FilterType = "all" | PostType;
 
@@ -36,7 +37,7 @@ interface Board {
 
 interface LeftSidebarProps {
   boards: Board[];
-  tags: TagType[];
+  tags: Tag[];
   selectedBoard: number | null;
   selectedTag: number | null;
   filterType: FilterType;
@@ -280,12 +281,12 @@ export default function LeftSidebar({
         <div className="rounded-lg border bg-card shadow-sm">
           <div className="p-3 border-b">
             <h3 className="font-semibold flex items-center gap-2">
-              <Tag className="w-4 h-4" />
+              <TagIcon className="w-4 h-4" />
               {t("hot_tags")}
             </h3>
           </div>
           <div className="p-3 flex flex-wrap gap-2">
-            {tags.slice(0, 15).map((tag: TagType) => (
+            {tags.slice(0, 15).map((tag: Tag) => (
               <button
                 key={tag.id}
                 onClick={() => onTagChange(tag.id)}

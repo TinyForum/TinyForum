@@ -3,6 +3,7 @@ package user
 import (
 	"strconv"
 	"tiny-forum/internal/model/do"
+	"tiny-forum/pkg/logger"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -30,6 +31,7 @@ func (h *UserHandler) GetProfile(c *gin.Context) {
 		response.HandleError(c, err)
 		return
 	}
+	logger.Debugf("用户信息: %+v", profile)
 	response.Success(c, profile)
 }
 
@@ -45,11 +47,11 @@ func (h *UserHandler) UpdateProfile(c *gin.Context) {
 	userID := c.GetUint("user_id")
 	var input do.UpdateProfileInput
 	if err := c.ShouldBindJSON(&input); err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	if err := h.userSvc.UpdateProfile(userID, input); err != nil {
-		response.InternalError(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	user, _ := h.userSvc.GetProfile(userID)

@@ -1,7 +1,9 @@
 // hooks/useQuestionDetail.ts
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "react-hot-toast";
-import { Comment, Post, questionApi } from "@/shared/api";
+import { Comment } from "@/shared/api/types/comment.model";
+import { Post } from "@/shared/api/types/post.model";
+import { questionApi } from "@/shared/api/modules/questions";
 
 export function useQuestionDetail(questionId: number) {
   const [question, setQuestion] = useState<Post | null>(null);

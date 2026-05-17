@@ -11,24 +11,6 @@ import (
 	"tiny-forum/internal/model/do"
 )
 
-// type riskService struct {
-// 	repo    RiskRepository
-// 	limiter ratelimit.Limiter
-// }
-
-// // RiskRepository 接口需要扩展
-// type RiskRepository interface {
-// 	// 现有方法
-// 	CountActiveRiskEvents(userID uint) (int, error)
-// 	AddRiskRecord(record *do.UserRiskRecord) error
-// 	CreateAuditLog(log *do.AuditLog) error
-
-// 	// 新增方法
-// 	CountActiveRiskEventsByIP(ip string) (int, error)
-// 	AddIPRiskRecord(record *do.IPRiskRecord) error
-// 	IsIPBlocked(ip string) (bool, error)
-// }
-
 // GetAnonymousRiskLevel 获取匿名用户（未登录）的风险等级
 func (s *riskService) GetAnonymousRiskLevel(ip string) (do.RiskLevel, error) {
 	// 可选：检查IP是否被封锁
@@ -96,14 +78,13 @@ func (s *riskService) RecordRiskEventByIP(ip, eventType, detail string, ttl time
 func (s *riskService) WriteAuditLogByIP(ip string, action do.AuditActionType,
 	targetType string, targetID uint, before, after, reason string) error {
 	log := &do.AuditLog{
-		OperatorIP: ip, // 需要在 AuditLog 模型中添加 OperatorIP 字段
+		OperatorIP: ip,
 		Action:     action,
 		TargetType: targetType,
 		TargetID:   targetID,
 		Before:     before,
 		After:      after,
 		Reason:     reason,
-		IP:         ip,
 	}
 	return s.repo.CreateAuditLog(log)
 }

@@ -4,9 +4,9 @@ import Link from "next/link"; // Next.js 路由链接
 import { ChatBubbleLeftRightIcon } from "@heroicons/react/24/outline";
 import { Heart, Eye, HeartCrack } from "lucide-react";
 import { useState } from "react";
-import { postApi } from "@/shared/api";
-import type { BoardPostListItem } from "@/shared/api/modules/boards";
+import { postApi } from "@/shared/api/modules/posts";
 import Avatar from "@/features/user/components/Avatar";
+import { BoardPostListItem } from "@/shared/api/types/board.model";
 
 export function BoardPostCard({ post }: { post: BoardPostListItem }) {
   const [liked, setLiked] = useState(false);

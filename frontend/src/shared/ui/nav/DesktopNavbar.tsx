@@ -12,7 +12,7 @@ import QuickActions from "@/shared/ui/nav/QuickActions";
 import { NavItem } from "@/shared/ui/nav/types";
 import UserDropdown from "@/shared/ui/nav/UserDropdown";
 import LanguageSwitcher from "./LanguageSwitcher";
-import { UserDO } from "@/shared/api/types/user.model";
+import { UserDO } from "@/shared/api/types/user.model.do";
 
 interface DesktopNavbarProps {
   navItems: NavItem[];

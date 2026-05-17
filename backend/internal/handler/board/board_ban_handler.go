@@ -4,7 +4,7 @@ import (
 	"strconv"
 	"time"
 
-	boardService "tiny-forum/internal/service/board"
+	"tiny-forum/internal/model/request"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -31,7 +31,7 @@ import (
 func (h *BoardHandler) BanUser(c *gin.Context) {
 	boardID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的板块ID")
+		response.HandleError(c, err)
 		return
 	}
 
@@ -41,11 +41,11 @@ func (h *BoardHandler) BanUser(c *gin.Context) {
 		ExpiresAt string `json:"expires_at"`
 	}
 	if err := c.ShouldBindJSON(&body); err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 
-	banInput := boardService.BanUserInput{
+	banInput := request.BoardBanUserRequest{
 		UserID:  body.UserID,
 		BoardID: uint(boardID),
 		Reason:  body.Reason,
@@ -53,15 +53,15 @@ func (h *BoardHandler) BanUser(c *gin.Context) {
 	if body.ExpiresAt != "" {
 		t, err := time.Parse(time.RFC3339, body.ExpiresAt)
 		if err != nil {
-			response.BadRequest(c, "无效的过期时间格式（需 RFC3339）")
+			response.HandleError(c, err)
 			return
 		}
 		banInput.ExpiresAt = &t
 	}
 
 	operatorID := c.GetUint("user_id")
-	if err := h.boardSvc.BanUser(banInput, operatorID); err != nil {
-		response.BadRequest(c, err.Error())
+	if err := h.boardSvc.BanUser(c, banInput, operatorID); err != nil {
+		response.HandleError(c, err)
 		return
 	}
 	response.Success(c, gin.H{"message": "禁言成功"})
@@ -84,16 +84,16 @@ func (h *BoardHandler) BanUser(c *gin.Context) {
 func (h *BoardHandler) UnbanUser(c *gin.Context) {
 	boardID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的板块ID")
+		response.HandleError(c, err)
 		return
 	}
 	userID, err := strconv.ParseUint(c.Param("user_id"), 10, 64)
 	if err != nil {
-		response.BadRequest(c, "无效的用户ID")
+		response.HandleError(c, err)
 		return
 	}
 	if err := h.boardSvc.UnbanUser(uint(userID), uint(boardID)); err != nil {
-		response.BadRequest(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 	response.Success(c, gin.H{"message": "解除禁言成功"})

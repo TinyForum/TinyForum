@@ -1,12 +1,12 @@
 // ─── CreateBoardInline ─────────────────────────────────────────────────────────
 
-import { boardApi } from "@/shared/api";
 import { useAuthStore } from "@/store/auth";
 import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { ArrowLeftIcon, FolderPlusIcon, MailIcon } from "lucide-react";
 import { useState } from "react";
 import { Board } from "@/shared/api/types/board.model";
+import { boardApi } from "@/shared/api/modules/boards";
 
 interface CreateBoardInlineProps {
   slug: string;

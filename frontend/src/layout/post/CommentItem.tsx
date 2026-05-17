@@ -2,15 +2,15 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Comment } from "@/shared/api/types";
 import { timeAgo } from "@/shared/lib/utils";
 import { CornerDownRight, Trash2 } from "lucide-react";
 import { useAuthStore } from "@/store/auth";
-import { commentApi } from "@/shared/api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { useTranslations } from "next-intl";
 import Avatar from "@/features/user/components/Avatar";
+import { commentApi } from "@/shared/api/modules/comments";
+import { Comment } from "@/shared/api/types/comment.model";
 
 interface CommentItemProps {
   comment: Comment;
@@ -46,7 +46,7 @@ export default function CommentItem({
           <div className="w-8 h-8 rounded-full">
             <Avatar
               username={comment.author?.username}
-              avatarUrl={comment.author?.avatar} // 数据库中的头像
+              avatarUrl={comment.author?.avatar_url} // 数据库中的头像
               size="md"
             />
           </div>

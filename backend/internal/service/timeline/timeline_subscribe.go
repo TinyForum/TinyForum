@@ -3,14 +3,14 @@ package timeline
 import "tiny-forum/internal/model/do"
 
 // Subscribe 关注用户
-func (s *timelineService) Subscribe(subscriberID, targetUserID uint) error {
-	_, err := s.userRepo.FindByID(targetUserID)
+func (s *timelineService) Subscribe(subscriberID, targetID uint) error {
+	_, err := s.userRepo.FindByID(targetID)
 	if err != nil {
 		return err
 	}
 	sub := &do.TimelineSubscription{
 		SubscriberID: subscriberID,
-		TargetUserID: targetUserID,
+		TargetID:     targetID,
 		TargetType:   "user",
 		IsActive:     true,
 	}

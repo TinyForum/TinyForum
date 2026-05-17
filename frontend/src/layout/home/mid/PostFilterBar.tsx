@@ -10,10 +10,10 @@ import {
   Megaphone,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { SortBy } from "@/shared/type/posts.types";
 import { useMediaQuery } from "@/features/common/hooks/useMediaQuery";
 import { DesktopSortView } from "./DesktopSortView";
 import { MobileSortView } from "./MobileSortView";
+import { SortBy } from "@/shared/ui/type/home.type";
 
 interface PostFilterBarProps {
   sortBy: SortBy;

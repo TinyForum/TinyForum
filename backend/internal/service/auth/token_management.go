@@ -19,7 +19,6 @@ func (s *authService) ValidateResetToken(ctx context.Context, token string) (boo
 	return isVaildToken, nil
 }
 
-
 func (s *authService) GetUserEmailByResetToken(ctx context.Context, token string) (string, error) {
 	return s.authRepo.GetUserEmailByResetToken(ctx, token)
 }

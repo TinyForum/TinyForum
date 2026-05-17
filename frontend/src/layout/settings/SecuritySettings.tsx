@@ -5,7 +5,7 @@ import { SecuritySettingsHeader } from "@/features/settings/components/SecurityS
 import { TwoFactorAuthCard } from "@/features/settings/components/TwoFactorAuthCard";
 import { ChangePasswordForm } from "@/features/settings/components/ChangePasswordForm";
 import { formatDate } from "@/shared/lib/utils";
-import { UserDO } from "@/shared/api/types/user.model";
+import { UserDO } from "@/shared/api/types/user.model.do";
 
 // ===================== 主组件 =====================
 interface SecuritySettingsProps {

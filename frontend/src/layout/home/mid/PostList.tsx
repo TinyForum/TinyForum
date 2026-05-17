@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuthStore } from "@/store/auth";
-import type { Post } from "@/shared/api/types";
+import type { Post } from "@/shared/api/types/post.model";
 import { PostListSkeleton } from "@/shared/ui/common/PostListSkeleton";
 import { EmptyPostList } from "@/shared/ui/common/EmptyPostList";
 import { Pagination } from "@/shared/ui/common/Pagination";

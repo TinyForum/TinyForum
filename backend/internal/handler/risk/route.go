@@ -2,11 +2,13 @@ package risk
 
 // TODO: Refactory
 import (
+	"tiny-forum/internal/middleware"
+
 	"github.com/gin-gonic/gin"
 )
 
 // RegisterRoutes 注册路由
-func (h *RiskHandler) RegisterRoutes(admin *gin.RouterGroup) {
+func (h *RiskHandler) RegisterRoutes(admin *gin.RouterGroup, mw middleware.MiddlewareSet) {
 	g := admin.Group("/risk")
 	{
 		// 审核队列(暂时没用，可以删除)
