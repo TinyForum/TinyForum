@@ -15,11 +15,6 @@ func (s *userService) ListUserViolation(ctx context.Context, req request.ListUse
 		return nil, err
 	}
 
-	// 2. 获取总记录数（分页用）
-
-	if err != nil {
-		return nil, err
-	}
 	total := int64(len(violations))
 
 	// 3. 转换为 VO
