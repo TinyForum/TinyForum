@@ -1,6 +1,7 @@
 package request
 
 import (
+	"tiny-forum/internal/infra/lua/nocode"
 	"tiny-forum/internal/model/do"
 )
 
@@ -55,8 +56,16 @@ type UpdateBotRequest struct {
 // }
 
 // ValidateFlowRequest 零代码流程校验请求
+// type ValidateFlowRequest struct {
+// 	Flow Flow `json:"flow" binding:"required"`
+// }
+
 type ValidateFlowRequest struct {
-	Flow Flow `json:"flow" binding:"required"`
+	// Flow nocode.Flow `json:"flow" binding:"required"`
+	Version    string              `json:"version"`              // 目前固定 "1"
+	Trigger    nocode.TriggerNode  `json:"trigger"`              // 触发器（唯一）
+	Conditions []nocode.CondNode   `json:"conditions,omitempty"` // 前置条件，全部满足才执行 Actions
+	Actions    []nocode.ActionNode `json:"actions"`              // 顺序执行的动作列表
 }
 
 // Flow 表示一个完整的零代码机器人流程

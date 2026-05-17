@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"tiny-forum/internal/infra/lua/nocode"
 	"tiny-forum/internal/model/do"
+	"tiny-forum/internal/model/request"
 	"tiny-forum/internal/model/vo"
 )
 
@@ -36,7 +37,7 @@ func mapToResponse(bots []*do.Bot) []*vo.BotResponse {
 	return res
 }
 
-func parseFlowRaw(raw any) *nocode.Flow {
+func parseFlowRequestRaw(raw any) *nocode.Flow {
 	var s string
 	switch v := raw.(type) {
 	case string:
@@ -53,6 +54,15 @@ func parseFlowRaw(raw any) *nocode.Flow {
 		return nil
 	}
 	return f
+}
+
+func toFlow(req *request.ValidateFlowRequest) *nocode.Flow {
+	return &nocode.Flow{
+		Version:    req.Version,
+		Trigger:    req.Trigger,
+		Conditions: req.Conditions,
+		Actions:    req.Actions,
+	}
 }
 
 func orStrSlice(s []string) []string {
