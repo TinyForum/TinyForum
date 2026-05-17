@@ -4,7 +4,8 @@ import { botApi } from "@/shared/api/modules/bot";
 import { getErrorMessage } from "@/shared/lib/utils";
 import { useState, useCallback, useEffect } from "react";
 import toast from "react-hot-toast";
-import { Flow, NocodeMetadata } from "../noco.type";
+import { NocodeMetadata } from "../noco.type";
+import { Flow } from "../components/BotFlowEditor";
 
 interface UseNocodeMetadataReturn {
   metadata: NocodeMetadata | null;
@@ -59,8 +60,10 @@ export function useValidateFlow(): UseValidateFlowReturn {
   const validate = useCallback(async (flow: Flow) => {
     setLoading(true);
     setError(null);
+    console.log("校验流程：", flow);
     try {
       const response = await botApi.nocode.validateFlow({ flow });
+      console.log("校验结果：", response.data.data);
       if (response.data.code === 0) {
         return response.data.data as { valid: boolean; errors?: string[] };
       } else {
