@@ -18,7 +18,7 @@ func (s *authService) CancelDeletion(ctx context.Context, userID uint) error {
 	return s.authRepo.Restore(ctx, userID)
 }
 
-// ConfirmDeletion 永久删除账户（硬删除）
+// ConfirmDeletion 永久删除账户
 func (s *authService) ConfirmDeletion(ctx context.Context, userID uint) error {
 	return s.txManager.ExecuteInTransaction(ctx, func(tx *gorm.DB) error {
 		// ========== 第一组：直接关联 user_id 的表 ==========

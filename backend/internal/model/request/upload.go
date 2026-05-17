@@ -1,5 +1,10 @@
 package request
 
+import (
+	"mime/multipart"
+	"tiny-forum/internal/model/do"
+)
+
 // UploadRequest 上传请求
 // type UploadPostFileRequest struct {
 // 	PostID   int64       `form:"post_id"` // 关联帖子ID（可选）
@@ -14,4 +19,14 @@ type UploadPostFileRequest struct {
 	Type    string `form:"type" binding:"required"` // post_image, avatar, etc.
 	PostID  int64  `form:"post_id"`
 	ReplyID int64  `form:"reply_id"`
+}
+
+type UploadRequest struct {
+	UserID   uint
+	PluginID string
+	File     *multipart.FileHeader
+	FileType do.FileType
+	PostID   int64
+	ReplyID  int64
+	ClientIP string
 }

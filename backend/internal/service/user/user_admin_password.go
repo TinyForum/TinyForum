@@ -109,8 +109,6 @@ func (s *userService) ResetUserPassword(operatorID uint, targetID uint, newPassw
 	return nil
 }
 
-// private
-
 // generateSecurePassword 生成安全随机密码
 func generateSecurePassword(length int) (string, error) {
 	const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*"

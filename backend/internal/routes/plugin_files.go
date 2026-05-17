@@ -11,12 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type FileInfo struct {
-	Name  string `json:"name"`
-	IsDir bool   `json:"isDir"`
-	Size  int64  `json:"size,omitempty"`
-	Ext   string `json:"ext,omitempty"`
-}
+
 
 func ListPluginFiles(c *gin.Context) {
 

@@ -63,11 +63,11 @@ type UserRepository interface {
 	DeductScore(tx *gorm.DB, userID uint, score int) error // 扣除用户积分
 	SetScoreById(id uint, score int) error                 // 设置用户积分
 	// stats
-	Count(ctx context.Context) (int64, error)                                                                         // 获取用户总数
-	CountByDateRange(ctx context.Context, startDate, endDate time.Time) (int64, error)                                // 获取指定日期范围内的用户总数
-	CountActiveByDateRange(ctx context.Context, startDate, endDate time.Time) (int64, error)                          // 获取指定日期范围内活跃用户总数
-	GetActiveUsersByDateRange(ctx context.Context, startDate, endDate time.Time, limit int) ([]*ActiveUserRow, error) // 获取指定日期范围内活跃用户
-	IsUserExistsByEmail(email string) (bool, error)                                                                   // 检查用户是否存在
+	Count(ctx context.Context) (int64, error)                                                                              // 获取用户总数
+	CountByDateRange(ctx context.Context, startDate, endDate time.Time) (int64, error)                                     // 获取指定日期范围内的用户总数
+	CountActiveByDateRange(ctx context.Context, startDate, endDate time.Time) (int64, error)                               // 获取指定日期范围内活跃用户总数
+	GetActiveUsersByDateRange(ctx context.Context, startDate, endDate time.Time, limit int) ([]*vo.ActiveUserRowVO, error) // 获取指定日期范围内活跃用户
+	IsUserExistsByEmail(email string) (bool, error)                                                                        // 检查用户是否存在
 	// GetGlobalStatsCount(ctx context.Context, userID uint) (*dto.GlobalStatsCount, error)                              // 获取全局统计信息
 	GetGlobalStatsCount(ctx context.Context, userID uint) (*dto.StatsInfo, error) // 获取用户统计信息
 

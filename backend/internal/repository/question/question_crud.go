@@ -10,6 +10,10 @@ func (r *questionRepository) Create(question *do.Question) error {
 	return r.db.Create(question).Error
 }
 
+// Update 更新问题信息的方法
+// 接收一个指向问题结构体的指针作为参数
+// 使用数据库操作保存更新后的问题信息
+// 返回一个错误值，表示操作是否成功
 func (r *questionRepository) Update(question *do.Question) error {
 	return r.db.Save(question).Error
 }

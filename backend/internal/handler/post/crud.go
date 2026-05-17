@@ -7,7 +7,6 @@ import (
 	"tiny-forum/internal/model/common"
 	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/request"
-	postService "tiny-forum/internal/service/post"
 	apperrors "tiny-forum/pkg/errors"
 	"tiny-forum/pkg/logger"
 	"tiny-forum/pkg/response"
@@ -32,7 +31,7 @@ func (h *PostHandler) Create(c *gin.Context) {
 	// ctx := c.Request.Context()
 	authorID := c.GetUint("user_id")
 
-	var input postService.CreatePostInput
+	var input request.CreatePostRequest
 	if err := c.ShouldBindJSON(&input); err != nil {
 		response.HandleError(c, err)
 		return
@@ -169,7 +168,7 @@ func (h *PostHandler) Update(c *gin.Context) {
 	role, _ := c.Get("user_role")
 	isAdmin := role == "admin"
 
-	var input postService.UpdatePostInput
+	var input request.UpdatePostRequest
 	if err := c.ShouldBindJSON(&input); err != nil {
 		response.HandleError(c, err)
 		return

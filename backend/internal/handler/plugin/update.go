@@ -14,7 +14,6 @@ import (
 // @Success 200 {object} response.Response
 // @Failure 400 {object} response.Response
 // @Router /plugin/{slug}/toggle [put]
-
 func (h *Handler) TogglePlugin(c *gin.Context) {
 	// 1. 获取当前用户ID
 	// userID := c.GetUint("user_id")

@@ -3,25 +3,16 @@ package stats
 import (
 	"context"
 	"time"
+	"tiny-forum/internal/model/vo"
 )
-
-// HotBoardRow 热门板块查询结果行
-type HotBoardRow struct {
-	ID           int64
-	Name         string
-	Icon         string
-	ArticleCount int64
-	CommentCount int64
-	ActiveUser   int64
-}
 
 // GetHotBoardsByDateRange 查询指定时间段内热门板块（按活跃度排序）
 func (r *statsRepository) GetHotBoardsByDateRange(
 	ctx context.Context,
 	startDate, endDate time.Time,
 	limit int,
-) ([]*HotBoardRow, error) {
-	var rows []*HotBoardRow
+) ([]*vo.HotBoardRowVO, error) {
+	var rows []*vo.HotBoardRowVO
 
 	err := r.db.WithContext(ctx).
 		Table("boards b").

@@ -3,6 +3,8 @@ package user
 import (
 	"strconv"
 	"time"
+	"tiny-forum/internal/model/request"
+	"tiny-forum/internal/model/vo"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -33,7 +35,7 @@ func (h *UserHandler) AdminSetScore(c *gin.Context) {
 		response.HandleError(c, err)
 		return
 	}
-	var req AdminSetScoreRequest
+	var req request.AdminSetScoreRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		response.HandleError(c, err)
 		return
@@ -67,7 +69,7 @@ func (h *UserHandler) AdminSetScore(c *gin.Context) {
 		response.InternalError(c, "设置积分失败: "+err.Error())
 		return
 	}
-	response.Success(c, AdminSetScoreResponse{
+	response.Success(c, vo.AdminSetScoreResponse{
 		UserID:     targetID,
 		OldScore:   currentScore,
 		NewScore:   newScore,

@@ -2,6 +2,7 @@ package storage
 
 import (
 	"io"
+	"os"
 )
 
 type StorageDriver interface {
@@ -10,4 +11,12 @@ type StorageDriver interface {
 	Delete(destPath string) error
 	Exists(destPath string) (bool, error)
 	DeleteDir(dirPath string) error // 递归删除目录
+}
+type LocalStorage struct {
+	baseDir string
+}
+
+func NewLocalStorage(baseDir string) *LocalStorage {
+	os.MkdirAll(baseDir, 0755)
+	return &LocalStorage{baseDir: baseDir}
 }

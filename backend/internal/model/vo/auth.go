@@ -16,3 +16,7 @@ type DeletionStatus struct {
 	CanRestore    bool       `json:"can_restore"`
 	RemainingDays int        `json:"remaining_days,omitempty"`
 }
+
+type DeleteAccountVO struct {
+	IsDeleted bool `json:"is_deleted"`
+}

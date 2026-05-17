@@ -2,18 +2,9 @@ package attachment
 
 import (
 	"tiny-forum/internal/middleware"
-	"tiny-forum/internal/service/attachment"
 
 	"github.com/gin-gonic/gin"
 )
-
-type AttachmentHandler struct {
-	svc attachment.AttachmentService
-}
-
-func NewAttachmentHandler(svc attachment.AttachmentService) *AttachmentHandler {
-	return &AttachmentHandler{svc: svc}
-}
 
 // RegisterRoutes 注册附件相关路由
 func (h *AttachmentHandler) RegisterRoutes(api *gin.RouterGroup, mw middleware.MiddlewareSet) {

@@ -21,7 +21,7 @@ type BoardService interface {
 	ReviewApplication(_ context.Context, input request.ReviewApplicationRequest, reviewerID uint) error
 	ListApplications(boardID *uint, status do.ApplicationStatus, page, pageSize int) ([]do.ModeratorApplication, int64, error)
 	// ban
-	BanUser(ctx context.Context, input BanUserInput, bannerID uint) error
+	BanUser(ctx context.Context, input request.BoardBanUserRequest, bannerID uint) error
 	UnbanUser(userID, boardID uint) error
 	IsBanned(userID, boardID uint) (bool, error)
 	// crud

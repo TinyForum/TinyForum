@@ -23,7 +23,3 @@ func NewReportsService(
 		reportRepo: reportsRepo,
 	}
 }
-
-func (s *reportsService) Lists(ctx context.Context, listPostsBO *common.PageQuery[bo.ListReportBO]) ([]do.Report, int64, error) {
-	return s.reportRepo.List(ctx, listPostsBO)
-}

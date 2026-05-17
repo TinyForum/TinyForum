@@ -30,6 +30,7 @@ type TopicRepository interface {
 	GetTopicPosts(topicID uint, limit, offset int) ([]do.TopicPost, int64, error)
 	UpdatePostOrder(topicID, postID uint, sortOrder int) error
 }
+
 type topicRepository struct {
 	db *gorm.DB
 }

@@ -53,6 +53,7 @@ type UserService interface {
 	// 违规
 	ListUserViolation(ctx context.Context, req request.ListUserViolationRequest, userID uint) (*common.PageResult[vo.ViolationVO], error)
 }
+
 type userService struct {
 	repo         userRepo.UserRepository
 	jwtMgr       *jwtpkg.JWTManager

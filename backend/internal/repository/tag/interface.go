@@ -4,6 +4,8 @@ import (
 	"context"
 	"time"
 	"tiny-forum/internal/model/do"
+
+	"gorm.io/gorm"
 )
 
 type TagRepository interface {
@@ -20,4 +22,11 @@ type TagRepository interface {
 	// stats
 	Count(ctx context.Context) (int64, error)
 	CountByDateRange(ctx context.Context, startDate, endDate time.Time) (int64, error)
+}
+type tagRepository struct {
+	db *gorm.DB
+}
+
+func NewTagRepository(db *gorm.DB) TagRepository {
+	return &tagRepository{db: db}
 }
