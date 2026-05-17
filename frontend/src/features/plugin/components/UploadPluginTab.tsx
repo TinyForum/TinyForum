@@ -2,6 +2,7 @@ import { CheckCircle2 } from "lucide-react";
 import { useState } from "react";
 import { useUpload } from "../hooks/useUpload";
 import { useAdminPlugins } from "../useAdminPlugins";
+import toast from "react-hot-toast";
 
 export function UploadPluginTab() {
   const [file, setFile] = useState<File | null>(null);
@@ -12,7 +13,7 @@ export function UploadPluginTab() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!file) {
-      alert("请选择插件 ZIP 包");
+      toast.error("请选择插件 ZIP 包");
       return;
     }
     resetError();
@@ -21,7 +22,7 @@ export function UploadPluginTab() {
       setUploaded(true);
       setFile(null);
     } else {
-      alert(error || "上传失败，请稍后重试");
+      toast.error(error || "上传失败，请稍后重试");
     }
   };
 

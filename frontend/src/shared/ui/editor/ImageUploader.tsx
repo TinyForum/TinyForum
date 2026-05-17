@@ -2,6 +2,7 @@
 import { uploadApi } from "@/shared/api/modules/uploads";
 import Image from "next/image";
 import React, { useState, useRef, useEffect } from "react";
+import toast from "react-hot-toast";
 
 export type LayoutMode = "grid" | "waterfall" | "horizontal" | "tile";
 export type GridSize = 2 | 3 | 4;
@@ -86,7 +87,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (images.length + files.length > maxCount) {
-      alert(`最多上传 ${maxCount} 张图片`);
+      toast.error(`最多上传 ${maxCount} 张图片`);
       return;
     }
 
