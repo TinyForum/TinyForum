@@ -10,10 +10,10 @@ import {
   BotListResponse,
   BotVO,
   CreateBotRequest,
+  Flow,
   RunEventData,
   UpdateBotRequest,
 } from "../types/bot.model";
-import { Flow } from "@/shared/ui/editor/bot/BotFlowEditor";
 
 // ========== API 方法 ==========
 export const botApi = {

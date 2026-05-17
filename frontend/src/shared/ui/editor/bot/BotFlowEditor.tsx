@@ -10,10 +10,17 @@ import {
 import {
   SortableContext,
   verticalListSortingStrategy,
-  useSortable,
 } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
-import { CreateBotRequest } from "@/shared/api/types/bot.model";
+import {
+  ActionNode,
+  ActionType,
+  CondNode,
+  CondType,
+  CreateBotRequest,
+  Flow,
+  TriggerNode,
+  TriggerType,
+} from "@/shared/api/types/bot.model";
 import { useBotActions } from "@/features/bot/hooks/bot";
 import {
   useNocodeMetadata,
@@ -21,219 +28,10 @@ import {
 } from "@/features/bot/hooks/useNocodeMetadata";
 import { NodeMeta, NocodeMetadata } from "@/features/bot/noco.type";
 
-// ---------- 类型定义（与后端 Go 模型对齐）----------
-export type TriggerType =
-  | "on_schedule"
-  | "on_new_post"
-  | "on_new_comment"
-  | "on_user_register"
-  | "on_keyword"
-  | "on_manual";
-
-export type CondType =
-  | "post_title_contains"
-  | "post_content_contains"
-  | "user_role_is"
-  | "user_post_count_gte"
-  | "board_id_in"
-  | "time_range"
-  | "custom_expr";
-
-export type ActionType =
-  | "reply_post"
-  | "delete_post"
-  | "hide_post"
-  | "pin_post"
-  | "lock_post"
-  | "create_post"
-  | "delete_comment"
-  | "ban_user"
-  | "send_message"
-  | "webhook"
-  | "notify_admin"
-  | "wait"
-  | "set_variable"
-  | "stop_if";
-
-export interface TriggerNode {
-  type: TriggerType;
-  params?: Record<string, unknown>;
-}
-
-export interface CondNode {
-  type: CondType;
-  negate?: boolean;
-  params: Record<string, unknown>;
-}
-
-export interface ActionNode {
-  type: ActionType;
-  params: Record<string, unknown>;
-}
-
-export interface Flow {
-  version: string;
-  trigger: TriggerNode;
-  conditions?: CondNode[];
-  actions: ActionNode[];
-}
-
-// ---------- 辅助函数 ----------
-// function _getNodeLabel(nodeMeta: NodeMeta): string {
-//   console.log("获取节点标签: ", nodeMeta);
-//   return nodeMeta.label;
-// }
-
-/**
- * 创建默认节点参数的函数
- * @param nodeMeta - 节点的元数据信息，包含schema等信息
- * @returns 返回一个包含默认参数的Record对象
- */
-function createDefaultParams(nodeMeta: NodeMeta): Record<string, unknown> {
-  console.log("创建默认节点参数: ", nodeMeta); // 输出创建默认参数时的节点元数据信息
-  // 可从 nodeMeta.schema 生成默认值，此处简单返回空对象
-  return {}; // 返回一个空对象作为默认参数
-}
-
-// ---------- 可拖拽卡片组件（SortableItem）----------
-interface SortableItemProps {
-  id: string;
-  typeLabel: string;
-  onEdit: () => void;
-  onDelete: () => void;
-}
-
-function SortableItem({ id, typeLabel, onEdit, onDelete }: SortableItemProps) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1,
-  };
-
-  return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      className="bg-white border rounded p-3 flex items-center justify-between shadow-sm"
-    >
-      <div className="flex items-center gap-2 flex-1">
-        <div
-          {...attributes}
-          {...listeners}
-          className="cursor-grab text-gray-400 hover:text-gray-600"
-        >
-          ⋮⋮
-        </div>
-        <span className="font-medium">{typeLabel}</span>
-      </div>
-      <div className="flex gap-2">
-        <button
-          onClick={onEdit}
-          className="text-blue-600 hover:text-blue-800 text-sm"
-        >
-          配置
-        </button>
-        <button
-          onClick={onDelete}
-          className="text-red-600 hover:text-red-800 text-sm"
-        >
-          删除
-        </button>
-      </div>
-    </div>
-  );
-}
-
-// ---------- 配置弹窗（编辑节点的 params）----------
-interface ConfigModalProps {
-  title: string;
-  params: Record<string, unknown>;
-  onSave: (newParams: Record<string, unknown>) => void;
-  onClose: () => void;
-}
-
-function ConfigModal({ title, params, onSave, onClose }: ConfigModalProps) {
-  const [config, setConfig] = useState<Record<string, unknown>>(params);
-
-  const handleSave = () => {
-    onSave(config);
-    onClose();
-  };
-
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-4 rounded shadow-lg w-96">
-        <h3 className="font-bold text-lg mb-2">配置 {title}</h3>
-        <textarea
-          className="w-full border p-2 mt-2 font-mono text-sm"
-          rows={6}
-          value={JSON.stringify(config, null, 2)}
-          onChange={(e) => {
-            try {
-              const parsed = JSON.parse(e.target.value) as Record<
-                string,
-                unknown
-              >;
-              setConfig(parsed);
-            } catch {
-              // 保留原文本，不更新
-            }
-          }}
-        />
-        <div className="flex justify-end mt-4 space-x-2">
-          <button
-            className="px-3 py-1 border rounded hover:bg-gray-100"
-            onClick={onClose}
-          >
-            取消
-          </button>
-          <button
-            className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
-            onClick={handleSave}
-          >
-            保存
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ---------- 折叠面板组件 ----------
-interface CollapsibleSectionProps {
-  title: string;
-  children: React.ReactNode;
-  defaultOpen?: boolean;
-}
-
-function CollapsibleSection({
-  title,
-  children,
-  defaultOpen = true,
-}: CollapsibleSectionProps) {
-  const [isOpen, setIsOpen] = useState(defaultOpen);
-  return (
-    <div className="mb-4">
-      <div
-        className="flex items-center justify-between cursor-pointer py-1 select-none"
-        onClick={() => setIsOpen(!isOpen)}
-      >
-        <h3 className="font-bold text-gray-800">{title}</h3>
-        <span className="text-gray-500 text-sm">{isOpen ? "▼" : "▶"}</span>
-      </div>
-      {isOpen && <div className="mt-2 space-y-2">{children}</div>}
-    </div>
-  );
-}
+import { SortableItem } from "./SortableItem";
+import { createDefaultParams } from "./helper";
+import { ConfigModal } from "./ConfigModal";
+import { CollapsibleSection } from "./CollapsibleSection";
 
 // ---------- 主组件 ----------
 export function BotFlowEditor() {
@@ -292,7 +90,7 @@ export function BotFlowEditor() {
     setConditions((prev) => [...prev, newCond]);
   }, []);
 
-  // 添加动作（追加）
+  // 添加动作
   const addAction = useCallback((nodeMeta: NodeMeta) => {
     const newAction: ActionNode = {
       type: nodeMeta.type as ActionType,
