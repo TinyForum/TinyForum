@@ -34,7 +34,7 @@ type Service interface {
 
 	// 零代码支持
 	GetNocodeMetadata() *nocode.NocodeMetadata
-	ValidateFlowRequest(flow *request.ValidateFlowRequest) []error
+	ValidateFlow(flow *nocode.Flow) []error
 
 	// 事件总线（其他 service 发布事件触发机器人）
 	PublishEvent(eventName string, data map[string]any)

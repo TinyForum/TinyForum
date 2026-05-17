@@ -15,8 +15,8 @@ func (s *service) Create(ctx context.Context, creatorID uint, req *request.Creat
 	// 零代码模式：预先校验 Flow JSON
 	if req.ScriptCode == "" && req.ConfigValues != nil {
 		if flowRaw, ok := req.ConfigValues["flow"]; ok {
-			reqFlow := parseFlowRequestRaw(flowRaw)
-			if errs := s.ValidateFlowRequest((*request.ValidateFlowRequest)(toFlow((*request.ValidateFlowRequest)(reqFlow)))); len(errs) > 0 {
+			flow := parseFlowRequestRaw(flowRaw)
+			if errs := s.ValidateFlow(flow); len(errs) > 0 {
 				return nil, fmt.Errorf("invalid nocode flow: %v", errs[0])
 			}
 		}
