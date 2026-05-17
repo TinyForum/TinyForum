@@ -32,6 +32,7 @@ import { SortableItem } from "./SortableItem";
 import { createDefaultParams } from "./helper";
 import { ConfigModal } from "./ConfigModal";
 import { CollapsibleSection } from "./CollapsibleSection";
+import toast from "react-hot-toast";
 
 // ---------- 主组件 ----------
 export function BotFlowEditor() {
@@ -187,14 +188,14 @@ export function BotFlowEditor() {
   const handleValidate = async () => {
     const flow = buildFlowPayload();
     if (!flow) {
-      alert("请先配置触发器");
+      toast.error("请先配置触发器");
       return false;
     }
     const result = await validate(flow);
     if (!result.valid) {
-      alert(`校验失败：\n${result.errors?.join("\n") || "未知错误"}`);
+      toast.error(`校验失败：\n${result.errors?.join("\n") || "未知错误"}`);
     } else {
-      alert("流程校验通过！");
+      toast.success("流程校验通过！");
     }
     return result.valid;
   };
@@ -203,13 +204,14 @@ export function BotFlowEditor() {
   const handleSave = async () => {
     setSavingError(null);
     const flow = buildFlowPayload();
+    console.log("保存机器人: ", flow);
     if (!flow) {
-      alert("请先配置触发器");
+      toast.error("请先配置触发器");
       return;
     }
     const validation = await validate(flow);
     if (!validation.valid) {
-      alert(`保存前校验失败：\n${validation.errors?.join("\n")}`);
+      toast.error(`保存前校验失败：\n${validation.errors?.join("\n")}`);
       return;
     }
 
@@ -225,7 +227,7 @@ export function BotFlowEditor() {
 
     const id = await createBot(requestData);
     if (id) {
-      alert(`机器人创建成功！ID: ${id}`);
+      toast.success(`机器人创建成功！ID: ${id}`);
       // 重置状态
       setTrigger(null);
       setConditions([]);
