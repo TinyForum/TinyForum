@@ -7,9 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// ValidateFlowRequest 零代码流程校验请求
-
-// ValidateFlow 校验零代码 Flow 配置（不执行）
+// ValidateFlow 校验零代码 Flow 配置
 // @Summary 校验零代码流程
 // @Tags 机器人管理
 // @Accept json
@@ -26,7 +24,8 @@ func (h *Handler) ValidateFlow(c *gin.Context) {
 		response.HandleError(c, err)
 		return
 	}
-	errs := h.svc.ValidateFlowRequest(&req)
+	flow := req.ToFlow()
+	errs := h.svc.ValidateFlow(&flow)
 	msgs := make([]string, 0, len(errs))
 	for _, e := range errs {
 		msgs = append(msgs, e.Error())

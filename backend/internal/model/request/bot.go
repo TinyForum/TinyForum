@@ -61,11 +61,12 @@ type UpdateBotRequest struct {
 // }
 
 type ValidateFlowRequest struct {
+	nocode.Flow
 	// Flow nocode.Flow `json:"flow" binding:"required"`
-	Version    string              `json:"version"`              // 目前固定 "1"
-	Trigger    nocode.TriggerNode  `json:"trigger"`              // 触发器（唯一）
-	Conditions []nocode.CondNode   `json:"conditions,omitempty"` // 前置条件，全部满足才执行 Actions
-	Actions    []nocode.ActionNode `json:"actions"`              // 顺序执行的动作列表
+	// Version    string              `json:"version"`              // 目前固定 "1"
+	// Trigger    nocode.TriggerNode  `json:"trigger"`              // 触发器（唯一）
+	// Conditions []nocode.CondNode   `json:"conditions,omitempty"` // 前置条件，全部满足才执行 Actions
+	// Actions    []nocode.ActionNode `json:"actions"`              // 顺序执行的动作列表
 }
 
 // Flow 表示一个完整的零代码机器人流程
@@ -85,4 +86,13 @@ type Node struct {
 type Edge struct {
 	Source string `json:"source"` // 起始节点 ID
 	Target string `json:"target"` // 目标节点 ID
+}
+
+func (f *ValidateFlowRequest) ToFlow() nocode.Flow {
+	return nocode.Flow{
+		Version:    f.Version,
+		Trigger:    f.Trigger,
+		Conditions: f.Conditions,
+		Actions:    f.Actions,
+	}
 }
