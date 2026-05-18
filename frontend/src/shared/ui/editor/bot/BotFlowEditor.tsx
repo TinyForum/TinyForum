@@ -27,12 +27,11 @@ import {
   useValidateFlow,
 } from "@/features/bot/hooks/useNocodeMetadata";
 import { NodeMeta, NocodeMetadata } from "@/features/bot/noco.type";
-
-import { SortableItem } from "./SortableItem";
-import { createDefaultParams } from "./helper";
-import { ConfigModal } from "./ConfigModal";
-import { CollapsibleSection } from "./CollapsibleSection";
 import toast from "react-hot-toast";
+import { CollapsibleSection } from "./components/CollapsibleSection";
+import { ConfigModal } from "./components/ConfigModal";
+import { SortableItem } from "./components/SortableItem";
+import { createDefaultParams } from "./helper";
 
 // ---------- 主组件 ----------
 export function BotFlowEditor() {
