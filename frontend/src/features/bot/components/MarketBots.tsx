@@ -1,11 +1,11 @@
 // features/bot/components/MarketBots.tsx
-import { BotStatus } from "@/shared/api/types/bot.model";
+import { BotStatus } from "@/shared/api/types/bot.model.do";
 import { useBots, useBotActions } from "../hooks/bot";
 import { Pagination } from "@/shared/ui/common/Pagination";
 import { useState } from "react";
 import toast from "react-hot-toast";
 
-// 状态徽章映射（类型安全）
+// 状态徽章映射
 const STATUS_BADGE_MAP: Record<BotStatus, string> = {
   active: "badge-success",
   inactive: "badge-ghost",
@@ -14,7 +14,7 @@ const STATUS_BADGE_MAP: Record<BotStatus, string> = {
   stopped: "badge-secondary",
 };
 
-// 纯函数：渲染状态徽章
+// 渲染状态徽章
 const renderStatusBadge = (status: BotStatus) => (
   <span className={`badge ${STATUS_BADGE_MAP[status] || "badge-ghost"}`}>
     {status}
