@@ -10,14 +10,14 @@ announcements:
   created_at:
     type: timestamp_tz
     date_from: 2023-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.0
 
   # 更新时间（非空）
   updated_at:
     type: timestamp_tz
     date_from: 2023-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.0
 
   # 软删除时间（绝大多数为 NULL）
@@ -80,7 +80,7 @@ announcements:
   published_at:
     type: timestamp_tz
     date_from: 2023-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.3
 
   # 过期时间（60% NULL）
@@ -122,14 +122,14 @@ answer_votes:
   created_at:
     type: timestamp_tz
     date_from: 2023-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.0
 
   # 更新时间（非空）
   updated_at:
     type: timestamp_tz
     date_from: 2023-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.0
 
   # 软删除时间（绝大多数为 NULL）
@@ -170,14 +170,14 @@ attachments:
   created_at:
     type: timestamp_tz
     date_from: 2023-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.0
 
   # 更新时间（非空）
   updated_at:
     type: timestamp_tz
     date_from: 2023-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.0
 
   # 软删除时间（绝大多数为 NULL）
@@ -337,14 +337,14 @@ audit_logs:
   created_at:
     type: timestamp_tz
     date_from: 2023-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.0
 
   # 更新时间（非空）
   updated_at:
     type: timestamp_tz
     date_from: 2023-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.0
 
   # 软删除时间（绝大多数为 NULL）
@@ -422,17 +422,17 @@ blocked_ips:
   created_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.0 # 创建时间不应为 NULL
   updated_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.0 # 更新时间不应为 NULL
   deleted_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.15 # 软删除标记，15% 概率为 NULL（未删除）
 
   # ===== 业务字段 =====
@@ -453,7 +453,7 @@ blocked_ips:
   expire_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.15 # NULL 表示永久封禁
 # ──────────────────────────────────────────
 # Table: board_bans
@@ -466,17 +466,17 @@ board_bans:
   created_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.0 # 非空字段，禁止 NULL
   updated_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.0 # 非空字段，禁止 NULL
   deleted_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.15 # 软删除标记，允许 NULL
 
   # 外键字段（NOT NULL，需在有效范围内）
@@ -504,7 +504,7 @@ board_bans:
   expires_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.15 # NULL 表示永久封禁
 # ──────────────────────────────────────────
 # Table: boards
@@ -517,17 +517,17 @@ boards:
   created_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.0 # 禁止 NULL
   updated_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.0
   deleted_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.15 # 软删除标记，允许 NULL
 
   # ===== 唯一标识字段（注意唯一性风险）=====
@@ -604,17 +604,17 @@ bots:
   created_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.0 # 非空
   updated_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.0
   deleted_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.15 # 软删除标记
 
   # ===== 基本信息 =====
@@ -731,7 +731,7 @@ bots:
   last_exec_at:
     type: timestamp
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.15
   error_msg:
     type: string
@@ -805,17 +805,17 @@ comments:
   created_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.0
   updated_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.0
   deleted_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.15 # 软删除标记，允许 NULL
 
   # ===== 业务字段 =====
@@ -873,17 +873,17 @@ content_audit_tasks:
   created_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.0
   updated_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.0
   deleted_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.15 # 软删除标记
 
   # ===== 审核目标 =====
@@ -927,7 +927,7 @@ content_audit_tasks:
   reviewed_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.15
 # ──────────────────────────────────────────
 # Table: favorites
@@ -940,17 +940,17 @@ favorites:
   created_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.0
   updated_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.0
   deleted_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.15 # 软删除标记（取消收藏）
 
   # ===== 收藏信息 =====
@@ -984,17 +984,17 @@ follows:
   created_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.0
   updated_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.0
   deleted_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.15 # 软删除（取消关注）
 
   # ===== 关注关系 =====
@@ -1019,17 +1019,17 @@ ip_risk_records:
   created_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.0
   updated_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.0
   deleted_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.15 # 软删除标记
 
   # ===== 风险信息 =====
@@ -1056,7 +1056,7 @@ ip_risk_records:
   expire_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.0 # 非空字段，禁止 NULL
 # ──────────────────────────────────────────
 # Table: likes
@@ -1069,17 +1069,17 @@ likes:
   created_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.0
   updated_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.0
   deleted_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.15 # 软删除（取消点赞）
 
   # ===== 点赞信息 =====
@@ -1110,17 +1110,17 @@ moderator_applications:
   created_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.0 # 非空字段
   updated_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.0
   deleted_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.15 # 软删除标记
 
   # ===== 申请基本信息 =====
@@ -1179,7 +1179,7 @@ moderator_applications:
   reviewed_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.15
 # ──────────────────────────────────────────
 # Table: moderator_logs
@@ -1192,17 +1192,17 @@ moderator_logs:
   created_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.0
   updated_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.0
   deleted_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.15 # 软删除
 
   # ===== 操作人 & 板块 =====
@@ -1267,17 +1267,17 @@ moderators:
   created_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.0
   updated_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.0
   deleted_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.15 # 软删除（卸任版主）
 
   # ===== 版主关联 =====
@@ -1321,17 +1321,17 @@ notifications:
   created_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.0
   updated_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.0
   deleted_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.15 # 软删除
 
   # ===== 接收者 =====
@@ -1396,17 +1396,17 @@ plugins:
   created_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.0
   updated_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.0
   deleted_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.15 # 软删除
 
   # ===== 基础标识 =====
@@ -1546,17 +1546,17 @@ posts:
   created_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.0
   updated_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.0
   deleted_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.15 # 软删除
 
   # ===== 内容信息 =====
@@ -1629,17 +1629,17 @@ questions:
   created_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.0
   updated_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.0
   deleted_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.15 # 软删除
 
   # ===== 关联 =====
@@ -1682,19 +1682,19 @@ questions:
 #   created_at:
 #     type: timestamp_tz
 #     date_from: 2020-01-01
-#     date_to: 2025-12-31
+#     date_to: 2026-12-31
 #     null_rate: 0.15
 #   # 带时区的时间戳 [date_from, date_to]
 #   updated_at:
 #     type: timestamp_tz
 #     date_from: 2020-01-01
-#     date_to: 2025-12-31
+#     date_to: 2026-12-31
 #     null_rate: 0.15
 #   # 带时区的时间戳 [date_from, date_to]
 #   deleted_at:
 #     type: timestamp_tz
 #     date_from: 2020-01-01
-#     date_to: 2025-12-31
+#     date_to: 2026-12-31
 #     null_rate: 0.15
 #   # 随机整数 [min, max]
 #   user_id:
@@ -1723,7 +1723,7 @@ questions:
 #   expires_at:
 #     type: timestamp_tz
 #     date_from: 2020-01-01
-#     date_to: 2025-12-31
+#     date_to: 2026-12-31
 #     null_rate: 0.15
 #   # true 或 false
 #   is_used:
@@ -1741,17 +1741,17 @@ reports:
   created_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.0
   updated_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.0
   deleted_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.15 # 软删除
 
   # ===== 举报人 =====
@@ -1809,7 +1809,7 @@ reports:
   handle_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.15
 
   # ===== 优先级 =====
@@ -1829,17 +1829,17 @@ sign_ins:
   created_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.0
   updated_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.0
   deleted_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.15 # 软删除
 
   # ===== 签到信息 =====
@@ -1852,7 +1852,7 @@ sign_ins:
   sign_date:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.0 # 非空
 
   score:
@@ -1877,17 +1877,17 @@ tags:
   created_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.0
   updated_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.0
   deleted_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.15 # 软删除
 
   # ===== 标签信息 =====
@@ -1917,17 +1917,17 @@ timeline_events:
   created_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.0
   updated_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.0
   deleted_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.15 # 软删除
 
   # ===== 事件主体 =====
@@ -1986,17 +1986,17 @@ timeline_subscriptions:
   created_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.0
   updated_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.0
   deleted_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.15 # 软删除
 
   # ===== 订阅关系 =====
@@ -2031,19 +2031,19 @@ topic_follows:
   created_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.15
   # 带时区的时间戳 [date_from, date_to]
   updated_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.15
   # 带时区的时间戳 [date_from, date_to]
   deleted_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.15
   # 基于模式的自动推断（保持默认即可）
   user_id:
@@ -2063,19 +2063,19 @@ topic_posts:
   created_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.15
   # 带时区的时间戳 [date_from, date_to]
   updated_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.15
   # 带时区的时间戳 [date_from, date_to]
   deleted_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.15
   # 基于模式的自动推断（保持默认即可）
   topic_id:
@@ -2107,17 +2107,17 @@ topics:
   created_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.0
   updated_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.0
   deleted_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.15 # 软删除
 
   # ===== 话题信息 =====
@@ -2169,17 +2169,17 @@ user_risk_records:
   created_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.0
   updated_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.0
   deleted_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.15 # 软删除
 
   # ===== 用户与事件 =====
@@ -2207,7 +2207,7 @@ user_risk_records:
   expire_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.0
 # ──────────────────────────────────────────
 # Table: user_timelines
@@ -2220,17 +2220,17 @@ user_timelines:
   created_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.0
   updated_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.0
   deleted_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.15 # 软删除
 
   # ===== 用户与时间线类型 =====
@@ -2248,7 +2248,7 @@ user_timelines:
   last_read_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.0
 # ──────────────────────────────────────────
 # Table: users
@@ -2261,17 +2261,17 @@ users:
   created_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.0
   updated_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.0
   deleted_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.15 # 软删除
 
   # ===== 账号信息 =====
@@ -2315,7 +2315,7 @@ users:
   last_login:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.15
   invited_by_id:
     type: int
@@ -2330,7 +2330,7 @@ users:
   temp_password_expire:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.15
 # ──────────────────────────────────────────
 # Table: violations
@@ -2343,17 +2343,17 @@ violations:
   created_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.0
   updated_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.0
   deleted_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.15 # 软删除
 
   # ===== 违规用户 =====
@@ -2402,7 +2402,7 @@ violations:
   punish_expire_at:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.15
 
   # ===== 申诉信息 =====
@@ -2417,7 +2417,7 @@ violations:
   appeal_time:
     type: timestamp_tz
     date_from: 2020-01-01
-    date_to: 2025-12-31
+    date_to: 2026-12-31
     null_rate: 0.15
   appeal_result:
     type: text
