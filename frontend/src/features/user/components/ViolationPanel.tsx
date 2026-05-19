@@ -7,6 +7,7 @@ import { getViolationStatusBadge } from "@/shared/lib/utils/violation";
 import { ViolationRecord } from "@/shared/api/types/violation.model";
 import { useUserViolation } from "../hooks/useViolation";
 import type { ViolationVO } from "@/shared/api/modules/user/violation";
+import toast from "react-hot-toast";
 
 // 安全的数据转换函数（防御式）
 function toViolationRecord(vo: ViolationVO): ViolationRecord {
@@ -95,9 +96,9 @@ export function ViolationPanel() {
       setAppealModal({ open: false, violationId: "", violationReason: "" });
       setAppealText("");
       // 使用更友好的提示，实际项目可替换为 toast
-      alert(t("appeal_submitted"));
+      toast.success(t("appeal_submitted"));
     } else {
-      alert(appealError || t("appeal_failed"));
+      toast.error(appealError || t("appeal_failed"));
     }
   };
 

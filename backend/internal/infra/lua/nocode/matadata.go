@@ -1,4 +1,3 @@
-// nocode/metadata.go
 package nocode
 
 // NocodeMetadata 包含所有内置节点的元数据，通过 API 下发给前端。

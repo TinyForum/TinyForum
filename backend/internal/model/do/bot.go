@@ -5,6 +5,47 @@ import (
 	"tiny-forum/internal/model/common"
 )
 
+type Bot struct {
+	common.BaseModel
+	Name        string   `json:"name" gorm:"type:varchar(100);not null;index"` // 名称
+	Version     string   `json:"version" gorm:"type:varchar(50);not null"`     // 版本
+	Description string   `json:"description" gorm:"type:text"`                 // 描述
+	Summary     string   `json:"summary" gorm:"type:varchar(300)"`             // 摘要
+	AvatarURL   string   `json:"avatar_url" gorm:"type:varchar(255)"`          // 头像
+	Screenshots []string `json:"screenshots" gorm:"type:json;serializer:json"` // 截图
+	HomepageURL string   `json:"homepage_url" gorm:"type:varchar(255)"`        // 官网
+
+	Type BotType  `json:"type" gorm:"type:varchar(30);not null;index"` // 类型
+	Tags []string `json:"tags" gorm:"type:json;serializer:json"`       // 标签
+
+	CreatorID   uint   `json:"creator_id" gorm:"type:bigint;not null;index"` // 创建者 ID
+	CreatorName string `json:"creator_name" gorm:"type:varchar(100)"`        // 创建者名称
+
+	ScriptCode string `json:"script_code" gorm:"type:text"`        // 脚本代码
+	ScriptURL  string `json:"script_url" gorm:"type:varchar(500)"` // 脚本 URL
+
+	TriggerType BotTriggerType `json:"trigger_type" gorm:"type:varchar(20);not null"` // 触发类型
+	CronExpr    string         `json:"cron_expr" gorm:"type:varchar(100)"`            // Cron 表达式
+	EventFilter string         `json:"event_filter" gorm:"type:varchar(200)"`         // 事件过滤器
+
+	TimeoutSec    int               `json:"timeout_sec" gorm:"default:10"`                   // 超时时间（秒）
+	RetryTimes    int               `json:"retry_times" gorm:"default:0"`                    // 重试次数
+	EnvVars       map[string]string `json:"env_vars" gorm:"type:json;serializer:json"`       // 环境变量
+	ResourceLimit *ResourceLimit    `json:"resource_limit" gorm:"type:json;serializer:json"` // 资源限制
+
+	Pricing     BotPricing      `json:"pricing" gorm:"type:json;serializer:json"`     // 定价
+	Permissions []BotPermission `json:"permissions" gorm:"type:json;serializer:json"` // 权限
+
+	Enabled    bool       `json:"enabled" gorm:"default:false;index"`                // 是否启用
+	Status     BotStatus  `json:"status" gorm:"type:varchar(20);default:'inactive'"` // 状态
+	ExecCount  int64      `json:"exec_count" gorm:"default:0"`                       // 执行次数
+	LastExecAt *time.Time `json:"last_exec_at" gorm:"type:timestamp"`                // 最后执行时间
+	ErrorMsg   string     `json:"error_msg" gorm:"type:text"`
+
+	ConfigSchema []BotConfigField `json:"config_schema" gorm:"type:json;serializer:json"` // 配置项
+	ConfigValues map[string]any   `json:"config_values" gorm:"type:json;serializer:json"` // 配置值
+}
+
 type BotStatus string
 
 const (
@@ -101,47 +142,6 @@ const (
 type ResourceLimit struct {
 	MaxMemoryMB int `json:"maxMemoryMB"` // 最大内存（MB）
 	MaxCPU      int `json:"maxCPU"`      // 最大 CPU 核心数
-}
-
-type Bot struct {
-	common.BaseModel
-	Name        string   `json:"name" gorm:"type:varchar(100);not null;index"` // 名称
-	Version     string   `json:"version" gorm:"type:varchar(50);not null"`     // 版本
-	Description string   `json:"description" gorm:"type:text"`                 // 描述
-	Summary     string   `json:"summary" gorm:"type:varchar(300)"`             // 摘要
-	AvatarURL   string   `json:"avatar_url" gorm:"type:varchar(255)"`          // 头像
-	Screenshots []string `json:"screenshots" gorm:"type:json;serializer:json"` // 截图
-	HomepageURL string   `json:"homepage_url" gorm:"type:varchar(255)"`        // 官网
-
-	Type BotType  `json:"type" gorm:"type:varchar(30);not null;index"` // 类型
-	Tags []string `json:"tags" gorm:"type:json;serializer:json"`       // 标签
-
-	CreatorID   uint   `json:"creator_id" gorm:"type:bigint;not null;index"` // 创建者 ID
-	CreatorName string `json:"creator_name" gorm:"type:varchar(100)"`        // 创建者名称
-
-	ScriptCode string `json:"script_code" gorm:"type:text"`        // 脚本代码
-	ScriptURL  string `json:"script_url" gorm:"type:varchar(500)"` // 脚本 URL
-
-	TriggerType BotTriggerType `json:"trigger_type" gorm:"type:varchar(20);not null"` // 触发类型
-	CronExpr    string         `json:"cron_expr" gorm:"type:varchar(100)"`            // Cron 表达式
-	EventFilter string         `json:"event_filter" gorm:"type:varchar(200)"`         // 事件过滤器
-
-	TimeoutSec    int               `json:"timeout_sec" gorm:"default:10"`                   // 超时时间（秒）
-	RetryTimes    int               `json:"retry_times" gorm:"default:0"`                    // 重试次数
-	EnvVars       map[string]string `json:"env_vars" gorm:"type:json;serializer:json"`       // 环境变量
-	ResourceLimit *ResourceLimit    `json:"resource_limit" gorm:"type:json;serializer:json"` // 资源限制
-
-	Pricing     BotPricing      `json:"pricing" gorm:"type:json;serializer:json"`     // 定价
-	Permissions []BotPermission `json:"permissions" gorm:"type:json;serializer:json"` // 权限
-
-	Enabled    bool       `json:"enabled" gorm:"default:false;index"`                // 启用状态
-	Status     BotStatus  `json:"status" gorm:"type:varchar(20);default:'inactive'"` // 状态
-	ExecCount  int64      `json:"exec_count" gorm:"default:0"`                       // 执行次数
-	LastExecAt *time.Time `json:"last_exec_at" gorm:"type:timestamp"`                // 最后执行时间
-	ErrorMsg   string     `json:"error_msg" gorm:"type:text"`
-
-	ConfigSchema []BotConfigField `json:"config_schema" gorm:"type:json;serializer:json"` // 配置项
-	ConfigValues map[string]any   `json:"config_values" gorm:"type:json;serializer:json"` // 配置值
 }
 
 func (Bot) TableName() string {

@@ -17,7 +17,8 @@ import { Post } from "@/shared/api/types/post.model";
 import { Tag } from "@/shared/api/types/tag.model";
 import { ImageUploader } from "@/shared/ui/editor/ImageUploader";
 import { uploadApi } from "@/shared/api/modules/uploads";
-import { RichTextEditor } from "@/shared/ui/editor/RichTextEditor";
+import { RichTextEditor } from "@/shared/ui/editor/richtext/RichTextEditor";
+// import { RichTextEditor } from "@/shared/ui/editor/RichTextEditor";
 
 const schema = z.object({
   title: z.string().min(2, "标题至少2个字符").max(200, "标题最多200个字符"),
@@ -234,6 +235,12 @@ export default function EditPostPage({
                 placeholder="撰写帖子内容..."
                 maxLength={20000}
                 defaultMode="rich"
+                //
+                // extensions={[CustomExtension]}
+                // toolbarButtons={{ ...DEFAULT_TOOLBAR_BUTTONS, myButton: {...} }}
+                // toolbarGroups={[{ id: "custom", buttons: ["myButton"] }]}
+                // onInsertLink={(editor) => myCustomLinkHandler(editor)}
+                // markdownParser={customMarkdownParser}
               />
             )}
           />

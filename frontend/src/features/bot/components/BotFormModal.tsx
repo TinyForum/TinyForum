@@ -2,13 +2,15 @@
 
 import {
   BotConfigField,
-  BotPricingModel,
-  BotTriggerType,
-  BotType,
   BotVO,
   CreateBotRequest,
   UpdateBotRequest,
 } from "@/shared/api/types/bot.model";
+import {
+  BotPricingModel,
+  BotTriggerType,
+  BotType,
+} from "@/shared/api/types/bot.model.do";
 import React, { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
 
