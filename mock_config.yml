@@ -1,0 +1,2179 @@
+# ──────────────────────────────────────────
+# Table: announcements
+# ──────────────────────────────────────────
+announcements:
+  # 从 INSERT 语句中排除此列
+  id:
+    type: skip
+  # 带时区的时间戳 [date_from, date_to]
+  created_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  updated_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  deleted_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 简短的首字母大写标签（1–2 个词）
+  title:
+    type: label
+  # 随机散文段落，最大长度受 `max_len` 限制
+  content:
+    type: text
+    max_len: 500
+  # 随机散文段落，最大长度受 `max_len` 限制
+  summary:
+    type: text
+    max_len: 500
+    null_rate: 0.15
+  # 随机字母数字字符串 [min_len, max_len]
+  cover:
+    type: string
+    min_len: 4
+    max_len: 500
+    null_rate: 0.15
+  # 简短的首字母大写标签（1–2 个词）
+  type:
+    type: label
+    null_rate: 0.15
+  # 简短的首字母大写标签（1–2 个词）
+  status:
+    type: label
+    null_rate: 0.15
+  # true 或 false
+  is_pinned:
+    type: bool
+    null_rate: 0.15
+  # true 或 false
+  is_global:
+    type: bool
+    null_rate: 0.15
+  # 基于模式的自动推断（保持默认即可）
+  board_id:
+    type: default
+  # 带时区的时间戳 [date_from, date_to]
+  published_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  expired_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 随机整数 [min, max]
+  view_count:
+    type: int
+    min: 0.0
+    max: 9007199254740991.0
+    null_rate: 0.15
+  # 基于模式的自动推断（保持默认即可）
+  created_by:
+    type: default
+  # 随机整数 [min, max]
+  updated_by:
+    type: int
+    min: 0.0
+    max: 9007199254740991.0
+    null_rate: 0.15
+
+# ──────────────────────────────────────────
+# Table: answer_votes
+# ──────────────────────────────────────────
+answer_votes:
+  # 从 INSERT 语句中排除此列
+  id:
+    type: skip
+  # 带时区的时间戳 [date_from, date_to]
+  created_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  updated_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  deleted_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 随机整数 [min, max]
+  user_id:
+    type: int
+    min: 0.0
+    max: 9007199254740991.0
+  # 随机整数 [min, max]
+  comment_id:
+    type: int
+    min: 0.0
+    max: 9007199254740991.0
+  # 简短的首字母大写标签（1–2 个词）
+  vote_type:
+    type: label
+    null_rate: 0.15
+
+# ──────────────────────────────────────────
+# Table: attachments
+# ──────────────────────────────────────────
+attachments:
+  # 从 INSERT 语句中排除此列
+  id:
+    type: skip
+  # 带时区的时间戳 [date_from, date_to]
+  created_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  updated_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  deleted_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 随机字母数字字符串 [min_len, max_len]
+  file_id:
+    type: string
+    min_len: 4
+    max_len: 64
+  # 随机整数 [min, max]
+  user_id:
+    type: int
+    min: 0.0
+    max: 9007199254740991.0
+  # 随机字母数字字符串 [min_len, max_len]
+  plugin_id:
+    type: string
+    min_len: 4
+    max_len: 64
+    null_rate: 0.15
+  # 随机整数 [min, max]
+  post_id:
+    type: int
+    min: 0.0
+    max: 9007199254740991.0
+    null_rate: 0.15
+  # 随机整数 [min, max]
+  reply_id:
+    type: int
+    min: 0.0
+    max: 9007199254740991.0
+    null_rate: 0.15
+  # 简短的首字母大写标签（1–2 个词）
+  original_name:
+    type: label
+  # 简短的首字母大写标签（1–2 个词）
+  stored_name:
+    type: label
+  # 随机字母数字字符串 [min_len, max_len]
+  stored_path:
+    type: string
+    min_len: 4
+    max_len: 500
+  # 随机整数 [min, max]
+  size:
+    type: int
+    min: 0.0
+    max: 9007199254740991.0
+  # 简短的首字母大写标签（1–2 个词）
+  file_type:
+    type: label
+    null_rate: 0.15
+  # 简短的首字母大写标签（1–2 个词）
+  mime_type:
+    type: label
+    null_rate: 0.15
+  # 随机字母数字字符串 [min_len, max_len]
+  mime_major:
+    type: string
+    min_len: 4
+    max_len: 20
+    null_rate: 0.15
+  # 随机字母数字字符串 [min_len, max_len]
+  ext:
+    type: string
+    min_len: 4
+    max_len: 20
+    null_rate: 0.15
+  # 随机整数 [min, max]
+  width:
+    type: int
+    min: 0.0
+    max: 9007199254740991.0
+    null_rate: 0.15
+  # 随机整数 [min, max]
+  height:
+    type: int
+    min: 0.0
+    max: 9007199254740991.0
+    null_rate: 0.15
+  # 简短的首字母大写标签（1–2 个词）
+  status:
+    type: label
+    null_rate: 0.15
+  # IPv4 地址
+  upload_ip:
+    type: ip
+    null_rate: 0.15
+  # 随机 JSON 对象
+  plugin_meta:
+    type: json
+    null_rate: 0.15
+  # 随机字母数字字符串 [min_len, max_len]
+  file_hash:
+    type: string
+    min_len: 4
+    max_len: 64
+    null_rate: 0.15
+
+# ──────────────────────────────────────────
+# Table: audit_logs
+# ──────────────────────────────────────────
+audit_logs:
+  # 从 INSERT 语句中排除此列
+  id:
+    type: skip
+  # 带时区的时间戳 [date_from, date_to]
+  created_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  updated_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  deleted_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 随机整数 [min, max]
+  operator_id:
+    type: int
+    min: 0.0
+    max: 9007199254740991.0
+  # IPv4 地址
+  operator_ip:
+    type: ip
+    null_rate: 0.15
+  # 简短的首字母大写标签（1–2 个词）
+  action:
+    type: label
+  # 简短的首字母大写标签（1–2 个词）
+  target_type:
+    type: label
+  # 随机整数 [min, max]
+  target_id:
+    type: int
+    min: 0.0
+    max: 9007199254740991.0
+  # 随机 JSON 对象
+  before:
+    type: json
+    null_rate: 0.15
+  # 随机 JSON 对象
+  after:
+    type: json
+    null_rate: 0.15
+  # 简短的首字母大写标签（1–2 个词）
+  reason:
+    type: label
+    null_rate: 0.15
+
+# ──────────────────────────────────────────
+# Table: blocked_ips
+# ──────────────────────────────────────────
+blocked_ips:
+  # 从 INSERT 语句中排除此列
+  id:
+    type: skip
+  # 带时区的时间戳 [date_from, date_to]
+  created_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  updated_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  deleted_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # IPv4 地址
+  ip:
+    type: ip
+  # 简短的首字母大写标签（1–2 个词）
+  reason:
+    type: label
+    null_rate: 0.15
+  # 随机整数 [min, max]
+  operator_id:
+    type: int
+    min: 0.0
+    max: 9007199254740991.0
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  expire_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+
+# ──────────────────────────────────────────
+# Table: board_bans
+# ──────────────────────────────────────────
+board_bans:
+  # 从 INSERT 语句中排除此列
+  id:
+    type: skip
+  # 带时区的时间戳 [date_from, date_to]
+  created_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  updated_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  deleted_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 基于模式的自动推断（保持默认即可）
+  user_id:
+    type: default
+  # 基于模式的自动推断（保持默认即可）
+  board_id:
+    type: default
+  # 基于模式的自动推断（保持默认即可）
+  banned_by:
+    type: default
+  # 简短的首字母大写标签（1–2 个词）
+  reason:
+    type: label
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  expires_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+
+# ──────────────────────────────────────────
+# Table: boards
+# ──────────────────────────────────────────
+boards:
+  # 从 INSERT 语句中排除此列
+  id:
+    type: skip
+  # 带时区的时间戳 [date_from, date_to]
+  created_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  updated_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  deleted_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 简短的首字母大写标签（1–2 个词）
+  name:
+    type: label
+  # 小写连字符分隔的 slug
+  slug:
+    type: slug
+  # 随机散文段落，最大长度受 `max_len` 限制
+  description:
+    type: text
+    max_len: 500
+    null_rate: 0.15
+  # 随机字母数字字符串 [min_len, max_len]
+  icon:
+    type: string
+    min_len: 4
+    max_len: 100
+    null_rate: 0.15
+  # 随机字母数字字符串 [min_len, max_len]
+  cover:
+    type: string
+    min_len: 4
+    max_len: 500
+    null_rate: 0.15
+  # 始终为 NULL
+  parent_id:
+    type: "null"
+  # 随机整数 [min, max]
+  sort_order:
+    type: int
+    min: 0.0
+    max: 9007199254740991.0
+    null_rate: 0.15
+  # 简短的首字母大写标签（1–2 个词）
+  view_role:
+    type: label
+    null_rate: 0.15
+  # 简短的首字母大写标签（1–2 个词）
+  post_role:
+    type: label
+    null_rate: 0.15
+  # 简短的首字母大写标签（1–2 个词）
+  reply_role:
+    type: label
+    null_rate: 0.15
+  # 随机整数 [min, max]
+  post_count:
+    type: int
+    min: 0.0
+    max: 9007199254740991.0
+    null_rate: 0.15
+  # 随机整数 [min, max]
+  thread_count:
+    type: int
+    min: 0.0
+    max: 9007199254740991.0
+    null_rate: 0.15
+  # 随机整数 [min, max]
+  today_count:
+    type: int
+    min: 0.0
+    max: 9007199254740991.0
+    null_rate: 0.15
+
+# ──────────────────────────────────────────
+# Table: bots
+# ──────────────────────────────────────────
+bots:
+  # 从 INSERT 语句中排除此列
+  id:
+    type: skip
+  # 带时区的时间戳 [date_from, date_to]
+  created_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  updated_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  deleted_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 简短的首字母大写标签（1–2 个词）
+  name:
+    type: label
+  # 语义化版本号 major.minor.patch
+  version:
+    type: semver
+  # 随机散文段落，最大长度受 `max_len` 限制
+  description:
+    type: text
+    max_len: 500
+    null_rate: 0.15
+  # 随机散文段落，最大长度受 `max_len` 限制
+  summary:
+    type: text
+    max_len: 300
+    null_rate: 0.15
+  # https://www.domain.tld/path 网址
+  avatar_url:
+    type: url
+    null_rate: 0.15
+  # 随机 JSON 对象
+  screenshots:
+    type: json
+    null_rate: 0.15
+  # https://www.domain.tld/path 网址
+  homepage_url:
+    type: url
+    null_rate: 0.15
+  # 简短的首字母大写标签（1–2 个词）
+  type:
+    type: label
+  # 随机 JSON 对象
+  tags:
+    type: json
+    null_rate: 0.15
+  # 随机整数 [min, max]
+  creator_id:
+    type: int
+    min: 0.0
+    max: 9007199254740991.0
+  # 简短的首字母大写标签（1–2 个词）
+  creator_name:
+    type: label
+    null_rate: 0.15
+  # 随机字母数字字符串 [min_len, max_len]
+  script_code:
+    type: string
+    min_len: 4
+    max_len: 32
+    null_rate: 0.15
+  # https://www.domain.tld/path 网址
+  script_url:
+    type: url
+    null_rate: 0.15
+  # 简短的首字母大写标签（1–2 个词）
+  trigger_type:
+    type: label
+  # 随机字母数字字符串 [min_len, max_len]
+  cron_expr:
+    type: string
+    min_len: 4
+    max_len: 100
+    null_rate: 0.15
+  # 随机字母数字字符串 [min_len, max_len]
+  event_filter:
+    type: string
+    min_len: 4
+    max_len: 200
+    null_rate: 0.15
+  # 随机整数 [min, max]
+  timeout_sec:
+    type: int
+    min: 0.0
+    max: 9007199254740991.0
+    null_rate: 0.15
+  # 随机整数 [min, max]
+  retry_times:
+    type: int
+    min: 0.0
+    max: 9007199254740991.0
+    null_rate: 0.15
+  # 随机 JSON 对象
+  env_vars:
+    type: json
+    null_rate: 0.15
+  # 随机 JSON 对象
+  resource_limit:
+    type: json
+    null_rate: 0.15
+  # 随机 JSON 对象
+  pricing:
+    type: json
+    null_rate: 0.15
+  # 随机 JSON 对象
+  permissions:
+    type: json
+    null_rate: 0.15
+  # true 或 false
+  enabled:
+    type: bool
+    null_rate: 0.15
+  # 简短的首字母大写标签（1–2 个词）
+  status:
+    type: label
+    null_rate: 0.15
+  # 随机整数 [min, max]
+  exec_count:
+    type: int
+    min: 0.0
+    max: 9007199254740991.0
+    null_rate: 0.15
+  # 不带时区的时间戳 [date_from, date_to]
+  last_exec_at:
+    type: timestamp
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 随机字母数字字符串 [min_len, max_len]
+  error_msg:
+    type: string
+    min_len: 4
+    max_len: 32
+    null_rate: 0.15
+  # 随机 JSON 对象
+  config_schema:
+    type: json
+    null_rate: 0.15
+  # 随机 JSON 对象
+  config_values:
+    type: json
+    null_rate: 0.15
+
+# ──────────────────────────────────────────
+# Table: casbin_rule
+# ──────────────────────────────────────────
+casbin_rule:
+  # 从 INSERT 语句中排除此列
+  id:
+    type: skip
+  # 简短的首字母大写标签（1–2 个词）
+  ptype:
+    type: label
+    null_rate: 0.15
+  # 随机字母数字字符串 [min_len, max_len]
+  v0:
+    type: string
+    min_len: 4
+    max_len: 100
+    null_rate: 0.15
+  # 随机字母数字字符串 [min_len, max_len]
+  v1:
+    type: string
+    min_len: 4
+    max_len: 100
+    null_rate: 0.15
+  # 随机字母数字字符串 [min_len, max_len]
+  v2:
+    type: string
+    min_len: 4
+    max_len: 100
+    null_rate: 0.15
+  # 随机字母数字字符串 [min_len, max_len]
+  v3:
+    type: string
+    min_len: 4
+    max_len: 100
+    null_rate: 0.15
+  # 随机字母数字字符串 [min_len, max_len]
+  v4:
+    type: string
+    min_len: 4
+    max_len: 100
+    null_rate: 0.15
+  # 随机字母数字字符串 [min_len, max_len]
+  v5:
+    type: string
+    min_len: 4
+    max_len: 100
+    null_rate: 0.15
+
+# ──────────────────────────────────────────
+# Table: comments
+# ──────────────────────────────────────────
+comments:
+  # 从 INSERT 语句中排除此列
+  id:
+    type: skip
+  # 带时区的时间戳 [date_from, date_to]
+  created_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  updated_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  deleted_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 随机散文段落，最大长度受 `max_len` 限制
+  content:
+    type: text
+    max_len: 500
+  # 基于模式的自动推断（保持默认即可）
+  post_id:
+    type: default
+  # 基于模式的自动推断（保持默认即可）
+  author_id:
+    type: default
+  # 始终为 NULL
+  parent_id:
+    type: "null"
+  # 随机整数 [min, max]
+  like_count:
+    type: int
+    min: 0.0
+    max: 9007199254740991.0
+    null_rate: 0.15
+  # 简短的首字母大写标签（1–2 个词）
+  status:
+    type: label
+    null_rate: 0.15
+  # true 或 false
+  is_answer:
+    type: bool
+    null_rate: 0.15
+  # true 或 false
+  is_accepted:
+    type: bool
+    null_rate: 0.15
+  # 随机整数 [min, max]
+  vote_count:
+    type: int
+    min: 0.0
+    max: 9007199254740991.0
+    null_rate: 0.15
+
+# ──────────────────────────────────────────
+# Table: content_audit_tasks
+# ──────────────────────────────────────────
+content_audit_tasks:
+  # 从 INSERT 语句中排除此列
+  id:
+    type: skip
+  # 带时区的时间戳 [date_from, date_to]
+  created_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  updated_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  deleted_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 简短的首字母大写标签（1–2 个词）
+  target_type:
+    type: label
+  # 随机整数 [min, max]
+  target_id:
+    type: int
+    min: 0.0
+    max: 9007199254740991.0
+  # 简短的首字母大写标签（1–2 个词）
+  trigger_type:
+    type: label
+  # 随机字母数字字符串 [min_len, max_len]
+  trigger_meta:
+    type: string
+    min_len: 4
+    max_len: 32
+    null_rate: 0.15
+  # 简短的首字母大写标签（1–2 个词）
+  status:
+    type: label
+    null_rate: 0.15
+  # 基于模式的自动推断（保持默认即可）
+  reviewer_id:
+    type: default
+  # 随机散文段落，最大长度受 `max_len` 限制
+  review_note:
+    type: text
+    max_len: 500
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  reviewed_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+
+# ──────────────────────────────────────────
+# Table: favorites
+# ──────────────────────────────────────────
+favorites:
+  # 从 INSERT 语句中排除此列
+  id:
+    type: skip
+  # 带时区的时间戳 [date_from, date_to]
+  created_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  updated_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  deleted_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 随机整数 [min, max]
+  user_id:
+    type: int
+    min: 0.0
+    max: 9007199254740991.0
+  # 随机整数 [min, max]
+  target_id:
+    type: int
+    min: 0.0
+    max: 9007199254740991.0
+  # 简短的首字母大写标签（1–2 个词）
+  target_type:
+    type: label
+  # 随机整数 [min, max]
+  group_id:
+    type: int
+    min: 0.0
+    max: 9007199254740991.0
+
+# ──────────────────────────────────────────
+# Table: follows
+# ──────────────────────────────────────────
+follows:
+  # 从 INSERT 语句中排除此列
+  id:
+    type: skip
+  # 带时区的时间戳 [date_from, date_to]
+  created_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  updated_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  deleted_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 基于模式的自动推断（保持默认即可）
+  follower_id:
+    type: default
+  # 基于模式的自动推断（保持默认即可）
+  following_id:
+    type: default
+
+# ──────────────────────────────────────────
+# Table: ip_risk_records
+# ──────────────────────────────────────────
+ip_risk_records:
+  # 从 INSERT 语句中排除此列
+  id:
+    type: skip
+  # 带时区的时间戳 [date_from, date_to]
+  created_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  updated_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  deleted_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # IPv4 地址
+  ip:
+    type: ip
+  # 简短的首字母大写标签（1–2 个词）
+  event_type:
+    type: label
+  # 随机散文段落，最大长度受 `max_len` 限制
+  event_detail:
+    type: text
+    max_len: 500
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  expire_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+
+# ──────────────────────────────────────────
+# Table: likes
+# ──────────────────────────────────────────
+likes:
+  # 从 INSERT 语句中排除此列
+  id:
+    type: skip
+  # 带时区的时间戳 [date_from, date_to]
+  created_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  updated_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  deleted_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 基于模式的自动推断（保持默认即可）
+  user_id:
+    type: default
+  # 简短的首字母大写标签（1–2 个词）
+  target_type:
+    type: label
+  # 随机整数 [min, max]
+  target_id:
+    type: int
+    min: 0.0
+    max: 9007199254740991.0
+
+# ──────────────────────────────────────────
+# Table: moderator_applications
+# ──────────────────────────────────────────
+moderator_applications:
+  # 从 INSERT 语句中排除此列
+  id:
+    type: skip
+  # 带时区的时间戳 [date_from, date_to]
+  created_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  updated_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  deleted_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 基于模式的自动推断（保持默认即可）
+  user_id:
+    type: default
+  # 基于模式的自动推断（保持默认即可）
+  board_id:
+    type: default
+  # 简短的首字母大写标签（1–2 个词）
+  reason:
+    type: label
+    null_rate: 0.15
+  # 随机 JSON 对象
+  requested_permissions:
+    type: json
+    null_rate: 0.15
+  # 简短的首字母大写标签（1–2 个词）
+  status:
+    type: label
+    null_rate: 0.15
+  # 基于模式的自动推断（保持默认即可）
+  reviewer_id:
+    type: default
+  # 随机散文段落，最大长度受 `max_len` 限制
+  review_note:
+    type: text
+    max_len: 500
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  reviewed_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+
+# ──────────────────────────────────────────
+# Table: moderator_logs
+# ──────────────────────────────────────────
+moderator_logs:
+  # 从 INSERT 语句中排除此列
+  id:
+    type: skip
+  # 带时区的时间戳 [date_from, date_to]
+  created_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  updated_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  deleted_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 基于模式的自动推断（保持默认即可）
+  moderator_id:
+    type: default
+  # 基于模式的自动推断（保持默认即可）
+  board_id:
+    type: default
+  # 简短的首字母大写标签（1–2 个词）
+  action:
+    type: label
+  # 简短的首字母大写标签（1–2 个词）
+  target_type:
+    type: label
+  # 随机整数 [min, max]
+  target_id:
+    type: int
+    min: 0.0
+    max: 9007199254740991.0
+  # 简短的首字母大写标签（1–2 个词）
+  reason:
+    type: label
+    null_rate: 0.15
+  # 随机 JSON 对象
+  old_value:
+    type: json
+    null_rate: 0.15
+  # 随机 JSON 对象
+  new_value:
+    type: json
+    null_rate: 0.15
+
+# ──────────────────────────────────────────
+# Table: moderators
+# ──────────────────────────────────────────
+moderators:
+  # 从 INSERT 语句中排除此列
+  id:
+    type: skip
+  # 带时区的时间戳 [date_from, date_to]
+  created_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  updated_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  deleted_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 基于模式的自动推断（保持默认即可）
+  user_id:
+    type: default
+  # 基于模式的自动推断（保持默认即可）
+  board_id:
+    type: default
+  # 随机 JSON 对象
+  permissions:
+    type: json
+    null_rate: 0.15
+
+# ──────────────────────────────────────────
+# Table: notifications
+# ──────────────────────────────────────────
+notifications:
+  # 从 INSERT 语句中排除此列
+  id:
+    type: skip
+  # 带时区的时间戳 [date_from, date_to]
+  created_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  updated_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  deleted_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 基于模式的自动推断（保持默认即可）
+  user_id:
+    type: default
+  # 基于模式的自动推断（保持默认即可）
+  sender_id:
+    type: default
+  # 简短的首字母大写标签（1–2 个词）
+  type:
+    type: label
+    null_rate: 0.15
+  # 随机散文段落，最大长度受 `max_len` 限制
+  content:
+    type: text
+    max_len: 500
+    null_rate: 0.15
+  # 随机整数 [min, max]
+  target_id:
+    type: int
+    min: 0.0
+    max: 9007199254740991.0
+    null_rate: 0.15
+  # 简短的首字母大写标签（1–2 个词）
+  target_type:
+    type: label
+    null_rate: 0.15
+  # true 或 false
+  is_read:
+    type: bool
+    null_rate: 0.15
+
+# ──────────────────────────────────────────
+# Table: plugins
+# ──────────────────────────────────────────
+plugins:
+  # 从 INSERT 语句中排除此列
+  id:
+    type: skip
+  # 带时区的时间戳 [date_from, date_to]
+  created_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  updated_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  deleted_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 简短的首字母大写标签（1–2 个词）
+  name:
+    type: label
+  # 小写连字符分隔的 slug
+  slug:
+    type: slug
+  # 语义化版本号 major.minor.patch
+  version:
+    type: semver
+  # 随机散文段落，最大长度受 `max_len` 限制
+  description:
+    type: text
+    max_len: 500
+    null_rate: 0.15
+  # 随机散文段落，最大长度受 `max_len` 限制
+  summary:
+    type: text
+    max_len: 300
+    null_rate: 0.15
+  # https://www.domain.tld/path 网址
+  icon_url:
+    type: url
+    null_rate: 0.15
+  # 随机 JSON 对象
+  screenshots:
+    type: json
+    null_rate: 0.15
+  # https://www.domain.tld/path 网址
+  homepage_url:
+    type: url
+    null_rate: 0.15
+  # 简短的首字母大写标签（1–2 个词）
+  type:
+    type: label
+  # 简短的首字母大写标签（1–2 个词）
+  category:
+    type: label
+  # 随机 JSON 对象
+  tags:
+    type: json
+    null_rate: 0.15
+  # 随机整数 [min, max]
+  author_id:
+    type: int
+    min: 0.0
+    max: 9007199254740991.0
+    null_rate: 0.15
+  # user@domain.tld 邮箱地址
+  author_email:
+    type: email
+    null_rate: 0.15
+  # https://www.domain.tld/path 网址
+  author_url:
+    type: url
+    null_rate: 0.15
+  # https://www.domain.tld/path 网址
+  view_entry_url:
+    type: url
+  # https://www.domain.tld/path 网址
+  server_entry_url:
+    type: url
+    null_rate: 0.15
+  # 随机 JSON 对象
+  slots:
+    type: json
+    null_rate: 0.15
+  # 随机 JSON 对象
+  routes:
+    type: json
+    null_rate: 0.15
+  # 随机 JSON 对象
+  pricing:
+    type: json
+    null_rate: 0.15
+  # 随机 JSON 对象
+  compatibility:
+    type: json
+    null_rate: 0.15
+  # 随机 JSON 对象
+  permissions:
+    type: json
+    null_rate: 0.15
+  # true 或 false
+  enabled:
+    type: bool
+    null_rate: 0.15
+  # 简短的首字母大写标签（1–2 个词）
+  status:
+    type: label
+    null_rate: 0.15
+  # 随机整数 [min, max]
+  install_count:
+    type: int
+    min: 0.0
+    max: 9007199254740991.0
+    null_rate: 0.15
+  # 固定小数位的十进制数 [min, max]，小数位数由 `scale:` 指定
+  rating:
+    type: decimal
+    min: 0.0
+    max: 999999.0
+    scale: 1
+    null_rate: 0.15
+  # 随机 JSON 对象
+  config_schema:
+    type: json
+    null_rate: 0.15
+  # 随机 JSON 对象
+  config:
+    type: json
+    null_rate: 0.15
+
+# ──────────────────────────────────────────
+# Table: post_tags
+# ──────────────────────────────────────────
+post_tags:
+  # 基于模式的自动推断（保持默认即可）
+  post_id:
+    type: default
+  # 基于模式的自动推断（保持默认即可）
+  tag_id:
+    type: default
+
+# ──────────────────────────────────────────
+# Table: posts
+# ──────────────────────────────────────────
+posts:
+  # 从 INSERT 语句中排除此列
+  id:
+    type: skip
+  # 带时区的时间戳 [date_from, date_to]
+  created_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  updated_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  deleted_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 简短的首字母大写标签（1–2 个词）
+  title:
+    type: label
+  # 随机散文段落，最大长度受 `max_len` 限制
+  content:
+    type: text
+    max_len: 500
+  # 随机散文段落，最大长度受 `max_len` 限制
+  summary:
+    type: text
+    max_len: 500
+    null_rate: 0.15
+  # https://www.domain.tld/path 网址
+  cover_url:
+    type: url
+    null_rate: 0.15
+  # 简短的首字母大写标签（1–2 个词）
+  type:
+    type: label
+    null_rate: 0.15
+  # 简短的首字母大写标签（1–2 个词）
+  post_status:
+    type: label
+    null_rate: 0.15
+  # 简短的首字母大写标签（1–2 个词）
+  moderation_status:
+    type: label
+    null_rate: 0.15
+  # 基于模式的自动推断（保持默认即可）
+  author_id:
+    type: default
+  # 随机整数 [min, max]
+  view_count:
+    type: int
+    min: 0.0
+    max: 9007199254740991.0
+    null_rate: 0.15
+  # 随机整数 [min, max]
+  like_count:
+    type: int
+    min: 0.0
+    max: 9007199254740991.0
+    null_rate: 0.15
+  # true 或 false
+  pin_top:
+    type: bool
+    null_rate: 0.15
+  # 基于模式的自动推断（保持默认即可）
+  board_id:
+    type: default
+  # true 或 false
+  pin_in_board:
+    type: bool
+    null_rate: 0.15
+
+# ──────────────────────────────────────────
+# Table: questions
+# ──────────────────────────────────────────
+questions:
+  # 从 INSERT 语句中排除此列
+  id:
+    type: skip
+  # 带时区的时间戳 [date_from, date_to]
+  created_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  updated_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  deleted_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 基于模式的自动推断（保持默认即可）
+  post_id:
+    type: default
+  # 基于模式的自动推断（保持默认即可）
+  accepted_answer_id:
+    type: default
+  # 随机整数 [min, max]
+  reward_score:
+    type: int
+    min: 0.0
+    max: 9007199254740991.0
+    null_rate: 0.15
+  # 随机整数 [min, max]
+  answer_count:
+    type: int
+    min: 0.0
+    max: 9007199254740991.0
+    null_rate: 0.15
+  # 随机整数 [min, max]
+  view_count:
+    type: int
+    min: 0.0
+    max: 9007199254740991.0
+    null_rate: 0.15
+
+# ──────────────────────────────────────────
+# Table: refresh_tokens
+# ──────────────────────────────────────────
+refresh_tokens:
+  # 从 INSERT 语句中排除此列
+  id:
+    type: skip
+  # 带时区的时间戳 [date_from, date_to]
+  created_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  updated_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  deleted_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 随机整数 [min, max]
+  user_id:
+    type: int
+    min: 0.0
+    max: 9007199254740991.0
+  # 随机字母数字字符串 [min_len, max_len]
+  token:
+    type: string
+    min_len: 4
+    max_len: 500
+  # 随机字母数字字符串 [min_len, max_len]
+  jti:
+    type: string
+    min_len: 4
+    max_len: 36
+  # 浏览器 User-Agent 字符串
+  user_agent:
+    type: user_agent
+    null_rate: 0.15
+  # IPv4 地址
+  ip:
+    type: ip
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  expires_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # true 或 false
+  is_used:
+    type: bool
+    null_rate: 0.15
+
+# ──────────────────────────────────────────
+# Table: reports
+# ──────────────────────────────────────────
+reports:
+  # 从 INSERT 语句中排除此列
+  id:
+    type: skip
+  # 带时区的时间戳 [date_from, date_to]
+  created_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  updated_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  deleted_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 基于模式的自动推断（保持默认即可）
+  reporter_id:
+    type: default
+  # 随机整数 [min, max]
+  target_id:
+    type: int
+    min: 0.0
+    max: 9007199254740991.0
+  # 简短的首字母大写标签（1–2 个词）
+  target_type:
+    type: label
+  # 简短的首字母大写标签（1–2 个词）
+  type:
+    type: label
+    null_rate: 0.15
+  # 简短的首字母大写标签（1–2 个词）
+  reason:
+    type: label
+  # 简短的首字母大写标签（1–2 个词）
+  status:
+    type: label
+    null_rate: 0.15
+  # 基于模式的自动推断（保持默认即可）
+  handler_id:
+    type: default
+  # 随机散文段落，最大长度受 `max_len` 限制
+  handle_note:
+    type: text
+    max_len: 500
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  handle_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 随机散文段落，最大长度受 `max_len` 限制
+  content_snapshot:
+    type: text
+    max_len: 500
+    null_rate: 0.15
+  # IPv4 地址
+  reporter_ip:
+    type: ip
+    null_rate: 0.15
+  # true 或 false
+  is_anonymous:
+    type: bool
+    null_rate: 0.15
+  # 随机整数 [min, max]
+  priority:
+    type: int
+    min: 0.0
+    max: 32767.0
+    null_rate: 0.15
+
+# ──────────────────────────────────────────
+# Table: sign_ins
+# ──────────────────────────────────────────
+sign_ins:
+  # 从 INSERT 语句中排除此列
+  id:
+    type: skip
+  # 带时区的时间戳 [date_from, date_to]
+  created_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  updated_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  deleted_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 随机整数 [min, max]
+  user_id:
+    type: int
+    min: 0.0
+    max: 9007199254740991.0
+  # 带时区的时间戳 [date_from, date_to]
+  sign_date:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+  # 随机整数 [min, max]
+  score:
+    type: int
+    min: 0.0
+    max: 9007199254740991.0
+    null_rate: 0.15
+  # 随机整数 [min, max]
+  continued:
+    type: int
+    min: 0.0
+    max: 9007199254740991.0
+    null_rate: 0.15
+
+# ──────────────────────────────────────────
+# Table: tags
+# ──────────────────────────────────────────
+tags:
+  # 从 INSERT 语句中排除此列
+  id:
+    type: skip
+  # 带时区的时间戳 [date_from, date_to]
+  created_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  updated_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  deleted_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 简短的首字母大写标签（1–2 个词）
+  name:
+    type: label
+  # 随机散文段落，最大长度受 `max_len` 限制
+  description:
+    type: text
+    max_len: 200
+    null_rate: 0.15
+  # CSS 十六进制颜色 #RRGGBB
+  color:
+    type: color
+    null_rate: 0.15
+  # 随机整数 [min, max]
+  post_count:
+    type: int
+    min: 0.0
+    max: 9007199254740991.0
+    null_rate: 0.15
+
+# ──────────────────────────────────────────
+# Table: timeline_events
+# ──────────────────────────────────────────
+timeline_events:
+  # 从 INSERT 语句中排除此列
+  id:
+    type: skip
+  # 带时区的时间戳 [date_from, date_to]
+  created_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  updated_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  deleted_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 基于模式的自动推断（保持默认即可）
+  user_id:
+    type: default
+  # 基于模式的自动推断（保持默认即可）
+  actor_id:
+    type: default
+  # 简短的首字母大写标签（1–2 个词）
+  action:
+    type: label
+    null_rate: 0.15
+  # 随机整数 [min, max]
+  target_id:
+    type: int
+    min: 0.0
+    max: 9007199254740991.0
+    null_rate: 0.15
+  # 简短的首字母大写标签（1–2 个词）
+  target_type:
+    type: label
+    null_rate: 0.15
+  # 随机 JSON 对象
+  payload:
+    type: json
+    null_rate: 0.15
+  # 随机整数 [min, max]
+  score:
+    type: int
+    min: 0.0
+    max: 9007199254740991.0
+    null_rate: 0.15
+
+# ──────────────────────────────────────────
+# Table: timeline_subscriptions
+# ──────────────────────────────────────────
+timeline_subscriptions:
+  # 从 INSERT 语句中排除此列
+  id:
+    type: skip
+  # 带时区的时间戳 [date_from, date_to]
+  created_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  updated_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  deleted_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 随机整数 [min, max]
+  subscriber_id:
+    type: int
+    min: 0.0
+    max: 9007199254740991.0
+  # 简短的首字母大写标签（1–2 个词）
+  target_type:
+    type: label
+    null_rate: 0.15
+  # 随机整数 [min, max]
+  target_id:
+    type: int
+    min: 0.0
+    max: 9007199254740991.0
+  # true 或 false
+  is_active:
+    type: bool
+    null_rate: 0.15
+
+# ──────────────────────────────────────────
+# Table: topic_follows
+# ──────────────────────────────────────────
+topic_follows:
+  # 从 INSERT 语句中排除此列
+  id:
+    type: skip
+  # 带时区的时间戳 [date_from, date_to]
+  created_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  updated_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  deleted_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 基于模式的自动推断（保持默认即可）
+  user_id:
+    type: default
+  # 基于模式的自动推断（保持默认即可）
+  topic_id:
+    type: default
+
+# ──────────────────────────────────────────
+# Table: topic_posts
+# ──────────────────────────────────────────
+topic_posts:
+  # 从 INSERT 语句中排除此列
+  id:
+    type: skip
+  # 带时区的时间戳 [date_from, date_to]
+  created_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  updated_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  deleted_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 基于模式的自动推断（保持默认即可）
+  topic_id:
+    type: default
+  # 基于模式的自动推断（保持默认即可）
+  post_id:
+    type: default
+  # 随机整数 [min, max]
+  sort_order:
+    type: int
+    min: 0.0
+    max: 9007199254740991.0
+    null_rate: 0.15
+  # 随机整数 [min, max]
+  added_by:
+    type: int
+    min: 0.0
+    max: 9007199254740991.0
+    null_rate: 0.15
+
+# ──────────────────────────────────────────
+# Table: topics
+# ──────────────────────────────────────────
+topics:
+  # 从 INSERT 语句中排除此列
+  id:
+    type: skip
+  # 带时区的时间戳 [date_from, date_to]
+  created_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  updated_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  deleted_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 简短的首字母大写标签（1–2 个词）
+  title:
+    type: label
+  # 小写连字符分隔的 slug
+  slug:
+    type: slug
+    null_rate: 0.15
+  # 随机散文段落，最大长度受 `max_len` 限制
+  description:
+    type: text
+    max_len: 500
+    null_rate: 0.15
+  # 随机字母数字字符串 [min_len, max_len]
+  cover:
+    type: string
+    min_len: 4
+    max_len: 500
+    null_rate: 0.15
+  # 基于模式的自动推断（保持默认即可）
+  creator_id:
+    type: default
+  # true 或 false
+  is_public:
+    type: bool
+    null_rate: 0.15
+  # 随机整数 [min, max]
+  post_count:
+    type: int
+    min: 0.0
+    max: 9007199254740991.0
+    null_rate: 0.15
+  # 随机整数 [min, max]
+  follower_count:
+    type: int
+    min: 0.0
+    max: 9007199254740991.0
+    null_rate: 0.15
+
+# ──────────────────────────────────────────
+# Table: user_risk_records
+# ──────────────────────────────────────────
+user_risk_records:
+  # 从 INSERT 语句中排除此列
+  id:
+    type: skip
+  # 带时区的时间戳 [date_from, date_to]
+  created_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  updated_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  deleted_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 基于模式的自动推断（保持默认即可）
+  user_id:
+    type: default
+  # 简短的首字母大写标签（1–2 个词）
+  event_type:
+    type: label
+  # 随机散文段落，最大长度受 `max_len` 限制
+  event_detail:
+    type: text
+    max_len: 500
+    null_rate: 0.15
+  # 随机字母数字字符串 [min_len, max_len]
+  risk_level:
+    type: string
+    min_len: 4
+    max_len: 50
+  # 带时区的时间戳 [date_from, date_to]
+  expire_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+
+# ──────────────────────────────────────────
+# Table: user_timelines
+# ──────────────────────────────────────────
+user_timelines:
+  # 从 INSERT 语句中排除此列
+  id:
+    type: skip
+  # 带时区的时间戳 [date_from, date_to]
+  created_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  updated_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  deleted_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 随机整数 [min, max]
+  user_id:
+    type: int
+    min: 0.0
+    max: 9007199254740991.0
+  # 简短的首字母大写标签（1–2 个词）
+  timeline_type:
+    type: label
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  last_read_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+
+# ──────────────────────────────────────────
+# Table: users
+# ──────────────────────────────────────────
+users:
+  # 从 INSERT 语句中排除此列
+  id:
+    type: skip
+  # 带时区的时间戳 [date_from, date_to]
+  created_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  updated_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  deleted_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 本次运行中唯一的值（通过计数器后缀保证唯一性）
+  username:
+    type: unique
+  # user@domain.tld 邮箱地址
+  email:
+    type: email
+  # bcrypt 格式的哈希字符串
+  password:
+    type: password
+  # https://www.domain.tld/path 网址
+  avatar_url:
+    type: url
+    null_rate: 0.15
+  # 随机散文段落，最大长度受 `max_len` 限制
+  bio:
+    type: text
+    max_len: 500
+    null_rate: 0.15
+  # 简短的首字母大写标签（1–2 个词）
+  role:
+    type: label
+    null_rate: 0.15
+  # 随机整数 [min, max]
+  score:
+    type: int
+    min: 0.0
+    max: 9007199254740991.0
+    null_rate: 0.15
+  # true 或 false
+  is_active:
+    type: bool
+    null_rate: 0.15
+  # true 或 false
+  is_blocked:
+    type: bool
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  last_login:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 随机整数 [min, max]
+  invited_by_id:
+    type: int
+    min: 0.0
+    max: 9007199254740991.0
+    null_rate: 0.15
+  # true 或 false
+  is_temp_password:
+    type: bool
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  temp_password_expire:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+
+# ──────────────────────────────────────────
+# Table: violations
+# ──────────────────────────────────────────
+violations:
+  # 从 INSERT 语句中排除此列
+  id:
+    type: skip
+  # 带时区的时间戳 [date_from, date_to]
+  created_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  updated_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  deleted_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 基于模式的自动推断（保持默认即可）
+  user_id:
+    type: default
+  # 简短的首字母大写标签（1–2 个词）
+  violation_type:
+    type: label
+  # 简短的首字母大写标签（1–2 个词）
+  reason:
+    type: label
+  # 随机散文段落，最大长度受 `max_len` 限制
+  content_snapshot:
+    type: text
+    max_len: 500
+    null_rate: 0.15
+  # https://www.domain.tld/path 网址
+  evidence_url:
+    type: url
+    null_rate: 0.15
+  # 随机字母数字字符串 [min_len, max_len]
+  source:
+    type: string
+    min_len: 4
+    max_len: 20
+  # 简短的首字母大写标签（1–2 个词）
+  status:
+    type: label
+  # 基于模式的自动推断（保持默认即可）
+  operator_id:
+    type: default
+  # 简短的首字母大写标签（1–2 个词）
+  punish_type:
+    type: label
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  punish_expire_at:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 简短的首字母大写标签（1–2 个词）
+  appeal_status:
+    type: label
+  # 简短的首字母大写标签（1–2 个词）
+  appeal_reason:
+    type: label
+    null_rate: 0.15
+  # 带时区的时间戳 [date_from, date_to]
+  appeal_time:
+    type: timestamp_tz
+    date_from: 2020-01-01
+    date_to: 2025-12-31
+    null_rate: 0.15
+  # 随机字母数字字符串 [min_len, max_len]
+  appeal_result:
+    type: string
+    min_len: 4
+    max_len: 500
+    null_rate: 0.15

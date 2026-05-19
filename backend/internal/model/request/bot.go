@@ -1,32 +1,33 @@
 package request
 
 import (
+	"tiny-forum/internal/infra/lua/nocode"
 	"tiny-forum/internal/model/do"
 )
 
 type CreateBotRequest struct {
-	Name          string              `json:"name" binding:"required,min=1,max=100"`
-	Version       string              `json:"version" binding:"required"`
-	Description   string              `json:"description,omitempty"`
-	Summary       string              `json:"summary,omitempty"`
-	AvatarURL     string              `json:"avatarUrl,omitempty" binding:"omitempty,url"`
-	Screenshots   []string            `json:"screenshots,omitempty"`
-	HomepageURL   string              `json:"homepageUrl,omitempty" binding:"omitempty,url"`
-	Type          do.BotType          `json:"type" binding:"required,oneof=chat moderate notify sync task webhook analysis"`
-	Tags          []string            `json:"tags,omitempty"`
-	ScriptCode    string              `json:"scriptCode" binding:"required_without=ScriptUrl"`
-	ScriptURL     string              `json:"scriptUrl,omitempty" binding:"omitempty,url"`
-	TriggerType   do.BotTriggerType   `json:"triggerType" binding:"required,oneof=schedule event webhook manual"`
-	CronExpr      string              `json:"cronExpr,omitempty"`
-	EventFilter   string              `json:"eventFilter,omitempty"`
-	TimeoutSec    int                 `json:"timeoutSec" binding:"min=1,max=300"`
-	RetryTimes    int                 `json:"retryTimes"`
-	EnvVars       map[string]string   `json:"envVars,omitempty"`
-	ResourceLimit *do.ResourceLimit   `json:"resourceLimit,omitempty"`
-	Pricing       do.BotPricing       `json:"pricing,omitempty"`
-	Permissions   []do.BotPermission  `json:"permissions,omitempty"`
-	ConfigSchema  []do.BotConfigField `json:"configSchema,omitempty"`
-	ConfigValues  map[string]any      `json:"configValues,omitempty"`
+	Name          string              `json:"name" binding:"required,min=1,max=100"`                                         // 名称
+	Version       string              `json:"version" binding:"required"`                                                    // 版本
+	Description   string              `json:"description,omitempty"`                                                         // 描述
+	Summary       string              `json:"summary,omitempty"`                                                             // 简介
+	AvatarURL     string              `json:"avatarUrl,omitempty" binding:"omitempty,url"`                                   // 头像
+	Screenshots   []string            `json:"screenshots,omitempty"`                                                         // 截图
+	HomepageURL   string              `json:"homepageUrl,omitempty" binding:"omitempty,url"`                                 // 主页
+	Type          do.BotType          `json:"type" binding:"required,oneof=chat moderate notify sync task webhook analysis"` // 类型
+	Tags          []string            `json:"tags,omitempty"`                                                                // 标签
+	ScriptCode    string              `json:"scriptCode" binding:"required_without=ScriptUrl"`                               // 脚本代码
+	ScriptURL     string              `json:"scriptUrl,omitempty" binding:"omitempty,url"`                                   // 脚本URL
+	TriggerType   do.BotTriggerType   `json:"triggerType" binding:"required,oneof=schedule event webhook manual"`            // 触发类型
+	CronExpr      string              `json:"cronExpr,omitempty"`                                                            // cron表达式
+	EventFilter   string              `json:"eventFilter,omitempty"`                                                         // 事件过滤器
+	TimeoutSec    int                 `json:"timeoutSec" binding:"min=1,max=300"`                                            // 超时时间
+	RetryTimes    int                 `json:"retryTimes"`                                                                    // 重试次数
+	EnvVars       map[string]string   `json:"envVars,omitempty"`                                                             // 环境变量
+	ResourceLimit *do.ResourceLimit   `json:"resourceLimit,omitempty"`                                                       // 资源限制
+	Pricing       do.BotPricing       `json:"pricing,omitempty"`                                                             // 定价
+	Permissions   []do.BotPermission  `json:"permissions,omitempty"`                                                         // 权限
+	ConfigSchema  []do.BotConfigField `json:"configSchema,omitempty"`                                                        // 配置项
+	ConfigValues  map[string]any      `json:"configValues,omitempty"`                                                        // 配置值
 }
 
 type UpdateBotRequest struct {
@@ -55,8 +56,17 @@ type UpdateBotRequest struct {
 // }
 
 // ValidateFlowRequest 零代码流程校验请求
+// type ValidateFlowRequest struct {
+// 	Flow Flow `json:"flow" binding:"required"`
+// }
+
 type ValidateFlowRequest struct {
-	Flow Flow `json:"flow" binding:"required"`
+	nocode.Flow
+	// Flow nocode.Flow `json:"flow" binding:"required"`
+	// Version    string              `json:"version"`              // 目前固定 "1"
+	// Trigger    nocode.TriggerNode  `json:"trigger"`              // 触发器（唯一）
+	// Conditions []nocode.CondNode   `json:"conditions,omitempty"` // 前置条件，全部满足才执行 Actions
+	// Actions    []nocode.ActionNode `json:"actions"`              // 顺序执行的动作列表
 }
 
 // Flow 表示一个完整的零代码机器人流程
@@ -76,4 +86,13 @@ type Node struct {
 type Edge struct {
 	Source string `json:"source"` // 起始节点 ID
 	Target string `json:"target"` // 目标节点 ID
+}
+
+func (f *ValidateFlowRequest) ToFlow() nocode.Flow {
+	return nocode.Flow{
+		Version:    f.Version,
+		Trigger:    f.Trigger,
+		Conditions: f.Conditions,
+		Actions:    f.Actions,
+	}
 }

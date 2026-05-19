@@ -15,6 +15,7 @@ import {
   ExclamationTriangleIcon,
 } from "@heroicons/react/24/outline";
 import { moderatorApi } from "@/shared/api/modules/moderator";
+import toast from "react-hot-toast";
 
 // 申请状态类型
 type ApplicationStatus = "pending" | "approved" | "rejected" | "canceled";
@@ -387,7 +388,7 @@ export default function MyApplicationsPage() {
         await loadApplications();
       } catch (err) {
         console.error("撤销失败:", err);
-        alert("撤销失败，请重试");
+        toast.error("撤销失败，请重试");
       } finally {
         setCancelLoadingId(null);
       }

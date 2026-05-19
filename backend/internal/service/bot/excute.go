@@ -49,7 +49,7 @@ func (s *service) executeBot(bot *do.Bot, eventData map[string]any) {
 
 	} else if flowRaw, ok := bot.ConfigValues["flow"]; ok {
 		// ── 零代码流程 ────────────────────────────────────────────────
-		flow := parseFlowRaw(flowRaw)
+		flow := parseFlowRequestRaw(flowRaw)
 		if flow == nil {
 			execErr = errors.New("invalid flow configuration")
 		} else {

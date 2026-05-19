@@ -12,6 +12,7 @@ import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useScoreData } from "../hooks/useScoreData";
 import { ApiResponse } from "@/shared/api/types/basic.model";
+import toast from "react-hot-toast";
 
 // 类型定义
 interface UserScoreRecord {
@@ -99,12 +100,12 @@ export function PointsManager() {
 
   // 显示错误提示
   const showError = (message: string) => {
-    alert(message);
+    toast.error(message);
   };
 
   // 显示成功提示
   const showSuccess = (message: string) => {
-    alert(message);
+    toast.error(message);
   };
 
   // 处理增加积分

@@ -26,7 +26,8 @@ import { Tag } from "@/shared/api/types/tag.model";
 import { ImageUploader, ImageItem } from "@/shared/ui/editor/ImageUploader";
 import { uploadApi } from "@/shared/api/modules/uploads";
 import DOMPurify from "dompurify";
-import { RichTextEditor } from "@/shared/ui/editor/RichTextEditor";
+import { RichTextEditor } from "@/shared/ui/editor/richtext/RichTextEditor";
+// import { RichTextEditor } from "@/shared/ui/editor/RichTextEditor";
 
 // ---------- 表单验证 ----------
 const postSchema = z
