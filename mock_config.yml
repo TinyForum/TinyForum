@@ -158,6 +158,7 @@ answer_votes:
     type: enum
     values: ["up", "down"]
     null_rate: 0.15
+
 # ──────────────────────────────────────────
 # Table: attachments
 # ──────────────────────────────────────────
@@ -234,7 +235,7 @@ attachments:
   stored_path:
     type: string
     min_len: 20
-    max_len: 80
+    max_len: 64
 
   # 文件大小（1KB ~ 20MB）
   size:
@@ -325,9 +326,11 @@ attachments:
     min_len: 64
     max_len: 64
     null_rate: 0.2
+
 # ──────────────────────────────────────────
 # Table: audit_logs
 # ──────────────────────────────────────────
+
 audit_logs:
   # 主键跳过
   id:
@@ -1142,12 +1145,12 @@ moderator_applications:
 
   requested_permissions:
     type: json
-    null_rate: 0.15 # 可空（部分申请可能不附带权限要求）
-    # 使用 json_schema 生成符合 ModeratorPermission 枚举的字符串数组
+    null_rate: 0.15
     json_schema:
       - name: permissions
-        kind: json_array
+        kind: json
         array_items:
+          name: "item" # array_items 内部必须提供 name
           kind: enum
           values:
             - "delete_post"
@@ -1155,10 +1158,6 @@ moderator_applications:
             - "edit_any_post"
             - "manage_moderator"
             - "ban_user"
-        # 可选：限制数组长度
-        min_items: 1
-        max_items: 3
-
   # ===== 审批信息 =====
   status:
     type: enum
@@ -1181,6 +1180,7 @@ moderator_applications:
     date_from: 2020-01-01
     date_to: 2026-12-31
     null_rate: 0.15
+
 # ──────────────────────────────────────────
 # Table: moderator_logs
 # ──────────────────────────────────────────
@@ -1256,6 +1256,7 @@ moderator_logs:
   new_value:
     type: json
     null_rate: 0.15
+
 # ──────────────────────────────────────────
 # Table: moderators
 # ──────────────────────────────────────────
@@ -1295,11 +1296,12 @@ moderators:
   # ===== 权限（JSON 数组，非空）=====
   permissions:
     type: json
-    null_rate: 0.0 # 至少空数组，不应为 NULL
+    null_rate: 0.0
     json_schema:
       - name: permissions
-        kind: json_array
+        kind: json
         array_items:
+          name: "item" # array_items 内部必须提供 name
           kind: enum
           values:
             - "delete_post"
@@ -1307,12 +1309,7 @@ moderators:
             - "edit_any_post"
             - "manage_moderator"
             - "ban_user"
-        # 可选：随机生成 1~3 个权限
-        min_items: 1
-        max_items: 3
-# ──────────────────────────────────────────
-# Table: notifications
-# ──────────────────────────────────────────
+
 notifications:
   id:
     type: skip # 自增主键
