@@ -19,6 +19,8 @@ type Topic struct {
 }
 
 // 表名
+// TableName 方法用于定义数据库表名
 func (Topic) TableName() string {
+	// 返回 topics 作为数据库表名
 	return "topics"
 }
