@@ -1,127 +1,84 @@
 "use client";
 
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { useAuthStore } from "@/store/auth";
 import LeftSidebar, { FilterType } from "@/layout/home/LeftSidebar";
 import { useLeaderboard } from "@/features/leader/hooks/useLeaderboard";
+import { useUnreadCount } from "@/features/notification/hooks/useUnreadCount";
 import { RightSidebar } from "@/layout/home/RightSidebar";
 import PostFilterBar from "@/layout/home/mid/PostFilterBar";
 import PostList from "@/layout/home/mid/PostList";
-import { Board } from "@/shared/api/types/board.model";
-import { boardApi } from "@/shared/api/modules/boards";
-import { postApi } from "@/shared/api/modules/posts";
-import { questionApi } from "@/shared/api/modules/questions";
-import { tagApi } from "@/shared/api/modules/tags";
-import { timelineApi } from "@/shared/api/modules/timeline";
-import { Tag } from "@/shared/api/types/tag.model";
-import { TimelineEvent } from "@/shared/api/types/timeline.model";
-import { Post } from "@/shared/api/types/post.model";
+import QuestionList from "@/layout/home/mid/QuestionList";
 import { SortBy } from "@/shared/ui/type/home.type";
-import { useUnreadCount } from "@/features/notification/hooks/useUnreadCount";
+import { Post } from "@/shared/api/types/post.model";
+import { useTimelineEvents } from "@/features/timeline/hooks/useTimelineEvents";
+import { useBoardTree } from "@/features/boards/hooks/useBoardTree";
+import { usePosts } from "@/features/post/hooks/usePosts";
+import { useTags } from "@/features/tag/hooks/useTags";
+import { useQuestions } from "@/features/qustion/hooks/useQuestions";
 
 export default function HomePage() {
   const { isAuthenticated, user } = useAuthStore();
+
   const [sortBy, setSortBy] = useState<SortBy>("random");
   const [selectedTag, setSelectedTag] = useState<number | null>(null);
   const [selectedBoard, setSelectedBoard] = useState<number | null>(null);
   const [filterType, setFilterType] = useState<FilterType>("all");
   const [page, setPage] = useState(1);
-  const { data: leaderboard } = useLeaderboard({ limit: 10 });
 
-  // 帖子列表
-  const {
-    data: postsData,
-    isLoading,
-    refetch,
-  } = useQuery({
-    queryKey: ["posts", sortBy, selectedTag, selectedBoard, filterType, page],
-    queryFn: async () => {
-      const params: Record<string, unknown> = {
+  const { data: boards = [] } = useBoardTree();
+  const { tags = [] } = useTags();
+  const { data: leaderboard } = useLeaderboard({ limit: 10 });
+  const { unreadCount } = useUnreadCount();
+  const { data: timelineEvents = [] } = useTimelineEvents(isAuthenticated);
+
+  const isQuestionMode = filterType === "question";
+
+  // 普通帖子参数
+  const postParams = !isQuestionMode
+    ? {
         page,
         page_size: 15,
-      };
+        sort_by: sortBy === "latest" ? "latest" : undefined,
+        type: filterType !== "all" ? filterType : undefined,
 
-      if (filterType === "question") {
-        if (selectedBoard) {
-          params.board_id = selectedBoard;
-        }
-        const res = await questionApi.getSimple(params);
-        const data = res.data.data as
-          | { list: unknown[]; total: number; page: number; page_size: number }
-          | undefined;
-        return {
-          list: data?.list || [],
-          total: data?.total || 0,
-          page: data?.page || 1,
-          page_size: data?.page_size || 15,
-        };
+        board_id: selectedBoard ?? undefined,
+        tag_id: selectedTag ?? undefined,
       }
+    : undefined;
 
-      if (selectedTag) {
-        params.tag_id = selectedTag;
-      }
-      if (selectedBoard) {
-        params.board_id = selectedBoard;
-      }
-      if (filterType !== "all") {
-        params.type = filterType;
-      }
-      if (sortBy !== "random") {
-        params.sort_by = sortBy === "latest" ? "latest" : sortBy;
-      }
+  const {
+    data: postsData,
+    isLoading: postsLoading,
+    refetch: refetchPosts,
+  } = usePosts(postParams, { enabled: !isQuestionMode });
 
-      const res = await postApi.list(params);
-      const data = res.data.data as
-        | { list: unknown[]; total: number; page: number; page_size: number }
-        | undefined;
-      return {
-        list: data?.list || [],
-        total: data?.total || 0,
-        page: data?.page || 1,
-        page_size: data?.page_size || 15,
-      };
-    },
-  });
+  // 问答参数
+  const questionParams = {
+    page,
+    page_size: 15,
+    board_id: selectedBoard ?? undefined,
+  };
 
-  // 标签列表
-  const { data: tags } = useQuery({
-    queryKey: ["tags"],
-    queryFn: () => tagApi.list().then((r) => (r.data.data as Tag[]) || []),
-  });
+  const {
+    data: questionsData,
+    isLoading: questionsLoading,
+    refetch: refetchQuestions,
+  } = useQuestions(questionParams, { enabled: isQuestionMode });
 
-  // 板块列表
-  const { data: boards } = useQuery({
-    queryKey: ["boards-tree"],
-    queryFn: () =>
-      boardApi.getTree().then((r) => (r.data.data as Board[]) || []),
-  });
+  const isLoading = isQuestionMode ? questionsLoading : postsLoading;
+  const refetch = isQuestionMode ? refetchQuestions : refetchPosts;
 
-  // 未读通知数
-  const { unreadCount } = useUnreadCount();
-  // const { data: unreadCount } = useQuery({
-  //   queryKey: ["unread-count"],
-  //   queryFn: () =>
-  //     notificationApi.unreadCount().then((r) => {
-  //       const data = r.data.data as { count: number } | undefined;
-  //       return data?.count || 0;
-  //     }),
-  //   enabled: isAuthenticated,
-  //   refetchInterval: 30000,
-  // });
+  // 帖子模式使用的数据
+  const rawPosts = postsData?.list ?? [];
 
-  // 时间线事件
-  const { data: timelineEvents } = useQuery({
-    queryKey: ["timeline-events"],
-    queryFn: () =>
-      timelineApi
-        .getFollowing({ page: 1, page_size: 5 })
-        .then((r) => (r.data.data?.list as TimelineEvent[]) || []),
-    enabled: isAuthenticated,
-  });
+  // 问答模式使用的数据（直接使用，无需断言）
+  const rawQuestions = questionsData?.list ?? [];
 
-  const posts = (postsData?.list as unknown[] as Post[]) ?? [];
-  const total = postsData?.total ?? 0;
+  // 总条数
+  const total = isQuestionMode
+    ? (questionsData?.total ?? 0)
+    : (postsData?.total ?? 0);
   const totalPages = Math.ceil(total / 15);
 
   const handleSortChange = (newSortBy: SortBy) => {
@@ -145,7 +102,7 @@ export default function HomePage() {
     setFilterType(type);
     setPage(1);
   };
-  console.log("page 用户信息: ", user);
+
   return (
     <div className="h-full">
       <div className="container mx-auto max-w-7xl px-4 h-full">
@@ -153,8 +110,8 @@ export default function HomePage() {
           {/* 左侧边栏 */}
           <div className="lg:w-64 xl:w-72 flex-none overflow-y-auto custom-scrollbar sticky top-6 max-h-[calc(100vh-6rem)]">
             <LeftSidebar
-              boards={boards ?? []}
-              tags={tags ?? []}
+              boards={boards}
+              tags={tags}
               selectedBoard={selectedBoard}
               selectedTag={selectedTag}
               filterType={filterType}
@@ -176,28 +133,36 @@ export default function HomePage() {
             </div>
 
             <div className="flex-1 overflow-y-auto custom-scrollbar pb-6">
-              <PostList
-                posts={posts}
-                isLoading={isLoading}
-                totalPages={totalPages}
-                currentPage={page}
-                onPageChange={setPage}
-              />
+              {isQuestionMode ? (
+                <QuestionList
+                  questions={rawQuestions}
+                  isLoading={isLoading}
+                  totalPages={totalPages}
+                  currentPage={page}
+                  onPageChange={setPage}
+                />
+              ) : (
+                <PostList
+                  posts={rawPosts}
+                  isLoading={isLoading}
+                  totalPages={totalPages}
+                  currentPage={page}
+                  onPageChange={setPage}
+                />
+              )}
             </div>
           </div>
 
           {/* 右侧边栏 */}
-          {leaderboard !== undefined && (
-            <div className="lg:w-64 xl:w-72 flex-none overflow-y-auto custom-scrollbar sticky top-6 max-h-[calc(100vh-6rem)]">
-              <RightSidebar
-                isAuthenticated={isAuthenticated}
-                userProfile={user}
-                leaderboard={leaderboard}
-                unreadCount={unreadCount ?? 0}
-                timelineEvents={timelineEvents ?? []}
-              />
-            </div>
-          )}
+          <div className="lg:w-64 xl:w-72 flex-none overflow-y-auto custom-scrollbar sticky top-6 max-h-[calc(100vh-6rem)]">
+            <RightSidebar
+              isAuthenticated={isAuthenticated}
+              userProfile={user}
+              leaderboard={leaderboard ?? []}
+              unreadCount={unreadCount ?? 0}
+              timelineEvents={timelineEvents}
+            />
+          </div>
         </div>
       </div>
     </div>
