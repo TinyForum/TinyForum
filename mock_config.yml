@@ -94,21 +94,21 @@ announcements:
   view_count:
     type: int
     min: 0
-    max: 10000
+    max: 1000
     null_rate: 0.0
 
   # 创建人ID（非空外键）
   created_by:
     type: int
     min: 1
-    max: 10000
+    max: 1000
     null_rate: 0.0
 
   # 更新人ID（非空，可与创建人不同）
   updated_by:
     type: int
     min: 1
-    max: 10000
+    max: 1000
     null_rate: 0.0
 # ──────────────────────────────────────────
 # Table: answer_votes
@@ -143,14 +143,14 @@ answer_votes:
   user_id:
     type: int
     min: 1
-    max: 100000
+    max: 1000
     null_rate: 0.0
 
   # 评论ID（外键）
   comment_id:
     type: int
     min: 1
-    max: 100000
+    max: 1000
     null_rate: 0.0
 
   # 投票类型（枚举：支持/反对，可空）
@@ -197,7 +197,7 @@ attachments:
   user_id:
     type: int
     min: 1
-    max: 10000
+    max: 1000
     null_rate: 0.0
 
   # 插件ID（可选，20% NULL）
@@ -361,7 +361,7 @@ audit_logs:
   operator_id:
     type: int
     min: 1
-    max: 100000
+    max: 1000
     null_rate: 0.0
 
   # 操作者IP
@@ -450,7 +450,7 @@ blocked_ips:
   operator_id:
     type: int
     min: 1 # uint 类型，最小值为 1
-    max: 100000 # 合理范围，避免天文数字
+    max: 1000 # 合理范围，避免天文数字
     null_rate: 0.15 # 允许操作员未知
 
   expire_at:
@@ -486,7 +486,7 @@ board_bans:
   user_id:
     type: int
     min: 1
-    max: 100000 # 假定用户表 ID 范围
+    max: 1000 # 假定用户表 ID 范围
     null_rate: 0.0
     # 注意：与 board_id 的组合唯一索引可能冲突，如遇插入失败需重试或调整生成策略
   board_id:
@@ -497,7 +497,7 @@ board_bans:
   banned_by:
     type: int
     min: 1
-    max: 100000
+    max: 1000
     null_rate: 0.0
 
   reason:
@@ -570,12 +570,12 @@ boards:
   post_count:
     type: int
     min: 0
-    max: 100000
+    max: 1000
     null_rate: 0.0
   thread_count:
     type: int
     min: 0
-    max: 10000
+    max: 1000
     null_rate: 0.0
   today_count:
     type: int
@@ -601,14 +601,12 @@ boards:
 # ──────────────────────────────────────────
 bots:
   id:
-    type: skip # 自增主键，跳过插入
-
-  # ===== 时间戳（BaseModel 非空字段）=====
+    type: skip
   created_at:
     type: timestamp_tz
     date_from: 2020-01-01
     date_to: 2026-12-31
-    null_rate: 0.0 # 非空
+    null_rate: 0.0
   updated_at:
     type: timestamp_tz
     date_from: 2020-01-01
@@ -618,14 +616,11 @@ bots:
     type: timestamp_tz
     date_from: 2020-01-01
     date_to: 2026-12-31
-    null_rate: 0.15 # 软删除标记
-
-  # ===== 基本信息 =====
+    null_rate: 0.15
   name:
-    type: label # 生成名称如 "WeatherBot"
-    # 如有唯一性需求，可改为 type: unique（输出 "Label123"）
+    type: label
   version:
-    type: semver # 生成语义版本如 "1.2.3"
+    type: semver
   description:
     type: text
     max_len: 500
@@ -635,38 +630,27 @@ bots:
     max_len: 300
     null_rate: 0.15
   avatar_url:
-    type: url
+    type: url_avatar
     null_rate: 0.15
   homepage_url:
     type: url
     null_rate: 0.15
-
-  # ===== 类型与标签 =====
-  type: # BotType 枚举
+  type:
     type: enum
     values:
       ["chat", "moderate", "notify", "sync", "task", "webhook", "analysis"]
     null_rate: 0.0
-  tags: # 期望 JSON 字符串数组
-    type: json
-    null_rate: 0.15
-    # 建议配置 json_schema 生成数组，例如：
-    # json_schema:
-    #   - name: items
-    #     kind: string
-    #     array_items: { kind: string }
-
-  # ===== 创建者信息 =====
+  tags:
+    type: constant
+    constant: "[]"
   creator_id:
     type: int
     min: 1
-    max: 100000
+    max: 1000
     null_rate: 0.0
   creator_name:
     type: label
     null_rate: 0.15
-
-  # ===== 脚本与触发 =====
   script_code:
     type: string
     min_len: 4
@@ -675,8 +659,7 @@ bots:
   script_url:
     type: url
     null_rate: 0.15
-
-  trigger_type: # BotTriggerType 枚举
+  trigger_type:
     type: enum
     values: ["schedule", "event", "webhook", "manual"]
     null_rate: 0.0
@@ -684,52 +667,45 @@ bots:
     type: string
     min_len: 4
     max_len: 100
-    null_rate: 0.15 # 实际可生成 "0 * * * *" 等，随机字符串不太像但可接受
+    null_rate: 0.15
   event_filter:
     type: string
     min_len: 4
     max_len: 200
     null_rate: 0.15
-
-  # ===== 执行控制 =====
   timeout_sec:
     type: int
     min: 1
-    max: 300 # 超时 1~300 秒
+    max: 300
     null_rate: 0.0
   retry_times:
     type: int
     min: 0
     max: 10
     null_rate: 0.0
-  env_vars: # 期望 JSON 对象（map）
-    type: json
-    null_rate: 0.15
-  resource_limit: # 期望 JSON 对象（ResourceLimit）
-    type: json
-    null_rate: 0.15
-
-  # ===== 定价与权限 =====
-  pricing: # 期望 JSON 对象（BotPricing），非空
-    type: json
-    null_rate: 0.0 # 强制非空，生成随机 JSON 对象（可能不符合结构）
-    # 建议配置 json_schema 生成合法定价结构
-  permissions: # 期望 JSON 字符串数组（BotPermission）
-    type: json
-    null_rate: 0.15
-
-  # ===== 状态与统计 =====
+  env_vars:
+    type: constant
+    constant: "{}"
+  resource_limit:
+    type: constant
+    constant: "{}"
+  pricing:
+    type: constant
+    constant: '{"model":"free"}'
+  permissions:
+    type: constant
+    constant: "[]"
   enabled:
     type: bool
     null_rate: 0.0
-  status: # BotStatus 枚举
+  status:
     type: enum
     values: ["active", "inactive", "error", "loading", "stopped"]
     null_rate: 0.0
   exec_count:
     type: int
     min: 0
-    max: 100000
+    max: 1000
     null_rate: 0.0
   last_exec_at:
     type: timestamp
@@ -741,14 +717,13 @@ bots:
     min_len: 4
     max_len: 32
     null_rate: 0.15
+  config_schema:
+    type: constant
+    constant: "[]"
+  config_values:
+    type: constant
+    constant: "{}"
 
-  # ===== 配置相关 =====
-  config_schema: # 期望 JSON 数组（[]BotConfigField）
-    type: json
-    null_rate: 0.15
-  config_values: # 期望 JSON 对象（map）
-    type: json
-    null_rate: 0.15
 # ──────────────────────────────────────────
 # Table: casbin_rule
 # ──────────────────────────────────────────
@@ -800,6 +775,7 @@ bots:
 # ──────────────────────────────────────────
 # Table: comments
 # ──────────────────────────────────────────
+
 comments:
   id:
     type: skip # 自增主键
@@ -829,13 +805,13 @@ comments:
   post_id:
     type: int
     min: 1
-    max: 100000 # 假定 posts 表 ID 范围
+    max: 1000 # 假定 posts 表 ID 范围
     null_rate: 0.0
 
   author_id:
     type: int
     min: 1
-    max: 100000 # 假定 users 表 ID 范围
+    max: 1000 # 假定 users 表 ID 范围
     null_rate: 0.0
 
   parent_id:
@@ -844,7 +820,7 @@ comments:
   like_count:
     type: int
     min: 0
-    max: 10000 # 点赞数合理范围
+    max: 1000 # 点赞数合理范围
     null_rate: 0.0
 
   status:
@@ -897,7 +873,7 @@ content_audit_tasks:
   target_id:
     type: int
     min: 1
-    max: 100000 # 假定对应表 ID 范围
+    max: 1000 # 假定对应表 ID 范围
     null_rate: 0.0
 
   # ===== 触发信息 =====
@@ -921,7 +897,7 @@ content_audit_tasks:
   reviewer_id:
     type: int
     min: 1
-    max: 100000
+    max: 1000
     null_rate: 0.15 # 15% 概率为 NULL（未分配审核人）
   review_note:
     type: text
@@ -960,12 +936,12 @@ favorites:
   user_id:
     type: int
     min: 1
-    max: 100000 # 假定 users 表 ID 范围
+    max: 1000 # 假定 users 表 ID 范围
     null_rate: 0.0
   target_id:
     type: int
     min: 1
-    max: 100000 # 根据目标类型对应表 ID 范围
+    max: 1000 # 根据目标类型对应表 ID 范围
     null_rate: 0.0
   target_type:
     type: enum
@@ -974,7 +950,7 @@ favorites:
   group_id:
     type: int
     min: 1
-    max: 10000 # 假定 favorite_groups 表 ID 范围
+    max: 1000 # 假定 favorite_groups 表 ID 范围
     null_rate: 0.0
 # ──────────────────────────────────────────
 # Table: follows
@@ -1004,12 +980,12 @@ follows:
   follower_id:
     type: int
     min: 1
-    max: 100000 # 假定 users 表 ID 范围
+    max: 1000 # 假定 users 表 ID 范围
     null_rate: 0.0
   following_id:
     type: int
     min: 1
-    max: 100000
+    max: 1000
     null_rate: 0.0
 # ──────────────────────────────────────────
 # Table: ip_risk_records
@@ -1089,7 +1065,7 @@ likes:
   user_id:
     type: int
     min: 1
-    max: 100000 # 假定 users 表 ID 范围
+    max: 1000 # 假定 users 表 ID 范围
     null_rate: 0.0
 
   target_type:
@@ -1100,7 +1076,7 @@ likes:
   target_id:
     type: int
     min: 1
-    max: 100000 # 根据目标类型对应表 ID 范围
+    max: 1000 # 根据目标类型对应表 ID 范围
     null_rate: 0.0
 # ──────────────────────────────────────────
 # Table: moderator_applications
@@ -1130,12 +1106,12 @@ moderator_applications:
   user_id:
     type: int
     min: 1
-    max: 100000 # 假定 users 表 ID 范围
+    max: 1000 # 假定 users 表 ID 范围
     null_rate: 0.0
   board_id:
     type: int
     min: 1
-    max: 10000 # 假定 boards 表 ID 范围
+    max: 1000 # 假定 boards 表 ID 范围
     null_rate: 0.0
 
   reason:
@@ -1167,7 +1143,7 @@ moderator_applications:
   reviewer_id:
     type: int
     min: 1
-    max: 100000
+    max: 1000
     null_rate: 0.15 # 未审核时为 NULL
 
   review_note:
@@ -1209,12 +1185,12 @@ moderator_logs:
   moderator_id:
     type: int
     min: 1
-    max: 100000 # 假定 users 表 ID 范围
+    max: 1000 # 假定 users 表 ID 范围
     null_rate: 0.0
   board_id:
     type: int
     min: 1
-    max: 10000 # 假定 boards 表 ID 范围
+    max: 1000 # 假定 boards 表 ID 范围
     null_rate: 0.0
 
   # ===== 操作类型（枚举）=====
@@ -1241,7 +1217,7 @@ moderator_logs:
   target_id:
     type: int
     min: 1
-    max: 100000
+    max: 1000
     null_rate: 0.0
 
   reason:
@@ -1285,12 +1261,12 @@ moderators:
   user_id:
     type: int
     min: 1
-    max: 100000 # 假定 users 表 ID 范围
+    max: 1000 # 假定 users 表 ID 范围
     null_rate: 0.0
   board_id:
     type: int
     min: 1
-    max: 10000 # 假定 boards 表 ID 范围
+    max: 1000 # 假定 boards 表 ID 范围
     null_rate: 0.0
 
   # ===== 权限（JSON 数组，非空）=====
@@ -1335,14 +1311,14 @@ notifications:
   user_id:
     type: int
     min: 1
-    max: 100000
+    max: 1000
     null_rate: 0.0
 
   # ===== 发送者（可空）=====
   sender_id:
     type: int
     min: 1
-    max: 100000
+    max: 1000
     null_rate: 0.15
 
   # ===== 通知类型（枚举，取常用类型）=====
@@ -1371,7 +1347,7 @@ notifications:
   target_id:
     type: int
     min: 1
-    max: 100000
+    max: 1000
     null_rate: 0.15
   target_type:
     type: enum
@@ -1458,7 +1434,7 @@ plugins:
   author_id:
     type: int
     min: 1
-    max: 100000
+    max: 1000
     null_rate: 0.0
   author_email:
     type: email
@@ -1505,7 +1481,7 @@ plugins:
   install_count:
     type: int
     min: 0
-    max: 1000000
+    max: 1000
     null_rate: 0.0
   rating:
     type: decimal
@@ -1590,22 +1566,22 @@ posts:
   author_id:
     type: int
     min: 1
-    max: 100000
+    max: 1000
     null_rate: 0.0
   board_id:
     type: int
     min: 1
-    max: 10000
+    max: 1000
     null_rate: 0.0
   view_count:
     type: int
     min: 0
-    max: 100000
+    max: 1000
     null_rate: 0.0
   like_count:
     type: int
     min: 0
-    max: 100000
+    max: 1000
     null_rate: 0.0
 
   # ===== 置顶标记 =====
@@ -1643,13 +1619,13 @@ questions:
   post_id:
     type: int
     min: 1
-    max: 100000 # 假定 posts 表 ID 范围
+    max: 1000 # 假定 posts 表 ID 范围
     null_rate: 0.0
 
   accepted_answer_id:
     type: int
     min: 1
-    max: 100000 # 假定 comments 表 ID 范围
+    max: 1000 # 假定 comments 表 ID 范围
     null_rate: 0.15 # 可空，未采纳时为 NULL
 
   # ===== 统计字段（非空）=====
@@ -1666,7 +1642,7 @@ questions:
   view_count:
     type: int
     min: 0
-    max: 100000
+    max: 1000
     null_rate: 0.0
 # ──────────────────────────────────────────
 # Table: refresh_tokens
@@ -1755,14 +1731,14 @@ reports:
   reporter_id:
     type: int
     min: 1
-    max: 100000
+    max: 1000
     null_rate: 0.0
 
   # ===== 被举报目标 =====
   target_id:
     type: int
     min: 1
-    max: 100000
+    max: 1000
     null_rate: 0.0
   target_type:
     type: enum
@@ -1797,7 +1773,7 @@ reports:
   handler_id:
     type: int
     min: 1
-    max: 100000
+    max: 1000
     null_rate: 0.15
   handle_note:
     type: text
@@ -1843,7 +1819,7 @@ sign_ins:
   user_id:
     type: int
     min: 1
-    max: 100000
+    max: 1000
     null_rate: 0.0
 
   sign_date:
@@ -1901,7 +1877,7 @@ tags:
   post_count:
     type: int
     min: 0
-    max: 100000
+    max: 1000
     null_rate: 0.0
 # ──────────────────────────────────────────
 # Table: timeline_events
@@ -1931,12 +1907,12 @@ timeline_events:
   user_id:
     type: int
     min: 1
-    max: 100000
+    max: 1000
     null_rate: 0.0
   actor_id:
     type: int
     min: 1
-    max: 100000
+    max: 1000
     null_rate: 0.0
 
   # ===== 动作类型（枚举）=====
@@ -1956,7 +1932,7 @@ timeline_events:
   target_id:
     type: int
     min: 1
-    max: 100000
+    max: 1000
     null_rate: 0.0
   target_type:
     type: enum
@@ -2000,7 +1976,7 @@ timeline_subscriptions:
   subscriber_id:
     type: int
     min: 1
-    max: 100000
+    max: 1000
     null_rate: 0.0
 
   target_type:
@@ -2011,7 +1987,7 @@ timeline_subscriptions:
   target_id:
     type: int
     min: 1
-    max: 100000 # 根据 target_type 对应表 ID 范围（users 或 boards）
+    max: 1000 # 根据 target_type 对应表 ID 范围（users 或 boards）
     null_rate: 0.0
 
   is_active:
@@ -2138,7 +2114,7 @@ topics:
   creator_id:
     type: int
     min: 1
-    max: 100000
+    max: 1000
     null_rate: 0.0
 
   # ===== 状态与统计 =====
@@ -2148,12 +2124,12 @@ topics:
   post_count:
     type: int
     min: 0
-    max: 100000
+    max: 1000
     null_rate: 0.0
   follower_count:
     type: int
     min: 0
-    max: 100000
+    max: 1000
     null_rate: 0.0
 # ──────────────────────────────────────────
 # Table: user_risk_records
@@ -2183,7 +2159,7 @@ user_risk_records:
   user_id:
     type: int
     min: 1
-    max: 100000
+    max: 1000
     null_rate: 0.0
 
   event_type:
@@ -2234,7 +2210,7 @@ user_timelines:
   user_id:
     type: int
     min: 1
-    max: 100000
+    max: 1000
     null_rate: 0.0
 
   timeline_type:
@@ -2273,10 +2249,10 @@ users:
 
   # ===== 账号信息 =====
   username:
-    type: unique # 保证唯一性，输出如 "User123"
+    type: username
     null_rate: 0.0
   email:
-    type: email # 注意：唯一索引，可能重复冲突
+    type: email
     null_rate: 0.0
   password:
     type: password # 生成 bcrypt 哈希
@@ -2284,7 +2260,7 @@ users:
 
   # ===== 个人资料 =====
   avatar_url:
-    type: url
+    type: url_avatar
     null_rate: 0.15
   bio:
     type: text
@@ -2299,7 +2275,7 @@ users:
   score:
     type: int
     min: 0
-    max: 100000
+    max: 1000
     null_rate: 0.0
   is_active:
     type: bool
@@ -2317,7 +2293,7 @@ users:
   invited_by_id:
     type: int
     min: 1
-    max: 100000
+    max: 1000
     null_rate: 0.15
 
   # ===== 临时密码 =====
@@ -2357,7 +2333,7 @@ violations:
   user_id:
     type: int
     min: 1
-    max: 100000
+    max: 1000
     null_rate: 0.0
 
   # ===== 违规详情 =====
@@ -2388,7 +2364,7 @@ violations:
   operator_id:
     type: int
     min: 0
-    max: 100000
+    max: 1000
     null_rate: 0.0
 
   # ===== 处罚信息 =====
