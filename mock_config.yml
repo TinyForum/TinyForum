@@ -2270,7 +2270,7 @@ users:
   # ===== 角色与状态 =====
   role:
     type: enum
-    values: ["user", "moderator", "admin", "super_admin"]
+    values: ["user", "moderator", "admin"] # 默认不支持 super_admin
     null_rate: 0.0
   score:
     type: int
