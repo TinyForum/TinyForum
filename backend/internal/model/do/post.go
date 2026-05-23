@@ -38,13 +38,13 @@ type Post struct {
 type PostType string
 
 const (
-	PostTypePost     PostType = "post"
-	PostTypeArticle  PostType = "article"
-	PostTypeTopic    PostType = "topic"
-	PostTypeQuestion PostType = "question"
+	PostTypePost     PostType = "post"     // 短文
+	PostTypeArticle  PostType = "article"  // 长文
+	PostTypeTopic    PostType = "topic"    // 观点
+	PostTypeQuestion PostType = "question" // 问题
 )
 
-// enum [PostTypePost PostTypeArticle PostTypeTopic]
+// enum [PostTypePost PostTypeArticle PostTypeTopic PostTypeQuestion]
 
 // 合法的帖子类型集合
 var validPostTypes = map[PostType]bool{
@@ -69,6 +69,7 @@ type PostStatus string
 // )
 
 // 用户主动控制的状态（用户能感知、能操作）
+
 const (
 	PostStatusDraft     PostStatus = "draft"     // 草稿（用户保存未发布）
 	PostStatusPending   PostStatus = "pending"   // 待用户确认/提交（如编辑后重新提交）
@@ -91,7 +92,7 @@ func ParsePostType(s string) PostType {
 	if pt.IsValid() {
 		return pt
 	}
-	return PostTypePost // 默认值
+	return PostTypeArticle // 默认值
 }
 
 func ParsePostStatus(s string) PostStatus {
