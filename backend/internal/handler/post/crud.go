@@ -120,6 +120,7 @@ func (h *PostHandler) List(c *gin.Context) {
 	}
 
 	postType := do.ParsePostType(req.PostType)
+	logger.Infof("postType: %s", postType)
 
 	listPostsBO := &common.PageQuery[bo.ListPosts]{
 		Page:     req.Page,
@@ -140,6 +141,7 @@ func (h *PostHandler) List(c *gin.Context) {
 		response.HandleError(c, err)
 		return
 	}
+	logger.Infof("查询到数据: %d", len(posts))
 	response.SuccessPage(c, posts, total, req.Page, req.PageSize)
 }
 

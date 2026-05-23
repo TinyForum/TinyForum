@@ -16,7 +16,7 @@ export interface QuestionListParams {
   page_size?: number;
   board_id?: number;
   sort?: "latest" | "hot" | "unanswered";
-  filter?: string;
+  filter?: "all" | "question" | "posts";
   keyword?: string;
 }
 
