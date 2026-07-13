@@ -64,23 +64,3 @@ psql -U postgres -c "DROP DATABASE IF EXISTS tiny_forum; CREATE DATABASE tiny_fo
 # 上游依赖
 
 1. 敏感词： https://github.com/konsheng/Sensitive-lexicon
-
-# 路线图
-
-## 全局规划
-
-市面上有众多论坛基础设施，例如 `Discuz!`、`Discourse`、`BBS-GO`、`StarPro`、`Hadsky`、`Tecmz`、`巡云轻论坛`、`南生论坛` 等，这些论坛都是本项目的前辈，本项目也无意与其竞争，更具体来说，本项目希望从“可维护 + 易运营 + 用户共创”入手，构建一个持续的、健康的社区生态。
-
-本项目会涉及开源版本（一个）和商业版本（五个），作为论坛/社区的核心功能，将持续开源，但是新增的商业化相关功能以及特殊优化，将采用闭源策略，以维系项目发展。
-
-## 当前阶段
-
-目前已经在和商业化相关的策略人员进行交流。
-
-## 参与本项目
-
-如果您想参与到项目的开发开源版本或者商业版本，欢迎添加我的微信：thomelgo
-
-![wechat](./docs/assets/wechat.jpg)
-
-本项目目前纯用爱发电，如若加入，还望三思。
