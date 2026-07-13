@@ -32,6 +32,24 @@ psql -U postgres -c "DROP DATABASE IF EXISTS tiny_forum; CREATE DATABASE tiny_fo
 
 > 在 Mac 上，需要先启动初始化虚拟机 `make podman-init`，然后执行 `make podman-build`。目前仍然存在一些问题，正在处理。
 
+## 编译启动
+
+```bash
+make init-dev # 检查配置
+make backend # 启动后端
+make frontend # 启动前端
+```
+
+默认管理员用户:
+
+- 用户名: admin@test.com
+- 密码: password
+
+默认系统用户：
+
+- 用户名：system@test.com
+- 密码：password
+
 # 开发概述
 
 该项目配置了 vscode 工作区，建议使用 Vscode 打开，并根据提示，启动工作区（如果没有提示，可以打开文件 `.vscode/TinyForum.code-workspace` 然后根据提示启动）
