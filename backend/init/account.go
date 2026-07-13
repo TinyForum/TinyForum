@@ -18,14 +18,14 @@ var DefaultAdminUserConfig = config.AdminUserConfig{
 	Email:    "admin@test.com",
 	Username: "admin",
 	Password: "password",
-	Role:     "super_admin", // 超级管理员
+	Role:     do.RoleAdmin, // 超级管理员
 }
 
 var DefaultSystemUserConfig = config.SystemUserConfig{
 	Email:    "system@test.com",
 	Username: "system",
 	Password: "password",
-	Role:     "system_maintainer", // 系统维护者
+	Role:     do.RoleSystemMaintainer, // 系统维护者
 }
 
 // createUserIfNotExists 公共的创建用户方法
