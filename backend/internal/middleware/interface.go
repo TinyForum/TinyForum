@@ -1,14 +1,4 @@
 // internal/middleware/model.go
-//
-// 变更说明（相对原版）：
-//   1. middlewareSet 新增 enforcer *casbin.Enforcer 字段
-//   2. MiddlewareSet 接口新增 CasbinAuth() 方法
-//   3. NewMiddlewareSet 新增 enforcer 参数
-//   4. 修复 permission.go 中的类型断言隐患：
-//      Auth 中间件向 context 注入的 user_role 是 string（来自 JWT claims.Role），
-//      而原 RequirePermission 用 do.UserRole 断言，必然失败。
-//      解决方案：在 middlewareSet 内部统一转换，外部调用者无感知。
-
 package middleware
 
 import (
@@ -30,7 +20,8 @@ type MiddlewareSet interface {
 	Auth() gin.HandlerFunc                                              // 需要登录
 	OptionalAuth() gin.HandlerFunc                                      // 可选登录
 	AdminRequired() gin.HandlerFunc                                     // 需要管理员权限
-	CasbinAuth() gin.HandlerFunc                                        // 路由鉴权（需搭配 Auth() 或 OptionalAuth() 使用，确保 user_role 已注入 context）
+	SystemMaintainerRequired() gin.HandlerFunc                          // 需要系统维护者权限
+	CasbinAuth() gin.HandlerFunc                                        // 路由鉴权
 	RateLimit(action ratelimit.Action) gin.HandlerFunc                  // 限流
 	ContentCheck(fields []string) gin.HandlerFunc                       // 内容合规
 	ModeratorRequired(boardRepo board.BoardRepository) gin.HandlerFunc  // 需要版主权限
@@ -38,6 +29,7 @@ type MiddlewareSet interface {
 	CanBanUser(boardRepo board.BoardRepository) gin.HandlerFunc         // 可封禁用户
 	CanDeletePost(boardRepo board.BoardRepository) gin.HandlerFunc      // 可删除帖子
 	CanPinPost(boardRepo board.BoardRepository) gin.HandlerFunc         // 可置顶帖子
+	UpdateConfig(cfg *config.Config)                                    // 更新配置
 }
 
 // middlewareSet 私有实现
@@ -48,13 +40,14 @@ type middlewareSet struct {
 	contentCheckSvc check.ContentCheckService
 	tokenRepo       token.TokenRepository
 	rateLimitCfg    *config.RateLimitConfig
-	enforcer        *casbin.Enforcer // Casbin enforcer，由 wire 层注入
+	enforcer        *casbin.Enforcer
+	// 保存动态配置引用
+	dynCfg *config.DynamicConfig
+	// 缓存中间件实例以便更新
+	cachedRateMW *RateLimitMiddleware
 }
 
-// NewMiddlewareSet 创建中间件集合实例。
-//
-// enforcer 参数：由 casbinx.NewEnforcer 创建后从 wire 层传入。
-// 若暂不启用 Casbin，可传 nil，CasbinAuth() 调用时会直接放行（降级行为）。
+// NewMiddlewareSet 创建中间件集合实例
 func NewMiddlewareSet(
 	jwtMgr *jwtpkg.JWTManager,
 	db *gorm.DB,
@@ -62,7 +55,7 @@ func NewMiddlewareSet(
 	contentCheckSvc check.ContentCheckService,
 	tokenRepo token.TokenRepository,
 	rateLimitCfg *config.RateLimitConfig,
-	enforcer *casbin.Enforcer, // 新增
+	enforcer *casbin.Enforcer,
 ) MiddlewareSet {
 	return &middlewareSet{
 		jwtMgr:          jwtMgr,
@@ -73,6 +66,52 @@ func NewMiddlewareSet(
 		rateLimitCfg:    rateLimitCfg,
 		enforcer:        enforcer,
 	}
+}
+
+// NewMiddlewareSetWithDynamic 使用动态配置创建中间件集合
+func NewMiddlewareSetWithDynamic(
+	dynCfg *config.DynamicConfig,
+	jwtMgr *jwtpkg.JWTManager,
+	db *gorm.DB,
+	riskSvc riskservice.RiskService,
+	contentCheckSvc check.ContentCheckService,
+	tokenRepo token.TokenRepository,
+	enforcer *casbin.Enforcer,
+) MiddlewareSet {
+	cfg := dynCfg.Get()
+	ms := &middlewareSet{
+		jwtMgr:          jwtMgr,
+		db:              db,
+		riskSvc:         riskSvc,
+		contentCheckSvc: contentCheckSvc,
+		tokenRepo:       tokenRepo,
+		rateLimitCfg:    &cfg.RiskControl.RateLimit,
+		enforcer:        enforcer,
+		dynCfg:          dynCfg,
+	}
+
+	// 注册配置变更回调
+	dynCfg.OnChange(func(fileName string, oldConfig, newConfig *config.Config) {
+		if fileName == "risk_control.yml" || fileName == "basic.yml" || fileName == "manual_reload" {
+			ms.UpdateConfig(newConfig)
+		}
+	})
+
+	return ms
+}
+
+// UpdateConfig 实现 MiddlewareSet 接口的 UpdateConfig 方法
+func (m *middlewareSet) UpdateConfig(cfg *config.Config) {
+	// 更新限流配置
+	m.rateLimitCfg = &cfg.RiskControl.RateLimit
+
+	// 如果缓存了限流中间件实例，更新其配置
+	if m.cachedRateMW != nil {
+		m.cachedRateMW.UpdateConfig(cfg.RiskControl.RateLimit)
+	}
+
+	// 更新其他中间件的配置
+	// 注意：内容检查、版主权限等中间件可能也需要更新
 }
 
 // ── 接口实现 ──────────────────────────────────────────────────────────────────
@@ -89,8 +128,12 @@ func (m *middlewareSet) AdminRequired() gin.HandlerFunc {
 	return AdminRequired()
 }
 
-// CasbinAuth 返回 Casbin 路由级鉴权中间件。
-// 若 enforcer 未初始化（nil），则跳过鉴权直接放行，便于测试环境禁用。
+// SystemMaintainerRequired 系统维护员权限中间件
+// 只有系统维护员（SystemMaintainer）角色可以访问
+func (m *middlewareSet) SystemMaintainerRequired() gin.HandlerFunc {
+	return SystemMaintainerRequired()
+}
+
 func (m *middlewareSet) CasbinAuth() gin.HandlerFunc {
 	if m.enforcer == nil {
 		return func(c *gin.Context) { c.Next() }
@@ -99,7 +142,9 @@ func (m *middlewareSet) CasbinAuth() gin.HandlerFunc {
 }
 
 func (m *middlewareSet) RateLimit(action ratelimit.Action) gin.HandlerFunc {
+	// 创建限流中间件并缓存
 	rateLimitMW := NewRateLimitMiddleware(m.db, m.riskSvc, m.rateLimitCfg)
+	m.cachedRateMW = rateLimitMW
 	return rateLimitMW.Middleware(action)
 }
 

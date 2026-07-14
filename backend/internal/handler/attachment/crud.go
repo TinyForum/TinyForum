@@ -1,6 +1,9 @@
 package attachment
 
 import (
+	"errors"
+	"fmt"
+	"net/http"
 	"tiny-forum/internal/model/request"
 	"tiny-forum/pkg/logger"
 	"tiny-forum/pkg/response"
@@ -22,23 +25,78 @@ import (
 // @Failure 400 {object} common.BasicResponse
 // @Router /attachments [post]
 func (h *AttachmentHandler) UploadFile(c *gin.Context) {
-	userID := c.GetUint("user_id")
-	file, err := c.FormFile("file")
-	if err != nil {
-		response.HandleError(c, err)
+	// 1. 获取用户ID
+	userID, exists := c.Get("user_id")
+	if !exists {
+		response.HandleError(c, errors.New("unauthorized"))
 		return
 	}
+
+	// 2. 设置最大文件大小（可选，建议 10MB）
+	const maxFileSize = 10 << 20 // 10MB
+	if err := c.Request.ParseMultipartForm(maxFileSize); err != nil {
+		response.HandleError(c, fmt.Errorf("file too large or invalid form: %w", err))
+		return
+	}
+
+	// 3. 获取文件
+	file, err := c.FormFile("file")
+	if err != nil {
+		// 更详细的错误信息
+		if errors.Is(err, http.ErrMissingFile) {
+			response.HandleError(c, errors.New("file is required"))
+			return
+		}
+		response.HandleError(c, fmt.Errorf("failed to get file: %w", err))
+		return
+	}
+
+	// 4. 验证文件类型（可选但推荐）
+	// if !isAllowedFileType(file.Filename) {
+	// 	response.HandleError(c, errors.New("file type not allowed"))
+	// 	return
+	// }
+
+	// 5. 绑定请求参数
 	var req request.UploadPostFileRequest
 	if err := c.ShouldBind(&req); err != nil {
 		response.HandleError(c, err)
 		return
 	}
-	resp, err := h.svc.UploadFile(c.Request.Context(), userID, file, &req, c.ClientIP())
+
+	// 6. 验证业务逻辑
+	if err := validateUploadRequest(&req); err != nil {
+		response.HandleError(c, err)
+		return
+	}
+
+	// 7. 调用服务层
+	resp, err := h.svc.UploadFile(c.Request.Context(), userID.(uint), file, &req, c.ClientIP())
 	if err != nil {
 		response.HandleError(c, err)
 		return
 	}
+
 	response.Success(c, resp)
+}
+
+// 验证请求参数
+func validateUploadRequest(req *request.UploadPostFileRequest) error {
+	switch req.Type {
+	case "post_image":
+		if req.PostID == 0 {
+			return errors.New("post_id is required for post_image")
+		}
+	case "comment_file":
+		if req.ReplyID == 0 {
+			return errors.New("reply_id is required for comment_file")
+		}
+	case "avatar", "plugin":
+		// 无需额外参数
+	default:
+		return fmt.Errorf("invalid type: %s", req.Type)
+	}
+	return nil
 }
 
 // GetFile 获取文件元信息

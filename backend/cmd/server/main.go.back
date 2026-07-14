@@ -30,42 +30,37 @@ import (
 
 func main() {
 	version := os.Getenv("TINYFORUM_VERSION")
-
-	// ===== 1. 加载静态配置（用于初始化） =====
-	staticCfg, err := loadConfig()
+	cfg, err := loadConfig()
 	if err != nil {
 		printConfigError(err)
 		os.Exit(1)
 	}
 
 	// 初始化日志
-	if err := logger.Init(logger.Config(staticCfg.ToLoggerConfig())); err != nil {
+	if err := logger.Init(logger.Config(cfg.ToLoggerConfig())); err != nil {
 		log.Fatalf("Failed to init logger: %v\n", err)
 	}
 
-	// ===== 2. 创建动态配置管理器 =====
-	dynCfg, err := config.NewDynamicConfig("config")
-	if err != nil {
-		logger.Fatal(fmt.Sprintf("Failed to create dynamic config: %v", err))
-	}
-	defer dynCfg.Close()
-
 	// 打印启动信息
 	startup.PrintBanner(version)
-	startup.PrintStartupInfo(dynCfg.Get())
-	if dynCfg.GetBasic().Log.Level == "debug" {
-		startup.PrintConfigSummary(dynCfg.Get())
+	startup.PrintStartupInfo(cfg)
+	if cfg.Basic.Log.Level == "debug" {
+		startup.PrintConfigSummary(cfg)
 	}
 
-	// ===== 3. 初始化核心应用（传入动态配置） =====
-	app, err := wire.InitAppWithDynamic(dynCfg) // 需要修改 wire 包
+	// 初始化核心应用（包括数据库、服务、调度器）
+	app, err := wire.InitApp(cfg)
 	if err != nil {
 		logger.Fatal(fmt.Sprintf("Failed to initialize app: %v\n", err))
 	}
-	defer logger.CloseDB()
+	defer logger.CloseDB() // 确保正常退出时关闭数据库
 
-	// ===== 4. 启动 HTTP 服务器 =====
-	addr := fmt.Sprintf(":%d", dynCfg.GetBasic().Server.Port)
+	// 优雅关闭处理
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+
+	// 启动 HTTP 服务器（在 goroutine 中运行）
+	addr := fmt.Sprintf(":%d", cfg.Basic.Server.Port)
 	srv := &http.Server{
 		Addr:    addr,
 		Handler: app.Engine,
@@ -78,41 +73,24 @@ func main() {
 		}
 	}()
 
-	// ===== 5. 信号监听（支持 SIGHUP 手动重载） =====
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
+	// 等待中断信号
+	<-quit
+	logger.Info("Shutting down server gracefully...")
 
-	for {
-		sig := <-quit
-		switch sig {
-		case syscall.SIGHUP:
-			// 手动重新加载配置
-			logger.Info("Received SIGHUP, reloading config...")
-			if err := dynCfg.Reload(); err != nil {
-				logger.Error(fmt.Sprintf("Failed to reload config: %v", err))
-			} else {
-				logger.Info("Config reloaded successfully")
-			}
-		default:
-			// 优雅退出
-			logger.Info("Shutting down server gracefully...")
-			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-			defer cancel()
-
-			if err := srv.Shutdown(ctx); err != nil {
-				logger.Error(fmt.Sprintf("Server forced to shutdown: %v", err))
-			}
-
-			// 停止机器人调度器
-			if app.BotSvc != nil {
-				app.BotSvc.StopScheduler()
-				logger.Info("Bot scheduler stopped")
-			}
-
-			logger.Info("Server exited")
-			return
-		}
+	// 给正在处理的请求预留 5 秒完成
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if err := srv.Shutdown(ctx); err != nil {
+		logger.Error(fmt.Sprintf("Server forced to shutdown: %v", err))
 	}
+
+	// 停止机器人调度器（如果有）
+	if app.BotSvc != nil {
+		app.BotSvc.StopScheduler()
+		logger.Info("Bot scheduler stopped")
+	}
+
+	logger.Info("Server exited")
 }
 
 // loadConfig 加载配置文件

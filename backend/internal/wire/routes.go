@@ -94,6 +94,9 @@ func RegisterRoutes(
 	handlers.Plugin.RegisterRoutes(api, mw)
 	handlers.Bot.RegisterRoutes(api, mw)
 
+	// 配置
+	handlers.Config.RegisterRoutes(api, mw)
+
 	// 静态路由
 	engine.StaticFS("/store", http.Dir("./store"))
 	engine.StaticFS("/uploads", http.Dir("./uploads"))

@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"strings"
+	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/repository/token"
 	"tiny-forum/pkg/jwt"
 	"tiny-forum/pkg/response"
@@ -65,6 +66,43 @@ func AdminRequired() gin.HandlerFunc {
 			return
 		}
 		c.Next()
+	}
+}
+
+// SystemMaintainerRequired 系统维护员权限中间件
+// 只有系统维护员（SystemMaintainer）可以访问
+func SystemMaintainerRequired() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		role, exists := c.Get("user_role")
+		if !exists {
+			response.Unauthorized(c, "未登录")
+			c.Abort()
+			return
+		}
+
+		// 检查是否为系统维护员、管理员或超级管理员
+		allowedRoles := []do.UserRole{
+			do.RoleSystemMaintainer,
+			do.RoleAdmin,
+			do.RoleSuperAdmin,
+		}
+
+		roleStr, ok := role.(string)
+		if !ok {
+			response.Unauthorized(c, "无效的用户角色")
+			c.Abort()
+			return
+		}
+
+		for _, allowed := range allowedRoles {
+			if roleStr == string(allowed) {
+				c.Next()
+				return
+			}
+		}
+
+		response.Forbidden(c, "需要系统维护员权限")
+		c.Abort()
 	}
 }
 

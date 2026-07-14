@@ -23,23 +23,23 @@ func Load(configDir string) (*Config, error) {
 
 	var privateConfig ConfigPrivate
 	if err := vipers["private"].Unmarshal(&privateConfig); err != nil {
-		fmt.Printf("⚠️  加载私有配置失败: %v，使用空配置\n", err)
+		fmt.Printf("加载私有配置失败: %v，使用空配置\n", err)
 		privateConfig = ConfigPrivate{}
 	}
 
 	var riskConfig ConfigRiskControl
 	if err := vipers["risk_control"].Unmarshal(&riskConfig); err != nil {
-		fmt.Printf("⚠️  加载风控配置失败: %v，使用空配置\n", err)
+		fmt.Printf("加载风控配置失败: %v，使用空配置\n", err)
 	}
 
 	var postgresConfig ConfigPostgres
 	if err := vipers["postgres"].Unmarshal(&postgresConfig); err != nil {
-		fmt.Printf("⚠️  加载 Postgres 配置失败: %v，使用空配置\n", err)
+		fmt.Printf("加载 Postgres 配置失败: %v，使用空配置\n", err)
 	}
 
 	var redisConfig ConfigRedis
 	if err := vipers["redis"].Unmarshal(&redisConfig); err != nil {
-		fmt.Printf("⚠️  加载 Redis 配置失败: %v，使用空配置\n", err)
+		fmt.Printf("加载 Redis 配置失败: %v，使用空配置\n", err)
 	}
 
 	cfg := &Config{
@@ -49,12 +49,11 @@ func Load(configDir string) (*Config, error) {
 		Postgres:    postgresConfig,
 		Redis:       redisConfig,
 	}
-
 	fmt.Printf("✅ 所有配置文件成功加载\n")
 	cfg.setDefaults()
 	if err := cfg.validate(); err != nil {
-		fmt.Printf("⚠️  配置验证失败: %v\n", err)
-		// 根据需求决定是否返回错误
+		fmt.Println("验证失败:", err)
+		return nil, err
 	}
 	return cfg, nil
 }
@@ -74,22 +73,14 @@ func newViper(prefix, configPath string) *viper.Viper {
 	v := viper.New()
 	v.SetConfigType("yaml")
 	v.SetConfigFile(configPath)
-
-	// 环境变量支持
 	v.AutomaticEnv()
 	v.SetEnvPrefix(prefix)
 	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+	_ = v.ReadInConfig()
 
-	// 读取配置文件（如果不存在也不报错，因为可能通过环境变量提供）
 	if err := v.ReadInConfig(); err != nil {
-		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-			// 配置文件不存在，使用环境变量
-			fmt.Printf("ℹ️  配置文件 %s 不存在，将使用环境变量\n", configPath)
-		} else {
-			fmt.Printf("⚠️  读取配置文件 %s 出错: %v\n", configPath, err)
-		}
+		fmt.Printf("Warning: read config %s error: %v\n", configPath, err)
 	}
-
 	return v
 }
 

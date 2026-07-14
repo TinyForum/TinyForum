@@ -1,5 +1,4 @@
 // internal/middleware/ratelimit.go
-
 package middleware
 
 import (
@@ -7,6 +6,7 @@ import (
 	"log"
 	"net"
 	"strings"
+	"sync/atomic"
 	"tiny-forum/internal/infra/config"
 	"tiny-forum/internal/infra/ratelimit"
 	"tiny-forum/internal/model/do"
@@ -17,27 +17,51 @@ import (
 	"gorm.io/gorm"
 )
 
+// Context 键常量
+// const (
+// 	ContextUserID = "user_id"
+// )
+
 // RateLimitMiddleware 限流中间件结构体
 type RateLimitMiddleware struct {
 	db      *gorm.DB
 	riskSvc riskservice.RiskService
-	cfg     *config.RateLimitConfig
+	// 使用 atomic.Value 存储配置，保证并发安全
+	cfg atomic.Value // 存储 *config.RateLimitConfig
 }
 
 // NewRateLimitMiddleware 创建限流中间件实例
 func NewRateLimitMiddleware(db *gorm.DB, riskSvc riskservice.RiskService, cfg *config.RateLimitConfig) *RateLimitMiddleware {
-	return &RateLimitMiddleware{
+	m := &RateLimitMiddleware{
 		db:      db,
 		riskSvc: riskSvc,
-		cfg:     cfg,
 	}
+	m.cfg.Store(cfg)
+	return m
+}
+
+// UpdateConfig 更新限流配置（支持动态热更新）
+func (m *RateLimitMiddleware) UpdateConfig(cfg config.RateLimitConfig) {
+	m.cfg.Store(&cfg)
+	log.Printf("[RateLimitMiddleware] Config updated: enabled=%v, whitelist=%v",
+		cfg.Enabled, cfg.IPWhitelist)
+}
+
+// getConfig 获取当前配置（线程安全）
+func (m *RateLimitMiddleware) getConfig() *config.RateLimitConfig {
+	if val := m.cfg.Load(); val != nil {
+		return val.(*config.RateLimitConfig)
+	}
+	return &config.RateLimitConfig{}
 }
 
 // Middleware 返回限流中间件处理函数
 func (m *RateLimitMiddleware) Middleware(action ratelimit.Action) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		cfg := m.getConfig()
+
 		// 如果限流未启用，直接放行
-		if m.cfg != nil && !m.cfg.Enabled {
+		if cfg == nil || !cfg.Enabled {
 			c.Next()
 			return
 		}
@@ -49,22 +73,22 @@ func (m *RateLimitMiddleware) Middleware(action ratelimit.Action) gin.HandlerFun
 
 		// 情况1：未登录用户，使用IP限流
 		if !exists {
-			m.handleAnonymousUser(c, action)
+			m.handleAnonymousUser(c, action, cfg)
 			return
 		}
 
 		// 情况2：已登录用户，使用用户ID限流
-		m.handleAuthenticatedUser(c, action, userIDRaw)
+		m.handleAuthenticatedUser(c, action, userIDRaw, cfg)
 	}
 }
 
 // handleAnonymousUser 处理未登录用户的限流
-func (m *RateLimitMiddleware) handleAnonymousUser(c *gin.Context, action ratelimit.Action) {
+func (m *RateLimitMiddleware) handleAnonymousUser(c *gin.Context, action ratelimit.Action, cfg *config.RateLimitConfig) {
 	ip := c.ClientIP()
 	log.Printf("[RateLimit] Anonymous user, IP: %s, action: %s", ip, action)
 
 	// 使用配置的白名单
-	if m.isWhitelistedIP(ip) {
+	if m.isWhitelistedIP(ip, cfg) {
 		log.Printf("[RateLimit] IP %s is whitelisted, skipping rate limit", ip)
 		c.Next()
 		return
@@ -98,7 +122,7 @@ func (m *RateLimitMiddleware) handleAnonymousUser(c *gin.Context, action ratelim
 }
 
 // handleAuthenticatedUser 处理已登录用户的限流
-func (m *RateLimitMiddleware) handleAuthenticatedUser(c *gin.Context, action ratelimit.Action, userIDRaw any) {
+func (m *RateLimitMiddleware) handleAuthenticatedUser(c *gin.Context, action ratelimit.Action, userIDRaw any, cfg *config.RateLimitConfig) {
 	userID, ok := userIDRaw.(uint)
 	if !ok {
 		log.Printf("[RateLimit] Invalid user ID type, skipping rate limit")
@@ -111,7 +135,7 @@ func (m *RateLimitMiddleware) handleAuthenticatedUser(c *gin.Context, action rat
 	var user do.User
 	if err := m.db.Select("id, score, is_blocked, created_at").First(&user, userID).Error; err != nil {
 		log.Printf("[RateLimit] User not found: %d, error: %v, fallback to IP rate limit", userID, err)
-		m.handleAnonymousUser(c, action)
+		m.handleAnonymousUser(c, action, cfg)
 		return
 	}
 
@@ -125,7 +149,7 @@ func (m *RateLimitMiddleware) handleAuthenticatedUser(c *gin.Context, action rat
 	result, err := m.riskSvc.CheckRateLimit(c.Request.Context(), &user, action)
 	if err != nil {
 		log.Printf("[RateLimit] CheckRateLimit error for user %d: %v, fallback to IP rate limit", userID, err)
-		m.handleAnonymousUser(c, action)
+		m.handleAnonymousUser(c, action, cfg)
 		return
 	}
 
@@ -157,12 +181,12 @@ func (m *RateLimitMiddleware) setRateLimitHeaders(c *gin.Context, result ratelim
 }
 
 // isWhitelistedIP 检查 IP 是否在白名单中
-func (m *RateLimitMiddleware) isWhitelistedIP(ip string) bool {
-	if m.cfg == nil || len(m.cfg.IPWhitelist) == 0 {
+func (m *RateLimitMiddleware) isWhitelistedIP(ip string, cfg *config.RateLimitConfig) bool {
+	if cfg == nil || len(cfg.IPWhitelist) == 0 {
 		return false
 	}
 
-	for _, whitelistIP := range m.cfg.IPWhitelist {
+	for _, whitelistIP := range cfg.IPWhitelist {
 		if strings.Contains(whitelistIP, "/") {
 			// 支持 CIDR 格式
 			if isIPInCIDR(ip, whitelistIP) {
