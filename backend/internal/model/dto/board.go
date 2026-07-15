@@ -11,7 +11,7 @@ type GetBoardPostsResponse struct {
 	ID         uint      `json:"id"`
 	Title      string    `json:"title"`
 	Summary    string    `json:"summary"`
-	Cover      string    `json:"cover"`
+	CoverUrl   string    `json:"cover_url"`
 	Type       string    `json:"type"`
 	AuthorID   uint      `json:"author_id"`
 	AuthorName string    `json:"author_name"`

@@ -22,7 +22,7 @@ func (s *topicService) AddPostToTopic(input request.AddPostToTopicRequest, userI
 	topicPost := &do.TopicPost{
 		TopicID:   input.TopicID,
 		PostID:    input.PostID,
-		SortOrder: input.SortOrder,
+		SortOrder: input.SortOrder, // 排序
 		AddedBy:   userID,
 	}
 	if err := s.topicRepo.AddPost(topicPost); err != nil {

@@ -1,7 +1,7 @@
 package admin
 
 import (
-	"tiny-forum/internal/model/request"
+	"strconv"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -46,14 +46,15 @@ func (h *AdminHandler) ListUsersScore(c *gin.Context) {
 // @Failure 500 {object} common.BasicResponse
 // @Router /admin/users/score [get]
 func (h *AdminHandler) GetUserScore(c *gin.Context) {
-	var req request.GetUserScoreRequest
-	err := c.BindQuery(&req)
+	// var req request.GetUserScoreRequest
+	// err := c.BindQuery(&req)
+	targetID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		response.HandleError(c, err)
 		return
 	}
 
-	scoreVO, err := h.service.GetUserScore(c, req.UserID)
+	scoreVO, err := h.service.GetUserScore(c, uint(targetID))
 	if err != nil {
 		response.HandleError(c, err)
 		return
