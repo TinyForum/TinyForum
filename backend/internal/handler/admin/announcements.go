@@ -25,7 +25,7 @@ import (
 // @Failure 401 {object} common.BasicResponse "未授权"
 // @Failure 403 {object} common.BasicResponse "无权限（非管理员）"
 // @Failure 500 {object} common.BasicResponse "服务器内部错误"
-// @Router /admin/announcements/list [get]
+// @Router /admin/announcements [get]
 func (h *AdminHandler) ListAnnouncements(c *gin.Context) {
 	var req request.ListAnnouncementsRequest
 	if err := c.ShouldBindQuery(&req); err != nil {

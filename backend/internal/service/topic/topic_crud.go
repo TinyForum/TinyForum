@@ -11,7 +11,7 @@ func (s *topicService) Create(creatorID uint, input request.CreateTopicReqeust) 
 	topic := &do.Topic{
 		Title:       input.Title,
 		Description: input.Description,
-		Cover:       input.Cover,
+		CoverUrl:    input.CoverUrl,
 		CreatorID:   creatorID,
 		IsPublic:    input.IsPublic,
 	}
@@ -29,7 +29,7 @@ func (s *topicService) Update(id uint, input request.CreateTopicReqeust) (*do.To
 	}
 	topic.Title = input.Title
 	topic.Description = input.Description
-	topic.Cover = input.Cover
+	topic.CoverUrl = input.CoverUrl
 	topic.IsPublic = input.IsPublic
 	if err := s.topicRepo.Update(topic); err != nil {
 		return nil, err

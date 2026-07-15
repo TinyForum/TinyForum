@@ -61,7 +61,7 @@ func (r *boardRepository) GetPostsBySlug(slug string, page, pageSize int) ([]*dt
 
 	// 1. 构建基础查询
 	baseQuery := r.db.Table("posts").
-		Select("posts.id, posts.title, posts.summary, posts.cover, posts.type, posts.author_id, users.username as author_name, posts.created_at").
+		Select("posts.id, posts.title, posts.summary, posts.cover_url, posts.type, posts.author_id, users.username as author_name, posts.created_at").
 		Joins("JOIN boards ON boards.id = posts.board_id").
 		Joins("JOIN users ON users.id = posts.author_id").
 		Where("boards.slug = ?", slug).

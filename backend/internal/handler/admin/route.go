@@ -31,7 +31,7 @@ func (h *AdminHandler) RegisterRoutes(api *gin.RouterGroup, mw middleware.Middle
 			usersGroup.GET("", h.ListUsers)                  // 获取用户列表
 			usersGroup.PUT("/:id/active", h.SetActiveUser)   // 激活用户
 			usersGroup.PUT("/:id/blocked", h.SetBlockedUser) // 设置用户是否被禁用
-			usersGroup.DELETE("/:id/", h.DeleteUser)         // 删除用户
+			usersGroup.DELETE("/:id", h.DeleteUser)          // 删除用户
 			usersGroup.PUT("/:id/role", h.SetRoleUser)       // 设置用户角色
 			usersGroup.GET("/score", h.ListUsersScore)       // 获取用户积分列表
 			usersGroup.GET("/:id/score", h.GetUserScore)     // 获取用户积分

@@ -12,14 +12,14 @@ import (
 func (h *CommentHandler) RegisterRoutes(api *gin.RouterGroup, mw middleware.MiddlewareSet) {
 	commentGroup := api.Group("/comments")
 	{
-		commentGroup.GET("/post/:post_id", h.List)
+		commentGroup.GET("/post/:post_id", h.List) // 获取指定帖子的评论
 		commentGroup.POST("",
 			mw.Auth(),
 			mw.RateLimit("create_comment"),
 			mw.ContentCheck([]string{"content"}),
 			h.Create,
-		)
-		commentGroup.DELETE("/:id", mw.Auth(), h.Delete)
+		) // 创建评论
+		commentGroup.DELETE("/:id", mw.Auth(), h.Delete) // 删除评论
 	}
 
 }

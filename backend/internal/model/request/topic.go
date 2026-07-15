@@ -3,7 +3,7 @@ package request
 type CreateTopicReqeust struct {
 	Title       string `json:"title" binding:"required,min=2,max=100"`
 	Description string `json:"description" binding:"max=500"`
-	Cover       string `json:"cover" binding:"max=500"`
+	CoverUrl    string `json:"cover_url" binding:"max=500"`
 	IsPublic    bool   `json:"is_public"`
 }
 
