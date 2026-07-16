@@ -3,13 +3,15 @@ package request
 import (
 	"fmt"
 	"tiny-forum/internal/model/do"
+
+	"gorm.io/datatypes"
 )
 
 type ApplyModeratorRequest struct {
-	UserID               uint                     `json:"user_id"`               // 申请人ID
-	BoardID              uint                     `json:"board_id"`              // 版块ID
-	Reason               string                   `json:"reason"`                // 申请理由
-	RequestedPermissions []do.ModeratorPermission `json:"requested_permissions"` // 请求的权限列表（外部传入）
+	UserID               uint                                        `json:"user_id"`               // 申请人ID
+	BoardID              uint                                        `json:"board_id"`              // 版块ID
+	Reason               string                                      `json:"reason"`                // 申请理由
+	RequestedPermissions datatypes.JSONSlice[do.ModeratorPermission] `json:"requested_permissions"` // 请求的权限列表（外部传入）
 }
 
 // ── HTTP 请求结构体 ───────────────────────────────────────────────────────
@@ -33,9 +35,9 @@ func (r *AddModeratorRequest) Validate() error {
 
 // 更新权限请求
 type UpdateModeratorPermissionsRequest struct {
-	UserID      uint                     `json:"user_id"`     // 申请人ID
-	BoardID     uint                     `json:"board_id"`    // 版块ID
-	Permissions []do.ModeratorPermission `json:"permissions"` // 授予的权限列表
+	UserID      uint                                        `json:"user_id"`     // 申请人ID
+	BoardID     uint                                        `json:"board_id"`    // 版块ID
+	Permissions datatypes.JSONSlice[do.ModeratorPermission] `json:"permissions"` // 授予的权限列表
 }
 
 // BanUserRequest 封禁用户请求

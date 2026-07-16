@@ -10,6 +10,7 @@ import (
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/datatypes"
 )
 
 // ApplyModerator 用户申请成为版主
@@ -57,7 +58,7 @@ func (h *BoardHandler) ApplyModerator(c *gin.Context) {
 		UserID:               uid,
 		BoardID:              uint(boardID),
 		Reason:               req.Reason,
-		RequestedPermissions: req.RequestedPermissions,
+		RequestedPermissions: datatypes.JSONSlice[do.ModeratorPermission](req.RequestedPermissions),
 	}
 
 	// 5. 调用 Service
