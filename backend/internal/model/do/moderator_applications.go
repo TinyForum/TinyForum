@@ -5,6 +5,8 @@ import (
 	"time"
 	"tiny-forum/internal/model/common"
 	apperrors "tiny-forum/pkg/errors"
+
+	"gorm.io/datatypes"
 )
 
 // ── ModeratorApplication 版主申请表 ─────────────────────────────────────────
@@ -33,7 +35,7 @@ type ModeratorApplication struct {
 	// 申请内容
 	Reason string `gorm:"size:500" json:"reason"` // 申请理由
 	// 申请时希望获得的权限列表（JSON数组，可任意扩展）
-	RequestedPermissions []ModeratorPermission `gorm:"type:json" json:"requested_permissions"`
+	RequestedPermissions datatypes.JSONSlice[ModeratorPermission] `gorm:"type:json" json:"requested_permissions"`
 
 	// 审批相关
 	Status     ApplicationStatus `gorm:"type:varchar(20);default:'pending';index" json:"status"`
@@ -121,7 +123,7 @@ func (m *ModeratorApplication) HasPermission(perm ModeratorPermission) bool {
 
 // GetRequestedPermissions 返回请求的权限列表（安全拷贝）
 func (m *ModeratorApplication) GetRequestedPermissions() []ModeratorPermission {
-	if m.RequestedPermissions == nil {
+	if len(m.RequestedPermissions) == 0 {
 		return []ModeratorPermission{}
 	}
 	out := make([]ModeratorPermission, len(m.RequestedPermissions))

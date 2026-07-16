@@ -21,10 +21,10 @@ import (
 // @Failure 400 {object} common.BasicResponse"请求参数错误或非问答帖"
 // @Failure 401 {object} common.BasicResponse"未授权"
 // @Failure 404 {object} common.BasicResponse"帖子不存在"
-// @Router /answers/{id}/answer [post]
+// @Router /answers/{post_id}/answer [post]
 func (h *AnswerHandler) CreateAnswer(c *gin.Context) {
 	// 1. 获取问题ID（URL 参数）
-	questionID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	questionID, err := strconv.ParseUint(c.Param("post_id"), 10, 64)
 	if err != nil {
 		response.HandleError(c, err)
 		return

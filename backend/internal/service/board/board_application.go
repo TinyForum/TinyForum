@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/request"
+
+	"gorm.io/datatypes"
 )
 
 func (s *boardService) ApplyModerator(ctx context.Context, req request.ApplyModeratorRequest) error {
@@ -34,7 +36,7 @@ func (s *boardService) ApplyModerator(ctx context.Context, req request.ApplyMode
 		BoardID:              req.BoardID,
 		Reason:               req.Reason,
 		Status:               do.ApplicationPending,
-		RequestedPermissions: req.RequestedPermissions, // 核心改动
+		RequestedPermissions: datatypes.JSONSlice[do.ModeratorPermission](req.RequestedPermissions), // 核心改动
 	}
 
 	// 可选：对请求的权限进行合法性校验（防止非法权限字符串）

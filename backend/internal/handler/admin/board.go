@@ -72,7 +72,7 @@ func (h *AdminHandler) ReviewApplication(c *gin.Context) {
 		return
 	}
 
-	var body struct {
+	var req struct {
 		Approve            bool   `json:"approve"`
 		ReviewNote         string `json:"review_note"          binding:"max=500"`
 		CanDeletePost      *bool  `json:"can_delete_post"`
@@ -81,7 +81,7 @@ func (h *AdminHandler) ReviewApplication(c *gin.Context) {
 		CanManageModerator *bool  `json:"can_manage_moderator"`
 		CanBanUser         *bool  `json:"can_ban_user"`
 	}
-	if err := c.ShouldBindJSON(&body); err != nil {
+	if err := c.ShouldBindJSON(&req); err != nil {
 		response.HandleError(c, err)
 		return
 	}
@@ -89,18 +89,18 @@ func (h *AdminHandler) ReviewApplication(c *gin.Context) {
 	reviewerID := c.GetUint("user_id")
 	input := request.ReviewApplicationRequest{
 		ApplicationID:      uint(applicationID),
-		Approve:            body.Approve,
-		ReviewNote:         body.ReviewNote,
-		CanDeletePost:      body.CanDeletePost,
-		CanPinPost:         body.CanPinPost,
-		CanEditAnyPost:     body.CanEditAnyPost,
-		CanManageModerator: body.CanManageModerator,
-		CanBanUser:         body.CanBanUser,
+		Approve:            req.Approve,
+		ReviewNote:         req.ReviewNote,
+		CanDeletePost:      req.CanDeletePost,
+		CanPinPost:         req.CanPinPost,
+		CanEditAnyPost:     req.CanEditAnyPost,
+		CanManageModerator: req.CanManageModerator,
+		CanBanUser:         req.CanBanUser,
 	}
 
 	if err := h.service.ReviewApplication(c.Request.Context(), input, reviewerID); err != nil {
 		response.HandleError(c, err)
 		return
 	}
-	response.Success(c, gin.H{"message": "审批完成"})
+	response.Success(c, gin.H{"message": map[bool]string{true: "approved", false: "rejected"}[req.Approve]})
 }
