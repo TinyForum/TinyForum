@@ -27,11 +27,11 @@ const (
 
 // ContentCheckMiddleware 内容安全前置检测中间件（同步 Pre-check）
 // 从请求 body 中提取指定 JSON 字段，合并检测后统一决策：
-//   - 一级情况：【安全】（文章级） → 放行，不注入审核标记
-//   - 二级情况：【攻击】（文章级） → 任意字段命中 LevelReplace （且无 Block/Review）→ 放行，修改内容，标记用户违规，不注入审核标记
-//   - 三级情况：【风险】（文章级）→ 任意字段命中 LevelReview （且无 Block）→ 放行，向 context 注入审核标记
-//   - 四级情况：【屏蔽】（用户级）→ 任意字段命中 LevelShadowed （且无 Block/Review）→ 隐藏，向 context 注入隐藏标记
-//   - 五级情况：【拦截】（用户级）→ 任意字段命中 LevelBlock → 返回 400，请求不进入 handler，标记用户风控行为
+//   - 一级情况：【安全】（文章级）→ 	放行，不注入审核标记
+//   - 二级情况：【攻击】（文章级）→ 	任意字段命中 LevelReplace （且无 Block/Review）→ 	放行，修改内容，标记用户违规，不注入审核标记
+//   - 三级情况：【风险】（文章级）→ 	任意字段命中 LevelReview （且无 Block）→ 			放行，向 context 注入审核标记
+//   - 四级情况：【屏蔽】（用户级）→	任意字段命中 LevelShadowed （且无 Block/Review）→ 	隐藏，向 context 注入隐藏标记
+//   - 五级情况：【拦截】（用户级）→ 	任意字段命中 LevelBlock （严格）→ 					返回 400，请求不进入 handler，标记用户风控行为
 //
 // fields: 需要检测的 JSON 字段名，如 []string{"title", "content"}
 // ContentCheckMiddleware 内容安全前置检测中间件（同步 Pre-check）

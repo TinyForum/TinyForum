@@ -1,224 +1,35 @@
 package main
 
 import (
-	"context"
+	"flag"
 	"fmt"
 	"log"
-	"net/http"
 	"os"
-	"os/signal"
-	"path/filepath"
-	"strings"
-	"syscall"
-	"time"
-
-	"tiny-forum/internal/infra/config"
-	"tiny-forum/internal/startup"
-	"tiny-forum/internal/wire"
-	"tiny-forum/pkg/logger"
 )
 
-// @title           Tiny Forum API
-// @version         1.0
-// @description     一个基于 Gin 的论坛系统 API
-// @host            localhost:8080
-// @BasePath        /api/v1
-// @securityDefinitions.apikey ApiKeyAuth
-// @in header
-// @name Authorization
-// @description Type "Bearer" followed by a space and the JWT token.
-
 func main() {
+	flag.Parse()
+
+	if *showHelp {
+		printHelp()
+		os.Exit(0)
+	}
+
 	version := os.Getenv("TINYFORUM_VERSION")
-
-	// ===== 1. 加载静态配置（用于初始化） =====
-	staticCfg, err := loadConfig()
-	if err != nil {
-		printConfigError(err)
-		os.Exit(1)
+	if version == "" {
+		version = "1.0.0"
 	}
 
-	// 初始化日志
-	if err := logger.Init(logger.Config(staticCfg.ToLoggerConfig())); err != nil {
-		log.Fatalf("Failed to init logger: %v\n", err)
+	if *showVer {
+		fmt.Printf("Tiny Forum v%s\n", version)
+		os.Exit(0)
 	}
 
-	// ===== 2. 创建动态配置管理器 =====
-	dynCfg, err := config.NewDynamicConfig("config")
-	if err != nil {
-		logger.Fatal(fmt.Sprintf("Failed to create dynamic config: %v", err))
-	}
-	defer dynCfg.Close()
+	// 应用命令行覆盖到环境变量
+	applyCommandLineOverrides()
 
-	// 打印启动信息
-	startup.PrintBanner(version)
-	startup.PrintStartupInfo(dynCfg.Get())
-	if dynCfg.GetBasic().Log.Level == "debug" {
-		startup.PrintConfigSummary(dynCfg.Get())
-	}
-
-	// ===== 3. 初始化核心应用（传入动态配置） =====
-	app, err := wire.InitAppWithDynamic(dynCfg) // 需要修改 wire 包
-	if err != nil {
-		logger.Fatal(fmt.Sprintf("Failed to initialize app: %v\n", err))
-	}
-	defer logger.CloseDB()
-
-	// ===== 4. 启动 HTTP 服务器 =====
-	addr := fmt.Sprintf(":%d", dynCfg.GetBasic().Server.Port)
-	srv := &http.Server{
-		Addr:    addr,
-		Handler: app.Engine,
-	}
-
-	go func() {
-		logger.Info(fmt.Sprintf("✅ Server is running on http://localhost%s", addr))
-		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			logger.Fatal(fmt.Sprintf("Server failed: %v", err))
-		}
-	}()
-
-	// ===== 5. 信号监听（支持 SIGHUP 手动重载） =====
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
-
-	for {
-		sig := <-quit
-		switch sig {
-		case syscall.SIGHUP:
-			// 手动重新加载配置
-			logger.Info("Received SIGHUP, reloading config...")
-			if err := dynCfg.Reload(); err != nil {
-				logger.Error(fmt.Sprintf("Failed to reload config: %v", err))
-			} else {
-				logger.Info("Config reloaded successfully")
-			}
-		default:
-			// 优雅退出
-			logger.Info("Shutting down server gracefully...")
-			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-			defer cancel()
-
-			if err := srv.Shutdown(ctx); err != nil {
-				logger.Error(fmt.Sprintf("Server forced to shutdown: %v", err))
-			}
-
-			// 停止机器人调度器
-			if app.BotSvc != nil {
-				app.BotSvc.StopScheduler()
-				logger.Info("Bot scheduler stopped")
-			}
-
-			logger.Info("Server exited")
-			return
-		}
-	}
-}
-
-// loadConfig 加载配置文件
-func loadConfig() (*config.Config, error) {
-	configDir := "config"
-	// 获取当前工作目录
-	dir, err := os.Getwd()
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "获取当前目录失败: %v\n", err)
-		os.Exit(1)
-	}
-	fmt.Println("当前路径:", dir)
-
-	basicConfigPath := filepath.Join(configDir, "basic.yml")
-	privateConfigPath := filepath.Join(configDir, "private.yml")
-	riskConfigPath := filepath.Join(configDir, "risk_control.yml")
-	postgresPath := filepath.Join(configDir, "postgres.yml")
-	redisPath := filepath.Join(configDir, "redis.yml")
-
-	printConfigFileStatus(basicConfigPath, "Basic config")
-	printConfigFileStatus(privateConfigPath, "Private config")
-	printConfigFileStatus(riskConfigPath, "Risk control config")
-	printConfigFileStatus(postgresPath, "Postgres config")
-	printConfigFileStatus(redisPath, "Redis config")
-
-	cfg, err := config.Load(configDir)
-	if err != nil {
-		return nil, fmt.Errorf("❌ failed to load config from '%s' directory. \nERROR: %s", configDir, err)
-	}
-
-	if err := validateConfigWithHints(cfg); err != nil {
-		return nil, err
-	}
-
-	return cfg, nil
-}
-
-func printConfigFileStatus(filePath, configName string) {
-	if _, err := os.Stat(filePath); os.IsNotExist(err) {
-		log.Printf("ℹ️  %s file not found: %s\n", configName, filePath)
-		log.Printf("   → Using environment variables or defaults for this configuration\n")
-	} else {
-		log.Printf("✓ %s file found: %s\n", configName, filePath)
-	}
-}
-
-func validateConfigWithHints(cfg *config.Config) error {
-	var errors []string
-	var warnings []string
-
-	// 服务器端口
-	if cfg.Basic.Server.Port <= 0 || cfg.Basic.Server.Port > 65535 {
-		errors = append(errors, fmt.Sprintf(
-			"❌ Invalid server port: %d (must be between 1 and 65535)\n   → Set 'server.port' in config/basic.yaml or BASIC_SERVER_PORT environment variable",
-			cfg.Basic.Server.Port))
-	}
-
-	// 数据库配置
-	if cfg.Postgres.Host == "" {
-		errors = append(errors, "❌ Database host is required\n   → Set 'database.host' in config/basic.yaml or BASIC_DATABASE_HOST environment variable")
-	}
-	if cfg.Postgres.DBName == "" {
-		errors = append(errors, "❌ Database name is required\n   → Set 'database.dbname' in config/basic.yaml or BASIC_DATABASE_DBNAME environment variable")
-	}
-
-	// JWT 校验
-	if cfg.Private.JWT.Secret == "" {
-		envSecret := os.Getenv("BASIC_JWT_SECRET")
-		if envSecret == "" {
-			errors = append(errors, "❌ JWT secret is required for security\n   → Set 'jwt.secret' in config/basic.yaml\n   → Or set BASIC_JWT_SECRET environment variable")
-		} else {
-			warnings = append(warnings, "⚠️  JWT secret is set via environment variable (this is fine)")
-		}
-	} else if len(cfg.Private.JWT.Secret) < 32 && cfg.IsProduction() {
-		warnings = append(warnings, fmt.Sprintf("⚠️  JWT secret is too short (%d characters) for production", len(cfg.Private.JWT.Secret)))
-	}
-
-	// 邮件配置（可选）
-	if cfg.Private.Email.Host != "" && cfg.Private.Email.Port <= 0 {
-		warnings = append(warnings, "⚠️  Invalid email port, email features may not work")
-	}
-
-	// 输出警告
-	for _, warning := range warnings {
-		log.Printf("%s", warning)
-	}
-
-	if len(errors) > 0 {
-		return fmt.Errorf("\n%s\n\n💡 Quick Fix:\n  1. Create config/basic.yaml with required settings\n  2. Or set environment variables (see above)\n  3. Run 'make init-dev' to generate sample config",
-			strings.Join(errors, "\n"))
-	}
-	return nil
-}
-
-func printConfigError(err error) {
-	log.Printf("%s", strings.Repeat("=", 60))
-	log.Printf("🚫 Configuration Error")
-	log.Printf("%s", strings.Repeat("=", 60))
-	log.Printf("\n%v\n", err)
-	log.Printf("\nPlease run 'make init-dev' to initialize configuration files.\n")
-}
-
-func startServer(cfg *config.Config, app *wire.App) {
-	addr := fmt.Sprintf(":%d", cfg.Basic.Server.Port)
-	logger.Info(fmt.Sprintf("✅ Server is running on http://localhost%s", addr))
-	if err := app.Engine.Run(addr); err != nil {
-		logger.Fatal(fmt.Sprintf("Server failed to start: %v", err))
+	// 启动应用
+	if err := runApp(*configDir, version); err != nil {
+		log.Fatalf("Failed to start: %v", err)
 	}
 }
