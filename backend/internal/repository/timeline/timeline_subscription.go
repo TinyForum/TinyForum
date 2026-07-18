@@ -5,7 +5,7 @@ import "tiny-forum/internal/model/do"
 // Subscribe 关注用户（如果已存在则重新激活）
 func (r *timelineRepository) Subscribe(sub *do.TimelineSubscription) error {
 	var existing do.TimelineSubscription
-	err := r.db.Where("subscriber_id = ? AND target_user_id = ?", sub.SubscriberID, sub.TargetID).
+	err := r.db.Where("subscriber_id = ? AND target_id = ?", sub.SubscriberID, sub.TargetID).
 		First(&existing).Error
 
 	if err == nil {
@@ -18,7 +18,7 @@ func (r *timelineRepository) Subscribe(sub *do.TimelineSubscription) error {
 // Unsubscribe 取消关注（软删除，设置 is_active = false）
 func (r *timelineRepository) Unsubscribe(subscriberID, targetUserID uint) error {
 	return r.db.Model(&do.TimelineSubscription{}).
-		Where("subscriber_id = ? AND target_user_id = ?", subscriberID, targetUserID).
+		Where("subscriber_id = ? AND target_id = ?", subscriberID, targetUserID).
 		Update("is_active", false).Error
 }
 
@@ -34,7 +34,7 @@ func (r *timelineRepository) GetSubscriptions(subscriberID uint) ([]do.TimelineS
 func (r *timelineRepository) IsSubscribed(subscriberID, targetUserID uint) (bool, error) {
 	var count int64
 	err := r.db.Model(&do.TimelineSubscription{}).
-		Where("subscriber_id = ? AND target_user_id = ? AND is_active = ?",
+		Where("subscriber_id = ? AND target_id = ? AND is_active = ?",
 			subscriberID, targetUserID, true).
 		Count(&count).Error
 	return count > 0, err
