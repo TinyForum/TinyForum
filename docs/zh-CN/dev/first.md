@@ -20,7 +20,7 @@ Done in 220ms using pnpm v10.32.1
 ✅ Setup complete!
 
 To start the backend:
-  cd backend && go run ./cmd/server/main.go
+  cd backend && go run ./cmd/server
 
 To start the frontend:
   cd frontend && pnpm run dev

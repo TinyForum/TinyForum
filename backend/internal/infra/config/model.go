@@ -45,6 +45,9 @@ type RateLimitConfig struct {
 	Enabled           bool                              `yaml:"enabled" json:"enabled" mapstructure:"enabled"`
 	IPWhitelist       []string                          `yaml:"ip_whitelist" json:"ip_whitelist" mapstructure:"ip_whitelist" validate:"omitempty,dive,cidr"`
 }
+type ContentCheckConfig struct {
+	Enabled bool `yaml:"enabled" json:"enabled" mapstructure:"enabled"`
+}
 
 // =========================================== MARK: 数据库 / 存储
 
@@ -80,7 +83,8 @@ type ConfigRedis struct {
 // =========================================== MARK: 风控配置
 
 type ConfigRiskControl struct {
-	RateLimit RateLimitConfig `mapstructure:"rate_limit" validate:"required"`
+	RateLimit    RateLimitConfig    `mapstructure:"rate_limit" validate:"required"`
+	ContentCheck ContentCheckConfig `mapstructure:"content_check" validate:"required"`
 }
 
 type QuotaConfig struct {

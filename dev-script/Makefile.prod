@@ -29,7 +29,7 @@ build-frontend: check-pnpm
 # @构建后端（编译二进制）
 build-backend: check-go
 	@echo "${BLUE}📦 编译后端...${NC}"
-	@cd backend && mkdir -p bin && go build -o ../$(BINARY) ./cmd/server/main.go
+	@cd backend && mkdir -p bin && go build -o ../$(BINARY) ./cmd/server
 	@echo "${GREEN}✅ 后端编译完成 → $(BINARY)${NC}"
 
 # ──────────────────────────────────────────

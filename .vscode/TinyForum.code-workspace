@@ -107,7 +107,7 @@
       {
         "label": "dev:backend",
         "type": "shell",
-        "command": "go run ./cmd/server/main.go",
+        "command": "go run ./cmd/server",
         "options": {
           "cwd": "${workspaceFolder:Backend (Go)}",
         },

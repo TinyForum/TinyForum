@@ -19,7 +19,7 @@ RUN go mod download
 # GOGC=off 关闭 GC 以减少编译期内存碎片压力
 # -p 1 限制并行包数，避免 arm64/低内存环境 OOM
 COPY . .
-RUN GOGC=off go build -p 1 -ldflags="-w -s" -o bin/server ./cmd/server/main.go
+RUN GOGC=off go build -p 1 -ldflags="-w -s" -o bin/server ./cmd/server
 
 # ── 运行 ────────────────────────────────────────────────────
 FROM alpine:3.20 AS runner

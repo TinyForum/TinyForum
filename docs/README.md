@@ -6,12 +6,12 @@
 
 ## 技术栈
 
-| 层 | 技术 |
-|---|---|
-| 后端 | Go 1.21, Gin, GORM, Wire (手动注入), JWT, Zap |
-| 前端 | Next.js 16, TypeScript, Tailwind CSS, DaisyUI, TanStack Query, Zustand, Tiptap |
-| 数据库 | PostgreSQL 16 |
-| 部署 | Docker + Docker Compose |
+| 层     | 技术                                                                           |
+| ------ | ------------------------------------------------------------------------------ |
+| 后端   | Go 1.21, Gin, GORM, Wire (手动注入), JWT, Zap                                  |
+| 前端   | Next.js 16, TypeScript, Tailwind CSS, DaisyUI, TanStack Query, Zustand, Tiptap |
+| 数据库 | PostgreSQL 16                                                                  |
+| 部署   | Docker + Docker Compose                                                        |
 
 ## 功能列表
 
@@ -57,6 +57,7 @@ docker compose up -d
 # 先创建数据库，然后执行 SQL 文件
 psql -U postgres -h localhost -d postgres -c "CREATE DATABASE tiny_forum;"
 ```
+
 #### 启动 PostgreSQL（Docker 单独启动）
 
 ```bash
@@ -81,7 +82,7 @@ go mod tidy
 # vim config/config.yaml
 
 # 运行
-go run ./cmd/server/main.go
+go run ./cmd/server
 ```
 
 > 首次启动会自动 AutoMigrate 建表，无需手动执行 SQL。
@@ -182,60 +183,66 @@ tiny-forum/
 ## API 文档
 
 ### 认证
-| 方法 | 路径 | 说明 |
-|------|------|------|
-| POST | /api/v1/auth/register | 注册 |
-| POST | /api/v1/auth/login | 登录 |
-| GET | /api/v1/auth/me | 当前用户信息 |
+
+| 方法 | 路径                  | 说明         |
+| ---- | --------------------- | ------------ |
+| POST | /api/v1/auth/register | 注册         |
+| POST | /api/v1/auth/login    | 登录         |
+| GET  | /api/v1/auth/me       | 当前用户信息 |
 
 ### 帖子
-| 方法 | 路径 | 说明 |
-|------|------|------|
-| GET | /api/v1/posts | 列表（支持分页、搜索、排序、标签过滤） |
-| GET | /api/v1/posts/:id | 详情 |
-| POST | /api/v1/posts | 发布 |
-| PUT | /api/v1/posts/:id | 编辑 |
-| DELETE | /api/v1/posts/:id | 删除 |
-| POST | /api/v1/posts/:id/like | 点赞 |
-| DELETE | /api/v1/posts/:id/like | 取消点赞 |
+
+| 方法   | 路径                   | 说明                                   |
+| ------ | ---------------------- | -------------------------------------- |
+| GET    | /api/v1/posts          | 列表（支持分页、搜索、排序、标签过滤） |
+| GET    | /api/v1/posts/:id      | 详情                                   |
+| POST   | /api/v1/posts          | 发布                                   |
+| PUT    | /api/v1/posts/:id      | 编辑                                   |
+| DELETE | /api/v1/posts/:id      | 删除                                   |
+| POST   | /api/v1/posts/:id/like | 点赞                                   |
+| DELETE | /api/v1/posts/:id/like | 取消点赞                               |
 
 ### 评论
-| 方法 | 路径 | 说明 |
-|------|------|------|
-| GET | /api/v1/comments/post/:post_id | 帖子评论列表 |
-| POST | /api/v1/comments | 发表评论/回复 |
-| DELETE | /api/v1/comments/:id | 删除评论 |
+
+| 方法   | 路径                           | 说明          |
+| ------ | ------------------------------ | ------------- |
+| GET    | /api/v1/comments/post/:post_id | 帖子评论列表  |
+| POST   | /api/v1/comments               | 发表评论/回复 |
+| DELETE | /api/v1/comments/:id           | 删除评论      |
 
 ### 用户
-| 方法 | 路径 | 说明 |
-|------|------|------|
-| GET | /api/v1/users/:id | 用户主页 |
-| PUT | /api/v1/users/profile | 更新资料 |
-| POST | /api/v1/users/:id/follow | 关注 |
-| DELETE | /api/v1/users/:id/follow | 取消关注 |
-| GET | /api/v1/users/leaderboard | 积分排行 |
+
+| 方法   | 路径                      | 说明     |
+| ------ | ------------------------- | -------- |
+| GET    | /api/v1/users/:id         | 用户主页 |
+| PUT    | /api/v1/users/profile     | 更新资料 |
+| POST   | /api/v1/users/:id/follow  | 关注     |
+| DELETE | /api/v1/users/:id/follow  | 取消关注 |
+| GET    | /api/v1/users/leaderboard | 积分排行 |
 
 ### 标签
-| 方法 | 路径 | 说明 |
-|------|------|------|
-| GET | /api/v1/tags | 所有标签 |
+
+| 方法 | 路径         | 说明               |
+| ---- | ------------ | ------------------ |
+| GET  | /api/v1/tags | 所有标签           |
 | POST | /api/v1/tags | 创建标签（管理员） |
 
 ### 通知
-| 方法 | 路径 | 说明 |
-|------|------|------|
-| GET | /api/v1/notifications | 通知列表 |
-| GET | /api/v1/notifications/unread-count | 未读数量 |
-| POST | /api/v1/notifications/read-all | 全部已读 |
+
+| 方法 | 路径                               | 说明     |
+| ---- | ---------------------------------- | -------- |
+| GET  | /api/v1/notifications              | 通知列表 |
+| GET  | /api/v1/notifications/unread-count | 未读数量 |
+| POST | /api/v1/notifications/read-all     | 全部已读 |
 
 ## 积分规则
 
-| 行为 | 积分 |
-|------|------|
-| 注册 | 0 |
-| 发帖 | +10 |
-| 发表评论 | +3 |
-| 点赞他人 | +2 |
+| 行为     | 积分 |
+| -------- | ---- |
+| 注册     | 0    |
+| 发帖     | +10  |
+| 发表评论 | +3   |
+| 点赞他人 | +2   |
 
 ## 配置说明
 
@@ -244,7 +251,7 @@ tiny-forum/
 ```yaml
 server:
   port: 8080
-  mode: debug  # debug | release
+  mode: debug # debug | release
 
 database:
   host: localhost
