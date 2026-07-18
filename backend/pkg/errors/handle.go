@@ -45,11 +45,13 @@ func (e *AppError) HTTPStatus() int {
 	case CodeUnauthorized:
 		return http.StatusUnauthorized
 
+	// 权限错误
 	case CodeForbidden, CodeInsufficientPermission, CodeAcceptForbidden,
 		CodeCannotModifySelf, CodeCannotChangeOwner,
 		CodeAlreadyFollow, CodeAlreadyModerator:
 		return http.StatusForbidden
 
+		// 资源不存在
 	case CodeUserNotFound, CodePostNotFound, CodeBoardNotFound,
 		CodeQuestionNotFound, CodeAnswerNotFound, CodeCommentNotFound,
 		CodeTopicNotFound, CodeTagNotFound, CodeNotificationNotFound,
@@ -58,11 +60,17 @@ func (e *AppError) HTTPStatus() int {
 		CodeLikeNotExist, CodeCollectNotExist, CodeNotFound:
 		return http.StatusNotFound
 
+		// 请求冲突
 	case CodeTooManyRequests:
 		return http.StatusTooManyRequests
 
-	case CodeValidation, CodeInvalidRequest,
-		CodeInvalidEmail, CodeInvalidPhone, CodeInvalidPassword,
+		// 请求错误
+	case CodeValidation, // 通用验证错误
+		CodeInvalidRequest,             // 无效请求
+		CodeUserEmailOrPasswordInvalid, // 用户名或密码错误
+		CodeInvalidEmail,               // 无效邮箱
+		CodeInvalidPhone,               // 无效手机号
+		CodeInvalidPassword,
 		CodeInvalidUsername, CodeInvalidAvatar, CodeInvalidNickname,
 		CodeInvalidUserID, CodeInvalidRole, CodeInvalidConfirmation,
 		CodeUserExist, CodeFollowSelf, CodeScoreNotEnough,

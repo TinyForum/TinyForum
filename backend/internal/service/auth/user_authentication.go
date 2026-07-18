@@ -6,6 +6,7 @@ import (
 	"time"
 	"tiny-forum/internal/model/vo"
 	userSvc "tiny-forum/internal/service/user"
+	apperrors "tiny-forum/pkg/errors"
 
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
@@ -17,17 +18,17 @@ func (s *authService) Login(ctx context.Context, input userSvc.LoginInput) (*vo.
 
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errors.New("邮箱或密码错误") // 不区分邮箱/密码错误
+			return nil, apperrors.ErrUserEmailOrPasswordInvalid // 不区分邮箱/密码错误
 		}
 		return nil, err
 	}
 
 	if user.IsBlocked {
-		return nil, errors.New("账户已被禁用")
+		return nil, apperrors.ErrUserBlocked
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(input.Password)); err != nil {
-		return nil, errors.New("邮箱或密码错误")
+		return nil, apperrors.ErrUserEmailOrPasswordInvalid
 	}
 
 	var deletionStatus *vo.DeletionStatus
@@ -40,7 +41,7 @@ func (s *authService) Login(ctx context.Context, input userSvc.LoginInput) (*vo.
 			RemainingDays: remainingDays,
 		}
 		if remainingDays <= 0 {
-			return nil, errors.New("账户已永久删除，无法登录")
+			return nil, apperrors.ErrUserPermanentlyDeleted
 		}
 	}
 
