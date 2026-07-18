@@ -32,7 +32,7 @@ backend: check-go
 	@echo "${GREEN}🚀 启动后端开发服务器（前台运行）...${NC}"
 	@echo "📍 API 地址: http://localhost:8080"
 	@echo "⚠️  按 Ctrl+C 停止服务"
-	@cd backend && go run ./cmd/server/main.go
+	@cd backend && go run ./cmd/server
 
 # @启动文档（前台运行）
 docs: check-docsify
@@ -57,7 +57,7 @@ start-backend: check-go | $(PID_DIR) $(LOG_DIR)
 		echo "${YELLOW}⚠️  后端服务已在运行中 (PID: $$(cat $(BACKEND_PID_FILE)))${NC}"; \
 	else \
 		echo "${GREEN}🚀 正在启动后端服务（后台运行）...${NC}"; \
-		cd backend && nohup go run ./cmd/server/main.go > ../$(BACKEND_LOG) 2>&1 & \
+		cd backend && nohup go run ./cmd/server > ../$(BACKEND_LOG) 2>&1 & \
 		echo $$! > $(BACKEND_PID_FILE); \
 		sleep 2; \
 		if kill -0 $$(cat $(BACKEND_PID_FILE)) 2>/dev/null; then \

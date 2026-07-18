@@ -53,11 +53,10 @@ make frontend # 启动前端
 
 ```bash
 # 使用 etcd 配置中心
-go run cmd/server/main.go --use-etcd=true --env=dev
-
-# 指定 etcd 配置文件
-go run cmd/server/main.go --use-etcd=true --etcd-config=config/etcd.yml --env=prod
+go run ./cmd/server --port 8000
 ```
+
+默认使用 ai 进行风控，关键词规则非常严格，可以通过 `--risk=false` 关闭
 
 # 开发概述
 

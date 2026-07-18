@@ -49,6 +49,7 @@ type middlewareSet struct {
 
 // NewMiddlewareSet 创建中间件集合实例
 func NewMiddlewareSet(
+	dnyCfg *config.DynamicConfig,
 	jwtMgr *jwtpkg.JWTManager,
 	db *gorm.DB,
 	riskSvc riskservice.RiskService,
@@ -57,7 +58,15 @@ func NewMiddlewareSet(
 	rateLimitCfg *config.RateLimitConfig,
 	enforcer *casbin.Enforcer,
 ) MiddlewareSet {
+	if dnyCfg == nil {
+		panic("dynamic config cannot be nil")
+	}
+	// if dnyCfg.GetRiskControl().ContentCheck.Enabled {
+	// 	// 启用内容检查
+	// }
+
 	return &middlewareSet{
+		dynCfg:          dnyCfg,
 		jwtMgr:          jwtMgr,
 		db:              db,
 		riskSvc:         riskSvc,
@@ -148,8 +157,23 @@ func (m *middlewareSet) RateLimit(action ratelimit.Action) gin.HandlerFunc {
 	return rateLimitMW.Middleware(action)
 }
 
+// func (m *middlewareSet) ContentCheck(fields []string) gin.HandlerFunc {
+// 	return ContentCheckMiddleware(m.contentCheckSvc, fields)
+// }
+
 func (m *middlewareSet) ContentCheck(fields []string) gin.HandlerFunc {
-	return ContentCheckMiddleware(m.contentCheckSvc, fields)
+	return func(c *gin.Context) {
+		// 1. 读取当前配置
+		riskCfg := m.dynCfg.GetRiskControl()
+		if riskCfg == nil || !riskCfg.ContentCheck.Enabled {
+			c.Next()
+			return
+		}
+
+		// 2. 配置启用，执行实际内容检查（调用已有的中间件逻辑）
+		// 注意：需要将 fields 传下去
+		ContentCheckMiddleware(m.contentCheckSvc, fields)(c)
+	}
 }
 
 func (m *middlewareSet) ModeratorRequired(boardRepo board.BoardRepository) gin.HandlerFunc {

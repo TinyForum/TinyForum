@@ -102,6 +102,7 @@ func InitAppWithDynamic(dynCfg *config.DynamicConfig) (*App, error) {
 
 	// 11. 初始化中间件
 	mw := middleware.NewMiddlewareSet(
+		dynCfg,
 		jwtMgr,
 		db,
 		services.Risk,

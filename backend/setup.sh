@@ -3,4 +3,4 @@
 set -e
 echo "📦 Downloading Go dependencies..."
 go mod tidy
-echo "✅ Dependencies downloaded! Now run: go run ./cmd/server/main.go"
+echo "✅ Dependencies downloaded! Now run: go run ./cmd/server"

@@ -25,6 +25,7 @@ Environment Variables:
   BASIC_DATABASE_PASSWORD 数据库密码
   BASIC_DATABASE_DBNAME   数据库名称
   BASIC_JWT_SECRET        JWT密钥
+  BASIC_RISK_CHECK        开启风险检查模式（记录异常操作）
 
 Examples:
   tiny-forum                                    # 使用默认配置

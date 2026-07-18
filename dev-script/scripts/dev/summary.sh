@@ -19,7 +19,7 @@ print_summary() {
     echo "     Redis      : localhost:${REDIS_PORT:-6379}  user=${redis_user}"
     echo ""
     echo "  🚀 Start Commands"
-    echo "     Backend  : cd backend  && go run ./cmd/server/main.go"
+    echo "     Backend  : cd backend  && go run ./cmd/server"
     echo "     Frontend : cd frontend && ${PACKAGE_MANAGER:-npm} run dev"
     echo ""
     echo "  🌐 URLs"
