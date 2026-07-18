@@ -61,10 +61,6 @@ func NewMiddlewareSet(
 	if dnyCfg == nil {
 		panic("dynamic config cannot be nil")
 	}
-	// if dnyCfg.GetRiskControl().ContentCheck.Enabled {
-	// 	// 启用内容检查
-	// }
-
 	return &middlewareSet{
 		dynCfg:          dnyCfg,
 		jwtMgr:          jwtMgr,
@@ -125,14 +121,17 @@ func (m *middlewareSet) UpdateConfig(cfg *config.Config) {
 
 // ── 接口实现 ──────────────────────────────────────────────────────────────────
 
+// Auth 需要登录
 func (m *middlewareSet) Auth() gin.HandlerFunc {
 	return Auth(m.jwtMgr, m.tokenRepo)
 }
 
+// OptionalAuth 可选登录
 func (m *middlewareSet) OptionalAuth() gin.HandlerFunc {
 	return OptionalAuth(m.jwtMgr)
 }
 
+// AdminRequired 需要管理员权限
 func (m *middlewareSet) AdminRequired() gin.HandlerFunc {
 	return AdminRequired()
 }
@@ -143,6 +142,7 @@ func (m *middlewareSet) SystemMaintainerRequired() gin.HandlerFunc {
 	return SystemMaintainerRequired()
 }
 
+// CasbinAuth 路由鉴权中间件
 func (m *middlewareSet) CasbinAuth() gin.HandlerFunc {
 	if m.enforcer == nil {
 		return func(c *gin.Context) { c.Next() }
@@ -150,17 +150,32 @@ func (m *middlewareSet) CasbinAuth() gin.HandlerFunc {
 	return casbinAuth(m.enforcer)
 }
 
+// RateLimit 限流中间件
 func (m *middlewareSet) RateLimit(action ratelimit.Action) gin.HandlerFunc {
-	// 创建限流中间件并缓存
-	rateLimitMW := NewRateLimitMiddleware(m.db, m.riskSvc, m.rateLimitCfg)
-	m.cachedRateMW = rateLimitMW
-	return rateLimitMW.Middleware(action)
+	// 确保限流中间件实例已缓存（延迟初始化）
+	if m.cachedRateMW == nil {
+		m.cachedRateMW = NewRateLimitMiddleware(m.db, m.riskSvc, m.rateLimitCfg)
+	}
+
+	return func(c *gin.Context) {
+		// 1. 读取当前动态配置
+		riskCfg := m.dynCfg.GetRiskControl()
+		if riskCfg == nil || !riskCfg.RateLimit.Enabled {
+			c.Next() // 限流禁用，直接放行
+			return
+		}
+
+		// 2. 限流启用，调用缓存的限流中间件（传入 action）
+		// 注意：m.cachedRateMW.Middleware(action) 返回 gin.HandlerFunc，需要执行它
+		m.cachedRateMW.Middleware(action)(c)
+	}
 }
 
 // func (m *middlewareSet) ContentCheck(fields []string) gin.HandlerFunc {
 // 	return ContentCheckMiddleware(m.contentCheckSvc, fields)
 // }
 
+// ContentCheck 内容合规中间件
 func (m *middlewareSet) ContentCheck(fields []string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// 1. 读取当前配置

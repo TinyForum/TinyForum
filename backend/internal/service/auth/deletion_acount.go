@@ -82,7 +82,7 @@ func (s *authService) ConfirmDeletion(ctx context.Context, userID uint) error {
 		}
 
 		// 12. 时间线订阅
-		if err := tx.Where("subscriber_id = ? OR target_user_id = ?", userID, userID).Delete(&do.TimelineSubscription{}).Error; err != nil {
+		if err := tx.Where("subscriber_id = ? OR target_id = ?", userID, userID).Delete(&do.TimelineSubscription{}).Error; err != nil {
 			return fmt.Errorf("删除时间线订阅失败: %w", err)
 		}
 
