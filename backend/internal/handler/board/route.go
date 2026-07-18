@@ -8,6 +8,9 @@ import (
 )
 
 // RegisterRoutes 注册版块相关路由
+// api: 版块根路由
+// - mw: 中间件集合
+// - repo: 版块仓库
 func (h *BoardHandler) RegisterRoutes(api *gin.RouterGroup, mw middleware.MiddlewareSet, repo board.BoardRepository) {
 	// 版块根路由
 	boards := api.Group("/boards")

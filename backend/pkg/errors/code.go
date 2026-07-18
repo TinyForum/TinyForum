@@ -17,25 +17,27 @@ const (
 	CodeInvalidConfirmation = 10009 // 无效确认
 
 	// 用户模块 (20000-20999)
-	CodeUserNotFound           = 20001 // 用户不存在
-	CodeUserExist              = 20002 // 用户已存在
-	CodeInvalidEmail           = 20010 // 无效邮箱
-	CodeInvalidPhone           = 20011 // 无效手机号
-	CodeInvalidPassword        = 20012 // 无效密码
-	CodeInvalidUsername        = 20013 // 无效用户名
-	CodeInvalidAvatar          = 20014 // 无效头像
-	CodeInvalidNickname        = 20015 // 无效昵称
-	CodeInvalidUserID          = 20016 // 无效用户ID
-	CodeInvalidCurrentPassword = 20017 // 无效当前密码
-	CodeInvalidRole            = 20020 // 无效角色
-	CodeCannotModifySelf       = 20021 // 不能修改自己
-	CodeCannotChangeOwner      = 20022 // 不能修改拥有者
-	CodeFollowSelf             = 20040 // 不能关注自己
-	CodeAlreadyFollow          = 20041 // 已关注
-	CodeNotFollow              = 20042 // 未关注
-	CodeScoreNotEnough         = 20060 // 积分不足
-	CodeUserBlocked            = 20080 // 用户被禁用
-	CodeUserDeleted            = 20081 // 用户被删除
+	CodeUserNotFound               = 20001 // 用户不存在
+	CodeUserExist                  = 20002 // 用户已存在
+	CodeUserEmailOrPasswordInvalid = 20003 // 邮箱或密码错误
+	CodeUserPermanentlyDeleted     = 20004 // 账户已永久删除，无法登录
+	CodeInvalidEmail               = 20010 // 无效邮箱
+	CodeInvalidPhone               = 20011 // 无效手机号
+	CodeInvalidPassword            = 20012 // 无效密码
+	CodeInvalidUsername            = 20013 // 无效用户名
+	CodeInvalidAvatar              = 20014 // 无效头像
+	CodeInvalidNickname            = 20015 // 无效昵称
+	CodeInvalidUserID              = 20016 // 无效用户ID
+	CodeInvalidCurrentPassword     = 20017 // 无效当前密码
+	CodeInvalidRole                = 20020 // 无效角色
+	CodeCannotModifySelf           = 20021 // 不能修改自己
+	CodeCannotChangeOwner          = 20022 // 不能修改拥有者
+	CodeFollowSelf                 = 20040 // 不能关注自己
+	CodeAlreadyFollow              = 20041 // 已关注
+	CodeNotFollow                  = 20042 // 未关注
+	CodeScoreNotEnough             = 20060 // 积分不足
+	CodeUserBlocked                = 20080 // 用户被禁用
+	CodeUserDeleted                = 20081 // 用户被删除
 
 	// 内容模块 (30000-30999)
 	CodePostNotFound         = 30001 // 帖子不存在

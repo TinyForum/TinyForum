@@ -23,7 +23,7 @@ import (
 type App struct {
 	Engine *gin.Engine
 	DB     *gorm.DB
-	DynCfg *config.DynamicConfig // 改为动态配置
+	DynCfg *config.DynamicConfig
 	BotSvc bot.Service
 	// 保存组件引用以便热更新时重建
 	infra      *Infra

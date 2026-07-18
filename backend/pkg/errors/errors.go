@@ -21,28 +21,30 @@ var (
 
 	// =========================================================================================== 用户模块
 
-	ErrUserNotFound           = New(CodeUserNotFound, "用户不存在")                      // 用户不存在
-	ErrUserExist              = New(CodeUserExist, "用户已存在")                         // 用户已存在
-	ErrInvalidEmail           = New(CodeInvalidEmail, "无效的邮箱地址")                    // 无效的邮箱地址
-	ErrInvalidPhone           = New(CodeInvalidPhone, "无效的手机号码")                    // 无效的手机号码
-	ErrInvalidPassword        = New(CodeInvalidPassword, "无效的密码")                   // 无效的密码
-	ErrInvalidCurrentPassword = New(CodeInvalidCurrentPassword, "当前密码不正确")          // 当前密码不正确
-	ErrInvalidUsername        = New(CodeInvalidUsername, "无效的用户名")                  // 无效的用户名
-	ErrInvalidAvatar          = New(CodeInvalidAvatar, "无效的头像链接")                   // 无效的头像链接
-	ErrInvalidNickname        = New(CodeInvalidNickname, "无效的昵称")                   // 无效的昵称
-	ErrInvalidUserID          = New(CodeInvalidUserID, "无效的用户ID")                   // 无效的用户ID
-	ErrInvalidRole            = New(CodeInvalidRole, "无法更改到此角色类型")                  // 无法更改到此角色类型
-	ErrCannotModifySelf       = New(CodeCannotModifySelf, "不能修改自己的信息")              // 不能修改自己的信息
-	ErrCannotChangeOwnerRole  = New(CodeCannotChangeOwner, "不能修改超级管理员的角色")          // 不能修改超级管理员的角色
-	ErrFollowSelf             = New(CodeFollowSelf, "不能关注自己")                       // 不能关注自己
-	ErrAlreadyFollow          = New(CodeAlreadyFollow, "已经关注了该用户")                  // 已经关注了该用户
-	ErrNotFollow              = New(CodeNotFollow, "尚未关注该用户")                       // 尚未关注该用户
-	ErrScoreNotEnough         = New(CodeScoreNotEnough, "积分不足")                     // 积分不足
-	ErrUserBlocked            = New(CodeUserBlocked, "用户已被封禁")                      // 用户已被封禁
-	ErrUserDeleted            = New(CodeUserDeleted, "用户已被删除")                      // 用户已被删除
-	ErrCannotBlockSelf        = New(CodeCannotModifySelf, "不能封禁自己的账号")              // 不能封禁自己的账号
-	ErrCannotModifySuperAdmin = New(CodeCannotChangeOwner, "不能修改超级管理员")             // 不能修改超级管理员
-	ErrCannotBlockAdmin       = New(CodeInsufficientPermission, "只有超级管理员才能封禁其他管理员") //	只有超级管理员才能封禁其他管理员
+	ErrUserNotFound               = New(CodeUserNotFound, "用户不存在")                      // 用户不存在
+	ErrUserExist                  = New(CodeUserExist, "用户已存在")                         // 用户已存在
+	ErrUserEmailOrPasswordInvalid = New(CodeUserEmailOrPasswordInvalid, "邮箱或密码错误")      // 邮箱或密码错误
+	ErrUserPermanentlyDeleted     = New(CodeUserPermanentlyDeleted, "账户已永久删除，无法登录")                // 账户已永久删除，无法登录
+	ErrInvalidEmail               = New(CodeInvalidEmail, "无效的邮箱地址")                    // 无效的邮箱地址
+	ErrInvalidPhone               = New(CodeInvalidPhone, "无效的手机号码")                    // 无效的手机号码
+	ErrInvalidPassword            = New(CodeInvalidPassword, "无效的密码")                   // 无效的密码
+	ErrInvalidCurrentPassword     = New(CodeInvalidCurrentPassword, "当前密码不正确")          // 当前密码不正确
+	ErrInvalidUsername            = New(CodeInvalidUsername, "无效的用户名")                  // 无效的用户名
+	ErrInvalidAvatar              = New(CodeInvalidAvatar, "无效的头像链接")                   // 无效的头像链接
+	ErrInvalidNickname            = New(CodeInvalidNickname, "无效的昵称")                   // 无效的昵称
+	ErrInvalidUserID              = New(CodeInvalidUserID, "无效的用户ID")                   // 无效的用户ID
+	ErrInvalidRole                = New(CodeInvalidRole, "无法更改到此角色类型")                  // 无法更改到此角色类型
+	ErrCannotModifySelf           = New(CodeCannotModifySelf, "不能修改自己的信息")              // 不能修改自己的信息
+	ErrCannotChangeOwnerRole      = New(CodeCannotChangeOwner, "不能修改超级管理员的角色")          // 不能修改超级管理员的角色
+	ErrFollowSelf                 = New(CodeFollowSelf, "不能关注自己")                       // 不能关注自己
+	ErrAlreadyFollow              = New(CodeAlreadyFollow, "已经关注了该用户")                  // 已经关注了该用户
+	ErrNotFollow                  = New(CodeNotFollow, "尚未关注该用户")                       // 尚未关注该用户
+	ErrScoreNotEnough             = New(CodeScoreNotEnough, "积分不足")                     // 积分不足
+	ErrUserBlocked                = New(CodeUserBlocked, "用户已被封禁")                      // 用户已被封禁
+	ErrUserDeleted                = New(CodeUserDeleted, "用户已被删除")                      // 用户已被删除
+	ErrCannotBlockSelf            = New(CodeCannotModifySelf, "不能封禁自己的账号")              // 不能封禁自己的账号
+	ErrCannotModifySuperAdmin     = New(CodeCannotChangeOwner, "不能修改超级管理员")             // 不能修改超级管理员
+	ErrCannotBlockAdmin           = New(CodeInsufficientPermission, "只有超级管理员才能封禁其他管理员") //	只有超级管理员才能封禁其他管理员
 
 	// 密码校验
 	ErrPasswordNotMatch  = New(CodeUnauthorized, "密码不匹配")                  // 密码不匹配

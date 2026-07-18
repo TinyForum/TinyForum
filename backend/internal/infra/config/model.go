@@ -12,7 +12,13 @@ type Config struct {
 	RiskControl ConfigRiskControl // 风控配置文件
 	Postgres    ConfigPostgres    // 数据库配置文件
 	Redis       ConfigRedis       // Redis 配置文件
-	// RateLimit   RateLimitConfig   // 限流配置文件
+	AI          ConfigAI          // AI 配置文件
+	App         ConfigApp         // 应用配置文件
+
+}
+
+// MARK: 应用配置
+type ConfigApp struct {
 }
 
 // MARK: 基础配置集合
@@ -47,6 +53,75 @@ type RateLimitConfig struct {
 }
 type ContentCheckConfig struct {
 	Enabled bool `yaml:"enabled" json:"enabled" mapstructure:"enabled"`
+}
+
+// =========================================== MARK: AI
+
+// ConfigAI 是 AI 配置的根结构
+type ConfigAI struct {
+	// 当前激活的服务提供商（如 openai, deepseek, kimi, qwen, ollama, lmstudio, llmcpp 等）
+	Provider string `yaml:"provider"`
+
+	// 当前提供商的详细配置（所有提供商结构一致，兼容 OpenAI 格式）
+	Config ProviderConfig `yaml:"config"`
+
+	// 全局通用配置
+	Defaults Defaults    `yaml:"defaults"`
+	Retry    RetryConfig `yaml:"retry"`
+	Logging  Logging     `yaml:"logging"`
+	Cache    CacheConfig `yaml:"cache"`
+}
+
+// ProviderConfig 适用于所有 OpenAI 兼容服务
+type ProviderConfig struct {
+	APIKey           string  `yaml:"api-key,omitempty"` // 本地模型可不填
+	BaseURL          string  `yaml:"base-url"`          // 必填
+	Model            string  `yaml:"model"`             // 必填
+	Timeout          int     `yaml:"timeout,omitempty"` // 覆盖全局
+	MaxRetries       int     `yaml:"max-retries,omitempty"`
+	Temperature      float64 `yaml:"temperature,omitempty"`
+	MaxTokens        int     `yaml:"max-tokens,omitempty"`
+	TopP             float64 `yaml:"top-p,omitempty"`
+	FrequencyPenalty float64 `yaml:"frequency-penalty,omitempty"`
+	PresencePenalty  float64 `yaml:"presence-penalty,omitempty"`
+	// 可选扩展（如 embedding 模型）
+	EmbeddingModel  string `yaml:"embedding-model,omitempty"`
+	ModerationModel string `yaml:"moderation-model,omitempty"`
+}
+
+// 其他结构（Defaults, RetryConfig 等）保持不变
+type Defaults struct {
+	Timeout          int     `yaml:"timeout"`
+	MaxRetries       int     `yaml:"max-retries"`
+	Temperature      float64 `yaml:"temperature"`
+	MaxTokens        int     `yaml:"max-tokens"`
+	TopP             float64 `yaml:"top-p"`
+	FrequencyPenalty float64 `yaml:"frequency-penalty"`
+	PresencePenalty  float64 `yaml:"presence-penalty"`
+}
+
+type RetryConfig struct {
+	Enabled     bool          `yaml:"enabled"`
+	MaxAttempts int           `yaml:"max-attempts"`
+	Backoff     BackoffConfig `yaml:"backoff"`
+}
+
+type BackoffConfig struct {
+	InitialInterval int     `yaml:"initial-interval"`
+	Multiplier      float64 `yaml:"multiplier"`
+	MaxInterval     int     `yaml:"max-interval"`
+}
+
+type Logging struct {
+	Enabled    bool   `yaml:"enabled"`
+	Level      string `yaml:"level"`
+	LogPayload bool   `yaml:"log-payload"`
+}
+
+type CacheConfig struct {
+	Enabled bool `yaml:"enabled"`
+	TTL     int  `yaml:"ttl"`
+	MaxSize int  `yaml:"max-size"`
 }
 
 // =========================================== MARK: 数据库 / 存储
