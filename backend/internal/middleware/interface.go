@@ -58,9 +58,6 @@ func NewMiddlewareSet(
 	rateLimitCfg *config.RateLimitConfig,
 	enforcer *casbin.Enforcer,
 ) MiddlewareSet {
-	if dnyCfg == nil {
-		panic("dynamic config cannot be nil")
-	}
 	return &middlewareSet{
 		dynCfg:          dnyCfg,
 		jwtMgr:          jwtMgr,
@@ -191,22 +188,27 @@ func (m *middlewareSet) ContentCheck(fields []string) gin.HandlerFunc {
 	}
 }
 
+// ModeratorRequired 版主权限中间件
 func (m *middlewareSet) ModeratorRequired(boardRepo board.BoardRepository) gin.HandlerFunc {
 	return ModeratorRequired(m.jwtMgr, boardRepo)
 }
 
+// CanManageModerator 检查是否有管理版主权限
 func (m *middlewareSet) CanManageModerator(boardRepo board.BoardRepository) gin.HandlerFunc {
 	return CanManageModerator(m.jwtMgr, boardRepo)
 }
 
+// CanBanUser 检查是否有封禁用户权限
 func (m *middlewareSet) CanBanUser(boardRepo board.BoardRepository) gin.HandlerFunc {
 	return CanBanUser(m.jwtMgr, boardRepo)
 }
 
+// CanDeletePost 检查是否有删除帖子权限
 func (m *middlewareSet) CanDeletePost(boardRepo board.BoardRepository) gin.HandlerFunc {
 	return CanDeletePost(m.jwtMgr, boardRepo)
 }
 
+// CanPinPost 检查是否有置顶帖子权限
 func (m *middlewareSet) CanPinPost(boardRepo board.BoardRepository) gin.HandlerFunc {
 	return CanPinPost(m.jwtMgr, boardRepo)
 }

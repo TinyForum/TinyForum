@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"path/filepath"
 	"strings"
 
 	"tiny-forum/internal/infra/config"
@@ -21,17 +20,19 @@ func loadConfig(configDir string) (*config.Config, error) {
 	fmt.Println("当前路径:", dir)
 
 	// 构建配置文件路径
-	basicConfigPath := filepath.Join(configDir, "basic.yml")
-	privateConfigPath := filepath.Join(configDir, "private.yml")
-	riskConfigPath := filepath.Join(configDir, "risk_control.yml")
-	postgresPath := filepath.Join(configDir, "postgres.yml")
-	redisPath := filepath.Join(configDir, "redis.yml")
+	// basicConfigPath := filepath.Join(configDir, "basic.yml")
+	// privateConfigPath := filepath.Join(configDir, "private.yml")
+	// riskConfigPath := filepath.Join(configDir, "risk_control.yml")
+	// postgresPath := filepath.Join(configDir, "postgres.yml")
+	// redisPath := filepath.Join(configDir, "redis.yml")
+	// aiConfigPath := filepath.Join(configDir, "ai.yml")
 
-	printConfigFileStatus(basicConfigPath, "Basic config")
-	printConfigFileStatus(privateConfigPath, "Private config")
-	printConfigFileStatus(riskConfigPath, "Risk control config")
-	printConfigFileStatus(postgresPath, "Postgres config")
-	printConfigFileStatus(redisPath, "Redis config")
+	// printConfigFileStatus(basicConfigPath, "Basic config")
+	// printConfigFileStatus(privateConfigPath, "Private config")
+	// printConfigFileStatus(riskConfigPath, "Risk control config")
+	// printConfigFileStatus(postgresPath, "Postgres config")
+	// printConfigFileStatus(redisPath, "Redis config")
+	// printConfigFileStatus(aiConfigPath, "AI config")
 
 	cfg, err := config.Load(configDir)
 	if err != nil {
@@ -46,14 +47,14 @@ func loadConfig(configDir string) (*config.Config, error) {
 }
 
 // printConfigFileStatus 打印配置文件状态
-func printConfigFileStatus(filePath, configName string) {
-	if _, err := os.Stat(filePath); os.IsNotExist(err) {
-		log.Printf("ℹ️  %s file not found: %s\n", configName, filePath)
-		log.Printf("   → Using environment variables or defaults for this configuration\n")
-	} else {
-		log.Printf("✓ %s file found: %s\n", configName, filePath)
-	}
-}
+// func printConfigFileStatus(filePath, configName string) {
+// 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
+// 		log.Printf("ℹ️  %s file not found: %s\n", configName, filePath)
+// 		log.Printf("   → Using environment variables or defaults for this configuration\n")
+// 	} else {
+// 		log.Printf("✓ %s file found: %s\n", configName, filePath)
+// 	}
+// }
 
 // validateConfigWithHints 验证配置并提供修复提示
 func validateConfigWithHints(cfg *config.Config) error {

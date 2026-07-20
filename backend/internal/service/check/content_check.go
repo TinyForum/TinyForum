@@ -11,31 +11,55 @@ import (
 
 // CheckPostContent 检测帖子内容（title + content）
 func (s *contentCheckService) CheckPostContent(title, content string) vo.CheckResult {
-	// title 和 content 分别检测，取最高等级
-	titleResult := s.filter.Check(title)
-	contentResult := s.filter.Check(content)
-
-	higher := titleResult
-	if contentResult.Level > titleResult.Level {
-		higher = contentResult
-	}
+	titleResult := s.checker.Check(title)
+	contentResult := s.checker.Check(content)
+	allMatches := append(titleResult.Matches, contentResult.Matches...)
+	hitWords := extractWords(allMatches)
+	higher := mergeByAction(titleResult, contentResult)
 
 	return vo.CheckResult{
-		Passed:   higher.Level != sensitive.LevelBlock,
+		Passed:   higher.Action != sensitive.ActionBlock,
 		Level:    higher.Level,
-		HitWords: append(titleResult.HitWords, contentResult.HitWords...),
-		Replaced: higher.Text,
+		Action:   higher.Action,
+		HitWords: hitWords,
+		Replaced: higher.Masked,
 	}
+}
+
+func mergeByAction(a, b *sensitive.CheckResult) *sensitive.CheckResult {
+	// 优先级：block > review > replace > shadow > pass
+	order := map[sensitive.Action]int{
+		sensitive.ActionBlock:   4,
+		sensitive.ActionReview:  3,
+		sensitive.ActionReplace: 2,
+		sensitive.ActionShadow:  1,
+		sensitive.ActionPass:    0,
+	}
+	if order[a.Action] >= order[b.Action] {
+		return a
+	}
+	return b
+}
+
+func extractWords(matches []*sensitive.MatchResult) []string {
+	words := make([]string, 0, len(matches))
+	for _, m := range matches {
+		if m.Word != "" {
+			words = append(words, m.Word)
+		}
+	}
+	return words
 }
 
 // CheckText 检测单段文本（评论、简介等）
 func (s *contentCheckService) CheckText(text string) vo.CheckResult {
-	r := s.filter.Check(text)
+	r := s.checker.Check(text)
 	return vo.CheckResult{
-		Passed:   r.Level != sensitive.LevelBlock,
+		Passed:   r.Action != sensitive.ActionBlock,
 		Level:    r.Level,
-		HitWords: r.HitWords,
-		Replaced: r.Text,
+		Action:   r.Action,
+		HitWords: extractWords(r.Matches),
+		Replaced: r.Masked,
 	}
 }
 

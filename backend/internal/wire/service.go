@@ -69,7 +69,7 @@ func NewServices(
 	// userStorage := storage.NewLocalStorage("./uploads")
 	// publicStorage := storage.NewLocalStorage("./public")
 	riskSvc := risk.NewRiskService(repos.Risk, infra.RateLimiter)
-	checkSvc := check.NewContentCheckService(repos.Risk, infra.SensitiveFilter)
+	checkSvc := check.NewContentCheckService(repos.Risk, *infra.sensitiveChecker)
 	// 基础服务
 	notifSvc := notification.NewNotificationService(repos.Notification)
 	violation := violation.NewViolationService(repos.Violation)

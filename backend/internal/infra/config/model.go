@@ -14,25 +14,24 @@ type Config struct {
 	Redis       ConfigRedis       // Redis 配置文件
 	AI          ConfigAI          // AI 配置文件
 	App         ConfigApp         // 应用配置文件
-
 }
 
 // MARK: 应用配置
 type ConfigApp struct {
+	// 是否启用调试模式
+	Debug bool `mapstructure:"debug" validate:"required"`
 }
 
 // MARK: 基础配置集合
 type ConfigBasic struct {
-	Server   ServerConfig   `mapstructure:"server" validate:"required"` // 服务配置
-	Frontend FrontendConfig `mapstructure:"frontend" validate:"required"`
-	API      APIConfig      `mapstructure:"api" validate:"required"`
-	Log      LogConfig      `mapstructure:"log" validate:"required"`
-	// RateLimit    RateLimitConfig `mapstructure:"rate_limit" validate:"required"`
-	Ollama       Ollama        `mapstructure:"ollama" validate:"required"`
-	AllowOrigins []string      `mapstructure:"allow_origins" validate:"omitempty,dive,url"` // 允许跨域请求的域名
-	Attachment   UploadConfig  `mapstructure:"attachment" validate:"required"`              // 上传配置
-	Version      string        `mapstructure:"version" validate:"required,semver"`
-	Plugins      ConfigPlugins `mapstructure:"plugins" validate:"required"`
+	Server       ServerConfig   `mapstructure:"server" validate:"required"` // 服务配置
+	Frontend     FrontendConfig `mapstructure:"frontend" validate:"required"`
+	API          APIConfig      `mapstructure:"api" validate:"required"`
+	Log          LogConfig      `mapstructure:"log" validate:"required"`
+	AllowOrigins []string       `mapstructure:"allow_origins" validate:"omitempty,dive,url"` // 允许跨域请求的域名
+	Attachment   UploadConfig   `mapstructure:"attachment" validate:"required"`              // 上传配置
+	Version      string         `mapstructure:"version" validate:"required,semver"`
+	Plugins      ConfigPlugins  `mapstructure:"plugins" validate:"required"`
 }
 
 type ConfigPlugins struct {
@@ -56,72 +55,71 @@ type ContentCheckConfig struct {
 }
 
 // =========================================== MARK: AI
-
 // ConfigAI 是 AI 配置的根结构
 type ConfigAI struct {
-	// 当前激活的服务提供商（如 openai, deepseek, kimi, qwen, ollama, lmstudio, llmcpp 等）
-	Provider string `yaml:"provider"`
+	// 是否启用 AI 模块
+	Enable bool `yaml:"enable" mapstructure:"enable" json:"enable" validate:"required"` // 是否启用 AI 模块 （默认启用）
+	// 当前激活的服务提供商
+	Provider string `mapstructure:"provider" validate:"omitempty"` // 当前激活的服务提供商（默认为 openai）
 
 	// 当前提供商的详细配置（所有提供商结构一致，兼容 OpenAI 格式）
-	Config ProviderConfig `yaml:"config"`
+	Config ProviderConfig `mapstructure:"config" validate:"omitempty"` // 当前提供商的详细配置（所有提供商结构一致，兼容 OpenAI 格式）
 
 	// 全局通用配置
-	Defaults Defaults    `yaml:"defaults"`
-	Retry    RetryConfig `yaml:"retry"`
-	Logging  Logging     `yaml:"logging"`
-	Cache    CacheConfig `yaml:"cache"`
+	Defaults Defaults    `mapstructure:"defaults" validate:"omitempty"`
+	Retry    RetryConfig `mapstructure:"retry" validate:"omitempty"`
+	Logging  Logging     `mapstructure:"logging" validate:"omitempty"`
+	Cache    CacheConfig `mapstructure:"cache" validate:"omitempty"`
 }
 
 // ProviderConfig 适用于所有 OpenAI 兼容服务
 type ProviderConfig struct {
-	APIKey           string  `yaml:"api-key,omitempty"` // 本地模型可不填
-	BaseURL          string  `yaml:"base-url"`          // 必填
-	Model            string  `yaml:"model"`             // 必填
-	Timeout          int     `yaml:"timeout,omitempty"` // 覆盖全局
-	MaxRetries       int     `yaml:"max-retries,omitempty"`
-	Temperature      float64 `yaml:"temperature,omitempty"`
-	MaxTokens        int     `yaml:"max-tokens,omitempty"`
-	TopP             float64 `yaml:"top-p,omitempty"`
-	FrequencyPenalty float64 `yaml:"frequency-penalty,omitempty"`
-	PresencePenalty  float64 `yaml:"presence-penalty,omitempty"`
-	// 可选扩展（如 embedding 模型）
-	EmbeddingModel  string `yaml:"embedding-model,omitempty"`
-	ModerationModel string `yaml:"moderation-model,omitempty"`
+	APIKey           string        `mapstructure:"api-key" validate:"omitempty"`
+	BaseURL          string        `mapstructure:"base-url" validate:"omitempty"`
+	Model            string        `mapstructure:"model" validate:"omitempty"`
+	Timeout          time.Duration `mapstructure:"timeout" validate:"omitempty"`
+	MaxRetries       int           `mapstructure:"max-retries" validate:"omitempty"`
+	Temperature      float64       `mapstructure:"temperature" validate:"omitempty"`
+	MaxTokens        int           `mapstructure:"max-tokens" validate:"omitempty"`
+	TopP             float64       `mapstructure:"top-p" validate:"omitempty"`
+	FrequencyPenalty float64       `mapstructure:"frequency-penalty" validate:"omitempty"`
+	PresencePenalty  float64       `mapstructure:"presence-penalty" validate:"omitempty"`
+	EmbeddingModel   string        `mapstructure:"embedding-model" validate:"omitempty"`
+	ModerationModel  string        `mapstructure:"moderation-model" validate:"omitempty"`
 }
 
-// 其他结构（Defaults, RetryConfig 等）保持不变
 type Defaults struct {
-	Timeout          int     `yaml:"timeout"`
-	MaxRetries       int     `yaml:"max-retries"`
-	Temperature      float64 `yaml:"temperature"`
-	MaxTokens        int     `yaml:"max-tokens"`
-	TopP             float64 `yaml:"top-p"`
-	FrequencyPenalty float64 `yaml:"frequency-penalty"`
-	PresencePenalty  float64 `yaml:"presence-penalty"`
+	Timeout          int     `mapstructure:"timeout" validate:"omitempty"`
+	MaxRetries       int     `mapstructure:"max-retries" validate:"omitempty"`
+	Temperature      float64 `mapstructure:"temperature" validate:"omitempty"`
+	MaxTokens        int     `mapstructure:"max-tokens" validate:"omitempty"`
+	TopP             float64 `mapstructure:"top-p" validate:"omitempty"`
+	FrequencyPenalty float64 `mapstructure:"frequency-penalty" validate:"omitempty"`
+	PresencePenalty  float64 `mapstructure:"presence-penalty" validate:"omitempty"`
 }
 
 type RetryConfig struct {
-	Enabled     bool          `yaml:"enabled"`
-	MaxAttempts int           `yaml:"max-attempts"`
-	Backoff     BackoffConfig `yaml:"backoff"`
+	Enabled     bool          `mapstructure:"enabled" validate:"omitempty"`
+	MaxAttempts int           `mapstructure:"max-attempts" validate:"omitempty"`
+	Backoff     BackoffConfig `mapstructure:"backoff" validate:"omitempty"`
 }
 
 type BackoffConfig struct {
-	InitialInterval int     `yaml:"initial-interval"`
-	Multiplier      float64 `yaml:"multiplier"`
-	MaxInterval     int     `yaml:"max-interval"`
+	InitialInterval int     `mapstructure:"initial-interval" validate:"omitempty"`
+	Multiplier      float64 `mapstructure:"multiplier" validate:"omitempty"`
+	MaxInterval     int     `mapstructure:"max-interval" validate:"omitempty"`
 }
 
 type Logging struct {
-	Enabled    bool   `yaml:"enabled"`
-	Level      string `yaml:"level"`
-	LogPayload bool   `yaml:"log-payload"`
+	Enabled    bool   `mapstructure:"enabled" validate:"omitempty"`
+	Level      string `mapstructure:"level" validate:"omitempty"`
+	LogPayload bool   `mapstructure:"log-payload" validate:"omitempty"`
 }
 
 type CacheConfig struct {
-	Enabled bool `yaml:"enabled"`
-	TTL     int  `yaml:"ttl"`
-	MaxSize int  `yaml:"max-size"`
+	Enabled bool `mapstructure:"enabled" validate:"omitempty"`
+	TTL     int  `mapstructure:"ttl" validate:"omitempty"`
+	MaxSize int  `mapstructure:"max-size" validate:"omitempty"`
 }
 
 // =========================================== MARK: 数据库 / 存储

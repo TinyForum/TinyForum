@@ -70,28 +70,37 @@ func ContentCheckMiddleware(checkSvc check.ContentCheckService, fields []string)
 
 		log.Printf("[DEBUG] combined check: level=%d, hits=%v", res.Level, res.HitWords)
 
-		switch res.Level {
-		case sensitive.LevelBlock:
+		switch res.Action {
+		case sensitive.ActionBlock:
+			// 五级：拦截
 			c.Set(string(keyBlocked), true)
 			c.Set(string(keyHitWords), res.HitWords)
 			response.BadRequest(c, "内容存在风险，请修改后重新提交")
 			c.Abort()
 			return
-		case sensitive.LevelReview:
+		case sensitive.ActionReview:
+			// 三级：标记审核
 			c.Set(string(keyReviewRequired), true)
 			c.Set(string(keyHitWords), res.HitWords)
 			c.Next()
 			return
-		case sensitive.LevelShadowed:
+		case sensitive.ActionShadow:
+			// 四级：隐藏
 			c.Set(string(keyShadowed), true)
 			c.Set(string(keyHitWords), res.HitWords)
+			c.Next() // 继续处理，但后续逻辑会隐藏内容
 			return
-		case sensitive.LevelReplace:
-			c.Set(string(keyReviewRequired), true)
+		case sensitive.ActionReplace:
+			// 二级：替换（放行，但内容被修改）
+			c.Set(string(keyReplace), true)
 			c.Set(string(keyHitWords), res.HitWords)
+			c.Next()
+			return
+		default:
+			// 一级：安全 (ActionPass)
+			c.Next()
 			return
 		}
-		c.Next()
 	}
 }
 

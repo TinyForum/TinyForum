@@ -12,51 +12,126 @@ import (
 	"time"
 )
 
-// OllamaConfig Ollama 客户端配置
-type OllamaConfig struct {
-	// BaseURL Ollama 服务地址，默认 http://localhost:11434
-	BaseURL string
-	// Model 使用的模型名称，如 "qwen3:0.6b"
-	Model string
-	// Timeout 单次请求超时，默认 60s
-	Timeout time.Duration
+// AIConfig LLM 配置
+type AIConfig struct {
+	Enable      bool          // 是否启用
+	Provider    string        // 固定 "openai"
+	APIKey      string        // API Key
+	BaseURL     string        // 默认 https://api.openai.com/v1
+	Model       string        // 默认 gpt-3.5-turbo
+	Timeout     time.Duration // 请求超时（秒）
+	MaxRetries  int
+	Temperature float64
+	MaxTokens   int
 }
 
-func (c *OllamaConfig) baseURL() string {
+func (c *AIConfig) baseURL() string {
 	if c.BaseURL == "" {
-		return "http://localhost:11434"
+		return "https://api.openai.com/v1"
 	}
 	return strings.TrimRight(c.BaseURL, "/")
 }
 
-func (c *OllamaConfig) timeout() time.Duration {
-	if c.Timeout == 0 {
+func (c *AIConfig) effectiveTimeout() time.Duration {
+	if c.Timeout <= 0 {
 		return 60 * time.Second
 	}
-	return c.Timeout
+	// 假设配置中 timeout 为毫秒（与 config.yml 一致）
+	return time.Duration(c.Timeout) * time.Millisecond
 }
 
-// ollamaRequest Ollama /api/generate 请求体
-type ollamaRequest struct {
-	Model  string `json:"model"`
-	Prompt string `json:"prompt"`
-	Stream bool   `json:"stream"`
+// LLMClient 封装 API 调用
+type LLMClient struct {
+	config AIConfig
+	client *http.Client
 }
 
-// ollamaResponse Ollama /api/generate 响应体（stream=false）
-type ollamaResponse struct {
-	Response string `json:"response"`
+func NewLLMClient(cfg AIConfig) *LLMClient {
+	return &LLMClient{
+		config: cfg,
+		client: &http.Client{
+			Timeout: cfg.effectiveTimeout(),
+		},
+	}
 }
 
-// llmJudgment LLM 返回的结构化判断
-type llmJudgment struct {
-	// Level: "safe" | "review" | "block"
-	Level  string `json:"level"`
-	Reason string `json:"reason"`
+// ChatRequest 兼容 OpenAI 格式
+type chatRequest struct {
+	Model       string    `json:"model"`
+	Messages    []message `json:"messages"`
+	Temperature float64   `json:"temperature,omitempty"`
+	MaxTokens   int       `json:"max_tokens,omitempty"`
 }
 
-// buildReviewPrompt 构建给 LLM 的复判 Prompt。
-// 要求模型只输出 JSON，避免额外废话影响解析。
+type message struct {
+	Role    string `json:"role"`
+	Content string `json:"content"`
+}
+
+type chatResponse struct {
+	Choices []struct {
+		Message message `json:"message"`
+	} `json:"choices"`
+	Error *struct {
+		Message string `json:"message"`
+	} `json:"error,omitempty"`
+}
+
+// Call 发送 Prompt 并返回模型回复
+func (c *LLMClient) Call(ctx context.Context, prompt string) (string, error) {
+	url := c.config.baseURL() + "/chat/completions"
+	reqBody := chatRequest{
+		Model: c.config.Model,
+		Messages: []message{
+			{Role: "user", Content: prompt},
+		},
+		Temperature: c.config.Temperature,
+		MaxTokens:   c.config.MaxTokens,
+	}
+	jsonData, _ := json.Marshal(reqBody)
+
+	req, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewReader(jsonData))
+	if err != nil {
+		return "", err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+c.config.APIKey)
+
+	var lastErr error
+	for i := 0; i <= c.config.MaxRetries; i++ {
+		resp, err := c.client.Do(req)
+		if err != nil {
+			lastErr = err
+			time.Sleep(time.Second * time.Duration(i+1))
+			continue
+		}
+		defer resp.Body.Close()
+
+		body, _ := io.ReadAll(resp.Body)
+		if resp.StatusCode != http.StatusOK {
+			lastErr = fmt.Errorf("LLM API error: %d %s", resp.StatusCode, string(body))
+			time.Sleep(time.Second * time.Duration(i+1))
+			continue
+		}
+
+		var chatResp chatResponse
+		if err := json.Unmarshal(body, &chatResp); err != nil {
+			lastErr = err
+			continue
+		}
+		if chatResp.Error != nil {
+			lastErr = fmt.Errorf("LLM error: %s", chatResp.Error.Message)
+			continue
+		}
+		if len(chatResp.Choices) == 0 {
+			lastErr = fmt.Errorf("LLM returned empty response")
+			continue
+		}
+		return chatResp.Choices[0].Message.Content, nil
+	}
+	return "", lastErr
+}
+
 func buildReviewPrompt(text string, hitWords []string) string {
 	wordsJSON, _ := json.Marshal(hitWords)
 	prompt := fmt.Sprintf(`你是一个严格的内容安全审核助手。
@@ -102,81 +177,4 @@ func buildReviewPrompt(text string, hitWords []string) string {
 现在请只输出你的判断 JSON。`, string(wordsJSON), text)
 	log.Printf("[sensitive] LLM 复判 Prompt: %s", prompt)
 	return prompt
-}
-
-// parseJudgment 从 LLM 返回的原始文本中提取 JSON 并映射到 Level。
-// 容错：尝试在响应中定位第一个 JSON 对象。
-func parseJudgment(raw string) (Level, error) {
-	// 找到第一个 '{' 到最后一个 '}'
-	start := strings.Index(raw, "{")
-	end := strings.LastIndex(raw, "}")
-	if start == -1 || end == -1 || end <= start {
-		return LevelReview, fmt.Errorf("no JSON found in LLM response: %q", raw)
-	}
-	jsonStr := raw[start : end+1]
-
-	var j llmJudgment
-	if err := json.Unmarshal([]byte(jsonStr), &j); err != nil {
-		return LevelReview, fmt.Errorf("parse LLM JSON %q: %w", jsonStr, err)
-	}
-
-	log.Printf("[sensitive] LLM 复判结果: level=%s reason=%s", j.Level, j.Reason)
-
-	switch strings.ToLower(j.Level) {
-	case "safe":
-		return LevelClean, nil
-	case "block":
-		return LevelBlock, nil
-	default: // "review" 或未知值 → 保守保持 Review
-		return LevelReview, nil
-	}
-}
-
-// ---- Ollama 复判 ----
-
-// llmReview 调用 Ollama 对模糊命中文本进行二次判断。
-// 返回最终 Level（LevelClean / LevelReview / LevelBlock）。
-func (f *filter) llmReview(text string, hitWords []string) (Level, error) {
-	prompt := buildReviewPrompt(text, hitWords)
-
-	reqBody, err := json.Marshal(ollamaRequest{
-		Model:  f.ollama.Model,
-		Prompt: prompt,
-		Stream: false,
-	})
-	if err != nil {
-		return LevelReview, fmt.Errorf("marshal request: %w", err)
-	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), f.ollama.timeout())
-	defer cancel()
-
-	url := f.ollama.baseURL() + "/api/generate"
-	log.Printf("[sensitive] LLM 复判请求: %s", url)
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewReader(reqBody))
-	if err != nil {
-		return LevelReview, fmt.Errorf("build request: %w", err)
-	}
-	req.Header.Set("Content-Type", "application/json")
-
-	resp, err := f.httpClient.Do(req)
-	if err != nil {
-		return LevelReview, fmt.Errorf("http do: %w", err)
-	}
-	defer resp.Body.Close()
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return LevelReview, fmt.Errorf("read body: %w", err)
-	}
-	if resp.StatusCode != http.StatusOK {
-		return LevelReview, fmt.Errorf("ollama status %d: %s", resp.StatusCode, body)
-	}
-
-	var ollamaResp ollamaResponse
-	if err := json.Unmarshal(body, &ollamaResp); err != nil {
-		return LevelReview, fmt.Errorf("unmarshal ollama response: %w", err)
-	}
-
-	return parseJudgment(ollamaResp.Response)
 }

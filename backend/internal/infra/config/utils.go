@@ -44,7 +44,7 @@ func (c *Config) GetRedisInfo() (host string, port int, enabled bool) {
 
 // GetOllamaInfo returns base URL and model name.
 func (c *Config) GetOllamaInfo() (baseURL, model string) {
-	return c.Basic.Ollama.BaseURL, c.Basic.Ollama.Model
+	return c.AI.Config.BaseURL, c.AI.Config.Model
 }
 
 // GetJWTSecretMasked returns a masked version of JWT secret.

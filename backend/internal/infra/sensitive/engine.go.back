@@ -1,0 +1,82 @@
+package sensitive
+
+type Engine struct {
+	DFA DFAFilter
+
+	Regex *RegexFilter
+}
+
+func NewEngine() *Engine {
+
+	return &Engine{
+
+		DFA: NewDFAFilter(),
+
+		Regex: NewRegexFilter(),
+	}
+
+}
+
+func (e *Engine) Check(text string) *CheckResult {
+
+	result := &CheckResult{}
+
+	// DFA检测
+
+	words := e.DFA.FindAll(text)
+
+	for _, word := range words {
+
+		result.Sensitive = true
+
+		result.Matches = append(
+			result.Matches,
+			&MatchResult{
+
+				Word: word,
+
+				Action: "block",
+
+				Score: 100,
+			},
+		)
+
+	}
+
+	// Regex检测
+
+	regexResults := e.Regex.Match(text)
+
+	if len(regexResults) > 0 {
+
+		result.Sensitive = true
+
+		result.Matches = append(
+			result.Matches,
+			regexResults...,
+		)
+
+	}
+
+	for _, m := range result.Matches {
+
+		result.Score += m.Score
+
+		if m.Action == "block" {
+
+			result.Action = "block"
+
+			return result
+		}
+
+		if m.Action == "review" {
+
+			result.Action = "review"
+
+		}
+
+	}
+
+	return result
+
+}
