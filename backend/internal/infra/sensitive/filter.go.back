@@ -24,7 +24,8 @@ type Filter interface {
 	// 加载词库
 	LoadDictFile(path string, level Level) error
 	LoadDictContent(content string, level Level) error
-	LoadDictDir(dir string) (DictLoadResult, error)
+	// LoadDictDir(dir string) (DictLoadResult, error)
+	LoadYAMLDir(dir string) (LoadResult, error)
 }
 
 // filter 分级过滤器
@@ -33,22 +34,23 @@ type filter struct {
 	blockWords  map[string]bool
 	reviewWords map[string]bool
 	mu          sync.RWMutex
-
+	regex       *RegexFilter
 	// Ollama 相关
-	ollama     *OllamaConfig
+	aiConfig   *AIConfig
 	httpClient *http.Client
 }
 
 // NewFilter 创建过滤器。ollama 为 nil 时禁用 LLM 复判，退化为纯 DFA 模式。
-func NewFilter(ollama *OllamaConfig) Filter {
+func NewFilter(aiConfig *AIConfig) Filter {
 	f := &filter{
 		dfa:         NewDFAFilter(),
 		blockWords:  make(map[string]bool),
 		reviewWords: make(map[string]bool),
-		ollama:      ollama,
+		aiConfig:    aiConfig,
+		regex:       NewRegexFilter(),
 	}
-	if ollama != nil {
-		f.httpClient = &http.Client{Timeout: ollama.timeout()}
+	if aiConfig != nil {
+		f.httpClient = &http.Client{Timeout: aiConfig.effectiveTimeout()}
 	}
 	return f
 }

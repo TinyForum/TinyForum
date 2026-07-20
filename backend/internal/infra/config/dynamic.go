@@ -66,7 +66,7 @@ func NewDynamicConfig(configDir string) (*DynamicConfig, error) {
 
 	dc := &DynamicConfig{
 		configDir:   configDir,
-		configFiles: []string{"basic", "private", "risk_control", "postgres", "redis"},
+		configFiles: []string{"basic", "private", "risk_control", "postgres", "redis", "ai"},
 		watcher:     watcher,
 		ctx:         ctx,
 		cancel:      cancel,
@@ -274,6 +274,14 @@ func (dc *DynamicConfig) GetRiskControl() *ConfigRiskControl {
 		return nil
 	}
 	return &cfg.RiskControl
+}
+
+func (dc *DynamicConfig) GetAIConfig() *ConfigAI {
+	cfg := dc.Get()
+	if cfg == nil {
+		return nil
+	}
+	return &cfg.AI
 }
 
 // OnChange 注册配置变更回调

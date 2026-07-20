@@ -7,6 +7,7 @@ import (
 	initdata "tiny-forum/init"
 	"tiny-forum/internal/botapi"
 	"tiny-forum/internal/infra/config"
+	luasdk "tiny-forum/internal/infra/lua/sdk"
 	"tiny-forum/internal/job"
 	"tiny-forum/internal/middleware"
 	"tiny-forum/internal/service/bot"
@@ -25,6 +26,15 @@ type App struct {
 	DB     *gorm.DB
 	DynCfg *config.DynamicConfig
 	BotSvc bot.Service
+
+	// 保存重建所需的不变依赖
+	jwtMgr         *jwtpkg.JWTManager
+	userStorage    storage.StorageDriver
+	pluginsStorage storage.StorageDriver
+	registry       *strategy.HandlerRegistry
+	forumAPI       luasdk.ForumAPI              // 注意导入 luasdk
+	configSvc      *configService.ConfigService // 若需要
+
 	// 保存组件引用以便热更新时重建
 	infra      *Infra
 	repos      *Repositories
@@ -99,6 +109,13 @@ func InitAppWithDynamic(dynCfg *config.DynamicConfig) (*App, error) {
 	configSvc := configService.NewConfigService("config", dynCfg, db)
 	handlers := NewHandlers(services, helpers.TimeHelpers, cfg, configSvc)
 	app.handlers = handlers
+
+	app.jwtMgr = jwtMgr
+	app.userStorage = userStorage
+	app.pluginsStorage = pluginsStorage
+	app.registry = registry
+	app.forumAPI = forumAPI
+	app.configSvc = configSvc
 
 	// 11. 初始化中间件
 	mw := middleware.NewMiddlewareSet(
@@ -264,7 +281,43 @@ func (app *App) RebuildComponents(component string) error {
 
 	case "redis":
 		// 重新初始化 Redis
-		// ...
+		cfg := app.DynCfg.Get()
+		if cfg == nil {
+			return fmt.Errorf("config not available")
+		}
+		// 1. 重建基础设施（包括 Redis）
+		newInfra, err := InitInfra(cfg, app.DB)
+		if err != nil {
+			return fmt.Errorf("reinit infra failed: %w", err)
+		}
+		// 2. 重建 repos
+		newRepos := NewRepositories(app.DB, newInfra.RedisClient)
+
+		// 3. 重建 services（使用保存的依赖）
+		newServices := NewServices(
+			cfg,
+			app.jwtMgr,
+			newRepos,
+			newInfra,
+			app.userStorage,
+			app.pluginsStorage,
+			app.registry,
+			app.forumAPI,
+		)
+		// 停止旧服务的调度器（如果有）
+		if app.services != nil && app.services.Bot != nil {
+			// 假设 Bot 有 Stop 方法
+			// 如果没有，可能需要通过 context 取消
+			app.services.Bot.StopScheduler() // 需实现
+		}
+		newServices.Bot.StartScheduler()
+
+		// 4. 更新 App 中的组件引用
+		app.infra = newInfra
+		app.repos = newRepos
+		app.services = newServices
+		app.BotSvc = newServices.Bot
+
 		log.Printf("[App] Redis connection rebuilt")
 
 	default:

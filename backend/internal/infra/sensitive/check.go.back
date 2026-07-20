@@ -1,0 +1,270 @@
+package sensitive
+
+import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"fmt"
+	"io"
+	"log"
+	"net/http"
+	"tiny-forum/pkg/htmlutil"
+)
+
+// ---- Check（DFA + 可选 LLM 复判）----
+
+// MARK: Check
+// Check 检测文本，返回分级结果。
+//
+// 流程：
+//  1. DFA 扫描，无命中 → LevelClean，直接返回
+//  2. 有 LevelBlock 命中 → 直接返回 LevelBlock，不调 LLM（节省资源）
+//  3. 仅有 LevelReview 命中 → 调 Ollama 复判：
+//     - LLM 判定"安全" → 降级为 LevelClean
+//     - LLM 判定"风险" → 保持 LevelReview
+//     - LLM 判定"违规" → 升级为 LevelBlock
+//     - LLM 调用失败  → 保守保持 LevelReview（不降级）
+func (f *filter) Check(html string) CheckResult {
+
+	text, err := htmlutil.HTMLToText(html)
+
+	if err != nil {
+
+		return CheckResult{
+
+			Level: LevelBlock,
+
+			Text: "HTML解析失败",
+		}
+
+	}
+
+	result := CheckResult{
+
+		Level: LevelClean,
+
+		Text: text,
+
+		HitWords: []string{},
+	}
+
+	// =====================
+	// 1. DFA检测
+	// =====================
+
+	dfaWords := f.dfa.FindAll(text)
+
+	for _, word := range dfaWords {
+
+		result.Matches = append(
+			result.Matches,
+			&MatchResult{
+
+				Word: word,
+
+				Action: "block",
+
+				Score: 100,
+
+				Category: "dictionary",
+			},
+		)
+
+	}
+
+	// =====================
+	// 2. Regex检测
+	// =====================
+
+	if f.regex != nil {
+
+		regexMatches := f.regex.Match(text)
+
+		result.Matches = append(
+			result.Matches,
+			regexMatches...,
+		)
+
+	}
+
+	// 没有命中
+
+	if len(result.Matches) == 0 {
+
+		return result
+
+	}
+
+	// =====================
+	// 3. 风险计算
+	// =====================
+
+	var needReview bool
+
+	for _, m := range result.Matches {
+
+		result.Score += m.Score
+
+		result.HitWords =
+			append(
+				result.HitWords,
+				m.Word,
+			)
+
+		switch m.Action {
+
+		case "block":
+
+			result.Level = LevelBlock
+
+		case "review":
+
+			if result.Level != LevelBlock {
+
+				result.Level = LevelReview
+
+			}
+
+			needReview = true
+
+		}
+
+	}
+
+	// =====================
+	// 4. Block直接返回
+	// =====================
+
+	if result.Level == LevelBlock {
+
+		result.Text =
+			f.dfa.Replace(
+				text,
+				'*',
+			)
+
+		return result
+
+	}
+
+	// =====================
+	// 5. Review进入LLM
+	// =====================
+
+	if needReview && f.aiConfig != nil {
+
+		llmLevel, err :=
+			f.llmReview(
+				text,
+				result.HitWords,
+			)
+
+		if err != nil {
+
+			// 保守策略
+
+			result.Level =
+				LevelReview
+
+		} else {
+
+			result.Level =
+				llmLevel
+
+			if llmLevel == LevelClean {
+
+				result.Text = text
+
+				result.HitWords = nil
+
+				result.Matches = nil
+
+			}
+
+		}
+
+	}
+
+	if result.Level != LevelClean {
+
+		result.Text =
+			f.dfa.Replace(
+				text,
+				'*',
+			)
+
+	}
+
+	return result
+
+}
+
+// ---------- LLM 复判实现（调用 OpenAI 兼容接口） ----------
+func (f *filter) llmReview(text string, hitWords []string) (Level, error) {
+	if f.aiConfig == nil {
+		return LevelReview, fmt.Errorf("AI 未配置")
+	}
+
+	prompt := buildReviewPrompt(text, hitWords)
+	messages := []map[string]string{{"role": "user", "content": prompt}}
+
+	reqBody := map[string]interface{}{
+		"model":       f.aiConfig.Model,
+		"messages":    messages,
+		"temperature": f.aiConfig.Temperature,
+		"max_tokens":  f.aiConfig.MaxTokens,
+		"stream":      false,
+		// 若你的服务支持强制 JSON，可启用：
+		// "response_format": map[string]string{"type": "json_object"},
+	}
+	jsonData, err := json.Marshal(reqBody)
+	if err != nil {
+		return LevelReview, fmt.Errorf("marshal request: %w", err)
+	}
+
+	url := f.aiConfig.baseURL() + "/chat/completions"
+	log.Printf("[sensitive] LLM 复判请求: %s", url)
+
+	ctx, cancel := context.WithTimeout(context.Background(), f.aiConfig.effectiveTimeout())
+	defer cancel()
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewReader(jsonData))
+	if err != nil {
+		return LevelReview, fmt.Errorf("build request: %w", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+f.aiConfig.APIKey)
+
+	resp, err := f.httpClient.Do(req)
+	if err != nil {
+		return LevelReview, fmt.Errorf("http do: %w", err)
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return LevelReview, fmt.Errorf("read body: %w", err)
+	}
+	if resp.StatusCode != http.StatusOK {
+		return LevelReview, fmt.Errorf("API status %d: %s", resp.StatusCode, body)
+	}
+
+	var chatResp struct {
+		Choices []struct {
+			Message struct {
+				Content string `json:"content"`
+			} `json:"message"`
+		} `json:"choices"`
+	}
+	if err := json.Unmarshal(body, &chatResp); err != nil {
+		return LevelReview, fmt.Errorf("unmarshal chat response: %w", err)
+	}
+	if len(chatResp.Choices) == 0 {
+		return LevelReview, fmt.Errorf("empty choices in response")
+	}
+
+	content := chatResp.Choices[0].Message.Content
+	log.Printf("[sensitive] LLM 原始返回: %s", content)
+
+	return parseJudgment(content)
+}

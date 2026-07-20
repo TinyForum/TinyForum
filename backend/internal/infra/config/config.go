@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"log"
 	"path/filepath"
 	"strings"
 	"time"
@@ -12,34 +13,55 @@ import (
 // Load 加载配置文件
 func Load(configDir string) (*Config, error) {
 	// 定义需要加载的配置文件列表
-	configFiles := []string{"basic", "private", "risk_control", "postgres", "redis"}
+	configFiles := []string{"basic", "private", "risk_control", "postgres", "redis", "ai", "app"}
 	vipers := newViperInstances(configDir, configFiles...)
 
-	// 分别解析
+	// 基本配置
 	var basicConfig ConfigBasic
-	if err := vipers["basic"].Unmarshal(&basicConfig); err != nil {
+	if err := vipers["basic"].UnmarshalExact(&basicConfig); err != nil {
 		return nil, fmt.Errorf("加载基础配置失败: %w", err)
 	}
 
+	// 私有配置
 	var privateConfig ConfigPrivate
-	if err := vipers["private"].Unmarshal(&privateConfig); err != nil {
+	if err := vipers["private"].UnmarshalExact(&privateConfig); err != nil {
 		fmt.Printf("⚠️  加载私有配置失败: %v，使用空配置\n", err)
-		privateConfig = ConfigPrivate{}
+		// privateConfig = ConfigPrivate{}
+		return nil, fmt.Errorf("加载私有配置失败: %w", err)
 	}
 
+	// 风控配置
 	var riskConfig ConfigRiskControl
-	if err := vipers["risk_control"].Unmarshal(&riskConfig); err != nil {
+	if err := vipers["risk_control"].UnmarshalExact(&riskConfig); err != nil {
 		fmt.Printf("⚠️  加载风控配置失败: %v，使用空配置\n", err)
+		return nil, fmt.Errorf("加载风控配置失败: %w", err)
 	}
 
+	// Postgres 配置
 	var postgresConfig ConfigPostgres
-	if err := vipers["postgres"].Unmarshal(&postgresConfig); err != nil {
+	if err := vipers["postgres"].UnmarshalExact(&postgresConfig); err != nil {
 		fmt.Printf("⚠️  加载 Postgres 配置失败: %v，使用空配置\n", err)
+		return nil, fmt.Errorf("加载 Postgres 配置失败: %w", err)
 	}
 
+	// Redis 配置
 	var redisConfig ConfigRedis
-	if err := vipers["redis"].Unmarshal(&redisConfig); err != nil {
+	if err := vipers["redis"].UnmarshalExact(&redisConfig); err != nil {
 		fmt.Printf("⚠️  加载 Redis 配置失败: %v，使用空配置\n", err)
+		return nil, fmt.Errorf("加载 Redis 配置失败: %w", err)
+	}
+
+	// AI 配置
+	var aiConfig ConfigAI
+	if err := vipers["ai"].UnmarshalExact(&aiConfig); err != nil {
+		log.Printf("⚠️  加载 AI 配置失败: %v，使用空配置\n", err)
+		return nil, fmt.Errorf("加载 AI 配置失败: %w", err)
+	}
+	// app 配置
+	var appConfig ConfigApp
+	if err := vipers["app"].UnmarshalExact(&appConfig); err != nil {
+		log.Printf("⚠️  加载 app 配置失败: %v，使用空配置\n", err)
+		return nil, fmt.Errorf("加载 app 配置失败: %w", err)
 	}
 
 	cfg := &Config{
@@ -48,13 +70,15 @@ func Load(configDir string) (*Config, error) {
 		RiskControl: riskConfig,
 		Postgres:    postgresConfig,
 		Redis:       redisConfig,
+		AI:          aiConfig,
+		App:         appConfig,
 	}
 
 	fmt.Printf("✅ 所有配置文件成功加载\n")
+	fmt.Printf("✅ 配置信息: %s\n", cfg)
 	cfg.setDefaults()
 	if err := cfg.validate(); err != nil {
-		fmt.Printf("⚠️  配置验证失败: %v\n", err)
-		// 根据需求决定是否返回错误
+		return nil, fmt.Errorf("配置验证失败: %w", err)
 	}
 	return cfg, nil
 }

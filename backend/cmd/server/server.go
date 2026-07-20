@@ -24,15 +24,21 @@ func runApp(configDir string, version string) error {
 		os.Exit(1)
 	}
 
+	// 加载配置成功
+	fmt.Println("Config loaded successfully")
+
 	// 初始化日志
-	if err := logger.Init(logger.Config(staticCfg.ToLoggerConfig())); err != nil {
+	if err = logger.Init(logger.Config(staticCfg.ToLoggerConfig())); err != nil {
 		logger.Fatal(fmt.Sprintf("Failed to init logger: %v\n", err))
 	}
 
 	// ===== 2. 创建动态配置管理器 =====
 	dynCfg, err := config.NewDynamicConfig(configDir)
+	logger.Infof("动态配置: %s", dynCfg.Get)
 	if err != nil {
 		logger.Fatal(fmt.Sprintf("Failed to create dynamic config: %v", err))
+		printConfigError(err)
+		os.Exit(1)
 	}
 	defer dynCfg.Close()
 

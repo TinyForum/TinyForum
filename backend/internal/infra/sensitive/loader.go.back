@@ -1,0 +1,182 @@
+package sensitive
+
+import (
+	"bufio"
+	"fmt"
+	"os"
+	"path/filepath"
+	"strings"
+
+	"github.com/goccy/go-yaml"
+)
+
+// ---- 词库加载 ----
+
+func readLines(path string) ([]string, error) {
+	file, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	var words []string
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+		words = append(words, line)
+	}
+	return words, scanner.Err()
+}
+
+func (f *filter) LoadDictFile(path string, level Level) error {
+	words, err := readLines(path)
+	if err != nil {
+		return fmt.Errorf("sensitive: load %s: %w", path, err)
+	}
+	f.AddLevelWords(level, words)
+	return nil
+}
+
+func (f *filter) LoadDictContent(content string, level Level) error {
+	var words []string
+	for _, line := range strings.Split(content, "\n") {
+		line = strings.TrimSpace(line)
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+		words = append(words, line)
+	}
+	f.AddLevelWords(level, words)
+	return nil
+}
+
+func fileLevel(name string) Level {
+	lower := strings.ToLower(name)
+	if strings.HasPrefix(lower, "review_") {
+		return LevelReview
+	}
+	return LevelBlock
+}
+
+// DictLoadResult 纯文本词库加载结果
+type DictLoadResult struct {
+	TotalWords  int
+	BlockFiles  []string
+	ReviewFiles []string
+	RuleFiles   []string // YAML规则文件列表（新增）
+	Errors      []string
+}
+
+// LoadResult YAML规则加载结果
+type LoadResult struct {
+	Files  []string // 成功加载的文件名
+	Errors []string // 加载失败的错误信息
+}
+
+// ----- YAML 加载 -----
+
+// RuleSet 对应 YAML 顶层结构
+type RuleSet struct {
+	Version     int    `yaml:"version"`
+	Name        string `yaml:"name"`
+	Description string `yaml:"description"`
+	Rules       []Rule `yaml:"rules"`
+}
+
+// LoadYAMLFile 加载单个 YAML 规则文件
+func (f *filter) LoadYAMLFile(path string) error {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return fmt.Errorf("read yaml file %s: %w", path, err)
+	}
+
+	var ruleSet RuleSet
+	if err := yaml.Unmarshal(data, &ruleSet); err != nil {
+		return fmt.Errorf("parse yaml %s: %w", path, err)
+	}
+
+	for i := range ruleSet.Rules {
+		rule := &ruleSet.Rules[i]
+		if !rule.Enabled { // 跳过未启用的规则
+			continue
+		}
+		if err := f.regex.AddRule(rule); err != nil {
+			return fmt.Errorf("add rule %s: %w", rule.ID, err)
+		}
+	}
+	return nil
+}
+
+// LoadYAMLDir 遍历目录，加载所有 .yml / .yaml 文件
+func (f *filter) LoadYAMLDir(dir string) (LoadResult, error) {
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return LoadResult{}, fmt.Errorf("read dir %s: %w", dir, err)
+	}
+
+	var result LoadResult
+	for _, entry := range entries {
+		if entry.IsDir() {
+			continue
+		}
+		name := entry.Name()
+		ext := strings.ToLower(filepath.Ext(name))
+		if ext != ".yml" && ext != ".yaml" {
+			continue
+		}
+
+		path := filepath.Join(dir, name)
+		if err := f.LoadYAMLFile(path); err != nil {
+			result.Errors = append(result.Errors, fmt.Sprintf("%s: %v", name, err))
+			continue
+		}
+		result.Files = append(result.Files, name)
+	}
+	return result, nil
+}
+
+// LoadDictDir 加载目录下的所有词库文件（.txt 和 .yml/.yaml）
+func (f *filter) LoadDictDir(dir string) (DictLoadResult, error) {
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return DictLoadResult{}, fmt.Errorf("sensitive: open dir %s: %w", dir, err)
+	}
+
+	var result DictLoadResult
+	for _, entry := range entries {
+		if entry.IsDir() {
+			continue
+		}
+		name := entry.Name()
+		ext := strings.ToLower(filepath.Ext(name))
+		path := filepath.Join(dir, name)
+
+		switch ext {
+		case ".txt":
+			level := fileLevel(name)
+			words, err := readLines(path)
+			if err != nil {
+				result.Errors = append(result.Errors, fmt.Sprintf("%s: %v", name, err))
+				continue
+			}
+			f.AddLevelWords(level, words)
+			result.TotalWords += len(words)
+			if level == LevelReview {
+				result.ReviewFiles = append(result.ReviewFiles, name)
+			} else {
+				result.BlockFiles = append(result.BlockFiles, name)
+			}
+
+		case ".yml", ".yaml":
+			if err := f.LoadYAMLFile(path); err != nil {
+				result.Errors = append(result.Errors, fmt.Sprintf("%s: %v", name, err))
+				continue
+			}
+			result.RuleFiles = append(result.RuleFiles, name)
+		}
+	}
+	return result, nil
+}

@@ -1,0 +1,21 @@
+package sensitive
+
+// type MatchResult struct {
+// 	RuleID   string   // 规则ID
+// 	Category string   // 分类
+// 	Label    string   // 标签
+// 	Word     string   // 命中词
+// 	Action   string   // 建议操作（"block"/"review"/"pass"）
+// 	Score    int      // 命中分数
+// 	Tags     []string // 标签列表
+// }
+
+// type CheckResult struct {
+// 	Level     Level          // 最高命中等级
+// 	Score     int            // 最高命中分数
+// 	HitWords  []string       // 命中词列表
+// 	Matches   []*MatchResult // 命中结果列表
+// 	Text      string         // 替换后的文本（* 号替换）
+// 	Sensitive bool           // 是否敏感
+// 	Action    string         // 建议操作（"block"/"review"/"pass"）
+// }

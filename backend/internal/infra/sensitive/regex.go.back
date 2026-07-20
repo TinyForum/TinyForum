@@ -1,0 +1,106 @@
+package sensitive
+
+import (
+	"regexp"
+)
+
+type RegexRule struct {
+	ID string
+
+	Category string
+
+	Label string
+
+	Action string
+
+	Score int
+
+	Priority int
+
+	Tags []string
+
+	Regexp *regexp.Regexp
+}
+
+type RegexFilter struct {
+	rules []*RegexRule
+}
+
+func NewRegexFilter() *RegexFilter {
+
+	return &RegexFilter{
+		rules: make([]*RegexRule, 0),
+	}
+
+}
+
+func (r *RegexFilter) AddRule(rule *Rule) error {
+
+	if rule.Regex == "" {
+		return nil
+	}
+
+	reg, err := regexp.Compile(rule.Regex)
+
+	if err != nil {
+		return err
+	}
+
+	r.rules = append(
+		r.rules,
+		&RegexRule{
+
+			ID: rule.ID,
+
+			Category: rule.Category,
+
+			Label: rule.Label,
+
+			Action: rule.Action,
+
+			Score: rule.Score,
+
+			Priority: rule.Priority,
+
+			Tags: rule.Tags,
+
+			Regexp: reg,
+		},
+	)
+
+	return nil
+}
+
+func (r *RegexFilter) Match(text string) []*MatchResult {
+
+	var result []*MatchResult
+
+	for _, rule := range r.rules {
+
+		loc := rule.Regexp.FindStringIndex(text)
+
+		if loc != nil {
+
+			result = append(result, &MatchResult{
+
+				RuleID: rule.ID,
+
+				Category: rule.Category,
+
+				Label: rule.Label,
+
+				Word: text[loc[0]:loc[1]],
+
+				Action: rule.Action,
+
+				Score: rule.Score,
+
+				Tags: rule.Tags,
+			})
+
+		}
+
+	}
+
+	return result
+}
