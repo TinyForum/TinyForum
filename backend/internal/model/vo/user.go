@@ -6,19 +6,19 @@ import (
 )
 
 // UserVO 用户脱敏视图（对外暴露）
-type UserVO struct {
-	ID          uint        `json:"id"`
-	CreatedAt   time.Time   `json:"created_at"`
-	UpdatedAt   time.Time   `json:"updated_at"`
-	Username    string      `json:"username"`
-	AvatarUrl   string      `json:"avatar_url"`
-	Bio         string      `json:"bio"`
-	Role        do.UserRole `json:"role"`
-	Score       int         `json:"score"`
-	IsActive    bool        `json:"is_active"`
-	IsBlocked   bool        `json:"is_blocked"`
-	LastLogin   *time.Time  `json:"last_login,omitempty"`
-	InvitedByID *uint       `json:"invited_by_id,omitempty"`
+type UserAuthVO struct {
+	ID        uint      `json:"id"`
+	CreatedAt time.Time `json:"created_at"`
+	// UpdatedAt   time.Time   `json:"updated_at"`
+	Username string `json:"username"`
+	// AvatarUrl string      `json:"avatar_url"`
+	// Bio       string      `json:"bio"`
+	// Role      do.UserRole `json:"role"`
+	// Score     int         `json:"score"`
+	// IsActive  bool        `json:"is_active"`
+	// IsBlocked bool        `json:"is_blocked"`
+	// LastLogin   *time.Time  `json:"last_login,omitempty"`
+	// InvitedByID *uint `json:"invited_by_id,omitempty"`
 }
 
 type UserPrivateVO struct {

@@ -119,8 +119,12 @@ func (h *PostHandler) List(c *gin.Context) {
 		return
 	}
 
-	postType := do.ParsePostType(req.PostType)
-	logger.Infof("postType: %s", postType)
+	var postType string
+	logger.Infof("post type: %s", req.PostType)
+	if req.PostType != "" {
+		postType = string(do.ParsePostType(req.PostType)) // 默认获取文章列表
+		logger.Infof("postType: %s", postType)
+	}
 
 	listPostsBO := &common.PageQuery[bo.ListPosts]{
 		Page:     req.Page,

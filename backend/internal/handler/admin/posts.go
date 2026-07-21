@@ -35,7 +35,11 @@ func (h *AdminHandler) ListPosts(c *gin.Context) {
 	}
 
 	postStatus := do.ParsePostStatus(req.PostStatus)
-	postType := do.ParsePostType(req.PostType)
+	var postType string
+	if req.PostType != "" {
+		postType = string(do.ParsePostType(req.PostType))
+	}
+
 	moderationStatus := do.ParseModerationStatus(req.ModerationStatus)
 
 	listPostsBO := &common.PageQuery[bo.ListPosts]{

@@ -13,7 +13,7 @@ import (
 )
 
 // Login 用户登录
-func (s *authService) Login(ctx context.Context, input userSvc.LoginInput) (*vo.AuthResultVO, error) {
+func (s *authService) Login(ctx context.Context, input userSvc.LoginInput) (*vo.UserLoginResultVO, error) {
 	user, err := s.userRepo.FindByEmailUnscoped(ctx, input.Email)
 
 	if err != nil {
@@ -44,6 +44,9 @@ func (s *authService) Login(ctx context.Context, input userSvc.LoginInput) (*vo.
 			return nil, apperrors.ErrUserPermanentlyDeleted
 		}
 	}
+	if deletionStatus != nil {
+		panic("deletionStatus is not nil")
+	}
 
 	now := time.Now()
 	user.LastLogin = &now
@@ -54,19 +57,20 @@ func (s *authService) Login(ctx context.Context, input userSvc.LoginInput) (*vo.
 		return nil, err
 	}
 
-	return &vo.AuthResultVO{
+	return &vo.UserLoginResultVO{
 		Token: token,
-		User: &vo.UserPrivateVO{
-			ID:        user.ID,
-			Username:  user.Username,
-			Role:      user.Role,
-			AvatarUrl: user.AvatarUrl,
-			Bio:       user.Bio,
-			Email:     user.Email,
-			Score:     user.Score,
-			LastLogin: user.LastLogin,
-			CreatedAt: user.CreatedAt,
+		User: &vo.UserLoginVO{
+			ID:          user.ID,
+			Username:    user.Username,
+			Role:        user.Role,
+			AvatarUrl:   user.AvatarUrl,
+			Bio:         user.Bio,
+			Email:       user.Email,
+			Score:       user.Score,
+			LastLogin:   user.LastLogin,
+			CreatedAt:   user.CreatedAt,
+			InvitedByID: user.InvitedByID,
 		},
-		DeletionStatus: deletionStatus,
+		// DeletionStatus: deletionStatus,
 	}, nil
 }

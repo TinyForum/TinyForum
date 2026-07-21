@@ -6,7 +6,7 @@ import "tiny-forum/internal/model/do"
 type ListPosts struct {
 	AuthorID         uint
 	TagNames         []string
-	Type             do.PostType
+	Type             string
 	Keyword          string
 	SortBy           string
 	PostStatus       do.PostStatus

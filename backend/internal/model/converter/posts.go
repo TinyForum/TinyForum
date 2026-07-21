@@ -15,7 +15,7 @@ func ListPostsBOToPostDO(b *bo.ListPosts) *do.Post {
 		// 	// UpdatedAt 和 DeletedAt 通常由数据库自动维护，不需要从 BO 传递
 		// },
 		AuthorID:         b.AuthorID,
-		Type:             b.Type,
+		Type:             do.ParsePostType(b.Type),
 		PostStatus:       b.PostStatus,
 		ModerationStatus: b.ModerationStatus,
 	}

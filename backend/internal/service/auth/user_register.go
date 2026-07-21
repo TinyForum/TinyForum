@@ -14,7 +14,7 @@ import (
 )
 
 // Register 用户注册
-func (s *authService) Register(ctx context.Context, input request.RegisterRequest) (*vo.AuthResultVO, error) {
+func (s *authService) Register(ctx context.Context, input request.RegisterRequest) (*vo.UserRegisterResultVO, error) {
 	//  校验用户名格式（只允许字母数字下划线连字符）
 	if !usernameRegex.MatchString(input.Username) {
 		return nil, errors.New("用户名只能包含字母、数字、下划线和连字符，长度 3-30 位")
@@ -69,12 +69,15 @@ func (s *authService) Register(ctx context.Context, input request.RegisterReques
 		logger.Errorf("生成 jwt 失败: %v", err)
 		return nil, apperrors.ErrInternalError
 	}
-	return &vo.AuthResultVO{
+	return &vo.UserRegisterResultVO{
 		Token: token,
-		User: &vo.UserPrivateVO{
+		User: &vo.UserRegisterVO{
 			ID:        user.ID,
 			Username:  user.Username,
 			AvatarUrl: user.AvatarUrl,
 			Email:     user.Email,
+			Role:      user.Role,
+			Score:     user.Score,
+			CreatedAt: user.CreatedAt,
 		}}, nil
 }

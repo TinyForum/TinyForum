@@ -13,7 +13,8 @@
 
 - **开发指南**
   - [介绍](/zh-CN/dev/guide)
-  - [API](/zh-CN/dev/api)
+  - [RESTful API 设计规范](/zh-CN/dev/restful_api)
+  - [数据模型设计规范](/zh-CN/dev/object_model)
   - [数据库设计](/zh-CN/dev/database/)
   - [介绍](/zh-CN/dev/database/intro)
   - [swagger](/zh-CN/dev/swagger)

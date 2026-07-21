@@ -24,7 +24,7 @@ type AuthService interface {
 
 	// create
 
-	Register(ctx context.Context, input request.RegisterRequest) (*vo.AuthResultVO, error) // 注册
+	Register(ctx context.Context, input request.RegisterRequest) (*vo.UserRegisterResultVO, error) // 注册
 
 	// update
 
@@ -44,11 +44,11 @@ type AuthService interface {
 
 	// query
 
-	Login(ctx context.Context, input userSvc.LoginInput) (*vo.AuthResultVO, error)  // 登录
-	GetDeletionStatus(ctx context.Context, userID uint) (*vo.DeletionStatus, error) // 获取删除账户状态
-	FinduUserEmailByID(userID uint) (string, error)                                 // 根据用户ID查找用户邮箱
-	IsUserExist(ctx context.Context, email string) (bool, error)                    // 检查用户是否存在
-	ValidateOldPassword(userID uint, newPassword string) (bool, error)              // 验证密码是否合规
+	Login(ctx context.Context, input userSvc.LoginInput) (*vo.UserLoginResultVO, error) // 登录
+	GetDeletionStatus(ctx context.Context, userID uint) (*vo.DeletionStatus, error)     // 获取删除账户状态
+	FinduUserEmailByID(userID uint) (string, error)                                     // 根据用户ID查找用户邮箱
+	IsUserExist(ctx context.Context, email string) (bool, error)                        // 检查用户是否存在
+	ValidateOldPassword(userID uint, newPassword string) (bool, error)                  // 验证密码是否合规
 
 }
 type authService struct {
