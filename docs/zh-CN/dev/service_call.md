@@ -1,6 +1,4 @@
-# 调用方法
-
-
+# 服务层级调用方法
 
 > 原则：各层级优先横向调用，例如 adminService 需要操作数据时，先看 xxxSvc 是否有相关的操作，如果没有，就去对应的 Svc 中创建，然后调用
 >
@@ -13,8 +11,6 @@
 1. **调用方向必须单向**：严格遵循 `Handler → Service → Repository` 的依赖方向，禁止反向调用（如 Repository 调用 Service）。
 2. **同一层内可以相互调用**：Service 可以调用其他 Service，Repository 可以调用其他 Repository，但需谨慎。
 3. **禁止跨层调用**：Handler 不能直接调用 Repository；Service 不能直接操作数据库（应通过 Repository）。
-
-
 
 ## Handler
 
@@ -45,13 +41,13 @@ func (h *Handler) ListPlugins(c *gin.Context) {
 		Order:    req.Order,
 		Options: bo.PluginQueryBO{
 			Name:     req.Keyword,
-			AuthorID: UserID,     
-			Category: req.Category,       
-			Tags:     req.Tags,     
-			Type:     req.Type,       
+			AuthorID: UserID,
+			Category: req.Category,
+			Tags:     req.Tags,
+			Type:     req.Type,
 			Keyword:  req.Keyword,
-			Status:   do.PluginStatus(req.Status), 
-			Version:  req.Version,                       
+			Status:   do.PluginStatus(req.Status),
+			Version:  req.Version,
 		},
 	}
 
@@ -65,8 +61,6 @@ func (h *Handler) ListPlugins(c *gin.Context) {
 }
 
 ```
-
-
 
 ## Service
 
@@ -131,7 +125,7 @@ func (s *pluginService) ListPlugins(ctx context.Context, queryBO *bo.PageQuery[b
 	queryDO := &common.PageQuery[do.PluginMeta]{
 		Page:     page,
 		PageSize: pageSize,
-		SortBy:   "created_at", 
+		SortBy:   "created_at",
 		Order:    "desc",
 		Data:     repoQuery,
 		Keyword:  queryBO.Keywords,
@@ -263,4 +257,3 @@ func (r *pluginRepo) List(ctx context.Context, queryBO *common.PageQuery[do.Plug
 }
 
 ```
-
