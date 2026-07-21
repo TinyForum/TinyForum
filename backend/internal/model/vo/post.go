@@ -2,6 +2,20 @@ package vo
 
 import "time"
 
+type PostListVO struct {
+	ID        uint      `json:"id"`
+	CreatedAt time.Time `json:"created_at"`
+	Title     string    `json:"title"`
+	Content   string    `json:"content"`
+	Summary   string    `json:"summary,omitempty"`
+	Cover     string    `json:"cover,omitempty"`
+	Author    struct {
+		ID        uint   `json:"id"`
+		Username  string `json:"username"`
+		AvatarUrl string `json:"avatar_url,omitempty"`
+	} `json:"author"`
+}
+
 // PostVO 帖子脱敏视图（对外暴露）
 type PostVO struct {
 	ID        uint      `json:"id"`

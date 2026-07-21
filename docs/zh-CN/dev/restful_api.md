@@ -1,4 +1,4 @@
-# API 设计规范最佳实践（RESTful）
+# TESTful API 设计规范
 
 ## 1. URL 设计
 

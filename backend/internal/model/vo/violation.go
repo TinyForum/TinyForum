@@ -22,6 +22,6 @@ type ViolationVO struct {
 	AppealReason   string             `json:"appeal_reason,omitempty"`
 	AppealTime     *time.Time         `json:"appeal_time,omitempty"`
 	AppealResult   string             `json:"appeal_result,omitempty"`
-	User           *UserVO            `json:"user,omitempty"`
-	Operator       *UserVO            `json:"operator,omitempty"`
+	User           *UserAuthVO        `json:"user,omitempty"`
+	Operator       *UserAuthVO        `json:"operator,omitempty"`
 }
