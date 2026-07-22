@@ -7,8 +7,8 @@ import (
 	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/dto"
 	"tiny-forum/internal/model/request"
+	postRepo "tiny-forum/internal/repository/article"
 	boardRepo "tiny-forum/internal/repository/board"
-	postRepo "tiny-forum/internal/repository/post"
 	userRepo "tiny-forum/internal/repository/user"
 	"tiny-forum/internal/service/notification"
 )
@@ -33,7 +33,7 @@ type BoardService interface {
 	GetPostsBySlug(slug string, page, pageSize int) ([]*dto.GetBoardPostsResponse, int64, error)
 	List(page, pageSize int) ([]do.Board, int64, error)
 	GetTree() ([]do.Board, error)
-	GetPosts(boardID uint, page, pageSize int) ([]do.Post, int64, error)
+	GetPosts(boardID uint, page, pageSize int) ([]do.Article, int64, error)
 	// moderator
 	AddModerator(_ context.Context, input request.AddModeratorRequest, operatorID uint) error
 	RemoveModerator(_ context.Context, userID, boardID uint, operatorID uint) error
@@ -49,14 +49,14 @@ type BoardService interface {
 type boardService struct {
 	boardRepo boardRepo.BoardRepository
 	userRepo  userRepo.UserRepository
-	postRepo  postRepo.PostRepository
+	postRepo  postRepo.ArticleRepository
 	notifSvc  notification.NotificationService // 需导入 "tiny-forum/internal/service/notification"
 }
 
 func NewBoardService(
 	boardRepo boardRepo.BoardRepository,
 	userRepo userRepo.UserRepository,
-	postRepo postRepo.PostRepository,
+	postRepo postRepo.ArticleRepository,
 	notifSvc notification.NotificationService,
 ) BoardService {
 	return &boardService{

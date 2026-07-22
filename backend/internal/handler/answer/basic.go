@@ -1,8 +1,8 @@
 package answer
 
 import (
+	articleService "tiny-forum/internal/service/article"
 	commentService "tiny-forum/internal/service/comment"
-	postService "tiny-forum/internal/service/post"
 	questionService "tiny-forum/internal/service/question"
 )
 
@@ -10,14 +10,14 @@ import (
 type AnswerHandler struct {
 	questionSvc questionService.QuestionService
 	commentSvc  commentService.CommentService
-	postSvc     postService.PostService
+	postSvc     articleService.ArticleService
 }
 
 // NewAnswerHandler 创建 AnswerHandler 实例
 func NewAnswerHandler(
 	questionSvc questionService.QuestionService,
 	commentSvc commentService.CommentService,
-	postSvc postService.PostService,
+	postSvc articleService.ArticleService,
 ) *AnswerHandler {
 	return &AnswerHandler{
 		questionSvc: questionSvc,

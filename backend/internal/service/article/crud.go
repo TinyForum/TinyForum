@@ -1,4 +1,4 @@
-package post
+package article
 
 import (
 	"context"
@@ -15,7 +15,7 @@ import (
 )
 
 // Create 创建帖子
-func (s *postService) Create(ctx *gin.Context, authorID uint, input request.CreatePostRequest) (*do.Post, error) {
+func (s *articleService) Create(ctx *gin.Context, authorID uint, input request.CreatePostRequest) (*do.Article, error) {
 	// 1. 帖子类型校验
 	postType := do.PostType(input.Type)
 	if postType == "" || !postType.IsValid() {
@@ -57,7 +57,7 @@ func (s *postService) Create(ctx *gin.Context, authorID uint, input request.Crea
 	}
 
 	// 6. 构建帖子对象
-	post := &do.Post{
+	post := &do.Article{
 		Title:            input.Title,
 		Content:          input.Content,
 		Summary:          input.Summary,
@@ -111,7 +111,7 @@ func (s *postService) Create(ctx *gin.Context, authorID uint, input request.Crea
 }
 
 // Update 更新帖子
-func (s *postService) Update(postID, userID uint, isAdmin bool, input request.UpdatePostRequest) (*do.Post, error) {
+func (s *articleService) Update(postID, userID uint, isAdmin bool, input request.UpdatePostRequest) (*do.Article, error) {
 	post, err := s.postRepo.FindByID(postID)
 	if err != nil {
 		return nil, errors.New("帖子不存在")
@@ -148,7 +148,7 @@ func (s *postService) Update(postID, userID uint, isAdmin bool, input request.Up
 }
 
 // Delete 删除帖子
-func (s *postService) Delete(postID, userID uint, isAdmin bool) error {
+func (s *articleService) Delete(postID, userID uint, isAdmin bool) error {
 	post, err := s.postRepo.FindByID(postID)
 	if err != nil {
 		return errors.New("帖子不存在")
@@ -160,7 +160,7 @@ func (s *postService) Delete(postID, userID uint, isAdmin bool) error {
 }
 
 // GetByID 获取帖子详情（含点赞状态）
-func (s *postService) GetByID(postID, viewerID uint) (*do.Post, bool, error) {
+func (s *articleService) GetByID(postID, viewerID uint) (*do.Article, bool, error) {
 	post, err := s.postRepo.FindByID(postID)
 	if err != nil {
 		return nil, false, errors.New("帖子不存在")
@@ -174,23 +174,18 @@ func (s *postService) GetByID(postID, viewerID uint) (*do.Post, bool, error) {
 }
 
 // 用户获取文章列表
-func (s *postService) List(ctx context.Context, listPostsBO *common.PageQuery[bo.ListPosts]) ([]do.Post, int64, error) {
+func (s *articleService) List(ctx context.Context, listPostsBO *common.PageQuery[bo.ListPosts]) ([]do.Article, int64, error) {
 	filterDO := converter.ListPostsBOToPostDO(&listPostsBO.Data)
+	// 假定转换器总是返回非空指针（若传入 nil 则返回 &do.Post{}）
 
-	// 构造 DO 层的查询对象
-	listPostsDO := &common.PageQuery[do.Post]{
+	// 构造 DO 层的查询对象，外层查询参数直接赋值
+	listPostsDO := &common.PageQuery[do.Article]{
 		Page:     listPostsBO.Page,
 		PageSize: listPostsBO.PageSize,
 		Data:     *filterDO,
 		Keyword:  listPostsBO.Keyword,
 		SortBy:   listPostsBO.SortBy,
 		TagNames: listPostsBO.TagNames,
-	}
-
-	if filterDO == nil {
-		listPostsDO.Data = do.Post{}
-	} else {
-		listPostsDO.Data = *filterDO
 	}
 
 	return s.postRepo.List(ctx, listPostsDO)

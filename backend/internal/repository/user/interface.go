@@ -6,7 +6,8 @@ import (
 	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/dto"
 	"tiny-forum/internal/model/vo"
-	"tiny-forum/internal/repository/post"
+
+	post "tiny-forum/internal/repository/article"
 	"tiny-forum/internal/repository/token" // 假设 token 包路径
 
 	"gorm.io/gorm"
@@ -15,7 +16,7 @@ import (
 type userRepository struct {
 	db        *gorm.DB
 	tokenRepo token.TokenRepository
-	postRepo  post.PostRepository
+	postRepo  post.ArticleRepository
 }
 
 type UserRepository interface {
@@ -76,7 +77,7 @@ type UserRepository interface {
 func NewUserRepository(
 	db *gorm.DB,
 	tokenRepo token.TokenRepository,
-	postRepo post.PostRepository,
+	postRepo post.ArticleRepository,
 ) UserRepository {
 	return &userRepository{
 		db:        db,

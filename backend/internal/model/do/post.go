@@ -1,10 +1,11 @@
 package do
 
+//
 import (
 	"tiny-forum/internal/model/common"
 )
 
-type Post struct {
+type Article struct {
 	common.BaseModel
 	Title    string   `gorm:"not null;size:200" json:"title"`
 	Content  string   `gorm:"not null;type:text" json:"content"`

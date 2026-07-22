@@ -12,7 +12,7 @@ type Question struct {
 	RewardScore      int     `gorm:"default:0" json:"reward_score"`
 	AnswerCount      int     `gorm:"default:0" json:"answer_count"`
 	ViewCount        int     `gorm:"default:0" json:"view_count"`
-	Post             Post    `gorm:"foreignKey:PostID" json:"post,omitempty"`
+	Article          Article `gorm:"foreignKey:PostID" json:"post,omitempty"`
 	AcceptedAnswer   Comment `gorm:"foreignKey:AcceptedAnswerID" json:"accepted_answer,omitempty"`
 }
 

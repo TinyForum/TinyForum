@@ -34,7 +34,7 @@ func (r *commentRepository) UnacceptAnswer(commentID uint) error {
 
 	// 2. 如果有单独的 Question 表存储 accepted_answer_id，也需要更新
 	// 这里假设 Comment 表有 PostID，而 Post 表可能有 accepted_answer_id
-	if err := tx.Model(&do.Post{}).
+	if err := tx.Model(&do.Article{}).
 		Where("accepted_answer_id = ?", commentID).
 		Update("accepted_answer_id", nil).Error; err != nil {
 		tx.Rollback()

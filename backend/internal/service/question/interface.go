@@ -5,8 +5,8 @@ import (
 	"tiny-forum/internal/model/dto"
 	"tiny-forum/internal/model/request"
 	"tiny-forum/internal/model/vo"
+	postRepo "tiny-forum/internal/repository/article"
 	commentRepo "tiny-forum/internal/repository/comment"
-	postRepo "tiny-forum/internal/repository/post"
 	questionRepo "tiny-forum/internal/repository/question"
 	tagRepo "tiny-forum/internal/repository/tag"
 	userRepo "tiny-forum/internal/repository/user"
@@ -23,7 +23,7 @@ type QuestionService interface {
 	// crud
 	CreateQuestion(userID uint, input dto.CreateQuestionRequest) (*do.QuestionResponse, error)
 	GetQuestionDetail(questionID uint) (*do.QuestionResponse, error)
-	GetQuestionsList(page, pageSize int, unanswered bool) ([]do.Post, int64, error)
+	GetQuestionsList(page, pageSize int, unanswered bool) ([]do.Article, int64, error)
 	GetQuestionByID(questionID uint) (*do.Question, error)
 	// simple
 	GetQuestionSimpleList(pageSize, offset int, boardID *uint, filter, sort, keyword string) ([]vo.QuestionSimpleVO, int64, error)
@@ -32,7 +32,7 @@ type QuestionService interface {
 
 type questionService struct {
 	questionRepo questionRepo.QuestionRepository
-	postRepo     postRepo.PostRepository
+	postRepo     postRepo.ArticleRepository
 	commentRepo  commentRepo.CommentRepository
 	userRepo     userRepo.UserRepository
 	notifSvc     notification.NotificationService // 需导入 "tiny-forum/internal/service/notification"
@@ -42,7 +42,7 @@ type questionService struct {
 
 func NewQuestionService(
 	questionRepo questionRepo.QuestionRepository,
-	postRepo postRepo.PostRepository,
+	postRepo postRepo.ArticleRepository,
 	commentRepo commentRepo.CommentRepository,
 	userRepo userRepo.UserRepository,
 	notifSvc notification.NotificationService,

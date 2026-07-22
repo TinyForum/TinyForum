@@ -8,8 +8,8 @@ import (
 	"tiny-forum/internal/model/request"
 	"tiny-forum/internal/model/vo"
 	announcementSvc "tiny-forum/internal/service/announcement"
+	postSvc "tiny-forum/internal/service/article"
 	"tiny-forum/internal/service/board"
-	postSvc "tiny-forum/internal/service/post"
 	userSvc "tiny-forum/internal/service/user"
 )
 
@@ -28,8 +28,8 @@ type AdminService interface {
 	DeleteUser(operatorID uint, targetID uint) error
 	SetRoleUser(operatorID, targetID uint, newRole string) error
 	// posts
-	ListPosts(ctx context.Context, ListPostsBO *common.PageQuery[bo.ListPosts]) ([]do.Post, int64, error)
-	ListReviewRequire(ctx context.Context, ListPostsBO *common.PageQuery[bo.ListPosts]) ([]do.Post, int64, error)
+	ListPosts(ctx context.Context, ListPostsBO *common.PageQuery[bo.ListPosts]) ([]do.Article, int64, error)
+	ListReviewRequire(ctx context.Context, ListPostsBO *common.PageQuery[bo.ListPosts]) ([]do.Article, int64, error)
 	// score
 	ListUsersScore(ctx context.Context) ([]vo.UserScoreVO, error)
 	GetUserScore(ctx context.Context, userID uint) (*vo.UserScoreVO, error)
@@ -46,7 +46,7 @@ type adminService struct {
 	announcementSvc announcementSvc.AnnouncementService
 	userSvc         userSvc.UserService
 	boardSvc        board.BoardService
-	postSvc         postSvc.PostService
+	postSvc         postSvc.ArticleService
 }
 
 func NewAdminService(
@@ -56,7 +56,7 @@ func NewAdminService(
 	announcementSvc announcementSvc.AnnouncementService,
 	// voteRepo voteRepo.VoteRepository,
 	userSvc userSvc.UserService,
-	postSvc postSvc.PostService,
+	postSvc postSvc.ArticleService,
 	boardSvc board.BoardService,
 ) AdminService {
 	return &adminService{

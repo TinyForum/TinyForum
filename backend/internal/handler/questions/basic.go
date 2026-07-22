@@ -2,22 +2,22 @@ package question
 
 import (
 	"tiny-forum/internal/handler/answer"
+	articleService "tiny-forum/internal/service/article"
 	commentService "tiny-forum/internal/service/comment"
-	postService "tiny-forum/internal/service/post"
 	questionService "tiny-forum/internal/service/question"
 )
 
 type QuestionHandler struct {
 	questionSvc   questionService.QuestionService
 	commentSvc    commentService.CommentService
-	postSvc       postService.PostService
+	postSvc       articleService.ArticleService
 	answerHandler *answer.AnswerHandler
 }
 
 func NewQuestionHandler(
 	questionSvc questionService.QuestionService,
 	commentSvc commentService.CommentService,
-	postSvc postService.PostService,
+	postSvc articleService.ArticleService,
 	answerHandler *answer.AnswerHandler,
 ) *QuestionHandler {
 	return &QuestionHandler{

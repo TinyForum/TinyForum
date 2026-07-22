@@ -25,7 +25,7 @@ func (a *forumAPIImpl) GetPost(ctx context.Context, postID uint) (*sdk.PostVO, e
 }
 
 func (a *forumAPIImpl) CreatePost(ctx context.Context, req sdk.CreatePostReq) (*sdk.PostVO, error) {
-	p := &do.Post{
+	p := &do.Article{
 		Title:      req.Title,
 		Content:    req.Content,
 		AuthorID:   a.botActorID,
@@ -47,10 +47,10 @@ func (a *forumAPIImpl) CreatePost(ctx context.Context, req sdk.CreatePostReq) (*
 
 func (a *forumAPIImpl) ReplyPost(ctx context.Context, postID uint, content string) (*sdk.CommentVO, error) {
 	c := &do.Comment{
-		PostID:   uint(postID),
-		AuthorID: a.botActorID,
-		Content:  content,
-		Status:   do.CommentStatusVisible,
+		CreationsID: uint(postID),
+		AuthorID:    a.botActorID,
+		Content:     content,
+		Status:      do.CommentStatusVisible,
 	}
 	if err := a.commentRepo.Create(c); err != nil {
 		return nil, err
@@ -59,7 +59,7 @@ func (a *forumAPIImpl) ReplyPost(ctx context.Context, postID uint, content strin
 		ID:        c.ID,
 		Content:   c.Content,
 		AuthorID:  c.AuthorID,
-		PostID:    c.PostID,
+		PostID:    c.CreationsID,
 		CreatedAt: c.CreatedAt.Unix(),
 	}, nil
 }

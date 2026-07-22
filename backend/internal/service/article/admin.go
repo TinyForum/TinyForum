@@ -1,4 +1,4 @@
-package post
+package article
 
 import (
 	"context"
@@ -15,13 +15,13 @@ import (
 )
 
 // AdminList 管理员获取帖子列表
-func (s *postService) AdminLists(ctx context.Context, listPostsBO *common.PageQuery[bo.ListPosts]) ([]do.Post, int64, error) {
+func (s *articleService) AdminLists(ctx context.Context, listPostsBO *common.PageQuery[bo.ListPosts]) ([]do.Article, int64, error) {
 	// 将 BO 的 Data 字段转换为 DO 的对应结构
 	// var filterDO *do.Post
 	filterDO := converter.ListPostsBOToPostDO(&listPostsBO.Data)
 
 	// 构造 DO 层的查询对象
-	listPostsDO := &common.PageQuery[do.Post]{
+	listPostsDO := &common.PageQuery[do.Article]{
 		Page:     listPostsBO.Page,
 		PageSize: listPostsBO.PageSize,
 		Data:     *filterDO,
@@ -32,7 +32,7 @@ func (s *postService) AdminLists(ctx context.Context, listPostsBO *common.PageQu
 
 	// 如果 filterDO 可能为 nil，且 Data 字段要求非指针，则需要处理零值
 	if filterDO == nil {
-		listPostsDO.Data = do.Post{}
+		listPostsDO.Data = do.Article{}
 	} else {
 		listPostsDO.Data = *filterDO
 	}
@@ -42,12 +42,12 @@ func (s *postService) AdminLists(ctx context.Context, listPostsBO *common.PageQu
 }
 
 // SetStatus 设置帖子状态（暂未完全实现，保留接口）
-func (s *postService) SetStatus(postID uint, status do.PostStatus) error {
-	return s.postRepo.Update(&do.Post{})
+func (s *articleService) SetStatus(postID uint, status do.PostStatus) error {
+	return s.postRepo.Update(&do.Article{})
 }
 
 // TogglePin 切换帖子置顶状态
-func (s *postService) TogglePin(postID uint) error {
+func (s *articleService) TogglePin(postID uint) error {
 	post, err := s.postRepo.FindByID(postID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -60,7 +60,7 @@ func (s *postService) TogglePin(postID uint) error {
 }
 
 // 管理员更新审核状态
-func (s *postService) AdminSetReviewPost(postID uint, status do.ModerationStatus) error {
+func (s *articleService) AdminSetReviewPost(postID uint, status do.ModerationStatus) error {
 	post, err := s.postRepo.FindByID(postID)
 	if err != nil {
 		return err

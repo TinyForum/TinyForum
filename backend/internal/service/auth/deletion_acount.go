@@ -129,7 +129,7 @@ func (s *authService) ConfirmDeletion(ctx context.Context, userID uint) error {
 		}
 
 		// 21. 帖子（置空 author_id）
-		if err := tx.Model(&do.Post{}).Where("author_id = ?", userID).Update("author_id", nil).Error; err != nil {
+		if err := tx.Model(&do.Article{}).Where("author_id = ?", userID).Update("author_id", nil).Error; err != nil {
 			return fmt.Errorf("更新帖子失败: %w", err)
 		}
 

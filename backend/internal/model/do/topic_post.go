@@ -9,8 +9,8 @@ type TopicPost struct {
 	SortOrder int  `gorm:"default:0" json:"sort_order"`
 	AddedBy   uint `json:"added_by"`
 
-	Topic Topic `gorm:"foreignKey:TopicID" json:"-"`
-	Post  Post  `gorm:"foreignKey:PostID" json:"post,omitempty"`
+	Topic   Topic   `gorm:"foreignKey:TopicID" json:"-"`
+	Article Article `gorm:"foreignKey:PostID" json:"post,omitempty"`
 }
 
 // 表名

@@ -3,7 +3,7 @@ package topic
 import (
 	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/request"
-	postRepo "tiny-forum/internal/repository/post"
+	postRepo "tiny-forum/internal/repository/article"
 	topicRepo "tiny-forum/internal/repository/topic"
 	userRepo "tiny-forum/internal/repository/user"
 	"tiny-forum/internal/service/notification"
@@ -28,14 +28,14 @@ type TopicService interface {
 }
 type topicService struct {
 	topicRepo topicRepo.TopicRepository
-	postRepo  postRepo.PostRepository
+	postRepo  postRepo.ArticleRepository
 	userRepo  userRepo.UserRepository
 	notifSvc  notification.NotificationService // 需导入 "tiny-forum/internal/service/notification"
 }
 
 func NewTopicService(
 	topicRepo topicRepo.TopicRepository,
-	postRepo postRepo.PostRepository,
+	postRepo postRepo.ArticleRepository,
 	userRepo userRepo.UserRepository,
 	notifSvc notification.NotificationService,
 ) TopicService {

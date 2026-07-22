@@ -3,8 +3,8 @@ package comment
 import (
 	"tiny-forum/internal/model/bo"
 	"tiny-forum/internal/model/do"
+	postRepo "tiny-forum/internal/repository/article"
 	commentRepo "tiny-forum/internal/repository/comment"
-	postRepo "tiny-forum/internal/repository/post"
 	userRepo "tiny-forum/internal/repository/user"
 	voteRepo "tiny-forum/internal/repository/vote"
 	"tiny-forum/internal/service/notification"
@@ -35,7 +35,7 @@ type CommentService interface {
 
 type commentService struct {
 	commentRepo commentRepo.CommentRepository
-	postRepo    postRepo.PostRepository
+	postRepo    postRepo.ArticleRepository
 	userRepo    userRepo.UserRepository
 	notifSvc    notification.NotificationService
 	voteRepo    voteRepo.VoteRepository
@@ -43,7 +43,7 @@ type commentService struct {
 
 func NewCommentService(
 	commentRepo commentRepo.CommentRepository,
-	postRepo postRepo.PostRepository,
+	postRepo postRepo.ArticleRepository,
 	userRepo userRepo.UserRepository,
 	notifSvc notification.NotificationService,
 	voteRepo voteRepo.VoteRepository,

@@ -130,7 +130,7 @@ func (s *boardService) GetTree() ([]do.Board, error) {
 	return s.boardRepo.GetTree()
 }
 
-func (s *boardService) GetPosts(boardID uint, page, pageSize int) ([]do.Post, int64, error) {
+func (s *boardService) GetPosts(boardID uint, page, pageSize int) ([]do.Article, int64, error) {
 	if page < 1 {
 		page = 1
 	}

@@ -19,10 +19,10 @@ func (s *commentService) Create(authorID uint, input bo.CreateCommentInput) (*do
 		}
 	}
 	comment := &do.Comment{
-		Content:  input.Content,
-		PostID:   input.PostID,
-		AuthorID: authorID,
-		ParentID: input.ParentID,
+		Content:     input.Content,
+		CreationsID: input.PostID,
+		AuthorID:    authorID,
+		ParentID:    input.ParentID,
 	}
 
 	if err := s.commentRepo.Create(comment); err != nil {
@@ -58,11 +58,11 @@ func (s *commentService) CreateAnswer(authorID uint, input bo.CreateCommentInput
 	}
 
 	comment := &do.Comment{
-		Content:  input.Content,
-		PostID:   input.PostID,
-		AuthorID: authorID,
-		ParentID: input.ParentID,
-		IsAnswer: true,
+		Content:     input.Content,
+		CreationsID: input.PostID,
+		AuthorID:    authorID,
+		ParentID:    input.ParentID,
+		IsAnswer:    true,
 	}
 
 	if err := s.commentRepo.Create(comment); err != nil {
