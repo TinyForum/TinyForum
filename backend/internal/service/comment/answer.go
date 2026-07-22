@@ -11,7 +11,7 @@ func (s *commentService) MarkAsAnswer(commentID, userID uint, isAdmin bool, isAn
 	if err != nil {
 		return errors.New("评论不存在")
 	}
-	post, err := s.postRepo.FindByID(comment.PostID)
+	post, err := s.postRepo.FindByID(comment.CreationsID)
 	if err != nil {
 		return errors.New("帖子不存在")
 	}
@@ -30,7 +30,7 @@ func (s *commentService) UnacceptAnswer(answerID, userID uint, isAdmin bool) err
 	if !answer.IsAnswer {
 		return errors.New("该评论不是回答")
 	}
-	post, err := s.postRepo.FindByID(answer.PostID)
+	post, err := s.postRepo.FindByID(answer.CreationsID)
 	if err != nil {
 		return errors.New("问题不存在")
 	}
@@ -49,7 +49,7 @@ func (s *commentService) UnacceptAnswer(answerID, userID uint, isAdmin bool) err
 	// 可选：扣除积分并发送通知
 	if post.AuthorID != userID {
 		s.notifSvc.Create(answer.AuthorID, &userID, do.NotifyAcceptCancel,
-			"你的答案在问题《"+post.Title+"》中被取消接受", &answer.PostID, "post")
+			"你的答案在问题《"+post.Title+"》中被取消接受", &answer.CreationsID, "post")
 	}
 	return nil
 }

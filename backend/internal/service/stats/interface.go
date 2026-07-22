@@ -4,9 +4,9 @@ import (
 	"context"
 	"time"
 	"tiny-forum/internal/model/dto"
+	postRepo "tiny-forum/internal/repository/article"
 	boardRepo "tiny-forum/internal/repository/board"
 	commentRepo "tiny-forum/internal/repository/comment"
-	postRepo "tiny-forum/internal/repository/post"
 	statsRepo "tiny-forum/internal/repository/stats"
 	tagRepo "tiny-forum/internal/repository/tag"
 	userRepo "tiny-forum/internal/repository/user"
@@ -21,7 +21,7 @@ type StatsService interface {
 
 type statsService struct {
 	statsRepo   statsRepo.StatsRepository
-	postRepo    postRepo.PostRepository
+	postRepo    postRepo.ArticleRepository
 	tagRepo     tagRepo.TagRepository
 	boardRepo   boardRepo.BoardRepository
 	userRepo    userRepo.UserRepository
@@ -30,7 +30,7 @@ type statsService struct {
 
 func NewStatsService(
 	statsRepo statsRepo.StatsRepository,
-	postRepo postRepo.PostRepository,
+	postRepo postRepo.ArticleRepository,
 	tagRepo tagRepo.TagRepository,
 	boardRepo boardRepo.BoardRepository,
 	userRepo userRepo.UserRepository,

@@ -33,23 +33,23 @@ func (s *questionService) GetQuestionDetail(questionID uint) (*do.QuestionRespon
 	return &do.QuestionResponse{
 		ID:               question.ID,
 		PostID:           question.PostID,
-		Title:            question.Post.Title,
-		Content:          question.Post.Content,
-		Summary:          question.Post.Summary,
-		Cover:            question.Post.CoverUrl,
-		BoardID:          question.Post.BoardID,
-		AuthorID:         question.Post.AuthorID,
+		Title:            question.Article.Title,
+		Content:          question.Article.Content,
+		Summary:          question.Article.Summary,
+		Cover:            question.Article.CoverUrl,
+		BoardID:          question.Article.BoardID,
+		AuthorID:         question.Article.AuthorID,
 		RewardScore:      question.RewardScore,
 		AnswerCount:      question.AnswerCount,
 		AcceptedAnswerID: question.AcceptedAnswerID,
-		Status:           string(question.Post.PostStatus),
+		Status:           string(question.Article.PostStatus),
 		CreatedAt:        question.CreatedAt,
 		UpdatedAt:        question.UpdatedAt,
 	}, nil
 }
 
 // GetQuestionsList 获取问答帖列表（支持只看未回答）
-func (s *questionService) GetQuestionsList(page, pageSize int, unanswered bool) ([]do.Post, int64, error) {
+func (s *questionService) GetQuestionsList(page, pageSize int, unanswered bool) ([]do.Article, int64, error) {
 	if page < 1 {
 		page = 1
 	}

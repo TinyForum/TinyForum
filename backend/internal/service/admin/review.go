@@ -7,6 +7,6 @@ import (
 	"tiny-forum/internal/model/do"
 )
 
-func (s *adminService) ListReviewRequire(ctx context.Context, ListPostsBO *common.PageQuery[bo.ListPosts]) ([]do.Post, int64, error) {
+func (s *adminService) ListReviewRequire(ctx context.Context, ListPostsBO *common.PageQuery[bo.ListPosts]) ([]do.Article, int64, error) {
 	return s.postSvc.AdminLists(ctx, ListPostsBO)
 }

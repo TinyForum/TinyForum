@@ -5,18 +5,15 @@ import (
 	"tiny-forum/internal/model/do"
 )
 
-func ListPostsBOToPostDO(b *bo.ListPosts) *do.Post {
-	if b == nil {
-		return nil
+func ListPostsBOToPostDO(bo *bo.ListPosts) *do.Article {
+	if bo == nil {
+		return &do.Article{}
 	}
-	return &do.Post{
-		// BaseModel: common.BaseModel{ // 通过嵌入类型名初始化
-
-		// 	// UpdatedAt 和 DeletedAt 通常由数据库自动维护，不需要从 BO 传递
-		// },
-		AuthorID:         b.AuthorID,
-		Type:             do.ParsePostType(b.Type),
-		PostStatus:       b.PostStatus,
-		ModerationStatus: b.ModerationStatus,
+	return &do.Article{
+		AuthorID:         bo.AuthorID,
+		PostStatus:       bo.PostStatus,
+		ModerationStatus: bo.ModerationStatus,
+		Type:             do.PostType(bo.Type), // Type 为 string，需转换
+		// 不包含 Keyword, TagNames, SortBy
 	}
 }

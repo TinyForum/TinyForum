@@ -1,4 +1,4 @@
-package post
+package article
 
 import (
 	"context"
@@ -14,12 +14,12 @@ import (
 // MARK: list
 // 获取文章列表
 // 查询 published + approved
-func (r *postRepository) List(ctx context.Context, ListPostsDO *common.PageQuery[do.Post]) ([]do.Post, int64, error) {
-	var posts []do.Post
+func (r *articleRepository) List(ctx context.Context, ListPostsDO *common.PageQuery[do.Article]) ([]do.Article, int64, error) {
+	var posts []do.Article
 	var total int64
 
 	// 构建基础查询
-	baseQuery := r.db.Model(&do.Post{})
+	baseQuery := r.db.Model(&do.Article{})
 
 	// 用户感知状态过滤
 	if ListPostsDO.Data.PostStatus != "" {
@@ -77,8 +77,8 @@ func (r *postRepository) List(ctx context.Context, ListPostsDO *common.PageQuery
 
 	return posts, total, err
 }
-func (r *postRepository) ListUserPosts(ctx context.Context, req request.GetUserPostsRequest, userID uint, orderBy string) ([]do.Post, int64, error) {
-	db := r.db.WithContext(ctx).Model(&do.Post{}).Where("author_id = ?", userID)
+func (r *articleRepository) ListUserPosts(ctx context.Context, req request.GetUserPostsRequest, userID uint, orderBy string) ([]do.Article, int64, error) {
+	db := r.db.WithContext(ctx).Model(&do.Article{}).Where("author_id = ?", userID)
 
 	// 状态过滤
 	if req.Status != "" {
@@ -110,11 +110,11 @@ func (r *postRepository) ListUserPosts(ctx context.Context, req request.GetUserP
 		return nil, 0, err
 	}
 	if total == 0 {
-		return []do.Post{}, 0, nil
+		return []do.Article{}, 0, nil
 	}
 
 	// 直接使用传入的排序表达式（已由 Service 层保证安全）
-	var posts []do.Post
+	var posts []do.Article
 	err := db.Preload("Tags").Preload("Board").
 		Order(orderBy).
 		Offset(req.Offset()).
@@ -124,12 +124,12 @@ func (r *postRepository) ListUserPosts(ctx context.Context, req request.GetUserP
 }
 
 // AdminList(ctx context.Context, ListPostsDO *common.PageQuery[do.Post]) ([]do.Post, int64, error)
-func (r *postRepository) AdminList(ctx context.Context, listPostsDO *common.PageQuery[do.Post]) ([]do.Post, int64, error) {
-	var posts []do.Post
+func (r *articleRepository) AdminList(ctx context.Context, listPostsDO *common.PageQuery[do.Article]) ([]do.Article, int64, error) {
+	var posts []do.Article
 	var total int64
 
 	// 基础查询
-	query := r.db.Model(&do.Post{})
+	query := r.db.Model(&do.Article{})
 
 	// 动态添加过滤条件
 	// 状态过滤（后台需支持所有状态，仅当传入时才过滤）
@@ -176,7 +176,7 @@ func (r *postRepository) AdminList(ctx context.Context, listPostsDO *common.Page
 
 	// 无数据时直接返回，避免不必要的查询
 	if total == 0 {
-		return []do.Post{}, 0, nil
+		return []do.Article{}, 0, nil
 	}
 
 	// 分页参数

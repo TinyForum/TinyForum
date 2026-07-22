@@ -1,4 +1,4 @@
-package post
+package article
 
 import (
 	"errors"
@@ -30,7 +30,7 @@ import (
 // @Router /admin/posts [get]
 //
 // Deprecated: 迁移到 adminHandler.ListPosts
-func (h *PostHandler) AdminList(c *gin.Context) {
+func (h *ArticleHandler) AdminList(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "20"))
 	keyword := c.Query("keyword")
@@ -43,7 +43,7 @@ func (h *PostHandler) AdminList(c *gin.Context) {
 			Keyword:    keyword,
 		},
 	}
-	posts, total, err := h.postSvc.AdminLists(c, listPostsBO)
+	posts, total, err := h.articleSvc.AdminLists(c, listPostsBO)
 	if err != nil {
 		response.HandleError(c, err)
 		return
@@ -64,14 +64,14 @@ func (h *PostHandler) AdminList(c *gin.Context) {
 // @Failure 403 {object} common.BasicResponse"无权限"
 // @Failure 500 {object} common.BasicResponse"服务器内部错误"
 // @Router /admin/posts/{id}/pin [put]
-func (h *PostHandler) AdminTogglePin(c *gin.Context) {
+func (h *ArticleHandler) AdminTogglePin(c *gin.Context) {
 	postID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		response.HandleError(c, err)
 		return
 	}
 
-	if err := h.postSvc.TogglePin(uint(postID)); err != nil {
+	if err := h.articleSvc.TogglePin(uint(postID)); err != nil {
 		if errors.Is(err, apperrors.ErrPostNotFound) {
 			response.HandleError(c, err)
 			return
@@ -98,7 +98,7 @@ func (h *PostHandler) AdminTogglePin(c *gin.Context) {
 // @Failure 500 {object} common.BasicResponse"服务器内部错误"
 // @Router /admin/posts/pending [get]
 // Deprecated: 迁移到 adminHandler.ListReviewRequire
-func (h *PostHandler) AdminGetModerationRequire(c *gin.Context) {
+func (h *ArticleHandler) AdminGetModerationRequire(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "20"))
 	keyword := c.Query("keyword")
@@ -111,7 +111,7 @@ func (h *PostHandler) AdminGetModerationRequire(c *gin.Context) {
 			Keyword:    keyword,
 		},
 	}
-	posts, total, err := h.postSvc.AdminLists(c, listPostsBO)
+	posts, total, err := h.articleSvc.AdminLists(c, listPostsBO)
 	if err != nil {
 		response.HandleError(c, err)
 		return
@@ -133,14 +133,14 @@ func (h *PostHandler) AdminGetModerationRequire(c *gin.Context) {
 // @Failure 404 {object} common.BasicResponse"帖子不存在"
 // @Failure 500 {object} common.BasicResponse"服务器内部错误"
 // @Router /admin/audit/tasks/{id}/approve [put]
-func (h *PostHandler) AdminApprovePost(c *gin.Context) {
+func (h *ArticleHandler) AdminApprovePost(c *gin.Context) {
 	postID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		response.HandleError(c, err)
 		return
 	}
 
-	if err := h.postSvc.AdminSetReviewPost(uint(postID), do.ModerationStatusApproved); err != nil {
+	if err := h.articleSvc.AdminSetReviewPost(uint(postID), do.ModerationStatusApproved); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			response.NotFound(c, "帖子不存在")
 		} else {
@@ -170,7 +170,7 @@ func (h *PostHandler) AdminApprovePost(c *gin.Context) {
 // @Failure 404 {object} common.BasicResponse"帖子不存在"
 // @Failure 500 {object} common.BasicResponse"服务器内部错误"
 // @Router /admin/audit/tasks/{id}/reject [put]
-func (h *PostHandler) AdminRejectPost(c *gin.Context) {
+func (h *ArticleHandler) AdminRejectPost(c *gin.Context) {
 	postID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		response.HandleError(c, err)
@@ -183,7 +183,7 @@ func (h *PostHandler) AdminRejectPost(c *gin.Context) {
 	}
 	_ = c.ShouldBindJSON(&req)
 
-	if err := h.postSvc.AdminSetReviewPost(uint(postID), do.ModerationStatusRejected); err != nil {
+	if err := h.articleSvc.AdminSetReviewPost(uint(postID), do.ModerationStatusRejected); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			response.NotFound(c, "帖子不存在")
 		} else {

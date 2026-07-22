@@ -18,7 +18,7 @@ func (r *userRepository) GetGlobalStatsCount(ctx context.Context, userID uint) (
 	// 用户发帖数
 	eg.Go(func() error {
 		var count int64
-		err := r.db.WithContext(ctx).Model(&do.Post{}).Where("author_id = ?", userID).Count(&count).Error
+		err := r.db.WithContext(ctx).Model(&do.Article{}).Where("author_id = ?", userID).Count(&count).Error
 		stats.TotalPost = int64(count)
 		return err
 	})

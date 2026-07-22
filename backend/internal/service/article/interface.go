@@ -1,4 +1,4 @@
-package post
+package article
 
 import (
 	"context"
@@ -6,8 +6,8 @@ import (
 	"tiny-forum/internal/model/common"
 	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/request"
+	postRepo "tiny-forum/internal/repository/article"
 	boardRepo "tiny-forum/internal/repository/board"
-	postRepo "tiny-forum/internal/repository/post"
 	tagRepo "tiny-forum/internal/repository/tag"
 	userRepo "tiny-forum/internal/repository/user"
 
@@ -17,26 +17,26 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type PostService interface {
+type ArticleService interface {
 	// admin
-	AdminLists(ctx context.Context, listPostsBO *common.PageQuery[bo.ListPosts]) ([]do.Post, int64, error)
+	AdminLists(ctx context.Context, listPostsBO *common.PageQuery[bo.ListPosts]) ([]do.Article, int64, error)
 	SetStatus(postID uint, status do.PostStatus) error
 	TogglePin(postID uint) error
 	AdminSetReviewPost(postID uint, status do.ModerationStatus) error
 	// crud
-	Create(ctx *gin.Context, authorID uint, input request.CreatePostRequest) (*do.Post, error)
-	Update(postID, userID uint, isAdmin bool, input request.UpdatePostRequest) (*do.Post, error)
+	Create(ctx *gin.Context, authorID uint, input request.CreatePostRequest) (*do.Article, error)
+	Update(postID, userID uint, isAdmin bool, input request.UpdatePostRequest) (*do.Article, error)
 	Delete(postID, userID uint, isAdmin bool) error
-	GetByID(postID, viewerID uint) (*do.Post, bool, error)
+	GetByID(postID, viewerID uint) (*do.Article, bool, error)
 	// List(ctx context.Context, page, pageSize int, opts bo.ListPosts) ([]do.Post, int64, error)
-	List(ctx context.Context, ListPostsBO *common.PageQuery[bo.ListPosts]) ([]do.Post, int64, error)
+	List(ctx context.Context, ListPostsBO *common.PageQuery[bo.ListPosts]) ([]do.Article, int64, error)
 	// like
 	Like(userID, postID uint) error
 	Unlike(userID, postID uint) error
 }
 
-type postService struct {
-	postRepo  postRepo.PostRepository
+type articleService struct {
+	postRepo  postRepo.ArticleRepository
 	tagRepo   tagRepo.TagRepository
 	boardRepo boardRepo.BoardRepository
 	userRepo  userRepo.UserRepository
@@ -46,15 +46,15 @@ type postService struct {
 }
 
 func NewPostService(
-	postRepo postRepo.PostRepository,
+	postRepo postRepo.ArticleRepository,
 	tagRepo tagRepo.TagRepository,
 	userRepo userRepo.UserRepository,
 	boardRepo boardRepo.BoardRepository,
 	notifSvc notification.NotificationService,
 	// riskSvc *risk.RiskService,
 	contentcheckSvc check.ContentCheckService,
-) PostService {
-	return &postService{
+) ArticleService {
+	return &articleService{
 		postRepo:  postRepo,
 		tagRepo:   tagRepo,
 		userRepo:  userRepo,

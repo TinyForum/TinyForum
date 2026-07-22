@@ -1,6 +1,7 @@
-package post
+package article
 
 import (
+	"errors"
 	"strconv"
 
 	"tiny-forum/internal/model/bo"
@@ -27,7 +28,7 @@ import (
 // @Failure 401 {object} common.BasicResponse"未授权"
 // @Failure 500 {object} common.BasicResponse"服务器内部错误"
 // @Router /posts [post]
-func (h *PostHandler) Create(c *gin.Context) {
+func (h *ArticleHandler) Create(c *gin.Context) {
 	// ctx := c.Request.Context()
 	authorID := c.GetUint("user_id")
 
@@ -45,7 +46,7 @@ func (h *PostHandler) Create(c *gin.Context) {
 		input.Status = do.PostStatusPublished
 	}
 
-	post, err := h.postSvc.Create(c, authorID, input)
+	post, err := h.articleSvc.Create(c, authorID, input)
 	if err != nil {
 		response.HandleError(c, err)
 		return
@@ -64,7 +65,7 @@ func (h *PostHandler) Create(c *gin.Context) {
 // @Failure 400 {object} common.BasicResponse"无效的帖子ID"
 // @Failure 404 {object} common.BasicResponse"帖子不存在"
 // @Router /posts/{id} [get]
-func (h *PostHandler) GetByID(c *gin.Context) {
+func (h *ArticleHandler) GetByID(c *gin.Context) {
 	postID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		response.ValidationFailed(c, []response.ValidationError{
@@ -81,7 +82,7 @@ func (h *PostHandler) GetByID(c *gin.Context) {
 		}
 	}
 
-	post, liked, err := h.postSvc.GetByID(uint(postID), viewerUint)
+	post, liked, err := h.articleSvc.GetByID(uint(postID), viewerUint)
 	if err != nil {
 		response.HandleError(c, apperrors.Wrapf(apperrors.ErrPostNotFound, err, "ID: %d", postID))
 		return
@@ -108,8 +109,7 @@ func (h *PostHandler) GetByID(c *gin.Context) {
 // @Success 200 {object} common.BasicResponse  "获取成功"
 // @Failure 500 {object} common.BasicResponse"服务器内部错误"
 // @Router /posts [get]
-func (h *PostHandler) List(c *gin.Context) {
-
+func (h *ArticleHandler) List(c *gin.Context) {
 	logger.Infof("用户获取文章列表")
 	var req request.ListPosts
 
@@ -119,28 +119,34 @@ func (h *PostHandler) List(c *gin.Context) {
 		return
 	}
 
+	// 处理帖子类型：空字符串代表查询所有类型
 	var postType string
-	logger.Infof("post type: %s", req.PostType)
 	if req.PostType != "" {
-		postType = string(do.ParsePostType(req.PostType)) // 默认获取文章列表
-		logger.Infof("postType: %s", postType)
+		pt := do.PostType(req.PostType)
+		if !pt.IsValid() {
+			logger.Errorf("无效的帖子类型: %s", req.PostType)
+			response.HandleError(c, errors.New("无效的帖子类型参数"))
+			return
+		}
+		postType = string(pt)
 	}
+	// 若 req.PostType 为空，postType 保持空字符串，表示不过滤类型
 
 	listPostsBO := &common.PageQuery[bo.ListPosts]{
 		Page:     req.Page,
 		PageSize: req.PageSize,
 		Data: bo.ListPosts{
 			AuthorID:         req.AuthorID,
-			TagNames:         req.TagNames,
-			SortBy:           req.SortBy,
 			PostStatus:       do.PostStatusPublished,
-			Keyword:          req.Keyword,
-			Type:             postType,
 			ModerationStatus: do.ModerationStatusApproved,
+			Type:             postType, // 实体过滤字段
 		},
+		Keyword:  req.Keyword,
+		TagNames: req.TagNames,
+		SortBy:   req.SortBy,
 	}
 
-	posts, total, err := h.postSvc.List(c, listPostsBO)
+	posts, total, err := h.articleSvc.List(c, listPostsBO)
 	if err != nil {
 		response.HandleError(c, err)
 		return
@@ -164,7 +170,7 @@ func (h *PostHandler) List(c *gin.Context) {
 // @Failure 403 {object} common.BasicResponse"无权限"
 // @Failure 404 {object} common.BasicResponse"帖子不存在"
 // @Router /posts/{id} [put]
-func (h *PostHandler) Update(c *gin.Context) {
+func (h *ArticleHandler) Update(c *gin.Context) {
 	postID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		response.HandleError(c, err)
@@ -179,7 +185,7 @@ func (h *PostHandler) Update(c *gin.Context) {
 		response.HandleError(c, err)
 		return
 	}
-	post, err := h.postSvc.Update(uint(postID), userID, isAdmin, input)
+	post, err := h.articleSvc.Update(uint(postID), userID, isAdmin, input)
 	if err != nil {
 		response.HandleError(c, err)
 		return
@@ -200,7 +206,7 @@ func (h *PostHandler) Update(c *gin.Context) {
 // @Failure 403 {object} common.BasicResponse"无权限"
 // @Failure 404 {object} common.BasicResponse"帖子不存在"
 // @Router /posts/{id} [delete]
-func (h *PostHandler) Delete(c *gin.Context) {
+func (h *ArticleHandler) Delete(c *gin.Context) {
 	postID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		response.HandleError(c, err)
@@ -210,7 +216,7 @@ func (h *PostHandler) Delete(c *gin.Context) {
 	role, _ := c.Get("user_role")
 	isAdmin := role == "admin"
 
-	if err := h.postSvc.Delete(uint(postID), userID, isAdmin); err != nil {
+	if err := h.articleSvc.Delete(uint(postID), userID, isAdmin); err != nil {
 		response.HandleError(c, err)
 		return
 	}

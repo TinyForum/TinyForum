@@ -31,7 +31,7 @@ func (s *commentService) DeleteAnswer(commentID, userID uint, isAdmin bool) erro
 	if comment.AuthorID == userID {
 		return s.commentRepo.Delete(commentID)
 	}
-	post, err := s.postRepo.FindByID(comment.PostID)
+	post, err := s.postRepo.FindByID(comment.CreationsID)
 	if err == nil && post.AuthorID == userID {
 		return s.commentRepo.Delete(commentID)
 	}

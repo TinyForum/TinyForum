@@ -2,6 +2,7 @@ package wire
 
 import (
 	"tiny-forum/internal/repository/announcement"
+	post "tiny-forum/internal/repository/article"
 	attachment "tiny-forum/internal/repository/attachment"
 	"tiny-forum/internal/repository/auth"
 	"tiny-forum/internal/repository/board"
@@ -9,7 +10,6 @@ import (
 	"tiny-forum/internal/repository/comment"
 	"tiny-forum/internal/repository/notification"
 	"tiny-forum/internal/repository/plugin"
-	"tiny-forum/internal/repository/post"
 	"tiny-forum/internal/repository/question"
 	"tiny-forum/internal/repository/risk"
 	"tiny-forum/internal/repository/stats"
@@ -30,7 +30,7 @@ import (
 type Repositories struct {
 	Token        token.TokenRepository
 	User         user.UserRepository
-	Post         post.PostRepository
+	Post         post.ArticleRepository
 	Violation    violation.ViolationRepository
 	Comment      comment.CommentRepository
 	Tag          tag.TagRepository

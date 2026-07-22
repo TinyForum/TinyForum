@@ -12,14 +12,14 @@ const (
 
 type Comment struct {
 	common.BaseModel
-	Content   string        `gorm:"not null;type:text" json:"content"`                      // 评论内容
-	PostID    uint          `gorm:"not null;index" json:"post_id"`                          // 关联的帖子ID
-	AuthorID  uint          `gorm:"not null;index" json:"author_id"`                        // 评论作者ID
-	ParentID  *uint         `gorm:"index" json:"parent_id"`                                 // 父评论ID
-	LikeCount int           `gorm:"default:0" json:"like_count"`                            // 点赞数
-	Status    CommentStatus `gorm:"type:varchar(20);default:'visible';index" json:"status"` // 审核状态
+	Content     string        `gorm:"not null;type:text" json:"content"`                      // 评论内容
+	CreationsID uint          `gorm:"not null;index" json:"post_id"`                          // 关联的作品ID
+	AuthorID    uint          `gorm:"not null;index" json:"author_id"`                        // 评论作者ID
+	ParentID    *uint         `gorm:"index" json:"parent_id"`                                 // 父评论ID
+	LikeCount   int           `gorm:"default:0" json:"like_count"`                            // 点赞数
+	Status      CommentStatus `gorm:"type:varchar(20);default:'visible';index" json:"status"` // 审核状态
 
-	Post       Post      `gorm:"foreignKey:PostID" json:"-"`                   // 关联的帖子
+	Article    Article   `gorm:"foreignKey:PostID" json:"-"`                   // 关联的帖子
 	Author     User      `gorm:"foreignKey:AuthorID" json:"author,omitempty"`  // 评论作者
 	Parent     *Comment  `gorm:"foreignKey:ParentID" json:"parent,omitempty"`  // 父评论
 	Replies    []Comment `gorm:"foreignKey:ParentID" json:"replies,omitempty"` // 子评论

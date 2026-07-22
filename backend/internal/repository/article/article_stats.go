@@ -1,4 +1,4 @@
-package post
+package article
 
 import (
 	"context"
@@ -20,23 +20,23 @@ import (
 // 	LikeCount    int
 // }
 
-func (r *postRepository) Count(ctx context.Context) (int64, error) {
+func (r *articleRepository) Count(ctx context.Context) (int64, error) {
 	var count int64
-	err := r.db.WithContext(ctx).Model(&do.Post{}).Count(&count).Error
+	err := r.db.WithContext(ctx).Model(&do.Article{}).Count(&count).Error
 	return count, err
 }
 
-func (r *postRepository) CountByDateRange(ctx context.Context, startDate, endDate time.Time) (int64, error) {
+func (r *articleRepository) CountByDateRange(ctx context.Context, startDate, endDate time.Time) (int64, error) {
 	var count int64
 	err := r.db.WithContext(ctx).
-		Model(&do.Post{}).
+		Model(&do.Article{}).
 		Where("created_at BETWEEN ? AND ?", startDate, endDate).
 		Count(&count).Error
 	return count, err
 }
 
 // GetHotArticlesByDateRange 委托给 StatsRepository
-func (r *postRepository) GetHotArticlesByDateRange(
+func (r *articleRepository) GetHotArticlesByDateRange(
 	ctx context.Context,
 	startDate, endDate time.Time,
 	limit int,

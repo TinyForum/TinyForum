@@ -1,4 +1,4 @@
-package post
+package article
 
 import (
 	"strconv"
@@ -20,14 +20,14 @@ import (
 // @Failure 401 {object} common.BasicResponse"未授权"
 // @Failure 500 {object} common.BasicResponse"服务器内部错误"
 // @Router /posts/{id}/like [post]
-func (h *PostHandler) Like(c *gin.Context) {
+func (h *ArticleHandler) Like(c *gin.Context) {
 	postID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		response.HandleError(c, err)
 		return
 	}
 	userID := c.GetUint("user_id")
-	if err := h.postSvc.Like(userID, uint(postID)); err != nil {
+	if err := h.articleSvc.Like(userID, uint(postID)); err != nil {
 		response.HandleError(c, err)
 		return
 	}
@@ -46,14 +46,14 @@ func (h *PostHandler) Like(c *gin.Context) {
 // @Failure 401 {object} common.BasicResponse"未授权"
 // @Failure 500 {object} common.BasicResponse"服务器内部错误"
 // @Router /posts/{id}/like [delete]
-func (h *PostHandler) Unlike(c *gin.Context) {
+func (h *ArticleHandler) Unlike(c *gin.Context) {
 	postID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		response.HandleError(c, err)
 		return
 	}
 	userID := c.GetUint("user_id")
-	if err := h.postSvc.Unlike(userID, uint(postID)); err != nil {
+	if err := h.articleSvc.Unlike(userID, uint(postID)); err != nil {
 		response.HandleError(c, err)
 		return
 	}

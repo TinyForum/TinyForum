@@ -6,6 +6,7 @@ import (
 	adminHandler "tiny-forum/internal/handler/admin"
 	announcementHandler "tiny-forum/internal/handler/announcement"
 	answerHandler "tiny-forum/internal/handler/answer"
+	articleHandler "tiny-forum/internal/handler/article"
 	"tiny-forum/internal/handler/attachment"
 	authHandler "tiny-forum/internal/handler/auth"
 	boardHandler "tiny-forum/internal/handler/board"
@@ -14,7 +15,6 @@ import (
 	configHandler "tiny-forum/internal/handler/config"
 	notificationHandler "tiny-forum/internal/handler/notification"
 	pluginHandler "tiny-forum/internal/handler/plugin"
-	postHandler "tiny-forum/internal/handler/post"
 	questionHandler "tiny-forum/internal/handler/questions"
 	riskhandler "tiny-forum/internal/handler/risk"
 	statsHandler "tiny-forum/internal/handler/stats"
@@ -33,7 +33,7 @@ type Handlers struct {
 	User         *userHandler.UserHandler
 	Tag          *tagHandler.TagHandler
 	Notification *notificationHandler.NotificationHandler
-	Post         *postHandler.PostHandler
+	Article      *articleHandler.ArticleHandler
 	Comment      *commentHandler.CommentHandler
 	Board        *boardHandler.BoardHandler
 	Timeline     *timelineHandler.TimelineHandler
@@ -57,13 +57,13 @@ func NewHandlers(svc *Services, timeHelpers *timeutil.TimeHelpers, cfg *config.C
 	user := userHandler.NewUserHandler(svc.User, svc.Notification, svc.Auth)
 	tag := tagHandler.NewTagHandler(svc.Tag)
 	notification := notificationHandler.NewNotificationHandler(svc.Notification)
-	post := postHandler.NewPostHandler(svc.Post)
+	article := articleHandler.NewPostHandler(svc.Article)
 	comment := commentHandler.NewCommentHandler(svc.Comment, svc.Question)
 	board := boardHandler.NewBoardHandler(svc.Board)
 	timeline := timelineHandler.NewTimelineHandler(svc.Timeline)
 	topic := topicHandler.NewTopicHandler(svc.Topic)
-	answer := answerHandler.NewAnswerHandler(svc.Question, svc.Comment, svc.Post)
-	question := questionHandler.NewQuestionHandler(svc.Question, svc.Comment, svc.Post, answer)
+	answer := answerHandler.NewAnswerHandler(svc.Question, svc.Comment, svc.Article)
+	question := questionHandler.NewQuestionHandler(svc.Question, svc.Comment, svc.Article, answer)
 	announcement := announcementHandler.NewAnnouncementHandler(svc.Announcement)
 	stats := statsHandler.NewStatsHandler(svc.Stats, timeHelpers)
 	risk := riskhandler.NewRiskHandler(svc.ContentCheck, svc.Risk)
@@ -77,7 +77,7 @@ func NewHandlers(svc *Services, timeHelpers *timeutil.TimeHelpers, cfg *config.C
 		User:         user,
 		Tag:          tag,
 		Notification: notification,
-		Post:         post,
+		Article:      article,
 		Comment:      comment,
 		Board:        board,
 		Timeline:     timeline,
@@ -125,8 +125,8 @@ func (h *Handlers) UpdateConfig(cfg *config.Config) {
 	}
 
 	// 4. PostHandler - 帖子相关配置更新
-	if h.Post != nil {
-		if updater, ok := interface{}(h.Post).(interface{ UpdateConfig(*config.Config) }); ok {
+	if h.Article != nil {
+		if updater, ok := interface{}(h.Article).(interface{ UpdateConfig(*config.Config) }); ok {
 			updater.UpdateConfig(cfg)
 		}
 	}

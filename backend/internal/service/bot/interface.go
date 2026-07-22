@@ -12,10 +12,10 @@ import (
 	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/request"
 	"tiny-forum/internal/model/vo"
+	postrepo "tiny-forum/internal/repository/article"
 	botrepo "tiny-forum/internal/repository/bot"
 	commentrepo "tiny-forum/internal/repository/comment"
 	notificationrepo "tiny-forum/internal/repository/notification"
-	postrepo "tiny-forum/internal/repository/post"
 	userrepo "tiny-forum/internal/repository/user"
 
 	"github.com/robfig/cron/v3"
@@ -51,7 +51,7 @@ type service struct {
 	sandbox     *engine.LuaSandbox
 	cron        *cron.Cron
 	eventBus    *EventBus
-	postRepo    postrepo.PostRepository
+	postRepo    postrepo.ArticleRepository
 	commentRepo commentrepo.CommentRepository
 	userRepo    userrepo.UserRepository
 	notifRepo   notificationrepo.NotificationRepository
@@ -60,7 +60,7 @@ type service struct {
 // NewService 创建 bot Service。依赖现有各 repository，由 wire/service.go 注入。
 func NewService(
 	repo botrepo.Repository,
-	postRepo postrepo.PostRepository,
+	postRepo postrepo.ArticleRepository,
 	commentRepo commentrepo.CommentRepository,
 	userRepo userrepo.UserRepository,
 	notifRepo notificationrepo.NotificationRepository,

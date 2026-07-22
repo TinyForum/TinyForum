@@ -1,4 +1,4 @@
-package post
+package article
 
 // TODO: Refactory，不符合 REATful 规范
 import (
@@ -9,7 +9,7 @@ import (
 
 // RegisterRoutes 注册路由
 // base URL: /api/v1
-func (h *PostHandler) RegisterRoutes(api *gin.RouterGroup, mw middleware.MiddlewareSet) {
+func (h *ArticleHandler) RegisterRoutes(api *gin.RouterGroup, mw middleware.MiddlewareSet) {
 	postGroup := api.Group("/posts")
 	{
 		postGroup.GET("", mw.OptionalAuth(), h.List)        // 用户获取帖子列表

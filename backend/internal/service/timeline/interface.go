@@ -3,8 +3,8 @@ package timeline
 import (
 	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/request"
+	postRepo "tiny-forum/internal/repository/article"
 	commentRepo "tiny-forum/internal/repository/comment"
-	postRepo "tiny-forum/internal/repository/post"
 	timelineRepo "tiny-forum/internal/repository/timeline"
 	userRepo "tiny-forum/internal/repository/user"
 )
@@ -21,14 +21,14 @@ type TimelineService interface {
 type timelineService struct {
 	timelineRepo timelineRepo.TimelineRepository
 	userRepo     userRepo.UserRepository
-	postRepo     postRepo.PostRepository
+	postRepo     postRepo.ArticleRepository
 	commentRepo  commentRepo.CommentRepository
 }
 
 func NewTimelineService(
 	timelineRepo timelineRepo.TimelineRepository,
 	userRepo userRepo.UserRepository,
-	postRepo postRepo.PostRepository,
+	postRepo postRepo.ArticleRepository,
 	commentRepo commentRepo.CommentRepository,
 ) TimelineService {
 	return &timelineService{

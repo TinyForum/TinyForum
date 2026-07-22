@@ -18,7 +18,7 @@ func (r *questionRepository) CreateWithTransaction(userID uint, input dto.Create
 	}()
 
 	// 1. 创建帖子
-	post := &do.Post{
+	post := &do.Article{
 		Title:      input.Title,
 		Content:    input.Content,
 		Summary:    input.Summary,

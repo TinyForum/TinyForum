@@ -16,7 +16,7 @@ func (a *forumAPIImpl) GetComment(ctx context.Context, commentID uint) (*sdk.Com
 		ID:        c.ID,
 		Content:   c.Content,
 		AuthorID:  c.AuthorID,
-		PostID:    c.PostID,
+		PostID:    c.CreationsID,
 		CreatedAt: c.CreatedAt.Unix(),
 	}, nil
 }

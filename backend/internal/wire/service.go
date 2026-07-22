@@ -5,6 +5,7 @@ import (
 	luasdk "tiny-forum/internal/infra/lua/sdk"
 	"tiny-forum/internal/service/admin"
 	"tiny-forum/internal/service/announcement"
+	"tiny-forum/internal/service/article"
 	attachment "tiny-forum/internal/service/attachment"
 	"tiny-forum/internal/service/auth"
 	"tiny-forum/internal/service/board"
@@ -14,7 +15,6 @@ import (
 	"tiny-forum/internal/service/email"
 	"tiny-forum/internal/service/notification"
 	"tiny-forum/internal/service/plugin"
-	"tiny-forum/internal/service/post"
 	"tiny-forum/internal/service/question"
 	"tiny-forum/internal/service/risk"
 	"tiny-forum/internal/service/stats"
@@ -35,7 +35,7 @@ type Services struct {
 	Auth         auth.AuthService
 	Tag          tag.TagService
 	Notification notification.NotificationService
-	Post         post.PostService
+	Article      article.ArticleService
 	Comment      comment.CommentService
 	Board        board.BoardService
 	Timeline     timeline.TimelineService
@@ -79,13 +79,13 @@ func NewServices(
 	timelineSvc := timeline.NewTimelineService(repos.Timeline, repos.User, repos.Post, repos.Comment)
 	topicSvc := topic.NewTopicService(repos.Topic, repos.Post, repos.User, notifSvc)
 	questionSvc := question.NewQuestionService(repos.Question, repos.Post, repos.Comment, repos.User, notifSvc, repos.Tag)
-	postSvc := post.NewPostService(repos.Post, repos.Tag, repos.User, repos.Board, notifSvc, checkSvc)
+	articleSvc := article.NewPostService(repos.Post, repos.Tag, repos.User, repos.Board, notifSvc, checkSvc)
 	commentSvc := comment.NewCommentService(repos.Comment, repos.Post, repos.User, notifSvc, repos.Vote)
 	announcementSvc := announcement.NewAnnouncementService(repos.Announcement)
 	statsSvc := stats.NewStatsService(repos.Stats, repos.Post, repos.Tag, repos.Board, repos.User, repos.Comment)
 	emailSvc := email.NewEmailService(&cfg.Private.Email)
 	authSvc := auth.NewAuthService(repos.Auth, repos.User, jwtMgr, notifSvc, emailSvc, cfg, repos.Token, repos.Transaction, infra.RedisClient)
-	adminSvc := admin.NewAdminService(announcementSvc, userSvc, postSvc, boardSvc)
+	adminSvc := admin.NewAdminService(announcementSvc, userSvc, articleSvc, boardSvc)
 	pluginSvc := plugin.NewPluginService(repos.Plugin, publicStorage, &cfg.Basic.Plugins)
 	engine := upload.NewEngine(userStorage, registry)
 	attachmentSvc := attachment.NewAttachmentService(repos.Attachment, cfg.Basic.Attachment, engine)
@@ -96,7 +96,7 @@ func NewServices(
 		Auth:         authSvc,
 		Tag:          tagSvc,
 		Notification: notifSvc,
-		Post:         postSvc,
+		Article:      articleSvc,
 		Comment:      commentSvc,
 		Board:        boardSvc,
 		Timeline:     timelineSvc,

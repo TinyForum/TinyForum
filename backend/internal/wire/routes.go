@@ -69,7 +69,7 @@ func RegisterRoutes(
 
 	// 创作者
 	handlers.Tag.RegisterRoutes(api, mw)
-	handlers.Post.RegisterRoutes(api, mw)
+	handlers.Article.RegisterRoutes(api, mw)
 	handlers.Question.RegisterRoutes(api, mw)
 	handlers.Board.RegisterRoutes(api, mw, repos.Board)
 	handlers.Timeline.RegisterRoutes(api, mw)

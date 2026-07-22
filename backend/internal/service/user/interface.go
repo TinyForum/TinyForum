@@ -8,8 +8,8 @@ import (
 	"tiny-forum/internal/model/dto"
 	"tiny-forum/internal/model/request"
 	"tiny-forum/internal/model/vo"
+	postRepo "tiny-forum/internal/repository/article"
 	commentRepo "tiny-forum/internal/repository/comment"
-	postRepo "tiny-forum/internal/repository/post"
 	userRepo "tiny-forum/internal/repository/user"
 	"tiny-forum/internal/service/notification"
 	"tiny-forum/internal/service/violation"
@@ -59,7 +59,7 @@ type userService struct {
 	jwtMgr       *jwtpkg.JWTManager
 	notifSvc     notification.NotificationService
 	roleChecker  *validator.RoleChangeChecker
-	postRepo     postRepo.PostRepository
+	postRepo     postRepo.ArticleRepository
 	commentRepo  commentRepo.CommentRepository
 	violationSvc violation.ViolationService
 	// roleChange  validator.RoleChangeRequest
@@ -69,7 +69,7 @@ func NewUserService(
 	repo userRepo.UserRepository,
 	jwtMgr *jwtpkg.JWTManager,
 	notifSvc notification.NotificationService,
-	postRepo postRepo.PostRepository,
+	postRepo postRepo.ArticleRepository,
 	commetnRepo commentRepo.CommentRepository,
 	violationSvc violation.ViolationService,
 	// roleChange validator.RoleChangeRequest,

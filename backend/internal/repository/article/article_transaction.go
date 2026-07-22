@@ -1,4 +1,4 @@
-package post
+package article
 
 import (
 	"tiny-forum/internal/model/do"
@@ -6,11 +6,11 @@ import (
 	"gorm.io/gorm"
 )
 
-func (r *postRepository) CreateWithTx(tx *gorm.DB, post *do.Post) error {
+func (r *articleRepository) CreateWithTx(tx *gorm.DB, post *do.Article) error {
 	return tx.Create(post).Error
 }
 
-func (r *postRepository) AddTags(tx *gorm.DB, post *do.Post, tagIDs []uint) error {
+func (r *articleRepository) AddTags(tx *gorm.DB, post *do.Article, tagIDs []uint) error {
 	if len(tagIDs) == 0 {
 		return nil
 	}
