@@ -1,23 +1,24 @@
 package topic
 
 import (
-	"errors"
 	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/request"
+	apperrors "tiny-forum/pkg/errors"
+	"tiny-forum/pkg/logger"
 )
 
 // AddPostToTopic 添加帖子到话题
 func (s *topicService) AddPostToTopic(input request.AddPostToTopicRequest, userID uint) error {
 	topic, err := s.topicRepo.FindByID(input.TopicID)
 	if err != nil {
-		return errors.New("话题不存在")
+		return apperrors.ErrTopicNotFound
 	}
-	if topic.CreatorID != userID {
-		return errors.New("只有话题创建者可以添加内容")
-	}
+	// if topic.CreatorID != userID {
+	// 	return errors.New("只有话题创建者可以添加内容")
+	// }
 	post, err := s.postRepo.FindByID(input.PostID)
 	if err != nil {
-		return errors.New("帖子不存在")
+		return apperrors.ErrPostNotFound
 	}
 	topicPost := &do.TopicCreation{
 
@@ -43,11 +44,12 @@ func (s *topicService) AddPostToTopic(input request.AddPostToTopicRequest, userI
 func (s *topicService) RemovePostFromTopic(topicID, postID uint, userID uint) error {
 	topic, err := s.topicRepo.FindByID(topicID)
 	if err != nil {
-		return errors.New("专题不存在")
+		return apperrors.ErrTopicNotFound
 	}
-	if topic.CreatorID != userID {
-		return errors.New("只有专题创建者可以移除内容")
-	}
+	// if topic.CreatorID != userID {
+	// 	return errors.New("只有专题创建者可以移除内容")
+	// }
+	logger.Infof("移除话题： %s", topic)
 	if err := s.topicRepo.RemovePost(topicID, postID); err != nil {
 		return err
 	}

@@ -2,7 +2,6 @@ package question
 
 import (
 	"errors"
-	"fmt"
 
 	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/request"
@@ -14,21 +13,21 @@ import (
 func (s *questionService) AcceptAnswer(postID, commentID uint, userID uint) error {
 	post, err := s.postRepo.FindByID(postID)
 	if err != nil {
-		return fmt.Errorf("%w: 帖子不存在", apperrors.ErrPostNotFound)
+		return apperrors.ErrPostNotFound
 	}
 	if post.Creation.AuthorID != userID {
-		return fmt.Errorf("%w: 只有发帖人可以采纳答案", apperrors.ErrAcceptForbidden)
+		return apperrors.ErrAcceptForbidden
 	}
 	comment, err := s.commentRepo.FindByID(commentID)
 	if err != nil {
-		return fmt.Errorf("%w: 回答不存在", apperrors.ErrAnswerNotFound)
+		return apperrors.ErrAnswerNotFound
 	}
 	if !comment.IsAnswer {
 		return errors.New("该评论不是回答")
 	}
 	question, err := s.questionRepo.FindByPostID(postID)
 	if err != nil {
-		return fmt.Errorf("%w: 问答信息不存在", apperrors.ErrQuestionNotFound)
+		return apperrors.ErrQuestionNotFound
 	}
 	if question.AcceptedAnswerID != nil {
 		return errors.New("已经采纳过答案了")
@@ -51,7 +50,7 @@ func (s *questionService) AcceptAnswer(postID, commentID uint, userID uint) erro
 func (s *questionService) VoteAnswer(userID uint, input request.VoteAnswerRequest) (*vo.VoteAnswerVO, error) {
 	comment, err := s.commentRepo.FindByID(input.CommentID)
 	if err != nil {
-		return nil, errors.New("回答不存在")
+		return nil, apperrors.ErrAnswerNotFound
 	}
 	if !comment.IsAnswer {
 		return nil, errors.New("只能对回答进行投票")

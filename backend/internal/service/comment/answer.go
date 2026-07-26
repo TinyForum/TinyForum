@@ -1,22 +1,22 @@
 package comment
 
 import (
-	"errors"
 	"tiny-forum/internal/model/do"
+	apperrors "tiny-forum/pkg/errors"
 )
 
 // MarkAsAnswer 标记/取消标记为答案
 func (s *commentService) MarkAsAnswer(commentID, userID uint, isAdmin bool, isAnswer bool) error {
 	comment, err := s.commentRepo.FindByID(commentID)
 	if err != nil {
-		return errors.New("评论不存在")
+		return apperrors.ErrCommentNotFound
 	}
 	post, err := s.postRepo.FindByID(comment.CreationsID)
 	if err != nil {
-		return errors.New("帖子不存在")
+		return apperrors.ErrPostNotFound
 	}
 	if post.Creation.AuthorID != userID && !isAdmin {
-		return errors.New("无权限操作")
+		return apperrors.ErrInsufficientPermission
 	}
 	return s.commentRepo.MarkAsAnswer(commentID, isAnswer)
 }
@@ -25,23 +25,23 @@ func (s *commentService) MarkAsAnswer(commentID, userID uint, isAdmin bool, isAn
 func (s *commentService) UnacceptAnswer(answerID, userID uint, isAdmin bool) error {
 	answer, err := s.commentRepo.FindByID(answerID)
 	if err != nil {
-		return errors.New("回答不存在")
+		return apperrors.ErrAnswerNotFound
 	}
 	if !answer.IsAnswer {
-		return errors.New("该评论不是回答")
+		return apperrors.ErrCommentNotAnswer
 	}
 	post, err := s.postRepo.FindByID(answer.CreationsID)
 	if err != nil {
-		return errors.New("问题不存在")
+		return apperrors.ErrQuestionNotFound
 	}
-	if post.Creation.Type != "question" {
-		return errors.New("该帖子不是问答类型")
+	if post.Creation.Type != do.PostTypeQuestion {
+		return apperrors.ErrPostNotQuestion
 	}
 	if post.Creation.AuthorID != userID && !isAdmin {
-		return errors.New("没有权限操作，只有问题作者可以取消接受答案")
+		return apperrors.ErrInsufficientPermission // 权限不足，只有问题作者或管理员可以取消接受答案
 	}
 	if !answer.IsAccepted {
-		return errors.New("该回答未被接受为答案")
+		return apperrors.ErrAnswerNotAccepted // 该答案未被接受
 	}
 	if err := s.commentRepo.UnacceptAnswer(answerID); err != nil {
 		return err

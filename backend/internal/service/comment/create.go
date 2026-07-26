@@ -4,13 +4,14 @@ import (
 	"errors"
 	"tiny-forum/internal/model/bo"
 	"tiny-forum/internal/model/do"
+	apperrors "tiny-forum/pkg/errors"
 )
 
 // Create 创建普通评论
 func (s *commentService) Create(authorID uint, input bo.CreateCommentInput) (*do.Comment, error) {
 	post, err := s.postRepo.FindByID(input.PostID)
 	if err != nil {
-		return nil, errors.New("帖子不存在")
+		return nil, apperrors.ErrPostNotFound
 	}
 
 	if input.ParentID != nil && *input.ParentID != 0 {
@@ -51,7 +52,7 @@ func (s *commentService) Create(authorID uint, input bo.CreateCommentInput) (*do
 func (s *commentService) CreateAnswer(authorID uint, input bo.CreateCommentInput) (*do.Comment, error) {
 	post, err := s.postRepo.FindByID(input.PostID)
 	if err != nil {
-		return nil, errors.New("帖子不存在")
+		return nil, apperrors.ErrPostNotFound
 	}
 	if post.Creation.Type != "question" {
 		return nil, errors.New("该帖子不是问答类型，请使用普通评论")

@@ -142,9 +142,10 @@ func (h *ArticleHandler) AdminApprovePost(c *gin.Context) {
 
 	if err := h.articleSvc.AdminSetReviewPost(uint(postID), do.ModerationStatusApproved); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			response.NotFound(c, "帖子不存在")
+
+			response.HandleError(c, err)
 		} else {
-			response.InternalError(c, "审核通过失败："+err.Error())
+			response.HandleError(c, err)
 		}
 		return
 	}
@@ -185,9 +186,9 @@ func (h *ArticleHandler) AdminRejectPost(c *gin.Context) {
 
 	if err := h.articleSvc.AdminSetReviewPost(uint(postID), do.ModerationStatusRejected); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			response.NotFound(c, "帖子不存在")
+			response.HandleError(c,err)
 		} else {
-			response.InternalError(c, "审核拒绝失败："+err.Error())
+			response.HandleError(c, err)
 		}
 		return
 	}

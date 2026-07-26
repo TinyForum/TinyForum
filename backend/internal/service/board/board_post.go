@@ -1,20 +1,20 @@
 package board
 
 import (
-	"errors"
+	apperrors "tiny-forum/pkg/errors"
 )
 
 func (s *boardService) DeletePost(boardID, postID, userID uint, isAdmin bool) error {
 	post, err := s.postRepo.FindByID(postID)
 	if err != nil {
-		return errors.New("帖子不存在")
+		return apperrors.ErrPostNotFound
 	}
 	if post.Creation.BoardID != boardID {
-		return errors.New("帖子不属于该板块")
+		return apperrors.ErrPostNotBelongToBoard
 	}
 	isMod, _ := s.boardRepo.IsModerator(userID, boardID)
 	if !isMod && !isAdmin {
-		return errors.New("无权限删除此帖子")
+		return apperrors.ErrInsufficientPermission
 	}
 	s.writeLog(userID, boardID, "delete_post", "post", postID, "版主删除")
 	return s.postRepo.Delete(postID)
@@ -23,10 +23,10 @@ func (s *boardService) DeletePost(boardID, postID, userID uint, isAdmin bool) er
 func (s *boardService) PinPost(boardID, postID uint, pin bool) error {
 	post, err := s.postRepo.FindByID(postID)
 	if err != nil {
-		return errors.New("帖子不存在")
+		return apperrors.ErrPostNotFound
 	}
 	if post.Creation.BoardID != boardID {
-		return errors.New("帖子不属于该板块")
+		return apperrors.ErrPostNotBelongToBoard
 	}
 	return s.postRepo.TogglePinInBoard(postID, pin)
 }

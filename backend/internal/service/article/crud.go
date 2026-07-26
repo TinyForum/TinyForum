@@ -10,6 +10,7 @@ import (
 	"tiny-forum/internal/model/converter"
 	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/request"
+	apperrors "tiny-forum/pkg/errors"
 	"tiny-forum/pkg/utils"
 
 	"github.com/gin-gonic/gin"
@@ -118,10 +119,10 @@ func (s *articleService) Create(ctx *gin.Context, authorID uint, input request.C
 func (s *articleService) Update(postID, userID uint, isAdmin bool, input request.UpdatePostRequest) (*do.Article, error) {
 	post, err := s.postRepo.FindByID(postID)
 	if err != nil {
-		return nil, errors.New("帖子不存在")
+		return nil, apperrors.ErrPostNotFound
 	}
 	if post.Creation.AuthorID != userID && !isAdmin {
-		return nil, errors.New("无权限修改此帖子")
+		return nil, apperrors.ErrInsufficientPermission
 	}
 	if input.Title != "" {
 		post.Creation.Title = input.Title
@@ -155,10 +156,10 @@ func (s *articleService) Update(postID, userID uint, isAdmin bool, input request
 func (s *articleService) Delete(postID, userID uint, isAdmin bool) error {
 	post, err := s.postRepo.FindByID(postID)
 	if err != nil {
-		return errors.New("帖子不存在")
+		return apperrors.ErrPostNotFound
 	}
 	if post.Creation.AuthorID != userID && !isAdmin {
-		return errors.New("无权限删除此帖子")
+		return apperrors.ErrInsufficientPermission
 	}
 	return s.postRepo.Delete(postID)
 }
@@ -167,7 +168,7 @@ func (s *articleService) Delete(postID, userID uint, isAdmin bool) error {
 func (s *articleService) GetByID(postID, viewerID uint) (*do.Article, bool, error) {
 	post, err := s.postRepo.FindByID(postID)
 	if err != nil {
-		return nil, false, errors.New("帖子不存在")
+		return nil, false, apperrors.ErrPostNotFound
 	}
 	_ = s.postRepo.IncrViewCount(postID)
 	liked := false

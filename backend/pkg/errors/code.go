@@ -40,24 +40,37 @@ const (
 	CodeUserDeleted                = 20081 // 用户被删除
 
 	// 内容模块 (30000-30999)
-	CodePostNotFound         = 30001 // 帖子不存在
-	CodePostLocked           = 30002 // 帖子已锁定
-	CodePostPinned           = 30003 // 帖子已置顶
-	CodePostDeleted          = 30004 // 帖子已删除
+	CodePostNotFound = 30001 // 帖子不存在
+	CodePostLocked   = 30002 // 帖子已锁定
+	CodePostPinned   = 30003 // 帖子已置顶
+	CodePostDeleted  = 30004 // 帖子已删除
+
 	CodeBoardNotFound        = 30020 // 版块不存在
-	CodeQuestionNotFound     = 30040 // 问题不存在
-	CodeAnswerNotFound       = 30041 // 答案不存在
-	CodeCommentNotFound      = 30060 // 评论不存在
-	CodeCommentDeleted       = 30061 // 评论已删除
-	CodeTopicNotFound        = 30080 // 话题不存在
-	CodeTagNotFound          = 30081 // 标签不存在
-	CodeNotificationNotFound = 30082 // 通知不存在
-	CodeLikeAlready          = 30100 // 点赞已存在
-	CodeLikeNotExist         = 30101 // 点赞不存在
-	CodeCollectAlready       = 30102 // 收藏已存在
-	CodeCollectNotExist      = 30103 // 收藏不存在
-	CodePasswordTooShort     = 30120 // 密码太短
-	CodePasswordSameAsOld    = 30121 // 新密码与旧密码相同
+	CodeBoardDeleted         = 30021 // 版块已删除
+	CodePostNotBelongToBoard = 30022 // 帖子不属于该版块
+
+	CodeQuestionNotFound  = 30040 // 问题不存在
+	CodeAnswerNotFound    = 30041 // 答案不存在
+	CodePostNotQuestion   = 30042 // 帖子不是问题
+	CodeAnswerNotAccepted = 30043 // 答案未被接受
+	CodeCommentNotAnswer  = 30044 // 评论不是回答
+
+	CodeCommentNotFound = 30060 // 评论不存在
+	CodeCommentDeleted  = 30061 // 评论已删除
+
+	CodeTopicNotFound         = 30080 // 话题不存在
+	CodeTopicContentForbidden = 30081 // 话题内容被禁止
+
+	CodeTagNotFound = 30101 // 标签不存在
+
+	CodeNotificationNotFound = 30122 // 通知不存在
+
+	CodeLikeAlready       = 30200 // 点赞已存在
+	CodeLikeNotExist      = 30201 // 点赞不存在
+	CodeCollectAlready    = 30202 // 收藏已存在
+	CodeCollectNotExist   = 30203 // 收藏不存在
+	CodePasswordTooShort  = 30220 // 密码太短
+	CodePasswordSameAsOld = 30221 // 新密码与旧密码相同
 
 	// 权限模块 (40000-40999)
 	//

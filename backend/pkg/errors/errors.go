@@ -24,7 +24,7 @@ var (
 	ErrUserNotFound               = New(CodeUserNotFound, "用户不存在")                      // 用户不存在
 	ErrUserExist                  = New(CodeUserExist, "用户已存在")                         // 用户已存在
 	ErrUserEmailOrPasswordInvalid = New(CodeUserEmailOrPasswordInvalid, "邮箱或密码错误")      // 邮箱或密码错误
-	ErrUserPermanentlyDeleted     = New(CodeUserPermanentlyDeleted, "账户已永久删除，无法登录")                // 账户已永久删除，无法登录
+	ErrUserPermanentlyDeleted     = New(CodeUserPermanentlyDeleted, "账户已永久删除，无法登录")     // 账户已永久删除，无法登录
 	ErrInvalidEmail               = New(CodeInvalidEmail, "无效的邮箱地址")                    // 无效的邮箱地址
 	ErrInvalidPhone               = New(CodeInvalidPhone, "无效的手机号码")                    // 无效的手机号码
 	ErrInvalidPassword            = New(CodeInvalidPassword, "无效的密码")                   // 无效的密码
@@ -61,26 +61,42 @@ var (
 	ErrInvalidCaptcha  = New(CodeValidation, "验证码错误")      // 验证码错误
 
 	// 内容模块 - 帖子
+
 	ErrPostNotFound = New(CodePostNotFound, "帖子不存在")     // 帖子不存在
 	ErrPostLocked   = New(CodePostLocked, "帖子已被锁定，无法操作") // 帖子已被锁定，无法操作
 	ErrPostPinned   = New(CodePostPinned, "帖子置顶状态冲突")    // 帖子置顶状态冲突
 	ErrPostDeleted  = New(CodePostDeleted, "帖子已被删除")     // 帖子已被删除
 
 	// 内容模块 - 板块
-	ErrBoardNotFound = New(CodeBoardNotFound, "板块不存在") // 板块不存在
+	ErrBoardNotFound        = New(CodeBoardNotFound, "板块不存在")           // 板块不存在
+	ErrBoardDeleted         = New(CodeBoardDeleted, "板块已被删除")           // 板块已被删除
+	ErrPostNotBelongToBoard = New(CodePostNotBelongToBoard, "帖子不属于该板块") // 帖子不属于该板块
 
 	// 内容模块 - 问答
-	ErrAcceptForbidden  = New(CodeAcceptForbidden, "只有发帖人才能采纳答案") // 只有发帖人才能采纳答案
-	ErrAnswerNotFound   = New(CodeAnswerNotFound, "回答不存在")        // 回答不存在
-	ErrQuestionNotFound = New(CodeQuestionNotFound, "问题不存在")      // 问题不存在
+	ErrAcceptForbidden = New(CodeAcceptForbidden, "只有发帖人才能采纳答案") // 只有发帖人才能采纳答案
+	ErrAnswerNotFound  = New(CodeAnswerNotFound, "回答不存在")        // 回答不存在
+
+	ErrQuestionNotFound = New(CodeQuestionNotFound, "问题不存在")    // 问题不存在
+	ErrPostNotQuestion  = New(CodePostNotQuestion, "该帖子不是问答类型") // 该帖子不是问答类型
+	ErrAnswerNotAccepted = New(CodeAnswerNotAccepted, "该回答未被接受为答案")
+	ErrCommentNotAnswer = New(CodeCommentNotAnswer, "该评论不是回答")
 
 	// 内容模块 - 评论
+
 	ErrCommentNotFound = New(CodeCommentNotFound, "评论不存在") // 评论不存在
 	ErrCommentDeleted  = New(CodeCommentDeleted, "评论已被删除") // 评论已被删除
 
-	// 内容模块 - 主题 / 标签 / 通知
-	ErrTopicNotFound        = New(CodeTopicNotFound, "主题不存在")        // 主题不存在
-	ErrTagNotFound          = New(CodeTagNotFound, "标签不存在")          // 标签不存在
+	// MARK: 主题
+
+	ErrTopicNotFound         = New(CodeTopicNotFound, "话题不存在")           // 主题不存在
+	ErrTopicContentForbidden = New(CodeTopicContentForbidden, "话题内容被禁止") // 话题内容被禁止
+
+	// 标签
+
+	ErrTagNotFound = New(CodeTagNotFound, "标签不存在") // 标签不存在
+
+	// 通知
+
 	ErrNotificationNotFound = New(CodeNotificationNotFound, "通知不存在") // 通知不存在
 
 	// 点赞 / 收藏
