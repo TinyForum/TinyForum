@@ -38,7 +38,7 @@ func (h *AnswerHandler) CreateAnswer(c *gin.Context) {
 	}
 
 	// 3. 获取 postID
-	postID := question.PostID
+	postID := question.CreationID
 
 	// 4. 绑定请求参数
 	var req CreateAnswerRequest

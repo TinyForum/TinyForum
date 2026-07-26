@@ -66,7 +66,7 @@ func (r *boardRepository) GetPostsBySlug(slug string, page, pageSize int) ([]*dt
 		Joins("JOIN users ON users.id = posts.author_id").
 		Where("boards.slug = ?", slug).
 		Where("posts.deleted_at IS NULL").
-		Where("posts.post_status = ?", "published") // 只显示已发布的帖子（根据业务调整）
+		Where("posts.creation_status = ?", "published") // 只显示已发布的帖子（根据业务调整）
 
 	// 2. 统计总数
 	if err := baseQuery.Count(&total).Error; err != nil {

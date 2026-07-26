@@ -10,5 +10,6 @@ type CreateTopicReqeust struct {
 type AddPostToTopicRequest struct {
 	TopicID   uint `json:"topic_id" binding:"required"`
 	PostID    uint `json:"post_id" binding:"required"`
+	CreatorID uint `json:"creator_id" binding:"required"`
 	SortOrder int  `json:"sort_order"`
 }

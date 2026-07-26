@@ -10,10 +10,12 @@ func ListPostsBOToPostDO(bo *bo.ListPosts) *do.Article {
 		return &do.Article{}
 	}
 	return &do.Article{
-		AuthorID:         bo.AuthorID,
-		PostStatus:       bo.PostStatus,
-		ModerationStatus: bo.ModerationStatus,
-		Type:             do.PostType(bo.Type), // Type 为 string，需转换
-		// 不包含 Keyword, TagNames, SortBy
+
+		Creation: do.Creation{
+			AuthorID:         bo.AuthorID,
+			CreationStatus:   bo.PostStatus,
+			ModerationStatus: bo.ModerationStatus,
+			Type:             do.CreationType(bo.Type),
+		},
 	}
 }

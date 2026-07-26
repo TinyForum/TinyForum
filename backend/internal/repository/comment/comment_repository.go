@@ -32,7 +32,7 @@ func (r *commentRepository) Delete(id uint) error {
 // ValidateParentComment 验证父评论是否属于同一帖子
 func (r *commentRepository) ValidateParentComment(parentID uint, postID uint) error {
 	var comment do.Comment
-	err := r.db.Where("id = ? AND post_id = ?", parentID, postID).First(&comment).Error
+	err := r.db.Where("id = ? AND creations_id = ?", parentID, postID).First(&comment).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return errors.New("父评论不存在或不属于当前帖子")

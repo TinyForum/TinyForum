@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"tiny-forum/internal/infra/lua/sdk"
 	"tiny-forum/internal/model/do"
+	"tiny-forum/pkg/utils"
 )
 
 // ─── Post ─────────────────────────────────────────────────────────────────
@@ -15,32 +16,36 @@ func (a *forumAPIImpl) GetPost(ctx context.Context, postID uint) (*sdk.PostVO, e
 		return nil, err
 	}
 	return &sdk.PostVO{
+
 		ID:        p.ID,
-		Title:     p.Title,
-		Content:   p.Content,
-		AuthorID:  p.AuthorID,
-		BoardID:   p.BoardID,
+		Title:     p.Creation.Title,
+		Content:   p.Creation.Content,
+		AuthorID:  p.Creation.AuthorID,
+		BoardID:   p.Creation.BoardID,
 		CreatedAt: p.CreatedAt.Unix(),
 	}, nil
 }
 
 func (a *forumAPIImpl) CreatePost(ctx context.Context, req sdk.CreatePostReq) (*sdk.PostVO, error) {
 	p := &do.Article{
-		Title:      req.Title,
-		Content:    req.Content,
-		AuthorID:   a.botActorID,
-		BoardID:    req.BoardID,
-		PostStatus: do.PostStatusPublished,
+		Creation: do.Creation{
+			Title:          req.Title,
+			Content:        req.Content,
+			Slug:           utils.GenerateSlug(),
+			AuthorID:       a.botActorID,
+			BoardID:        req.BoardID,
+			CreationStatus: do.CreationStatusPublished,
+		},
 	}
 	if err := a.postRepo.Create(p); err != nil {
 		return nil, err
 	}
 	return &sdk.PostVO{
 		ID:        p.ID,
-		Title:     p.Title,
-		Content:   p.Content,
-		AuthorID:  p.AuthorID,
-		BoardID:   p.BoardID,
+		Title:     p.Creation.Title,
+		Content:   p.Creation.Content,
+		AuthorID:  p.Creation.AuthorID,
+		BoardID:   p.Creation.BoardID,
 		CreatedAt: p.CreatedAt.Unix(),
 	}, nil
 }
@@ -76,14 +81,14 @@ func (a *forumAPIImpl) ModeratePost(ctx context.Context, postID uint, action, re
 	}
 	switch action {
 	case "hide":
-		p.PostStatus = do.PostStatusHidden
+		p.Creation.CreationStatus = do.CreationStatusHidden
 		return a.postRepo.Update(p)
 	case "pin":
 		return a.postRepo.TogglePinInBoard(uint(postID), true)
 	case "lock":
 		// do.Post 没有 locked 字段，用 Hidden 作降级处理
 		// 如有需要可扩展 Post 模型
-		p.PostStatus = do.PostStatusHidden
+		p.Creation.CreationStatus = do.CreationStatusHidden
 		return a.postRepo.Update(p)
 	case "delete":
 		return a.postRepo.Delete(uint(postID))

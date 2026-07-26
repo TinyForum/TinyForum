@@ -32,7 +32,7 @@ func (r *statsRepository) GetHotArticlesByDateRange(
 		Joins("LEFT JOIN users u ON u.id = p.author_id AND u.deleted_at IS NULL").
 		Joins("LEFT JOIN comments c ON c.post_id = p.id AND c.deleted_at IS NULL AND c.created_at BETWEEN ? AND ?", startDate, endDate).
 		Where("p.deleted_at IS NULL AND p.status = ? AND p.created_at BETWEEN ? AND ?",
-			do.PostStatusPublished, startDate, endDate).
+			do.CreationStatusPublished, startDate, endDate).
 		Group("p.id, b.name, u.username").
 		Order("(p.view_count + COUNT(c.id) * 10 + p.like_count * 5) DESC").
 		Limit(limit).

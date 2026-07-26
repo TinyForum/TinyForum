@@ -11,13 +11,13 @@ func (r *commentRepository) ListByPost(postID uint, page, pageSize int) ([]do.Co
 	var comments []do.Comment
 	var total int64
 
-	query := r.db.Model(&do.Comment{}).Where("post_id = ? AND parent_id IS NULL", postID)
+	query := r.db.Model(&do.Comment{}).Where("creations_id = ? AND parent_id IS NULL", postID)
 	if err := query.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
 
 	offset := (page - 1) * pageSize
-	err := r.db.Where("post_id = ? AND parent_id IS NULL", postID).
+	err := r.db.Where("creations_id = ? AND parent_id IS NULL", postID).
 		Preload("Author").
 		Preload("Replies", func(db *gorm.DB) *gorm.DB {
 			return db.Preload("Author").Order("created_at ASC")
@@ -35,7 +35,7 @@ func (r *commentRepository) GetAnswersByPostID(postID uint, limit, offset int) (
 	var total int64
 
 	query := r.db.Model(&do.Comment{}).
-		Where("post_id = ? AND is_answer = ?", postID, true)
+		Where("creations_id = ? AND is_answer = ?", postID, true)
 	query.Count(&total)
 
 	err := query.Offset(offset).Limit(limit).
@@ -52,7 +52,7 @@ func (r *commentRepository) GetAnswersByPostIDOrderByNewest(postID uint, limit, 
 	var total int64
 
 	query := r.db.Model(&do.Comment{}).
-		Where("post_id = ? AND is_answer = ?", postID, true)
+		Where("creations_id = ? AND is_answer = ?", postID, true)
 	query.Count(&total)
 
 	err := query.Offset(offset).Limit(limit).
@@ -69,7 +69,7 @@ func (r *commentRepository) GetAnswersByPostIDOrderByOldest(postID uint, limit, 
 	var total int64
 
 	query := r.db.Model(&do.Comment{}).
-		Where("post_id = ? AND is_answer = ?", postID, true)
+		Where("creations_id = ? AND is_answer = ?", postID, true)
 	query.Count(&total)
 
 	err := query.Offset(offset).Limit(limit).

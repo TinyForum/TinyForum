@@ -20,7 +20,7 @@ import (
 type ArticleService interface {
 	// admin
 	AdminLists(ctx context.Context, listPostsBO *common.PageQuery[bo.ListPosts]) ([]do.Article, int64, error)
-	SetStatus(postID uint, status do.PostStatus) error
+	SetStatus(postID uint, status do.CreationStatus) error
 	TogglePin(postID uint) error
 	AdminSetReviewPost(postID uint, status do.ModerationStatus) error
 	// crud

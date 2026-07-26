@@ -4,6 +4,7 @@ import (
 	"errors"
 	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/dto"
+	"tiny-forum/pkg/utils"
 
 	"gorm.io/gorm"
 )
@@ -19,15 +20,23 @@ func (r *questionRepository) CreateWithTransaction(userID uint, input dto.Create
 
 	// 1. 创建帖子
 	post := &do.Article{
-		Title:      input.Title,
-		Content:    input.Content,
-		Summary:    input.Summary,
-		CoverUrl:   input.Cover,
-		BoardID:    input.BoardID,
-		AuthorID:   userID,
-		Type:       do.PostTypeQuestion,
-		PostStatus: input.Status,
+		Creation: do.Creation{
+			Title:          input.Title,
+			Content:        input.Content,
+			Summary:        input.Summary,
+			CoverUrl:       input.Cover,
+			Slug:           utils.GenerateSlug(),
+			BoardID:        input.BoardID,
+			AuthorID:       userID,
+			Type:           do.PostTypeQuestion,
+			CreationStatus: input.Status,
+		},
 	}
+	if err := tx.Create(&post.Creation).Error; err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+	post.CreationID = post.Creation.ID
 	if err := tx.Create(post).Error; err != nil {
 		tx.Rollback()
 		return nil, err
@@ -65,7 +74,7 @@ func (r *questionRepository) CreateWithTransaction(userID uint, input dto.Create
 
 	// 4. 创建问答记录
 	question := &do.Question{
-		PostID:      post.ID,
+		CreationID:  post.Creation.ID,
 		RewardScore: input.RewardScore,
 		AnswerCount: 0,
 	}
@@ -80,16 +89,16 @@ func (r *questionRepository) CreateWithTransaction(userID uint, input dto.Create
 
 	return &do.QuestionResponse{
 		ID:          question.ID,
-		PostID:      post.ID,
-		Title:       post.Title,
-		Content:     post.Content,
-		Summary:     post.Summary,
-		Cover:       post.CoverUrl,
-		BoardID:     post.BoardID,
-		AuthorID:    post.AuthorID,
+		CreationsID: post.Creation.ID,
+		Title:       post.Creation.Title,
+		Content:     post.Creation.Content,
+		Summary:     post.Creation.Summary,
+		Cover:       post.Creation.CoverUrl,
+		BoardID:     post.Creation.BoardID,
+		AuthorID:    post.Creation.AuthorID,
 		RewardScore: question.RewardScore,
 		AnswerCount: question.AnswerCount,
-		Status:      string(post.PostStatus),
+		Status:      string(post.Creation.CreationStatus),
 		CreatedAt:   post.CreatedAt,
 		UpdatedAt:   post.UpdatedAt,
 	}, nil

@@ -24,7 +24,7 @@ type TopicService interface {
 	// post
 	AddPostToTopic(input request.AddPostToTopicRequest, userID uint) error
 	RemovePostFromTopic(topicID, postID uint, userID uint) error
-	GetTopicPosts(topicID uint, page, pageSize int) ([]do.TopicPost, int64, error)
+	GetTopicPosts(topicID uint, page, pageSize int) ([]do.TopicCreation, int64, error)
 }
 type topicService struct {
 	topicRepo topicRepo.TopicRepository

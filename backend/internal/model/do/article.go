@@ -1,24 +1,84 @@
 package do
 
-// type Post struct {
-// 	common.BaseModel
-// 	Title         string `gorm:"not null;size:150;uniqueIndex;comment:话题标题" json:"title"` // 话题标题
-// 	Slug          string `gorm:"size:180;uniqueIndex;comment:URL标识" json:"slug"`          // URL标识
-// 	Description   string `gorm:"size:500;comment:话题描述" json:"description"`                // 话题描述
-// 	CoverUrl      string `gorm:"size:500;comment:封面图URL" json:"cover_url"`                // 封面图URL
-// 	CreatorID     uint   `gorm:"not null;index;comment:创建者ID" json:"creator_id"`          // 创建者ID
-// 	IsPublic      bool   `gorm:"default:true;index;comment:是否公开" json:"is_public"`        // 是否公开
-// 	PostCount     int    `gorm:"default:0;comment:帖子数量" json:"post_count"`                // 帖子数量
-// 	FollowerCount int    `gorm:"default:0;comment:关注者数量" json:"follower_count"`           // 关注者数量
+//
+import (
+	"tiny-forum/internal/model/common"
+)
 
-// 	Creator   User          `gorm:"foreignKey:CreatorID" json:"creator,omitempty"` // 创建者
-// 	Posts     []TopicPost   `gorm:"foreignKey:TopicID" json:"-"`                   // 帖子
-// 	Followers []TopicFollow `gorm:"foreignKey:TopicID" json:"-"`                   // 关注者
-// }
+type Article struct {
+	common.BaseModel
+	CreationID uint     `gorm:"uniqueIndex;not null" json:"creations_id"` // 外键，唯一索引保证一对一
+	Creation   Creation `gorm:"foreignKey:CreationID;references:ID" json:"creation,omitempty"`
+	// 如果有 Article 特有字段，加在这里；若无，可保留空结构体
+}
+type CreationType string
 
-// // 表名
-// // TableName 方法用于定义数据库表名
-// func (Topic) TableName() string {
-// 	// 返回 topics 作为数据库表名
-// 	return "topics"
-// }
+const (
+	PostTypePost     CreationType = "post"     // 短文
+	PostTypeArticle  CreationType = "article"  // 长文
+	PostTypeTopic    CreationType = "topic"    // 观点
+	PostTypeQuestion CreationType = "question" // 问题
+)
+
+// enum [PostTypePost PostTypeArticle PostTypeTopic PostTypeQuestion]
+
+// 合法的帖子类型集合
+var validPostTypes = map[CreationType]bool{
+	PostTypePost:    true,
+	PostTypeArticle: true,
+	PostTypeTopic:   true,
+}
+
+var validCreationStatuses = map[CreationStatus]bool{
+	CreationStatusDraft:     true,
+	CreationStatusPending:   true,
+	CreationStatusPublished: true,
+	CreationStatusHidden:    true,
+}
+
+type CreationStatus string
+
+// const (
+// 	PostTypePost    PostType = "post"
+// 	PostTypeArticle PostType = "article"
+// 	PostTypeTopic   PostType = "topic"
+// )
+
+// 用户主动控制的状态（用户能感知、能操作）
+
+const (
+	CreationStatusDraft     CreationStatus = "draft"     // 草稿（用户保存未发布）
+	CreationStatusPending   CreationStatus = "pending"   // 待用户确认/提交（如编辑后重新提交）
+	CreationStatusPublished CreationStatus = "published" // 已发布（用户主动发布）
+	CreationStatusHidden    CreationStatus = "hidden"    // 用户隐藏（如自己删除/隐藏，或管理员操作但以用户视角展示）
+)
+
+// enum [draft pending published hidden]
+
+// 系统风控状态（由内容安全模块自动判定或管理员审核结果）
+
+// IsValid 检查帖子类型是否合法
+func (pt CreationType) IsValid() bool {
+	return validPostTypes[pt]
+}
+
+// 可选：从字符串安全转换
+func ParsePostType(s string) CreationType {
+	pt := CreationType(s)
+	if pt.IsValid() {
+		return pt
+	}
+	return PostTypeArticle // 默认值
+}
+
+func ParseCreationStatus(s string) CreationStatus {
+	ps := CreationStatus(s)
+	if ps.IsValid() {
+		return ps
+	}
+	return CreationStatusPublished // 默认值
+}
+
+func (ps CreationStatus) IsValid() bool {
+	return validCreationStatuses[ps]
+}

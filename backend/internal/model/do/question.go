@@ -7,20 +7,20 @@ import (
 
 type Question struct {
 	common.BaseModel
-	PostID           uint    `gorm:"uniqueIndex;not null" json:"post_id"`
-	AcceptedAnswerID *uint   `json:"accepted_answer_id"`
-	RewardScore      int     `gorm:"default:0" json:"reward_score"`
-	AnswerCount      int     `gorm:"default:0" json:"answer_count"`
-	ViewCount        int     `gorm:"default:0" json:"view_count"`
-	Article          Article `gorm:"foreignKey:PostID" json:"post,omitempty"`
-	AcceptedAnswer   Comment `gorm:"foreignKey:AcceptedAnswerID" json:"accepted_answer,omitempty"`
+	CreationID       uint     `gorm:"uniqueIndex;not null" json:"creations_id"`
+	Creation         Creation `gorm:"foreignKey:CreationID;references:ID" json:"creation,omitempty"`
+	AcceptedAnswerID *uint    `json:"accepted_answer_id"`
+	RewardScore      int      `gorm:"default:0" json:"reward_score"`
+	AnswerCount      int      `gorm:"default:0" json:"answer_count"`
+	ViewCount        int      `gorm:"default:0" json:"view_count"`
+	AcceptedAnswer   Comment  `gorm:"foreignKey:AcceptedAnswerID" json:"accepted_answer,omitempty"`
 }
 
 // CreateQuestionInput 创建问答输入
 
 type QuestionResponse struct {
 	ID               uint      `json:"id"`
-	PostID           uint      `json:"post_id"`
+	CreationsID      uint      `json:"creations_id"`
 	Title            string    `json:"title"`
 	Content          string    `json:"content"`
 	Summary          string    `json:"summary"`

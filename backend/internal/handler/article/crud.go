@@ -38,12 +38,13 @@ func (h *ArticleHandler) Create(c *gin.Context) {
 		return
 	}
 
+	logger.Infof("请求： %v", input)
 	if input.BoardID == 0 {
 		response.BadRequest(c, "board_id is required")
 		return
 	}
 	if input.Status == "" {
-		input.Status = do.PostStatusPublished
+		input.Status = do.CreationStatusPublished
 	}
 
 	post, err := h.articleSvc.Create(c, authorID, input)
@@ -122,7 +123,7 @@ func (h *ArticleHandler) List(c *gin.Context) {
 	// 处理帖子类型：空字符串代表查询所有类型
 	var postType string
 	if req.PostType != "" {
-		pt := do.PostType(req.PostType)
+		pt := do.CreationType(req.PostType)
 		if !pt.IsValid() {
 			logger.Errorf("无效的帖子类型: %s", req.PostType)
 			response.HandleError(c, errors.New("无效的帖子类型参数"))
@@ -137,7 +138,7 @@ func (h *ArticleHandler) List(c *gin.Context) {
 		PageSize: req.PageSize,
 		Data: bo.ListPosts{
 			AuthorID:         req.AuthorID,
-			PostStatus:       do.PostStatusPublished,
+			PostStatus:       do.CreationStatusPublished,
 			ModerationStatus: do.ModerationStatusApproved,
 			Type:             postType, // 实体过滤字段
 		},

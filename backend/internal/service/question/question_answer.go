@@ -16,7 +16,7 @@ func (s *questionService) AcceptAnswer(postID, commentID uint, userID uint) erro
 	if err != nil {
 		return fmt.Errorf("%w: 帖子不存在", apperrors.ErrPostNotFound)
 	}
-	if post.AuthorID != userID {
+	if post.Creation.AuthorID != userID {
 		return fmt.Errorf("%w: 只有发帖人可以采纳答案", apperrors.ErrAcceptForbidden)
 	}
 	comment, err := s.commentRepo.FindByID(commentID)

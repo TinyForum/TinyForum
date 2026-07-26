@@ -9,7 +9,7 @@ type ListPosts struct {
 	Type             string
 	Keyword          string
 	SortBy           string
-	PostStatus       do.PostStatus
+	PostStatus       do.CreationStatus
 	ModerationStatus do.ModerationStatus
 }
 

@@ -36,13 +36,13 @@ func (s *articleService) AdminLists(ctx context.Context, listPostsBO *common.Pag
 	} else {
 		listPostsDO.Data = *filterDO
 	}
-	filterDO.PostStatus = do.PostStatusPublished
+	filterDO.Creation.CreationStatus = do.CreationStatusPublished
 
 	return s.postRepo.AdminList(ctx, listPostsDO)
 }
 
 // SetStatus 设置帖子状态（暂未完全实现，保留接口）
-func (s *articleService) SetStatus(postID uint, status do.PostStatus) error {
+func (s *articleService) SetStatus(postID uint, status do.CreationStatus) error {
 	return s.postRepo.Update(&do.Article{})
 }
 
@@ -55,7 +55,7 @@ func (s *articleService) TogglePin(postID uint) error {
 		}
 		return fmt.Errorf("查询帖子失败: %w", err)
 	}
-	post.PinTop = !post.PinTop
+	post.Creation.PinTop = !post.Creation.PinTop
 	return s.postRepo.Update(post)
 }
 
@@ -69,6 +69,6 @@ func (s *articleService) AdminSetReviewPost(postID uint, status do.ModerationSta
 		return gorm.ErrRecordNotFound
 	}
 
-	post.ModerationStatus = do.ModerationStatus(status)
+	post.Creation.ModerationStatus = do.ModerationStatus(status)
 	return s.postRepo.Update(post)
 }

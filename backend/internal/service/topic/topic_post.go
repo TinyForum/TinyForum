@@ -6,31 +6,34 @@ import (
 	"tiny-forum/internal/model/request"
 )
 
-// AddPostToTopic 添加帖子到专题
+// AddPostToTopic 添加帖子到话题
 func (s *topicService) AddPostToTopic(input request.AddPostToTopicRequest, userID uint) error {
 	topic, err := s.topicRepo.FindByID(input.TopicID)
 	if err != nil {
-		return errors.New("专题不存在")
+		return errors.New("话题不存在")
 	}
 	if topic.CreatorID != userID {
-		return errors.New("只有专题创建者可以添加内容")
+		return errors.New("只有话题创建者可以添加内容")
 	}
 	post, err := s.postRepo.FindByID(input.PostID)
 	if err != nil {
 		return errors.New("帖子不存在")
 	}
-	topicPost := &do.TopicPost{
-		TopicID:   input.TopicID,
-		PostID:    input.PostID,
+	topicPost := &do.TopicCreation{
+
+		TopicID:    input.TopicID,
+		CreationID: input.CreatorID,
+		// ID:         input.TopicID,
+		// PostID:    input.PostID,
 		SortOrder: input.SortOrder, // 排序
-		AddedBy:   userID,
+		CreatorID: userID,
 	}
 	if err := s.topicRepo.AddPost(topicPost); err != nil {
 		return err
 	}
 	_ = s.topicRepo.IncrementPostCount(input.TopicID)
-	if post.AuthorID != userID {
-		s.notifSvc.Create(post.AuthorID, &userID, do.NotifySystem,
+	if post.Creation.AuthorID != userID {
+		s.notifSvc.Create(post.Creation.AuthorID, &userID, do.NotifySystem,
 			"你的帖子被收录到专题《"+topic.Title+"》", &input.TopicID, "topic")
 	}
 	return nil
@@ -52,7 +55,7 @@ func (s *topicService) RemovePostFromTopic(topicID, postID uint, userID uint) er
 }
 
 // GetTopicPosts 获取专题下的帖子列表（分页）
-func (s *topicService) GetTopicPosts(topicID uint, page, pageSize int) ([]do.TopicPost, int64, error) {
+func (s *topicService) GetTopicPosts(topicID uint, page, pageSize int) ([]do.TopicCreation, int64, error) {
 	if page < 1 {
 		page = 1
 	}

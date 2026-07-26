@@ -97,7 +97,7 @@ func (s *authService) ConfirmDeletion(ctx context.Context, userID uint) error {
 		}
 
 		// 15. 主题帖子关联
-		if err := tx.Where("added_by = ?", userID).Delete(&do.TopicPost{}).Error; err != nil {
+		if err := tx.Where("added_by = ?", userID).Delete(&do.Topic{}).Error; err != nil {
 			return fmt.Errorf("删除主题帖子关联失败: %w", err)
 		}
 

@@ -10,9 +10,9 @@ func (s *articleService) Like(userID, postID uint) error {
 	_ = s.postRepo.IncrLikeCount(postID, 1)
 	_ = s.userRepo.AddScore(userID, 2)
 	post, _ := s.postRepo.FindByID(postID)
-	if post != nil && post.AuthorID != userID {
-		s.notifSvc.Create(post.AuthorID, &userID, do.NotifyLike,
-			"有人点赞了你的帖子《"+post.Title+"》", &postID, "post")
+	if post != nil && post.Creation.AuthorID != userID {
+		s.notifSvc.Create(post.Creation.AuthorID, &userID, do.NotifyLike,
+			"有人点赞了你的帖子《"+post.Creation.Title+"》", &postID, "post")
 	}
 	return nil
 }

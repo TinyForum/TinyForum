@@ -32,7 +32,7 @@ func (s *commentService) DeleteAnswer(commentID, userID uint, isAdmin bool) erro
 		return s.commentRepo.Delete(commentID)
 	}
 	post, err := s.postRepo.FindByID(comment.CreationsID)
-	if err == nil && post.AuthorID == userID {
+	if err == nil && post.Creation.AuthorID == userID {
 		return s.commentRepo.Delete(commentID)
 	}
 	return errors.New("无权限删除此回答")

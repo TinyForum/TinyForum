@@ -46,7 +46,7 @@ func (h *QuestionHandler) CreateQuestion(c *gin.Context) {
 		return
 	}
 	if input.Status == "" {
-		input.Status = do.PostStatusPublished
+		input.Status = do.CreationStatusPublished
 	}
 
 	userID, exists := c.Get("user_id")

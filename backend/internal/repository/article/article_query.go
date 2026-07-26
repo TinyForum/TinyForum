@@ -19,42 +19,43 @@ func (r *articleRepository) List(ctx context.Context, ListPostsDO *common.PageQu
 	var total int64
 
 	// 构建基础查询
-	baseQuery := r.db.Model(&do.Article{})
+	baseQuery := r.db.Model(&do.Article{}).
+		Joins(`LEFT JOIN "creations" ON "creations"."id" = "articles"."creation_id" AND "creations"."deleted_at" IS NULL`)
 
 	// 用户感知状态过滤
-	if ListPostsDO.Data.PostStatus != "" {
-		baseQuery = baseQuery.Where("post_status = ?", ListPostsDO.Data.PostStatus)
+	if ListPostsDO.Data.Creation.CreationStatus != "" {
+		baseQuery = baseQuery.Where("creations.creation_status = ?", ListPostsDO.Data.Creation.CreationStatus)
 	} else {
 		// 默认只查询已发布的
-		baseQuery = baseQuery.Where("post_status = ?", do.PostStatusPublished)
+		baseQuery = baseQuery.Where("creations.creation_status = ?", do.CreationStatusPublished)
 	}
 
 	// 风控状态过滤
-	if ListPostsDO.Data.ModerationStatus != "" {
-		baseQuery = baseQuery.Where("moderation_status = ?", ListPostsDO.Data.ModerationStatus)
+	if ListPostsDO.Data.Creation.ModerationStatus != "" {
+		baseQuery = baseQuery.Where("creations.moderation_status = ?", ListPostsDO.Data.Creation.ModerationStatus)
 	} else {
 		// 默认只查询已审核通过的
-		baseQuery = baseQuery.Where("moderation_status = ?", do.ModerationStatusApproved)
+		baseQuery = baseQuery.Where("creations.moderation_status = ?", do.ModerationStatusApproved)
 	}
 
-	if ListPostsDO.Data.AuthorID > 0 {
-		baseQuery = baseQuery.Where("author_id = ?", ListPostsDO.Data.AuthorID)
+	if ListPostsDO.Data.Creation.AuthorID > 0 {
+		baseQuery = baseQuery.Where("creations.author_id = ?", ListPostsDO.Data.Creation.AuthorID)
 	}
 
-	// 标签过滤：修复为通过标签名称匹配（因为 TagNames 是 []string 标签名）
+	// 标签过滤：通过 creation_tags 关联
 	if len(ListPostsDO.TagNames) > 0 {
-		baseQuery = baseQuery.Joins("JOIN post_tags ON post_tags.post_id = posts.id").
-			Joins("JOIN tags ON tags.id = post_tags.tag_id").
+		baseQuery = baseQuery.Joins("JOIN creation_tags ON creation_tags.creation_id = creations.id").
+			Joins("JOIN tags ON tags.id = creation_tags.tag_id").
 			Where("tags.name IN ?", ListPostsDO.TagNames).
-			Distinct() // 避免因多个标签导致同一帖子重复
+			Distinct()
 	}
 
-	if ListPostsDO.Data.Type != "" {
-		baseQuery = baseQuery.Where("type = ?", ListPostsDO.Data.Type)
+	if ListPostsDO.Data.Creation.Type != "" {
+		baseQuery = baseQuery.Where("creations.type = ?", ListPostsDO.Data.Creation.Type)
 	}
 
 	if ListPostsDO.Keyword != "" {
-		baseQuery = baseQuery.Where("title LIKE ? OR content LIKE ?", "%"+ListPostsDO.Keyword+"%", "%"+ListPostsDO.Keyword+"%")
+		baseQuery = baseQuery.Where("creations.title LIKE ? OR creations.content LIKE ?", "%"+ListPostsDO.Keyword+"%", "%"+ListPostsDO.Keyword+"%")
 	}
 
 	// 统计总数：使用 Session 克隆，避免影响后续 Find
@@ -64,13 +65,13 @@ func (r *articleRepository) List(ctx context.Context, ListPostsDO *common.PageQu
 
 	// 分页参数
 	offset := (ListPostsDO.Page - 1) * ListPostsDO.PageSize
-	orderExpr := "pin_top DESC, created_at DESC"
+	orderExpr := "creations.pin_top DESC, creations.created_at DESC"
 	if ListPostsDO.SortBy == "hot" {
-		orderExpr = "pin_top DESC, like_count DESC, view_count DESC"
+		orderExpr = "creations.pin_top DESC, creations.like_count DESC, creations.view_count DESC"
 	}
 
 	// 执行查询
-	err := baseQuery.Preload("Author").Preload("Tags").
+	err := baseQuery.Preload("Creation.Author").Preload("Creation.Tags").Preload("Creation").
 		Order(orderExpr).
 		Offset(offset).Limit(ListPostsDO.PageSize).
 		Find(&posts).Error
@@ -78,30 +79,32 @@ func (r *articleRepository) List(ctx context.Context, ListPostsDO *common.PageQu
 	return posts, total, err
 }
 func (r *articleRepository) ListUserPosts(ctx context.Context, req request.GetUserPostsRequest, userID uint, orderBy string) ([]do.Article, int64, error) {
-	db := r.db.WithContext(ctx).Model(&do.Article{}).Where("author_id = ?", userID)
+	db := r.db.WithContext(ctx).Model(&do.Article{}).
+		Joins(`LEFT JOIN "creations" ON "creations"."id" = "articles"."creation_id" AND "creations"."deleted_at" IS NULL`).
+		Where("creations.author_id = ?", userID)
 
 	// 状态过滤
 	if req.Status != "" {
-		db = db.Where("post_status = ?", req.Status)
+		db = db.Where("creations.creation_status = ?", req.Status)
 	}
 	if req.ModerationStatus != "" {
-		db = db.Where("moderation_status = ?", req.ModerationStatus)
+		db = db.Where("creations.moderation_status = ?", req.ModerationStatus)
 	}
 	// 标签过滤（JOIN）
 	if req.Tag != "" {
-		db = db.Joins("JOIN post_tags ON post_tags.post_id = posts.id").
-			Joins("JOIN tags ON tags.id = post_tags.tag_id").
+		db = db.Joins("JOIN creation_tags ON creation_tags.creation_id = creations.id").
+			Joins("JOIN tags ON tags.id = creation_tags.tag_id").
 			Where("tags.name = ?", req.Tag)
 	}
 	// 板块过滤
 	if req.BoardName != "" {
-		db = db.Joins("JOIN boards ON boards.id = posts.board_id").
+		db = db.Joins("JOIN boards ON boards.id = creations.board_id").
 			Where("boards.name = ?", req.BoardName)
 	}
 	// 关键词搜索
 	if req.Keyword != "" {
 		pattern := "%" + req.Keyword + "%"
-		db = db.Where("title LIKE ? OR content LIKE ?", pattern, pattern)
+		db = db.Where("creations.title LIKE ? OR creations.content LIKE ?", pattern, pattern)
 	}
 
 	// 总数统计
@@ -115,7 +118,7 @@ func (r *articleRepository) ListUserPosts(ctx context.Context, req request.GetUs
 
 	// 直接使用传入的排序表达式（已由 Service 层保证安全）
 	var posts []do.Article
-	err := db.Preload("Tags").Preload("Board").
+	err := db.Preload("Creation.Tags").Preload("Creation.Board").Preload("Creation").
 		Order(orderBy).
 		Offset(req.Offset()).
 		Limit(req.PageSize).
@@ -129,32 +132,33 @@ func (r *articleRepository) AdminList(ctx context.Context, listPostsDO *common.P
 	var total int64
 
 	// 基础查询
-	query := r.db.Model(&do.Article{})
+	query := r.db.Model(&do.Article{}).
+		Joins(`LEFT JOIN "creations" ON "creations"."id" = "articles"."creation_id" AND "creations"."deleted_at" IS NULL`)
 
 	// 动态添加过滤条件
 	// 状态过滤（后台需支持所有状态，仅当传入时才过滤）
-	if listPostsDO.Data.PostStatus != "" {
-		logger.Infof("查询文章状态: %s", listPostsDO.Data.PostStatus)
-		query = query.Where("post_status = ?", listPostsDO.Data.PostStatus)
+	if listPostsDO.Data.Creation.CreationStatus != "" {
+		logger.Infof("查询文章状态: %s", listPostsDO.Data.Creation.CreationStatus)
+		query = query.Where("creations.creation_status = ?", listPostsDO.Data.Creation.CreationStatus)
 	}
 
 	// 类型过滤
-	if listPostsDO.Data.Type != "" {
-		logger.Infof("查询类型: %s", listPostsDO.Data.Type)
-		query = query.Where("type = ?", listPostsDO.Data.Type)
+	if listPostsDO.Data.Creation.Type != "" {
+		logger.Infof("查询类型: %s", listPostsDO.Data.Creation.Type)
+		query = query.Where("creations.type = ?", listPostsDO.Data.Creation.Type)
 	}
 
 	// 审核状态过滤
-	if listPostsDO.Data.ModerationStatus != "" {
-		logger.Infof("查询审核状态: %s", listPostsDO.Data.ModerationStatus)
-		query = query.Where("moderation_status = ?", listPostsDO.Data.ModerationStatus)
+	if listPostsDO.Data.Creation.ModerationStatus != "" {
+		logger.Infof("查询审核状态: %s", listPostsDO.Data.Creation.ModerationStatus)
+		query = query.Where("creations.moderation_status = ?", listPostsDO.Data.Creation.ModerationStatus)
 	}
 
 	// 关键词搜索（标题或内容）
 	if listPostsDO.Keyword != "" {
 		logger.Infof("查询关键字: %s", listPostsDO.Keyword)
 		pattern := "%" + listPostsDO.Keyword + "%"
-		query = query.Where("title LIKE ? OR content LIKE ?", pattern, pattern)
+		query = query.Where("creations.title LIKE ? OR creations.content LIKE ?", pattern, pattern)
 	}
 
 	// 可选：作者ID过滤（注释保留，按需开启）
@@ -183,18 +187,19 @@ func (r *articleRepository) AdminList(ctx context.Context, listPostsDO *common.P
 	offset := (listPostsDO.Page - 1) * listPostsDO.PageSize
 
 	// 排序策略
-	orderExpr := "created_at DESC"
+	orderExpr := "creations.created_at DESC"
 	switch listPostsDO.SortBy {
 	case "hot":
-		orderExpr = "like_count DESC, view_count DESC, created_at DESC"
+		orderExpr = "creations.like_count DESC, creations.view_count DESC, creations.created_at DESC"
 	case "latest":
-		orderExpr = "created_at DESC"
+		orderExpr = "creations.created_at DESC"
 	}
 
 	// 执行查询（预加载关联数据）
 	err := query.
-		Preload("Author").
-		Preload("Tags").
+		Preload("Creation.Author").
+		Preload("Creation.Tags").
+		Preload("Creation").
 		Order(orderExpr).
 		Offset(offset).
 		Limit(listPostsDO.PageSize).

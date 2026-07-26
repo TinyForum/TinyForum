@@ -31,9 +31,9 @@ func (s *commentService) Create(authorID uint, input bo.CreateCommentInput) (*do
 
 	_ = s.userRepo.AddScore(authorID, 3)
 
-	if post.AuthorID != authorID {
-		s.notifSvc.Create(post.AuthorID, &authorID, do.NotifyComment,
-			"有人评论了你的帖子《"+post.Title+"》", &input.PostID, "post")
+	if post.Creation.AuthorID != authorID {
+		s.notifSvc.Create(post.Creation.AuthorID, &authorID, do.NotifyComment,
+			"有人评论了你的帖子《"+post.Creation.Title+"》", &input.PostID, "post")
 	}
 
 	if input.ParentID != nil {
@@ -53,7 +53,7 @@ func (s *commentService) CreateAnswer(authorID uint, input bo.CreateCommentInput
 	if err != nil {
 		return nil, errors.New("帖子不存在")
 	}
-	if post.Type != "question" {
+	if post.Creation.Type != "question" {
 		return nil, errors.New("该帖子不是问答类型，请使用普通评论")
 	}
 
@@ -71,9 +71,9 @@ func (s *commentService) CreateAnswer(authorID uint, input bo.CreateCommentInput
 
 	_ = s.userRepo.AddScore(authorID, 2)
 
-	if post.AuthorID != authorID {
-		s.notifSvc.Create(post.AuthorID, &authorID, do.NotifyComment,
-			"有人回答了你的问题《"+post.Title+"》", &input.PostID, "post")
+	if post.Creation.AuthorID != authorID {
+		s.notifSvc.Create(post.Creation.AuthorID, &authorID, do.NotifyComment,
+			"有人回答了你的问题《"+post.Creation.Title+"》", &input.PostID, "post")
 	}
 
 	return s.commentRepo.FindByID(comment.ID)

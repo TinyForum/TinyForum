@@ -1,109 +1,20 @@
 package do
 
-//
 import (
 	"tiny-forum/internal/model/common"
+
+	"gorm.io/datatypes"
 )
 
-type Article struct {
+// Post 短文（微博风格），无额外字段，仅关联 Creation
+type Post struct {
 	common.BaseModel
-	Title    string   `gorm:"not null;size:200" json:"title"`
-	Content  string   `gorm:"not null;type:text" json:"content"`
-	Summary  string   `gorm:"size:500" json:"summary"`
-	CoverUrl string   `gorm:"size:500" json:"cover_url"`
-	Type     PostType `gorm:"type:varchar(20);default:'post'" json:"type"`
-
-	// 用户状态 - 用户自己控制/感知的状态
-	PostStatus PostStatus `gorm:"type:varchar(20);default:'draft'" json:"post_status"`
-
-	// 系统风控状态 - 由风控引擎或管理员审核决定
-	ModerationStatus ModerationStatus `gorm:"type:varchar(20);default:'normal'" json:"moderation_status"`
-
-	AuthorID  uint `gorm:"not null;index" json:"author_id"`
-	ViewCount int  `gorm:"default:0" json:"view_count"`
-	LikeCount int  `gorm:"default:0" json:"like_count"`
-	PinTop    bool `gorm:"default:false" json:"pin_top"`
-
-	// 关联
-	Author   User      `gorm:"foreignKey:AuthorID" json:"author,omitempty"`
-	Tags     []Tag     `gorm:"many2many:post_tags" json:"tags,omitempty"`
-	Comments []Comment `gorm:"foreignKey:PostID" json:"-"`
-	Likes    []Like    `gorm:"-" json:"-"`
-
-	BoardID    uint      `gorm:"index" json:"board_id"`
-	PinInBoard bool      `gorm:"default:false" json:"pin_in_board"`
-	Board      *Board    `gorm:"foreignKey:BoardID" json:"board,omitempty"`
-	Question   *Question `gorm:"foreignKey:PostID" json:"question,omitempty"`
+	CreationID    uint                        `gorm:"uniqueIndex;not null"  json:"creation_id"` // 关联 Creation
+	AllowComments bool                        `gorm:"default:true" json:"allow_comments"`       // 是否允许评论
+	ImageUrls     datatypes.JSONSlice[string] `gorm:"type:text" json:"image_urls"`              // 图片链接列表
+	Creation      *Creation                   `gorm:"foreignKey:CreationID" json:"-"`           // 关联 Creation
 }
 
-type PostType string
-
-const (
-	PostTypePost     PostType = "post"     // 短文
-	PostTypeArticle  PostType = "article"  // 长文
-	PostTypeTopic    PostType = "topic"    // 观点
-	PostTypeQuestion PostType = "question" // 问题
-)
-
-// enum [PostTypePost PostTypeArticle PostTypeTopic PostTypeQuestion]
-
-// 合法的帖子类型集合
-var validPostTypes = map[PostType]bool{
-	PostTypePost:    true,
-	PostTypeArticle: true,
-	PostTypeTopic:   true,
-}
-
-var validPostStatuses = map[PostStatus]bool{
-	PostStatusDraft:     true,
-	PostStatusPending:   true,
-	PostStatusPublished: true,
-	PostStatusHidden:    true,
-}
-
-type PostStatus string
-
-// const (
-// 	PostTypePost    PostType = "post"
-// 	PostTypeArticle PostType = "article"
-// 	PostTypeTopic   PostType = "topic"
-// )
-
-// 用户主动控制的状态（用户能感知、能操作）
-
-const (
-	PostStatusDraft     PostStatus = "draft"     // 草稿（用户保存未发布）
-	PostStatusPending   PostStatus = "pending"   // 待用户确认/提交（如编辑后重新提交）
-	PostStatusPublished PostStatus = "published" // 已发布（用户主动发布）
-	PostStatusHidden    PostStatus = "hidden"    // 用户隐藏（如自己删除/隐藏，或管理员操作但以用户视角展示）
-)
-
-// enum [draft pending published hidden]
-
-// 系统风控状态（由内容安全模块自动判定或管理员审核结果）
-
-// IsValid 检查帖子类型是否合法
-func (pt PostType) IsValid() bool {
-	return validPostTypes[pt]
-}
-
-// 可选：从字符串安全转换
-func ParsePostType(s string) PostType {
-	pt := PostType(s)
-	if pt.IsValid() {
-		return pt
-	}
-	return PostTypeArticle // 默认值
-}
-
-func ParsePostStatus(s string) PostStatus {
-	ps := PostStatus(s)
-	if ps.IsValid() {
-		return ps
-	}
-	return PostStatusPublished // 默认值
-}
-
-func (ps PostStatus) IsValid() bool {
-	return validPostStatuses[ps]
+func (Post) TableName() string {
+	return "posts"
 }

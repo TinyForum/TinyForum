@@ -1,67 +1,67 @@
 package vo
 
-import "time"
+// import "time"
 
-type PostListVO struct {
-	ID        uint      `json:"id"`
-	CreatedAt time.Time `json:"created_at"`
-	Title     string    `json:"title"`
-	Content   string    `json:"content"`
-	Summary   string    `json:"summary,omitempty"`
-	Cover     string    `json:"cover,omitempty"`
-	Author    struct {
-		ID        uint   `json:"id"`
-		Username  string `json:"username"`
-		AvatarUrl string `json:"avatar_url,omitempty"`
-	} `json:"author"`
-}
+// type PostListVO struct {
+// 	ID        uint      `json:"id"`
+// 	CreatedAt time.Time `json:"created_at"`
+// 	Title     string    `json:"title"`
+// 	Content   string    `json:"content"`
+// 	Summary   string    `json:"summary,omitempty"`
+// 	Cover     string    `json:"cover,omitempty"`
+// 	Author    struct {
+// 		ID        uint   `json:"id"`
+// 		Username  string `json:"username"`
+// 		AvatarUrl string `json:"avatar_url,omitempty"`
+// 	} `json:"author"`
+// }
 
-// PostVO 帖子脱敏视图（对外暴露）
-type PostVO struct {
-	ID        uint      `json:"id"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+// // PostVO 帖子脱敏视图（对外暴露）
+// type PostVO struct {
+// 	ID        uint      `json:"id"`
+// 	CreatedAt time.Time `json:"created_at"`
+// 	UpdatedAt time.Time `json:"updated_at"`
 
-	Title            string `json:"title"`
-	Content          string `json:"content"`
-	Summary          string `json:"summary,omitempty"`
-	Cover            string `json:"cover,omitempty"`
-	Type             string `json:"type"`              // PostType: post, question, etc.
-	PostStatus       string `json:"post_status"`       // draft, published...
-	ModerationStatus string `json:"moderation_status"` // normal, pending, rejected...
+// 	Title            string `json:"title"`
+// 	Content          string `json:"content"`
+// 	Summary          string `json:"summary,omitempty"`
+// 	Cover            string `json:"cover,omitempty"`
+// 	Type             string `json:"type"`              // PostType: post, question, etc.
+// 	PostStatus       string `json:"creation_status"`       // draft, published...
+// 	ModerationStatus string `json:"moderation_status"` // normal, pending, rejected...
 
-	AuthorID uint `json:"author_id"`
-	// 脱敏后的作者信息
-	Author struct {
-		ID        uint   `json:"id"`
-		Username  string `json:"username"`
-		AvatarUrl string `json:"avatar_url,omitempty"`
-	} `json:"author,omitempty"`
+// 	AuthorID uint `json:"author_id"`
+// 	// 脱敏后的作者信息
+// 	Author struct {
+// 		ID        uint   `json:"id"`
+// 		Username  string `json:"username"`
+// 		AvatarUrl string `json:"avatar_url,omitempty"`
+// 	} `json:"author,omitempty"`
 
-	BoardID uint `json:"board_id"`
-	// 可选：版块简要信息（需额外查询）
-	Board struct {
-		ID   uint   `json:"id"`
-		Name string `json:"name"`
-	} `json:"board,omitempty"`
+// 	BoardID uint `json:"board_id"`
+// 	// 可选：版块简要信息（需额外查询）
+// 	Board struct {
+// 		ID   uint   `json:"id"`
+// 		Name string `json:"name"`
+// 	} `json:"board,omitempty"`
 
-	Tags []string `json:"tags,omitempty"` // 标签名称列表
+// 	Tags []string `json:"tags,omitempty"` // 标签名称列表
 
-	ViewCount  int  `json:"view_count"`
-	LikeCount  int  `json:"like_count"`
-	PinTop     bool `json:"pin_top"`
-	PinInBoard bool `json:"pin_in_board"`
-}
+// 	ViewCount  int  `json:"view_count"`
+// 	LikeCount  int  `json:"like_count"`
+// 	PinTop     bool `json:"pin_top"`
+// 	PinInBoard bool `json:"pin_in_board"`
+// }
 
-// HotArticleRow 热门文章查询结果行
-type HotArticleRowVO struct {
-	ID           int64
-	Title        string
-	BoardID      int64
-	BoardName    string
-	AuthorID     int64
-	AuthorName   string
-	ViewCount    int64
-	CommentCount int64
-	LikeCount    int64
-}
+// // HotArticleRow 热门文章查询结果行
+// type HotArticleRowVO struct {
+// 	ID           int64
+// 	Title        string
+// 	BoardID      int64
+// 	BoardName    string
+// 	AuthorID     int64
+// 	AuthorName   string
+// 	ViewCount    int64
+// 	CommentCount int64
+// 	LikeCount    int64
+// }

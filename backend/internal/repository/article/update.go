@@ -3,12 +3,16 @@ package article
 import "tiny-forum/internal/model/do"
 
 func (r *articleRepository) Create(post *do.Article) error {
+	if err := r.db.Create(&post.Creation).Error; err != nil {
+		return err
+	}
+	post.CreationID = post.Creation.ID
 	return r.db.Create(post).Error
 }
 
 func (r *articleRepository) FindByID(id uint) (*do.Article, error) {
 	var post do.Article
-	err := r.db.Preload("Author").Preload("Tags").First(&post, id).Error
+	err := r.db.Preload("Creation.Author").Preload("Creation.Tags").Preload("Creation").First(&post, id).Error
 	if err != nil {
 		return nil, err
 	}

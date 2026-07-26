@@ -10,6 +10,7 @@ import (
 	"tiny-forum/internal/model/converter"
 	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/request"
+	"tiny-forum/pkg/utils"
 
 	"github.com/gin-gonic/gin"
 )
@@ -17,7 +18,7 @@ import (
 // Create 创建帖子
 func (s *articleService) Create(ctx *gin.Context, authorID uint, input request.CreatePostRequest) (*do.Article, error) {
 	// 1. 帖子类型校验
-	postType := do.PostType(input.Type)
+	postType := do.CreationType(input.Type)
 	if postType == "" || !postType.IsValid() {
 		postType = do.PostTypePost
 	}
@@ -58,15 +59,18 @@ func (s *articleService) Create(ctx *gin.Context, authorID uint, input request.C
 
 	// 6. 构建帖子对象
 	post := &do.Article{
-		Title:            input.Title,
-		Content:          input.Content,
-		Summary:          input.Summary,
-		CoverUrl:         input.Cover,
-		Type:             postType,
-		AuthorID:         authorID,
-		BoardID:          board.ID,
-		ModerationStatus: moderationStatus,
-		PostStatus:       do.PostStatus(input.Status),
+		Creation: do.Creation{
+			Title:            input.Title,
+			Content:          input.Content,
+			Summary:          input.Summary,
+			CoverUrl:         input.Cover,
+			Slug:             utils.GenerateSlug(),
+			Type:             postType,
+			AuthorID:         authorID,
+			BoardID:          board.ID,
+			ModerationStatus: moderationStatus,
+			CreationStatus:   do.CreationStatus(input.Status),
+		},
 	}
 
 	// 7. 处理标签
@@ -78,7 +82,7 @@ func (s *articleService) Create(ctx *gin.Context, authorID uint, input request.C
 				tags = append(tags, *tag)
 			}
 		}
-		post.Tags = tags
+		post.Creation.Tags = tags
 	}
 
 	// 8. 创建帖子
@@ -87,7 +91,7 @@ func (s *articleService) Create(ctx *gin.Context, authorID uint, input request.C
 	}
 
 	// 9. 更新标签计数
-	for _, tag := range post.Tags {
+	for _, tag := range post.Creation.Tags {
 		_ = s.tagRepo.IncrPostCount(tag.ID, 1)
 	}
 
@@ -116,20 +120,20 @@ func (s *articleService) Update(postID, userID uint, isAdmin bool, input request
 	if err != nil {
 		return nil, errors.New("帖子不存在")
 	}
-	if post.AuthorID != userID && !isAdmin {
+	if post.Creation.AuthorID != userID && !isAdmin {
 		return nil, errors.New("无权限修改此帖子")
 	}
 	if input.Title != "" {
-		post.Title = input.Title
+		post.Creation.Title = input.Title
 	}
 	if input.Content != "" {
-		post.Content = input.Content
+		post.Creation.Content = input.Content
 	}
 	if input.Summary != "" {
-		post.Summary = input.Summary
+		post.Creation.Summary = input.Summary
 	}
 	if input.Cover != "" {
-		post.CoverUrl = input.Cover
+		post.Creation.CoverUrl = input.Cover
 	}
 	if len(input.TagIDs) > 0 {
 		var tags []do.Tag
@@ -139,7 +143,7 @@ func (s *articleService) Update(postID, userID uint, isAdmin bool, input request
 				tags = append(tags, *tag)
 			}
 		}
-		post.Tags = tags
+		post.Creation.Tags = tags
 	}
 	if err := s.postRepo.Update(post); err != nil {
 		return nil, err
@@ -153,7 +157,7 @@ func (s *articleService) Delete(postID, userID uint, isAdmin bool) error {
 	if err != nil {
 		return errors.New("帖子不存在")
 	}
-	if post.AuthorID != userID && !isAdmin {
+	if post.Creation.AuthorID != userID && !isAdmin {
 		return errors.New("无权限删除此帖子")
 	}
 	return s.postRepo.Delete(postID)

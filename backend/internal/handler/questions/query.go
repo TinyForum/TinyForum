@@ -64,7 +64,7 @@ func (h *QuestionHandler) GetQuestionDetail(c *gin.Context) {
 		return
 	}
 
-	answers, total, err := h.commentSvc.GetAnswersByPostID(uint(question.PostID), page, pageSize, sortBy)
+	answers, total, err := h.commentSvc.GetAnswersByPostID(uint(question.CreationsID), page, pageSize, sortBy)
 	if err != nil {
 		response.HandleError(c, err)
 		return

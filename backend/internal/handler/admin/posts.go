@@ -34,7 +34,7 @@ func (h *AdminHandler) ListPosts(c *gin.Context) {
 		return
 	}
 
-	postStatus := do.ParsePostStatus(req.PostStatus)
+	postStatus := do.ParseCreationStatus(req.PostStatus)
 	var postType string
 	if req.PostType != "" {
 		postType = string(do.ParsePostType(req.PostType))

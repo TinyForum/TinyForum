@@ -19,7 +19,7 @@ type Comment struct {
 	LikeCount   int           `gorm:"default:0" json:"like_count"`                            // 点赞数
 	Status      CommentStatus `gorm:"type:varchar(20);default:'visible';index" json:"status"` // 审核状态
 
-	Article    Article   `gorm:"foreignKey:PostID" json:"-"`                   // 关联的帖子
+	Article    *Article  `gorm:"-" json:"-"`                                   // 关联的帖子（未使用，跳过FK解析）
 	Author     User      `gorm:"foreignKey:AuthorID" json:"author,omitempty"`  // 评论作者
 	Parent     *Comment  `gorm:"foreignKey:ParentID" json:"parent,omitempty"`  // 父评论
 	Replies    []Comment `gorm:"foreignKey:ParentID" json:"replies,omitempty"` // 子评论

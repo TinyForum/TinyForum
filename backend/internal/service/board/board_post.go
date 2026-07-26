@@ -9,7 +9,7 @@ func (s *boardService) DeletePost(boardID, postID, userID uint, isAdmin bool) er
 	if err != nil {
 		return errors.New("帖子不存在")
 	}
-	if post.BoardID != boardID {
+	if post.Creation.BoardID != boardID {
 		return errors.New("帖子不属于该板块")
 	}
 	isMod, _ := s.boardRepo.IsModerator(userID, boardID)
@@ -25,7 +25,7 @@ func (s *boardService) PinPost(boardID, postID uint, pin bool) error {
 	if err != nil {
 		return errors.New("帖子不存在")
 	}
-	if post.BoardID != boardID {
+	if post.Creation.BoardID != boardID {
 		return errors.New("帖子不属于该板块")
 	}
 	return s.postRepo.TogglePinInBoard(postID, pin)

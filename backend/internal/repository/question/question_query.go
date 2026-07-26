@@ -27,7 +27,7 @@ func (r *questionRepository) FindSimple(pageSize, offset int, boardID *uint) ([]
 		`).
 		Joins("LEFT JOIN posts ON posts.id = questions.post_id").
 		Where("posts.deleted_at IS NULL").
-		Where("posts.post_status = ?", "published")
+		Where("posts.creation_status = ?", "published")
 
 	if boardID != nil && *boardID > 0 {
 		query = query.Where("posts.board_id = ?", *boardID)
@@ -56,7 +56,7 @@ func (r *questionRepository) FindSimpleQuestions(pageSize, offset int, boardID *
 	db := r.db.Model(&do.Question{}).
 		Joins("LEFT JOIN posts ON posts.id = questions.post_id"). // JOIN 需保留原生 SQL
 		Where("posts.deleted_at IS NULL").                        // 软删除条件（posts 表）
-		Where("posts.post_status = ?", "published")               // 帖子状态条件
+		Where("posts.creation_status = ?", "published")           // 帖子状态条件
 
 	// 动态筛选：版块 ID
 	if boardID != nil && *boardID > 0 {

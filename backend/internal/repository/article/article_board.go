@@ -7,14 +7,15 @@ func (r *articleRepository) GetByBoardID(boardID uint, limit, offset int) ([]do.
 	var total int64
 
 	query := r.db.Model(&do.Article{}).
-		Where("board_id = ? AND status = ?", boardID, do.PostStatusPublished)
+		Where("board_id = ? AND status = ?", boardID, do.CreationStatusPublished)
 
 	query.Count(&total)
 
 	err := query.Offset(offset).Limit(limit).
-		Preload("Author").
-		Preload("Tags").
-		Preload("Board").
+		Preload("Creation.Author").
+		Preload("Creation.Tags").
+		Preload("Creation.Board").
+		Preload("Creation").
 		Order("pin_top DESC, pin_in_board DESC, created_at DESC").
 		Find(&posts).Error
 

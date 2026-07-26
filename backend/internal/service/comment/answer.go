@@ -15,7 +15,7 @@ func (s *commentService) MarkAsAnswer(commentID, userID uint, isAdmin bool, isAn
 	if err != nil {
 		return errors.New("帖子不存在")
 	}
-	if post.AuthorID != userID && !isAdmin {
+	if post.Creation.AuthorID != userID && !isAdmin {
 		return errors.New("无权限操作")
 	}
 	return s.commentRepo.MarkAsAnswer(commentID, isAnswer)
@@ -34,10 +34,10 @@ func (s *commentService) UnacceptAnswer(answerID, userID uint, isAdmin bool) err
 	if err != nil {
 		return errors.New("问题不存在")
 	}
-	if post.Type != "question" {
+	if post.Creation.Type != "question" {
 		return errors.New("该帖子不是问答类型")
 	}
-	if post.AuthorID != userID && !isAdmin {
+	if post.Creation.AuthorID != userID && !isAdmin {
 		return errors.New("没有权限操作，只有问题作者可以取消接受答案")
 	}
 	if !answer.IsAccepted {
@@ -47,9 +47,9 @@ func (s *commentService) UnacceptAnswer(answerID, userID uint, isAdmin bool) err
 		return err
 	}
 	// 可选：扣除积分并发送通知
-	if post.AuthorID != userID {
+	if post.Creation.AuthorID != userID {
 		s.notifSvc.Create(answer.AuthorID, &userID, do.NotifyAcceptCancel,
-			"你的答案在问题《"+post.Title+"》中被取消接受", &answer.CreationsID, "post")
+			"你的答案在问题《"+post.Creation.Title+"》中被取消接受", &answer.CreationsID, "post")
 	}
 	return nil
 }

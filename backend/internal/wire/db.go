@@ -58,6 +58,8 @@ func InitDB(cfg *config.Config) (*gorm.DB, error) {
 	}
 	// Auto migrate all models
 	if err := db.AutoMigrate(
+		// 作品 base
+		&do.Creation{}, // 作品
 		// 用户
 		&do.RefreshToken{},
 		&do.User{},    // 用户
@@ -79,13 +81,20 @@ func InitDB(cfg *config.Config) (*gorm.DB, error) {
 		&do.TimelineEvent{},        // 时间线事件
 		&do.UserTimeline{},         // 用户时间线
 		&do.TimelineSubscription{}, // 时间线订阅
+		// 主题
 		&do.Topic{},                // 主题
-		&do.TopicPost{},            // 主题帖子
+		&do.TopicCreation{},        // 主题帖子
 		&do.TopicFollow{},          // 主题关注
 		&do.Announcement{},         // 公告
 		&do.ModeratorApplication{}, // 版主申请
 		&do.Moderator{},            // 版主
 		&do.AnswerVote{},
+
+		// 帖子
+		&do.Post{}, // 帖子
+		// 文章
+		&do.Article{}, // 文章
+
 		// 审计
 		&do.ContentAuditTask{}, // 内容审核任务
 		&do.AuditLog{},         // 审计日志
@@ -127,6 +136,10 @@ func InitDB(cfg *config.Config) (*gorm.DB, error) {
 	sqlDB.SetMaxIdleConns(20)                 // 空闲连接池大小
 	sqlDB.SetConnMaxLifetime(5 * time.Minute) // 连接最大生命周期
 	sqlDB.SetConnMaxIdleTime(2 * time.Minute) // 空闲连接超时
+
+	// Post-migration cleanup: drop orphaned columns from previous schema versions
+	// GORM AutoMigrate never drops columns, so stale NOT NULL columns cause insert failures
+	// db.Exec(`DO $$ BEGIN ALTER TABLE articles DROP COLUMN IF EXISTS title; EXCEPTION WHEN undefined_column THEN NULL; END $$`)
 
 	logger.Info("Database connected and migrated successfully")
 	return db, nil

@@ -19,7 +19,7 @@ func (h *AdminHandler) ListReviewRequire(c *gin.Context) {
 		Page:     page,
 		PageSize: pageSize,
 		Data: bo.ListPosts{
-			PostStatus: do.PostStatusPending,
+			PostStatus: do.CreationStatusPending,
 			Keyword:    keyword,
 		},
 	}

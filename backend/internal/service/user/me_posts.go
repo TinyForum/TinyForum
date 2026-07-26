@@ -40,31 +40,31 @@ func (s *userService) GetUserPosts(ctx context.Context, req request.GetUserPosts
 	// 4. 转换为 VO
 	voList := make([]vo.UserPosts, 0, len(posts))
 	for _, p := range posts {
-		tagNames := make([]string, len(p.Tags))
-		for i, t := range p.Tags {
+		tagNames := make([]string, len(p.Creation.Tags))
+		for i, t := range p.Creation.Tags {
 			tagNames[i] = t.Name
 		}
 		boardName := ""
-		if p.Board.ID != 0 {
-			boardName = p.Board.Name
+		if p.Creation.Board.ID != 0 {
+			boardName = p.Creation.Board.Name
 		}
 		voList = append(voList, vo.UserPosts{
 			ID:               p.ID,
 			CreatedAt:        p.CreatedAt,
 			UpdatedAt:        p.UpdatedAt,
-			Title:            p.Title,
-			Summary:          p.Summary,
-			Cover:            p.CoverUrl,
-			Type:             p.Type,
-			PostStatus:       p.PostStatus,
-			ModerationStatus: p.ModerationStatus,
-			ViewCount:        p.ViewCount,
-			LikeCount:        p.LikeCount,
+			Title:            p.Creation.Title,
+			Summary:          p.Creation.Summary,
+			Cover:            p.Creation.CoverUrl,
+			Type:             p.Creation.Type,
+			CreationStatus:   p.Creation.CreationStatus,
+			ModerationStatus: p.Creation.ModerationStatus,
+			ViewCount:        p.Creation.ViewCount,
+			LikeCount:        p.Creation.LikeCount,
 			CommentCount:     commentCounts[p.ID],
-			PinTop:           p.PinTop,
+			PinTop:           p.Creation.PinTop,
 			Tags:             tagNames,
 			BoardName:        boardName,
-			PinInBoard:       p.PinInBoard,
+			PinInBoard:       p.Creation.PinInBoard,
 		})
 	}
 

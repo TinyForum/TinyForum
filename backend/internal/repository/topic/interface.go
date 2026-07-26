@@ -25,9 +25,9 @@ type TopicRepository interface {
 	IsFollowing(userID, topicID uint) (bool, error)
 	GetFollowers(topicID uint, limit, offset int) ([]do.TopicFollow, int64, error)
 	// post
-	AddPost(topicPost *do.TopicPost) error
+	AddPost(topicPost *do.TopicCreation) error
 	RemovePost(topicID, postID uint) error
-	GetTopicPosts(topicID uint, limit, offset int) ([]do.TopicPost, int64, error)
+	GetTopicPosts(topicID uint, limit, offset int) ([]do.TopicCreation, int64, error)
 	UpdatePostOrder(topicID, postID uint, sortOrder int) error
 }
 

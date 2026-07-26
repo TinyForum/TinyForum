@@ -17,9 +17,11 @@ func (r *topicRepository) Delete(id uint) error {
 func (r *topicRepository) FindByID(id uint) (*do.Topic, error) {
 	var topic do.Topic
 	err := r.db.Preload("Creator").First(&topic, id).Error
-	return &topic, err
+	if err != nil {
+		return nil, err
+	}
+	return &topic, nil
 }
-
 func (r *topicRepository) List(limit, offset int) ([]do.Topic, int64, error) {
 	var topics []do.Topic
 	var total int64

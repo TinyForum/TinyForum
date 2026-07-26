@@ -7,6 +7,10 @@ import (
 )
 
 func (r *articleRepository) CreateWithTx(tx *gorm.DB, post *do.Article) error {
+	if err := tx.Create(&post.Creation).Error; err != nil {
+		return err
+	}
+	post.CreationID = post.Creation.ID
 	return tx.Create(post).Error
 }
 
