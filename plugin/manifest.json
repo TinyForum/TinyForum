@@ -10,54 +10,55 @@
   "type": "integration",
   "category": "utility",
   "tags": ["example", "local"],
-  "author": "本地开发者",
+  "authorId": 1,
   "authorEmail": "dev@localhost",
   "authorUrl": "",
-  "entry": "./main.js",
+  "scriptUrl": "./main.js",
   "serverEntry": "./server.js",
   "slots": ["after-header", "before-footer"],
   "routes": [],
   "pricing": {
-    "type": "free",
-    "price": 0,
-    "currency": "CNY",
-    "trialDays": 0,
-    "plans": []
+    "model": "free",
+    "price": null,
+    "cycle": "",
+    "freeLimit": "",
+    "purchaseUrl": ""
   },
   "compatibility": {
-    "minFaceVersion": "1.0.0",
-    "maxFaceVersion": "*",
-    "phpExtensions": [],
-    "requires": []
+    "versions": ["v1", "v2"],
+    "minNode": "16.0.0",
+    "requires": [],
+    "conflicts": []
   },
-  "permissions": [
-    {
-      "id": "local_storage",
-      "name": "本地存储",
-      "description": "允许插件使用浏览器本地存储"
-    }
-  ],
+  "permissions": ["storage:write", "storage:read"],
   "enabled": true,
   "status": "active",
   "installCount": 0,
   "rating": 0,
-  "configSchema": {
-    "type": "object",
-    "properties": {
-      "greeting": {
-        "type": "string",
-        "default": "Hello from local plugin!"
-      }
+  "configSchema": [
+    {
+      "key": "greeting",
+      "label": "问候语",
+      "type": "string",
+      "defaultValue": "Hello from local plugin!",
+      "placeholder": "请输入问候语",
+      "description": "自定义显示问候语",
+      "required": true,
+      "options": [],
+      "min": null,
+      "max": null
+    },
+    {
+      "key": "enableFeature",
+      "label": "启用功能",
+      "type": "boolean",
+      "defaultValue": true,
+      "description": "是否启用高级功能",
+      "required": false
     }
-  },
+  ],
   "config": {
-    "greeting": "Hello from local plugin!"
-  },
-  "createdAt": "2026-05-20T00:00:00Z",
-  "updatedAt": "2026-05-20T00:00:00Z",
-  "external": ["react", "react-dom"],
-  "globals": {
-    "react": "React",
-    "react-dom": "ReactDOM"
+    "greeting": "Hello from local plugin!",
+    "enableFeature": true
   }
 }
