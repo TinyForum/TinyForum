@@ -11,7 +11,7 @@ import { Tag } from "lucide-react";
 
 // 简单的问答卡片组件
 function QuestionCard({ question }: { question: QuestionSimple }) {
-  const { isAuthenticated } = useAuthStore();
+  // const { isAuthenticated } = useAuthStore();
 
   return (
     <div className="bg-base-100 rounded-lg shadow-sm p-5 hover:shadow-md transition-shadow">

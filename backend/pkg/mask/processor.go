@@ -23,7 +23,7 @@ func processStruct(v reflect.Value) error {
 			masked := applyStrategy(fi.name, orig, fi.params)
 			field.SetString(masked)
 
-		case reflect.Ptr:
+		case reflect.Pointer:
 			if field.IsNil() {
 				continue
 			}
@@ -43,7 +43,7 @@ func processStruct(v reflect.Value) error {
 						masked := applyStrategy(fi.name, orig, fi.params)
 						elem.SetString(masked)
 					}
-				} else if elem.Kind() == reflect.Ptr && elem.Type().Elem().Kind() == reflect.String && !elem.IsNil() {
+				} else if elem.Kind() == reflect.Pointer && elem.Type().Elem().Kind() == reflect.String && !elem.IsNil() {
 					orig := elem.Elem().String()
 					masked := applyStrategy(fi.name, orig, fi.params)
 					elem.Elem().SetString(masked)

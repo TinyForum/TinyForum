@@ -10,7 +10,6 @@ import PostFilterBar from "@/layout/home/mid/PostFilterBar";
 import PostList from "@/layout/home/mid/PostList";
 import QuestionList from "@/layout/home/mid/QuestionList";
 import { SortBy } from "@/shared/ui/type/home.type";
-import { Post } from "@/shared/api/types/post.model";
 import { useTimelineEvents } from "@/features/timeline/hooks/useTimelineEvents";
 import { useBoardTree } from "@/features/boards/hooks/useBoardTree";
 import { usePosts } from "@/features/post/hooks/usePosts";
@@ -32,55 +31,72 @@ export default function HomePage() {
   const { unreadCount } = useUnreadCount();
   const { data: timelineEvents = [] } = useTimelineEvents(isAuthenticated);
 
-  const isQuestionMode = filterType === "question";
+  // ----- 根据 filterType 配置参数和启用状态 -----
+  let postParams = undefined;
+  let questionParams = undefined;
+  let usePostsEnabled = false;
+  let useQuestionsEnabled = false;
 
-  // 普通帖子参数
-  const postParams = !isQuestionMode
-    ? {
+  switch (filterType) {
+    case "question":
+      useQuestionsEnabled = true;
+      questionParams = {
+        page,
+        page_size: 15,
+        board_id: selectedBoard ?? undefined,
+      };
+      break;
+    default:
+      // 处理 all, posts, articles, topic 等
+      usePostsEnabled = true;
+      postParams = {
         page,
         page_size: 15,
         sort_by: sortBy === "latest" ? "latest" : undefined,
         type: filterType !== "all" ? filterType : undefined,
-
         board_id: selectedBoard ?? undefined,
         tag_id: selectedTag ?? undefined,
-      }
-    : undefined;
+      };
+      break;
+  }
 
+  // ----- 调用 Hooks（始终在顶层） -----
   const {
     data: postsData,
     isLoading: postsLoading,
     refetch: refetchPosts,
-  } = usePosts(postParams, { enabled: !isQuestionMode });
-
-  // 问答参数
-  const questionParams = {
-    page,
-    page_size: 15,
-    board_id: selectedBoard ?? undefined,
-  };
+  } = usePosts(postParams, { enabled: usePostsEnabled });
 
   const {
     data: questionsData,
     isLoading: questionsLoading,
     refetch: refetchQuestions,
-  } = useQuestions(questionParams, { enabled: isQuestionMode });
+  } = useQuestions(questionParams, { enabled: useQuestionsEnabled });
 
-  const isLoading = isQuestionMode ? questionsLoading : postsLoading;
-  const refetch = isQuestionMode ? refetchQuestions : refetchPosts;
+  // ----- 根据 filterType 选择数据、加载状态、刷新函数、总数 -----
+  let rawData: any[] = [];
+  let isLoading = false;
+  let refetch: () => void = () => {};
+  let total = 0;
 
-  // 帖子模式使用的数据
-  const rawPosts = postsData?.list ?? [];
+  switch (filterType) {
+    case "question":
+      rawData = questionsData?.list ?? [];
+      isLoading = questionsLoading;
+      refetch = refetchQuestions;
+      total = questionsData?.total ?? 0;
+      break;
+    default:
+      rawData = postsData?.list ?? [];
+      isLoading = postsLoading;
+      refetch = refetchPosts;
+      total = postsData?.total ?? 0;
+      break;
+  }
 
-  // 问答模式使用的数据（直接使用，无需断言）
-  const rawQuestions = questionsData?.list ?? [];
-
-  // 总条数
-  const total = isQuestionMode
-    ? (questionsData?.total ?? 0)
-    : (postsData?.total ?? 0);
   const totalPages = Math.ceil(total / 15);
 
+  // ----- 事件处理 -----
   const handleSortChange = (newSortBy: SortBy) => {
     setSortBy(newSortBy);
     setPage(1);
@@ -133,23 +149,30 @@ export default function HomePage() {
             </div>
 
             <div className="flex-1 overflow-y-auto custom-scrollbar pb-6">
-              {isQuestionMode ? (
-                <QuestionList
-                  questions={rawQuestions}
-                  isLoading={isLoading}
-                  totalPages={totalPages}
-                  currentPage={page}
-                  onPageChange={setPage}
-                />
-              ) : (
-                <PostList
-                  posts={rawPosts}
-                  isLoading={isLoading}
-                  totalPages={totalPages}
-                  currentPage={page}
-                  onPageChange={setPage}
-                />
-              )}
+              {(() => {
+                switch (filterType) {
+                  case "question":
+                    return (
+                      <QuestionList
+                        questions={rawData}
+                        isLoading={isLoading}
+                        totalPages={totalPages}
+                        currentPage={page}
+                        onPageChange={setPage}
+                      />
+                    );
+                  default:
+                    return (
+                      <PostList
+                        posts={rawData}
+                        isLoading={isLoading}
+                        totalPages={totalPages}
+                        currentPage={page}
+                        onPageChange={setPage}
+                      />
+                    );
+                }
+              })()}
             </div>
           </div>
 

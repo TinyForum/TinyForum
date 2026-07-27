@@ -7,7 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { postApi } from "@/shared/api/modules/posts";
 import { Search } from "lucide-react";
 import { useTranslations } from "next-intl";
-import PostCard from "@/shared/ui/post/PostCard";
+import PostCard from "@/shared/ui/creation/PostCard";
 
 function PostsContent() {
   const searchParams = useSearchParams();

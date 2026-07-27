@@ -5,8 +5,8 @@ import type { Post } from "@/shared/api/types/post.model";
 import { PostListSkeleton } from "@/shared/ui/common/PostListSkeleton";
 import { EmptyPostList } from "@/shared/ui/common/EmptyPostList";
 import { Pagination } from "@/shared/ui/common/Pagination";
-import PostCard from "@/shared/ui/post/PostCard";
-import { Question } from "@/shared/api/types/question.model";
+import PostCard from "@/shared/ui/creation/PostCard";
+// import { Question } from "@/shared/api/types/question.model";
 
 interface PostListProps {
   posts: Post[];

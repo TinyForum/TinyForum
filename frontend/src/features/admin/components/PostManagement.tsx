@@ -98,18 +98,19 @@ export function PostManagement() {
                   <div className="flex justify-between items-start flex-wrap gap-2">
                     <div className="flex-1">
                       <h3 className="font-medium flex items-center gap-2 text-base">
-                        {post.title}
-                        {post.pin_top && (
+                        {post.creation.title}
+                        {post.creation.pin_top && (
                           <Pin className="w-4 h-4 text-primary" />
                         )}
                       </h3>
                       <div className="flex items-center gap-3 mt-1 text-xs text-base-content/50">
                         <span>
                           作者:{" "}
-                          {post.author?.username || `用户${post.author_id}`}
+                          {post.creation.author?.username ||
+                            `用户${post.creation.author_id}`}
                         </span>
                         {/* <span>回复: {post. || 0}</span> */}
-                        <span>浏览: {post.view_count || 0}</span>
+                        <span>浏览: {post.creation.view_count || 0}</span>
                         <span>
                           {new Date(post.created_at).toLocaleDateString()}
                         </span>
@@ -120,7 +121,7 @@ export function PostManagement() {
                         className="btn btn-ghost btn-sm"
                         onClick={() => handleTogglePin(post.id)}
                         disabled={togglePin.isPending}
-                        title={post.pin_top ? "取消置顶" : "置顶"}
+                        title={post.creation.pin_top ? "取消置顶" : "置顶"}
                       >
                         <Pin className="w-4 h-4" />
                       </button>
@@ -133,16 +134,16 @@ export function PostManagement() {
                       </button>
                     </div>
                   </div>
-                  {post.content && (
+                  {post.creation.content && (
                     <p className="text-sm text-base-content/70 line-clamp-2">
-                      {post.content}
+                      {post.creation.content}
                     </p>
                   )}
                   <div className="flex gap-2 flex-wrap">
-                    {post.pin_top && (
+                    {post.creation.pin_top && (
                       <span className="badge badge-primary badge-sm">置顶</span>
                     )}
-                    {post.status === "published" && (
+                    {post.creation.creation_status === "published" && (
                       <span className="badge badge-error badge-sm">已发布</span>
                     )}
                   </div>

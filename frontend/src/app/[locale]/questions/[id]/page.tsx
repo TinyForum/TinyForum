@@ -233,7 +233,7 @@ export default function QuestionDetailPage() {
     return <ErrorState message={t("question_not_found")} />;
   }
 
-  const isAuthor = user?.id === question.author_id;
+  const isAuthor = user?.id === question.creation.author_id;
   const hasAccepted = answers.some((a) => a.is_accepted);
   const totalPages = Math.ceil(answersTotal / pageSize);
 
@@ -265,7 +265,7 @@ export default function QuestionDetailPage() {
             question={question}
             answersCount={answersTotal}
             liked={liked}
-            likesCount={question.like_count || 0}
+            likesCount={question.creation.like_count || 0}
             hasAccepted={hasAccepted}
             rewardScore={0}
             onLike={handleLike}

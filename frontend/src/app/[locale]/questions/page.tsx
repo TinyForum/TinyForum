@@ -15,12 +15,15 @@ import {
   SparklesIcon,
 } from "@heroicons/react/24/outline";
 import { useAuthStore } from "@/store/auth";
-import { questionApi } from "@/shared/api/modules/questions";
+import {
+  questionApi,
+  QuestionFilterType,
+  QuestionListParams,
+} from "@/shared/api/modules/questions";
 import { useTranslations } from "next-intl";
 import { QuestionSimple } from "@/shared/api/types/question.model";
 import { ApiResponse } from "@/shared/api/types/basic.model";
 
-type FilterType = "all" | "unanswered" | "answered";
 type SortType = "latest" | "hot" | "score";
 
 // API 接受的排序类型
@@ -43,8 +46,8 @@ export default function QuestionsPage() {
   const [loading, setLoading] = useState(true);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
-  const [filter, setFilter] = useState<FilterType>(
-    (searchParams.get("filter") as FilterType) || "all",
+  const [filter, setFilter] = useState<QuestionFilterType>(
+    (searchParams.get("filter") as QuestionFilterType) || "all",
   );
   const [sort, setSort] = useState<SortType>(
     (searchParams.get("sort") as SortType) || "latest",
@@ -63,13 +66,7 @@ export default function QuestionsPage() {
   const loadQuestions = useCallback(async () => {
     setLoading(true);
     try {
-      const params: {
-        page: number;
-        page_size: number;
-        filter?: string;
-        sort?: ApiSortType;
-        keyword?: string;
-      } = {
+      const params: QuestionListParams = {
         page,
         page_size: pageSize,
       };
@@ -112,7 +109,7 @@ export default function QuestionsPage() {
 
   // 监听路由参数变化
   useEffect(() => {
-    const newFilter = searchParams.get("filter") as FilterType;
+    const newFilter = searchParams.get("filter") as QuestionFilterType;
     const newSort = searchParams.get("sort") as SortType;
     const newKeyword = searchParams.get("keyword") || "";
 
@@ -134,7 +131,7 @@ export default function QuestionsPage() {
     loadQuestions();
   };
 
-  const handleFilterChange = (newFilter: FilterType) => {
+  const handleFilterChange = (newFilter: QuestionFilterType) => {
     setFilter(newFilter);
     setPage(1);
   };
@@ -239,7 +236,7 @@ export default function QuestionsPage() {
                     <button
                       key={item.value}
                       onClick={() =>
-                        handleFilterChange(item.value as FilterType)
+                        handleFilterChange(item.value as QuestionFilterType)
                       }
                       className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
                         isActive

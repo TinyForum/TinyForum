@@ -187,10 +187,11 @@ export function ReviewManagement() {
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
                       <span className="font-medium">
-                        {post.author?.username || `用户${post.author_id}`}
+                        {post.creation.author?.username ||
+                          `用户${post.creation.author_id}`}
                       </span>
                       <span className="text-xs text-gray-400">
-                        #{post.author_id}
+                        #{post.creation.author_id}
                       </span>
                       {post.risk_score && post.risk_score > 0 && (
                         <span className="badge badge-warning badge-sm">
@@ -199,7 +200,7 @@ export function ReviewManagement() {
                         </span>
                       )}
                     </div>
-                    <h3 className="font-semibold">{post.title}</h3>
+                    <h3 className="font-semibold">{post.creation.title}</h3>
                     {post.risk_reason && (
                       <p className="text-sm text-orange-600 mt-1">
                         ⚠️ {post.risk_reason}
@@ -261,20 +262,22 @@ export function ReviewManagement() {
               <div className="grid grid-cols-2 gap-2 text-sm">
                 <div>
                   用户名：
-                  {selectedPost.author?.username ||
-                    `ID ${selectedPost.author_id}`}
+                  {selectedPost.creation.author?.username ||
+                    `ID ${selectedPost.creation.author_id}`}
                 </div>
-                <div>用户ID：{selectedPost.author_id}</div>
-                {selectedPost.author?.email && (
-                  <div>邮箱：{selectedPost.author.email}</div>
+                <div>用户ID：{selectedPost.creation.author_id}</div>
+                {selectedPost.creation.author?.email && (
+                  <div>邮箱：{selectedPost.creation.author.email}</div>
                 )}
-                {selectedPost.author?.role && (
-                  <div>角色：{selectedPost.author.role}</div>
+                {selectedPost.creation.author?.role && (
+                  <div>角色：{selectedPost.creation.author.role}</div>
                 )}
-                {selectedPost.author?.created_at && (
+                {selectedPost.creation.author?.created_at && (
                   <div>
                     注册时间：
-                    {new Date(selectedPost.author.created_at).toLocaleString()}
+                    {new Date(
+                      selectedPost.creation.author.created_at,
+                    ).toLocaleString()}
                   </div>
                 )}
               </div>
@@ -317,14 +320,18 @@ export function ReviewManagement() {
                 <FileText className="w-4 h-4" />
                 <span className="font-medium">帖子内容</span>
               </div>
-              <h4 className="font-semibold mb-2">{selectedPost.title}</h4>
+              <h4 className="font-semibold mb-2">
+                {selectedPost.creation.title}
+              </h4>
               <div
                 className="text-sm whitespace-pre-wrap max-h-60 overflow-y-auto bg-base-100 p-2 rounded"
-                dangerouslySetInnerHTML={sanitizeHtml(selectedPost.content)}
+                dangerouslySetInnerHTML={sanitizeHtml(
+                  selectedPost.creation.content,
+                )}
               />
-              {selectedPost.cover && (
+              {selectedPost.creation.cover_url && (
                 <Image
-                  src={selectedPost.cover}
+                  src={selectedPost.creation.cover_url}
                   alt="封面"
                   width={200}
                   height={128}

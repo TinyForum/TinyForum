@@ -3,7 +3,6 @@ package config
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -90,7 +89,7 @@ func (s *ConfigService) GetConfigContent(fileName string) (string, error) {
 	}
 
 	path := filepath.Join(s.configDir, fileName)
-	data, err := ioutil.ReadFile(path)
+	data, err := os.ReadFile(path)
 	if err != nil {
 		return "", err
 	}
@@ -116,7 +115,7 @@ func (s *ConfigService) UpdateConfigContent(fileName, content, operator string) 
 	// oldContent, _ := ioutil.ReadFile(path)
 
 	// 4. 写入新内容
-	if err := ioutil.WriteFile(path, []byte(content), 0644); err != nil {
+	if err := os.WriteFile(path, []byte(content), 0644); err != nil {
 		return err
 	}
 

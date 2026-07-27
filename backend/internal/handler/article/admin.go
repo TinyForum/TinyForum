@@ -186,7 +186,7 @@ func (h *ArticleHandler) AdminRejectPost(c *gin.Context) {
 
 	if err := h.articleSvc.AdminSetReviewPost(uint(postID), do.ModerationStatusRejected); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			response.HandleError(c,err)
+			response.HandleError(c, err)
 		} else {
 			response.HandleError(c, err)
 		}

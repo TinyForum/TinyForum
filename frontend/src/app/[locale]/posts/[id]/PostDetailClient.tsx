@@ -78,7 +78,7 @@ export default function PostDetailClient({ postId }: { postId: number }) {
   }
 
   const { post, liked } = data;
-  const isAuthor = user?.id === post.author_id;
+  const isAuthor = user?.id === post.creation.author_id;
   const isAdmin = user?.role === "admin";
 
   return (
@@ -96,20 +96,20 @@ export default function PostDetailClient({ postId }: { postId: number }) {
           <div className="flex items-center flex-wrap gap-2 mb-3">
             <span
               className={`badge ${
-                post.type === "article"
+                post.creation.creation_type === "article"
                   ? "badge-secondary"
-                  : post.type === "topic"
+                  : post.creation.creation_type === "topic"
                     ? "badge-accent"
                     : "badge-ghost"
               }`}
             >
-              {post.type === "article"
+              {post.creation.creation_type === "article"
                 ? "文章"
-                : post.type === "topic"
+                : post.creation.creation_type === "topic"
                   ? t("the_topic")
                   : t("the_post")}
             </span>
-            {post.tags?.map((tag) => (
+            {post.creation.tags?.map((tag) => (
               <Link
                 key={tag.id}
                 href={`/posts?tag_id=${tag.id}`}
@@ -127,17 +127,17 @@ export default function PostDetailClient({ postId }: { postId: number }) {
 
           {/* Title */}
           <h1 className="text-2xl lg:text-3xl font-bold text-base-content leading-tight">
-            {post.title}
+            {post.creation.title}
           </h1>
 
           {/* Author info */}
           <div className="flex items-center gap-3 mt-4 pb-4 border-b border-base-300">
-            <Link href={`/users/${post.author_id}`}>
+            <Link href={`/users/${post.creation.author_id}`}>
               <div className="avatar">
                 <div className="w-10 h-10 rounded-full">
                   <Avatar
-                    username={post.author?.username}
-                    avatarUrl={post.author?.avatar_url} // 数据库中的头像
+                    username={post.creation.author?.username}
+                    avatarUrl={post.creation.author?.avatar_url} // 数据库中的头像
                     size="md"
                   />
                 </div>
@@ -145,10 +145,10 @@ export default function PostDetailClient({ postId }: { postId: number }) {
             </Link>
             <div>
               <Link
-                href={`/users/${post.author_id}`}
+                href={`/users/${post.creation.author_id}`}
                 className="font-medium hover:text-primary transition-colors text-sm"
               >
-                {post.author?.username}
+                {post.creation.author?.username}
               </Link>
               <div className="flex items-center gap-2 text-xs text-base-content/40">
                 <Clock className="w-3 h-3" />
@@ -158,7 +158,7 @@ export default function PostDetailClient({ postId }: { postId: number }) {
                 <span>·</span>
                 <Eye className="w-3 h-3" />
                 <span>
-                  {post.view_count} {t("read")}
+                  {post.creation.view_count} {t("read")}
                 </span>
               </div>
             </div>
@@ -189,11 +189,11 @@ export default function PostDetailClient({ postId }: { postId: number }) {
           </div>
 
           {/* Cover image */}
-          {post.cover && (
+          {post.creation.cover_url && (
             <div className="my-4 rounded-xl overflow-hidden">
               <Image
-                src={post.cover}
-                alt={post.title}
+                src={post.creation.cover_url}
+                alt={post.creation.title}
                 width={800}
                 height={400}
                 className="w-full object-cover max-h-72"
@@ -204,7 +204,7 @@ export default function PostDetailClient({ postId }: { postId: number }) {
           {/* Content */}
           <div
             className="prose-content mt-4 text-base-content/80 leading-relaxed"
-            dangerouslySetInnerHTML={{ __html: post.content }}
+            dangerouslySetInnerHTML={{ __html: post.creation.content }}
           />
 
           {/* Footer actions */}
@@ -225,7 +225,7 @@ export default function PostDetailClient({ postId }: { postId: number }) {
               ) : (
                 <Heart className="w-4 h-4" />
               )}
-              {post.like_count} {t("like")}
+              {post.creation.like_count} {t("like")}
             </button>
             <button
               className="btn btn-ghost btn-sm gap-2"

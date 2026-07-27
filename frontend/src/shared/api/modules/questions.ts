@@ -11,12 +11,14 @@ import {
 } from "../types/question.model";
 import { Comment } from "../types/comment.model";
 
+export type QuestionFilterType = "all" | "unanswered" | "answered";
+
 export interface QuestionListParams {
   page?: number;
   page_size?: number;
   board_id?: number;
   sort?: "latest" | "hot" | "unanswered";
-  filter?: "all" | "question" | "posts";
+  filter?: QuestionFilterType;
   keyword?: string;
 }
 

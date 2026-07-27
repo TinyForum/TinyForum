@@ -10,7 +10,7 @@ func Mask(v any) error {
 		return ErrNilPointer
 	}
 	rv := reflect.ValueOf(v)
-	if rv.Kind() != reflect.Ptr || rv.IsNil() {
+	if rv.Kind() != reflect.Pointer || rv.IsNil() {
 		return ErrNonPointer
 	}
 	return processStruct(rv.Elem())
@@ -48,7 +48,7 @@ func MaskCopy(v any) (any, error) {
 // deepCopy 递归深拷贝任意值
 func deepCopy(v reflect.Value) reflect.Value {
 	switch v.Kind() {
-	case reflect.Ptr:
+	case reflect.Pointer:
 		if v.IsNil() {
 			return reflect.Zero(v.Type())
 		}

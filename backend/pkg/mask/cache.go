@@ -34,7 +34,7 @@ func getTypeInfo(t reflect.Type) *typeInfo {
 
 // collectFields 递归收集带有 mask 标签的字段
 func collectFields(t reflect.Type, parentIndex []int, info *typeInfo) {
-	if t.Kind() == reflect.Ptr {
+	if t.Kind() == reflect.Pointer {
 		t = t.Elem()
 	}
 	if t.Kind() != reflect.Struct {
@@ -50,7 +50,7 @@ func collectFields(t reflect.Type, parentIndex []int, info *typeInfo) {
 		if tag == "-" {
 			// 仍然递归结构体内部字段
 			fieldType := field.Type
-			if fieldType.Kind() == reflect.Ptr {
+			if fieldType.Kind() == reflect.Pointer {
 				fieldType = fieldType.Elem()
 			}
 			if fieldType.Kind() == reflect.Struct {
@@ -71,7 +71,7 @@ func collectFields(t reflect.Type, parentIndex []int, info *typeInfo) {
 		}
 
 		fieldType := field.Type
-		if fieldType.Kind() == reflect.Ptr {
+		if fieldType.Kind() == reflect.Pointer {
 			fieldType = fieldType.Elem()
 		}
 		if fieldType.Kind() == reflect.Struct {

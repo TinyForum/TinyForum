@@ -84,11 +84,11 @@ export default function EditPostPage({
     if (postData?.post) {
       const p = postData.post;
       reset({
-        title: p.title,
-        content: p.content,
-        summary: p.summary || "",
-        cover: p.cover || "",
-        tag_ids: p.tags?.map((t: Tag) => t.id) ?? [],
+        title: p.creation.title,
+        content: p.creation.content,
+        summary: p.creation.summary || "",
+        cover: p.creation.cover_url || "",
+        tag_ids: p.creation.tags?.map((t: Tag) => t.id) ?? [],
       });
     }
   }, [postData, reset]);

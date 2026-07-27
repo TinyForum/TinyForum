@@ -8,7 +8,7 @@ import toast from "react-hot-toast";
 // 热门帖子卡片
 export function HotPostCard({ post, rank }: { post: Post; rank: number }) {
   const [liked, setLiked] = useState(false);
-  const [likesCount, setLikesCount] = useState(post.like_count || 0);
+  const [likesCount, setLikesCount] = useState(post.creation.like_count || 0);
 
   const handleLike = async () => {
     if (!post.id) return;
@@ -47,17 +47,17 @@ export function HotPostCard({ post, rank }: { post: Post; rank: number }) {
         <div className="flex-1">
           <Link href={`/posts/${post.id}`}>
             <h3 className="font-semibold text-gray-900 hover:text-indigo-600 mb-2 line-clamp-1">
-              {post.title}
+              {post.creation.title}
             </h3>
           </Link>
           <div className="flex items-center gap-3 text-xs text-gray-400">
             <div className="flex items-center gap-1">
               <EyeIcon className="w-3 h-3" />
-              {post.view_count}
+              {post.creation.view_count}
             </div>
             <div className="flex items-center gap-1">
               <ChatBubbleLeftRightIcon className="w-3 h-3" />
-              {post.question?.answer_count || 0}
+              {/* {post.creation.question?.answer_count || 0} */}
             </div>
             <button
               onClick={handleLike}

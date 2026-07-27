@@ -62,6 +62,7 @@ lint-backend:
 		echo "$(YELLOW)   ⚠️  golangci-lint 未安装$(NC)"; \
 		echo "   💡 安装: brew install golangci-lint (macOS)"; \
 	fi
+# echo "$(RED)   💡 安装: go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@latest$(NC)"; 
 
 # @检查前端代码
 lint-frontend:

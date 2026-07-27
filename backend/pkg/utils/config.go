@@ -22,7 +22,7 @@ func flattenConfig(prefix string, value interface{}, result map[string]interface
 	v := reflect.ValueOf(value)
 
 	// 处理指针
-	if v.Kind() == reflect.Ptr {
+	if v.Kind() == reflect.Pointer {
 		if v.IsNil() {
 			return
 		}

@@ -43,12 +43,12 @@ export function MemberPostsTable({
             <tr key={post.id}>
               <td>
                 <Link href={`/post/${post.id}`} className="hover:link-hover">
-                  {post.title}
+                  {post.creation.title}
                 </Link>
               </td>
-              <td>{post.title}</td>
-              <td>{post.like_count}</td>
-              <td>{post.view_count}</td>
+              <td>{post.creation.title}</td>
+              <td>{post.creation.like_count}</td>
+              <td>{post.creation.view_count}</td>
               <td>{new Date(post.created_at).toLocaleDateString()}</td>
               <td>
                 {onDelete && (

@@ -68,7 +68,7 @@ func ContentCheckMiddleware(checkSvc check.ContentCheckService, fields []string)
 		combined := strings.Join(parts, "\n")
 		res := checkSvc.CheckText(combined)
 
-		log.Printf("[DEBUG] combined check: level=%d, hits=%v", res.Level, res.HitWords)
+		log.Printf("[DEBUG] combined check: level=%+v, hits=%v", res.Level, res.HitWords)
 
 		switch res.Action {
 		case sensitive.ActionBlock:

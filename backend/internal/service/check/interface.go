@@ -20,9 +20,9 @@ type ContentCheckService interface {
 // ContentCheckService 内容安全检测服务
 type contentCheckService struct {
 	repo    riskrepo.RiskRepository
-	checker sensitive.Checker
+	checker *sensitive.Checker
 }
 
-func NewContentCheckService(repo riskrepo.RiskRepository, checker sensitive.Checker) ContentCheckService {
+func NewContentCheckService(repo riskrepo.RiskRepository, checker *sensitive.Checker) ContentCheckService {
 	return &contentCheckService{repo: repo, checker: checker}
 }

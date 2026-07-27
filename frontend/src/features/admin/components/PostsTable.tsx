@@ -72,40 +72,42 @@ export function PostsTable({
                   rel="noreferrer"
                   className="text-sm hover:text-primary transition-colors line-clamp-1"
                 >
-                  {post.pin_top && (
+                  {post.creation.pin_top && (
                     <Pin className="w-3 h-3 inline mr-1 text-primary" />
                   )}
-                  {post.title}
+                  {post.creation.title}
                 </a>
               </td>
               <td className="text-sm text-base-content/60">
-                {post.author?.username}
+                {post.creation.author?.username}
               </td>
               <td>
-                <span className={`badge badge-sm ${getTypeBadge(post.type)}`}>
-                  {getTypeText(post.type)}
+                <span
+                  className={`badge badge-sm ${getTypeBadge(post.creation.creation_type)}`}
+                >
+                  {getTypeText(post.creation.creation_type)}
                 </span>
               </td>
               <td>
                 <span
-                  className={`badge badge-sm ${getStatusBadge(post.status)}`}
+                  className={`badge badge-sm ${getStatusBadge(post.creation.creation_status)}`}
                 >
-                  {getStatusText(post.status)}
+                  {getStatusText(post.creation.creation_status)}
                 </span>
               </td>
               <td className="text-xs text-base-content/50">
-                {post.view_count} / {post.like_count}
+                {post.creation.view_count} / {post.creation.like_count}
               </td>
               <td className="text-xs text-base-content/50">
                 {formatDate(post.created_at)}
               </td>
               <td>
                 <button
-                  className={`btn btn-xs gap-1 ${post.pin_top ? "btn-ghost" : "btn-primary btn-outline"}`}
+                  className={`btn btn-xs gap-1 ${post.creation.pin_top ? "btn-ghost" : "btn-primary btn-outline"}`}
                   onClick={() => onTogglePin(post.id)}
                   disabled={isToggling}
                 >
-                  {post.pin_top ? (
+                  {post.creation.pin_top ? (
                     <>
                       <PinOff className="w-3 h-3" /> {t("cancel_pin")}
                     </>
