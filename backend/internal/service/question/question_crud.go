@@ -2,9 +2,11 @@ package question
 
 import (
 	"errors"
-	"fmt"
+
+	// "fmt"
 	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/dto"
+	apperrors "tiny-forum/pkg/errors"
 
 	"gorm.io/gorm"
 )
@@ -16,7 +18,7 @@ func (s *questionService) CreateQuestion(userID uint, input dto.CreateQuestionRe
 	}
 	question, err := s.questionRepo.CreateWithTransaction(userID, input)
 	if err != nil {
-		return nil, fmt.Errorf("创建问答失败: %w", err)
+		return nil, apperrors.ErrCreateQuestionFailed
 	}
 	return question, nil
 }
@@ -26,9 +28,9 @@ func (s *questionService) GetQuestionDetail(questionID uint) (*do.QuestionRespon
 	question, err := s.questionRepo.FindByID(questionID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errors.New("问答不存在")
+			return nil, apperrors.ErrQuestionNotFound
 		}
-		return nil, fmt.Errorf("查询问答失败: %w", err)
+		return nil, apperrors.ErrQueryQuestionFailed
 	}
 	return &do.QuestionResponse{
 		ID:               question.ID,

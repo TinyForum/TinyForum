@@ -23,7 +23,7 @@ func (s *topicService) AddPostToTopic(input request.AddPostToTopicRequest, userI
 	topicPost := &do.TopicCreation{
 
 		TopicID:    input.TopicID,
-		CreationID: input.CreatorID,
+		CreationID: input.PostID,
 		// ID:         input.TopicID,
 		// PostID:    input.PostID,
 		SortOrder: input.SortOrder, // 排序

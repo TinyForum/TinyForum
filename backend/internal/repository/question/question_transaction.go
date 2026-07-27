@@ -18,26 +18,19 @@ func (r *questionRepository) CreateWithTransaction(userID uint, input dto.Create
 		}
 	}()
 
-	// 1. 创建帖子
-	post := &do.Article{
-		Creation: do.Creation{
-			Title:          input.Title,
-			Content:        input.Content,
-			Summary:        input.Summary,
-			CoverUrl:       input.Cover,
-			Slug:           utils.GenerateSlug(),
-			BoardID:        input.BoardID,
-			AuthorID:       userID,
-			Type:           do.PostTypeQuestion,
-			CreationStatus: input.Status,
-		},
+	// 1. 创建内容基础记录
+	creation := &do.Creation{
+		Title:          input.Title,
+		Content:        input.Content,
+		Summary:        input.Summary,
+		CoverUrl:       input.Cover,
+		Slug:           utils.GenerateSlug(),
+		BoardID:        input.BoardID,
+		AuthorID:       userID,
+		Type:           do.PostTypeQuestion,
+		CreationStatus: input.Status,
 	}
-	if err := tx.Create(&post.Creation).Error; err != nil {
-		tx.Rollback()
-		return nil, err
-	}
-	post.CreationID = post.Creation.ID
-	if err := tx.Create(post).Error; err != nil {
+	if err := tx.Create(creation).Error; err != nil {
 		tx.Rollback()
 		return nil, err
 	}
@@ -49,7 +42,7 @@ func (r *questionRepository) CreateWithTransaction(userID uint, input dto.Create
 			tx.Rollback()
 			return nil, err
 		}
-		if err := tx.Model(post).Association("Tags").Append(&tags); err != nil {
+		if err := tx.Model(creation).Association("Tags").Append(&tags); err != nil {
 			tx.Rollback()
 			return nil, err
 		}
@@ -74,7 +67,7 @@ func (r *questionRepository) CreateWithTransaction(userID uint, input dto.Create
 
 	// 4. 创建问答记录
 	question := &do.Question{
-		CreationID:  post.Creation.ID,
+		CreationID:  creation.ID,
 		RewardScore: input.RewardScore,
 		AnswerCount: 0,
 	}
@@ -89,17 +82,17 @@ func (r *questionRepository) CreateWithTransaction(userID uint, input dto.Create
 
 	return &do.QuestionResponse{
 		ID:          question.ID,
-		CreationsID: post.Creation.ID,
-		Title:       post.Creation.Title,
-		Content:     post.Creation.Content,
-		Summary:     post.Creation.Summary,
-		Cover:       post.Creation.CoverUrl,
-		BoardID:     post.Creation.BoardID,
-		AuthorID:    post.Creation.AuthorID,
+		CreationsID: creation.ID,
+		Title:       creation.Title,
+		Content:     creation.Content,
+		Summary:     creation.Summary,
+		Cover:       creation.CoverUrl,
+		BoardID:     creation.BoardID,
+		AuthorID:    creation.AuthorID,
 		RewardScore: question.RewardScore,
 		AnswerCount: question.AnswerCount,
-		Status:      string(post.Creation.CreationStatus),
-		CreatedAt:   post.CreatedAt,
-		UpdatedAt:   post.UpdatedAt,
+		Status:      string(creation.CreationStatus),
+		CreatedAt:   creation.CreatedAt,
+		UpdatedAt:   creation.UpdatedAt,
 	}, nil
 }

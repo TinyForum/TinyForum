@@ -57,10 +57,13 @@ func (e *AppError) HTTPStatus() int {
 		CodeTopicNotFound, CodeTagNotFound, CodeNotificationNotFound,
 		CodeAnnouncementNotFound, CodeStatsNotFound,
 		CodeModeratorApplyNotFound, CodeScoreRecordNotFound,
-		CodeLikeNotExist, CodeCollectNotExist, CodeNotFound:
+		CodeLikeNotExist, CodeCollectNotExist, CodeFollowNotFound,
+		CodeNotFound:
 		return http.StatusNotFound
 
 		// 请求冲突
+	case CodeFollowAlready:
+		return http.StatusConflict
 	case CodeTooManyRequests:
 		return http.StatusTooManyRequests
 

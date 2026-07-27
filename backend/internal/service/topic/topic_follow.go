@@ -1,19 +1,19 @@
 package topic
 
 import (
-	"errors"
 	"tiny-forum/internal/model/do"
+	apperrors "tiny-forum/pkg/errors"
 )
 
 // Follow 关注专题
 func (s *topicService) Follow(userID, topicID uint) error {
 	_, err := s.topicRepo.FindByID(topicID)
 	if err != nil {
-		return errors.New("专题不存在")
+		return apperrors.ErrTopicNotFound
 	}
 	isFollowing, _ := s.topicRepo.IsFollowing(userID, topicID)
 	if isFollowing {
-		return errors.New("已经关注过了")
+		return apperrors.ErrAlreadyFollow
 	}
 	follow := &do.TopicFollow{
 		UserID:  userID,
@@ -29,7 +29,11 @@ func (s *topicService) Follow(userID, topicID uint) error {
 func (s *topicService) Unfollow(userID, topicID uint) error {
 	_, err := s.topicRepo.FindByID(topicID)
 	if err != nil {
-		return errors.New("专题不存在")
+		return apperrors.ErrTopicNotFound
+	}
+	isFollowing, _ := s.topicRepo.IsFollowing(userID, topicID)
+	if !isFollowing {
+		return apperrors.ErrNotFollow
 	}
 	if err := s.topicRepo.Unfollow(userID, topicID); err != nil {
 		return err

@@ -18,19 +18,19 @@ func (r *questionRepository) FindSimple(pageSize, offset int, boardID *uint) ([]
 			questions.created_at,
 			questions.updated_at,
 			questions.deleted_at,
-			posts.title,
-			posts.summary,
-			posts.board_id,
-			posts.author_id,
+			creations.title,
+			creations.summary,
+			creations.board_id,
+			creations.author_id,
 			questions.reward_score,
 			questions.answer_count
 		`).
-		Joins("LEFT JOIN posts ON posts.id = questions.post_id").
-		Where("posts.deleted_at IS NULL").
-		Where("posts.creation_status = ?", "published")
+		Joins("LEFT JOIN creations ON creations.id = questions.creation_id").
+		Where("creations.deleted_at IS NULL").
+		Where("creations.creation_status = ?", "published")
 
 	if boardID != nil && *boardID > 0 {
-		query = query.Where("posts.board_id = ?", *boardID)
+		query = query.Where("creations.board_id = ?", *boardID)
 	}
 
 	if err := query.Count(&total).Error; err != nil {
@@ -54,18 +54,18 @@ func (r *questionRepository) FindSimpleQuestions(pageSize, offset int, boardID *
 
 	// 使用 Model 代替 Table，并预先构建基础查询
 	db := r.db.Model(&do.Question{}).
-		Joins("LEFT JOIN posts ON posts.id = questions.post_id"). // JOIN 需保留原生 SQL
-		Where("posts.deleted_at IS NULL").                        // 软删除条件（posts 表）
-		Where("posts.creation_status = ?", "published")           // 帖子状态条件
+		Joins("LEFT JOIN creations ON creations.id = questions.creation_id").
+		Where("creations.deleted_at IS NULL").
+		Where("creations.creation_status = ?", "published")
 
 	// 动态筛选：版块 ID
 	if boardID != nil && *boardID > 0 {
-		db = db.Where("posts.board_id = ?", *boardID)
+		db = db.Where("creations.board_id = ?", *boardID)
 	}
 
 	// 动态筛选：关键词搜索
 	if keyword != "" {
-		db = db.Where("posts.title LIKE ? OR posts.summary LIKE ?", "%"+keyword+"%", "%"+keyword+"%")
+		db = db.Where("creations.title LIKE ? OR creations.summary LIKE ?", "%"+keyword+"%", "%"+keyword+"%")
 	}
 
 	// 动态筛选：回答状态
@@ -84,23 +84,23 @@ func (r *questionRepository) FindSimpleQuestions(pageSize, offset int, boardID *
 	// 选择跨表字段（保留原生 SQL，因为字段多且涉及两个表）
 	db = db.Select(`
         questions.id,
-        questions.post_id,
+        questions.creation_id,
         questions.reward_score,
         questions.answer_count,
         questions.accepted_answer_id,
         questions.created_at,
         questions.updated_at,
-        posts.title,
-        posts.summary,
-        posts.view_count,
-        posts.board_id,
-        posts.author_id
+        creations.title,
+        creations.summary,
+        creations.view_count,
+        creations.board_id,
+        creations.author_id
     `)
 
 	// 动态排序
 	switch sort {
 	case "hot":
-		db = db.Order("posts.view_count DESC, questions.answer_count DESC, questions.created_at DESC")
+		db = db.Order("creations.view_count DESC, questions.answer_count DESC, questions.created_at DESC")
 	case "score":
 		db = db.Order("questions.reward_score DESC, questions.created_at DESC")
 	default:
@@ -118,22 +118,22 @@ func (r *questionRepository) FindQuestionSimpleByID(questionID uint) (*vo.Questi
 	err := r.db.Table("questions").
 		Select(`
 			questions.id,
-			questions.post_id,
+			questions.creation_id,
 			questions.reward_score,
 			questions.answer_count,
 			questions.accepted_answer_id,
 			questions.created_at,
 			questions.updated_at,
-			posts.title,
-			posts.summary,
-			posts.content,
-			posts.view_count,
-			posts.board_id,
-			posts.author_id
+			creations.title,
+			creations.summary,
+			creations.content,
+			creations.view_count,
+			creations.board_id,
+			creations.author_id
 		`).
-		Joins("LEFT JOIN posts ON posts.id = questions.post_id").
+		Joins("LEFT JOIN creations ON creations.id = questions.creation_id").
 		Where("questions.id = ?", questionID).
-		Where("posts.deleted_at IS NULL").
+		Where("creations.deleted_at IS NULL").
 		First(&question).Error
 	if err != nil {
 		return nil, err

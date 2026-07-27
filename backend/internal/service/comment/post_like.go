@@ -1,12 +1,12 @@
-package article
+package comment
 
 import (
 	"tiny-forum/internal/model/do"
 )
 
 // Like 点赞帖子
-func (s *articleService) Like(userID, postID uint) error {
-	if err := s.postRepo.AddLike(userID, postID); err != nil {
+func (s *commentService) Like(userID, postID uint) error {
+	if err := s.commentRepo.AddLike(userID, postID); err != nil {
 		return err
 	}
 
@@ -26,8 +26,8 @@ func (s *articleService) Like(userID, postID uint) error {
 }
 
 // Unlike 取消点赞帖子
-func (s *articleService) Unlike(userID, postID uint) error {
-	if err := s.postRepo.RemoveLike(userID, postID); err != nil {
+func (s *commentService) Unlike(userID, postID uint) error {
+	if err := s.commentRepo.RemoveLike(userID, postID); err != nil {
 		return err
 	}
 	return s.postRepo.IncrLikeCount(postID, -1)

@@ -1,4 +1,4 @@
-package article
+package comment
 
 import (
 	"errors"
@@ -8,17 +8,17 @@ import (
 	"gorm.io/gorm"
 )
 
-func (r *articleRepository) IncrViewCount(id uint) error {
+func (r *commentRepository) IncrViewCount(id uint) error {
 	return r.db.Model(&do.Creation{}).Where("id = ?", id).
 		UpdateColumn("view_count", gorm.Expr("view_count + 1")).Error
 }
 
-func (r *articleRepository) IncrLikeCount(id uint, delta int) error {
+func (r *commentRepository) IncrLikeCount(id uint, delta int) error {
 	return r.db.Model(&do.Creation{}).Where("id = ?", id).
 		UpdateColumn("like_count", gorm.Expr("like_count + ?", delta)).Error
 }
 
-func (r *articleRepository) AddLike(userID, articleID uint) error {
+func (r *commentRepository) AddLike(userID, articleID uint) error {
 	// 检查是否已存在
 	var existing do.Like
 	err := r.db.Where("user_id = ? AND target_id = ? AND target_type = ?", userID, articleID, do.LikeTargetPost).First(&existing).Error
@@ -32,7 +32,7 @@ func (r *articleRepository) AddLike(userID, articleID uint) error {
 	return r.db.Create(like).Error
 }
 
-func (r *articleRepository) RemoveLike(userID, postID uint) error {
+func (r *commentRepository) RemoveLike(userID, postID uint) error {
 	// 1. 检查点赞记录是否存在
 	var like do.Like
 	err := r.db.Where("user_id = ? AND target_id = ? AND target_type = ?",
@@ -49,7 +49,7 @@ func (r *articleRepository) RemoveLike(userID, postID uint) error {
 	// 2. 存在则执行删除
 	return r.db.Delete(&like).Error
 }
-func (r *articleRepository) IsLiked(userID, postID uint) bool {
+func (r *commentRepository) IsLiked(userID, postID uint) bool {
 	var count int64
 	r.db.Model(&do.Like{}).Where("user_id = ? AND target_id = ? AND target_type = ?", userID, postID, do.LikeTargetPost).Count(&count)
 	return count > 0

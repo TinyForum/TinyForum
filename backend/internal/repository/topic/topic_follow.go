@@ -1,21 +1,46 @@
 package topic
 
-import "tiny-forum/internal/model/do"
+import (
+	"errors"
+	"tiny-forum/internal/model/do"
+	apperrors "tiny-forum/pkg/errors"
+
+	"gorm.io/gorm"
+)
 
 func (r *topicRepository) Follow(follow *do.TopicFollow) error {
+	// 1. 查询所有记录（包括软删除）
 	var existing do.TopicFollow
-	err := r.db.Where("user_id = ? AND topic_id = ?", follow.UserID, follow.TopicID).
+	err := r.db.Unscoped().Where("user_id = ? AND topic_id = ?", follow.UserID, follow.TopicID).
 		First(&existing).Error
 
 	if err == nil {
-		return nil // Already following
+		// 记录存在（无论是有效还是软删除）
+		if existing.DeletedAt.Valid {
+			// 如果已软删除，恢复（设置 deleted_at = NULL）
+			return r.db.Unscoped().Model(&existing).Update("deleted_at", nil).Error
+		}
+		// 否则已经有效关注，返回已关注错误
+		return apperrors.ErrAlreadyFollow
 	}
+
+	if !errors.Is(err, gorm.ErrRecordNotFound) {
+		return err // 其他数据库错误
+	}
+
+	// 2. 完全不存在，创建新记录
 	return r.db.Create(follow).Error
 }
-
 func (r *topicRepository) Unfollow(userID, topicID uint) error {
-	return r.db.Where("user_id = ? AND topic_id = ?", userID, topicID).
-		Delete(&do.TopicFollow{}).Error
+	result := r.db.Where("user_id = ? AND topic_id = ?", userID, topicID).
+		Delete(&do.TopicFollow{})
+	if result.Error != nil {
+		return result.Error
+	}
+	if result.RowsAffected == 0 {
+		return apperrors.ErrNotFollow
+	}
+	return nil
 }
 
 func (r *topicRepository) IsFollowing(userID, topicID uint) (bool, error) {

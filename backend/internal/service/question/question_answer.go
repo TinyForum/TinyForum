@@ -25,7 +25,7 @@ func (s *questionService) AcceptAnswer(postID, commentID uint, userID uint) erro
 	if !comment.IsAnswer {
 		return errors.New("该评论不是回答")
 	}
-	question, err := s.questionRepo.FindByPostID(postID)
+	question, err := s.questionRepo.FindByCreationID(postID)
 	if err != nil {
 		return apperrors.ErrQuestionNotFound
 	}
@@ -120,11 +120,11 @@ func (s *questionService) GetAnswerVoteStatus(userID, commentID uint) (map[strin
 }
 
 // GetQuestionWithAnswers 获取问题及其回答（分页）
-func (s *questionService) GetQuestionWithAnswers(postID uint, page, pageSize int) (*do.Question, []do.Comment, int64, error) {
-	question, err := s.questionRepo.FindByPostID(postID)
+func (s *questionService) GetQuestionWithAnswers(questionID uint, page, pageSize int) (*do.Question, []do.Comment, int64, error) {
+	question, err := s.questionRepo.FindByID(questionID)
 	if err != nil {
 		return nil, nil, 0, err
 	}
-	answers, total, err := s.commentRepo.GetAnswersByPostID(postID, pageSize, (page-1)*pageSize)
+	answers, total, err := s.commentRepo.GetAnswersByPostID(question.CreationID, pageSize, (page-1)*pageSize)
 	return question, answers, total, err
 }

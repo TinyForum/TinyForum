@@ -4,8 +4,6 @@ import (
 	"context"
 	"time"
 	"tiny-forum/internal/model/do"
-
-	"gorm.io/gorm"
 )
 
 // CountByPost 统计帖子的评论总数
@@ -33,10 +31,10 @@ func (r *commentRepository) CountByDateRange(ctx context.Context, startDate, end
 }
 
 // IncrLikeCount 增加/减少评论的点赞数
-func (r *commentRepository) IncrLikeCount(id uint, delta int) error {
-	return r.db.Model(&do.Comment{}).Where("id = ?", id).
-		UpdateColumn("like_count", gorm.Expr("like_count + ?", delta)).Error
-}
+// func (r *commentRepository) IncrLikeCount(id uint, delta int) error {
+// 	return r.db.Model(&do.Comment{}).Where("id = ?", id).
+// 		UpdateColumn("like_count", gorm.Expr("like_count + ?", delta)).Error
+// }
 
 // UpdateVoteCount 更新评论的投票数（用于问答答案）
 func (r *commentRepository) UpdateVoteCount(commentID uint, voteCount int) error {

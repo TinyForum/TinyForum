@@ -2,6 +2,7 @@ package question
 
 import (
 	"tiny-forum/internal/model/do"
+	"tiny-forum/pkg/logger"
 
 	"gorm.io/gorm"
 )
@@ -20,17 +21,19 @@ func (r *questionRepository) Update(question *do.Question) error {
 
 func (r *questionRepository) FindByID(id uint) (*do.Question, error) {
 	var question do.Question
-	err := r.db.Preload("Post").Preload("Post.Tags").Where("id = ?", id).First(&question).Error
+	err := r.db.Preload("Creation").Preload("Creation.Tags").Where("id = ?", id).First(&question).Error
 	if err != nil {
 		return nil, err
 	}
 	return &question, nil
 }
 
-func (r *questionRepository) FindByPostID(postID uint) (*do.Question, error) {
+func (r *questionRepository) FindByCreationID(questionID uint) (*do.Question, error) {
 	var question do.Question
-	err := r.db.Where("post_id = ?", postID).
-		Preload("Post").
+
+	logger.Infof("creation id: %v", questionID)
+	err := r.db.Where("creation_id = ?", questionID).
+		Preload("Questions").
 		Preload("AcceptedAnswer").
 		First(&question).Error
 	return &question, err

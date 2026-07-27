@@ -20,6 +20,8 @@ func (h *CommentHandler) RegisterRoutes(api *gin.RouterGroup, mw middleware.Midd
 			h.Create,
 		) // 创建评论
 		commentGroup.DELETE("/:id", mw.Auth(), h.Delete) // 删除评论
+		// 点赞
+		commentGroup.POST("/:id/like", mw.Auth(), h.Like)
 	}
 
 }
