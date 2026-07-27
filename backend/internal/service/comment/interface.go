@@ -31,6 +31,10 @@ type CommentService interface {
 	VoteAnswer(answerID uint, userID uint, voteType do.AnswerVoteType) (*do.Comment, error)
 	RemoveVote(answerID uint, userID uint) (*do.Comment, error)
 	GetUserVoteStatus(answerID uint, userID uint) (*do.AnswerVoteType, error)
+
+	// like
+	Like(userID, postID uint) error
+	Unlike(userID, postID uint) error
 }
 
 type commentService struct {

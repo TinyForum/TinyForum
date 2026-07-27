@@ -18,7 +18,6 @@ type CommentRepository interface {
 	CountByPost(postID uint) (int64, error)
 	Count(ctx context.Context) (int64, error)
 	CountByDateRange(ctx context.Context, startDate, endDate time.Time) (int64, error)
-	IncrLikeCount(id uint, delta int) error
 	UpdateVoteCount(commentID uint, voteCount int) error
 	// list
 	ListByPost(postID uint, page, pageSize int) ([]do.Comment, int64, error)
@@ -32,6 +31,15 @@ type CommentRepository interface {
 	GetAcceptedAnswer(postID uint) (*do.Comment, error)
 	// 查询评论数
 	BatchCountByPostIDs(ctx context.Context, postIDs []uint) (map[uint]int64, error)
+
+	// count
+	IncrViewCount(id uint) error
+	IncrLikeCount(id uint, delta int) error
+
+	// like
+	AddLike(userID, articleID uint) error
+	RemoveLike(userID, postID uint) error
+	IsLiked(userID, postID uint) bool
 }
 
 type commentRepository struct {

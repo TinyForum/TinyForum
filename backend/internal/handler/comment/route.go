@@ -21,7 +21,9 @@ func (h *CommentHandler) RegisterRoutes(api *gin.RouterGroup, mw middleware.Midd
 		) // 创建评论
 		commentGroup.DELETE("/:id", mw.Auth(), h.Delete) // 删除评论
 		// 点赞
-		commentGroup.POST("/:id/like", mw.Auth(), h.Like)
+		// commentGroup.POST("/:id/like", mw.Auth(), h.Like)
+		commentGroup.POST("/:id/like", mw.Auth(), h.Like)     // 用户点赞帖子
+		commentGroup.DELETE("/:id/like", mw.Auth(), h.Unlike) // 用户取消点赞帖子
 	}
 
 }

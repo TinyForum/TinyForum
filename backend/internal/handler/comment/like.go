@@ -20,3 +20,17 @@ func (h *CommentHandler) Like(c *gin.Context) {
 	}
 	response.Success(c, gin.H{"message": "点赞成功"})
 }
+
+func (h *CommentHandler) Unlike(c *gin.Context) {
+	postID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		response.HandleError(c, err)
+		return
+	}
+	userID := c.GetUint("user_id")
+	if err := h.commentSvc.Unlike(userID, uint(postID)); err != nil {
+		response.HandleError(c, err)
+		return
+	}
+	response.Success(c, gin.H{"message": "已取消点赞"})
+}
