@@ -20,14 +20,14 @@ func (Like) TableName() string { return "likes" }
 type TargetType string
 
 const (
-	LikeTargetPost    TargetType = "post"    // 帖子
-	LikeTargetComment TargetType = "comment" // 评论
+	LikeTargetCreation TargetType = "creation" // 帖子
+	LikeTargetComment  TargetType = "comment"  // 评论
 )
 
 // TargetType 有效性验证
 func (tt TargetType) IsValid() bool {
 	switch tt {
-	case LikeTargetPost, LikeTargetComment:
+	case LikeTargetCreation, LikeTargetComment:
 		return true
 	}
 	return false

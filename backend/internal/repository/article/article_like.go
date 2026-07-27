@@ -22,7 +22,7 @@ func (r *articleRepository) IncrLikeCount(id uint, delta int) error {
 func (r *articleRepository) AddLike(userID, commentID uint) error {
 	var existing do.Like
 	// 使用 Unscoped() 忽略软删除过滤，查找所有记录（包括已删除）
-	err := r.db.Unscoped().Where("user_id = ? AND target_id = ? AND target_type = ?", userID, commentID, do.LikeTargetPost).First(&existing).Error
+	err := r.db.Unscoped().Where("user_id = ? AND target_id = ? AND target_type = ?", userID, commentID, do.LikeTargetCreation).First(&existing).Error
 	logger.Info("查询点赞记录")
 	if err == nil {
 		logger.Info("查询到点赞记录")
@@ -39,14 +39,14 @@ func (r *articleRepository) AddLike(userID, commentID uint) error {
 		return err
 	}
 	// 确实不存在，创建新记录
-	like := &do.Like{UserID: userID, TargetType: do.LikeTargetPost, TargetID: commentID}
+	like := &do.Like{UserID: userID, TargetType: do.LikeTargetCreation, TargetID: commentID}
 	return r.db.Create(like).Error
 }
 func (r *articleRepository) RemoveLike(userID, postID uint) error {
 	// 1. 检查点赞记录是否存在
 	var like do.Like
 	err := r.db.Where("user_id = ? AND target_id = ? AND target_type = ?",
-		userID, postID, do.LikeTargetPost).
+		userID, postID, do.LikeTargetCreation).
 		First(&like).Error
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -59,8 +59,8 @@ func (r *articleRepository) RemoveLike(userID, postID uint) error {
 	// 2. 存在则执行删除
 	return r.db.Delete(&like).Error
 }
-func (r *articleRepository) IsLiked(userID, postID uint) bool {
+func (r *articleRepository) IsLiked(userID, articleID uint) bool {
 	var count int64
-	r.db.Model(&do.Like{}).Where("user_id = ? AND target_id = ? AND target_type = ?", userID, postID, do.LikeTargetPost).Count(&count)
+	r.db.Model(&do.Like{}).Where("user_id = ? AND target_id = ? AND target_type = ?", userID, articleID, do.LikeTargetCreation).Count(&count)
 	return count > 0
 }
