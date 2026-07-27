@@ -7,21 +7,28 @@ import (
 
 func (r *articleRepository) GetQuestions(limit, offset int) ([]do.Question, int64, error) {
 	logger.Info("[repository] GetQuestions")
+
 	var posts []do.Question
 	var total int64
 
-	query := r.db.Model(&do.Question{}).
+	// 2. 构建基础查询（使用 Session 隔离，避免 Count 影响后续查询的 Order 等）
+	baseQuery := r.db.Model(&do.Question{}).
 		Joins(`LEFT JOIN "creations" ON "creations"."id" = "questions"."creation_id" AND "creations"."deleted_at" IS NULL`).
 		Where("creations.type = ? AND creations.creation_status = ?", "question", do.CreationStatusPublished)
 
-	query.Count(&total)
+	// 3. 统计总数（使用独立的查询）
+	if err := baseQuery.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
 
-	err := query.Offset(offset).Limit(limit).
+	// 4. 查询分页数据（预加载所有需要的关联）
+	err := baseQuery.
+		Offset(offset).
+		Limit(limit).
 		Preload("Creation.Author").
 		Preload("Creation.Tags").
 		Preload("Creation.Board").
-		Preload("Creation").
-		Preload("Creation.Question").
+		Preload("AcceptedAnswer").
 		Order("creations.created_at DESC").
 		Find(&posts).Error
 
