@@ -17,7 +17,7 @@ interface PostCardProps {
 }
 
 export default function PostCard({ post, commentCount }: PostCardProps) {
-  const isQuestion = post?.creation.creation_type === "question";
+  const isQuestion = post?.creation.creation_type === "questions";
 
   const { data: fetchedAuthor } = useQuery({
     queryKey: ["user", post?.creation.author_id],
@@ -34,7 +34,7 @@ export default function PostCard({ post, commentCount }: PostCardProps) {
 
   const getPostTypeLabel = () => {
     switch (post.creation.creation_type) {
-      case "question":
+      case "questions":
         return "问答";
       case "article":
         return "文章";
@@ -47,7 +47,7 @@ export default function PostCard({ post, commentCount }: PostCardProps) {
 
   const getPostTypeColor = () => {
     switch (post.creation.creation_type) {
-      case "question":
+      case "questions":
         return "bg-primary/10 text-primary";
       case "article":
         return "bg-secondary/10 text-secondary";

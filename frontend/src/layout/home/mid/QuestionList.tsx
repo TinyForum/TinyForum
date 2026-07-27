@@ -15,7 +15,7 @@ function QuestionCard({ question }: { question: QuestionSimple }) {
 
   return (
     <div className="bg-base-100 rounded-lg shadow-sm p-5 hover:shadow-md transition-shadow">
-      <Link href={`/question/${question.id}`} className="block">
+      <Link href={`/questions/${question.id}`} className="block">
         <h2 className="text-xl font-semibold mb-2 hover:text-primary line-clamp-2">
           {question.title}
         </h2>

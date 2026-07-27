@@ -51,7 +51,7 @@ func (s *questionService) GetQuestionDetail(questionID uint) (*do.QuestionRespon
 }
 
 // GetQuestionsList 获取问答帖列表（支持只看未回答）
-func (s *questionService) GetQuestionsList(page, pageSize int, unanswered bool) ([]do.Article, int64, error) {
+func (s *questionService) GetQuestionsList(page, pageSize int, unanswered bool) ([]do.Question, int64, error) {
 	if page < 1 {
 		page = 1
 	}

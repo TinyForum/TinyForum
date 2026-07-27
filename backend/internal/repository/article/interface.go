@@ -38,8 +38,8 @@ type ArticleRepository interface {
 	GetByBoardID(boardID uint, limit, offset int) ([]do.Article, int64, error) // 根据板块ID获取帖子
 
 	// 问答相关
-	GetQuestions(limit, offset int) ([]do.Article, int64, error)           // 获取问题列表
-	GetUnansweredQuestions(limit, offset int) ([]do.Article, int64, error) // 获取未回答的问题列表
+	GetQuestions(limit, offset int) ([]do.Question, int64, error)           // 获取问题列表
+	GetUnansweredQuestions(limit, offset int) ([]do.Question, int64, error) // 获取未回答的问题列表
 
 	// 置顶
 	TogglePinInBoard(postID uint, pin bool) error // 在板块内置顶/取消置顶

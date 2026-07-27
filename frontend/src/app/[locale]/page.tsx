@@ -38,7 +38,7 @@ export default function HomePage() {
   let useQuestionsEnabled = false;
 
   switch (filterType) {
-    case "question":
+    case "questions":
       useQuestionsEnabled = true;
       questionParams = {
         page,
@@ -80,7 +80,7 @@ export default function HomePage() {
   let total = 0;
 
   switch (filterType) {
-    case "question":
+    case "questions":
       rawData = questionsData?.list ?? [];
       isLoading = questionsLoading;
       refetch = refetchQuestions;
@@ -151,7 +151,7 @@ export default function HomePage() {
             <div className="flex-1 overflow-y-auto custom-scrollbar pb-6">
               {(() => {
                 switch (filterType) {
-                  case "question":
+                  case "questions":
                     return (
                       <QuestionList
                         questions={rawData}

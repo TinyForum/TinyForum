@@ -23,7 +23,7 @@ type QuestionService interface {
 	// crud
 	CreateQuestion(userID uint, input dto.CreateQuestionRequest) (*do.QuestionResponse, error)
 	GetQuestionDetail(questionID uint) (*do.QuestionResponse, error)
-	GetQuestionsList(page, pageSize int, unanswered bool) ([]do.Article, int64, error)
+	GetQuestionsList(page, pageSize int, unanswered bool) ([]do.Question, int64, error)
 	GetQuestionByID(questionID uint) (*do.Question, error)
 	// simple
 	GetQuestionSimpleList(pageSize, offset int, boardID *uint, filter, sort, keyword string) ([]vo.QuestionSimpleVO, int64, error)

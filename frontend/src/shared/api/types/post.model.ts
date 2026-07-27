@@ -5,23 +5,12 @@ import { Creation } from "./creation.model";
 // import { UserDO } from "./user.model.do";
 
 // ─── 普通帖子 ─────────────────────────────────────────────────────────────────
-export type PostType = "post" | "article" | "topic" | "question";
+export type PostType = "post" | "article" | "topic" | "questions";
 export type PostStatus = "draft" | "published" | "pending" | "hidden";
 export interface Post {
   id: number;
   creations_id: number;
   creation: Creation;
-
-  // author_id: number;
-  // author?: UserDO;
-  // view_count: number;
-  // like_count: number;
-  // pin_top: boolean;
-  // board_id: number;
-  // board?: Board;
-  // pin_in_board: boolean;
-  // question?: Question;
-
   created_at: string;
   updated_at: string;
 }

@@ -27,7 +27,7 @@ func (r *questionRepository) CreateWithTransaction(userID uint, input dto.Create
 		Slug:           utils.GenerateSlug(),
 		BoardID:        input.BoardID,
 		AuthorID:       userID,
-		Type:           do.PostTypeQuestion,
+		Type:           do.CreationTypeQuestion,
 		CreationStatus: input.Status,
 	}
 	if err := tx.Create(creation).Error; err != nil {

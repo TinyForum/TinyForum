@@ -14,19 +14,19 @@ type Article struct {
 type CreationType string
 
 const (
-	PostTypePost     CreationType = "post"     // 短文
-	PostTypeArticle  CreationType = "article"  // 长文
-	PostTypeTopic    CreationType = "topic"    // 观点
-	PostTypeQuestion CreationType = "question" // 问题
+	CreationTypePost     CreationType = "post"     // 短文
+	CreationTypeArticle  CreationType = "article"  // 长文
+	CreationTypeTopic    CreationType = "topic"    // 观点
+	CreationTypeQuestion CreationType = "question" // 问题
 )
 
 // enum [PostTypePost PostTypeArticle PostTypeTopic PostTypeQuestion]
 
 // 合法的帖子类型集合
 var validPostTypes = map[CreationType]bool{
-	PostTypePost:    true,
-	PostTypeArticle: true,
-	PostTypeTopic:   true,
+	CreationTypePost:    true,
+	CreationTypeArticle: true,
+	CreationTypeTopic:   true,
 }
 
 var validCreationStatuses = map[CreationStatus]bool{
@@ -68,7 +68,7 @@ func ParsePostType(s string) CreationType {
 	if pt.IsValid() {
 		return pt
 	}
-	return PostTypeArticle // 默认值
+	return CreationTypeArticle // 默认值
 }
 
 func ParseCreationStatus(s string) CreationStatus {

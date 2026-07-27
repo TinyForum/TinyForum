@@ -34,7 +34,7 @@ func (s *commentService) UnacceptAnswer(answerID, userID uint, isAdmin bool) err
 	if err != nil {
 		return apperrors.ErrQuestionNotFound
 	}
-	if post.Creation.Type != do.PostTypeQuestion {
+	if post.Creation.Type != do.CreationTypeQuestion {
 		return apperrors.ErrPostNotQuestion
 	}
 	if post.Creation.AuthorID != userID && !isAdmin {

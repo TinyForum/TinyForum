@@ -21,7 +21,7 @@ func (s *articleService) Create(ctx *gin.Context, authorID uint, input request.C
 	// 1. 帖子类型校验
 	postType := do.CreationType(input.Type)
 	if postType == "" || !postType.IsValid() {
-		postType = do.PostTypePost
+		postType = do.CreationTypePost
 	}
 
 	// 2. 板块校验

@@ -19,6 +19,7 @@ import { AnswerForm } from "@/layout/question/AnswerForm";
 import { QuestionHeader } from "@/layout/question/QuestionHeader";
 import { postApi } from "@/shared/api/modules/posts";
 import toast from "react-hot-toast";
+import { Pagination } from "@/shared/ui/common/Pagination";
 
 // 错误响应类型
 interface ErrorResponse {
@@ -92,74 +93,6 @@ function ErrorState({ message }: { message: string }) {
           {t("back_to_questions")}
         </Link>
       </div>
-    </div>
-  );
-}
-
-// 分页组件
-function Pagination({
-  currentPage,
-  totalPages,
-  onPageChange,
-}: {
-  currentPage: number;
-  totalPages: number;
-  onPageChange: (page: number) => void;
-}) {
-  const t = useTranslations("Questions");
-
-  const getPageNumbers = () => {
-    const pages: number[] = [];
-    const maxVisible = 5;
-
-    if (totalPages <= maxVisible) {
-      for (let i = 1; i <= totalPages; i++) pages.push(i);
-    } else {
-      if (currentPage <= 3) {
-        for (let i = 1; i <= maxVisible; i++) pages.push(i);
-      } else if (currentPage >= totalPages - 2) {
-        for (let i = totalPages - maxVisible + 1; i <= totalPages; i++)
-          pages.push(i);
-      } else {
-        for (let i = currentPage - 2; i <= currentPage + 2; i++) pages.push(i);
-      }
-    }
-    return pages;
-  };
-
-  return (
-    <div className="flex justify-center items-center gap-2 mt-8">
-      <button
-        onClick={() => onPageChange(currentPage - 1)}
-        disabled={currentPage === 1}
-        className="btn btn-ghost btn-sm gap-1"
-      >
-        <ArrowLeftIcon className="w-4 h-4" />
-        {t("prev_page")}
-      </button>
-
-      <div className="flex gap-1.5 mx-2">
-        {getPageNumbers().map((pageNum) => (
-          <button
-            key={pageNum}
-            onClick={() => onPageChange(pageNum)}
-            className={`btn btn-sm min-w-[2.5rem] ${
-              currentPage === pageNum ? "btn-primary" : "btn-ghost"
-            }`}
-          >
-            {pageNum}
-          </button>
-        ))}
-      </div>
-
-      <button
-        onClick={() => onPageChange(currentPage + 1)}
-        disabled={currentPage >= totalPages}
-        className="btn btn-ghost btn-sm gap-1"
-      >
-        {t("next_page")}
-        <ArrowLeftIcon className="w-4 h-4 rotate-180" />
-      </button>
     </div>
   );
 }

@@ -164,11 +164,11 @@ export default function LeftSidebar({
             onClick={() => {
               onBoardChange(null);
               onTagChange(null);
-              onPostTypeChange("question");
+              onPostTypeChange("questions");
             }}
             className={cn(
               "w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors",
-              filterType === "question"
+              filterType === "questions"
                 ? "bg-primary/10 text-primary font-medium"
                 : "hover:bg-muted text-muted-foreground hover:text-foreground",
             )}

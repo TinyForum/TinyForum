@@ -85,7 +85,7 @@ export function ProfileContent({
               ? t("no_posts")
               : tab === "article"
                 ? t("no_articles")
-                : tab === "question"
+                : tab === "questions"
                   ? t("no_questions")
                   : t("no_topics")}
           </p>
