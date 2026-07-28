@@ -48,13 +48,12 @@ export function UploadPluginTab() {
     <div className="max-w-2xl">
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="label-text">插件 ZIP 包 *</label>
           <input
             type="file"
             accept=".zip"
             required
             onChange={(e) => setFile(e.target.files?.[0] || null)}
-            className="file-input file-input-bordered w-full"
+            className="file-input file-input-bordered w-full cursor-pointer"
           />
           <p className="text-xs text-base-content/50 mt-1">
             请打包符合规范的插件目录为 ZIP 文件，系统将自动读取插件信息。
