@@ -7,6 +7,10 @@ func (s *commentService) List(postID uint, page, pageSize int) ([]do.Comment, in
 	return s.commentRepo.ListByPost(postID, page, pageSize)
 }
 
+func (s *commentService) GetCommentTree(postID uint) ([]do.Comment, error) {
+	return s.commentRepo.GetCommentTree(postID)
+}
+
 // GetCommentCount 获取评论总数
 func (s *commentService) GetCommentCount(postID uint) (int64, error) {
 	return s.commentRepo.CountByPost(postID)

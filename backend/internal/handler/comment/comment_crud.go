@@ -29,12 +29,16 @@ func (h *CommentHandler) Create(c *gin.Context) {
 		response.HandleError(c, err)
 		return
 	}
-	comment, err := h.commentSvc.CreateComment(authorID, input)
+	_, err := h.commentSvc.CreateComment(authorID, input)
 	if err != nil {
 		response.HandleError(c, err)
 		return
 	}
-	response.Success(c, comment)
+	responseData := common.ResponseMessage{
+		Message: "创建成功",
+		Pass:    true,
+	}
+	response.Success(c, responseData)
 }
 
 // List 获取评论列表
@@ -64,6 +68,21 @@ func (h *CommentHandler) List(c *gin.Context) {
 		return
 	}
 	response.SuccessPage(c, comments, total, page, pageSize)
+}
+
+func (h *CommentHandler) GetCommentTree(c *gin.Context) {
+	postID, err := strconv.ParseUint(c.Param("post_id"), 10, 64)
+	if err != nil {
+		response.HandleError(c, err)
+		return
+	}
+
+	comments, err := h.commentSvc.GetCommentTree(uint(postID))
+	if err != nil {
+		response.HandleError(c, err)
+		return
+	}
+	response.Success(c, comments)
 }
 
 // Delete 删除评论

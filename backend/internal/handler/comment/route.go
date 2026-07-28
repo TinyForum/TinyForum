@@ -12,7 +12,8 @@ import (
 func (h *CommentHandler) RegisterRoutes(api *gin.RouterGroup, mw middleware.MiddlewareSet) {
 	commentGroup := api.Group("/comments")
 	{
-		commentGroup.GET("/post/:post_id", h.List) // 获取指定帖子的评论
+		commentGroup.GET("/post/:post_id", h.List)                // 获取指定帖子的评论
+		commentGroup.GET("/post/:post_id/tree", h.GetCommentTree) // 获取评论数
 		commentGroup.POST("",
 			mw.Auth(),
 			mw.RateLimit("create_comment"),

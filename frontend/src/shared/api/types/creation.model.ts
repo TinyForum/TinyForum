@@ -21,7 +21,6 @@ export interface Creation {
   pin_top: boolean;
   is_original: boolean;
   pin_in_board: boolean;
-  author_id: number;
   board_id: number;
   author?: UserDO;
   board?: Board;

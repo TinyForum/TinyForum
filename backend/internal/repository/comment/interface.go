@@ -35,6 +35,8 @@ type CommentRepository interface {
 	// 查询评论数
 	BatchCountByPostIDs(ctx context.Context, postIDs []uint) (map[uint]int64, error)
 
+	GetCommentTree(postID uint) ([]do.Comment, error)
+
 	// count
 	IncrViewCount(id uint) error
 	IncrLikeCount(id uint, delta int) error

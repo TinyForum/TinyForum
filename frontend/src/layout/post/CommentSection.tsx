@@ -1,14 +1,18 @@
 "use client";
-
+// 整个评论区
 import { useState, useRef } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { commentApi } from "@/shared/api/modules/comments";
+import { useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "@/store/auth";
 import CommentItem from "./CommentItem";
 import toast from "react-hot-toast";
 import { Send, MessageSquare } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
+import {
+  useCommentsByPost,
+  useCommentsTree,
+  useCreateComment,
+} from "@/features/comment/hooks/useComment";
 
 interface CommentSectionProps {
   postId: number;
@@ -25,30 +29,29 @@ export default function CommentSection({ postId }: CommentSectionProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const t = useTranslations("Comment");
 
-  const { data, isLoading } = useQuery({
-    queryKey: ["comments", postId],
-    queryFn: () =>
-      commentApi
-        .listByPost(postId, { page: 1, page_size: 50 })
-        .then((r) => r.data.data),
+  // 使用封装好的查询 Hook（固定分页参数，可后续扩展）
+  const { data, isLoading } = useCommentsByPost(postId, {
+    page: 1,
+    page_size: 50,
   });
+  const { data: commentsTree } = useCommentsTree(postId);
 
-  const createMutation = useMutation({
-    mutationFn: (vars: { content: string; parent_id?: number }) =>
-      commentApi.create({ post_id: postId, ...vars }),
-    onSuccess: () => {
-      toast.success("评论成功");
+  // 使用封装好的创建评论 Mutation
+  const createMutation = useCreateComment({
+    onSuccess: (_, variables) => {
+      toast.success(t("comment_success") || "评论成功");
       setContent("");
       setReplyTo(null);
-      queryClient.invalidateQueries({ queryKey: ["comments", postId] });
+      // 可选额外操作，失效已由 Hook 内部处理
     },
-    onError: () => toast.error(t("comment_failed")),
+    onError: () => toast.error(t("comment_failed") || "评论失败"),
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!content.trim()) return;
     createMutation.mutate({
+      post_id: postId,
       content: content.trim(),
       parent_id: replyTo?.id,
     });
@@ -71,8 +74,7 @@ export default function CommentSection({ postId }: CommentSectionProps) {
           ({total})
         </span>
       </h3>
-
-      {/* Comment input */}
+      {/* 评论输入框 */}
       {isAuthenticated ? (
         <form onSubmit={handleSubmit} className="mb-8">
           {replyTo && (
@@ -135,7 +137,7 @@ export default function CommentSection({ postId }: CommentSectionProps) {
         </div>
       )}
 
-      {/* Comments list */}
+      {/* 评论列表 */}
       {isLoading ? (
         <div className="flex justify-center py-8">
           <span className="loading loading-spinner loading-md text-primary" />
@@ -147,10 +149,10 @@ export default function CommentSection({ postId }: CommentSectionProps) {
         </div>
       ) : (
         <div className="space-y-6">
-          {comments.map((comment) => (
+          {commentsTree?.map((comment) => (
             <CommentItem
               key={comment.id}
-              comment={comment}
+              reply={comment.reply} // 注意：CommentItem 期望 Reply 类型
               postId={postId}
               onReply={handleReply}
             />

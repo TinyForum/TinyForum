@@ -22,6 +22,8 @@ type CommentService interface {
 	DeleteAnswer(commentID, userID uint, isAdmin bool) error
 	// query
 	List(postID uint, page, pageSize int) ([]do.Comment, int64, error)
+	GetCommentTree(postID uint) ([]do.Comment, error)
+
 	GetCommentCount(postID uint) (int64, error)
 	GetAnswerByID(commentID uint) (*do.Answer, error)
 	GetAnswersByPostID(postID uint, page, pageSize int, sortBy string) ([]do.Answer, int64, error)

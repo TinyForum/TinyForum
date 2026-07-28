@@ -112,7 +112,7 @@ export default function PostDetailClient({ postId }: { postId: number }) {
   }
 
   const { post, liked } = data;
-  const isAuthor = user?.id === post.creation.author_id;
+  const isAuthor = user?.id === post.creation.author?.id;
   const isAdmin = user?.role === "admin";
 
   return (
@@ -167,7 +167,7 @@ export default function PostDetailClient({ postId }: { postId: number }) {
 
           {/* 作者信息 */}
           <div className="flex items-center gap-3 mt-4 pb-4 border-b border-base-300">
-            <Link href={`/users/${post.creation.author_id}`}>
+            <Link href={`/users/${post.creation.author?.id}`}>
               <div className="avatar">
                 <div className="w-10 h-10 rounded-full">
                   <Avatar
@@ -180,7 +180,7 @@ export default function PostDetailClient({ postId }: { postId: number }) {
             </Link>
             <div>
               <Link
-                href={`/users/${post.creation.author_id}`}
+                href={`/users/${post.creation.author?.id}`}
                 className="font-medium hover:text-primary transition-colors text-sm"
               >
                 {post.creation.author?.username}

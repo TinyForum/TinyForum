@@ -1,5 +1,5 @@
 "use client";
-
+// 评论项
 import { useState } from "react";
 import Link from "next/link";
 import { timeAgo } from "@/shared/lib/utils";
@@ -10,16 +10,16 @@ import toast from "react-hot-toast";
 import { useTranslations } from "next-intl";
 import Avatar from "@/features/user/components/Avatar";
 import { commentApi } from "@/shared/api/modules/comments";
-import { Comment } from "@/shared/api/types/comment.model";
+import { CommentResponse, Reply } from "@/shared/api/types/comment.model";
 
 interface CommentItemProps {
-  comment: Comment;
+  reply: Reply;
   postId: number;
   onReply?: (parentId: number, username: string) => void;
 }
 
 export default function CommentItem({
-  comment,
+  reply,
   postId,
   onReply,
 }: CommentItemProps) {
@@ -29,7 +29,7 @@ export default function CommentItem({
   const t = useTranslations("Comment");
 
   const deleteMutation = useMutation({
-    mutationFn: () => commentApi.delete(comment.id),
+    mutationFn: () => commentApi.delete(reply.id),
     onSuccess: () => {
       toast.success(t("deleted"));
       queryClient.invalidateQueries({ queryKey: ["comments", postId] });
@@ -37,16 +37,16 @@ export default function CommentItem({
     onError: () => toast.error(t("delete_failed")),
   });
 
-  const canDelete = user?.id === comment.author_id || user?.role === "admin";
+  const canDelete = user?.id === reply.author_id || user?.role === "admin";
 
   return (
     <div className="flex gap-3">
-      <Link href={`/users/${comment.author_id}`} className="flex-none">
+      <Link href={`/users/${reply.author_id}`} className="flex-none">
         <div className="avatar">
           <div className="w-8 h-8 rounded-full">
             <Avatar
-              username={comment.author?.username}
-              avatarUrl={comment.author?.avatar_url} // 数据库中的头像
+              username={reply.author?.username}
+              avatarUrl={reply.author?.avatar_url} // 数据库中的头像
               size="md"
             />
           </div>
@@ -57,41 +57,40 @@ export default function CommentItem({
         <div className="bg-base-200 rounded-xl p-3">
           <div className="flex items-center justify-between mb-1">
             <Link
-              href={`/users/${comment.author?.id}`}
+              href={`/users/${reply.author?.id}`}
               className="text-sm font-semibold hover:text-primary transition-colors"
             >
-              {comment.author?.username}
+              {reply.author?.username}
             </Link>
             <span className="text-xs text-base-content/40">
-              {timeAgo(comment.created_at)}
+              {timeAgo(reply.created_at)}
             </span>
           </div>
           <p className="text-sm text-base-content/80 whitespace-pre-wrap">
-            {comment.content}
+            {reply.content}
           </p>
         </div>
-
         <div className="flex items-center gap-3 mt-1.5 px-1">
           {isAuthenticated && onReply && (
             <button
               className="text-xs text-base-content/50 hover:text-primary transition-colors flex items-center gap-1"
               onClick={() => {
-                if (comment.author?.username) {
-                  onReply(comment.id, comment.author.username);
+                if (reply.author?.username) {
+                  onReply(reply.id, reply.author.username);
                 }
               }}
             >
               <CornerDownRight className="w-3 h-3" /> {t("reply")}
             </button>
           )}
-          {comment.replies && comment.replies.length > 0 && (
+          {reply.replies && reply.replies.length > 0 && (
             <button
               className="text-xs text-base-content/50 hover:text-primary transition-colors"
               onClick={() => setShowReplies(!showReplies)}
             >
               {showReplies
                 ? t("collapse")
-                : `${t("expand") + comment.replies.length + t("replies")}`}
+                : `${t("expand") + reply.replies.length + t("replies")}`}
             </button>
           )}
           {canDelete && (
@@ -106,12 +105,12 @@ export default function CommentItem({
         </div>
 
         {/* Nested replies */}
-        {showReplies && comment.replies && comment.replies.length > 0 && (
+        {showReplies && reply.replies && reply.replies.length > 0 && (
           <div className="mt-3 space-y-3 ml-2 border-l-2 border-base-300 pl-3">
-            {comment.replies.map((reply) => (
+            {reply.replies.map((reply) => (
               <CommentItem
                 key={reply.id}
-                comment={reply}
+                reply={reply}
                 postId={postId}
                 onReply={onReply}
               />
