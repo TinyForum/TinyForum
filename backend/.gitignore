@@ -9,3 +9,5 @@ vendor/
 *.yaml
 
 uploads
+
+/backend/server
