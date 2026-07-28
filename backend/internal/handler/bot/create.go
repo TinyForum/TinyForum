@@ -2,7 +2,9 @@ package bot
 
 import (
 	"strconv"
+	"tiny-forum/internal/model/common"
 	"tiny-forum/internal/model/request"
+	"tiny-forum/internal/model/vo"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -29,7 +31,10 @@ func (h *Handler) Create(c *gin.Context) {
 		response.HandleError(c, err)
 		return
 	}
-	response.Success(c, gin.H{"id": bot.ID})
+	responseData := vo.CreateBotVO{
+		ID: bot.ID,
+	}
+	response.Success(c, responseData)
 }
 
 // Update 更新机器人
@@ -102,7 +107,8 @@ func (h *Handler) ListMyBot(c *gin.Context) {
 		response.HandleError(c, err)
 		return
 	}
-	response.Success(c, gin.H{"list": bots, "total": total, "page": page})
+
+	response.SuccessPage(c, bots, total, page, pageSize)
 }
 
 // List 获取所有机器人列表
@@ -120,7 +126,8 @@ func (h *Handler) List(c *gin.Context) {
 		response.HandleError(c, err)
 		return
 	}
-	response.Success(c, gin.H{"list": bots, "total": total, "page": page})
+
+	response.SuccessPage(c, bots, total, page, pageSize)
 }
 
 // RunNow 手动触发机器人执行
@@ -141,5 +148,8 @@ func (h *Handler) RunNow(c *gin.Context) {
 		response.HandleError(c, err)
 		return
 	}
-	response.Success(c, gin.H{"message": "triggered"})
+	responseData := common.ResponseMessage{
+		Message: "triggered",
+	}
+	response.Success(c, responseData)
 }

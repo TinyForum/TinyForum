@@ -4,6 +4,7 @@ import (
 	"strconv"
 
 	"tiny-forum/internal/model/bo"
+	"tiny-forum/internal/model/common"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -92,5 +93,9 @@ func (h *CommentHandler) Delete(c *gin.Context) {
 		response.HandleError(c, err)
 		return
 	}
-	response.Success(c, gin.H{"message": "删除成功"})
+	responseData := common.ResponseMessage{
+		Message: "删除成功",
+	}
+	response.Success(c, responseData)
+
 }

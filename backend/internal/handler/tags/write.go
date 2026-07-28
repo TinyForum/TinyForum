@@ -3,6 +3,7 @@ package tag
 import (
 	"strconv"
 
+	"tiny-forum/internal/model/common"
 	"tiny-forum/internal/model/request"
 	"tiny-forum/pkg/response"
 
@@ -96,5 +97,6 @@ func (h *TagHandler) Delete(c *gin.Context) {
 		response.HandleError(c, err)
 		return
 	}
-	response.Success(c, gin.H{"message": "删除成功"})
+
+	response.Success(c, common.ResponseMessage{Message: "删除成功"})
 }

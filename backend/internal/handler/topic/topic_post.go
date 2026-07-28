@@ -3,6 +3,7 @@ package topic
 import (
 	"strconv"
 
+	"tiny-forum/internal/model/common"
 	"tiny-forum/internal/model/request"
 	"tiny-forum/pkg/response"
 
@@ -51,7 +52,12 @@ func (h *TopicHandler) AddPost(c *gin.Context) {
 		response.HandleError(c, err)
 		return
 	}
-	response.Success(c, gin.H{"message": "添加帖子成功"})
+
+	responseData := common.ResponseMessage{
+		Message: "添加帖子成功",
+	}
+	response.Success(c, responseData)
+
 }
 
 // RemovePost 从话题移除帖子
@@ -87,7 +93,10 @@ func (h *TopicHandler) RemovePost(c *gin.Context) {
 		response.HandleError(c, err)
 		return
 	}
-	response.Success(c, gin.H{"message": "移除帖子成功"})
+	responseData := common.ResponseMessage{
+		Message: "移除帖子成功",
+	}
+	response.Success(c, responseData)
 }
 
 // GetTopicPosts 获取话题帖子列表

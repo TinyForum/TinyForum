@@ -3,6 +3,7 @@ package topic
 import (
 	"strconv"
 
+	"tiny-forum/internal/model/common"
 	"tiny-forum/internal/model/request"
 	"tiny-forum/pkg/response"
 
@@ -102,7 +103,10 @@ func (h *TopicHandler) Delete(c *gin.Context) {
 		response.HandleError(c, err)
 		return
 	}
-	response.Success(c, gin.H{"message": "删除成功"})
+	responseData := common.ResponseMessage{
+		Message: "删除成功",
+	}
+	response.Success(c, responseData)
 }
 
 // GetByID 获取话题详情

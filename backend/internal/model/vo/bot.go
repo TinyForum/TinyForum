@@ -46,3 +46,12 @@ type BotExecutionLogResponse struct {
 	ErrorMsg  string    `json:"errorMsg"`
 	CreatedAt time.Time `json:"createdAt"`
 }
+
+type CreateBotVO struct {
+	ID uint `json:"id"`
+}
+
+type ValidateFlowVO struct {
+	Valid  bool     `json:"valid"`
+	Errors []string `json:"errors"`
+}

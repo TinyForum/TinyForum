@@ -2,6 +2,7 @@ package bot
 
 import (
 	"tiny-forum/internal/model/request"
+	"tiny-forum/internal/model/vo"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -30,8 +31,9 @@ func (h *Handler) ValidateFlow(c *gin.Context) {
 	for _, e := range errs {
 		msgs = append(msgs, e.Error())
 	}
-	response.Success(c, gin.H{
-		"valid":  len(errs) == 0,
-		"errors": msgs,
-	})
+	responseData := vo.ValidateFlowVO{
+		Valid:  len(errs) == 0,
+		Errors: msgs,
+	}
+	response.Success(c, responseData)
 }

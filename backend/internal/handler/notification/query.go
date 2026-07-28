@@ -2,6 +2,7 @@ package notification
 
 import (
 	"tiny-forum/internal/model/dto"
+	"tiny-forum/internal/model/vo"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -96,5 +97,9 @@ func (h *NotificationHandler) UnreadCount(c *gin.Context) {
 		response.HandleError(c, err)
 		return
 	}
-	response.Success(c, gin.H{"count": count})
+	responseData := vo.UnreadNotificationCountVO{
+		Count: count,
+	}
+	response.Success(c, responseData)
+
 }

@@ -2,6 +2,7 @@ package admin
 
 import (
 	"strconv"
+	"tiny-forum/internal/model/common"
 	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/request"
 	"tiny-forum/pkg/response"
@@ -102,5 +103,10 @@ func (h *AdminHandler) ReviewApplication(c *gin.Context) {
 		response.HandleError(c, err)
 		return
 	}
-	response.Success(c, gin.H{"message": map[bool]string{true: "approved", false: "rejected"}[req.Approve]})
+
+	responseData := common.ResponseMessage{
+		Message: map[bool]string{true: "approved", false: "rejected"}[req.Approve],
+	}
+
+	response.Success(c, responseData)
 }

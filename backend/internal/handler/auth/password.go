@@ -2,6 +2,7 @@
 package auth
 
 import (
+	"tiny-forum/internal/model/common"
 	"tiny-forum/internal/model/dto"
 	apperrors "tiny-forum/pkg/errors"
 	"tiny-forum/pkg/logger"
@@ -59,10 +60,10 @@ func (c *AuthHandler) ResetPassword(ctx *gin.Context) {
 		response.HandleError(ctx, apperrors.ErrInternalError)
 		return
 	}
-
-	response.Success(ctx, gin.H{
-		"message": "Password has been reset successfully",
-	})
+	responseData := common.ResponseMessage{
+		Message: "密码已重置",
+	}
+	response.Success(ctx, responseData)
 }
 
 // internal/handler/auth/password.go
@@ -100,11 +101,7 @@ func (h *AuthHandler) ResetPasswordWithToken(ctx *gin.Context) {
 		response.HandleError(ctx, err)
 		return
 	}
-
-	response.Success(ctx, gin.H{
-		"message": "Password has been reset successfully",
-		"success": true,
-	})
+	response.Success(ctx, common.ResponseMessage{Message: "密码重置成功"})
 }
 
 // ValidateResetToken 验证重置密码 token
@@ -136,9 +133,10 @@ func (h *AuthHandler) ValidateResetToken(ctx *gin.Context) {
 		response.BadRequest(ctx, "token is invalid or has expired")
 		return
 	}
-
+	responseData := common.ResponseBool{
+		Success: valid,
+	}
+	response.Success(ctx, responseData)
 	// 验证成功
-	response.Success(ctx, gin.H{
-		"valid": valid,
-	})
+
 }

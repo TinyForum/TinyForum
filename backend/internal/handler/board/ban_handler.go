@@ -4,6 +4,7 @@ import (
 	"strconv"
 	"time"
 
+	"tiny-forum/internal/model/common"
 	"tiny-forum/internal/model/request"
 	"tiny-forum/pkg/response"
 
@@ -64,7 +65,10 @@ func (h *BoardHandler) BanUser(c *gin.Context) {
 		response.HandleError(c, err)
 		return
 	}
-	response.Success(c, gin.H{"message": "禁言成功"})
+	responseData := common.ResponseMessage{
+		Message: "禁言成功",
+	}
+	response.Success(c, responseData)
 }
 
 // UnbanUser 解除禁言
@@ -96,5 +100,9 @@ func (h *BoardHandler) UnbanUser(c *gin.Context) {
 		response.HandleError(c, err)
 		return
 	}
-	response.Success(c, gin.H{"message": "解除禁言成功"})
+	responseData := common.ResponseMessage{
+		Message: "解除禁言成功",
+	}
+	response.Success(c, responseData)
+
 }

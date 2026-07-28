@@ -18,3 +18,9 @@ type VoteAnswerVO struct {
 	VoteCount int                `json:"vote_count"`
 	Action    string             `json:"action"`
 }
+
+type VoteResponseVO struct {
+	Message   string            `json:"message"`
+	VoteCount int               `json:"vote_count"`
+	UserVote  do.AnswerVoteType `json:"user_vote"` // 值为 "up", "down" 或 null
+}

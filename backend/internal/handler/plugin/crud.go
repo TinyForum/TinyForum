@@ -2,6 +2,7 @@ package plugin
 
 import (
 	"tiny-forum/internal/model/bo"
+	"tiny-forum/internal/model/common"
 	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/request"
 	"tiny-forum/internal/service/plugin"
@@ -143,5 +144,8 @@ func (h *Handler) DeletePlugin(c *gin.Context) {
 		return
 	}
 
-	response.Success(c, gin.H{"message": "plugin deleted successfully"})
+	responseData := common.ResponseMessage{
+		Message: "Plugin deleted successfully",
+	}
+	response.Success(c, responseData)
 }

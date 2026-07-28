@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"tiny-forum/internal/model/common"
 	"tiny-forum/internal/model/request"
 	"tiny-forum/pkg/logger"
 	"tiny-forum/pkg/response"
@@ -139,7 +140,10 @@ func (h *AttachmentHandler) DeleteFile(c *gin.Context) {
 		response.HandleError(c, err)
 		return
 	}
-	response.Success(c, gin.H{"message": "deleted"})
+	responseData := common.ResponseMessage{
+		Message: "删除成功",
+	}
+	response.Success(c, responseData)
 }
 
 // ServeFile 公开访问文件

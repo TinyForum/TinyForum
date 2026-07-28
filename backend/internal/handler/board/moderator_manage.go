@@ -3,6 +3,7 @@ package board
 import (
 	"strconv"
 
+	"tiny-forum/internal/model/common"
 	"tiny-forum/internal/model/request"
 	"tiny-forum/pkg/response"
 
@@ -79,7 +80,10 @@ func (h *BoardHandler) AddModerator(c *gin.Context) {
 	}
 
 	// 7. 成功响应
-	response.Success(c, gin.H{"message": "添加版主成功"})
+	responseData := common.ResponseMessage{
+		Message: "添加版主成功",
+	}
+	response.Success(c, responseData)
 }
 
 // RemoveModerator 移除版主
@@ -113,7 +117,10 @@ func (h *BoardHandler) RemoveModerator(c *gin.Context) {
 		response.HandleError(c, err)
 		return
 	}
-	response.Success(c, gin.H{"message": "移除版主成功"})
+	responseData := common.ResponseMessage{
+		Message: "移除版主成功",
+	}
+	response.Success(c, responseData)
 }
 
 // GetModerators 获取板块版主列表
@@ -190,7 +197,10 @@ func (h *BoardHandler) UpdateModeratorPermissions(c *gin.Context) {
 		response.HandleError(c, err)
 		return
 	}
-	response.Success(c, gin.H{"message": "权限更新成功"})
+	responseData := common.ResponseMessage{
+		Message: "权限更新成功",
+	}
+	response.Success(c, responseData)
 }
 
 // GetUserModeratorBoards 获取当前用户管理的板块列表（含权限）

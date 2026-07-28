@@ -2,6 +2,7 @@ package admin
 
 import (
 	"strconv"
+	"tiny-forum/internal/model/common"
 	"tiny-forum/internal/model/request"
 	"tiny-forum/internal/model/vo"
 	"tiny-forum/pkg/logger"
@@ -71,10 +72,13 @@ func (h *AdminHandler) SetActiveUser(c *gin.Context) {
 		response.HandleError(c, err)
 		return
 	}
-	response.Success(c, gin.H{
-		"user_id":   targetID,
-		"is_active": body.IsActive,
-	})
+	logger.Infof("用户 %d 设置用户 %d 激活状态为 %t", currentID, targetID, body.IsActive)
+
+	responseData := vo.ActiveUserVO{
+		UserID:   targetID,
+		IsActive: body.IsActive,
+	}
+	response.Success(c, responseData)
 }
 
 // AdminSetBlocked 设置用户封禁状态
@@ -113,10 +117,12 @@ func (h *AdminHandler) SetBlockedUser(c *gin.Context) {
 		response.HandleError(c, err)
 		return
 	}
-	response.Success(c, gin.H{
-		"user_id":    targetID,
-		"is_blocked": body.IsBlocked,
-	})
+	responseData := vo.BlockUserVO{
+		UserID:    targetID,
+		IsBlocked: body.IsBlocked,
+	}
+
+	response.Success(c, responseData)
 }
 
 // AdminDeleteUser 管理员删除用户
@@ -147,11 +153,11 @@ func (h *AdminHandler) DeleteUser(c *gin.Context) {
 		response.HandleError(c, err)
 		return
 	}
-	response.Success(c, gin.H{
-		"message":     "删除用户成功",
-		"user_id":     targetID,
-		"operator_id": operatorUint,
-	})
+	responseData := common.ResponseMessage{
+		Message: "删除用户成功",
+	}
+
+	response.Success(c, responseData)
 }
 
 // AdminSetRole 设置用户角色

@@ -28,7 +28,6 @@ func (h *AdminHandler) ListUsersScore(c *gin.Context) {
 		return
 	}
 	response.Success(c, users)
-	return
 }
 
 // AdminGetUserScore 获取用户积分

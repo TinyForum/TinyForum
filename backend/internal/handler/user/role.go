@@ -40,8 +40,9 @@ func (h *UserHandler) GetCurrentUserRole(c *gin.Context) {
 		response.InternalError(c, "查询用户角色失败")
 		return
 	}
-	response.Success(c, vo.GetCurrentUserRoleResponse{
+	resData := vo.GetCurrentUserRoleResponse{
 		UserID: userIDUint,
 		Role:   role,
-	})
+	}
+	response.Success(c, resData)
 }

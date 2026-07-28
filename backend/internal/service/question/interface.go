@@ -19,7 +19,7 @@ type QuestionService interface {
 	AcceptAnswer(postID, commentID uint, userID uint) error
 	VoteAnswer(userID uint, input request.VoteAnswerRequest) (*vo.VoteAnswerVO, error)
 	GetAnswerVoteStatus(userID, commentID uint) (map[string]any, error)
-	GetAnswersList(postID uint, page, pageSize int) ([]do.Answer, int64, error)
+	GetAnswersList(questionID uint, page, pageSize int) ([]do.Answer, int64, error)
 	// crud
 	CreateQuestion(userID uint, input dto.CreateQuestionRequest) (*do.QuestionResponse, error)
 	GetQuestionDetail(questionID uint) (*do.QuestionResponse, error)
@@ -28,6 +28,7 @@ type QuestionService interface {
 	// simple
 	GetQuestionSimpleList(pageSize, offset int, boardID *uint, filter, sort, keyword string) ([]vo.QuestionSimpleVO, int64, error)
 	GetQuestionSimpleByID(questionID uint) (*vo.QuestionSimpleVO, error)
+	// GetAnswersByQuestion(questionID uint, page, pageSize int, sortBy string) ([]do.Answer, int64, error)
 }
 
 type questionService struct {

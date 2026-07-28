@@ -5,6 +5,7 @@ import (
 	"log"
 	"time"
 	"tiny-forum/internal/model/dto"
+	"tiny-forum/internal/model/vo"
 	"tiny-forum/pkg/response"
 
 	// "tiny-forum/pkg/utils"
@@ -143,11 +144,12 @@ func (h *StatsHandler) GetStatsTrend(c *gin.Context) {
 		return
 	}
 
-	response.Success(c, gin.H{
-		"start_date": date.Start.Format("2006-01-02"),
-		"end_date":   date.End.Format("2006-01-02"),
-		"interval":   req.Interval,
-		"type":       req.Type,
-		"trend":      trend,
-	})
+	responseData := vo.StatsTrendResponse{
+		StartDate: date.Start.Format("2006-01-02"),
+		EndDate:   date.End.Format("2006-01-02"),
+		Interval:  req.Interval,
+		Type:      req.Type,
+		Trend:     trend,
+	}
+	response.Success(c, responseData)
 }

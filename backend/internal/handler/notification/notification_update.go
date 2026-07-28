@@ -2,6 +2,7 @@ package notification
 
 import (
 	"strconv"
+	"tiny-forum/internal/model/common"
 	"tiny-forum/internal/model/dto"
 	"tiny-forum/pkg/response"
 
@@ -45,11 +46,11 @@ func (h *NotificationHandler) BatchMarkRead(c *gin.Context) {
 		response.HandleError(c, err)
 		return
 	}
-
-	response.Success(c, dto.BatchMarkReadResponse{
+	responseData := dto.BatchMarkReadResponse{
 		Message:      "标记成功",
 		UpdatedCount: updatedCount,
-	})
+	}
+	response.Success(c, responseData)
 }
 
 // MarkRead 标记单个通知为已读
@@ -89,5 +90,9 @@ func (h *NotificationHandler) MarkRead(c *gin.Context) {
 		}
 		return
 	}
-	response.Success(c, gin.H{"message": "已标记为已读"})
+	responseData := common.ResponseMessage{
+		Message: "已标记为已读",
+	}
+	response.Success(c, responseData)
+
 }

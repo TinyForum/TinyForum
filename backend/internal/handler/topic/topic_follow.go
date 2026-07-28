@@ -3,6 +3,7 @@ package topic
 import (
 	"strconv"
 
+	"tiny-forum/internal/model/common"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -33,7 +34,10 @@ func (h *TopicHandler) Follow(c *gin.Context) {
 		response.HandleError(c, err)
 		return
 	}
-	response.Success(c, gin.H{"message": "关注成功"})
+	responseData := common.ResponseMessage{
+		Message: "关注成功",
+	}
+	response.Success(c, responseData)
 }
 
 // Unfollow 取消关注话题
@@ -61,7 +65,10 @@ func (h *TopicHandler) Unfollow(c *gin.Context) {
 		response.HandleError(c, err)
 		return
 	}
-	response.Success(c, gin.H{"message": "取消关注成功"})
+	responseData := common.ResponseMessage{
+		Message: "取消关注成功",
+	}
+	response.Success(c, responseData)
 }
 
 // IsFollowing 检查是否关注话题

@@ -3,6 +3,7 @@ package board
 import (
 	"strconv"
 
+	"tiny-forum/internal/model/common"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -42,7 +43,11 @@ func (h *BoardHandler) DeletePost(c *gin.Context) {
 		response.HandleError(c, err)
 		return
 	}
-	response.Success(c, gin.H{"message": "删除成功"})
+
+	responseData := common.ResponseMessage{
+		Message: "删除成功",
+	}
+	response.Success(c, responseData)
 }
 
 // PinPost 版主置顶/取消置顶帖子
@@ -86,5 +91,8 @@ func (h *BoardHandler) PinPost(c *gin.Context) {
 		response.HandleError(c, err)
 		return
 	}
-	response.Success(c, gin.H{"message": "操作成功"})
+	responseData := common.ResponseMessage{
+		Message: "置顶成功",
+	}
+	response.Success(c, responseData)
 }

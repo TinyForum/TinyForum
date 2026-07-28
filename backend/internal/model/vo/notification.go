@@ -23,3 +23,7 @@ type NotificationVO struct {
 		AvatarUrl string `json:"avatar_url,omitempty"`
 	} `json:"sender,omitempty"`
 }
+
+type UnreadNotificationCountVO struct {
+	Count int64 `json:"count"`
+}

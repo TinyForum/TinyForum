@@ -4,6 +4,8 @@ package config
 import (
 	"strconv"
 	"strings"
+	"tiny-forum/internal/model/common"
+	"tiny-forum/internal/model/vo"
 	"tiny-forum/internal/service/config"
 	apperrors "tiny-forum/pkg/errors"
 	"tiny-forum/pkg/response"
@@ -80,13 +82,13 @@ func (h *ConfigHandler) GetConfig(c *gin.Context) {
 		})
 		return
 	}
+	responseData := vo.GetConfigYamlVO{
+		Name:    fileName,
+		Format:  "yaml", // 默认返回 YAML 格式
+		Content: content,
+	}
 
-	// 默认返回 YAML 格式
-	response.Success(c, gin.H{
-		"file":    fileName,
-		"format":  "yaml",
-		"content": content,
-	})
+	response.Success(c, responseData)
 }
 
 // GetConfigKV 获取配置的键值对格式
@@ -119,11 +121,12 @@ func (h *ConfigHandler) GetConfigKV(c *gin.Context) {
 		return
 	}
 
-	response.Success(c, gin.H{
-		"file":   fileName,
-		"format": "kv",
-		"config": kvData,
-	})
+	responseData := vo.GetConfigKvVO{
+		Name:   fileName,
+		Format: "kv",
+		Kv:     kvData,
+	}
+	response.Success(c, responseData)
 }
 
 // UpdateConfig 更新配置
@@ -163,11 +166,10 @@ func (h *ConfigHandler) UpdateConfig(c *gin.Context) {
 		response.HandleError(c, err)
 		return
 	}
-
-	response.Success(c, gin.H{
-		"message": "配置更新成功，已自动重载",
-		"file":    fileName,
-	})
+	responseData := common.ResponseMessage{
+		Message: "配置更新成功，已自动重载",
+	}
+	response.Success(c, responseData)
 }
 
 // UpdateConfigKV 通过键值对更新配置
@@ -232,11 +234,10 @@ func (h *ConfigHandler) UpdateConfigKV(c *gin.Context) {
 		return
 	}
 
-	response.Success(c, gin.H{
-		"message": "配置更新成功，已自动重载",
-		"file":    fileName,
-		"updated": len(req.Config),
-	})
+	responseData := common.ResponseMessage{
+		Message: "配置更新成功，已自动重载",
+	}
+	response.Success(c, responseData)
 }
 
 // ReloadConfig 手动重载配置
@@ -255,10 +256,10 @@ func (h *ConfigHandler) ReloadConfig(c *gin.Context) {
 		response.HandleError(c, err)
 		return
 	}
-
-	response.Success(c, gin.H{
-		"message": "配置重载成功",
-	})
+	responseData := common.ResponseMessage{
+		Message: "配置重载成功",
+	}
+	response.Success(c, responseData)
 }
 
 // GetHistory 获取配置变更历史

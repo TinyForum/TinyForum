@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"tiny-forum/internal/model/common"
 	"tiny-forum/internal/model/request"
 	"tiny-forum/internal/model/vo"
 	apperrors "tiny-forum/pkg/errors"
@@ -101,8 +102,8 @@ func (h *AuthHandler) CancelDeletion(c *gin.Context) {
 		return
 	}
 
-	response.Success(c, gin.H{
-		"message": "已取消注销，账户已恢复",
+	response.Success(c, common.ResponseMessage{
+		Message: "已取消注销，账户已恢复",
 	})
 }
 
@@ -140,8 +141,8 @@ func (h *AuthHandler) ConfirmDeletion(c *gin.Context) {
 		return
 	}
 
-	response.Success(c, gin.H{
-		"message": "账户已永久删除",
+	response.Success(c, common.ResponseMessage{
+		Message: "账户已永久删除",
 	})
 }
 

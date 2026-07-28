@@ -3,6 +3,7 @@ package question
 import (
 	"strconv"
 
+	"tiny-forum/internal/model/do"
 	"tiny-forum/pkg/logger"
 	"tiny-forum/pkg/response"
 
@@ -54,9 +55,9 @@ func (h *QuestionHandler) GetQuestionDetail(c *gin.Context) {
 		return
 	}
 
-	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
-	pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "20"))
-	sortBy := c.DefaultQuery("sort", "vote")
+	// page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	// pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "20"))
+	// sortBy := c.DefaultQuery("sort", "vote")
 
 	question, err := h.questionSvc.GetQuestionDetail(uint(questionID))
 	if err != nil {
@@ -64,19 +65,29 @@ func (h *QuestionHandler) GetQuestionDetail(c *gin.Context) {
 		return
 	}
 
-	answers, total, err := h.commentSvc.GetAnswersByPostID(uint(question.CreationsID), page, pageSize, sortBy)
-	if err != nil {
-		response.HandleError(c, err)
-		return
-	}
+	// answers, total, err := h.commentSvc.GetAnswersByPostID(uint(question.CreationsID), page, pageSize, sortBy)
+	// if err != nil {
+	// 	response.HandleError(c, err)
+	// 	return
+	// }
 
-	response.Success(c, gin.H{
-		"post":      question,
-		"answers":   answers,
-		"total":     total,
-		"page":      page,
-		"page_size": pageSize,
-	})
+	responseData := do.QuestionResponse{
+		ID:               question.ID,
+		Title:            question.Title,
+		Content:          question.Content,
+		CreationsID:      question.CreationsID,
+		Summary:          question.Summary,
+		Cover:            question.Cover,
+		BoardID:          question.BoardID,
+		AuthorID:         question.AuthorID,
+		RewardScore:      question.RewardScore,
+		AnswerCount:      question.AnswerCount,
+		AcceptedAnswerID: question.AcceptedAnswerID,
+		Status:           question.Status,
+		CreatedAt:        question.CreatedAt,
+		UpdatedAt:        question.UpdatedAt,
+	}
+	response.Success(c, responseData)
 }
 
 // GetQuestionSimple 获取问题精简列表

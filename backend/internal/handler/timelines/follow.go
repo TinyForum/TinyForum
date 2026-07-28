@@ -3,6 +3,7 @@ package timeline
 import (
 	"strconv"
 
+	"tiny-forum/internal/model/common"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -39,7 +40,10 @@ func (h *TimelineHandler) Subscribe(c *gin.Context) {
 		response.HandleError(c, err)
 		return
 	}
-	response.Success(c, gin.H{"message": "关注成功"})
+	responseData := common.ResponseMessage{
+		Message: "关注成功",
+	}
+	response.Success(c, responseData)
 }
 
 // Unsubscribe 取消关注用户
@@ -68,7 +72,10 @@ func (h *TimelineHandler) Unsubscribe(c *gin.Context) {
 		response.HandleError(c, err)
 		return
 	}
-	response.Success(c, gin.H{"message": "取消关注成功"})
+	responseData := common.ResponseMessage{
+		Message: "取消关注成功",
+	}
+	response.Success(c, responseData)
 }
 
 // GetSubscriptions 获取关注列表

@@ -2,6 +2,8 @@ package answer
 
 import (
 	"strconv"
+	"tiny-forum/internal/model/common"
+	"tiny-forum/internal/model/vo"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -59,11 +61,10 @@ func (h *AnswerHandler) DeleteAnswer(c *gin.Context) {
 		return
 	}
 
-	// 5. 返回成功响应
-	response.Success(c, gin.H{
-		"message":   "删除成功",
-		"answer_id": answerID,
-	})
+	responseData := common.ResponseMessage{
+		Message: "删除成功",
+	}
+	response.Success(c, responseData)
 }
 
 // MARK: Vote
@@ -96,10 +97,11 @@ func (h *AnswerHandler) RemoveVote(c *gin.Context) {
 
 	// 获取用户当前投票状态（应该是 0）
 	userVote, _ := h.commentSvc.GetUserVoteStatus(uint(answerID), userID)
+	responseData := vo.VoteResponseVO{
+		Message:   "取消投票成功",
+		VoteCount: comment.VoteCount,
+		UserVote:  *userVote,
+	}
+	response.Success(c, responseData)
 
-	response.Success(c, gin.H{
-		"message":    "取消投票成功",
-		"vote_count": comment.VoteCount,
-		"user_vote":  userVote, // 0:未投票
-	})
 }

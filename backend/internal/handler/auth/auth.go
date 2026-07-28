@@ -3,6 +3,7 @@ package auth
 import (
 	"log"
 	"os"
+	"tiny-forum/internal/model/common"
 	userService "tiny-forum/internal/service/user"
 	"tiny-forum/pkg/response"
 
@@ -79,5 +80,7 @@ func (h *AuthHandler) Logout(c *gin.Context) {
 	}
 	c.Header("Set-Cookie", cookieValue)
 
-	response.Success(c, nil)
+	response.Success(c, common.ResponseMessage{
+		Message: "登出成功",
+	})
 }

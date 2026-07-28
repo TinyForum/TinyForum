@@ -3,6 +3,7 @@ package answer
 import (
 	"errors"
 	"strconv"
+	"tiny-forum/internal/model/common"
 	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/vo"
 	apperrors "tiny-forum/pkg/errors"
@@ -104,11 +105,11 @@ func (h *AnswerHandler) UnacceptAnswer(c *gin.Context) {
 		return
 	}
 
-	// 4. 返回成功响应
-	response.Success(c, gin.H{
-		"message":   "已取消接受答案",
-		"answer_id": answerID,
-	})
+	responseData := common.ResponseMessage{
+		Message: "已取消接受答案",
+	}
+	response.Success(c, responseData)
+
 }
 
 // MARK: Vote
@@ -172,9 +173,11 @@ func (h *AnswerHandler) VoteAnswer(c *gin.Context) {
 	userVote, _ := h.commentSvc.GetUserVoteStatus(uint(answerID), userID)
 
 	// 7. 返回响应
-	response.Success(c, gin.H{
-		"message":    "操作成功",
-		"vote_count": comment.VoteCount,
-		"user_vote":  userVote, // 值为 "up", "down" 或 null
-	})
+	responseData := vo.VoteResponseVO{
+		Message:   "操作成功",
+		VoteCount: comment.VoteCount,
+		UserVote:  *userVote,
+	}
+	response.Success(c, responseData)
+
 }

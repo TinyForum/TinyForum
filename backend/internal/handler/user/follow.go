@@ -2,6 +2,7 @@ package user
 
 import (
 	"strconv"
+	"tiny-forum/internal/model/common"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -25,7 +26,10 @@ func (h *UserHandler) Follow(c *gin.Context) {
 		response.HandleError(c, err)
 		return
 	}
-	response.Success(c, gin.H{"message": "关注成功"})
+	responseData := common.ResponseMessage{
+		Message: "关注成功",
+	}
+	response.Success(c, responseData)
 }
 
 // Unfollow 取消关注
@@ -46,7 +50,10 @@ func (h *UserHandler) Unfollow(c *gin.Context) {
 		response.HandleError(c, err)
 		return
 	}
-	response.Success(c, gin.H{"message": "已取消关注"})
+	responseData := common.ResponseMessage{
+		Message: "已取消关注",
+	}
+	response.Success(c, responseData)
 }
 
 // GetFollowers 获取粉丝列表

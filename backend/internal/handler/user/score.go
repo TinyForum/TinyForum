@@ -3,6 +3,7 @@ package user
 import (
 	"errors"
 	"strconv"
+	"tiny-forum/internal/model/vo"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -55,8 +56,9 @@ func (h *UserHandler) GetScore(c *gin.Context) {
 		response.HandleError(c, err)
 		return
 	}
-	response.Success(c, gin.H{
-		"score":   score,
-		"user_id": targetID,
-	})
+	responseData := vo.UserScoreVO{
+		ID:    targetID,
+		Score: score,
+	}
+	response.Success(c, responseData)
 }

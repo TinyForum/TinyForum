@@ -1,5 +1,7 @@
 package vo
 
+import "tiny-forum/internal/model/dto"
+
 type UserStatsInfo struct {
 	TotalPost    int64 `json:"total_post"`    // 总帖子数
 	TotalComment int64 `json:"total_comment"` // 总评论数
@@ -15,4 +17,12 @@ type UserStatsInfo struct {
 	TotalAnswer    int64 `json:"total_answer"`    // 总回答数
 	TotalUpload    int64 `json:"total_upload"`    // 总上传数
 	TotalScore     int   `json:"total_score"`     // 总积分
+}
+
+type StatsTrendResponse struct {
+	StartDate string           `json:"start_date"`
+	EndDate   string           `json:"end_date"`
+	Interval  string           `json:"interval"`
+	Type      string           `json:"type"`
+	Trend     []*dto.TrendData `json:"trend"`
 }

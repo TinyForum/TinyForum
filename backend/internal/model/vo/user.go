@@ -99,3 +99,13 @@ type ActiveUserRowVO struct {
 	Username  string
 	AvatarUrl string
 }
+
+type ActiveUserVO struct {
+	UserID   uint64 `json:"user_id"`
+	IsActive bool   `json:"is_active"`
+}
+
+type BlockUserVO struct {
+	UserID    uint64 `json:"user_id"`
+	IsBlocked bool   `json:"is_blocked"`
+}

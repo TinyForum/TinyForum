@@ -3,6 +3,7 @@ package article
 import (
 	"strconv"
 
+	"tiny-forum/internal/model/common"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -31,7 +32,10 @@ func (h *ArticleHandler) Like(c *gin.Context) {
 		response.HandleError(c, err)
 		return
 	}
-	response.Success(c, gin.H{"message": "点赞成功"})
+	responseData := common.ResponseMessage{
+		Message: "点赞成功",
+	}
+	response.Success(c, responseData)
 }
 
 // Unlike 取消点赞帖子
@@ -57,5 +61,8 @@ func (h *ArticleHandler) Unlike(c *gin.Context) {
 		response.HandleError(c, err)
 		return
 	}
-	response.Success(c, gin.H{"message": "已取消点赞"})
+	responseData := common.ResponseMessage{
+		Message: "取消点赞成功",
+	}
+	response.Success(c, responseData)
 }

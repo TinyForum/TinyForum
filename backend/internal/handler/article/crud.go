@@ -8,6 +8,7 @@ import (
 	"tiny-forum/internal/model/common"
 	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/request"
+	"tiny-forum/internal/model/vo"
 	apperrors "tiny-forum/pkg/errors"
 	"tiny-forum/pkg/logger"
 	"tiny-forum/pkg/response"
@@ -89,9 +90,31 @@ func (h *ArticleHandler) GetByID(c *gin.Context) {
 		return
 	}
 
-	response.Success(c, gin.H{
-		"post":  post,
-		"liked": liked,
+	postData := vo.PostVO{
+		ID:             post.ID,
+		CreatedAt:      post.CreatedAt,
+		UpdatedAt:      post.UpdatedAt,
+		Title:          post.Creation.Title,
+		Content:        post.Creation.Content,
+		CreationStatus: post.Creation.CreationStatus,
+		Author: vo.AutherWithArticle{
+
+			ID:        post.Creation.Author.ID,
+			Username:  post.Creation.Author.Username,
+			AvatarUrl: post.Creation.Author.AvatarUrl,
+		},
+		Board: vo.BoardWithArticle{
+			ID:   post.Creation.Board.ID,
+			Name: post.Creation.Board.Name,
+		},
+		Tags:      post.Creation.Tags,
+		LikeCount: post.Creation.LikeCount,
+		ViewCount: post.Creation.ViewCount,
+	}
+
+	response.Success(c, vo.PostCardVO{
+		Post:  postData,
+		Liked: liked,
 	})
 }
 
@@ -221,5 +244,8 @@ func (h *ArticleHandler) Delete(c *gin.Context) {
 		response.HandleError(c, err)
 		return
 	}
-	response.Success(c, gin.H{"message": "删除成功"})
+	responseData := common.ResponseMessage{
+		Message: "删除成功",
+	}
+	response.Success(c, responseData)
 }

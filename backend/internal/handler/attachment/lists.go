@@ -2,6 +2,7 @@ package attachment
 
 import (
 	"strconv"
+	"tiny-forum/internal/model/vo"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -29,5 +30,10 @@ func (h *AttachmentHandler) ListMyFiles(c *gin.Context) {
 		response.HandleError(c, err)
 		return
 	}
-	response.Success(c, gin.H{"list": files, "total": total})
+
+	responseData := vo.ListFilesVO{
+		List:  files,
+		Total: total,
+	}
+	response.Success(c, responseData)
 }

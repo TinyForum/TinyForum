@@ -1,10 +1,10 @@
 package risk
 
 import (
-	"net/http"
 	"strconv"
 	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/request"
+	"tiny-forum/internal/model/vo"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -153,5 +153,8 @@ func (h *RiskHandler) ListAuditLogs(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"items": logs})
+	responseData := vo.AuditLogsVO{
+		Log: logs,
+	}
+	response.Success(c, responseData)
 }

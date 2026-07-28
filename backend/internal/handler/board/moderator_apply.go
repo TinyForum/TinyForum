@@ -67,10 +67,11 @@ func (h *BoardHandler) ApplyModerator(c *gin.Context) {
 		return
 	}
 
+	responseData := common.ResponseMessage{
+		Message: "申请已提交，请等待管理员审核",
+	}
 	// 6. 成功响应
-	response.Success(c, gin.H{
-		"message": "申请已提交，请等待管理员审核",
-	})
+	response.Success(c, responseData)
 }
 
 // getAuthenticatedUserID 从 Gin Context 中安全获取用户 ID
@@ -111,7 +112,10 @@ func (h *BoardHandler) CancelApplication(c *gin.Context) {
 		response.HandleError(c, err)
 		return
 	}
-	response.Success(c, gin.H{"message": "申请已撤销"})
+	responseData := common.ResponseMessage{
+		Message: "申请已撤销",
+	}
+	response.Success(c, responseData)
 }
 
 // GetUserApplications 获取当前用户的所有申请记录
