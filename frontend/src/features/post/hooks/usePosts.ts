@@ -4,7 +4,7 @@ import { PageData } from "@/shared/api/types/basic.model";
 import {
   PostListParams,
   Post,
-  PostDetailResult,
+  PostDetailResponse,
   CreatePostPayload,
   UpdatePostPayload,
 } from "@/shared/api/types/post.model";
@@ -57,7 +57,7 @@ export const usePosts = (
  */
 export const usePost = (
   id: number,
-  options?: Omit<UseQueryOptions<PostDetailResult>, "queryKey" | "queryFn">,
+  options?: Omit<UseQueryOptions<PostDetailResponse>, "queryKey" | "queryFn">,
 ) => {
   return useQuery({
     queryKey: postKeys.detail(id),

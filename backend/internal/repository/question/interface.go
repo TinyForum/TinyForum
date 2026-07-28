@@ -21,7 +21,7 @@ type QuestionRepository interface {
 	UpdateAcceptedAnswer(questionID uint, answerID uint) error
 
 	// transaction
-	CreateWithTransaction(userID uint, input dto.CreateQuestionRequest) (*do.QuestionResponse, error)
+	CreateWithTransaction(userID uint, input dto.CreateQuestionRequest) (*vo.QuestionDetailVO, error)
 
 	// about vote
 	CreateAnswerVote(vote *do.AnswerVote) error
@@ -31,7 +31,7 @@ type QuestionRepository interface {
 	GetAnswerVoteCount(commentID uint) (int, error)
 
 	// query
-	FindSimple(pageSize, offset int, boardID *uint) ([]do.QuestionListResponse, int64, error)
+	FindSimple(pageSize, offset int, boardID *uint) ([]vo.QuestionListResponse, int64, error)
 	FindSimpleQuestions(pageSize, offset int, boardID *uint, filter, sort, keyword string) ([]vo.QuestionSimpleDataVO, int64, error)
 	FindQuestionSimpleByID(questionID uint) (*vo.QuestionSimpleDataVO, error)
 }

@@ -22,6 +22,7 @@
   - [架构设计](/zh-CN/dev/architecture)
   - [机器人](/zh-CN/dev/robot)
   - [AI](/zh-CN/dev/ai)
+  - [hooks](/zh-CN/dev/hooks)
 - **数据库**
   - [介绍](/zh-CN/dev/database/intro)
 - **附录**

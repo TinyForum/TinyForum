@@ -109,6 +109,7 @@ export default function QuestionDetailPage() {
 
   const { question, answers, answersTotal, liked, loading, refresh, setLiked } =
     useQuestionDetail(questionId);
+  console.log("获取到 Question: ", question);
 
   const handleAcceptAnswer = async (answerId: number) => {
     if (!isAuthenticated) {
@@ -166,7 +167,7 @@ export default function QuestionDetailPage() {
     return <ErrorState message={t("question_not_found")} />;
   }
 
-  const isAuthor = user?.id === question.creation.author_id;
+  const isAuthor = user?.id === question.author_id;
   const hasAccepted = answers.some((a) => a.is_accepted);
   const totalPages = Math.ceil(answersTotal / pageSize);
 
@@ -198,7 +199,7 @@ export default function QuestionDetailPage() {
             question={question}
             answersCount={answersTotal}
             liked={liked}
-            likesCount={question.creation.like_count || 0}
+            likesCount={question.like_count || 0}
             hasAccepted={hasAccepted}
             rewardScore={0}
             onLike={handleLike}

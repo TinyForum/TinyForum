@@ -3,7 +3,7 @@ package question
 import (
 	"strconv"
 
-	"tiny-forum/internal/model/do"
+	"tiny-forum/internal/model/vo"
 	"tiny-forum/pkg/logger"
 	"tiny-forum/pkg/response"
 
@@ -71,7 +71,7 @@ func (h *QuestionHandler) GetQuestionDetail(c *gin.Context) {
 	// 	return
 	// }
 
-	responseData := do.QuestionResponse{
+	responseData := vo.QuestionDetailVO{
 		ID:               question.ID,
 		Title:            question.Title,
 		Content:          question.Content,
@@ -86,6 +86,10 @@ func (h *QuestionHandler) GetQuestionDetail(c *gin.Context) {
 		Status:           question.Status,
 		CreatedAt:        question.CreatedAt,
 		UpdatedAt:        question.UpdatedAt,
+		Author:           question.Author,
+		Tags:             question.Tags,
+		ViewCount:        question.ViewCount,
+		LikeCount:        question.LikeCount,
 	}
 	response.Success(c, responseData)
 }

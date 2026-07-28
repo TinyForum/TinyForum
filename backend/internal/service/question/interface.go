@@ -21,8 +21,8 @@ type QuestionService interface {
 	GetAnswerVoteStatus(userID, commentID uint) (map[string]any, error)
 	GetAnswersList(questionID uint, page, pageSize int) ([]do.Answer, int64, error)
 	// crud
-	CreateQuestion(userID uint, input dto.CreateQuestionRequest) (*do.QuestionResponse, error)
-	GetQuestionDetail(questionID uint) (*do.QuestionResponse, error)
+	CreateQuestion(userID uint, input dto.CreateQuestionRequest) (*vo.QuestionDetailVO, error)
+	GetQuestionDetail(questionID uint) (*vo.QuestionDetailVO, error)
 	GetQuestionsList(page, pageSize int, unanswered bool) ([]do.Question, int64, error)
 	GetQuestionByID(questionID uint) (*do.Question, error)
 	// simple

@@ -8,7 +8,7 @@ import { ApiResponse, PageData } from "../types/basic.model";
 import {
   PostListParams,
   Post,
-  PostDetailResult,
+  PostDetailResponse,
   CreatePostPayload,
   UpdatePostPayload,
 } from "../types/post.model";
@@ -31,7 +31,7 @@ export const postApi = {
    * @returns
    */
   getById: (id: number) =>
-    apiClient.get<ApiResponse<PostDetailResult>>(`/posts/${id}`),
+    apiClient.get<ApiResponse<PostDetailResponse>>(`/posts/${id}`),
 
   /**
    * 创建文章

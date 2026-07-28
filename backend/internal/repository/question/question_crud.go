@@ -21,13 +21,18 @@ func (r *questionRepository) Update(question *do.Question) error {
 
 func (r *questionRepository) FindByQuestionID(id uint) (*do.Question, error) {
 	var question do.Question
-	err := r.db.Preload("Creation").Preload("Creation.Tags").Where("id = ?", id).First(&question).Error
+	err := r.db.
+		Preload("Creation.Author").             // 加载作者
+		Preload("Creation.Board").              // 加载板块
+		Preload("Creation.Tags").               // 加载标签
+		Preload("AcceptedAnswer.Reply.Author"). // 如果 AcceptedAnswer 是 Answer，则加载 Answer 及其关联的 Reply 和作者
+		Where("id = ?", id).
+		First(&question).Error
 	if err != nil {
 		return nil, err
 	}
 	return &question, nil
 }
-
 func (r *questionRepository) FindByCreationID(questionID uint) (*do.Question, error) {
 	var question do.Question
 

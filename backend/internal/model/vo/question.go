@@ -2,6 +2,8 @@ package vo
 
 import (
 	"time"
+	"tiny-forum/internal/model/common"
+	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/dto"
 )
 
@@ -67,3 +69,37 @@ type QuestionActionType string
 const (
 	ActionAcceptedAnswer QuestionActionType = "已接受答案"
 )
+
+// CreateQuestionInput 创建问答输入
+
+type QuestionDetailVO struct {
+	ID               uint      `json:"id"`
+	CreationsID      uint      `json:"creations_id"`
+	Title            string    `json:"title"`
+	Content          string    `json:"content"`
+	Summary          string    `json:"summary"`
+	Cover            string    `json:"cover"`
+	BoardID          uint      `json:"board_id"`
+	AuthorID         uint      `json:"author_id"`
+	RewardScore      int       `json:"reward_score"`
+	AnswerCount      int       `json:"answer_count"`
+	AcceptedAnswerID *uint     `json:"accepted_answer_id"`
+	Status           string    `json:"status"`
+	CreatedAt        time.Time `json:"created_at"`
+	UpdatedAt        time.Time `json:"updated_at"`
+	Tags             []do.Tag  `json:"tags"`
+	Author           UserVO    `json:"author"`
+	ViewCount        int       `json:"view_count"`
+	LikeCount        int       `json:"like_count"`
+}
+
+type QuestionListResponse struct {
+	common.BaseModel
+	Title       string `json:"title"`
+	Summary     string `json:"summary"`
+	BoardID     uint   `json:"board_id"`
+	AuthorID    uint   `json:"author_id"`
+	RewardScore int    `json:"reward_score"`
+	AnswerCount int    `json:"answer_count"`
+	ViewCount   int    `gorm:"default:0" json:"view_count"`
+}

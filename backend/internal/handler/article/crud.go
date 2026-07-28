@@ -90,32 +90,51 @@ func (h *ArticleHandler) GetByID(c *gin.Context) {
 		return
 	}
 
-	postData := vo.PostVO{
-		ID:             post.ID,
-		CreatedAt:      post.CreatedAt,
-		UpdatedAt:      post.UpdatedAt,
-		Title:          post.Creation.Title,
-		Content:        post.Creation.Content,
-		CreationStatus: post.Creation.CreationStatus,
-		Author: vo.AutherWithArticle{
+	postData := vo.ArticleVO{
+		ID:        post.ID,
+		CreatedAt: post.CreatedAt,
+		UpdatedAt: post.UpdatedAt,
 
-			ID:        post.Creation.Author.ID,
-			Username:  post.Creation.Author.Username,
-			AvatarUrl: post.Creation.Author.AvatarUrl,
+		CreationID: post.CreationID,
+		Creation: vo.CreationVO{
+			Title:          post.Creation.Title,
+			Content:        post.Creation.Content,
+			CreationStatus: post.Creation.CreationStatus,
+			Author: vo.UserVO{
+				ID:        post.Creation.Author.ID,
+				Username:  post.Creation.Author.Username,
+				AvatarUrl: post.Creation.Author.AvatarUrl,
+			},
+			Board: vo.BoardVO{
+				ID:   post.Creation.Board.ID,
+				Name: post.Creation.Board.Name,
+			},
+			Tags:      convertTags(post.Creation.Tags),
+			LikeCount: post.Creation.LikeCount,
+			ViewCount: post.Creation.ViewCount,
 		},
-		Board: vo.BoardWithArticle{
-			ID:   post.Creation.Board.ID,
-			Name: post.Creation.Board.Name,
-		},
-		Tags:      post.Creation.Tags,
-		LikeCount: post.Creation.LikeCount,
-		ViewCount: post.Creation.ViewCount,
 	}
 
-	response.Success(c, vo.PostCardVO{
+	response.Success(c, vo.ArticleCardVO{
 		Post:  postData,
 		Liked: liked,
 	})
+}
+func convertTags(doTags []do.Tag) []vo.TagVO {
+	if doTags == nil {
+		return nil
+	}
+	vos := make([]vo.TagVO, len(doTags))
+	for i, t := range doTags {
+		vos[i] = convertTag(t)
+	}
+	return vos
+}
+func convertTag(doTag do.Tag) vo.TagVO {
+	return vo.TagVO{
+		Name:  doTag.Name,
+		Color: doTag.Color,
+	}
 }
 
 // List 获取帖子列表

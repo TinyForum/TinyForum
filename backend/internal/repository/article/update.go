@@ -10,7 +10,6 @@ func (r *articleRepository) Create(post *do.Article) error {
 	return r.db.Create(post).Error
 }
 
-
 func (r *articleRepository) Update(post *do.Article) error {
 	return r.db.Save(post).Error
 }

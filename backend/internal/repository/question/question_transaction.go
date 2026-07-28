@@ -4,13 +4,14 @@ import (
 	"errors"
 	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/dto"
+	"tiny-forum/internal/model/vo"
 	"tiny-forum/pkg/utils"
 
 	"gorm.io/gorm"
 )
 
 // CreateWithTransaction 使用事务创建问答（包括帖子、标签、积分扣减）
-func (r *questionRepository) CreateWithTransaction(userID uint, input dto.CreateQuestionRequest) (*do.QuestionResponse, error) {
+func (r *questionRepository) CreateWithTransaction(userID uint, input dto.CreateQuestionRequest) (*vo.QuestionDetailVO, error) {
 	tx := r.db.Begin()
 	defer func() {
 		if r := recover(); r != nil {
@@ -80,7 +81,7 @@ func (r *questionRepository) CreateWithTransaction(userID uint, input dto.Create
 		return nil, err
 	}
 
-	return &do.QuestionResponse{
+	return &vo.QuestionDetailVO{
 		ID:          question.ID,
 		CreationsID: creation.ID,
 		Title:       creation.Title,

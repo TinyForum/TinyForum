@@ -215,7 +215,7 @@ func (r *articleRepository) AdminList(ctx context.Context, listPostsDO *common.P
 // 通过文章ID查找文章
 func (r *articleRepository) FindByArticleID(id uint) (*do.Article, error) {
 	var post do.Article
-	err := r.db.Preload("Creation.Author").Preload("Creation.Tags").Preload("Creation").First(&post, id).Error
+	err := r.db.Preload("Creation.Author").Preload("Creation.Tags").Preload("Creation").Preload("Creation.Board").First(&post, id).Error
 	if err != nil {
 		return nil, err
 	}

@@ -7,8 +7,8 @@ import (
 )
 
 // FindSimple 获取问题精简列表（旧版，保留兼容）
-func (r *questionRepository) FindSimple(pageSize, offset int, boardID *uint) ([]do.QuestionListResponse, int64, error) {
-	var questions []do.QuestionListResponse
+func (r *questionRepository) FindSimple(pageSize, offset int, boardID *uint) ([]vo.QuestionListResponse, int64, error) {
+	var questions []vo.QuestionListResponse
 	var total int64
 	logger.Info("[Repository] FindSimple")
 

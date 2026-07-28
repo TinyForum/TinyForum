@@ -18,11 +18,12 @@ import { HeartIcon as HeartSolidIcon } from "@heroicons/react/24/solid";
 import { formatDistanceToNow } from "date-fns";
 import { zhCN } from "date-fns/locale";
 import { toast } from "react-hot-toast";
-import { Post } from "@/shared/api/types/post.model";
 import { Tag } from "@/shared/api/types/tag.model";
+import { QuestionResponse } from "@/shared/api/types/question.model";
+import Avatar from "@/features/user/components/Avatar";
 
 interface QuestionHeaderProps {
-  question: Post;
+  question: QuestionResponse;
   answersCount: number;
   liked: boolean;
   likesCount: number;
@@ -121,27 +122,39 @@ export function QuestionHeader({
         <div className="card-body p-6">
           {/* 标题 */}
           <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-base-content leading-tight">
-            {question.creation.title}
+            {question.title}
           </h1>
 
           {/* 元信息区域 */}
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-base-content/60">
             {/* 作者 - 使用 primary 主题色 */}
-            <div className="flex items-center gap-1.5">
-              <div className="avatar placeholder">
-                <div className="w-6 h-6 rounded-full bg-primary/10 text-primary ring-1 ring-primary/20">
-                  <span className="text-xs font-medium">
-                    {question.creation.author?.username?.[0]?.toUpperCase() ||
-                      "U"}
-                  </span>
-                </div>
-              </div>
+            <div>
               <Link
-                href={`/users/${question.creation.author_id}`}
+                href={`/users/${question.author_id}`}
                 className="hover:text-primary transition-colors duration-200 font-medium"
               >
-                {question.creation.author?.username ||
-                  `用户${question.creation.author_id}`}
+                <div className="flex items-center gap-1.5">
+                  {/* 头像 */}
+
+                  <div className="avatar placeholder">
+                    {/* <div className="w-6 h-6 rounded-full bg-primary/10 text-primary ring-1 ring-primary/20"> */}
+                    <span className="text-xs font-medium">
+                      {question.author?.avatar_url ? (
+                        <>
+                          <Avatar
+                            username={question.author.username}
+                            avatarUrl={question.author.avatar_url}
+                            size="md"
+                          />
+                        </>
+                      ) : (
+                        question.author?.username?.[0]?.toUpperCase() || "U"
+                      )}
+                    </span>
+                    {/* </div> */}
+                  </div>
+                  {question.author?.username || `用户${question.author.id}`}
+                </div>
               </Link>
             </div>
 
@@ -154,7 +167,7 @@ export function QuestionHeader({
             {/* 浏览 */}
             <div className="flex items-center gap-1">
               <EyeIcon className="w-3.5 h-3.5" />
-              <span>{question.creation.view_count || 0} 浏览</span>
+              <span>{question.view_count || 0} 浏览</span>
             </div>
 
             {/* 回答数 */}
@@ -201,9 +214,9 @@ export function QuestionHeader({
           </div>
 
           {/* 标签区域 - 使用主题色边框 */}
-          {question.creation.tags && question.creation.tags.length > 0 && (
+          {question.tags && question.tags.length > 0 && (
             <div className="flex flex-wrap gap-2 mt-1">
-              {question.creation.tags.map((tag: Tag) => (
+              {question.tags.map((tag: Tag) => (
                 <Link
                   key={tag.id}
                   href={`/questions?tag_id=${tag.id}`}
@@ -225,7 +238,7 @@ export function QuestionHeader({
           <div className="prose prose-sm sm:prose-base max-w-none pt-3">
             <div
               className="text-base-content/80 leading-relaxed [&_p]:mb-3 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_h1]:text-2xl [&_h1]:font-bold [&_h2]:text-xl [&_h2]:font-bold [&_h3]:text-lg [&_h3]:font-bold [&_pre]:bg-base-200 [&_pre]:p-3 [&_pre]:rounded-lg [&_code]:text-primary [&_code]:bg-primary/5 [&_code]:px-1 [&_code]:rounded"
-              dangerouslySetInnerHTML={{ __html: question.creation.content }}
+              dangerouslySetInnerHTML={{ __html: question.content }}
             />
           </div>
         </div>

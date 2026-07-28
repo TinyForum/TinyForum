@@ -1,4 +1,3 @@
-import { Post } from "./post.model";
 import { Comment } from "./comment.model";
 import { BaseModel } from "./basic.model";
 import { Creation } from "./creation.model";
@@ -25,15 +24,27 @@ export interface QuestionDO {
 }
 export interface QuestionResponse {
   id: number;
-  creations_id: number;
-  creation: Creation;
-  accepted_answer_id: number | null;
-  created_at: string;
-  updated_at: string;
-  reward_score: number;
+  accepted_answer_id: null;
   answer_count: number;
+  author_id: number;
+  board_id: number;
+  content: string;
+  cover: string;
+  created_at: string;
+  creations_id: number;
+  reward_score: number;
+  status: string;
+  summary: string;
+  title: string;
+  updated_at: string;
+  tags: [];
+  author: {
+    id: number;
+    username: string;
+    avatar_url?: string;
+  };
   view_count: number;
-  accepted_answer?: Comment;
+  like_count: number;
 }
 
 export interface QuestionSimple extends BaseModel {

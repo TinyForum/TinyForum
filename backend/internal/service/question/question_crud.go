@@ -6,13 +6,14 @@ import (
 	// "fmt"
 	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/dto"
+	"tiny-forum/internal/model/vo"
 	apperrors "tiny-forum/pkg/errors"
 
 	"gorm.io/gorm"
 )
 
 // CreateQuestion 创建问答帖
-func (s *questionService) CreateQuestion(userID uint, input dto.CreateQuestionRequest) (*do.QuestionResponse, error) {
+func (s *questionService) CreateQuestion(userID uint, input dto.CreateQuestionRequest) (*vo.QuestionDetailVO, error) {
 	if err := s.validateCreateQuestion(input); err != nil {
 		return nil, err
 	}
@@ -24,7 +25,7 @@ func (s *questionService) CreateQuestion(userID uint, input dto.CreateQuestionRe
 }
 
 // GetQuestionDetail 获取问答帖详情
-func (s *questionService) GetQuestionDetail(questionID uint) (*do.QuestionResponse, error) {
+func (s *questionService) GetQuestionDetail(questionID uint) (*vo.QuestionDetailVO, error) {
 	question, err := s.questionRepo.FindByQuestionID(questionID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -32,7 +33,7 @@ func (s *questionService) GetQuestionDetail(questionID uint) (*do.QuestionRespon
 		}
 		return nil, apperrors.ErrQueryQuestionFailed
 	}
-	return &do.QuestionResponse{
+	return &vo.QuestionDetailVO{
 		ID:               question.ID,
 		CreationsID:      question.CreationID,
 		Title:            question.Creation.Title,
@@ -47,6 +48,14 @@ func (s *questionService) GetQuestionDetail(questionID uint) (*do.QuestionRespon
 		Status:           string(question.Creation.CreationStatus),
 		CreatedAt:        question.CreatedAt,
 		UpdatedAt:        question.UpdatedAt,
+		Tags:             question.Creation.Tags,
+		Author: vo.UserVO{
+			ID:        question.Creation.Author.ID,
+			Username:  question.Creation.Author.Username,
+			AvatarUrl: question.Creation.Author.AvatarUrl,
+		},
+		ViewCount: question.ViewCount,
+		LikeCount: question.LikeCount,
 	}, nil
 }
 

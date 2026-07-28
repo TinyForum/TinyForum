@@ -1,8 +1,6 @@
 // src/app/posts/[id]/PostDetailClient.tsx
 "use client";
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { postApi } from "@/shared/api/modules/posts";
 import { useAuthStore } from "@/store/auth";
 import Image from "next/image";
 import Link from "next/link";
@@ -22,48 +20,84 @@ import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import Avatar from "@/features/user/components/Avatar";
+import {
+  useDeletePost,
+  useLikePost,
+  usePost,
+  useUnlikePost,
+} from "@/features/post/hooks/usePosts";
+
+// 导入自定义 hooks
 
 export default function PostDetailClient({ postId }: { postId: number }) {
   const router = useRouter();
   const { user, isAuthenticated } = useAuthStore();
-  const queryClient = useQueryClient();
   const t = useTranslations("Post");
 
-  const { data, isLoading, error } = useQuery({
-    queryKey: ["post", postId],
-    queryFn: () => postApi.getById(postId).then((r) => r.data.data),
-  });
+  // 1. 获取帖子详情（含是否已点赞）
+  const { data, isLoading, error } = usePost(postId);
 
-  const likeMutation = useMutation({
-    mutationFn: () =>
-      data?.liked ? postApi.unlike(postId) : postApi.like(postId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["post", postId] });
-      toast.success(
-        data?.liked ? t("like_has_been_removed") : t("like_successful"),
-      );
-    },
-    onError: () => toast.error(t("operation_failed")),
-  });
+  // 2. 点赞 / 取消点赞 mutation
+  const likePost = useLikePost();
+  const unlikePost = useUnlikePost();
 
-  const deleteMutation = useMutation({
-    mutationFn: () => postApi.delete(postId),
-    onSuccess: () => {
-      toast.success(t("post_deleted"));
-      router.push("/");
-    },
-    onError: () => toast.error(t("deletion_failed")),
-  });
+  // 3. 删除 mutation
+  const deletePost = useDeletePost();
 
+  // 处理点赞点击
+  const handleLikeClick = () => {
+    if (!isAuthenticated) {
+      toast.error(t("please_login_first"));
+      return;
+    }
+    // 根据当前 liked 状态决定调用 like 或 unlike
+    if (data?.liked) {
+      unlikePost.mutate(postId, {
+        onSuccess: () => {
+          toast.success(t("like_has_been_removed"));
+        },
+        onError: () => {
+          toast.error(t("operation_failed"));
+        },
+      });
+    } else {
+      likePost.mutate(postId, {
+        onSuccess: () => {
+          toast.success(t("like_successful"));
+        },
+        onError: () => {
+          toast.error(t("operation_failed"));
+        },
+      });
+    }
+  };
+
+  // 处理分享
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
     toast.success(t("link_copied"));
   };
 
+  // 处理删除
+  const handleDelete = () => {
+    if (!confirm(t("are_you_sure_to_delete_this_post"))) return;
+    deletePost.mutate(postId, {
+      onSuccess: () => {
+        toast.success(t("post_deleted"));
+        router.push("/");
+      },
+      onError: () => {
+        toast.error(t("deletion_failed"));
+      },
+    });
+  };
+
+  // 加载状态
   if (isLoading) {
     return <PostDetailSkeleton />;
   }
 
+  // 错误或数据不存在
   if (error || !data) {
     return (
       <div className="text-center py-20">
@@ -83,6 +117,7 @@ export default function PostDetailClient({ postId }: { postId: number }) {
 
   return (
     <>
+      {/* 返回按钮 */}
       <button
         onClick={() => router.back()}
         className="btn btn-ghost btn-sm gap-1 mb-4"
@@ -92,7 +127,7 @@ export default function PostDetailClient({ postId }: { postId: number }) {
 
       <article className="card bg-base-100 border border-base-300 shadow-sm mb-6">
         <div className="card-body p-6 lg:p-8">
-          {/* Post type + tags */}
+          {/* 类型与标签 */}
           <div className="flex items-center flex-wrap gap-2 mb-3">
             <span
               className={`badge ${
@@ -125,19 +160,19 @@ export default function PostDetailClient({ postId }: { postId: number }) {
             ))}
           </div>
 
-          {/* Title */}
+          {/* 标题 */}
           <h1 className="text-2xl lg:text-3xl font-bold text-base-content leading-tight">
             {post.creation.title}
           </h1>
 
-          {/* Author info */}
+          {/* 作者信息 */}
           <div className="flex items-center gap-3 mt-4 pb-4 border-b border-base-300">
             <Link href={`/users/${post.creation.author_id}`}>
               <div className="avatar">
                 <div className="w-10 h-10 rounded-full">
                   <Avatar
                     username={post.creation.author?.username}
-                    avatarUrl={post.creation.author?.avatar_url} // 数据库中的头像
+                    avatarUrl={post.creation.author?.avatar_url}
                     size="md"
                   />
                 </div>
@@ -163,7 +198,7 @@ export default function PostDetailClient({ postId }: { postId: number }) {
               </div>
             </div>
 
-            {/* Action buttons */}
+            {/* 操作按钮（编辑/删除） */}
             <div className="ml-auto flex items-center gap-1">
               {(isAuthor || isAdmin) && (
                 <>
@@ -175,11 +210,8 @@ export default function PostDetailClient({ postId }: { postId: number }) {
                   </Link>
                   <button
                     className="btn btn-ghost btn-xs text-error gap-1"
-                    onClick={() => {
-                      if (confirm(t("are_you_sure_to_delete_this_post")))
-                        deleteMutation.mutate();
-                    }}
-                    disabled={deleteMutation.isPending}
+                    onClick={handleDelete}
+                    disabled={deletePost.isPending}
                   >
                     <Trash2 className="w-3.5 h-3.5" /> {t("delete")}
                   </button>
@@ -188,7 +220,7 @@ export default function PostDetailClient({ postId }: { postId: number }) {
             </div>
           </div>
 
-          {/* Cover image */}
+          {/* 封面图 */}
           {post.creation.cover_url && (
             <div className="my-4 rounded-xl overflow-hidden">
               <Image
@@ -201,24 +233,18 @@ export default function PostDetailClient({ postId }: { postId: number }) {
             </div>
           )}
 
-          {/* Content */}
+          {/* 正文内容 */}
           <div
             className="prose-content mt-4 text-base-content/80 leading-relaxed"
             dangerouslySetInnerHTML={{ __html: post.creation.content }}
           />
 
-          {/* Footer actions */}
+          {/* 底部操作栏 */}
           <div className="flex items-center gap-3 mt-8 pt-4 border-t border-base-300">
             <button
               className={`btn btn-sm gap-2 ${liked ? "btn-error" : "btn-ghost"}`}
-              onClick={() => {
-                if (!isAuthenticated) {
-                  toast.error(t("please_login_first"));
-                  return;
-                }
-                likeMutation.mutate();
-              }}
-              disabled={likeMutation.isPending}
+              onClick={handleLikeClick}
+              disabled={likePost.isPending || unlikePost.isPending}
             >
               {liked ? (
                 <HeartOff className="w-4 h-4" />
@@ -240,6 +266,7 @@ export default function PostDetailClient({ postId }: { postId: number }) {
   );
 }
 
+// 骨架屏组件（保持不变）
 function PostDetailSkeleton() {
   return (
     <div className="space-y-4">

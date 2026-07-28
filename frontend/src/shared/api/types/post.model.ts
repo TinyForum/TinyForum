@@ -11,6 +11,7 @@ export interface Post {
   id: number;
   creations_id: number;
   creation: Creation;
+
   created_at: string;
   updated_at: string;
 }
@@ -45,7 +46,7 @@ export interface UpdatePostPayload {
   tag_ids?: number[];
 }
 
-export interface PostDetailResult {
+export interface PostDetailResponse {
   post: Post;
   liked: boolean;
 }

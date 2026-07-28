@@ -20,6 +20,12 @@ type UserAuthVO struct {
 	// LastLogin   *time.Time  `json:"last_login,omitempty"`
 	// InvitedByID *uint `json:"invited_by_id,omitempty"`
 }
+type UserVO struct {
+	ID        uint      `json:"id"`
+	CreatedAt time.Time `json:"created_at"`
+	Username  string    `json:"username"`
+	AvatarUrl string    `json:"avatar_url"`
+}
 
 type UserPrivateVO struct {
 	ID          uint        `json:"id"`
