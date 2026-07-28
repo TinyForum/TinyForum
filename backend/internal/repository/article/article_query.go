@@ -211,3 +211,37 @@ func (r *articleRepository) AdminList(ctx context.Context, listPostsDO *common.P
 
 	return posts, total, nil
 }
+
+// 通过文章ID查找文章
+func (r *articleRepository) FindByArticleID(id uint) (*do.Article, error) {
+	var post do.Article
+	err := r.db.Preload("Creation.Author").Preload("Creation.Tags").Preload("Creation").First(&post, id).Error
+	if err != nil {
+		return nil, err
+	}
+	return &post, nil
+}
+
+func (r *articleRepository) FindQuestionByQuestionID(id uint) (*do.Question, error) {
+	var question do.Question
+
+	// 构建查询，预加载所有可能用到的关联
+	query := r.db.
+		Preload("Creation.Author").
+		Preload("Creation.Tags").
+		Preload("Creation.Board"). // 如果业务需要 Board，可加上
+		Preload("AcceptedAnswer")  // 确保 AcceptedAnswer 被加载
+
+	// 如果希望包含软删除的关联（例如管理员查看），可取消注释：
+	// query = query.Unscoped() // 注意：这会同时取消主表的软删除过滤，请按需使用
+
+	err := query.First(&question, id).Error
+	if err != nil {
+		// 可封装为自定义错误，例如：
+		// if errors.Is(err, gorm.ErrRecordNotFound) {
+		//     return nil, ErrQuestionNotFound
+		// }
+		return nil, err
+	}
+	return &question, nil
+}

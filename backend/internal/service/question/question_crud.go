@@ -25,7 +25,7 @@ func (s *questionService) CreateQuestion(userID uint, input dto.CreateQuestionRe
 
 // GetQuestionDetail 获取问答帖详情
 func (s *questionService) GetQuestionDetail(questionID uint) (*do.QuestionResponse, error) {
-	question, err := s.questionRepo.FindByID(questionID)
+	question, err := s.questionRepo.FindByQuestionID(questionID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, apperrors.ErrQuestionNotFound
@@ -67,5 +67,5 @@ func (s *questionService) GetQuestionsList(page, pageSize int, unanswered bool) 
 
 // GetQuestionByID 根据 ID 获取 Question 模型（不含 Post 详情）
 func (s *questionService) GetQuestionByID(questionID uint) (*do.Question, error) {
-	return s.questionRepo.FindByID(questionID)
+	return s.questionRepo.FindByQuestionID(questionID)
 }

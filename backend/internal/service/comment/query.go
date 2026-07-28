@@ -13,12 +13,12 @@ func (s *commentService) GetCommentCount(postID uint) (int64, error) {
 }
 
 // GetAnswerByID 获取回答详情
-func (s *commentService) GetAnswerByID(commentID uint) (*do.Comment, error) {
-	return s.commentRepo.FindByID(commentID)
+func (s *commentService) GetAnswerByID(commentID uint) (*do.Answer, error) {
+	return s.commentRepo.FindByAnswerID(commentID)
 }
 
 // GetAnswersByPostID 获取帖子的所有答案（支持排序）
-func (s *commentService) GetAnswersByPostID(postID uint, page, pageSize int, sortBy string) ([]do.Comment, int64, error) {
+func (s *commentService) GetAnswersByPostID(postID uint, page, pageSize int, sortBy string) ([]do.Answer, int64, error) {
 	if page < 1 {
 		page = 1
 	}
@@ -33,13 +33,13 @@ func (s *commentService) GetAnswersByPostID(postID uint, page, pageSize int, sor
 	case "oldest":
 		return s.commentRepo.GetAnswersByPostIDOrderByOldest(postID, pageSize, offset)
 	default:
-		return s.commentRepo.GetAnswersByPostID(postID, pageSize, offset)
+		return s.commentRepo.GetAnswersByQuestionID(postID, pageSize, offset)
 	}
 }
 
 // GetAnswerVoteCount 获取答案的投票数（直接从 Comment 字段读取）
 func (s *commentService) GetAnswerVoteCount(commentID uint) (int, error) {
-	comment, err := s.commentRepo.FindByID(commentID)
+	comment, err := s.commentRepo.FindByAnswerID(commentID)
 	if err != nil {
 		return 0, err
 	}

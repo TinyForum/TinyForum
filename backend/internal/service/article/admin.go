@@ -48,7 +48,7 @@ func (s *articleService) SetStatus(postID uint, status do.CreationStatus) error 
 
 // TogglePin 切换帖子置顶状态
 func (s *articleService) TogglePin(postID uint) error {
-	post, err := s.postRepo.FindByID(postID)
+	post, err := s.postRepo.FindByArticleID(postID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return apperrors.ErrPostNotFound
@@ -61,7 +61,7 @@ func (s *articleService) TogglePin(postID uint) error {
 
 // 管理员更新审核状态
 func (s *articleService) AdminSetReviewPost(postID uint, status do.ModerationStatus) error {
-	post, err := s.postRepo.FindByID(postID)
+	post, err := s.postRepo.FindByArticleID(postID)
 	if err != nil {
 		return err
 	}

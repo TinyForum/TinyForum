@@ -8,15 +8,26 @@ import (
 )
 
 // Create 创建评论
-func (r *commentRepository) Create(comment *do.Comment) error {
+func (r *commentRepository) CreateComment(comment *do.Comment) error {
 	return r.db.Create(comment).Error
 }
 
-// FindByID 根据 ID 获取评论（预加载作者）
-func (r *commentRepository) FindByID(id uint) (*do.Comment, error) {
+func (r *commentRepository) CreateAnswer(comment *do.Answer) error {
+	return r.db.Create(comment).Error
+}
+
+// FindByCommentID 根据 ID 获取评论（预加载作者）
+func (r *commentRepository) FindByCommentID(id uint) (*do.Comment, error) {
 	var comment do.Comment
-	err := r.db.Preload("Author").First(&comment, id).Error
+	err := r.db.Preload("Reply.Author").First(&comment, id).Error
 	return &comment, err
+}
+
+// 根据 ID 获取回答（预加载作者）
+func (r *commentRepository) FindByAnswerID(id uint) (*do.Answer, error) {
+	var answer do.Answer
+	err := r.db.Preload("Reply.Author").First(&answer, id).Error
+	return &answer, err
 }
 
 // Update 更新评论

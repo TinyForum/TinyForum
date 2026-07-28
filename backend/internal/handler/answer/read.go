@@ -2,6 +2,7 @@ package answer
 
 import (
 	"strconv"
+	"tiny-forum/internal/model/common"
 	"tiny-forum/internal/model/do"
 	apperrors "tiny-forum/pkg/errors"
 	"tiny-forum/pkg/response"
@@ -61,19 +62,20 @@ func (h *AnswerHandler) GetQuestionAnswers(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "20"))
 
-	question, answers, total, err := h.questionSvc.GetQuestionWithAnswers(uint(postID), page, pageSize)
+	answers, total, err := h.questionSvc.GetAnswersList(uint(postID), page, pageSize)
 	if err != nil {
 		response.HandleError(c, err)
 		return
 	}
 
-	response.Success(c, gin.H{
-		"question":  question,
-		"answers":   answers,
-		"total":     total,
-		"page":      page,
-		"page_size": pageSize,
-	})
+	responseData := common.PageResult[do.Answer]{
+		List:     answers,
+		Total:    total,
+		Page:     page,
+		PageSize: pageSize,
+		HasMore:  total > int64(page*pageSize),
+	}
+	response.Success(c, responseData)
 }
 
 // MARK: Vote
@@ -120,12 +122,12 @@ func (h *AnswerHandler) GetVoteStatus(c *gin.Context) {
 		response.HandleError(c, err)
 		return
 	}
-
-	// 5. 返回结果
-	response.Success(c, VoteStatusResponse{
+	responseData := VoteStatusResponse{
 		UserVote:  userVote,
 		UpCount:   upCount,
 		DownCount: downCount,
 		Total:     upCount + downCount,
-	})
+	}
+	// 5. 返回结果
+	response.Success(c, responseData)
 }

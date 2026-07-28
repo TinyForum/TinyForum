@@ -1,15 +1,15 @@
 package comment
 
 import (
-	"errors"
 	"tiny-forum/internal/model/bo"
 	"tiny-forum/internal/model/do"
 	apperrors "tiny-forum/pkg/errors"
 )
 
 // Create 创建普通评论
-func (s *commentService) Create(authorID uint, input bo.CreateCommentInput) (*do.Comment, error) {
-	post, err := s.postRepo.FindByID(input.PostID)
+func (s *commentService) CreateComment(authorID uint, input bo.CreateCommentInput) (*do.Comment, error) {
+	// 获取请求参数
+	post, err := s.postRepo.FindByArticleID(input.PostID)
 	if err != nil {
 		return nil, apperrors.ErrPostNotFound
 	}
@@ -20,13 +20,16 @@ func (s *commentService) Create(authorID uint, input bo.CreateCommentInput) (*do
 		}
 	}
 	comment := &do.Comment{
-		Content:     input.Content,
-		CreationsID: input.PostID,
-		AuthorID:    authorID,
-		ParentID:    input.ParentID,
+		WorksID: input.PostID,
+		Reply: &do.Reply{
+			AuthorID: authorID,
+			ParentID: input.ParentID,
+			Content:  input.Content,
+			TargetID: input.PostID,
+		},
 	}
 
-	if err := s.commentRepo.Create(comment); err != nil {
+	if err := s.commentRepo.CreateComment(comment); err != nil {
 		return nil, err
 	}
 
@@ -38,44 +41,46 @@ func (s *commentService) Create(authorID uint, input bo.CreateCommentInput) (*do
 	}
 
 	if input.ParentID != nil {
-		parent, err := s.commentRepo.FindByID(*input.ParentID)
-		if err == nil && parent.AuthorID != authorID {
-			s.notifSvc.Create(parent.AuthorID, &authorID, do.NotifyReply,
+		parent, err := s.commentRepo.FindByCommentID(*input.ParentID)
+		if err == nil && parent.Reply.AuthorID != authorID {
+			s.notifSvc.Create(parent.Reply.AuthorID, &authorID, do.NotifyReply,
 				"有人回复了你的评论", input.ParentID, "comment")
 		}
 	}
 
-	return s.commentRepo.FindByID(comment.ID)
+	return s.commentRepo.FindByCommentID(comment.ID)
 }
 
 // CreateAnswer 创建回答（仅限问答帖）
-func (s *commentService) CreateAnswer(authorID uint, input bo.CreateCommentInput) (*do.Comment, error) {
-	post, err := s.postRepo.FindByID(input.PostID)
+func (s *commentService) CreateAnswer(authorID uint, input bo.CreateAnswerInput) (*do.Answer, error) {
+	// 查找 question id
+	question, err := s.postRepo.FindQuestionByQuestionID(input.QuestionID)
 	if err != nil {
 		return nil, apperrors.ErrPostNotFound
 	}
-	if post.Creation.Type != "question" {
-		return nil, errors.New("该帖子不是问答类型，请使用普通评论")
+	// if post.Creation.Type != "question" {
+	// 	return nil, errors.New("该帖子不是问答类型，请使用普通评论")
+	// }
+
+	comment := &do.Answer{
+		QuestionID: input.QuestionID,
+		Reply: &do.Reply{
+			Content:  input.Content,
+			AuthorID: authorID,
+			ParentID: input.ParentID,
+		},
 	}
 
-	comment := &do.Comment{
-		Content:     input.Content,
-		CreationsID: input.PostID,
-		AuthorID:    authorID,
-		ParentID:    input.ParentID,
-		IsAnswer:    true,
-	}
-
-	if err := s.commentRepo.Create(comment); err != nil {
+	if err := s.commentRepo.CreateAnswer(comment); err != nil {
 		return nil, err
 	}
 
 	_ = s.userRepo.AddScore(authorID, 2)
 
-	if post.Creation.AuthorID != authorID {
-		s.notifSvc.Create(post.Creation.AuthorID, &authorID, do.NotifyComment,
-			"有人回答了你的问题《"+post.Creation.Title+"》", &input.PostID, "post")
+	if question.Creation.AuthorID != authorID {
+		s.notifSvc.Create(question.Creation.AuthorID, &authorID, do.NotifyComment,
+			"有人回答了你的问题《"+question.Creation.Title+"》", &input.QuestionID, "post")
 	}
 
-	return s.commentRepo.FindByID(comment.ID)
+	return s.commentRepo.FindByAnswerID(comment.ID)
 }

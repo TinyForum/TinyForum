@@ -28,7 +28,7 @@ func (h *CommentHandler) Create(c *gin.Context) {
 		response.HandleError(c, err)
 		return
 	}
-	comment, err := h.commentSvc.Create(authorID, input)
+	comment, err := h.commentSvc.CreateComment(authorID, input)
 	if err != nil {
 		response.HandleError(c, err)
 		return

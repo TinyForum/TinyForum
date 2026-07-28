@@ -4,6 +4,7 @@ import "tiny-forum/internal/model/do"
 
 // CreateAnswerRequest 提交回答的请求参数
 type CreateAnswerRequest struct {
+	// QuestionID int    `json:"question_id" binding:"required,min=1"`      // 问题ID
 	Content string `json:"content" binding:"required,min=1,max=5000"` // 回答内容
 }
 

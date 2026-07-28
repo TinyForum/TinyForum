@@ -11,20 +11,20 @@ import (
 
 // AcceptAnswer 采纳答案
 func (s *questionService) AcceptAnswer(postID, commentID uint, userID uint) error {
-	post, err := s.postRepo.FindByID(postID)
+	post, err := s.postRepo.FindQuestionByQuestionID(postID)
 	if err != nil {
 		return apperrors.ErrPostNotFound
 	}
 	if post.Creation.AuthorID != userID {
 		return apperrors.ErrAcceptForbidden
 	}
-	comment, err := s.commentRepo.FindByID(commentID)
+	comment, err := s.commentRepo.FindByAnswerID(commentID)
 	if err != nil {
 		return apperrors.ErrAnswerNotFound
 	}
-	if !comment.IsAnswer {
-		return errors.New("该评论不是回答")
-	}
+	// if !comment.IsAnswer {
+	// 	return errors.New("该评论不是回答")
+	// }
 	question, err := s.questionRepo.FindByCreationID(postID)
 	if err != nil {
 		return apperrors.ErrQuestionNotFound
@@ -39,23 +39,23 @@ func (s *questionService) AcceptAnswer(postID, commentID uint, userID uint) erro
 		return err
 	}
 	if question.RewardScore > 0 {
-		s.userRepo.AddScore(comment.AuthorID, question.RewardScore)
+		s.userRepo.AddScore(comment.Reply.AuthorID, question.RewardScore)
 	}
-	s.notifSvc.Create(comment.AuthorID, &userID, do.NotifySystem,
+	s.notifSvc.Create(comment.Reply.AuthorID, &userID, do.NotifySystem,
 		"你的回答被采纳为最佳答案", &postID, "post")
 	return nil
 }
 
 // VoteAnswer 投票回答
 func (s *questionService) VoteAnswer(userID uint, input request.VoteAnswerRequest) (*vo.VoteAnswerVO, error) {
-	comment, err := s.commentRepo.FindByID(input.CommentID)
+	comment, err := s.commentRepo.FindByAnswerID(input.CommentID)
 	if err != nil {
 		return nil, apperrors.ErrAnswerNotFound
 	}
-	if !comment.IsAnswer {
-		return nil, errors.New("只能对回答进行投票")
-	}
-	if comment.AuthorID == userID {
+	// if !comment.IsAnswer {
+	// 	return nil, errors.New("只能对回答进行投票")
+	// }
+	if comment.Reply.AuthorID == userID {
 		return nil, errors.New("不能给自己的答案投票")
 	}
 	existingVote, _ := s.questionRepo.FindAnswerVote(userID, input.CommentID)
@@ -95,7 +95,7 @@ func (s *questionService) VoteAnswer(userID uint, input request.VoteAnswerReques
 	result.VoteCount = voteCount
 	result.Action = action
 	if action != "removed" {
-		s.notifSvc.Create(comment.AuthorID, &userID, do.NotifyLike,
+		s.notifSvc.Create(comment.Reply.AuthorID, &userID, do.NotifyLike,
 			"有人给你的答案投票了", &input.CommentID, "comment")
 	}
 	return &result, nil
@@ -120,11 +120,11 @@ func (s *questionService) GetAnswerVoteStatus(userID, commentID uint) (map[strin
 }
 
 // GetQuestionWithAnswers 获取问题及其回答（分页）
-func (s *questionService) GetQuestionWithAnswers(questionID uint, page, pageSize int) (*do.Question, []do.Comment, int64, error) {
-	question, err := s.questionRepo.FindByID(questionID)
-	if err != nil {
-		return nil, nil, 0, err
-	}
-	answers, total, err := s.commentRepo.GetAnswersByPostID(question.CreationID, pageSize, (page-1)*pageSize)
-	return question, answers, total, err
+func (s *questionService) GetAnswersList(questionID uint, page, pageSize int) ([]do.Answer, int64, error) {
+	// question, err := s.questionRepo.FindByQuestionID(questionID)
+	// if err != nil {
+	// 	return nil, 0, err
+	// }
+	answers, total, err := s.commentRepo.GetAnswersByQuestionID(questionID, pageSize, (page-1)*pageSize)
+	return answers, total, err
 }

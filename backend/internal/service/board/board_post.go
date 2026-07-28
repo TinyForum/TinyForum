@@ -5,7 +5,7 @@ import (
 )
 
 func (s *boardService) DeletePost(boardID, postID, userID uint, isAdmin bool) error {
-	post, err := s.postRepo.FindByID(postID)
+	post, err := s.postRepo.FindByArticleID(postID)
 	if err != nil {
 		return apperrors.ErrPostNotFound
 	}
@@ -21,7 +21,7 @@ func (s *boardService) DeletePost(boardID, postID, userID uint, isAdmin bool) er
 }
 
 func (s *boardService) PinPost(boardID, postID uint, pin bool) error {
-	post, err := s.postRepo.FindByID(postID)
+	post, err := s.postRepo.FindByArticleID(postID)
 	if err != nil {
 		return apperrors.ErrPostNotFound
 	}

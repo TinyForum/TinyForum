@@ -15,21 +15,21 @@ type CommentService interface {
 	MarkAsAnswer(commentID, userID uint, isAdmin bool, isAnswer bool) error
 	UnacceptAnswer(answerID, userID uint, isAdmin bool) error
 	// create
-	Create(authorID uint, input bo.CreateCommentInput) (*do.Comment, error)
-	CreateAnswer(authorID uint, input bo.CreateCommentInput) (*do.Comment, error)
+	CreateComment(authorID uint, input bo.CreateCommentInput) (*do.Comment, error)
+	CreateAnswer(authorID uint, input bo.CreateAnswerInput) (*do.Answer, error)
 	// delete
 	Delete(commentID, userID uint, isAdmin bool) error
 	DeleteAnswer(commentID, userID uint, isAdmin bool) error
 	// query
 	List(postID uint, page, pageSize int) ([]do.Comment, int64, error)
 	GetCommentCount(postID uint) (int64, error)
-	GetAnswerByID(commentID uint) (*do.Comment, error)
-	GetAnswersByPostID(postID uint, page, pageSize int, sortBy string) ([]do.Comment, int64, error)
+	GetAnswerByID(commentID uint) (*do.Answer, error)
+	GetAnswersByPostID(postID uint, page, pageSize int, sortBy string) ([]do.Answer, int64, error)
 	GetAnswerVoteCount(commentID uint) (int, error)
 	GetVoteStatistics(answerID uint) (upCount, downCount int, err error)
 	// vote
-	VoteAnswer(answerID uint, userID uint, voteType do.AnswerVoteType) (*do.Comment, error)
-	RemoveVote(answerID uint, userID uint) (*do.Comment, error)
+	VoteAnswer(answerID uint, userID uint, voteType do.AnswerVoteType) (*do.Answer, error)
+	RemoveVote(answerID uint, userID uint) (*do.Answer, error)
 	GetUserVoteStatus(answerID uint, userID uint) (*do.AnswerVoteType, error)
 
 	// like

@@ -9,8 +9,10 @@ import (
 )
 
 type CommentRepository interface {
-	Create(comment *do.Comment) error
-	FindByID(id uint) (*do.Comment, error)
+	CreateComment(comment *do.Comment) error
+	CreateAnswer(comment *do.Answer) error
+	FindByCommentID(id uint) (*do.Comment, error)
+	FindByAnswerID(id uint) (*do.Answer, error)
 	Update(comment *do.Comment) error
 	Delete(id uint) error
 	ValidateParentComment(parentID uint, postID uint) error
@@ -21,14 +23,15 @@ type CommentRepository interface {
 	UpdateVoteCount(commentID uint, voteCount int) error
 	// list
 	ListByPost(postID uint, page, pageSize int) ([]do.Comment, int64, error)
-	GetAnswersByPostID(postID uint, limit, offset int) ([]do.Comment, int64, error)
-	GetAnswersByPostIDOrderByNewest(postID uint, limit, offset int) ([]do.Comment, int64, error)
-	GetAnswersByPostIDOrderByOldest(postID uint, limit, offset int) ([]do.Comment, int64, error)
+	// GetAnswersByPostID(postID uint, limit, offset int) ([]do.Answer, int64, error)
+	GetAnswersByQuestionID(questionID uint, limit, offset int) ([]do.Answer, int64, error)
+	GetAnswersByPostIDOrderByNewest(postID uint, limit, offset int) ([]do.Answer, int64, error)
+	GetAnswersByPostIDOrderByOldest(postID uint, limit, offset int) ([]do.Answer, int64, error)
 	// answer
 	MarkAsAccepted(commentID uint) error
 	MarkAsAnswer(commentID uint, isAnswer bool) error
 	UnacceptAnswer(commentID uint) error
-	GetAcceptedAnswer(postID uint) (*do.Comment, error)
+	GetAcceptedAnswer(postID uint) (*do.Answer, error)
 	// 查询评论数
 	BatchCountByPostIDs(ctx context.Context, postIDs []uint) (map[uint]int64, error)
 

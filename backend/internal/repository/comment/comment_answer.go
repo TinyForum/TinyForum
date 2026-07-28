@@ -45,8 +45,8 @@ func (r *commentRepository) UnacceptAnswer(commentID uint) error {
 }
 
 // GetAcceptedAnswer 获取问题已接受的答案
-func (r *commentRepository) GetAcceptedAnswer(postID uint) (*do.Comment, error) {
-	var comment do.Comment
+func (r *commentRepository) GetAcceptedAnswer(postID uint) (*do.Answer, error) {
+	var comment do.Answer
 	err := r.db.Where("post_id = ? AND is_accepted = ?", postID, true).
 		First(&comment).Error
 	if err != nil {

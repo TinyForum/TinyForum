@@ -12,7 +12,7 @@ type QuestionRepository interface {
 	// CRUD
 	Create(question *do.Question) error
 	Update(question *do.Question) error
-	FindByID(id uint) (*do.Question, error)
+	FindByQuestionID(id uint) (*do.Question, error)
 	FindByCreationID(postID uint) (*do.Question, error)
 	IncrementAnswerCount(postID uint) error
 	SetAcceptedAnswer(postID, commentID uint) error

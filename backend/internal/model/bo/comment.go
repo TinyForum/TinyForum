@@ -5,3 +5,9 @@ type CreateCommentInput struct {
 	Content  string `json:"content" binding:"required,min=1,max=2000"`
 	ParentID *uint  `json:"parent_id"`
 }
+
+type CreateAnswerInput struct {
+	QuestionID uint   `json:"question_id" binding:"required"`
+	Content    string `json:"content" binding:"required,min=1,max=2000"`
+	ParentID   *uint  `json:"parent_id"`
+}

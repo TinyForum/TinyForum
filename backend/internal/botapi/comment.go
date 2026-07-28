@@ -8,15 +8,15 @@ import (
 // ─── Comment ──────────────────────────────────────────────────────────────
 
 func (a *forumAPIImpl) GetComment(ctx context.Context, commentID uint) (*sdk.CommentVO, error) {
-	c, err := a.commentRepo.FindByID(uint(commentID))
+	c, err := a.commentRepo.FindByCommentID(uint(commentID))
 	if err != nil {
 		return nil, err
 	}
 	return &sdk.CommentVO{
 		ID:        c.ID,
-		Content:   c.Content,
-		AuthorID:  c.AuthorID,
-		PostID:    c.CreationsID,
+		Content:   c.Reply.Content,
+		AuthorID:  c.Reply.AuthorID,
+		TargetID:  c.ReplyID,
 		CreatedAt: c.CreatedAt.Unix(),
 	}, nil
 }

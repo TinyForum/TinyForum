@@ -25,18 +25,18 @@ func (r *voteRepository) GetUserVote(commentID, userID uint) (*do.AnswerVoteType
 	return vote.VoteType, nil
 }
 
-// GetVoteCount 获取评论的净投票数（up 数量 - down 数量）
-// 直接从 Comment 表的 vote_count 字段读取，高效
+// GetVoteCount 获取答案的净投票数（up 数量 - down 数量）
+// 直接从 answer 表的 vote_count 字段读取，高效
 func (r *voteRepository) GetVoteCount(commentID uint) (int, error) {
-	var comment do.Comment
-	err := r.db.Select("vote_count").Where("id = ?", commentID).First(&comment).Error
+	var answer do.Answer
+	err := r.db.Select("vote_count").Where("id = ?", commentID).First(&answer).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return 0, nil // 评论不存在，返回 0
 		}
 		return 0, fmt.Errorf("查询评论投票数失败: %w", err)
 	}
-	return comment.VoteCount, nil
+	return answer.VoteCount, nil
 }
 
 // GetVoteUsers 获取对某评论投了指定票型的用户列表

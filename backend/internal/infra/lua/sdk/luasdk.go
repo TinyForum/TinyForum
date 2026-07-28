@@ -56,7 +56,7 @@ type CommentVO struct {
 	ID        uint   `json:"id"`
 	Content   string `json:"content"`
 	AuthorID  uint   `json:"author_id"`
-	PostID    uint   `json:"post_id"`
+	TargetID  uint   `json:"target_id"`
 	CreatedAt int64  `json:"created_at"`
 }
 

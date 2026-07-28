@@ -46,6 +46,7 @@ func WithMessage(msg string) Option {
 // Success 函数用于处理成功的响应
 // 它接收一个 gin.Context 上下文、任意类型的数据和可选的配置选项
 // 然后构造一个响应对象并返回 HTTP 200 状态码
+// 响应格式：{"code": 0, "message": "success", "data": data}
 func Success(c *gin.Context, data any, opts ...Option) {
 	// 创建一个新的响应对象，默认状态码为 0，消息为 "success"
 	resp := newResp(c, 0, "success")

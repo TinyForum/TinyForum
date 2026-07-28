@@ -32,9 +32,8 @@ type User struct {
 	TempPasswordExpire *time.Time `json:"-"`                                            // 临时密码过期时间
 
 	// 社交活动，可用于风控、审查
-	Comments  []Comment `gorm:"foreignKey:AuthorID" json:"-"`    // 用户发布的评论
-	Followers []Follow  `gorm:"foreignKey:FollowingID" json:"-"` // 用户的粉丝
-	Following []Follow  `gorm:"foreignKey:FollowerID" json:"-"`  // 用户关注的用户
+	Followers []Follow `gorm:"foreignKey:FollowingID" json:"-"` // 用户的粉丝
+	Following []Follow `gorm:"foreignKey:FollowerID" json:"-"`  // 用户关注的用户
 }
 
 type UpdateProfileInput struct {

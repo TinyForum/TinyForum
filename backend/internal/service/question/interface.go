@@ -18,8 +18,8 @@ import (
 type QuestionService interface {
 	AcceptAnswer(postID, commentID uint, userID uint) error
 	VoteAnswer(userID uint, input request.VoteAnswerRequest) (*vo.VoteAnswerVO, error)
-	GetAnswerVoteStatus(userID, commentID uint) (map[string]interface{}, error)
-	GetQuestionWithAnswers(postID uint, page, pageSize int) (*do.Question, []do.Comment, int64, error)
+	GetAnswerVoteStatus(userID, commentID uint) (map[string]any, error)
+	GetAnswersList(postID uint, page, pageSize int) ([]do.Answer, int64, error)
 	// crud
 	CreateQuestion(userID uint, input dto.CreateQuestionRequest) (*do.QuestionResponse, error)
 	GetQuestionDetail(questionID uint) (*do.QuestionResponse, error)

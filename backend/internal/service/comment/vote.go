@@ -7,16 +7,14 @@ import (
 )
 
 // VoteAnswer 对回答进行投票（up/down），支持切换或取消（相同投票类型则取消）
-func (s *commentService) VoteAnswer(answerID uint, userID uint, voteType do.AnswerVoteType) (*do.Comment, error) {
+func (s *commentService) VoteAnswer(answerID uint, userID uint, voteType do.AnswerVoteType) (*do.Answer, error) {
 	// 1. 校验回答存在且为答案类型
-	comment, err := s.commentRepo.FindByID(answerID)
+	comment, err := s.commentRepo.FindByAnswerID(answerID)
 	if err != nil {
 		return nil, fmt.Errorf("回答不存在: %w", err)
 	}
-	if !comment.IsAnswer {
-		return nil, errors.New("该评论不是回答，无法投票")
-	}
-	if comment.AuthorID == userID {
+
+	if comment.Reply.AuthorID == userID {
 		return nil, errors.New("不能给自己的回答投票")
 	}
 
@@ -46,7 +44,7 @@ func (s *commentService) VoteAnswer(answerID uint, userID uint, voteType do.Answ
 	}
 
 	// 4. 重新获取最新评论（包含更新后的 vote_count）
-	updatedComment, err := s.commentRepo.FindByID(answerID)
+	updatedComment, err := s.commentRepo.FindByAnswerID(answerID)
 	if err != nil {
 		return nil, fmt.Errorf("获取最新回答信息失败: %w", err)
 	}
@@ -54,15 +52,15 @@ func (s *commentService) VoteAnswer(answerID uint, userID uint, voteType do.Answ
 }
 
 // RemoveVote 取消用户对回答的投票（无论当前是何类型）
-func (s *commentService) RemoveVote(answerID uint, userID uint) (*do.Comment, error) {
+func (s *commentService) RemoveVote(answerID uint, userID uint) (*do.Answer, error) {
 	// 1. 校验回答存在且为答案类型
-	comment, err := s.commentRepo.FindByID(answerID)
+	_, err := s.commentRepo.FindByAnswerID(answerID)
 	if err != nil {
 		return nil, fmt.Errorf("回答不存在: %w", err)
 	}
-	if !comment.IsAnswer {
-		return nil, errors.New("该评论不是回答，无法取消投票")
-	}
+	// if !comment.IsAnswer {
+	// 	return nil, errors.New("该评论不是回答，无法取消投票")
+	// }
 
 	// 2. 检查是否有投票记录
 	currentVote, err := s.voteRepo.GetUserVote(answerID, userID)
@@ -79,7 +77,7 @@ func (s *commentService) RemoveVote(answerID uint, userID uint) (*do.Comment, er
 	}
 
 	// 4. 返回最新评论
-	updatedComment, err := s.commentRepo.FindByID(answerID)
+	updatedComment, err := s.commentRepo.FindByAnswerID(answerID)
 	if err != nil {
 		return nil, fmt.Errorf("获取最新回答信息失败: %w", err)
 	}

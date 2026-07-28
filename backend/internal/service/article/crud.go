@@ -100,7 +100,7 @@ func (s *articleService) Create(ctx *gin.Context, authorID uint, input request.C
 	_ = s.userRepo.AddScore(authorID, 10)
 
 	// 11. 重新加载完整帖子（包含关联数据）
-	post, err = s.postRepo.FindByID(post.ID)
+	post, err = s.postRepo.FindByArticleID(post.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -117,7 +117,7 @@ func (s *articleService) Create(ctx *gin.Context, authorID uint, input request.C
 
 // Update 更新帖子
 func (s *articleService) Update(postID, userID uint, isAdmin bool, input request.UpdatePostRequest) (*do.Article, error) {
-	post, err := s.postRepo.FindByID(postID)
+	post, err := s.postRepo.FindByArticleID(postID)
 	if err != nil {
 		return nil, apperrors.ErrPostNotFound
 	}
@@ -149,12 +149,12 @@ func (s *articleService) Update(postID, userID uint, isAdmin bool, input request
 	if err := s.postRepo.Update(post); err != nil {
 		return nil, err
 	}
-	return s.postRepo.FindByID(post.ID)
+	return s.postRepo.FindByArticleID(post.ID)
 }
 
 // Delete 删除帖子
 func (s *articleService) Delete(postID, userID uint, isAdmin bool) error {
-	post, err := s.postRepo.FindByID(postID)
+	post, err := s.postRepo.FindByArticleID(postID)
 	if err != nil {
 		return apperrors.ErrPostNotFound
 	}
@@ -166,7 +166,7 @@ func (s *articleService) Delete(postID, userID uint, isAdmin bool) error {
 
 // GetByID 获取帖子详情（含点赞状态）
 func (s *articleService) GetByID(postID, viewerID uint) (*do.Article, bool, error) {
-	post, err := s.postRepo.FindByID(postID)
+	post, err := s.postRepo.FindByArticleID(postID)
 	if err != nil {
 		return nil, false, apperrors.ErrPostNotFound
 	}

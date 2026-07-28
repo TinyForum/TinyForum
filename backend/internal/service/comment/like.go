@@ -17,10 +17,10 @@ func (s *commentService) Like(userID, postID uint) error {
 
 	// 增加积分
 	_ = s.userRepo.AddScore(userID, 2)
-	comment, _ := s.commentRepo.FindByID(postID)
-	if comment != nil && comment.AuthorID != userID {
-		s.notifSvc.Create(comment.AuthorID, &userID, do.NotifyLike,
-			"有人点赞了你的评论《"+comment.Content+"》", &postID, "post")
+	comment, _ := s.commentRepo.FindByCommentID(postID)
+	if comment != nil && comment.Reply.AuthorID != userID {
+		s.notifSvc.Create(comment.Reply.AuthorID, &userID, do.NotifyLike,
+			"有人点赞了你的评论《"+comment.Reply.Content+"》", &postID, "post")
 	}
 	return nil
 }

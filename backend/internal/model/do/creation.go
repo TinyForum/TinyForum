@@ -42,7 +42,7 @@ type Creation struct {
 	Author   User      `gorm:"foreignKey:AuthorID" json:"author,omitempty"`   // 作者
 	Board    Board     `gorm:"foreignKey:BoardID" json:"board,omitempty"`     // 所属板块
 	Tags     []Tag     `gorm:"many2many:creation_tags" json:"tags,omitempty"` // 标签
-	Comments []Comment `gorm:"foreignKey:CreationsID;references:ID" json:"-"`
+	Comments []Comment `gorm:"foreignKey:WorksID;references:ID" json:"-"`
 	Likes    []Like    `gorm:"-" json:"-"` // 点赞
 }
 

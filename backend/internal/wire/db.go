@@ -68,6 +68,8 @@ func InitDB(cfg *config.Config) (*gorm.DB, error) {
 		&do.Article{}, // 文章
 		// 互动
 		&do.Comment{},              // 评论
+		&do.Reply{},                // 回复
+		&do.Answer{},               // 回答
 		&do.Like{},                 // 点赞
 		&do.Notification{},         // 通知
 		&do.SignIn{},               // 登录

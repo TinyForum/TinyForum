@@ -11,7 +11,7 @@ import (
 // ─── Post ─────────────────────────────────────────────────────────────────
 
 func (a *forumAPIImpl) GetPost(ctx context.Context, postID uint) (*sdk.PostVO, error) {
-	p, err := a.postRepo.FindByID(uint(postID))
+	p, err := a.postRepo.FindByArticleID(uint(postID))
 	if err != nil {
 		return nil, err
 	}
@@ -52,19 +52,22 @@ func (a *forumAPIImpl) CreatePost(ctx context.Context, req sdk.CreatePostReq) (*
 
 func (a *forumAPIImpl) ReplyPost(ctx context.Context, postID uint, content string) (*sdk.CommentVO, error) {
 	c := &do.Comment{
-		CreationsID: uint(postID),
-		AuthorID:    a.botActorID,
-		Content:     content,
-		Status:      do.CommentStatusVisible,
+
+		Reply: &do.Reply{
+			AuthorID: a.botActorID,
+			Content:  content,
+			Status:   do.ReplyStatusVisible,
+			TargetID: uint(postID),
+		},
 	}
-	if err := a.commentRepo.Create(c); err != nil {
+	if err := a.commentRepo.CreateComment(c); err != nil {
 		return nil, err
 	}
 	return &sdk.CommentVO{
 		ID:        c.ID,
-		Content:   c.Content,
-		AuthorID:  c.AuthorID,
-		PostID:    c.CreationsID,
+		Content:   c.Reply.Content,
+		AuthorID:  c.Reply.AuthorID,
+		TargetID:  c.Reply.TargetID,
 		CreatedAt: c.CreatedAt.Unix(),
 	}, nil
 }
@@ -75,7 +78,7 @@ func (a *forumAPIImpl) DeletePost(ctx context.Context, postID uint) error {
 
 // ModeratePost 支持 action: hide | pin | lock | delete
 func (a *forumAPIImpl) ModeratePost(ctx context.Context, postID uint, action, reason string) error {
-	p, err := a.postRepo.FindByID(uint(postID))
+	p, err := a.postRepo.FindByArticleID(uint(postID))
 	if err != nil {
 		return err
 	}

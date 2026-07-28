@@ -4,6 +4,7 @@ import (
 	"errors"
 	"strconv"
 	"tiny-forum/internal/model/do"
+	"tiny-forum/internal/model/vo"
 	apperrors "tiny-forum/pkg/errors"
 	"tiny-forum/pkg/response"
 
@@ -52,7 +53,11 @@ func (h *AnswerHandler) AcceptAnswer(c *gin.Context) {
 		}
 		return
 	}
-	response.Success(c, gin.H{"message": "采纳答案成功"})
+	responseData := vo.AcceptAnswerVO{
+		Message: vo.ActionAcceptedAnswer,
+	}
+
+	response.Success(c, responseData)
 }
 
 // UnacceptAnswer 取消接受答案

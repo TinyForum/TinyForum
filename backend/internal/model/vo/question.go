@@ -56,3 +56,14 @@ type QuestionSimpleVO struct {
 	Tags             []dto.SimpleTag   `json:"tags"`
 	CreatedAt        time.Time         `json:"created_at"`
 }
+
+// AcceptAnswerVO 采纳答案
+type AcceptAnswerVO struct {
+	Message QuestionActionType `json:"message"`
+}
+
+type QuestionActionType string
+
+const (
+	ActionAcceptedAnswer QuestionActionType = "已接受答案"
+)

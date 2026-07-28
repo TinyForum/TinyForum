@@ -6,31 +6,28 @@ import (
 )
 
 // MarkAsAnswer 标记/取消标记为答案
-func (s *commentService) MarkAsAnswer(commentID, userID uint, isAdmin bool, isAnswer bool) error {
-	comment, err := s.commentRepo.FindByID(commentID)
+func (s *commentService) MarkAsAnswer(answerID, userID uint, isAdmin bool, isAnswer bool) error {
+	answer, err := s.commentRepo.FindByAnswerID(answerID)
 	if err != nil {
 		return apperrors.ErrCommentNotFound
 	}
-	post, err := s.postRepo.FindByID(comment.CreationsID)
+	post, err := s.postRepo.FindQuestionByQuestionID(answer.QuestionID)
 	if err != nil {
 		return apperrors.ErrPostNotFound
 	}
 	if post.Creation.AuthorID != userID && !isAdmin {
 		return apperrors.ErrInsufficientPermission
 	}
-	return s.commentRepo.MarkAsAnswer(commentID, isAnswer)
+	return s.commentRepo.MarkAsAnswer(answerID, isAnswer)
 }
 
 // UnacceptAnswer 取消接受答案（问题作者或管理员）
 func (s *commentService) UnacceptAnswer(answerID, userID uint, isAdmin bool) error {
-	answer, err := s.commentRepo.FindByID(answerID)
+	answer, err := s.commentRepo.FindByAnswerID(answerID)
 	if err != nil {
 		return apperrors.ErrAnswerNotFound
 	}
-	if !answer.IsAnswer {
-		return apperrors.ErrCommentNotAnswer
-	}
-	post, err := s.postRepo.FindByID(answer.CreationsID)
+	post, err := s.postRepo.FindQuestionByQuestionID(answer.QuestionID)
 	if err != nil {
 		return apperrors.ErrQuestionNotFound
 	}
@@ -48,8 +45,8 @@ func (s *commentService) UnacceptAnswer(answerID, userID uint, isAdmin bool) err
 	}
 	// 可选：扣除积分并发送通知
 	if post.Creation.AuthorID != userID {
-		s.notifSvc.Create(answer.AuthorID, &userID, do.NotifyAcceptCancel,
-			"你的答案在问题《"+post.Creation.Title+"》中被取消接受", &answer.CreationsID, "post")
+		s.notifSvc.Create(answer.Reply.AuthorID, &userID, do.NotifyAcceptCancel,
+			"你的答案在问题《"+post.Creation.Title+"》中被取消接受", &answer.QuestionID, "post")
 	}
 	return nil
 }

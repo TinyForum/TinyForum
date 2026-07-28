@@ -16,7 +16,8 @@ import (
 type ArticleRepository interface {
 	// 基础 CRUD
 	Create(post *do.Article) error
-	FindByID(id uint) (*do.Article, error)
+	FindByArticleID(id uint) (*do.Article, error)           // 根据帖子ID获取帖子
+	FindQuestionByQuestionID(id uint) (*do.Question, error) // 根据问题ID获取问题
 	Update(post *do.Article) error
 	Delete(id uint) error
 	// List(page, pageSize int, opts bo.ListPosts) ([]do.Post, int64, error)

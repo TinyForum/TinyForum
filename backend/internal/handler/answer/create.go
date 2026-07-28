@@ -31,14 +31,14 @@ func (h *AnswerHandler) CreateAnswer(c *gin.Context) {
 	}
 
 	// 2. 通过 questionID 查询 Question 记录，获取 postID
-	question, err := h.questionSvc.GetQuestionByID(uint(questionID))
-	if err != nil {
-		response.HandleError(c, err)
-		return
-	}
+	// question, err := h.questionSvc.GetQuestionByID(uint(questionID))
+	// if err != nil {
+	// 	response.HandleError(c, err)
+	// 	return
+	// }
 
 	// 3. 获取 postID
-	postID := question.CreationID
+	// postID := question.CreationID
 
 	// 4. 绑定请求参数
 	var req CreateAnswerRequest
@@ -51,9 +51,9 @@ func (h *AnswerHandler) CreateAnswer(c *gin.Context) {
 	authorID := c.GetUint("user_id")
 
 	// 6. 构建输入
-	input := bo.CreateCommentInput{
-		PostID:  postID,
-		Content: req.Content,
+	input := bo.CreateAnswerInput{
+		QuestionID: uint(questionID),
+		Content:    req.Content,
 	}
 
 	// 7. 创建回答

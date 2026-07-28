@@ -19,7 +19,7 @@ func (r *questionRepository) Update(question *do.Question) error {
 	return r.db.Save(question).Error
 }
 
-func (r *questionRepository) FindByID(id uint) (*do.Question, error) {
+func (r *questionRepository) FindByQuestionID(id uint) (*do.Question, error) {
 	var question do.Question
 	err := r.db.Preload("Creation").Preload("Creation.Tags").Where("id = ?", id).First(&question).Error
 	if err != nil {

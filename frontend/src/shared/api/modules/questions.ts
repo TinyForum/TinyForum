@@ -5,7 +5,7 @@ import { AnswerListParams } from "../types/answer.model";
 import { ApiResponse, PageData } from "../types/basic.model";
 import { Post } from "../types/post.model";
 import {
-  Question,
+  QuestionDO,
   QuestionResponse,
   QuestionSimple,
 } from "../types/question.model";
@@ -43,7 +43,7 @@ export const questionApi = {
    * @returns
    */
   getList: (params?: QuestionListParams) =>
-    apiClient.get<ApiResponse<PageData<Question>>>("/questions/list", {
+    apiClient.get<ApiResponse<PageData<QuestionDO>>>("/questions/list", {
       params,
     }),
 

@@ -16,7 +16,7 @@ func (s *topicService) AddPostToTopic(input request.AddPostToTopicRequest, userI
 	// if topic.CreatorID != userID {
 	// 	return errors.New("只有话题创建者可以添加内容")
 	// }
-	post, err := s.postRepo.FindByID(input.PostID)
+	post, err := s.postRepo.FindByArticleID(input.PostID)
 	if err != nil {
 		return apperrors.ErrPostNotFound
 	}
