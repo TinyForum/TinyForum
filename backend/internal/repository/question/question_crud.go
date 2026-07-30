@@ -33,7 +33,9 @@ func (r *questionRepository) FindByQuestionID(id uint) (*do.Question, error) {
 	}
 	return &question, nil
 }
-func (r *questionRepository) FindByCreationID(questionID uint) (*do.Question, error) {
+
+// 通过 CreationID 查找 Question
+func (r *questionRepository) FindQuestionByCreationID(questionID uint) (*do.Question, error) {
 	var question do.Question
 
 	logger.Infof("creation id: %v", questionID)
@@ -49,10 +51,10 @@ func (r *questionRepository) IncrementAnswerCount(postID uint) error {
 		UpdateColumn("answer_count", gorm.Expr("answer_count + 1")).Error
 }
 
-func (r *questionRepository) SetAcceptedAnswer(postID, commentID uint) error {
-	return r.db.Model(&do.Question{}).Where("post_id = ?", postID).
+func (r *questionRepository) SetAcceptedAnswer(questionID, answerID uint) error {
+	return r.db.Model(&do.Question{}).Where("id = ?", questionID).
 		Updates(map[string]interface{}{
-			"accepted_answer_id": commentID,
+			"accepted_answer_id": answerID,
 		}).Error
 }
 

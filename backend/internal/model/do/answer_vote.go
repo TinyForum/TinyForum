@@ -7,9 +7,9 @@ import (
 
 type AnswerVote struct {
 	common.BaseModel
-	UserID    uint            `gorm:"uniqueIndex:idx_user_answer;not null" json:"user_id"`
-	CommentID uint            `gorm:"uniqueIndex:idx_user_answer;not null" json:"comment_id"`
-	VoteType  *AnswerVoteType `gorm:"type:varchar(10)" json:"vote_type"` // up/down
+	UserID   uint            `gorm:"uniqueIndex:idx_user_answer;not null" json:"user_id"`
+	AnswerID uint            `gorm:"uniqueIndex:idx_user_answer;not null" json:"answer_id"`
+	VoteType *AnswerVoteType `gorm:"type:varchar(10)" json:"vote_type"` // up/down
 }
 
 // AnnouncementType 公告类型（可存储）

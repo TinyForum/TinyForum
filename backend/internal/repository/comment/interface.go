@@ -30,7 +30,7 @@ type CommentRepository interface {
 	// answer
 	MarkAsAccepted(commentID uint) error
 	MarkAsAnswer(commentID uint, isAnswer bool) error
-	UnacceptAnswer(commentID uint) error
+	UnacceptAnswer(answerID uint) error
 	GetAcceptedAnswer(postID uint) (*do.Answer, error)
 	// 查询评论数
 	BatchCountByPostIDs(ctx context.Context, postIDs []uint) (map[uint]int64, error)

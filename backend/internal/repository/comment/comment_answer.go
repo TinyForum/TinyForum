@@ -3,8 +3,8 @@ package comment
 import "tiny-forum/internal/model/do"
 
 // MarkAsAccepted 标记评论为已采纳答案
-func (r *commentRepository) MarkAsAccepted(commentID uint) error {
-	return r.db.Model(&do.Comment{}).Where("id = ?", commentID).
+func (r *commentRepository) MarkAsAccepted(answerID uint) error {
+	return r.db.Model(&do.Answer{}).Where("id = ?", answerID).
 		Update("is_accepted", true).Error
 }
 
@@ -15,8 +15,7 @@ func (r *commentRepository) MarkAsAnswer(commentID uint, isAnswer bool) error {
 }
 
 // UnacceptAnswer 取消接受答案
-func (r *commentRepository) UnacceptAnswer(commentID uint) error {
-	// 使用事务
+func (r *commentRepository) UnacceptAnswer(answerID uint) error {
 	tx := r.db.Begin()
 	defer func() {
 		if r := recover(); r != nil {
@@ -24,18 +23,17 @@ func (r *commentRepository) UnacceptAnswer(commentID uint) error {
 		}
 	}()
 
-	// 1. 更新评论的 is_accepted 字段
-	if err := tx.Model(&do.Comment{}).
-		Where("id = ?", commentID).
+	// 1. 更新 answers 表的 is_accepted 字段
+	if err := tx.Model(&do.Answer{}).
+		Where("id = ?", answerID).
 		Update("is_accepted", false).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
 
-	// 2. 如果有单独的 Question 表存储 accepted_answer_id，也需要更新
-	// 这里假设 Comment 表有 PostID，而 Post 表可能有 accepted_answer_id
-	if err := tx.Model(&do.Article{}).
-		Where("accepted_answer_id = ?", commentID).
+	// 2. 更新 questions 表的 accepted_answer_id 字段
+	if err := tx.Model(&do.Question{}).
+		Where("accepted_answer_id = ?", answerID).
 		Update("accepted_answer_id", nil).Error; err != nil {
 		tx.Rollback()
 		return err

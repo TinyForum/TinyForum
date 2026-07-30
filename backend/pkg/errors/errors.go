@@ -86,11 +86,12 @@ var (
 	ErrAnswerNotFound       = New(CodeAnswerNotFound, "回答不存在")        // 回答不存在
 	ErrCreateQuestionFailed = New(CodeCreateQuestionFailed, "创建问答失败")
 
-	ErrQuestionNotFound    = New(CodeQuestionNotFound, "问题不存在")    // 问题不存在
-	ErrPostNotQuestion     = New(CodePostNotQuestion, "该帖子不是问答类型") // 该帖子不是问答类型
-	ErrAnswerNotAccepted   = New(CodeAnswerNotAccepted, "该回答未被接受为答案")
-	ErrCommentNotAnswer    = New(CodeCommentNotAnswer, "该评论不是回答")
-	ErrQueryQuestionFailed = New(CodeQueryQuestionFailed, "查询问答失败")
+	ErrQuestionNotFound      = New(CodeQuestionNotFound, "问题不存在")    // 问题不存在
+	ErrPostNotQuestion       = New(CodePostNotQuestion, "该帖子不是问答类型") // 该帖子不是问答类型
+	ErrAnswerNotAccepted     = New(CodeAnswerNotAccepted, "该回答未被接受为答案")
+	ErrAlreadyAcceptedAnswer = New(CodeAlreadyAcceptedAnswer, "已经采纳过该答案了")
+	ErrCommentNotAnswer      = New(CodeCommentNotAnswer, "该评论不是回答")
+	ErrQueryQuestionFailed   = New(CodeQueryQuestionFailed, "查询问答失败")
 
 	// 内容模块 - 评论
 
@@ -116,6 +117,14 @@ var (
 	ErrLikeNotExist    = New(CodeLikeNotExist, "尚未点赞")     // 尚未点赞
 	ErrCollectAlready  = New(CodeCollectAlready, "已经收藏过了") // 已经收藏过了
 	ErrCollectNotExist = New(CodeCollectNotExist, "尚未收藏")  // 尚未收藏
+
+	// MARK: 投票模块
+	ErrCannotVoteSelfAnswer    = New(CodeCannotVoteSelfAnswer, "不能给自己的回答投票")    // 不能给自己的回答投票
+	ErrQueryVoteRecordFailed   = New(CodeQueryVoteRecordFailed, "查询投票记录失败")     // 查询投票记录失败
+	ErrCreateVoteFailed        = New(CodeCreateVoteFailed, "创建投票失败")            // 创建投票失败
+	ErrUpdateVoteRecordFailed  = New(CodeUpdateVoteRecordFailed, "更新投票记录失败")    // 更新投票记录失败
+	ErrDeleteVoteFailed        = New(CodeDeleteVoteFailed, "删除投票失败")            // 删除投票失败
+	ErrQueryVoteUserListFailed = New(CodeQueryVoteUserListFailed, "查询投票用户列表失败") // 查询投票用户列表失败
 
 	// 权限模块 - 版主申请
 	ErrModeratorApplyExist    = New(CodeModeratorApplyExist, "已经提交过版主申请，请勿重复提交") // 已经提交过版主申请，请勿重复提交

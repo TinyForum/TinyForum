@@ -78,7 +78,7 @@ func NewServices(
 	boardSvc := board.NewBoardService(repos.Board, repos.User, repos.Post, notifSvc)
 	timelineSvc := timeline.NewTimelineService(repos.Timeline, repos.User, repos.Post, repos.Comment)
 	topicSvc := topic.NewTopicService(repos.Topic, repos.Post, repos.User, notifSvc)
-	questionSvc := question.NewQuestionService(repos.Question, repos.Post, repos.Comment, repos.User, notifSvc, repos.Tag)
+	questionSvc := question.NewQuestionService(repos.Question, repos.Post, repos.Comment, repos.User, notifSvc, repos.Tag, repos.Transaction)
 	articleSvc := article.NewPostService(repos.Post, repos.Tag, repos.User, repos.Board, notifSvc, checkSvc)
 	commentSvc := comment.NewCommentService(repos.Comment, repos.Post, repos.User, notifSvc, repos.Vote)
 	announcementSvc := announcement.NewAnnouncementService(repos.Announcement)

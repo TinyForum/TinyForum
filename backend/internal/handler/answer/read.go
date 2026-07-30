@@ -98,15 +98,22 @@ func (h *AnswerHandler) GetQuestionAnswers(c *gin.Context) {
 func (h *AnswerHandler) GetVoteStatus(c *gin.Context) {
 	// 1. 解析并校验 answerID
 	answerID, err := strconv.ParseUint(c.Param("id"), 10, 64)
-	if err != nil || answerID == 0 {
+	if err != nil {
 		response.HandleError(c, err)
 		return
 	}
 
-	// 2. 获取当前用户ID（未登录则为 0）
+	// 检查回答是否存在
+	_, err = h.commentSvc.GetAnswerByID(uint(answerID))
+	if err != nil {
+		response.HandleError(c, err)
+		return
+	}
+
+	// 获取当前用户ID（未登录则为 0）
 	userID := c.GetUint("user_id")
 
-	// 3. 获取用户投票状态（仅登录用户）
+	// 获取用户投票状态（仅登录用户）
 	var userVote *do.AnswerVoteType
 	if userID != 0 {
 		userVote, err = h.commentSvc.GetUserVoteStatus(uint(answerID), userID)

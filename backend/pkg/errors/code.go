@@ -49,13 +49,14 @@ const (
 	CodeBoardDeleted         = 30021 // 版块已删除
 	CodePostNotBelongToBoard = 30022 // 帖子不属于该版块
 
-	CodeQuestionNotFound     = 30040 // 问题不存在
-	CodeAnswerNotFound       = 30041 // 答案不存在
-	CodePostNotQuestion      = 30042 // 帖子不是问题
-	CodeAnswerNotAccepted    = 30043 // 答案未被接受
-	CodeCommentNotAnswer     = 30044 // 评论不是回答
-	CodeCreateQuestionFailed = 30045 // 创建问题失败
-	CodeQueryQuestionFailed  = 30046 // 查询问题失败
+	CodeQuestionNotFound      = 30040 // 问题不存在
+	CodeAnswerNotFound        = 30041 // 答案不存在
+	CodePostNotQuestion       = 30042 // 帖子不是问题
+	CodeAnswerNotAccepted     = 30043 // 答案未被接受
+	CodeCommentNotAnswer      = 30044 // 评论不是回答
+	CodeCreateQuestionFailed  = 30045 // 创建问题失败
+	CodeQueryQuestionFailed   = 30046 // 查询问题失败
+	CodeAlreadyAcceptedAnswer = 30047 // 已接受答案
 
 	CodeCommentNotFound = 30060 // 评论不存在
 	CodeCommentDeleted  = 30061 // 评论已删除
@@ -75,6 +76,13 @@ const (
 	CodePasswordSameAsOld = 30221 // 新密码与旧密码相同
 	CodeFollowNotFound    = 30222 // 关注不存在
 	CodeFollowAlready     = 30223 // 关注已存在
+
+	CodeCannotVoteSelfAnswer    = 30240 // 不能给自己投票
+	CodeQueryVoteRecordFailed   = 30241 // 查询投票记录失败
+	CodeCreateVoteFailed        = 30242 // 创建投票失败
+	CodeUpdateVoteRecordFailed  = 30243 // 更新投票记录失败
+	CodeDeleteVoteFailed        = 30244 // 删除投票失败
+	CodeQueryVoteUserListFailed = 30245 // 查询投票用户列表失败
 
 	// 权限模块 (40000-40999)
 	//

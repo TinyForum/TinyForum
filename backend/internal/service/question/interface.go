@@ -9,14 +9,13 @@ import (
 	commentRepo "tiny-forum/internal/repository/comment"
 	questionRepo "tiny-forum/internal/repository/question"
 	tagRepo "tiny-forum/internal/repository/tag"
+	"tiny-forum/internal/repository/transaction"
 	userRepo "tiny-forum/internal/repository/user"
 	"tiny-forum/internal/service/notification"
-
-	"gorm.io/gorm"
 )
 
 type QuestionService interface {
-	AcceptAnswer(postID, commentID uint, userID uint) error
+	AcceptAnswer(questionID, answerID uint, userID uint) error
 	VoteAnswer(userID uint, input request.VoteAnswerRequest) (*vo.VoteAnswerVO, error)
 	GetAnswerVoteStatus(userID, commentID uint) (map[string]any, error)
 	GetAnswersList(questionID uint, page, pageSize int) ([]do.Answer, int64, error)
@@ -36,9 +35,9 @@ type questionService struct {
 	postRepo     postRepo.ArticleRepository
 	commentRepo  commentRepo.CommentRepository
 	userRepo     userRepo.UserRepository
-	notifSvc     notification.NotificationService // 需导入 "tiny-forum/internal/service/notification"
-	db           *gorm.DB
+	notifSvc     notification.NotificationService
 	tagRepo      tagRepo.TagRepository
+	txManager    transaction.TransactionManager
 }
 
 func NewQuestionService(
@@ -48,6 +47,7 @@ func NewQuestionService(
 	userRepo userRepo.UserRepository,
 	notifSvc notification.NotificationService,
 	tagRepo tagRepo.TagRepository,
+	txManager transaction.TransactionManager,
 ) QuestionService {
 	return &questionService{
 		questionRepo: questionRepo,
@@ -56,5 +56,6 @@ func NewQuestionService(
 		userRepo:     userRepo,
 		notifSvc:     notifSvc,
 		tagRepo:      tagRepo,
+		txManager:    txManager,
 	}
 }

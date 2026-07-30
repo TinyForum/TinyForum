@@ -47,18 +47,11 @@ func (s *commentService) GetAnswerVoteCount(commentID uint) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	return comment.VoteCount, nil
+	return comment.DownVotes + comment.UpVotes, nil
 }
 
 // GetVoteStatistics 获取投票统计（赞成/反对数）
 func (s *commentService) GetVoteStatistics(answerID uint) (upCount, downCount int, err error) {
-	upUsers, err := s.voteRepo.GetVoteUsers(answerID, do.AnswerVoteTypeUp)
-	if err != nil {
-		return 0, 0, err
-	}
-	downUsers, err := s.voteRepo.GetVoteUsers(answerID, do.AnswerVoteTypeDown)
-	if err != nil {
-		return 0, 0, err
-	}
-	return len(upUsers), len(downUsers), nil
+	// 直接从 answers 表读取 up_votes / down_votes（性能高且准确）
+	return s.voteRepo.GetAnswerVoteStats(answerID)
 }

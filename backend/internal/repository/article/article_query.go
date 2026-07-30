@@ -237,6 +237,7 @@ func (r *articleRepository) FindQuestionByQuestionID(id uint) (*do.Question, err
 
 	err := query.First(&question, id).Error
 	if err != nil {
+
 		// 可封装为自定义错误，例如：
 		// if errors.Is(err, gorm.ErrRecordNotFound) {
 		//     return nil, ErrQuestionNotFound

@@ -11,9 +11,9 @@ type VoteRepository interface {
 	CreateOrUpdateVote(commentID, userID uint, value do.AnswerVoteType) error
 	RemoveVote(commentID, userID uint) error
 	// query
-	GetUserVote(commentID, userID uint) (*do.AnswerVoteType, error)
-	GetVoteCount(commentID uint) (int, error)
-	GetVoteUsers(commentID uint, voteType do.AnswerVoteType) ([]do.User, error)
+	GetUserVote(answerID, userID uint) (*do.AnswerVoteType, error)
+	GetAnswerVoteStats(answerID uint) (int, int, error)
+	GetVoteUsers(answerID uint, voteType do.AnswerVoteType) ([]do.User, error)
 }
 
 type voteRepository struct {

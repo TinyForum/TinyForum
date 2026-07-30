@@ -80,7 +80,9 @@ func (e *AppError) HTTPStatus() int {
 		CodeLikeAlready, CodeCollectAlready,
 		CodePostLocked, CodePostDeleted, CodeCommentDeleted,
 		CodePasswordTooShort, CodePasswordSameAsOld,
-		CodeFileTooLarge, CodeFileTypeInvalid:
+		CodeFileTooLarge, CodeFileTypeInvalid,
+		CodePostNotQuestion, CodeAnswerNotAccepted, CodeCommentNotAnswer,
+		CodeAlreadyAcceptedAnswer:
 		return http.StatusBadRequest
 		//
 	default:

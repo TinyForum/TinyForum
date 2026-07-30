@@ -95,12 +95,12 @@ func (h *AnswerHandler) RemoveVote(c *gin.Context) {
 		return
 	}
 
-	// 获取用户当前投票状态（应该是 0）
+	// 获取用户当前投票状态（取消后应为 nil）
 	userVote, _ := h.commentSvc.GetUserVoteStatus(uint(answerID), userID)
 	responseData := vo.VoteResponseVO{
 		Message:   "取消投票成功",
-		VoteCount: comment.VoteCount,
-		UserVote:  *userVote,
+		VoteCount: comment.DownVotes + comment.UpVotes,
+		UserVote:  userVote,
 	}
 	response.Success(c, responseData)
 

@@ -29,13 +29,13 @@ import (
 // @Failure 404 {object} common.BasicResponse"问题或回答不存在"
 // @Router /answers/{question_id}/accept/{answer_id} [post]
 func (h *AnswerHandler) AcceptAnswer(c *gin.Context) {
-	postID, err := strconv.ParseUint(c.Param("question_id"), 10, 64)
+	questionID, err := strconv.ParseUint(c.Param("question_id"), 10, 64)
 	if err != nil {
 		response.HandleError(c, err)
 		return
 	}
 
-	commentID, err := strconv.ParseUint(c.Param("answer_id"), 10, 64)
+	answerID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		response.HandleError(c, err)
 		return
@@ -43,7 +43,7 @@ func (h *AnswerHandler) AcceptAnswer(c *gin.Context) {
 
 	userID := c.GetUint("user_id")
 
-	if err := h.questionSvc.AcceptAnswer(uint(postID), uint(commentID), userID); err != nil {
+	if err := h.questionSvc.AcceptAnswer(uint(questionID), uint(answerID), userID); err != nil {
 		switch {
 		case errors.Is(err, apperrors.ErrPostNotFound):
 			response.HandleError(c, err)
@@ -175,8 +175,8 @@ func (h *AnswerHandler) VoteAnswer(c *gin.Context) {
 	// 7. 返回响应
 	responseData := vo.VoteResponseVO{
 		Message:   "操作成功",
-		VoteCount: comment.VoteCount,
-		UserVote:  *userVote,
+		VoteCount: comment.DownVotes + comment.UpVotes,
+		UserVote:  userVote,
 	}
 	response.Success(c, responseData)
 

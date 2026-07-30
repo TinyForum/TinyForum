@@ -26,3 +26,17 @@ func (r *commentRepository) BatchCountByPostIDs(ctx context.Context, postIDs []u
 	}
 	return countMap, nil
 }
+
+// FindByCommentID 根据 ID 获取评论（预加载作者）
+func (r *commentRepository) FindByCommentID(id uint) (*do.Comment, error) {
+	var comment do.Comment
+	err := r.db.Preload("Reply.Author").First(&comment, id).Error
+	return &comment, err
+}
+
+// 根据 ID 获取回答（预加载作者）
+func (r *commentRepository) FindByAnswerID(id uint) (*do.Answer, error) {
+	var answer do.Answer
+	err := r.db.Preload("Reply.Author").First(&answer, id).Error
+	return &answer, err
+}

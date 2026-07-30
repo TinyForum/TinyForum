@@ -4,7 +4,7 @@ import "tiny-forum/internal/model/common"
 
 type Question struct {
 	common.BaseModel
-	CreationID       uint     `gorm:"uniqueIndex;not null" json:"creations_id"`
+	CreationID       uint     `gorm:"uniqueIndex;not null" json:"creation_id"`
 	Creation         Creation `gorm:"foreignKey:CreationID;references:ID" json:"creation,omitempty"`
 	AcceptedAnswerID *uint    `json:"accepted_answer_id"`
 	RewardScore      int      `gorm:"default:0" json:"reward_score"`

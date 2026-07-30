@@ -1,48 +1,57 @@
 package question
 
 import (
+	"context"
 	"errors"
 
 	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/request"
 	"tiny-forum/internal/model/vo"
 	apperrors "tiny-forum/pkg/errors"
+
+	"gorm.io/gorm"
 )
 
 // AcceptAnswer 采纳答案
-func (s *questionService) AcceptAnswer(postID, commentID uint, userID uint) error {
-	post, err := s.postRepo.FindQuestionByQuestionID(postID)
+func (s *questionService) AcceptAnswer(questionID, answerID uint, userID uint) error {
+	question, err := s.postRepo.FindQuestionByQuestionID(questionID)
 	if err != nil {
 		return apperrors.ErrPostNotFound
 	}
-	if post.Creation.AuthorID != userID {
+	if question.Creation.AuthorID != userID {
 		return apperrors.ErrAcceptForbidden
 	}
-	comment, err := s.commentRepo.FindByAnswerID(commentID)
+	answer, err := s.commentRepo.FindByAnswerID(answerID)
 	if err != nil {
 		return apperrors.ErrAnswerNotFound
 	}
-	// if !comment.IsAnswer {
-	// 	return errors.New("该评论不是回答")
-	// }
-	question, err := s.questionRepo.FindByCreationID(postID)
-	if err != nil {
-		return apperrors.ErrQuestionNotFound
-	}
+
 	if question.AcceptedAnswerID != nil {
-		return errors.New("已经采纳过答案了")
+		if *question.AcceptedAnswerID != answerID {
+			return apperrors.ErrAlreadyAcceptedAnswer
+		}
+		if answer.IsAccepted {
+			return apperrors.ErrAlreadyAcceptedAnswer
+		}
 	}
-	if err := s.questionRepo.SetAcceptedAnswer(postID, commentID); err != nil {
-		return err
-	}
-	if err := s.commentRepo.MarkAsAccepted(commentID); err != nil {
+
+	if err := s.txManager.ExecuteInTransaction(context.Background(), func(tx *gorm.DB) error {
+		if err := tx.Model(&do.Question{}).Where("id = ?", questionID).
+			Updates(map[string]interface{}{
+				"accepted_answer_id": answerID,
+			}).Error; err != nil {
+			return err
+		}
+		return tx.Model(&do.Answer{}).Where("id = ?", answerID).
+			Update("is_accepted", true).Error
+	}); err != nil {
 		return err
 	}
 	if question.RewardScore > 0 {
-		s.userRepo.AddScore(comment.Reply.AuthorID, question.RewardScore)
+		s.userRepo.AddScore(answer.Reply.AuthorID, question.RewardScore)
 	}
-	s.notifSvc.Create(comment.Reply.AuthorID, &userID, do.NotifySystem,
-		"你的回答被采纳为最佳答案", &postID, "post")
+	s.notifSvc.Create(answer.Reply.AuthorID, &userID, do.NotifySystem,
+		"你的回答被采纳为最佳答案", &questionID, "post")
 	return nil
 }
 
@@ -80,9 +89,9 @@ func (s *questionService) VoteAnswer(userID uint, input request.VoteAnswerReques
 		}
 	} else {
 		vote := &do.AnswerVote{
-			UserID:    userID,
-			CommentID: input.CommentID,
-			VoteType:  input.VoteType,
+			UserID:   userID,
+			AnswerID: input.CommentID,
+			VoteType: input.VoteType,
 		}
 		if err := s.questionRepo.CreateAnswerVote(vote); err != nil {
 			return nil, err

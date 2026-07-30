@@ -39,6 +39,7 @@ type Creation struct {
 	TopicCreation *TopicCreation `gorm:"foreignKey:ID;references:ID" json:"topic_creation,omitempty"`
 
 	// 其他关联（多对多、一对多）
+
 	Author   User      `gorm:"foreignKey:AuthorID" json:"author,omitempty"`   // 作者
 	Board    Board     `gorm:"foreignKey:BoardID" json:"board,omitempty"`     // 所属板块
 	Tags     []Tag     `gorm:"many2many:creation_tags" json:"tags,omitempty"` // 标签
