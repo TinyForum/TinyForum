@@ -1,116 +1,113 @@
-import { useState, useCallback } from "react";
+import { useCallback, useState } from "react"
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query"
 import {
   userViolationApi,
   ViolationVO,
-} from "@/shared/api/modules/user/violation";
-
-interface ErrorResponse {
-  response?: {
-    data?: {
-      message?: string;
-    };
-  };
-  message?: string;
-}
+} from "@/shared/api/modules/user/violation"
+import { userKeys } from "./useUserKeys"
 
 interface UseViolationReturn {
-  violations: ViolationVO[]; // ✅ 始终为数组，不是 null
-  loadViolations: () => Promise<void>;
-  isLoading: boolean;
-  error: string | null;
-  fetchViolationDetail: (id: string) => Promise<ViolationVO | null>; // ✅ 可能返回 null
-  submitAppeal: (id: string, reason: string) => Promise<boolean>;
-  isAppealing: boolean;
-  appealError: string | null;
+  violations: ViolationVO[] // ✅ 始终为数组，不是 null
+  loadViolations: () => Promise<void>
+  isLoading: boolean
+  error: string | null
+  fetchViolationDetail: (id: string) => Promise<ViolationVO | null> // ✅ 可能返回 null
+  submitAppeal: (id: string, reason: string) => Promise<boolean>
+  isAppealing: boolean
+  appealError: string | null
 }
 
 export function useUserViolation(): UseViolationReturn {
-  const [violations, setViolations] = useState<ViolationVO[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [isAppealing, setIsAppealing] = useState(false);
-  const [appealError, setAppealError] = useState<string | null>(null);
+  const queryClient = useQueryClient()
+  // 首次通过 loadViolations 触发查询
+  const [loaded, setLoaded] = useState(false)
 
-  const loadViolations = useCallback(async () => {
-    console.log("loadViolations start");
-    setIsLoading(true);
-    setError(null);
-    try {
-      const response = await userViolationApi.listUserViolations();
-      if (response.status === 200 && response.data.code === 0) {
-        setViolations(response.data.data ?? []);
-      } else {
-        throw new Error(response.data.message || "获取违规列表失败");
+  // 查询：拉取当前用户的违规列表
+  const { data, isLoading, error, refetch } = useQuery<ViolationVO[]>({
+    queryKey: userKeys.violations(),
+    queryFn: async () => {
+      const res = await userViolationApi.listUserViolations()
+      if (res.data.code !== 0) {
+        throw new Error(res.data.message || "获取违规列表失败")
       }
-    } catch (err: unknown) {
-      const errorObj = err as ErrorResponse;
-      setError(
-        errorObj.response?.data?.message ||
-          errorObj.message ||
-          "获取违规列表失败",
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+      return res.data.data ?? []
+    },
+    enabled: loaded,
+  })
 
+  // 命令式入口：启用查询并重新拉取
+  const loadViolations = useCallback(async (): Promise<void> => {
+    setLoaded(true)
+    await refetch()
+  }, [refetch])
+
+  // 查询详情：通过 fetchQuery 按需拉取
   const fetchViolationDetail = useCallback(
     async (id: string): Promise<ViolationVO | null> => {
       try {
-        const response = await userViolationApi.getViolationDetail(id);
-        if (response.status === 200 && response.data.code === 0) {
-          return response.data.data || null;
-        } else {
-          throw new Error(response.data.message || "获取详情失败");
-        }
-      } catch (err: unknown) {
-        const errorObj = err as ErrorResponse;
-        const errorMsg =
-          errorObj.response?.data?.message ||
-          errorObj.message ||
-          "获取详情失败";
-        setError(errorMsg);
-        return null; // ✅ 明确返回 null 表示失败
+        return await queryClient.fetchQuery({
+          queryKey: userKeys.violationDetail(id),
+          queryFn: async () => {
+            const res = await userViolationApi.getViolationDetail(id)
+            if (res.data.code !== 0) {
+              throw new Error(res.data.message || "获取详情失败")
+            }
+            if (!res.data.data) {
+              throw new Error("获取详情失败")
+            }
+            return res.data.data
+          },
+        })
+      } catch {
+        return null // ✅ 明确返回 null 表示失败
       }
     },
-    [],
-  );
+    [queryClient],
+  )
+
+  // 变更：提交申诉
+  const submitAppealMutation = useMutation<
+    boolean,
+    Error,
+    { id: string; reason: string }
+  >({
+    mutationFn: async ({ id, reason }) => {
+      const res = await userViolationApi.appeal(id, reason)
+      if (res.data.code !== 0) {
+        throw new Error(res.data.message || "申诉提交失败")
+      }
+      return true
+    },
+    onSuccess: () => {
+      // 申诉成功后刷新违规列表
+      queryClient.invalidateQueries({ queryKey: userKeys.violations() })
+    },
+  })
 
   const submitAppeal = useCallback(
     async (id: string, reason: string): Promise<boolean> => {
-      setIsAppealing(true);
-      setAppealError(null);
       try {
-        const response = await userViolationApi.appeal(id, reason);
-        if (response.status === 200 && response.data.code === 0) {
-          await loadViolations();
-          return true;
-        } else {
-          throw new Error(response.data.message || "申诉提交失败");
-        }
-      } catch (err: unknown) {
-        const errorObj = err as ErrorResponse;
-        setAppealError(
-          errorObj.response?.data?.message ||
-            errorObj.message ||
-            "申诉提交失败",
-        );
-        return false;
-      } finally {
-        setIsAppealing(false);
+        await submitAppealMutation.mutateAsync({ id, reason })
+        return true
+      } catch {
+        return false
       }
     },
-    [loadViolations],
-  );
+    [submitAppealMutation],
+  )
 
   return {
-    violations,
+    violations: data ?? [],
     loadViolations,
     isLoading,
-    error,
+    error: error?.message ?? null,
     fetchViolationDetail,
     submitAppeal,
-    isAppealing,
-    appealError,
-  };
+    isAppealing: submitAppealMutation.isPending,
+    appealError: submitAppealMutation.error?.message ?? null,
+  }
 }

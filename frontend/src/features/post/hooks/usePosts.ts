@@ -33,6 +33,19 @@ function assertData<T>(data: T | undefined | null): T {
   return data;
 }
 
+// ---------- Helper: 链式调用用户传入的 onSuccess ----------
+function invokeOnSuccess<TData, TVariables>(
+  onSuccess: UseMutationOptions<TData, Error, TVariables>["onSuccess"],
+  data: TData,
+  variables: TVariables,
+) {
+  // 仅取前三个参数与旧实现兼容，忽略第四个 mutation context 参数
+  const fn = onSuccess as unknown as
+    | ((data: TData, variables: TVariables, context: unknown) => void)
+    | undefined;
+  fn?.(data, variables, undefined);
+}
+
 // ---------- Hooks ----------
 
 /**
@@ -83,10 +96,10 @@ export const useCreatePost = (
       const response = await postApi.create(payload);
       return assertData(response.data.data);
     },
-    onSuccess: (data, variables, context) => {
+    onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: postKeys.lists() });
       // 安全调用用户传入的 onSuccess
-      (options?.onSuccess as any)?.(data, variables, context);
+      invokeOnSuccess(options?.onSuccess, data, variables);
     },
     ...options,
   });
@@ -109,12 +122,12 @@ export const useUpdatePost = (
       const response = await postApi.update(id, data);
       return assertData(response.data.data);
     },
-    onSuccess: (data, variables, context) => {
+    onSuccess: (data, variables) => {
       queryClient.invalidateQueries({
         queryKey: postKeys.detail(variables.id),
       });
       queryClient.invalidateQueries({ queryKey: postKeys.lists() });
-      (options?.onSuccess as any)?.(data, variables, context);
+      invokeOnSuccess(options?.onSuccess, data, variables);
     },
     ...options,
   });
@@ -134,10 +147,10 @@ export const useDeletePost = (
       // delete 返回 null，确保不是 undefined
       return response.data.data !== undefined ? response.data.data : null;
     },
-    onSuccess: (data, variables, context) => {
+    onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: postKeys.lists() });
       queryClient.removeQueries({ queryKey: postKeys.detail(variables) });
-      (options?.onSuccess as any)?.(data, variables, context);
+      invokeOnSuccess(options?.onSuccess, data, variables);
     },
     ...options,
   });
@@ -156,10 +169,10 @@ export const useLikePost = (
       const response = await postApi.like(id);
       return response.data.data !== undefined ? response.data.data : null;
     },
-    onSuccess: (data, variables, context) => {
+    onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: postKeys.detail(variables) });
       queryClient.invalidateQueries({ queryKey: postKeys.lists() });
-      (options?.onSuccess as any)?.(data, variables, context);
+      invokeOnSuccess(options?.onSuccess, data, variables);
     },
     ...options,
   });
@@ -178,10 +191,10 @@ export const useUnlikePost = (
       const response = await postApi.unlike(id);
       return response.data.data !== undefined ? response.data.data : null;
     },
-    onSuccess: (data, variables, context) => {
+    onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: postKeys.detail(variables) });
       queryClient.invalidateQueries({ queryKey: postKeys.lists() });
-      (options?.onSuccess as any)?.(data, variables, context);
+      invokeOnSuccess(options?.onSuccess, data, variables);
     },
     ...options,
   });

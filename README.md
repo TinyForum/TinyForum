@@ -27,6 +27,13 @@ psql -U postgres -c "DROP DATABASE IF EXISTS tiny_forum;"
 psql -U postgres -c "CREATE DATABASE tiny_forum;"
 ```
 
+参考，创建用户：
+
+```bash
+CREATE USER tinyforum WITH PASSWORD 'tinyforum';
+ALTER DATABASE tiny_forum OWNER TO tinyforum;
+```
+
 ## 快速开始
 
 > 项目已支持 docker 和 podman 安装。这里仅演示 docker 安装，更多安装方式请查看文档，或者使用 `make help` 命令

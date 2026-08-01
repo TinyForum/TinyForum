@@ -1,7 +1,7 @@
 // src/lib/api/modules/questions.ts
 import apiClient from "../client";
 
-import { AnswerListParams } from "../types/answer.model";
+import { AnswerListParams, AnswerResponse } from "../types/answer.model";
 import { ApiResponse, PageData } from "../types/basic.model";
 import { Post } from "../types/post.model";
 import {
@@ -9,7 +9,7 @@ import {
   QuestionResponse,
   QuestionSimple,
 } from "../types/question.model";
-import { Comment } from "../types/comment.model";
+import { CommentResponse } from "../types/comment.model";
 
 export type QuestionFilterType = "all" | "unanswered" | "answered";
 
@@ -70,7 +70,7 @@ export const questionApi = {
    * @returns
    */
   getAnswers: (questionId: number, params?: AnswerListParams) =>
-    apiClient.get<ApiResponse<PageData<Comment>>>(
+    apiClient.get<ApiResponse<PageData<AnswerResponse>>>(
       `/questions/${questionId}/answers`,
       { params },
     ),
@@ -82,7 +82,7 @@ export const questionApi = {
    * @returns
    */
   createAnswer: (questionId: number, data: { content: string }) =>
-    apiClient.post<ApiResponse<Comment>>(
+    apiClient.post<ApiResponse<CommentResponse>>(
       `/questions/${questionId}/answers`,
       data,
     ),

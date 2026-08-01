@@ -1,8 +1,12 @@
 // hooks/useUpload.ts
 import { useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { uploadApi } from "@/shared/api/modules/uploads";
 import { PluginListParams } from "@/shared/api/modules/plugin/plugins";
 import { PluginMeta } from "@/shared/api/types/plugin.model";
+import { ApiResponse, PageData } from "@/shared/api/types/basic.model";
+import { userFileKeys } from "@/features/upload/hooks/useUploadKeys";
+
 type UploadType = "post" | "comment" | "plugin";
 
 interface FileInfo {
@@ -45,6 +49,7 @@ interface UseUploadReturn {
 export function useUpload(): UseUploadReturn {
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
   const resetError = () => setError(null);
 
@@ -90,12 +95,17 @@ export function useUpload(): UseUploadReturn {
   const getUserFiles = async (params?: {
     page?: number;
     page_size?: number;
-  }) => {
+  }): Promise<FileInfo> => {
     setIsUploading(true);
     setError(null);
     try {
-      const res = await uploadApi.getUserFiles(params);
-      return res.data;
+      return await queryClient.fetchQuery({
+        queryKey: userFileKeys.filesList(params ?? {}),
+        queryFn: async () => {
+          const res = await uploadApi.getUserFiles(params);
+          return res.data as FileInfo;
+        },
+      });
     } catch (err) {
       setErrorAndReturnNull(err);
       throw err;
@@ -104,15 +114,29 @@ export function useUpload(): UseUploadReturn {
     }
   };
 
-  const getFileInfo = async (type: UploadType, fileId: string) => {
+  // 获取单个文件信息
+  const getFileInfo = async (
+    type: UploadType,
+    fileId: string,
+  ): Promise<FileInfo> => {
     setIsUploading(true);
     setError(null);
     try {
-      let res;
-      if (type === "post") res = await uploadApi.getPostFile(fileId);
-      else if (type === "comment") res = await uploadApi.getCommentFile(fileId);
-      else res = await uploadApi.getPluginFile(fileId);
-      return res.data;
+      return await queryClient.fetchQuery({
+        queryKey: userFileKeys.detail(type, fileId),
+        queryFn: async () => {
+          if (type === "post") {
+            const res = await uploadApi.getPostFile(fileId);
+            return res.data as FileInfo;
+          }
+          if (type === "comment") {
+            const res = await uploadApi.getCommentFile(fileId);
+            return res.data as FileInfo;
+          }
+          const res = await uploadApi.getPluginFile(fileId);
+          return res.data as FileInfo;
+        },
+      });
     } catch (err) {
       setErrorAndReturnNull(err);
       throw err;
@@ -122,14 +146,22 @@ export function useUpload(): UseUploadReturn {
   };
 
   // 获取用户插件列表
-  const getUserPluginsList = async (params: PluginListParams) => {
+  const getUserPluginsList = async (
+    params: PluginListParams,
+  ): Promise<PluginMeta[]> => {
     setIsUploading(true);
     setError(null);
     // params.type = "plugin";
 
     try {
-      const res = await uploadApi.getUserPlugins(params);
-      return res.data.data?.list || [];
+      return await queryClient.fetchQuery({
+        queryKey: userFileKeys.pluginsList(params),
+        queryFn: async () => {
+          const res = await uploadApi.getUserPlugins(params);
+          const data = res.data as ApiResponse<PageData<PluginMeta>>;
+          return data.data?.list ?? [];
+        },
+      });
     } catch (err) {
       setErrorAndReturnNull(err);
       throw err;
@@ -138,6 +170,24 @@ export function useUpload(): UseUploadReturn {
     }
   };
 
+  // 变更：删除文件
+  const deleteMutation = useMutation({
+    mutationFn: async ({
+      type,
+      fileId,
+    }: {
+      type: UploadType;
+      fileId: string;
+    }) => {
+      if (type === "post") await uploadApi.deletePostFile(fileId);
+      else if (type === "comment") await uploadApi.deleteCommentFile(fileId);
+      else await uploadApi.deletePluginFile(fileId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: userFileKeys.all });
+    },
+  });
+
   const deleteFile = async (
     type: UploadType,
     fileId: string,
@@ -145,9 +195,7 @@ export function useUpload(): UseUploadReturn {
     setIsUploading(true);
     setError(null);
     try {
-      if (type === "post") await uploadApi.deletePostFile(fileId);
-      else if (type === "comment") await uploadApi.deleteCommentFile(fileId);
-      else await uploadApi.deletePluginFile(fileId);
+      await deleteMutation.mutateAsync({ type, fileId });
       return true;
     } catch (err) {
       setErrorAndReturnNull(err);

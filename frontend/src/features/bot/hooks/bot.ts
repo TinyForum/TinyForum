@@ -1,14 +1,15 @@
 // hooks/useBots.ts
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 import { toast } from "react-hot-toast";
 import {
   BotVO,
-  BotListResponse,
   CreateBotRequest,
   UpdateBotRequest,
   RunEventData,
 } from "@/shared/api/types/bot.model";
 import { botApi } from "@/shared/api/modules/bot";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { botKeys } from "./useBotKeys";
 
 // 工具函数：从未知错误中提取消息（保持不变）
 const getErrorMessage = (err: unknown): string => {
@@ -42,37 +43,34 @@ interface UseBotsReturn {
 export function useBots(options: UseBotsOptions = {}): UseBotsReturn {
   const { autoLoad = true, page = 1, pageSize = 20 } = options;
 
-  const [bots, setBots] = useState<BotVO[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
-  const [total, setTotal] = useState<number>(0);
-
-  const loadBots = useCallback(async (): Promise<void> => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await botApi.list({ page, pageSize });
-      if (response.data.code === 0) {
-        const data = response.data.data as BotListResponse;
-        setBots(data.list || []);
-        setTotal(data.total || 0);
-      } else {
-        throw new Error(response.data.message || "加载机器人列表失败");
+  // 查询：机器人市场列表（分页）
+  const query = useQuery({
+    queryKey: botKeys.list({ page, pageSize }),
+    queryFn: async () => {
+      const res = await botApi.list({ page, pageSize });
+      if (res.data.code !== 0) {
+        throw new Error(res.data.message || "加载机器人列表失败");
       }
-    } catch (err: unknown) {
-      const errorMsg = getErrorMessage(err);
-      setError(errorMsg);
-      toast.error(errorMsg);
-    } finally {
-      setLoading(false);
-    }
-  }, [page, pageSize]);
+      if (!res.data.data) {
+        throw new Error("机器人列表数据为空");
+      }
+      return res.data.data;
+    },
+    enabled: autoLoad,
+  });
 
-  const refresh = useCallback(() => loadBots(), [loadBots]);
+  const bots = query.data?.list ?? [];
+  const total = query.data?.total ?? 0;
+  const loading = query.isLoading;
+  const error = query.error ? getErrorMessage(query.error) : null;
 
-  useEffect(() => {
-    if (autoLoad) loadBots();
-  }, [autoLoad, loadBots]);
+  const loadBots = async (): Promise<void> => {
+    await query.refetch();
+  };
+
+  const refresh = async (): Promise<void> => {
+    await query.refetch();
+  };
 
   return { bots, loading, error, total, loadBots, refresh };
 }
@@ -95,37 +93,34 @@ interface UseMyBotsReturn {
 export function useMyBots(options: UseMyBotsOptions = {}): UseMyBotsReturn {
   const { autoLoad = true, page = 1, pageSize = 20 } = options;
 
-  const [bots, setBots] = useState<BotVO[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
-  const [total, setTotal] = useState<number>(0);
-
-  const loadMyBots = useCallback(async (): Promise<void> => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await botApi.listMy({ page, pageSize });
-      if (response.data.code === 0) {
-        const data = response.data.data as BotListResponse;
-        setBots(data.list || []);
-        setTotal(data.total || 0);
-      } else {
-        throw new Error(response.data.message || "加载我的机器人失败");
+  // 查询：我的机器人列表（分页）
+  const query = useQuery({
+    queryKey: botKeys.myList({ page, pageSize }),
+    queryFn: async () => {
+      const res = await botApi.listMy({ page, pageSize });
+      if (res.data.code !== 0) {
+        throw new Error(res.data.message || "加载我的机器人失败");
       }
-    } catch (err: unknown) {
-      const errorMsg = getErrorMessage(err);
-      setError(errorMsg);
-      toast.error(errorMsg);
-    } finally {
-      setLoading(false);
-    }
-  }, [page, pageSize]);
+      if (!res.data.data) {
+        throw new Error("我的机器人列表数据为空");
+      }
+      return res.data.data;
+    },
+    enabled: autoLoad,
+  });
 
-  const refresh = useCallback(() => loadMyBots(), [loadMyBots]);
+  const bots = query.data?.list ?? [];
+  const total = query.data?.total ?? 0;
+  const loading = query.isLoading;
+  const error = query.error ? getErrorMessage(query.error) : null;
 
-  useEffect(() => {
-    if (autoLoad) loadMyBots();
-  }, [autoLoad, loadMyBots]);
+  const loadMyBots = async (): Promise<void> => {
+    await query.refetch();
+  };
+
+  const refresh = async (): Promise<void> => {
+    await query.refetch();
+  };
 
   return { bots, loading, error, total, loadMyBots, refresh };
 }
@@ -147,46 +142,46 @@ export function useBotDetail(
   options: UseBotDetailOptions = {},
 ): UseBotDetailReturn {
   const { autoLoad = false } = options;
-
-  const [bot, setBot] = useState<BotVO | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
   const [currentId, setCurrentId] = useState<number | null>(null);
 
-  const loadBot = useCallback(async (id: number): Promise<void> => {
-    setLoading(true);
-    setError(null);
-    setCurrentId(id);
-    try {
-      const response = await botApi.get(id);
-      if (response.data.code === 0) {
-        setBot(response.data.data as BotVO);
-      } else {
-        throw new Error(response.data.message || "获取机器人详情失败");
+  // 查询：机器人详情（由 currentId 驱动）
+  const query = useQuery({
+    queryKey: botKeys.detail(currentId ?? -1),
+    queryFn: async () => {
+      if (currentId === null) {
+        throw new Error("缺少机器人ID");
       }
-    } catch (err: unknown) {
-      const errorMsg = getErrorMessage(err);
-      setError(errorMsg);
-      toast.error(errorMsg);
-      setBot(null);
-    } finally {
-      setLoading(false);
+      const res = await botApi.get(currentId);
+      if (res.data.code !== 0) {
+        throw new Error(res.data.message || "获取机器人详情失败");
+      }
+      if (!res.data.data) {
+        throw new Error("机器人详情数据为空");
+      }
+      return res.data.data;
+    },
+    enabled: autoLoad && currentId !== null,
+  });
+
+  const bot = query.data ?? null;
+  const loading = query.isLoading;
+  const error = query.error ? getErrorMessage(query.error) : null;
+
+  const loadBot = async (id: number): Promise<void> => {
+    setCurrentId(id);
+  };
+
+  const refresh = async (): Promise<void> => {
+    if (currentId !== null) {
+      await query.refetch();
     }
-  }, []);
+  };
 
-  const refresh = useCallback(async (): Promise<void> => {
-    if (currentId !== null) await loadBot(currentId);
-  }, [loadBot, currentId]);
-
-  const clear = useCallback(() => {
-    setBot(null);
-    setError(null);
+  const clear = (): void => {
     setCurrentId(null);
-  }, []);
-
-  useEffect(() => {
-    if (autoLoad && currentId !== null) loadBot(currentId);
-  }, [autoLoad, currentId, loadBot]);
+    queryClient.removeQueries({ queryKey: botKeys.details() });
+  };
 
   return { bot, loading, error, loadBot, refresh, clear };
 }
@@ -201,102 +196,161 @@ interface UseBotActionsReturn {
 }
 
 export function useBotActions(): UseBotActionsReturn {
-  const [loading, setLoading] = useState<boolean>(false);
+  const queryClient = useQueryClient();
   const [error, setError] = useState<string | null>(null);
 
-  const createBot = useCallback(
-    async (data: CreateBotRequest): Promise<number | null> => {
-      setLoading(true);
-      setError(null);
-      try {
-        const response = await botApi.create(data);
-        if (response.data.code === 0) {
-          const id = (response.data.data as { id: number }).id;
-          toast.success("机器人创建成功");
-          return id;
-        } else {
-          throw new Error(response.data.message || "创建机器人失败");
-        }
-      } catch (err: unknown) {
-        const errorMsg = getErrorMessage(err);
-        setError(errorMsg);
-        toast.error(errorMsg);
-        return null;
-      } finally {
-        setLoading(false);
+  // 变更：创建机器人
+  const createMutation = useMutation({
+    mutationFn: async (data: CreateBotRequest): Promise<{ id: number }> => {
+      const res = await botApi.create(data);
+      if (res.data.code !== 0) {
+        throw new Error(res.data.message || "创建机器人失败");
       }
+      if (!res.data.data) {
+        throw new Error("创建机器人返回数据为空");
+      }
+      return res.data.data;
     },
-    [],
-  );
-
-  const updateBot = useCallback(
-    async (id: number, data: UpdateBotRequest): Promise<boolean> => {
-      setLoading(true);
-      setError(null);
-      try {
-        const response = await botApi.update(id, data);
-        if (response.data.code === 0) {
-          toast.success("机器人更新成功");
-          return true;
-        } else {
-          throw new Error(response.data.message || "更新机器人失败");
-        }
-      } catch (err: unknown) {
-        const errorMsg = getErrorMessage(err);
-        setError(errorMsg);
-        toast.error(errorMsg);
-        return false;
-      } finally {
-        setLoading(false);
-      }
+    onSuccess: () => {
+      toast.success("机器人创建成功");
+      queryClient.invalidateQueries({ queryKey: botKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: botKeys.myLists() });
     },
-    [],
-  );
-
-  const deleteBot = useCallback(async (id: number): Promise<boolean> => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await botApi.delete(id);
-      if (response.data.code === 0) {
-        toast.success("机器人删除成功");
-        return true;
-      } else {
-        throw new Error(response.data.message || "删除机器人失败");
-      }
-    } catch (err: unknown) {
+    onError: (err: Error) => {
       const errorMsg = getErrorMessage(err);
       setError(errorMsg);
       toast.error(errorMsg);
-      return false;
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    },
+  });
 
-  const runBot = useCallback(
-    async (id: number, eventData?: RunEventData): Promise<boolean> => {
-      setLoading(true);
-      setError(null);
-      try {
-        const response = await botApi.runNow(id, eventData);
-        if (response.data.code === 0) {
-          toast.success("机器人已触发执行");
-          return true;
-        } else {
-          throw new Error(response.data.message || "触发机器人失败");
-        }
-      } catch (err: unknown) {
-        const errorMsg = getErrorMessage(err);
-        setError(errorMsg);
-        toast.error(errorMsg);
-        return false;
-      } finally {
-        setLoading(false);
+  // 变更：更新机器人
+  const updateMutation = useMutation({
+    mutationFn: async ({
+      id,
+      data,
+    }: {
+      id: number;
+      data: UpdateBotRequest;
+    }): Promise<void> => {
+      const res = await botApi.update(id, data);
+      if (res.data.code !== 0) {
+        throw new Error(res.data.message || "更新机器人失败");
       }
     },
-    [],
-  );
+    onSuccess: (_, variables) => {
+      toast.success("机器人更新成功");
+      queryClient.invalidateQueries({ queryKey: botKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: botKeys.myLists() });
+      queryClient.invalidateQueries({
+        queryKey: botKeys.detail(variables.id),
+      });
+    },
+    onError: (err: Error) => {
+      const errorMsg = getErrorMessage(err);
+      setError(errorMsg);
+      toast.error(errorMsg);
+    },
+  });
+
+  // 变更：删除机器人
+  const deleteMutation = useMutation({
+    mutationFn: async (id: number): Promise<void> => {
+      const res = await botApi.delete(id);
+      if (res.data.code !== 0) {
+        throw new Error(res.data.message || "删除机器人失败");
+      }
+    },
+    onSuccess: (_, id) => {
+      toast.success("机器人删除成功");
+      queryClient.invalidateQueries({ queryKey: botKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: botKeys.myLists() });
+      queryClient.invalidateQueries({ queryKey: botKeys.detail(id) });
+    },
+    onError: (err: Error) => {
+      const errorMsg = getErrorMessage(err);
+      setError(errorMsg);
+      toast.error(errorMsg);
+    },
+  });
+
+  // 变更：手动触发机器人执行
+  const runMutation = useMutation({
+    mutationFn: async ({
+      id,
+      eventData,
+    }: {
+      id: number;
+      eventData?: RunEventData;
+    }): Promise<void> => {
+      const res = await botApi.runNow(id, eventData);
+      if (res.data.code !== 0) {
+        throw new Error(res.data.message || "触发机器人失败");
+      }
+    },
+    onSuccess: (_, variables) => {
+      toast.success("机器人已触发执行");
+      queryClient.invalidateQueries({
+        queryKey: botKeys.detail(variables.id),
+      });
+    },
+    onError: (err: Error) => {
+      const errorMsg = getErrorMessage(err);
+      setError(errorMsg);
+      toast.error(errorMsg);
+    },
+  });
+
+  const createBot = async (data: CreateBotRequest): Promise<number | null> => {
+    setError(null);
+    try {
+      const result = await createMutation.mutateAsync(data);
+      return result?.id ?? null;
+    } catch {
+      return null;
+    }
+  };
+
+  const updateBot = async (
+    id: number,
+    data: UpdateBotRequest,
+  ): Promise<boolean> => {
+    setError(null);
+    try {
+      await updateMutation.mutateAsync({ id, data });
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  const deleteBot = async (id: number): Promise<boolean> => {
+    setError(null);
+    try {
+      await deleteMutation.mutateAsync(id);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  const runBot = async (
+    id: number,
+    eventData?: RunEventData,
+  ): Promise<boolean> => {
+    setError(null);
+    try {
+      await runMutation.mutateAsync({ id, eventData });
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  const loading =
+    createMutation.isPending ||
+    updateMutation.isPending ||
+    deleteMutation.isPending ||
+    runMutation.isPending;
 
   return { createBot, updateBot, deleteBot, runBot, loading, error };
 }

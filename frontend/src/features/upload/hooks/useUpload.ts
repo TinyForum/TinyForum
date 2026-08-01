@@ -1,7 +1,14 @@
 // features/upload/hooks/useUpload.ts
 import { uploadApi } from "@/shared/api/modules/uploads";
 import { useState, useCallback } from "react";
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
+import { getErrorMessage } from "@/shared/lib/utils";
 import type { AxiosResponse } from "axios";
+import { userFileKeys } from "./useUploadKeys";
 
 // 文件信息类型（根据后端实际结构定义，此处示例）
 export interface UserFile {
@@ -31,23 +38,6 @@ type UploadFileResponse = AxiosResponse<{ data: string }>;
 // }
 // type AvatarResponse = AxiosResponse<AvatarApiResponse>;
 
-// 用户文件列表响应
-interface UserFilesApiResponse {
-  items: UserFile[];
-  total: number;
-}
-type UserFilesResponse = AxiosResponse<UserFilesApiResponse>;
-
-// 用户插件列表响应
-interface UserPluginsApiResponse {
-  items: PluginFile[];
-  total: number;
-}
-type UserPluginsResponse = AxiosResponse<UserPluginsApiResponse>;
-
-// 删除响应（简单状态，只需要 message）
-type DeleteResponse = AxiosResponse<{ message?: string }>;
-
 // 获取单个文件信息响应
 interface FileInfo {
   id: string;
@@ -57,7 +47,6 @@ interface FileInfo {
   mime_type: string;
   created_at: string;
 }
-type FileInfoResponse = AxiosResponse<FileInfo>;
 
 // 文件内容响应（Blob）
 type FileContentResponse = AxiosResponse<Blob>;
@@ -191,144 +180,121 @@ export function useUpload() {
 
 // 用户文件列表管理 Hook
 export function useUserFiles() {
-  const [files, setFiles] = useState<UserFile[]>([]);
-  const [plugins, setPlugins] = useState<PluginFile[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [pagination, setPagination] = useState({
-    page: 1,
-    pageSize: 20,
-    total: 0,
+  const [pageParams, setPageParams] = useState({ page: 1, pageSize: 20 });
+  const queryClient = useQueryClient();
+
+  // 查询：用户文件列表（分页）
+  const filesQuery = useQuery({
+    queryKey: userFileKeys.filesList({
+      page: pageParams.page,
+      page_size: pageParams.pageSize,
+    }),
+    queryFn: async () => {
+      const res = await uploadApi.getUserFiles({
+        page: pageParams.page,
+        page_size: pageParams.pageSize,
+      });
+      const data = res.data as
+        | { items: UserFile[]; total: number }
+        | undefined;
+      return data ?? { items: [], total: 0 };
+    },
   });
 
-  const fetchUserFiles = useCallback(async (page = 1, pageSize = 20) => {
-    setIsLoading(true);
-    setError(null);
+  // 查询：用户插件列表（分页）
+  const pluginsQuery = useQuery({
+    queryKey: userFileKeys.pluginsList({
+      page: pageParams.page,
+      page_size: pageParams.pageSize,
+    }),
+    queryFn: async () => {
+      const res = await uploadApi.getUserPlugins({
+        page: pageParams.page,
+        page_size: pageParams.pageSize,
+      });
+      const data = res.data as
+        | { items: PluginFile[]; total: number }
+        | undefined;
+      return data ?? { items: [], total: 0 };
+    },
+  });
+
+  const files = filesQuery.data?.items ?? [];
+  const plugins = pluginsQuery.data?.items ?? [];
+  const isLoading = filesQuery.isLoading || pluginsQuery.isLoading;
+  const queryError = filesQuery.error ?? pluginsQuery.error;
+  const error = queryError ? getErrorMessage(queryError) : null;
+  const total = filesQuery.data?.total ?? pluginsQuery.data?.total ?? 0;
+  const pagination = {
+    page: pageParams.page,
+    pageSize: pageParams.pageSize,
+    total,
+  };
+
+  const fetchUserFiles = async (page = 1, pageSize = 20): Promise<void> => {
+    setPageParams({ page, pageSize });
+  };
+
+  const fetchUserPlugins = async (page = 1, pageSize = 20): Promise<void> => {
+    setPageParams({ page, pageSize });
+  };
+
+  // 变更：删除文件
+  const deleteMutation = useMutation({
+    mutationFn: async ({
+      fileId,
+      type,
+    }: {
+      fileId: string;
+      type: "post" | "comment" | "plugin";
+    }) => {
+      if (type === "post") await uploadApi.deletePostFile(fileId);
+      else if (type === "comment") await uploadApi.deleteCommentFile(fileId);
+      else await uploadApi.deletePluginFile(fileId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: userFileKeys.all });
+    },
+  });
+
+  const deleteFile = async (
+    fileId: string,
+    type: "post" | "comment" | "plugin",
+  ): Promise<boolean> => {
     try {
-      const response = (await uploadApi.getUserFiles({
-        page,
-        page_size: pageSize,
-      })) as UserFilesResponse;
-      if (response.status === 200) {
-        const data = response.data;
-        setFiles(data?.items ?? []);
-        setPagination((prev) => ({
-          ...prev,
-          page,
-          pageSize,
-          total: data?.total ?? 0,
-        }));
-      } else {
-        throw new Error("获取文件列表失败");
-      }
-    } catch (err: unknown) {
-      setError((err as Error).message || "获取文件列表失败");
-    } finally {
-      setIsLoading(false);
+      await deleteMutation.mutateAsync({ fileId, type });
+      return true;
+    } catch {
+      return false;
     }
-  }, []);
+  };
 
-  const fetchUserPlugins = useCallback(async (page = 1, pageSize = 20) => {
-    setIsLoading(true);
-    setError(null);
+  // 获取单个文件信息
+  const getFileInfo = async (
+    fileId: string,
+    type: "post" | "comment" | "plugin",
+  ): Promise<FileInfo | null> => {
     try {
-      const response = (await uploadApi.getUserPlugins({
-        page,
-        page_size: pageSize,
-      })) as UserPluginsResponse;
-      if (response.status === 200) {
-        const data = response.data;
-        setPlugins(data?.items ?? []);
-        setPagination((prev) => ({
-          ...prev,
-          page,
-          pageSize,
-          total: data?.total ?? 0,
-        }));
-      } else {
-        throw new Error("获取插件列表失败");
-      }
-    } catch (err: unknown) {
-      setError((err as Error).message || "获取插件列表失败");
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  const deleteFile = useCallback(
-    async (
-      fileId: string,
-      type: "post" | "comment" | "plugin",
-    ): Promise<boolean> => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        let response: DeleteResponse;
-        if (type === "post")
-          response = (await uploadApi.deletePostFile(fileId)) as DeleteResponse;
-        else if (type === "comment")
-          response = (await uploadApi.deleteCommentFile(
-            fileId,
-          )) as DeleteResponse;
-        else
-          response = (await uploadApi.deletePluginFile(
-            fileId,
-          )) as DeleteResponse;
-
-        if (response.status === 200) {
-          if (type === "plugin") {
-            setPlugins((prev) => prev.filter((p) => p.id !== fileId));
-          } else {
-            setFiles((prev) => prev.filter((f) => f.id !== fileId));
+      const data = await queryClient.fetchQuery({
+        queryKey: userFileKeys.detail(type, fileId),
+        queryFn: async () => {
+          if (type === "post") {
+            const res = await uploadApi.getPostFile(fileId);
+            return res.data as FileInfo;
           }
-          return true;
-        } else {
-          throw new Error(response.data.message || "删除失败");
-        }
-      } catch (err: unknown) {
-        setError((err as Error).message || "删除失败");
-        return false;
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    [],
-  );
-
-  const getFileInfo = useCallback(
-    async (
-      fileId: string,
-      type: "post" | "comment" | "plugin",
-    ): Promise<FileInfo | null> => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        let response: FileInfoResponse;
-        if (type === "post")
-          response = (await uploadApi.getPostFile(fileId)) as FileInfoResponse;
-        else if (type === "comment")
-          response = (await uploadApi.getCommentFile(
-            fileId,
-          )) as FileInfoResponse;
-        else
-          response = (await uploadApi.getPluginFile(
-            fileId,
-          )) as FileInfoResponse;
-
-        if (response.status === 200) {
-          return response.data ?? null;
-        } else {
-          throw new Error(response.data?.filename || "获取文件信息失败");
-        }
-      } catch (err: unknown) {
-        setError((err as Error).message || "获取文件信息失败");
-        return null;
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    [],
-  );
+          if (type === "comment") {
+            const res = await uploadApi.getCommentFile(fileId);
+            return res.data as FileInfo;
+          }
+          const res = await uploadApi.getPluginFile(fileId);
+          return res.data as FileInfo;
+        },
+      });
+      return data ?? null;
+    } catch {
+      return null;
+    }
+  };
 
   return {
     files,

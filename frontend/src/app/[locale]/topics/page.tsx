@@ -14,8 +14,9 @@ import {
 } from "@heroicons/react/24/outline";
 import type { Topic } from "@/shared/api/types/topic.model";
 import { TopicCard } from "@/layout/topic/TopicCard";
-import { ImageItem, ImageUploader } from "@/shared/ui/editor/ImageUploader";
+import { ImageUploader } from "@/shared/ui/upload/ImageUploader";
 import { uploadApi } from "@/shared/api/modules/uploads";
+import { ImageItem } from "@/shared/ui/upload/upload.types";
 
 // 错误响应类型
 interface ErrorResponse {

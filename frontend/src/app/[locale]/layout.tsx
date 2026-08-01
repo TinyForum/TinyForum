@@ -7,7 +7,7 @@ import "../styles/globals.css";
 import Providers from "@/layout/layout/Providers";
 import AuthProvider from "@/layout/providers/AuthProvider";
 import Navbar from "@/shared/ui/nav/Navbar";
-import { InnerProviders } from "@/features/plugin/components/Providers";
+import { InnerProviders } from "@/features/plugin/core/Providers";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const firaCode = Fira_Code({

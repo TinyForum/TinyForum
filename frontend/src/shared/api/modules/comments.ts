@@ -4,8 +4,11 @@
  */
 
 import apiClient from "../client";
-import { ApiResponse, PageData, ResponseResultVO } from "../types/basic.model";
-import { CreateCommentPayload } from "../types/comment.model";
+import { ApiResponse, PageData } from "../types/basic.model";
+import {
+  CreateCommentPayload,
+  CreateCommentResponse,
+} from "../types/comment.model";
 import { CommentResponse } from "../types/comment.model";
 
 export const commentApi = {
@@ -39,7 +42,7 @@ export const commentApi = {
    * 创建评论
    */
   create: (data: CreateCommentPayload) =>
-    apiClient.post<ApiResponse<ResponseResultVO>>("/comments", data),
+    apiClient.post<ApiResponse<CreateCommentResponse>>("/comments", data),
 
   /**
    * delete the comment

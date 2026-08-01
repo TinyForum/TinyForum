@@ -1,4 +1,4 @@
-import { Comment } from "./comment.model";
+import { CommentResponse } from "./comment.model";
 import { BaseModel } from "./basic.model";
 import { Creation } from "./creation.model";
 
@@ -20,7 +20,7 @@ export interface QuestionDO {
   reward_score: number;
   answer_count: number;
   view_count: number;
-  accepted_answer?: Comment;
+  accepted_answer?: CommentResponse;
 }
 export interface QuestionResponse {
   id: number;
@@ -37,6 +37,7 @@ export interface QuestionResponse {
   summary: string;
   title: string;
   updated_at: string;
+  liked: boolean;
   tags: [];
   author: {
     id: number;

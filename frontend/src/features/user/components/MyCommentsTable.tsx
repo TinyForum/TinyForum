@@ -1,12 +1,12 @@
 // components/user/MyCommentsTable.tsx
 "use client";
 
-import { Comment } from "@/shared/api/types/comment.model";
+import { CommentResponse } from "@/shared/api/types/comment.model";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 
 interface MyCommentsTableProps {
-  comments: Comment[];
+  comments: CommentResponse[];
 }
 
 export function MyCommentsTable({ comments }: MyCommentsTableProps) {
@@ -33,18 +33,18 @@ export function MyCommentsTable({ comments }: MyCommentsTableProps) {
               </td>
             </tr>
           ) : (
-            comments.map((comment: Comment) => (
+            comments.map((comment: CommentResponse) => (
               <tr key={comment.id}>
-                <td className="max-w-md truncate">{comment.content}</td>
+                <td className="max-w-md truncate">{comment.reply.content}</td>
                 <td>
                   <Link
-                    href={`/post/${comment.post_id}`}
+                    href={`/post/${comment.works_id}`}
                     className="hover:link-hover"
                   >
-                    {comment.content}
+                    {comment.reply.content}
                   </Link>
                 </td>
-                <td>{comment.like_count}</td>
+                <td>{comment.reply.like_count}</td>
                 <td>{new Date(comment.created_at).toLocaleDateString()}</td>
                 <td>
                   <button className="btn btn-xs btn-error">

@@ -1,53 +1,60 @@
 // hooks/useUnreadCount.ts
-import { useState, useEffect, useCallback } from "react";
-import { toast } from "react-hot-toast";
-import { notificationApi } from "@/shared/api/modules/notifications";
+import { useState, useEffect, useCallback } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { notificationKeys } from './useNotificationKeys'
+import { notificationApi } from '@/shared/api/modules/notifications'
 
 export function useUnreadCount() {
-  const [unreadCount, setUnreadCount] = useState<number>(0);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [unreadCount, setUnreadCount] = useState<number>(0)
 
-  const fetchUnreadCount = useCallback(async () => {
-    setLoading(true);
-    try {
-      const response = await notificationApi.unreadCount();
-      if (response.data.code === 0) {
-        setUnreadCount(response.data.data?.count ?? 0);
-      } else {
-        toast.error(response.data.message || "获取未读数量失败");
+  // 查询：获取未读数量
+  const query = useQuery<{ count: number }>({
+    queryKey: notificationKeys.unreadCount(),
+    queryFn: async () => {
+      const res = await notificationApi.unreadCount()
+      if (res.data.code !== 0) {
+        throw new Error(res.data.message || '获取未读数量失败')
       }
-    } catch (error) {
-      console.error("Failed to fetch unread count:", error);
-      toast.error("获取未读数量失败");
-    } finally {
-      setLoading(false);
+      if (!res.data.data) {
+        throw new Error('未读数量数据为空')
+      }
+      return res.data.data
+    },
+  })
+
+  // 查询结果同步到本地状态，保证与服务端数据一致
+  useEffect(() => {
+    if (query.data) {
+      setUnreadCount(query.data.count)
     }
-  }, []);
+  }, [query.data])
 
   // 手动增加/减少计数（用于本地乐观更新）
   const incrementUnread = useCallback(() => {
-    setUnreadCount((prev) => prev + 1);
-  }, []);
+    setUnreadCount((prev) => prev + 1)
+  }, [])
 
   const decrementUnread = useCallback(() => {
-    setUnreadCount((prev) => Math.max(0, prev - 1));
-  }, []);
+    setUnreadCount((prev) => Math.max(0, prev - 1))
+  }, [])
 
   const resetUnread = useCallback(() => {
-    setUnreadCount(0);
-  }, []);
+    setUnreadCount(0)
+  }, [])
 
-  useEffect(() => {
-    fetchUnreadCount();
-    // 可选：轮询或通过事件监听更新
-  }, [fetchUnreadCount]);
+  const refetch = useCallback(async () => {
+    const result = await query.refetch()
+    if (result.data) {
+      setUnreadCount(result.data.count)
+    }
+  }, [query])
 
   return {
     unreadCount,
-    loading,
-    refetch: fetchUnreadCount,
+    loading: query.isLoading,
+    refetch,
     incrementUnread,
     decrementUnread,
     resetUnread,
-  };
+  }
 }

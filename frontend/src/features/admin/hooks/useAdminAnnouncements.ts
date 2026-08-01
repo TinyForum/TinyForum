@@ -1,268 +1,299 @@
 // hooks/admin/useAdminAnnouncements.ts
-import { announcementApi } from "@/shared/api/modules/announcements";
-import { adminAnnouncementApi } from "@/shared/api/modules/admin/announcements";
+import { useCallback, useState } from 'react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import toast from 'react-hot-toast'
+import { announcementApi } from '@/shared/api/modules/announcements'
+import { adminAnnouncementApi } from '@/shared/api/modules/admin/announcements'
 import {
+  AnnouncementListResponse,
   CreateAnnouncementPayload,
   UpdateAnnouncementPayload,
-} from "@/shared/api/types/announcement.model";
+} from '@/shared/api/types/announcement.model'
 import {
   AnnouncementDO,
   AnnouncementStatus,
-} from "@/shared/api/types/announcement.model.do";
+} from '@/shared/api/types/announcement.model.do'
+import { announcementKeys } from './useAnnouncementKeys'
 
-import { useState, useEffect, useCallback } from "react";
-import toast from "react-hot-toast";
+// 辅助：解包后端响应，非 0 code 抛错
+function unwrap<T>(res: { code: number; message?: string; data?: T }): T {
+  if (res.code !== 0) {
+    throw new Error(res.message || '请求失败')
+  }
+  return res.data as T
+}
 
 interface UseAdminAnnouncementsReturn {
   // 数据
-  announcements: AnnouncementDO[];
-  pinnedAnnouncements: AnnouncementDO[];
-  total: number;
+  announcements: AnnouncementDO[]
+  pinnedAnnouncements: AnnouncementDO[]
+  total: number
 
   // 状态
-  isLoading: boolean;
-  isSubmitting: boolean;
+  isLoading: boolean
+  isSubmitting: boolean
 
   // 分页
-  page: number;
-  pageSize: number;
-  setPage: (page: number) => void;
-  setPageSize: (pageSize: number) => void;
+  page: number
+  pageSize: number
+  setPage: (page: number) => void
+  setPageSize: (pageSize: number) => void
 
   // 操作方法
-  refetch: () => Promise<void>;
-  getAnnouncementById: (id: number) => Promise<AnnouncementDO | null>;
+  refetch: () => Promise<void>
+  getAnnouncementById: (id: number) => Promise<AnnouncementDO | null>
   createAnnouncement: (
     data: CreateAnnouncementPayload,
-  ) => Promise<AnnouncementDO | null>;
+  ) => Promise<AnnouncementDO | null>
   updateAnnouncement: (
     id: number,
     data: UpdateAnnouncementPayload,
-  ) => Promise<AnnouncementDO | null>;
-  deleteAnnouncement: (id: number) => Promise<boolean>;
-  publishAnnouncement: (id: number) => Promise<boolean>;
-  archiveAnnouncement: (id: number) => Promise<boolean>;
-  pinAnnouncement: (id: number, isPinned: boolean) => Promise<boolean>;
+  ) => Promise<AnnouncementDO | null>
+  deleteAnnouncement: (id: number) => Promise<boolean>
+  publishAnnouncement: (id: number) => Promise<boolean>
+  archiveAnnouncement: (id: number) => Promise<boolean>
+  pinAnnouncement: (id: number, isPinned: boolean) => Promise<boolean>
 }
 
 export function useAdminAnnouncements(): UseAdminAnnouncementsReturn {
-  const [announcements, setAnnouncements] = useState<AnnouncementDO[]>([]);
-  const [pinnedAnnouncements, setPinnedAnnouncements] = useState<
-    AnnouncementDO[]
-  >([]);
-  const [total, setTotal] = useState<number>(0);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  const [page, setPage] = useState<number>(1);
-  const [pageSize, setPageSize] = useState<number>(20);
+  const queryClient = useQueryClient()
+  const [page, setPage] = useState<number>(1)
+  const [pageSize, setPageSize] = useState<number>(20)
 
   // 获取公告列表
-  const fetchAnnouncements = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const response = await announcementApi.adminList({
-        page,
-        page_size: pageSize,
-      });
+  const { data, isLoading, refetch: refetchQuery } = useQuery({
+    queryKey: announcementKeys.list({ page, page_size: pageSize }),
+    queryFn: async () => {
+      const res = await announcementApi.adminList({ page, page_size: pageSize })
+      return unwrap<AnnouncementListResponse>(res.data)
+    },
+  })
 
-      if (response.data.code === 0 || response.data.code === 0) {
-        // 添加安全检查，确保 response.data.data 存在
-        const data = response.data.data;
-        const list = data?.list || [];
-        setAnnouncements(list);
-        setTotal(data?.total || 0);
-        // 筛选置顶公告
-        setPinnedAnnouncements(
-          list.filter((ann: AnnouncementDO) => ann.is_pinned === true),
-        );
-      } else {
-        toast.error(response.data.message || "获取公告列表失败");
-      }
-    } catch (error) {
-      console.error("获取公告列表失败:", error);
-      toast.error("获取公告列表失败");
-    } finally {
-      setIsLoading(false);
-    }
-  }, [page, pageSize]);
+  const announcements = data?.list || []
+  // 筛选置顶公告
+  const pinnedAnnouncements = announcements.filter(
+    (ann: AnnouncementDO) => ann.is_pinned === true,
+  )
+  const total = data?.total || 0
+
+  const refetch = useCallback(() => {
+    return refetchQuery().then(() => undefined)
+  }, [refetchQuery])
 
   // 根据 ID 获取公告详情
   const getAnnouncementById = useCallback(
     async (id: number): Promise<AnnouncementDO | null> => {
       try {
-        const response = await announcementApi.getById(id);
-        if (response.data.code === 0 || response.data.code === 0) {
-          return response.data.data || null;
-        }
-        toast.error(response.data.message || "获取公告详情失败");
-        return null;
+        return await queryClient.fetchQuery({
+          queryKey: announcementKeys.detail(id),
+          queryFn: async () => {
+            const res = await announcementApi.getById(id)
+            return unwrap<AnnouncementDO>(res.data)
+          },
+        })
       } catch (error) {
-        console.error("获取公告详情失败:", error);
-        toast.error("获取公告详情失败");
-        return null;
+        console.error('获取公告详情失败:', error)
+        toast.error('获取公告详情失败')
+        return null
       }
     },
-    [],
-  );
+    [queryClient],
+  )
 
   // 创建公告
+  const createMutation = useMutation<
+    AnnouncementDO | null,
+    Error,
+    CreateAnnouncementPayload
+  >({
+    mutationFn: async (data) => {
+      const res = await adminAnnouncementApi.create(data)
+      const result = unwrap<AnnouncementDO>(res.data)
+      return result || null
+    },
+    onSuccess: () => {
+      toast.success('创建公告成功')
+      queryClient.invalidateQueries({ queryKey: announcementKeys.lists() })
+    },
+    onError: (error) => {
+      console.error('创建公告失败:', error)
+      toast.error('创建公告失败')
+    },
+  })
+
   const createAnnouncement = useCallback(
     async (data: CreateAnnouncementPayload): Promise<AnnouncementDO | null> => {
-      setIsSubmitting(true);
       try {
-        console.log("创建公告:", data);
-        const response = await adminAnnouncementApi.create(data);
-        if (response.data.code === 0 || response.data.code === 0) {
-          toast.success("创建公告成功");
-          await fetchAnnouncements();
-          return response.data.data || null;
-        }
-        toast.error(response.data.message || "创建公告失败");
-        return null;
-      } catch (error) {
-        console.error("创建公告失败:", error);
-        toast.error("创建公告失败");
-        return null;
-      } finally {
-        setIsSubmitting(false);
+        return await createMutation.mutateAsync(data)
+      } catch {
+        return null
       }
     },
-    [fetchAnnouncements],
-  );
+    [createMutation],
+  )
 
   // 更新公告
+  const updateMutation = useMutation<
+    AnnouncementDO | null,
+    Error,
+    { id: number; data: UpdateAnnouncementPayload }
+  >({
+    mutationFn: async ({ id, data }) => {
+      const res = await adminAnnouncementApi.update(id, data)
+      const result = unwrap<AnnouncementDO>(res.data)
+      return result || null
+    },
+    onSuccess: () => {
+      toast.success('更新公告成功')
+      queryClient.invalidateQueries({ queryKey: announcementKeys.lists() })
+    },
+    onError: (error) => {
+      console.error('更新公告失败:', error)
+      toast.error('更新公告失败')
+    },
+  })
+
   const updateAnnouncement = useCallback(
     async (
       id: number,
       data: UpdateAnnouncementPayload,
     ): Promise<AnnouncementDO | null> => {
-      setIsSubmitting(true);
       try {
-        const response = await adminAnnouncementApi.update(id, data);
-        if (response.data.code === 0 || response.data.code === 0) {
-          toast.success("更新公告成功");
-          await fetchAnnouncements();
-          return response.data.data || null;
-        }
-        toast.error(response.data.message || "更新公告失败");
-        return null;
-      } catch (error) {
-        console.error("更新公告失败:", error);
-        toast.error("更新公告失败");
-        return null;
-      } finally {
-        setIsSubmitting(false);
+        return await updateMutation.mutateAsync({ id, data })
+      } catch {
+        return null
       }
     },
-    [fetchAnnouncements],
-  );
+    [updateMutation],
+  )
 
   // 删除公告
+  const deleteMutation = useMutation<boolean, Error, number>({
+    mutationFn: async (id) => {
+      const res = await adminAnnouncementApi.delete(id)
+      unwrap(res.data)
+      return true
+    },
+    onSuccess: () => {
+      toast.success('删除公告成功')
+      queryClient.invalidateQueries({ queryKey: announcementKeys.lists() })
+    },
+    onError: (error) => {
+      console.error('删除公告失败:', error)
+      toast.error('删除公告失败')
+    },
+  })
+
   const deleteAnnouncement = useCallback(
     async (id: number): Promise<boolean> => {
-      setIsSubmitting(true);
       try {
-        const response = await adminAnnouncementApi.delete(id);
-        if (response.data.code === 0 || response.data.code === 0) {
-          toast.success("删除公告成功");
-          await fetchAnnouncements();
-          return true;
-        }
-        toast.error(response.data.message || "删除公告失败");
-        return false;
-      } catch (error) {
-        console.error("删除公告失败:", error);
-        toast.error("删除公告失败");
-        return false;
-      } finally {
-        setIsSubmitting(false);
+        return await deleteMutation.mutateAsync(id)
+      } catch {
+        return false
       }
     },
-    [fetchAnnouncements],
-  );
+    [deleteMutation],
+  )
 
   // 发布公告：设置 status 为 published，并设置 published_at 为当前时间
+  const publishMutation = useMutation<boolean, Error, number>({
+    mutationFn: async (id) => {
+      const res = await adminAnnouncementApi.update(id, {
+        status: AnnouncementStatus.Published,
+        published_at: new Date().toISOString(),
+      })
+      unwrap(res.data)
+      return true
+    },
+    onSuccess: () => {
+      toast.success('发布公告成功')
+      queryClient.invalidateQueries({ queryKey: announcementKeys.lists() })
+    },
+    onError: (error) => {
+      console.error('发布公告失败:', error)
+      toast.error('发布公告失败')
+    },
+  })
+
   const publishAnnouncement = useCallback(
     async (id: number): Promise<boolean> => {
-      setIsSubmitting(true);
       try {
-        const response = await adminAnnouncementApi.update(id, {
-          status: AnnouncementStatus.Published,
-          published_at: new Date().toISOString(),
-        });
-        if (response.data.code === 0 || response.data.code === 0) {
-          toast.success("发布公告成功");
-          await fetchAnnouncements();
-          return true;
-        }
-        toast.error(response.data.message || "发布公告失败");
-        return false;
-      } catch (error) {
-        console.error("发布公告失败:", error);
-        toast.error("发布公告失败");
-        return false;
-      } finally {
-        setIsSubmitting(false);
+        return await publishMutation.mutateAsync(id)
+      } catch {
+        return false
       }
     },
-    [fetchAnnouncements],
-  );
+    [publishMutation],
+  )
 
   // 归档公告：设置 expired_at 为当前时间之前（标记为过期）
+  const archiveMutation = useMutation<boolean, Error, number>({
+    mutationFn: async (id) => {
+      const res = await adminAnnouncementApi.update(id, {
+        expired_at: new Date().toISOString(),
+      })
+      unwrap(res.data)
+      return true
+    },
+    onSuccess: () => {
+      toast.success('归档公告成功')
+      queryClient.invalidateQueries({ queryKey: announcementKeys.lists() })
+    },
+    onError: (error) => {
+      console.error('归档公告失败:', error)
+      toast.error('归档公告失败')
+    },
+  })
+
   const archiveAnnouncement = useCallback(
     async (id: number): Promise<boolean> => {
-      setIsSubmitting(true);
       try {
-        const response = await adminAnnouncementApi.update(id, {
-          expired_at: new Date().toISOString(),
-        });
-        if (response.data.code === 0 || response.data.code === 0) {
-          toast.success("归档公告成功");
-          await fetchAnnouncements();
-          return true;
-        }
-        toast.error(response.data.message || "归档公告失败");
-        return false;
-      } catch (error) {
-        console.error("归档公告失败:", error);
-        toast.error("归档公告失败");
-        return false;
-      } finally {
-        setIsSubmitting(false);
+        return await archiveMutation.mutateAsync(id)
+      } catch {
+        return false
       }
     },
-    [fetchAnnouncements],
-  );
+    [archiveMutation],
+  )
 
   // 置顶/取消置顶
+  const pinMutation = useMutation<
+    boolean,
+    Error,
+    { id: number; pinned: boolean }
+  >({
+    mutationFn: async ({ id, pinned }) => {
+      const res = await adminAnnouncementApi.update(id, { is_pinned: pinned })
+      unwrap(res.data)
+      return true
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: announcementKeys.lists() })
+    },
+    onError: (error) => {
+      console.error('置顶操作失败:', error)
+      toast.error('操作失败')
+    },
+  })
+
   const pinAnnouncement = useCallback(
     async (id: number, isPinned: boolean): Promise<boolean> => {
-      setIsSubmitting(true);
       try {
-        const response = await adminAnnouncementApi.update(id, {
-          is_pinned: isPinned,
-        });
-        if (response.data.code === 0 || response.data.code === 0) {
-          await fetchAnnouncements();
-          return true;
-        }
-        toast.error(response.data.message || "操作失败");
-        return false;
-      } catch (error) {
-        console.error("置顶操作失败:", error);
-        toast.error("操作失败");
-        return false;
-      } finally {
-        setIsSubmitting(false);
+        return await pinMutation.mutateAsync({ id, pinned: isPinned })
+      } catch {
+        return false
       }
     },
-    [fetchAnnouncements],
-  );
+    [pinMutation],
+  )
 
-  // 初始加载
-  useEffect(() => {
-    fetchAnnouncements();
-  }, [fetchAnnouncements]);
+  const isSubmitting =
+    createMutation.isPending ||
+    updateMutation.isPending ||
+    deleteMutation.isPending ||
+    publishMutation.isPending ||
+    archiveMutation.isPending ||
+    pinMutation.isPending
 
   return {
     // 数据
@@ -281,7 +312,7 @@ export function useAdminAnnouncements(): UseAdminAnnouncementsReturn {
     setPageSize,
 
     // 操作方法
-    refetch: fetchAnnouncements,
+    refetch,
     getAnnouncementById,
     createAnnouncement,
     updateAnnouncement,
@@ -289,5 +320,5 @@ export function useAdminAnnouncements(): UseAdminAnnouncementsReturn {
     publishAnnouncement,
     archiveAnnouncement,
     pinAnnouncement,
-  };
+  }
 }

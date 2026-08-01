@@ -1,7 +1,6 @@
 "use client";
 // 整个评论区
 import { useState, useRef } from "react";
-import { useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "@/store/auth";
 import CommentItem from "./CommentItem";
 import toast from "react-hot-toast";
@@ -20,7 +19,6 @@ interface CommentSectionProps {
 
 export default function CommentSection({ postId }: CommentSectionProps) {
   const { isAuthenticated } = useAuthStore();
-  const queryClient = useQueryClient();
   const [content, setContent] = useState("");
   const [replyTo, setReplyTo] = useState<{
     id: number;
@@ -38,7 +36,7 @@ export default function CommentSection({ postId }: CommentSectionProps) {
 
   // 使用封装好的创建评论 Mutation
   const createMutation = useCreateComment({
-    onSuccess: (_, variables) => {
+    onSuccess: () => {
       toast.success(t("comment_success") || "评论成功");
       setContent("");
       setReplyTo(null);

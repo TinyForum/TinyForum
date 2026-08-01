@@ -1,9 +1,12 @@
-import { UserDO } from "./user.model.do";
-
 export interface CreateCommentPayload {
   post_id: number;
   content: string;
   parent_id?: number;
+}
+
+export interface CreateCommentResponse {
+  message: string;
+  status: boolean;
 }
 
 /**

@@ -1,68 +1,84 @@
-import { useState, useEffect, useCallback } from "react";
-import { announcementApi } from "@/shared/api/modules/announcements";
-import toast from "react-hot-toast";
-import { ApiResponse } from "@/shared/api/types/basic.model";
-import { AnnouncementDO } from "@/shared/api/types/announcement.model.do";
+import { useCallback, useEffect, useState } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { announcementApi } from '@/shared/api/modules/announcements'
+import toast from 'react-hot-toast'
+import { AnnouncementDO } from '@/shared/api/types/announcement.model.do'
+import { announcementKeys } from './useAnnouncementKeys'
+
+// 辅助：解包后端响应，非 0 code 抛错
+function unwrap<T>(res: { code: number; message?: string; data?: T }): T {
+  if (res.code !== 0) {
+    throw new Error(res.message || '请求失败')
+  }
+  return res.data as T
+}
 
 // ============ 用于单个公告的 Hook ============
 interface UseAdminAnnouncementOptions {
-  autoLoad?: boolean;
+  autoLoad?: boolean
 }
 
 interface UseAnnouncementReturn {
-  announcement: AnnouncementDO | null;
-  loading: boolean;
-  fetch: (id: number) => Promise<AnnouncementDO | null>;
-  clear: () => void;
+  announcement: AnnouncementDO | null
+  loading: boolean
+  fetch: (id: number) => Promise<AnnouncementDO | null>
+  clear: () => void
 }
 
 export function useAdminAnnouncement(
   id?: number,
   options?: UseAdminAnnouncementOptions,
 ): UseAnnouncementReturn {
-  const { autoLoad = true } = options || {};
-  const [announcement, setAnnouncement] = useState<AnnouncementDO | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
+  const queryClient = useQueryClient()
+  const { autoLoad = true } = options || {}
+  const [activeId, setActiveId] = useState<number | null>(id ?? null)
 
+  // 同步外部传入的 id
+  useEffect(() => {
+    if (id !== undefined) {
+      setActiveId(id)
+    }
+  }, [id])
+
+  // 公告详情查询
+  const query = useQuery({
+    queryKey: announcementKeys.detail(activeId ?? -1),
+    queryFn: async () => {
+      const res = await announcementApi.getById(activeId as number)
+      return unwrap<AnnouncementDO>(res.data)
+    },
+    enabled: autoLoad && !!activeId,
+  })
+
+  // 手动获取公告详情
   const fetch = useCallback(
     async (announcementId: number): Promise<AnnouncementDO | null> => {
-      setLoading(true);
+      setActiveId(announcementId)
       try {
-        const response: { data: ApiResponse<AnnouncementDO> } =
-          await announcementApi.getById(announcementId);
-
-        if (response.data.code === 0 && response.data.data) {
-          setAnnouncement(response.data.data);
-          return response.data.data;
-        } else {
-          toast.error(response.data.message || "获取公告详情失败");
-          return null;
-        }
+        return await queryClient.fetchQuery({
+          queryKey: announcementKeys.detail(announcementId),
+          queryFn: async () => {
+            const res = await announcementApi.getById(announcementId)
+            return unwrap<AnnouncementDO>(res.data)
+          },
+        })
       } catch (error) {
-        console.error("获取公告详情失败:", error);
-        toast.error("获取公告详情失败，请稍后重试");
-        return null;
-      } finally {
-        setLoading(false);
+        console.error('获取公告详情失败:', error)
+        toast.error('获取公告详情失败，请稍后重试')
+        return null
       }
     },
-    [],
-  );
+    [queryClient],
+  )
 
   const clear = useCallback(() => {
-    setAnnouncement(null);
-  }, []);
-
-  useEffect(() => {
-    if (autoLoad && id) {
-      fetch(id);
-    }
-  }, [autoLoad, id, fetch]);
+    setActiveId(null)
+  }, [])
 
   return {
-    announcement,
-    loading,
+    announcement: query.data ?? null,
+    loading: query.isLoading,
     fetch,
     clear,
-  };
+  }
 }

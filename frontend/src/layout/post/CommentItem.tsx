@@ -10,7 +10,7 @@ import toast from "react-hot-toast";
 import { useTranslations } from "next-intl";
 import Avatar from "@/features/user/components/Avatar";
 import { commentApi } from "@/shared/api/modules/comments";
-import { CommentResponse, Reply } from "@/shared/api/types/comment.model";
+import { Reply } from "@/shared/api/types/comment.model";
 
 interface CommentItemProps {
   reply: Reply;
