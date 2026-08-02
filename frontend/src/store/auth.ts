@@ -12,7 +12,7 @@ interface AuthState {
   isHydrated: boolean;
 
   setAuth: (user: UserDO) => void;
-  logout: () => Promise<void>;
+  logout: () => void; // 改为同步
   updateUser: (user: Partial<UserDO>) => void;
   setHydrated: (state: boolean) => void;
   refreshUser: () => Promise<void>;
@@ -31,10 +31,13 @@ export const useAuthStore = create<AuthState>()(
       },
 
       // 登出
-      logout: async () => {
-        await authApi.logout();
+      logout: () => {
+        // 不再调用 authApi.logout()，因为 token 可能已失效
         localStorage.removeItem("tiny-auth");
         sessionStorage.clear();
+        // 清除 cookie（通过设置过期时间）
+        document.cookie =
+          "tiny_forum_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax";
         set({ user: null, isAuthenticated: false });
       },
 

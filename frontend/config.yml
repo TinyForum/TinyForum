@@ -20,6 +20,7 @@ allowed_dev_origins:
   - "192.168.43.53"
   - "localhost"
   - "127.0.0.1"
+  - "*.ngrok-free.app"
 
 experimental:
   proxy_timeout: 10000
