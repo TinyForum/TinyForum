@@ -1,266 +1,80 @@
-# Tiny Forum — 全栈技术交流社区
+# Welcome to TinyForum Documentation
 
-> Go (Gin + GORM) 后端 × Next.js 14 (App Router) 前端 × PostgreSQL
+<p align="center">
+  <img src="assets/logo.svg" alt="TinyForum Logo" width="120">
+</p>
+
+## TinyForum 天方论坛
+
+开源的现代化论坛系统 — Go 后端 + Next.js 前端，支持插件化和机器人自动化。
+
+[中文文档](/zh-CN/README) | [English](/en/README) | [GitHub](https://github.com/caoyang2002/TinyForum)
+
+---
+
+## 快速导航
+
+| 角色 | 推荐入口 |
+|------|----------|
+| **普通用户** | [功能介绍](/zh-CN/guide/intro) · [使用指南](/zh-CN/usage/basic) · [常见问题](/zh-CN/qa/qa) |
+| **管理员** | [快速部署](/zh-CN/guide/quickstart) · [认证授权](/zh-CN/product/auth) · [社区审核](/zh-CN/product/review) |
+| **开发者** | [开发手册](/zh-CN/dev/index) · [架构设计](/zh-CN/dev/architecture) · [API 规范](/zh-CN/dev/restful_api) |
+| **插件开发者** | [插件系统](/zh-CN/dev/plugin) · [机器人系统](/zh-CN/dev/robot) |
 
 ---
 
 ## 技术栈
 
-| 层     | 技术                                                                           |
-| ------ | ------------------------------------------------------------------------------ |
-| 后端   | Go 1.21, Gin, GORM, Wire (手动注入), JWT, Zap                                  |
-| 前端   | Next.js 16, TypeScript, Tailwind CSS, DaisyUI, TanStack Query, Zustand, Tiptap |
-| 数据库 | PostgreSQL 16                                                                  |
-| 部署   | Docker + Docker Compose                                                        |
-
-## 功能列表
-
-- ✅ 用户注册 / 登录 / JWT 鉴权
-- ✅ 发帖（帖子 / 文章 / 话题）、富文本编辑器
-- ✅ 评论 & 嵌套回复
-- ✅ 点赞 / 取消点赞
-- ✅ 标签系统
-- ✅ 关注 / 取消关注
-- ✅ 积分系统 & 排行榜
-- ✅ 站内消息通知
-- ✅ 个人主页 / 编辑资料
-- ✅ 管理后台（用户管理、封禁、置顶）
-- ✅ 全文搜索（标题 & 内容）
-- ✅ 深色 / 浅色主题切换（DaisyUI）
+| 层级 | 技术 |
+|------|------|
+| 后端 | Go 1.24+ · Gin · GORM · PostgreSQL · Redis |
+| 前端 | Next.js 16 · React 19 · TypeScript · TailwindCSS · DaisyUI |
+| 鉴权 | JWT · Casbin RBAC |
+| 部署 | Docker Compose · Nginx |
 
 ---
 
-## 快速启动
+## 核心特性
 
-### 方式一：Docker Compose（推荐，一键启动）
+- **多类型内容**：帖子、文章、问答、主题讨论
+- **富文本编辑**：基于 Tiptap 的所见即所得编辑器
+- **评论与互动**：嵌套评论、点赞、关注、时间线
+- **权限体系**：超级管理员 → 管理员 → 版主 → 审核员 → 会员 → 用户 → 游客
+- **内容安全**：DFA 敏感词 + LLM 语义复核双重保障
+- **Bot 机器人**：Lua 脚本 + 零代码 Flow 引擎
+- **插件系统**：前端动态插件加载
+- **国际化**：中英文双语支持
+- **API 文档**：Swagger 自动生成
+
+---
+
+## 快速体验
 
 ```bash
-# 克隆后直接运行
+git clone https://github.com/caoyang2002/TinyForum.git
+cd TinyForum
+cp .env.example .env
 docker compose up -d
-
-# 访问
-# 前端：http://localhost:3000
-# 后端 API：http://localhost:8080/api/v1
 ```
 
-### 方式二：本地开发
-
-#### 前置要求
-
-- Go 1.21+
-- Node.js 20+
-- PostgreSQL 16（本地或 Docker）
-
-#### 初始化数据库
-
-```bash
-# 先创建数据库，然后执行 SQL 文件
-psql -U postgres -h localhost -d postgres -c "CREATE DATABASE tiny_forum;"
-```
-
-#### 启动 PostgreSQL（Docker 单独启动）
-
-```bash
-docker run -d \
-  --name bbs_postgres \
-  -e POSTGRES_USER=postgres \
-  -e POSTGRES_PASSWORD=postgres \
-  -e POSTGRES_DB=tiny_forum \
-  -p 5432:5432 \
-  postgres:16-alpine
-```
-
-#### 启动后端
-
-```bash
-cd backend
-
-# 安装依赖
-go mod tidy
-
-# 修改配置（如有需要）
-# vim config/config.yaml
-
-# 运行
-go run ./cmd/server
-```
-
-> 首次启动会自动 AutoMigrate 建表，无需手动执行 SQL。
-
-#### 启动前端
-
-```bash
-cd frontend
-
-# 安装依赖
-npm install
-
-# 配置 API 地址（默认 localhost:8080）
-# vim .env.local
-
-# 开发模式
-npm run dev
-```
-
-访问 http://localhost:3000
+浏览器打开 `http://localhost:8080`。
 
 ---
 
-## 项目结构
+## 项目截图
 
-```
-tiny-forum/
-├── backend/
-│   ├── cmd/server/main.go          # 入口
-│   ├── config/
-│   │   ├── config.go               # 配置结构
-│   │   └── config.yaml             # 配置文件
-│   ├── internal/
-│   │   ├── handler/                # HTTP 处理层
-│   │   │   ├── auth.go
-│   │   │   ├── post.go
-│   │   │   ├── comment.go
-│   │   │   ├── user.go
-│   │   │   ├── tag.go
-│   │   │   └── notification.go
-│   │   ├── service/                # 业务逻辑层
-│   │   │   ├── user.go
-│   │   │   ├── post.go
-│   │   │   ├── comment.go
-│   │   │   ├── tag.go
-│   │   │   └── notification.go
-│   │   ├── repository/             # 数据访问层
-│   │   │   ├── user.go
-│   │   │   ├── post.go
-│   │   │   ├── comment.go
-│   │   │   ├── tag.go
-│   │   │   └── notification.go
-│   │   ├── model/                  # GORM 数据模型
-│   │   │   └── model.go
-│   │   ├── middleware/             # Gin 中间件
-│   │   │   └── auth.go
-│   │   └── wire/                   # 依赖注入 & 路由
-│   │       └── wire.go
-│   ├── pkg/
-│   │   ├── jwt/                    # JWT 工具
-│   │   ├── logger/                 # Zap 日志
-│   │   └── response/               # 统一响应
-│   ├── Dockerfile
-│   ├── Makefile
-│   └── go.mod
-│
-├── frontend/
-│   └── src/
-│       ├── app/                    # Next.js App Router
-│       │   ├── page.tsx            # 首页
-│       │   ├── auth/login/         # 登录
-│       │   ├── auth/register/      # 注册
-│       │   ├── posts/              # 帖子列表
-│       │   ├── posts/new/          # 发帖
-│       │   ├── posts/[id]/         # 帖子详情
-│       │   ├── posts/[id]/edit/    # 编辑帖子
-│       │   ├── users/[id]/         # 用户主页
-│       │   ├── notifications/      # 通知
-│       │   ├── leaderboard/        # 排行榜
-│       │   ├── settings/           # 个人设置
-│       │   └── admin/              # 管理后台
-│       ├── components/
-│       │   ├── layout/             # Navbar, Providers
-│       │   └── post/               # PostCard, CommentSection, RichEditor
-│       ├── lib/
-│       │   ├── api-client.ts       # Axios 实例
-│       │   ├── api.ts              # API 函数
-│       │   └── utils.ts            # 工具函数
-│       ├── store/
-│       │   └── auth.ts             # Zustand auth store
-│       └── types/
-│           └── index.ts            # TypeScript 类型
-│
-├── docker-compose.yml
-└── README.md
-```
+| 首页 | 编辑器 | 管理后台 | 积分系统 |
+|:---:|:---:|:---:|:---:|
+| ![首页](zh-CN/_media/home.png) | ![编辑器](zh-CN/_media/editor.png) | ![管理后台](zh-CN/_media/admin.png) | ![积分](zh-CN/_media/score.png) |
 
-## API 文档
+---
 
-### 认证
+## 许可证
 
-| 方法 | 路径                  | 说明         |
-| ---- | --------------------- | ------------ |
-| POST | /api/v1/auth/register | 注册         |
-| POST | /api/v1/auth/login    | 登录         |
-| GET  | /api/v1/auth/me       | 当前用户信息 |
+本项目采用 [MIT License](https://github.com/caoyang2002/TinyForum/blob/main/LICENSE) 开源。
 
-### 帖子
+---
 
-| 方法   | 路径                   | 说明                                   |
-| ------ | ---------------------- | -------------------------------------- |
-| GET    | /api/v1/posts          | 列表（支持分页、搜索、排序、标签过滤） |
-| GET    | /api/v1/posts/:id      | 详情                                   |
-| POST   | /api/v1/posts          | 发布                                   |
-| PUT    | /api/v1/posts/:id      | 编辑                                   |
-| DELETE | /api/v1/posts/:id      | 删除                                   |
-| POST   | /api/v1/posts/:id/like | 点赞                                   |
-| DELETE | /api/v1/posts/:id/like | 取消点赞                               |
+## 开发声明
 
-### 评论
-
-| 方法   | 路径                           | 说明          |
-| ------ | ------------------------------ | ------------- |
-| GET    | /api/v1/comments/post/:post_id | 帖子评论列表  |
-| POST   | /api/v1/comments               | 发表评论/回复 |
-| DELETE | /api/v1/comments/:id           | 删除评论      |
-
-### 用户
-
-| 方法   | 路径                      | 说明     |
-| ------ | ------------------------- | -------- |
-| GET    | /api/v1/users/:id         | 用户主页 |
-| PUT    | /api/v1/users/profile     | 更新资料 |
-| POST   | /api/v1/users/:id/follow  | 关注     |
-| DELETE | /api/v1/users/:id/follow  | 取消关注 |
-| GET    | /api/v1/users/leaderboard | 积分排行 |
-
-### 标签
-
-| 方法 | 路径         | 说明               |
-| ---- | ------------ | ------------------ |
-| GET  | /api/v1/tags | 所有标签           |
-| POST | /api/v1/tags | 创建标签（管理员） |
-
-### 通知
-
-| 方法 | 路径                               | 说明     |
-| ---- | ---------------------------------- | -------- |
-| GET  | /api/v1/notifications              | 通知列表 |
-| GET  | /api/v1/notifications/unread-count | 未读数量 |
-| POST | /api/v1/notifications/read-all     | 全部已读 |
-
-## 积分规则
-
-| 行为     | 积分 |
-| -------- | ---- |
-| 注册     | 0    |
-| 发帖     | +10  |
-| 发表评论 | +3   |
-| 点赞他人 | +2   |
-
-## 配置说明
-
-修改 `backend/config/config.yaml`：
-
-```yaml
-server:
-  port: 8080
-  mode: debug # debug | release
-
-database:
-  host: localhost
-  port: 5432
-  user: postgres
-  password: postgres
-  dbname: tiny_forum
-
-jwt:
-  secret: "your-secret-key-at-least-32-chars"
-  expire: 72h
-```
+本项目部分代码由 AI 辅助生成，人机协作完成。项目遵循严格的 [AGENTS.md](https://github.com/caoyang2002/TinyForum/blob/main/AGENTS.md) AI 协作规范，确保代码质量和安全性。
