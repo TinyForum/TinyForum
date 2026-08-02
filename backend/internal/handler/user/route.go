@@ -46,17 +46,17 @@ func (h *UserHandler) RegisterRoutes(api *gin.RouterGroup, mw middleware.Middlew
 		stats := me.Group("/stats")
 		{
 
-			stats.GET("", h.GetStatisticsCount) // GET /api/v1/users/me/stats/acunt 用户统计信息
+			stats.GET("", h.GetStatisticsCount) // GET /api/v1/users/me/stats 用户统计信息
 
 		}
 
 		posts := me.Group("/posts")
 		{
-			posts.GET("", h.GetUserPosts) // GET /api/v1/users/me/stats/posts 用户帖子列表
+			posts.GET("", h.GetUserPosts) // GET /api/v1/users/me/posts 用户帖子列表
 		}
 		violation := me.Group("/violations")
 		{
-			violation.GET("", h.ListUserViolations) // GET /api/v1/users/me/violation 用户违规记录
+			violation.GET("", h.ListUserViolations) // GET /api/v1/users/me/violations 用户违规记录
 		}
 		// me.PATCH("/password", h.ChangePassword) // PATCH /api/v1/users/me/password 修改密码
 	}

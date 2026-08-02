@@ -1,109 +1,81 @@
 // hooks/useAnswerVote.ts
-import { useState, useEffect, useCallback } from "react";
-import { toast } from "react-hot-toast";
-import { answerApi } from "@/shared/api/modules/answer";
-import { ApiResponse } from "@/shared/api/types/basic.model";
+import { useCallback } from 'react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'react-hot-toast'
+import { answerApi } from '@/shared/api/modules/answer'
+import { VoteStatusResponse } from '@/shared/api/types/vote.model'
+import { answerKeys } from './useAnswerKey'
 
-type VoteType = "up" | "down" | "";
-
-interface VoteStatusResponse {
-  user_vote: number; // 1: up, -1: down, 0: no vote
-  up_count: number;
-  down_count: number;
-}
-
-interface ErrorResponse {
-  response?: {
-    data?: {
-      message?: string;
-    };
-  };
-  message?: string;
-}
+type VoteType = 'up' | 'down' | ''
 
 export function useAnswerVote(answerId: number, currentUserId?: number) {
-  const [userVote, setUserVote] = useState<VoteType>("");
-  const [voteCount, setVoteCount] = useState<number>(0);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [voting, setVoting] = useState<boolean>(false);
+  const queryClient = useQueryClient()
 
-  const loadVoteStatus = useCallback(async (): Promise<void> => {
-    if (!currentUserId) {
-      setLoading(false);
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const response: { data: ApiResponse<VoteStatusResponse> } =
-        await answerApi.getVoteStatus(answerId);
-
-      if (response.data.code === 0) {
-        const data = response.data.data;
-        if (data) {
-          const userVoteValue = data.user_vote;
-
-          // 手动计算净得票数 = 赞同数 - 反对数
-          const upCount = data.up_count || 0;
-          const downCount = data.down_count || 0;
-          const netVotes = upCount - downCount;
-
-          // 转换 user_vote: 1 -> 'up', -1 -> 'down', 0 -> ''
-          const newUserVote: VoteType =
-            userVoteValue === 1 ? "up" : userVoteValue === -1 ? "down" : "";
-          setUserVote(newUserVote);
-          setVoteCount(netVotes);
-
-          console.log(
-            `Answer ${answerId} - user_vote: ${userVoteValue}, up: ${upCount}, down: ${downCount}, net: ${netVotes}`,
-          );
-        }
+  // 查询：获取投票状态（未登录时不发起请求）
+  const query = useQuery<VoteStatusResponse>({
+    queryKey: answerKeys.voteStatus(answerId),
+    queryFn: async () => {
+      const res = await answerApi.getVoteStatus(answerId)
+      if (res.data.code !== 0) {
+        throw new Error(res.data.message || '获取投票状态失败')
       }
-    } catch (err: unknown) {
-      console.error("Failed to load vote status:", err);
-    } finally {
-      setLoading(false);
-    }
-  }, [answerId, currentUserId]);
-
-  const handleVote = useCallback(
-    async (voteType: "up" | "down"): Promise<boolean> => {
-      if (!currentUserId) {
-        toast.error("请先登录");
-        return false;
+      if (!res.data.data) {
+        throw new Error('投票状态数据为空')
       }
-      if (voting || loading) return false;
+      return res.data.data
+    },
+    enabled: !!currentUserId && !!answerId,
+  })
 
-      setVoting(true);
-      try {
-        const isCurrentlyVoted = userVote === voteType;
-        if (isCurrentlyVoted) {
-          await answerApi.removeVote(answerId);
-        } else {
-          await answerApi.voteAnswer(answerId, voteType);
-        }
-        await loadVoteStatus(); // 用服务端真实数据更新 UI
-        toast.success(isCurrentlyVoted ? "已取消投票" : "投票成功");
-        return true;
-      } catch (err: unknown) {
-        const error = err as ErrorResponse;
-        toast.error(error.response?.data?.message || "投票失败");
-        return false;
-      } finally {
-        setVoting(false);
+  // 转换 user_vote: 1 -> 'up', -1 -> 'down', 0 -> ''
+  const userVote: VoteType =
+    query.data?.user_vote === 1
+      ? 'up'
+      : query.data?.user_vote === -1
+        ? 'down'
+        : ''
+  // 手动计算净得票数 = 赞同数 - 反对数
+  const voteCount = (query.data?.up_count ?? 0) - (query.data?.down_count ?? 0)
+
+  // 变更：投票/取消投票（当前已投相同票则取消，否则投票）
+  const voteMutation = useMutation({
+    mutationFn: async (voteType: 'up' | 'down') => {
+      if (userVote === voteType) {
+        await answerApi.removeVote(answerId)
+      } else {
+        await answerApi.voteAnswer(answerId, voteType)
       }
     },
-    [answerId, currentUserId, userVote, voting, loading, loadVoteStatus],
-  );
+    onSuccess: () => {
+      // 投票后使该答案的投票状态失效，重新拉取服务端真实数据
+      queryClient.invalidateQueries({
+        queryKey: answerKeys.voteStatus(answerId),
+      })
+    },
+  })
 
-  useEffect((): void => {
-    loadVoteStatus();
-  }, [loadVoteStatus]);
+  const handleVote = useCallback(
+    async (voteType: 'up' | 'down'): Promise<boolean> => {
+      if (!currentUserId) {
+        toast.error('请先登录')
+        return false
+      }
+      try {
+        await voteMutation.mutateAsync(voteType)
+        toast.success(userVote === voteType ? '已取消投票' : '投票成功')
+        return true
+      } catch {
+        toast.error('投票失败')
+        return false
+      }
+    },
+    [currentUserId, userVote, voteMutation],
+  )
 
   return {
     userVote,
     voteCount,
-    loading: loading || voting,
+    loading: query.isLoading || voteMutation.isPending,
     handleVote,
-  };
+  }
 }

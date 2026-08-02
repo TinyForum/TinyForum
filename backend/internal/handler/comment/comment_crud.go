@@ -17,7 +17,7 @@ import (
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param body body comment.CreateCommentInput true "评论信息"
+// @Param body body bo.CreateCommentInput true "评论信息"
 // @Success 200 {object} common.BasicResponse "创建成功"
 // @Failure 400 {object} common.BasicResponse"请求参数错误"
 // @Failure 401 {object} common.BasicResponse"未授权"
@@ -70,6 +70,16 @@ func (h *CommentHandler) List(c *gin.Context) {
 	response.SuccessPage(c, comments, total, page, pageSize)
 }
 
+// GetCommentTree 获取评论树
+// @Summary 获取评论树
+// @Description 以树形结构返回某篇帖子的全部评论
+// @Tags 评论管理
+// @Produce json
+// @Param post_id path int true "帖子ID"
+// @Success 200 {object} common.BasicResponse  "获取成功"
+// @Failure 400 {object} common.BasicResponse "无效的帖子ID"
+// @Failure 404 {object} common.BasicResponse "帖子不存在"
+// @Router /comments/post/{post_id}/tree [get]
 func (h *CommentHandler) GetCommentTree(c *gin.Context) {
 	postID, err := strconv.ParseUint(c.Param("post_id"), 10, 64)
 	if err != nil {

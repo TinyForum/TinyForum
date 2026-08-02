@@ -3,32 +3,7 @@ import { uploadApi } from "@/shared/api/modules/uploads";
 import Image from "next/image";
 import React, { useState, useRef, useEffect } from "react";
 import toast from "react-hot-toast";
-
-export type LayoutMode = "grid" | "waterfall" | "horizontal" | "tile";
-export type GridSize = 2 | 3 | 4;
-
-export interface ImageItem {
-  id: string;
-  url: string;
-  file?: File;
-  isCover?: boolean;
-  uploading?: boolean;
-  error?: string;
-}
-
-interface ImageUploaderProps {
-  initialImages?: Array<{ url: string; isCover?: boolean }>;
-  uploadFn?: (file: File) => Promise<{ url: string }>;
-  maxCount?: number;
-  supportCover?: boolean;
-  layout?: LayoutMode;
-  gridSize?: GridSize;
-  defaultCollapsed?: boolean;
-  onChange?: (images: ImageItem[]) => void;
-  onDelete?: (image: ImageItem) => void;
-  className?: string;
-  onLayoutChange?: (layout: LayoutMode) => void; // 新增回调
-}
+import { ImageUploaderProps, ImageItem, LayoutMode } from "./upload.types";
 
 export const ImageUploader: React.FC<ImageUploaderProps> = ({
   initialImages = [],
@@ -214,7 +189,9 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
           <Image
             src={image.url}
             alt="预览"
-            className="w-full h-full object-cover"
+            fill // 新增：让图片填满父容器
+            className="object-cover" // 保留 object-cover，移除 w-full h-full（fill 自动填满）
+            sizes="(max-width: 768px) 100vw, 33vw" // 可选，但建议加上以优化性能
           />
           {image.uploading && (
             <div className="absolute inset-0 bg-black/50 flex items-center justify-center">

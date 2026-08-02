@@ -19,7 +19,7 @@ import (
 // @Success 200 {object} common.BasicResponse "获取成功"
 // @Failure 401 {object} common.BasicResponse"未授权"
 // @Failure 500 {object} common.BasicResponse"服务器内部错误"
-// @Router /timeline/home [get]
+// @Router /timeline [get]
 func (h *TimelineHandler) GetHomeTimeline(c *gin.Context) {
 	userID := c.GetUint("user_id")
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))

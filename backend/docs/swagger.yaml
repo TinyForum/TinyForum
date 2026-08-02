@@ -1,16 +1,16 @@
-basePath: /api/v1
 definitions:
   answer.CreateAnswerRequest:
     properties:
       content:
-        description: 回答内容
+        description: QuestionID int    `json:"question_id" binding:"required,min=1"`      //
+          问题ID
         maxLength: 5000
         minLength: 1
         type: string
     required:
     - content
     type: object
-  board.CreateBoardInput:
+  bo.CreateBoardInput:
     properties:
       cover:
         maxLength: 500
@@ -43,34 +43,7 @@ definitions:
     - name
     - slug
     type: object
-  board.ReviewApplicationRequest:
-    properties:
-      approve:
-        type: boolean
-      can_ban_user:
-        type: boolean
-      can_delete_post:
-        type: boolean
-      can_edit_any_post:
-        type: boolean
-      can_manage_moderator:
-        type: boolean
-      can_pin_post:
-        type: boolean
-      review_note:
-        maxLength: 500
-        type: string
-    required:
-    - approve
-    type: object
-  bot.ValidateFlowRequest:
-    properties:
-      flow:
-        $ref: '#/definitions/nocode.Flow'
-    required:
-    - flow
-    type: object
-  comment.CreateCommentInput:
+  bo.CreateCommentInput:
     properties:
       content:
         maxLength: 2000
@@ -104,12 +77,43 @@ definitions:
         description: 追踪ID
         type: string
     type: object
+  config.ConfigFileInfo:
+    properties:
+      editable:
+        type: boolean
+      format:
+        type: string
+      mod_time:
+        type: string
+      name:
+        type: string
+      path:
+        type: string
+      size:
+        type: integer
+    type: object
+  config.ConfigHistory:
+    properties:
+      content:
+        type: string
+      createdAt:
+        type: string
+      fileName:
+        type: string
+      id:
+        type: integer
+      operation:
+        description: create, update, delete, reload
+        type: string
+      operator:
+        type: string
+    type: object
   do.AnnouncementStatus:
     enum:
-    - 0
-    - 1
-    - 2
-    type: integer
+    - draft
+    - published
+    - archived
+    type: string
     x-enum-comments:
       AnnouncementStatusArchived: 已归档
       AnnouncementStatusDraft: 草稿
@@ -124,11 +128,11 @@ definitions:
     - AnnouncementStatusArchived
   do.AnnouncementType:
     enum:
-    - 0
-    - 1
-    - 2
-    - 3
-    type: integer
+    - normal
+    - important
+    - emergency
+    - event
+    type: string
     x-enum-comments:
       AnnouncementTypeEmergency: 紧急公告
       AnnouncementTypeEvent: 活动公告
@@ -149,44 +153,83 @@ definitions:
       reason:
         maxLength: 500
         type: string
-      req_ban_user:
-        type: boolean
-      req_delete_post:
-        type: boolean
-      req_edit_any_post:
-        type: boolean
-      req_manage_moderator:
-        type: boolean
-      req_pin_post:
-        type: boolean
+      requested_permissions:
+        description: 申请的权限列表
+        items:
+          $ref: '#/definitions/do.ModeratorPermission'
+        type: array
     required:
     - reason
     type: object
   do.BotConfigField:
     properties:
-      defaultValue: {}
+      defaultValue:
+        description: 默认值
       description:
+        description: 描述
         type: string
       key:
+        description: 唯一标识
         type: string
       label:
+        description: 显示名称
         type: string
       options:
+        description: 选项
         items:
           properties:
             label:
+              description: 显示名称
               type: string
-            value: {}
+            value:
+              description: 值
           type: object
         type: array
       placeholder:
+        description: 占位符
         type: string
       required:
+        description: 是否必填
         type: boolean
       type:
-        description: text, number, boolean, select, textarea, secret
-        type: string
+        allOf:
+        - $ref: '#/definitions/do.BotConfigFieldType'
+        description: 类型
     type: object
+  do.BotConfigFieldType:
+    enum:
+    - text
+    - number
+    - bool
+    - select
+    - textarea
+    - secret
+    - array
+    type: string
+    x-enum-comments:
+      FieldTypeArray: 数组
+      FieldTypeBool: 布尔
+      FieldTypeNumber: 数字
+      FieldTypeSecret: 密码
+      FieldTypeSelect: 选择
+      FieldTypeText: 文本
+      FieldTypeTextArea: 多行文本
+    x-enum-descriptions:
+    - 文本
+    - 数字
+    - 布尔
+    - 选择
+    - 多行文本
+    - 密码
+    - 数组
+    x-enum-varnames:
+    - FieldTypeText
+    - FieldTypeNumber
+    - FieldTypeBool
+    - FieldTypeSelect
+    - FieldTypeTextArea
+    - FieldTypeSecret
+    - FieldTypeArray
   do.BotPermission:
     enum:
     - read:user
@@ -198,6 +241,24 @@ definitions:
     - manage:content
     - read:stats
     type: string
+    x-enum-comments:
+      BotPermReadComments: 读取评论信息
+      BotPermReadPosts: 读取帖子信息
+      BotPermReadUser: 读取用户信息
+      BotPermWriteComments: 写入评论信息
+      BotPermWritePosts: 写入帖子信息
+      PermManageContent: 管理内容
+      PermReadStats: 读取统计信息
+      PermSendMessage: 发送消息
+    x-enum-descriptions:
+    - 读取用户信息
+    - 读取帖子信息
+    - 写入帖子信息
+    - 读取评论信息
+    - 写入评论信息
+    - 发送消息
+    - 管理内容
+    - 读取统计信息
     x-enum-varnames:
     - BotPermReadUser
     - BotPermReadPosts
@@ -210,14 +271,20 @@ definitions:
   do.BotPricing:
     properties:
       cycle:
+        description: 周期
         type: string
       freeLimit:
+        description: 免费限制
         type: string
       model:
-        $ref: '#/definitions/do.BotPricingModel'
+        allOf:
+        - $ref: '#/definitions/do.BotPricingModel'
+        description: 定价模型
       price:
+        description: 价格
         type: number
       purchaseUrl:
+        description: 购买链接
         type: string
     type: object
   do.BotPricingModel:
@@ -227,6 +294,16 @@ definitions:
     - paid
     - subscription
     type: string
+    x-enum-comments:
+      BotPricingFree: 免费
+      BotPricingFreemium: 试用
+      BotPricingPaid: 付费
+      PricingSubscription: 订阅
+    x-enum-descriptions:
+    - 免费
+    - 试用
+    - 付费
+    - 订阅
     x-enum-varnames:
     - BotPricingFree
     - BotPricingFreemium
@@ -239,6 +316,16 @@ definitions:
     - webhook
     - manual
     type: string
+    x-enum-comments:
+      TriggerEvent: 事件
+      TriggerManual: 手动
+      TriggerSchedule: 定时
+      TriggerWebhook: webhook
+    x-enum-descriptions:
+    - 定时
+    - 事件
+    - webhook
+    - 手动
     x-enum-varnames:
     - TriggerSchedule
     - TriggerEvent
@@ -254,6 +341,22 @@ definitions:
     - webhook
     - analysis
     type: string
+    x-enum-comments:
+      BotTypeAnalysis: 分析
+      BotTypeChat: 聊天
+      BotTypeModerate: 审核
+      BotTypeNotify: 通知
+      BotTypeSync: 同步
+      BotTypeTask: 任务
+      BotTypeWebhook: webhook
+    x-enum-descriptions:
+    - 聊天
+    - 审核
+    - 通知
+    - 同步
+    - 任务
+    - webhook
+    - 分析
     x-enum-varnames:
     - BotTypeChat
     - BotTypeModerate
@@ -262,28 +365,66 @@ definitions:
     - BotTypeTask
     - BotTypeWebhook
     - BotTypeAnalysis
-  do.PostStatus:
+  do.CreationStatus:
     enum:
     - draft
     - pending
     - published
     - hidden
     type: string
+    x-enum-comments:
+      CreationStatusDraft: 草稿（用户保存未发布）
+      CreationStatusHidden: 用户隐藏（如自己删除/隐藏，或管理员操作但以用户视角展示）
+      CreationStatusPending: 待用户确认/提交（如编辑后重新提交）
+      CreationStatusPublished: 已发布（用户主动发布）
+    x-enum-descriptions:
+    - 草稿（用户保存未发布）
+    - 待用户确认/提交（如编辑后重新提交）
+    - 已发布（用户主动发布）
+    - 用户隐藏（如自己删除/隐藏，或管理员操作但以用户视角展示）
     x-enum-varnames:
-    - PostStatusDraft
-    - PostStatusPending
-    - PostStatusPublished
-    - PostStatusHidden
+    - CreationStatusDraft
+    - CreationStatusPending
+    - CreationStatusPublished
+    - CreationStatusHidden
+  do.ModeratorPermission:
+    enum:
+    - delete_post
+    - pin_post
+    - edit_any_post
+    - manage_moderator
+    - ban_user
+    type: string
+    x-enum-comments:
+      PerModBanUser: 封禁用户
+      PerModDeletePost: 删除帖子
+      PerModEditAnyPost: 编辑任意帖子
+      PerModManageModerator: 管理版主
+      PerMoePinPost: 置顶帖子
+    x-enum-descriptions:
+    - 删除帖子
+    - 置顶帖子
+    - 编辑任意帖子
+    - 管理版主
+    - 封禁用户
+    x-enum-varnames:
+    - PerModDeletePost
+    - PerMoePinPost
+    - PerModEditAnyPost
+    - PerModManageModerator
+    - PerModBanUser
   do.ResourceLimit:
     properties:
       maxCPU:
+        description: 最大 CPU 核心数
         type: integer
       maxMemoryMB:
+        description: 最大内存（MB）
         type: integer
     type: object
   do.UpdateProfileInput:
     properties:
-      avatar:
+      avatar_url:
         type: string
       bio:
         maxLength: 500
@@ -345,6 +486,20 @@ definitions:
           type: integer
         type: array
     type: object
+  dto.ChangePasswordRequest:
+    properties:
+      new_password:
+        description: 新密码
+        maxLength: 32
+        minLength: 8
+        type: string
+      old_password:
+        description: 旧密码
+        type: string
+    required:
+    - new_password
+    - old_password
+    type: object
   dto.CreateQuestionRequest:
     properties:
       board_id:
@@ -358,7 +513,7 @@ definitions:
         minimum: 0
         type: integer
       status:
-        $ref: '#/definitions/do.PostStatus'
+        $ref: '#/definitions/do.CreationStatus'
       summary:
         maxLength: 500
         type: string
@@ -383,7 +538,7 @@ definitions:
     type: object
   dto.LeaderboardUserDetail:
     properties:
-      avatar:
+      avatar_url:
         type: string
       email:
         type: string
@@ -478,26 +633,6 @@ definitions:
     - CondBoardIDIn
     - CondTimeRange
     - CondCustomExpr
-  nocode.Flow:
-    properties:
-      actions:
-        description: 顺序执行的动作列表
-        items:
-          $ref: '#/definitions/nocode.ActionNode'
-        type: array
-      conditions:
-        description: 前置条件，全部满足才执行 Actions
-        items:
-          $ref: '#/definitions/nocode.CondNode'
-        type: array
-      trigger:
-        allOf:
-        - $ref: '#/definitions/nocode.TriggerNode'
-        description: 触发器（唯一）
-      version:
-        description: 目前固定 "1"
-        type: string
-    type: object
   nocode.NocodeMetadata:
     properties:
       actions:
@@ -579,51 +714,25 @@ definitions:
     - TriggerOnUserRegister
     - TriggerOnKeyword
     - TriggerOnManual
-  post.CreatePostInput:
+  request.AdminSetScoreRequest:
     properties:
-      board_id:
+      operation:
+        enum:
+        - set
+        - add
+        - subtract
+        type: string
+      reason:
+        maxLength: 200
+        type: string
+      score:
+        maximum: 999999
+        minimum: 0
         type: integer
-      content:
-        minLength: 10
-        type: string
-      cover:
-        type: string
-      status:
-        $ref: '#/definitions/do.PostStatus'
-      summary:
-        type: string
-      tag_ids:
-        items:
-          type: integer
-        type: array
-      title:
-        maxLength: 200
-        minLength: 2
-        type: string
-      type:
-        type: string
     required:
-    - board_id
-    - content
-    - title
-    type: object
-  post.UpdatePostInput:
-    properties:
-      content:
-        minLength: 10
-        type: string
-      cover:
-        type: string
-      summary:
-        type: string
-      tag_ids:
-        items:
-          type: integer
-        type: array
-      title:
-        maxLength: 200
-        minLength: 2
-        type: string
+    - operation
+    - reason
+    - score
     type: object
   request.CreateAnnouncement:
     properties:
@@ -650,13 +759,7 @@ definitions:
         minLength: 1
         type: string
       type:
-        allOf:
-        - $ref: '#/definitions/do.AnnouncementType'
-        enum:
-        - 0
-        - 1
-        - 2
-        - 3
+        $ref: '#/definitions/do.AnnouncementType'
     required:
     - content
     - title
@@ -665,61 +768,83 @@ definitions:
   request.CreateBotRequest:
     properties:
       avatarUrl:
+        description: 头像
         type: string
       configSchema:
+        description: 配置项
         items:
           $ref: '#/definitions/do.BotConfigField'
         type: array
       configValues:
         additionalProperties: {}
+        description: 配置值
         type: object
       cronExpr:
+        description: cron表达式
         type: string
       description:
+        description: 描述
         type: string
       envVars:
         additionalProperties:
           type: string
+        description: 环境变量
         type: object
       eventFilter:
+        description: 事件过滤器
         type: string
       homepageUrl:
+        description: 主页
         type: string
       name:
+        description: 名称
         maxLength: 100
         minLength: 1
         type: string
       permissions:
+        description: 权限
         items:
           $ref: '#/definitions/do.BotPermission'
         type: array
       pricing:
-        $ref: '#/definitions/do.BotPricing'
+        allOf:
+        - $ref: '#/definitions/do.BotPricing'
+        description: 定价
       resourceLimit:
-        $ref: '#/definitions/do.ResourceLimit'
+        allOf:
+        - $ref: '#/definitions/do.ResourceLimit'
+        description: 资源限制
       retryTimes:
+        description: 重试次数
         type: integer
       screenshots:
+        description: 截图
         items:
           type: string
         type: array
       scriptCode:
+        description: 脚本代码
         type: string
       scriptUrl:
+        description: 脚本URL
         type: string
       summary:
+        description: 简介
         type: string
       tags:
+        description: 标签
         items:
           type: string
         type: array
       timeoutSec:
+        description: 超时时间
         maximum: 300
         minimum: 1
         type: integer
       triggerType:
         allOf:
         - $ref: '#/definitions/do.BotTriggerType'
+        description: 触发类型
         enum:
         - schedule
         - event
@@ -728,6 +853,7 @@ definitions:
       type:
         allOf:
         - $ref: '#/definitions/do.BotType'
+        description: 类型
         enum:
         - chat
         - moderate
@@ -737,12 +863,71 @@ definitions:
         - webhook
         - analysis
       version:
+        description: 版本
         type: string
     required:
     - name
     - triggerType
     - type
     - version
+    type: object
+  request.CreatePostRequest:
+    properties:
+      board_id:
+        type: integer
+      content:
+        minLength: 10
+        type: string
+      cover:
+        type: string
+      status:
+        $ref: '#/definitions/do.CreationStatus'
+      summary:
+        type: string
+      tag_ids:
+        items:
+          type: integer
+        type: array
+      title:
+        maxLength: 200
+        minLength: 2
+        type: string
+      type:
+        type: string
+    required:
+    - board_id
+    - content
+    - title
+    type: object
+  request.CreateTagRequest:
+    properties:
+      color:
+        type: string
+      description:
+        type: string
+      name:
+        maxLength: 50
+        minLength: 1
+        type: string
+    required:
+    - name
+    type: object
+  request.CreateTopicReqeust:
+    properties:
+      cover_url:
+        maxLength: 500
+        type: string
+      description:
+        maxLength: 500
+        type: string
+      is_public:
+        type: boolean
+      title:
+        maxLength: 100
+        minLength: 2
+        type: string
+    required:
+    - title
     type: object
   request.DeleteAccountRequest:
     properties:
@@ -751,7 +936,7 @@ definitions:
       password:
         type: string
     type: object
-  request.ListAnnouncements:
+  request.ListAnnouncementsRequest:
     properties:
       board_id:
         type: integer
@@ -773,20 +958,9 @@ definitions:
       start_time:
         type: string
       status:
-        allOf:
-        - $ref: '#/definitions/do.AnnouncementStatus'
-        enum:
-        - 0
-        - 1
-        - 2
+        $ref: '#/definitions/do.AnnouncementStatus'
       type:
-        allOf:
-        - $ref: '#/definitions/do.AnnouncementType'
-        enum:
-        - 0
-        - 1
-        - 2
-        - 3
+        $ref: '#/definitions/do.AnnouncementType'
     type: object
   request.RegisterRequest:
     properties:
@@ -803,6 +977,28 @@ definitions:
     - email
     - password
     - username
+    type: object
+  request.ReviewApplicationRequest:
+    properties:
+      application_id:
+        type: integer
+      approve:
+        type: boolean
+      can_ban_user:
+        type: boolean
+      can_delete_post:
+        type: boolean
+      can_edit_any_post:
+        type: boolean
+      can_manage_moderator:
+        type: boolean
+      can_pin_post:
+        type: boolean
+      review_note:
+        maxLength: 500
+        type: string
+    required:
+    - application_id
     type: object
   request.SetUserRoleRequest:
     properties:
@@ -837,24 +1033,13 @@ definitions:
       published_at:
         type: string
       status:
-        allOf:
-        - $ref: '#/definitions/do.AnnouncementStatus'
-        enum:
-        - 0
-        - 1
-        - 2
+        $ref: '#/definitions/do.AnnouncementStatus'
       summary:
         type: string
       title:
         type: string
       type:
-        allOf:
-        - $ref: '#/definitions/do.AnnouncementType'
-        enum:
-        - 0
-        - 1
-        - 2
-        - 3
+        $ref: '#/definitions/do.AnnouncementType'
     type: object
   request.UpdateBotRequest:
     properties:
@@ -902,24 +1087,43 @@ definitions:
       triggerType:
         $ref: '#/definitions/do.BotTriggerType'
     type: object
-  risk.resolveTaskInput:
+  request.UpdatePostRequest:
     properties:
-      note:
-        maxLength: 500
+      content:
+        minLength: 10
+        type: string
+      cover:
+        type: string
+      summary:
+        type: string
+      tag_ids:
+        items:
+          type: integer
+        type: array
+      title:
+        maxLength: 200
+        minLength: 2
         type: string
     type: object
-  tag.CreateTagInput:
+  request.ValidateFlowRequest:
     properties:
-      color:
+      actions:
+        description: 顺序执行的动作列表
+        items:
+          $ref: '#/definitions/nocode.ActionNode'
+        type: array
+      conditions:
+        description: 前置条件，全部满足才执行 Actions
+        items:
+          $ref: '#/definitions/nocode.CondNode'
+        type: array
+      trigger:
+        allOf:
+        - $ref: '#/definitions/nocode.TriggerNode'
+        description: 触发器（唯一）
+      version:
+        description: 目前固定 "1"
         type: string
-      description:
-        type: string
-      name:
-        maxLength: 50
-        minLength: 1
-        type: string
-    required:
-    - name
     type: object
   topic.AddPostToTopicRequest:
     properties:
@@ -933,43 +1137,6 @@ definitions:
         type: integer
     required:
     - post_id
-    type: object
-  topic.CreateTopicInput:
-    properties:
-      cover:
-        maxLength: 500
-        type: string
-      description:
-        maxLength: 500
-        type: string
-      is_public:
-        type: boolean
-      title:
-        maxLength: 100
-        minLength: 2
-        type: string
-    required:
-    - title
-    type: object
-  user.AdminSetScoreRequest:
-    properties:
-      operation:
-        enum:
-        - set
-        - add
-        - subtract
-        type: string
-      reason:
-        maxLength: 200
-        type: string
-      score:
-        maximum: 999999
-        minimum: 0
-        type: integer
-    required:
-    - operation
-    - reason
-    - score
     type: object
   user.LoginInput:
     properties:
@@ -994,7 +1161,7 @@ definitions:
     type: object
   vo.UserPrivateVO:
     properties:
-      avatar:
+      avatar_url:
         type: string
       bio:
         type: string
@@ -1020,6 +1187,13 @@ definitions:
         type: string
       username:
         type: string
+    type: object
+  vo.UserScoreVO:
+    properties:
+      id:
+        type: integer
+      score:
+        type: integer
     type: object
   vo.UserStatsInfo:
     properties:
@@ -1062,14 +1236,49 @@ definitions:
         description: 总违规数
         type: integer
     type: object
-host: localhost:8080
 info:
   contact: {}
-  description: 一个基于 Gin 的论坛系统 API
-  title: Tiny Forum API
-  version: "1.0"
 paths:
   /admin/announcements:
+    get:
+      consumes:
+      - application/json
+      description: 管理员列出所有公告，需要认证及管理员权限
+      parameters:
+      - description: 公告信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/request.ListAnnouncementsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 创建成功
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+        "403":
+          description: 无权限（非管理员）
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 列出公告
+      tags:
+      - 公告管理
     post:
       consumes:
       - application/json
@@ -1346,7 +1555,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/request.ListAnnouncements'
+          $ref: '#/definitions/request.ListAnnouncementsRequest'
       produces:
       - application/json
       responses:
@@ -1536,7 +1745,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/board.ReviewApplicationRequest'
+          $ref: '#/definitions/request.ReviewApplicationRequest'
       produces:
       - application/json
       responses:
@@ -1565,6 +1774,182 @@ paths:
       summary: 审批版主申请
       tags:
       - 版主管理
+  /admin/config/{file}:
+    get:
+      parameters:
+      - description: 配置文件名 (如 basic.yml)
+        in: path
+        name: file
+        required: true
+        type: string
+      - description: '返回格式: yaml(默认) 或 kv'
+        in: query
+        name: format
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.BasicResponse'
+            - properties:
+                data:
+                  properties:
+                    content:
+                      type: string
+                  type: object
+              type: object
+      summary: 获取配置文件内容
+      tags:
+      - 配置管理
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 配置文件名 (如 basic.yml)
+        in: path
+        name: file
+        required: true
+        type: string
+      - description: 配置内容
+        in: body
+        name: request
+        required: true
+        schema:
+          properties:
+            content:
+              type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+      summary: 更新配置文件
+      tags:
+      - 配置管理
+  /admin/config/{file}/kv:
+    get:
+      parameters:
+      - description: 配置文件名 (如 basic.yml)
+        in: path
+        name: file
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.BasicResponse'
+            - properties:
+                data:
+                  properties:
+                    config:
+                      additionalProperties:
+                        type: string
+                      type: object
+                  type: object
+              type: object
+      summary: 获取配置文件的键值对格式
+      tags:
+      - 配置管理
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 配置文件名 (如 basic.yml)
+        in: path
+        name: file
+        required: true
+        type: string
+      - description: 键值对配置
+        in: body
+        name: request
+        required: true
+        schema:
+          properties:
+            config:
+              additionalProperties:
+                type: string
+              type: object
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+      summary: 通过键值对更新配置文件
+      tags:
+      - 配置管理
+  /admin/config/history:
+    get:
+      parameters:
+      - description: 配置文件名 (不传则查所有)
+        in: query
+        name: file
+        type: string
+      - default: 50
+        description: 数量限制
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.BasicResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/config.ConfigHistory'
+                  type: array
+              type: object
+      summary: 获取配置变更历史
+      tags:
+      - 配置管理
+  /admin/config/list:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.BasicResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/config.ConfigFileInfo'
+                  type: array
+              type: object
+      summary: 获取所有配置文件列表
+      tags:
+      - 配置管理
+  /admin/config/reload:
+    post:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+      summary: 手动重载所有配置
+      tags:
+      - 配置管理
   /admin/posts:
     get:
       description: 管理员分页获取所有帖子列表，支持关键词搜索
@@ -1688,142 +2073,56 @@ paths:
       summary: 获取待审核帖子列表
       tags:
       - 帖子管理
-  /admin/risk/audit/logs:
+  /admin/reports:
     get:
-      consumes:
-      - application/json
-      description: 根据目标类型和ID查询管理员对审核任务的操作记录（批准/拒绝）
+      description: 管理员查看所有的举报信息
       parameters:
-      - description: 目标类型，如 post、comment、user 等
+      - description: 举报状态
+        enum:
+        - pending
+        - resolved
+        - rejected
         in: query
-        name: target_type
+        name: status
         type: string
-      - description: 目标ID
+      - default: 1
+        description: 页码
         in: query
-        name: target_id
+        name: page
         type: integer
-      - default: 50
-        description: 返回条数，默认50，最大200
-        in: query
-        name: limit
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 成功
-          schema:
-            $ref: '#/definitions/common.BasicResponse'
-        "400":
-          description: 参数错误（target_id无效）
-          schema:
-            $ref: '#/definitions/common.BasicResponse'
-        "500":
-          description: 服务器内部错误
-          schema:
-            $ref: '#/definitions/common.BasicResponse'
-      summary: 查询审核操作日志
-      tags:
-      - 风险管理
-  /admin/risk/audit/tasks:
-    get:
-      consumes:
-      - application/json
-      description: 分页查询所有状态为 pending 的审核任务（内容安全检测不通过待人工审核）
-      parameters:
       - default: 20
-        description: 每页数量，默认20，最大100
+        description: 每页数量
         in: query
-        name: limit
+        name: page_size
         type: integer
-      - default: 0
-        description: 偏移量，默认0
+      - description: 关键词
         in: query
-        name: offset
-        type: integer
+        name: keyword
+        type: string
       produces:
       - application/json
       responses:
         "200":
-          description: 成功
+          description: 获取成功
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+        "403":
+          description: 无权限（需要管理员权限）
           schema:
             $ref: '#/definitions/common.BasicResponse'
         "500":
           description: 服务器内部错误
           schema:
             $ref: '#/definitions/common.BasicResponse'
-      summary: 获取待审核内容列表
+      security:
+      - ApiKeyAuth: []
+      summary: 列出所有举报内容
       tags:
-      - 风险管理
-  /admin/risk/audit/tasks/{id}/approve:
-    post:
-      consumes:
-      - application/json
-      description: 将指定审核任务标记为通过，恢复内容为 published 状态，并记录操作日志
-      parameters:
-      - description: 审核任务ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: 审核备注
-        in: body
-        name: input
-        schema:
-          $ref: '#/definitions/risk.resolveTaskInput'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 操作成功
-          schema:
-            $ref: '#/definitions/common.BasicResponse'
-        "400":
-          description: 请求参数错误
-          schema:
-            $ref: '#/definitions/common.BasicResponse'
-        "500":
-          description: 服务器内部错误
-          schema:
-            $ref: '#/definitions/common.BasicResponse'
-      summary: 审核通过
-      tags:
-      - 风险管理
-  /admin/risk/audit/tasks/{id}/reject:
-    post:
-      consumes:
-      - application/json
-      description: 将指定审核任务标记为拒绝，内容状态改为 hidden（屏蔽），并记录操作日志
-      parameters:
-      - description: 审核任务ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: 审核备注
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/risk.resolveTaskInput'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 操作成功
-          schema:
-            $ref: '#/definitions/common.BasicResponse'
-        "400":
-          description: 请求参数错误
-          schema:
-            $ref: '#/definitions/common.BasicResponse'
-        "500":
-          description: 服务器内部错误
-          schema:
-            $ref: '#/definitions/common.BasicResponse'
-      summary: 审核拒绝
-      tags:
-      - 风险管理
+      - 举报管理
   /admin/users:
     get:
       produces:
@@ -1984,6 +2283,44 @@ paths:
       tags:
       - 管理员后台
   /admin/users/{id}/score:
+    get:
+      consumes:
+      - application/json
+      description: 获取指定用户积分
+      parameters:
+      - description: 用户ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 获取用户积分
+      tags:
+      - 管理员后台
     put:
       consumes:
       - application/json
@@ -2005,7 +2342,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/user.AdminSetScoreRequest'
+          $ref: '#/definitions/request.AdminSetScoreRequest'
       produces:
       - application/json
       responses:
@@ -2234,80 +2571,46 @@ paths:
       summary: 获取回答详情
       tags:
       - 问答管理
-  /answers/{id}/answer:
+  /answers/{id}/accept/{question_id}:
     post:
-      consumes:
-      - application/json
-      description: 对指定问答帖提交一个回答
-      parameters:
-      - description: 帖子ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: 回答内容
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/answer.CreateAnswerRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 提交成功
-          schema:
-            $ref: '#/definitions/common.BasicResponse'
-        "400":
-          description: 请求参数错误或非问答帖
-          schema:
-            $ref: '#/definitions/common.BasicResponse'
-        "401":
-          description: 未授权
-          schema:
-            $ref: '#/definitions/common.BasicResponse'
-        "404":
-          description: 帖子不存在
-          schema:
-            $ref: '#/definitions/common.BasicResponse'
-      security:
-      - ApiKeyAuth: []
-      summary: 提交回答
-      tags:
-      - 回答管理
-  /answers/{id}/status:
-    get:
-      consumes:
-      - application/json
-      description: 获取指定回答的投票统计信息（赞同数、反对数、总票数）以及当前用户的投票状态
+      description: 采纳某个回答作为问题的正确答案（仅问题作者可操作）
       parameters:
       - description: 回答ID
         in: path
         name: id
         required: true
         type: integer
+      - description: 问题帖子ID
+        in: path
+        name: question_id
+        required: true
+        type: integer
       produces:
       - application/json
       responses:
         "200":
-          description: 获取成功
+          description: 采纳成功
           schema:
             $ref: '#/definitions/common.BasicResponse'
         "400":
-          description: 无效的回答ID
+          description: 无效的ID或操作失败
           schema:
             $ref: '#/definitions/common.BasicResponse'
         "401":
           description: 未授权
           schema:
             $ref: '#/definitions/common.BasicResponse'
-        "500":
-          description: 服务器内部错误
+        "403":
+          description: 无权限（非问题作者）
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+        "404":
+          description: 问题或回答不存在
           schema:
             $ref: '#/definitions/common.BasicResponse'
       security:
       - ApiKeyAuth: []
-      summary: 获取回答投票状态
+      summary: 采纳答案
       tags:
       - 回答管理
   /answers/{id}/unaccept:
@@ -2408,87 +2711,6 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: 投票回答（支持赞同/反对）
-      tags:
-      - 回答管理
-  /answers/{post_id}/answers:
-    get:
-      description: 分页获取指定问题的所有回答，已采纳的回答排在最前
-      parameters:
-      - description: 问题帖子ID
-        in: path
-        name: post_id
-        required: true
-        type: integer
-      - default: 1
-        description: 页码
-        in: query
-        name: page
-        type: integer
-      - default: 20
-        description: 每页数量
-        in: query
-        name: page_size
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 获取成功
-          schema:
-            $ref: '#/definitions/common.BasicResponse'
-        "400":
-          description: 无效的帖子ID
-          schema:
-            $ref: '#/definitions/common.BasicResponse'
-        "404":
-          description: 问题不存在
-          schema:
-            $ref: '#/definitions/common.BasicResponse'
-      security:
-      - ApiKeyAuth: []
-      summary: 获取问题的回答列表
-      tags:
-      - 回答管理
-  /answers/{question_id}/accept/{answer_id}:
-    post:
-      description: 采纳某个回答作为问题的正确答案（仅问题作者可操作）
-      parameters:
-      - description: 问题帖子ID
-        in: path
-        name: question_id
-        required: true
-        type: integer
-      - description: 回答评论ID
-        in: path
-        name: answer_id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 采纳成功
-          schema:
-            $ref: '#/definitions/common.BasicResponse'
-        "400":
-          description: 无效的ID或操作失败
-          schema:
-            $ref: '#/definitions/common.BasicResponse'
-        "401":
-          description: 未授权
-          schema:
-            $ref: '#/definitions/common.BasicResponse'
-        "403":
-          description: 无权限（非问题作者）
-          schema:
-            $ref: '#/definitions/common.BasicResponse'
-        "404":
-          description: 问题或回答不存在
-          schema:
-            $ref: '#/definitions/common.BasicResponse'
-      security:
-      - ApiKeyAuth: []
-      summary: 采纳答案
       tags:
       - 回答管理
   /attachments:
@@ -2660,6 +2882,41 @@ paths:
       summary: 获取注销状态
       tags:
       - 验证管理
+  /auth/account/password:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 修改密码请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ChangePasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+        "400":
+          description: 无效的请求参数
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 修改密码
+      tags:
+      - 验证管理
   /auth/account/permanent:
     delete:
       consumes:
@@ -2771,6 +3028,22 @@ paths:
     put:
       consumes:
       - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 重置密码
+      tags:
+      - 验证管理
+  /auth/password/reset-withtoken:
+    put:
+      consumes:
+      - application/json
       description: 使用邮件中的token重置密码
       parameters:
       - description: 重置密码请求
@@ -2872,7 +3145,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/board.CreateBoardInput'
+          $ref: '#/definitions/bo.CreateBoardInput'
       produces:
       - application/json
       responses:
@@ -2977,7 +3250,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/board.CreateBoardInput'
+          $ref: '#/definitions/bo.CreateBoardInput'
       produces:
       - application/json
       responses:
@@ -3530,7 +3803,7 @@ paths:
       summary: 撤销版主申请
       tags:
       - 版主管理
-  /boards/moderators/applications:
+  /boards/moderators/apply-status:
     get:
       description: 获取当前用户提交的所有版主申请记录
       parameters:
@@ -3808,7 +4081,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/bot.ValidateFlowRequest'
+          $ref: '#/definitions/request.ValidateFlowRequest'
       produces:
       - application/json
       responses:
@@ -3861,7 +4134,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/comment.CreateCommentInput'
+          $ref: '#/definitions/bo.CreateCommentInput'
       produces:
       - application/json
       responses:
@@ -3959,6 +4232,61 @@ paths:
       summary: 采纳答案
       tags:
       - 问答管理
+  /comments/{id}/like:
+    delete:
+      parameters:
+      - description: 评论ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 已取消点赞
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+        "400":
+          description: 无效的评论ID
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 取消点赞评论
+      tags:
+      - 评论管理
+    post:
+      parameters:
+      - description: 评论ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 点赞成功
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+        "400":
+          description: 无效的评论ID
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 点赞评论
+      tags:
+      - 评论管理
   /comments/{id}/vote:
     get:
       description: 获取当前用户对指定答案的投票状态
@@ -4061,6 +4389,33 @@ paths:
       summary: 获取帖子的评论列表
       tags:
       - 评论管理
+  /comments/post/{post_id}/tree:
+    get:
+      description: 以树形结构返回某篇帖子的全部评论
+      parameters:
+      - description: 帖子ID
+        in: path
+        name: post_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+        "400":
+          description: 无效的帖子ID
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+        "404":
+          description: 帖子不存在
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+      summary: 获取评论树
+      tags:
+      - 评论管理
   /files/{file_id}:
     get:
       consumes:
@@ -4123,7 +4478,7 @@ paths:
       tags:
       - 通知管理
   /notifications/{id}/read:
-    post:
+    patch:
       description: 将指定ID的通知标记为已读
       parameters:
       - description: 通知ID
@@ -4221,25 +4576,6 @@ paths:
       summary: 获取未读通知数量
       tags:
       - 通知管理
-  /pligins/delete:
-    get:
-      consumes:
-      - application/json
-      description: 删除插件
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/common.BasicResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/common.BasicResponse'
-      summary: 删除插件
-      tags:
-      - 插件管理
   /plugins:
     get:
       consumes:
@@ -4282,7 +4618,6 @@ paths:
       summary: 获取所有插件列表
       tags:
       - 插件管理
-  /plugins/upload:
     post:
       consumes:
       - multipart/form-data
@@ -4307,7 +4642,99 @@ paths:
       summary: 安装插件
       tags:
       - 插件管理
-  /plugins/user/me:
+  /plugins/{slug}:
+    delete:
+      consumes:
+      - application/json
+      description: 删除插件
+      parameters:
+      - description: 插件标识
+        in: path
+        name: slug
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+      summary: 删除插件
+      tags:
+      - 插件管理
+  /plugins/{slug}/toggle:
+    patch:
+      description: 切换插件状态
+      parameters:
+      - description: 插件标识
+        in: path
+        name: slug
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 切换插件状态
+      tags:
+      - 插件管理
+  /plugins/browser:
+    get:
+      description: 返回一个 HTML 页面用于浏览插件目录文件
+      produces:
+      - text/html
+      responses:
+        "200":
+          description: HTML 页面
+          schema:
+            type: string
+      summary: 插件目录浏览器页面
+      tags:
+      - 插件
+  /plugins/files:
+    get:
+      description: 列出 store/plugins 目录下的文件与子目录（含路径遍历防护）
+      parameters:
+      - default: .
+        description: 相对子路径
+        in: query
+        name: path
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 文件列表
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+        "400":
+          description: 无效路径
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+        "403":
+          description: 访问被拒绝
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+        "404":
+          description: 目录不存在
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+      summary: 列出插件目录文件
+      tags:
+      - 插件
+  /plugins/me:
     get:
       consumes:
       - application/json
@@ -4393,7 +4820,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/post.CreatePostInput'
+          $ref: '#/definitions/request.CreatePostRequest'
       produces:
       - application/json
       responses:
@@ -4498,7 +4925,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/post.UpdatePostInput'
+          $ref: '#/definitions/request.UpdatePostRequest'
       produces:
       - application/json
       responses:
@@ -4592,6 +5019,85 @@ paths:
       summary: 点赞帖子
       tags:
       - 帖子管理
+  /questions/{post_id}/answers:
+    get:
+      description: 分页获取指定问题的所有回答，已采纳的回答排在最前
+      parameters:
+      - description: 问题帖子ID
+        in: path
+        name: post_id
+        required: true
+        type: integer
+      - default: 1
+        description: 页码
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: 每页数量
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+        "400":
+          description: 无效的帖子ID
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+        "404":
+          description: 问题不存在
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 获取问题的回答列表
+      tags:
+      - 回答管理
+    post:
+      consumes:
+      - application/json
+      description: 对指定问答帖提交一个回答
+      parameters:
+      - description: 帖子ID
+        in: path
+        name: post_id
+        required: true
+        type: integer
+      - description: 回答内容
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/answer.CreateAnswerRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 提交成功
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+        "400":
+          description: 请求参数错误或非问答帖
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+        "404":
+          description: 帖子不存在
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 提交回答
+      tags:
+      - 回答管理
   /questions/create:
     post:
       consumes:
@@ -4758,18 +5264,43 @@ paths:
       summary: 获取问题精简列表
       tags:
       - 问题管理
-  /statistics:
+  /risk/audit/logs:
     get:
+      consumes:
+      - application/json
+      description: 根据目标类型和ID查询管理员对审核任务的操作记录（批准/拒绝）
+      parameters:
+      - description: 目标类型，如 post、comment、user 等
+        in: query
+        name: target_type
+        type: string
+      - description: 目标ID
+        in: query
+        name: target_id
+        type: integer
+      - default: 50
+        description: 返回条数，默认50，最大200
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
       responses:
         "200":
-          description: 返回统计数据
+          description: 成功
           schema:
-            $ref: '#/definitions/vo.UserStatsInfo'
-      security:
-      - BearerAuth: []
-      summary: 获取全局统计数据
+            $ref: '#/definitions/common.BasicResponse'
+        "400":
+          description: 参数错误（target_id无效）
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+      summary: 查询审核操作日志
       tags:
-      - 统计
+      - 风险管理
   /statistics/day:
     get:
       consumes:
@@ -4988,7 +5519,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/tag.CreateTagInput'
+          $ref: '#/definitions/request.CreateTagRequest'
       produces:
       - application/json
       responses:
@@ -5095,7 +5626,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/tag.CreateTagInput'
+          $ref: '#/definitions/request.CreateTagRequest'
       produces:
       - application/json
       responses:
@@ -5128,6 +5659,40 @@ paths:
       summary: 更新标签（仅管理员）
       tags:
       - 标签管理
+  /timeline:
+    get:
+      description: 获取当前用户首页的时间线（推荐内容）
+      parameters:
+      - default: 1
+        description: 页码
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: 每页数量
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 获取首页时间线
+      tags:
+      - 时间线管理
   /timeline/following:
     get:
       description: 获取当前用户关注的人的内容时间线
@@ -5160,40 +5725,6 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: 获取关注时间线
-      tags:
-      - 时间线管理
-  /timeline/home:
-    get:
-      description: 获取当前用户首页的时间线（推荐内容）
-      parameters:
-      - default: 1
-        description: 页码
-        in: query
-        name: page
-        type: integer
-      - default: 20
-        description: 每页数量
-        in: query
-        name: page_size
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 获取成功
-          schema:
-            $ref: '#/definitions/common.BasicResponse'
-        "401":
-          description: 未授权
-          schema:
-            $ref: '#/definitions/common.BasicResponse'
-        "500":
-          description: 服务器内部错误
-          schema:
-            $ref: '#/definitions/common.BasicResponse'
-      security:
-      - ApiKeyAuth: []
-      summary: 获取首页时间线
       tags:
       - 时间线管理
   /timeline/subscribe/{user_id}:
@@ -5363,7 +5894,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/topic.CreateTopicInput'
+          $ref: '#/definitions/request.CreateTopicReqeust'
       produces:
       - application/json
       responses:
@@ -5466,7 +5997,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/topic.CreateTopicInput'
+          $ref: '#/definitions/request.CreateTopicReqeust'
       produces:
       - application/json
       responses:
@@ -5867,6 +6398,34 @@ paths:
       summary: 获取关注列表
       tags:
       - 用户管理
+  /users/{id}/score:
+    get:
+      parameters:
+      - description: 用户ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 积分信息
+          schema:
+            $ref: '#/definitions/vo.UserScoreVO'
+        "400":
+          description: 无效的用户ID
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/common.BasicResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 查询积分
+      tags:
+      - 用户管理
   /users/leaderboard/detail:
     get:
       parameters:
@@ -5924,6 +6483,25 @@ paths:
       summary: 获取用户发布的文章
       tags:
       - 用户管理
+  /users/me/profile:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 资料
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/do.UpdateProfileInput'
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - ApiKeyAuth: []
+      summary: 更新用户资料
+      tags:
+      - 用户管理
   /users/me/role:
     get:
       consumes:
@@ -5949,6 +6527,18 @@ paths:
       summary: 获取当前用户角色
       tags:
       - 用户管理
+  /users/me/stats:
+    get:
+      responses:
+        "200":
+          description: 返回统计数据
+          schema:
+            $ref: '#/definitions/vo.UserStatsInfo'
+      security:
+      - BearerAuth: []
+      summary: 获取全局统计数据
+      tags:
+      - 统计
   /users/me/violations:
     get:
       consumes:
@@ -5968,39 +6558,4 @@ paths:
       summary: 获取用户违规记录
       tags:
       - 用户管理
-  /users/profile:
-    put:
-      consumes:
-      - application/json
-      parameters:
-      - description: 资料
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/do.UpdateProfileInput'
-      produces:
-      - application/json
-      responses: {}
-      security:
-      - ApiKeyAuth: []
-      summary: 更新用户资料
-      tags:
-      - 用户管理
-  /users/score:
-    get:
-      produces:
-      - application/json
-      responses: {}
-      security:
-      - ApiKeyAuth: []
-      summary: 查询积分
-      tags:
-      - 用户管理
-securityDefinitions:
-  ApiKeyAuth:
-    description: Type "Bearer" followed by a space and the JWT token.
-    in: header
-    name: Authorization
-    type: apiKey
 swagger: "2.0"

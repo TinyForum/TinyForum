@@ -4,6 +4,11 @@ type ForgotPasswordRequest struct {
 	Email string `json:"email" binding:"required,email"` //邮箱
 }
 
+type ChangePasswordRequest struct {
+	OldPassword string `json:"old_password" binding:"required"`             // 旧密码
+	NewPassword string `json:"new_password" binding:"required,min=8,max=32"` // 新密码
+}
+
 type ForgotPasswordResponse struct {
 	Message string `json:"message"`
 }

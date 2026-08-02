@@ -11,17 +11,17 @@ import {
   FlagIcon,
   TrophyIcon,
 } from "@heroicons/react/24/outline";
-import { Comment } from "@/shared/api/types/comment.model";
 import { formatDistanceToNow } from "date-fns";
 import { zhCN } from "date-fns/locale";
 import { toast } from "react-hot-toast";
 import { useEffect, useState } from "react";
 import CommentSection from "../post/CommentSection";
 import { useAnswerVote } from "@/features/answer/hooks/useAnswerVote";
+import { CommentResponse } from "@/shared/api/types/comment.model";
 // import CommentSection from '../CommentSection'; // 导入评论组件
 
 interface AnswerCardProps {
-  answer: Comment;
+  answer: CommentResponse;
   isAccepted: boolean;
   isAuthor: boolean;
   canAccept: boolean;
@@ -188,15 +188,17 @@ export function AnswerCard({
                   <div className="avatar placeholder">
                     <div className="w-6 h-6 rounded-full bg-primary/10 text-primary">
                       <span className="text-xs">
-                        {answer.author?.username?.[0]?.toUpperCase() || "U"}
+                        {answer.reply.author?.username?.[0]?.toUpperCase() ||
+                          "U"}
                       </span>
                     </div>
                   </div>
                   <Link
-                    href={`/users/${answer.author_id}`}
+                    href={`/users/${answer.reply.author_id}`}
                     className="font-medium hover:text-primary transition-colors"
                   >
-                    {answer.author?.username || `用户${answer.author_id}`}
+                    {answer.reply.author?.username ||
+                      `用户${answer.reply.author_id}`}
                   </Link>
                 </div>
 
@@ -227,7 +229,7 @@ export function AnswerCard({
             <div className="prose prose-sm max-w-none mb-4">
               <div
                 className="text-base-content/80 leading-relaxed break-words"
-                dangerouslySetInnerHTML={{ __html: answer.content }}
+                dangerouslySetInnerHTML={{ __html: answer.reply.content }}
               />
             </div>
 
@@ -270,9 +272,9 @@ export function AnswerCard({
                 <ChatBubbleLeftRightIcon className="w-3.5 h-3.5" />
                 {/* 评论 {answer.replies?.length > 0 && `(${answer.comment_count})`} */}
                 评论{" "}
-                {answer.replies &&
-                  answer.replies.length > 0 &&
-                  `(${answer.replies.length})`}
+                {answer.reply.replies &&
+                  answer.reply.replies.length > 0 &&
+                  `(${answer.reply.replies.length})`}
               </button>
             </div>
 

@@ -7,14 +7,12 @@ import {
   ChatBubbleLeftRightIcon,
   CheckBadgeIcon,
   CalendarIcon,
-  HeartIcon,
   ShareIcon,
   FlagIcon,
   TagIcon,
   CurrencyDollarIcon,
   SparklesIcon,
 } from "@heroicons/react/24/outline";
-import { HeartIcon as HeartSolidIcon } from "@heroicons/react/24/solid";
 import { formatDistanceToNow } from "date-fns";
 import { zhCN } from "date-fns/locale";
 import { toast } from "react-hot-toast";
@@ -25,11 +23,11 @@ import Avatar from "@/features/user/components/Avatar";
 interface QuestionHeaderProps {
   question: QuestionResponse;
   answersCount: number;
-  liked: boolean;
-  likesCount: number;
+  // liked: boolean;
+  // likesCount: number;
   hasAccepted: boolean;
   rewardScore?: number;
-  onLike: () => void;
+  // onLike: () => void;
   onShare?: () => void;
   onReport?: () => void;
 }
@@ -37,11 +35,11 @@ interface QuestionHeaderProps {
 export function QuestionHeader({
   question,
   answersCount,
-  liked,
-  likesCount,
+  // liked,
+  // likesCount,
   hasAccepted,
   rewardScore,
-  onLike,
+  // onLike,
   onShare,
   onReport,
 }: QuestionHeaderProps) {
@@ -177,7 +175,7 @@ export function QuestionHeader({
             </div>
 
             {/* 点赞按钮 - 使用红色主题 */}
-            <button
+            {/* <button
               onClick={onLike}
               className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full transition-all duration-200 ${
                 liked
@@ -191,7 +189,7 @@ export function QuestionHeader({
                 <HeartIcon className="w-4 h-4" />
               )}
               <span className="text-sm font-medium">{likesCount}</span>
-            </button>
+            </button> */}
 
             {/* 状态标签 - 使用主题色 */}
             <div className="flex gap-2">

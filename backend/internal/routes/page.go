@@ -6,6 +6,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// PluginBrowser 插件目录浏览器页面
+// @Summary 插件目录浏览器页面
+// @Description 返回一个 HTML 页面用于浏览插件目录文件
+// @Tags 插件
+// @Produce html
+// @Success 200 {string} string "HTML 页面"
+// @Router /plugins/browser [get]
 func PluginBrowser(c *gin.Context) {
 	html := `
 <!DOCTYPE html>

@@ -10,37 +10,22 @@ import {
   UserGroupIcon,
 } from "@heroicons/react/24/outline";
 import { useAuthStore } from "@/store/auth";
-
-import { answerApi } from "@/shared/api/modules/answer";
 import { useTranslations } from "next-intl";
-import { useQuestionDetail } from "@/features/qustion/hooks/useQuestionDetail";
+import { useQuestionDetail } from "@/features/qustion/hooks/useQuestions";
 import { AnswerCard } from "@/layout/question/AnswerCard";
 import { AnswerForm } from "@/layout/question/AnswerForm";
 import { QuestionHeader } from "@/layout/question/QuestionHeader";
-import { postApi } from "@/shared/api/modules/posts";
 import toast from "react-hot-toast";
 import { Pagination } from "@/shared/ui/common/Pagination";
+import { useAcceptAnswer } from "@/features/answer/hooks/useAnswer";
 
-// 错误响应类型
-interface ErrorResponse {
-  response?: {
-    data?: {
-      message?: string;
-    };
-  };
-  message?: string;
-}
-
-// 加载骨架屏组件
+// 加载骨架屏组件（保持不变）
 function LoadingSkeleton() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-base-200 to-base-100">
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="animate-pulse">
-          {/* 返回按钮骨架 */}
           <div className="h-5 w-24 bg-base-200 rounded mb-6" />
-
-          {/* 问题卡片骨架 */}
           <div className="bg-base-100 rounded-2xl shadow-sm p-6 mb-6">
             <div className="h-7 bg-base-200 rounded-lg w-3/4 mb-4" />
             <div className="flex items-center gap-4 mb-4">
@@ -53,8 +38,6 @@ function LoadingSkeleton() {
               <div className="h-4 bg-base-200 rounded w-2/3" />
             </div>
           </div>
-
-          {/* 回答区域骨架 */}
           <div className="space-y-3">
             <div className="h-6 w-32 bg-base-200 rounded" />
             {[1, 2].map((i) => (
@@ -77,7 +60,7 @@ function LoadingSkeleton() {
   );
 }
 
-// 错误状态组件
+// 错误状态组件（保持不变）
 function ErrorState({ message }: { message: string }) {
   const t = useTranslations("Questions");
   return (
@@ -107,52 +90,31 @@ export default function QuestionDetailPage() {
 
   const questionId = Number(params.id);
 
-  const { question, answers, answersTotal, liked, loading, refresh, setLiked } =
+  // 使用新封装的 useQuestionDetail（来自 useQuestions.ts）
+  const { question, answers, answersTotal, loading, refresh } =
     useQuestionDetail(questionId);
-  console.log("获取到 Question: ", question);
 
-  const handleAcceptAnswer = async (answerId: number) => {
+  // 采纳回答 mutation（使用 useAnswer.ts 中的 useAcceptAnswer）
+  const acceptMutation = useAcceptAnswer({
+    onSuccess: () => {
+      toast.success(t("answer_accepted"));
+      refresh(); // 刷新问题详情和回答列表
+    },
+    onError: (error) => {
+      toast.error(error.message || t("operation_failed"));
+    },
+  });
+
+  const handleAcceptAnswer = (answerId: number) => {
     if (!isAuthenticated) {
       toast.error(t("please_login"));
       router.push("/login");
       return;
     }
-
-    try {
-      const response = await answerApi.acceptAnswer(answerId);
-      if (response.data.code === 0) {
-        toast.success(t("answer_accepted"));
-        refresh();
-      } else {
-        toast.error(response.data.message || t("operation_failed"));
-      }
-    } catch (err: unknown) {
-      const error = err as ErrorResponse;
-      toast.error(error.response?.data?.message || t("operation_failed"));
-    }
+    acceptMutation.mutate(answerId);
   };
 
-  const handleLike = async () => {
-    if (!isAuthenticated) {
-      toast.error(t("please_login"));
-      router.push("/login");
-      return;
-    }
-
-    try {
-      if (liked) {
-        await postApi.unlike(questionId);
-        setLiked(false);
-      } else {
-        await postApi.like(questionId);
-        setLiked(true);
-      }
-      refresh();
-    } catch (err: unknown) {
-      const error = err as ErrorResponse;
-      toast.error(error.response?.data?.message || t("operation_failed"));
-    }
-  };
+  // 移除问题点赞功能（API 不存在），因此无需 handleLike
 
   const onAnswerCreated = () => {
     setAnswerPage(1);
@@ -174,7 +136,7 @@ export default function QuestionDetailPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-base-200 to-base-100">
       <div className="max-w-4xl mx-auto px-4 py-8 md:py-12">
-        {/* 返回按钮 - 优化样式 */}
+        {/* 返回按钮 */}
         <div className="flex items-center justify-between mb-6">
           <Link
             href="/questions"
@@ -184,7 +146,6 @@ export default function QuestionDetailPage() {
             <span className="text-sm font-medium">{t("back_to_list")}</span>
           </Link>
 
-          {/* 统计信息 */}
           <div className="flex items-center gap-4 text-sm text-base-content/50">
             <div className="flex items-center gap-1.5">
               <ChatBubbleLeftRightIcon className="w-4 h-4" />
@@ -193,16 +154,14 @@ export default function QuestionDetailPage() {
           </div>
         </div>
 
-        {/* 问题头部 */}
+        {/* 问题头部 - 移除点赞相关属性 */}
         <div className="mb-8">
           <QuestionHeader
             question={question}
             answersCount={answersTotal}
-            liked={liked}
-            likesCount={question.like_count || 0}
             hasAccepted={hasAccepted}
             rewardScore={0}
-            onLike={handleLike}
+            // 不传递 liked, likesCount, onLike
           />
         </div>
 
@@ -243,7 +202,6 @@ export default function QuestionDetailPage() {
             </div>
           )}
 
-          {/* 分页 */}
           {totalPages > 1 && (
             <Pagination
               currentPage={answerPage}

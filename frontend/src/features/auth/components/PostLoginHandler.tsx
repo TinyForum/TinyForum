@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/auth";
 import { authApi } from "@/shared/api/modules/auth";
 import toast from "react-hot-toast";
-import RestoreDialog from "./RestoreDialog";
 import { ApiResponse } from "@/shared/api/types/basic.model";
+import RestoreDialog from "./RestoreDialog";
 
 interface DeletionStatus {
   is_deleted: boolean;

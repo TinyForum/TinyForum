@@ -43,7 +43,7 @@ func (h *AuthHandler) RegisterRoutes(api *gin.RouterGroup, mw middleware.Middlew
 		{
 			// POST /auth/password/forgot - 忘记密码
 			passwordGroup.POST("/forgot", h.ForgotPassword) // 发送重置密码的邮件给用户
-			// POST /auth/password/reset - 重置密码
+			// PUT /auth/password/reset - 重置密码
 			passwordGroup.PUT("/reset", h.ResetPassword) // 重置密码（存在安全问题，计划移除）
 			// GET /auth/password/validate-token - 验证token
 			passwordGroup.GET("/validate-token", h.ValidateResetToken)      // 用户点击邮件链接，验证 Token 是否有效

@@ -16,6 +16,7 @@ import (
 	"tiny-forum/internal/service/notification"
 	"tiny-forum/internal/service/plugin"
 	"tiny-forum/internal/service/question"
+	"tiny-forum/internal/service/reports"
 	"tiny-forum/internal/service/risk"
 	"tiny-forum/internal/service/stats"
 	"tiny-forum/internal/service/tag"
@@ -49,6 +50,7 @@ type Services struct {
 	Admin        admin.AdminService
 	Plugin       plugin.PluginService
 	Bot          bot.Service
+	Reports      reports.ReportsService
 }
 
 // NewServices 创建所有 Service 实例
@@ -85,7 +87,8 @@ func NewServices(
 	statsSvc := stats.NewStatsService(repos.Stats, repos.Post, repos.Tag, repos.Board, repos.User, repos.Comment)
 	emailSvc := email.NewEmailService(&cfg.Private.Email)
 	authSvc := auth.NewAuthService(repos.Auth, repos.User, jwtMgr, notifSvc, emailSvc, cfg, repos.Token, repos.Transaction, infra.RedisClient)
-	adminSvc := admin.NewAdminService(announcementSvc, userSvc, articleSvc, boardSvc)
+	reportsSvc := reports.NewReportsService(repos.Reports)
+	adminSvc := admin.NewAdminService(announcementSvc, userSvc, articleSvc, boardSvc, reportsSvc)
 	pluginSvc := plugin.NewPluginService(repos.Plugin, publicStorage, &cfg.Basic.Plugins)
 	engine := upload.NewEngine(userStorage, registry)
 	attachmentSvc := attachment.NewAttachmentService(repos.Attachment, cfg.Basic.Attachment, engine)
@@ -110,5 +113,6 @@ func NewServices(
 		Admin:        adminSvc,
 		Plugin:       pluginSvc,
 		Bot:          botSvc,
+		Reports:      reportsSvc,
 	}
 }

@@ -21,7 +21,7 @@ import (
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param body body request.ListAnnouncements true "公告信息"
+// @Param body body request.ListAnnouncementsRequest true "公告信息"
 // @Success 200 {object} common.BasicResponse "创建成功"
 // @Failure 400 {object} common.BasicResponse"请求参数错误"
 // @Failure 401 {object} common.BasicResponse"未授权"

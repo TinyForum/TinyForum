@@ -15,7 +15,7 @@ import { postApi } from "@/shared/api/modules/posts";
 import { tagApi } from "@/shared/api/modules/tags";
 import { Post } from "@/shared/api/types/post.model";
 import { Tag } from "@/shared/api/types/tag.model";
-import { ImageUploader } from "@/shared/ui/editor/ImageUploader";
+import { ImageUploader } from "@/shared/ui/upload/ImageUploader";
 import { uploadApi } from "@/shared/api/modules/uploads";
 import { RichTextEditor } from "@/shared/ui/editor/richtext/RichTextEditor";
 // import { RichTextEditor } from "@/shared/ui/editor/RichTextEditor";

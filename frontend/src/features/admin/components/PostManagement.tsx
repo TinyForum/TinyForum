@@ -107,7 +107,7 @@ export function PostManagement() {
                         <span>
                           作者:{" "}
                           {post.creation.author?.username ||
-                            `用户${post.creation.author_id}`}
+                            `用户${post.creation.author?.id}`}
                         </span>
                         {/* <span>回复: {post. || 0}</span> */}
                         <span>浏览: {post.creation.view_count || 0}</span>

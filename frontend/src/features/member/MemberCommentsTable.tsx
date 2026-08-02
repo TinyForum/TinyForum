@@ -1,12 +1,12 @@
 // components/member/MemberCommentsTable.tsx
 "use client";
 
-import { Comment } from "@/shared/api/types/comment.model";
+import { CommentResponse } from "@/shared/api/types/comment.model";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 
 interface MemberCommentsTableProps {
-  comments?: Comment[];
+  comments?: CommentResponse[];
   onDelete?: (id: number) => void;
 }
 
@@ -38,18 +38,18 @@ export function MemberCommentsTable({
           </tr>
         </thead>
         <tbody>
-          {comments.map((comment: Comment) => (
+          {comments.map((comment: CommentResponse) => (
             <tr key={comment.id}>
-              <td className="max-w-md truncate">{comment.content}</td>
+              <td className="max-w-md truncate">{comment.reply.content}</td>
               <td>
                 <Link
-                  href={`/post/${comment.post_id}`}
+                  href={`/post/${comment.works_id}`}
                   className="hover:link-hover"
                 >
-                  {comment.parent?.post_id}
+                  {comment.reply.parent_id}
                 </Link>
               </td>
-              <td>{comment.like_count}</td>
+              <td>{comment.reply.like_count}</td>
               <td>{new Date(comment.created_at).toLocaleDateString()}</td>
               <td>
                 {onDelete && (

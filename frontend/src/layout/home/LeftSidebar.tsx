@@ -17,11 +17,11 @@ import {
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/shared/lib/utils";
-import { useAnnouncements } from "@/features/announcements/useAnnouncements";
-import { PluginSlot } from "@/features/plugin/components/PluginSlot";
+import { useAnnouncements } from "@/features/announcements/hooks/useAnnouncements";
 import { AnnouncementDO } from "@/shared/api/types/announcement.model.do";
 import { PostType } from "@/shared/api/types/post.model";
 import { Tag } from "@/shared/api/types/tag.model";
+import { PluginSlot } from "@/features/plugin/core/PluginSlot";
 
 export type FilterType = "all" | PostType;
 

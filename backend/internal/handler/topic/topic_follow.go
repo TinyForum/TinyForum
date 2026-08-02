@@ -83,6 +83,7 @@ func (h *TopicHandler) Unfollow(c *gin.Context) {
 // @Failure 401 {object} common.BasicResponse"未授权"
 // @Failure 500 {object} common.BasicResponse"服务器内部错误"
 // @Router /topics/{id}/follow/status [get]
+// Deprecated: 无路由引用
 func (h *TopicHandler) IsFollowing(c *gin.Context) {
 	topicID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {

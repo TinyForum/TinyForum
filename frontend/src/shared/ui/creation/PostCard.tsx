@@ -20,7 +20,7 @@ export default function PostCard({ post, commentCount }: PostCardProps) {
   const isQuestion = post?.creation.creation_type === "questions";
 
   const { data: fetchedAuthor } = useQuery({
-    queryKey: ["user", post?.creation.author_id],
+    queryKey: ["user", post?.creation.author?.id],
     queryFn: () =>
       userApi.getProfile(post.creation.author_id).then((r) => r.data.data),
     enabled: !!(post && !post.creation.author && post.creation.author_id),

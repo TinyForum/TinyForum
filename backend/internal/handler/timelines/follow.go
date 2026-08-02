@@ -111,6 +111,7 @@ func (h *TimelineHandler) GetSubscriptions(c *gin.Context) {
 // @Failure 401 {object} common.BasicResponse"未授权"
 // @Failure 500 {object} common.BasicResponse"服务器内部错误"
 // @Router /timeline/subscribe/{user_id}/status [get]
+// Deprecated: 无路由引用
 func (h *TimelineHandler) IsSubscribed(c *gin.Context) {
 	userID, err := strconv.ParseUint(c.Param("user_id"), 10, 64)
 	if err != nil {

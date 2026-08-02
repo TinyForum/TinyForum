@@ -141,7 +141,7 @@ export function useCommentActions(postId: number) {
   const queryClient = useQueryClient();
 
   const createMutation = useCreateComment({
-    onSuccess: (newComment) => {
+    onSuccess: () => {
       // 精确失效该帖子下的评论列表
       queryClient.invalidateQueries({
         queryKey: commentKeys.list(postId),

@@ -17,7 +17,7 @@ import (
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param body body topic.CreateTopicInput true "话题信息"
+// @Param body body request.CreateTopicReqeust true "话题信息"
 // @Success 200 {object} common.BasicResponse "创建成功"
 // @Failure 400 {object} common.BasicResponse"请求参数错误"
 // @Failure 401 {object} common.BasicResponse"未授权"
@@ -47,7 +47,7 @@ func (h *TopicHandler) Create(c *gin.Context) {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path int true "话题ID"
-// @Param body body topic.CreateTopicInput true "话题信息"
+// @Param body body request.CreateTopicReqeust true "话题信息"
 // @Success 200 {object} common.BasicResponse "更新成功"
 // @Failure 400 {object} common.BasicResponse"请求参数错误或无效的话题ID"
 // @Failure 401 {object} common.BasicResponse"未授权"
@@ -168,6 +168,7 @@ func (h *TopicHandler) List(c *gin.Context) {
 // @Failure 400 {object} common.BasicResponse"无效的用户ID"
 // @Failure 500 {object} common.BasicResponse"服务器内部错误"
 // @Router /topics/creator/{creator_id} [get]
+// Deprecated: 无路由引用
 func (h *TopicHandler) GetByCreator(c *gin.Context) {
 	creatorID, err := strconv.ParseUint(c.Param("creator_id"), 10, 64)
 	if err != nil {

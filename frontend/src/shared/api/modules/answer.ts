@@ -1,11 +1,12 @@
 import apiClient from "../client";
+import { AnswerResponse } from "../types/answer.model";
 import { ApiResponse } from "../types/basic.model";
 import { VoteStatusResponse } from "../types/vote.model";
 
 export const answerApi = {
   // 获取单个答案
   getAnswer: (id: number) =>
-    apiClient.get<ApiResponse<Comment>>(`/answers/${id}`),
+    apiClient.get<ApiResponse<AnswerResponse>>(`/answers/${id}`),
 
   // 删除答案
   deleteAnswer: (id: number) =>

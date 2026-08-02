@@ -24,6 +24,7 @@ import (
 // @Failure 401 {object} common.BasicResponse"未授权"
 // @Failure 403 {object} common.BasicResponse"不能给自己的答案投票"
 // @Router /comments/{id}/vote [post]
+// Deprecated: 迁移到 answerHandler.VoteAnswer
 func (h *CommentHandler) VoteAnswer(c *gin.Context) {
 	commentID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
@@ -68,6 +69,7 @@ func (h *CommentHandler) VoteAnswer(c *gin.Context) {
 // @Success 200 {object} common.BasicResponse  "获取成功"
 // @Failure 400 {object} common.BasicResponse"无效的评论ID"
 // @Router /comments/{id}/vote [get]
+// Deprecated: 迁移到 answerHandler.GetAnswerVoteStatus
 func (h *CommentHandler) GetAnswerVoteStatus(c *gin.Context) {
 	commentID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
@@ -98,6 +100,7 @@ func (h *CommentHandler) GetAnswerVoteStatus(c *gin.Context) {
 // @Failure 401 {object} common.BasicResponse"未授权"
 // @Failure 403 {object} common.BasicResponse"无权限"
 // @Router /comments/{id}/accept [post]
+// Deprecated: 迁移到 answerHandler.AcceptAnswer
 func (h *CommentHandler) AcceptAnswer(c *gin.Context) {
 	commentID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {

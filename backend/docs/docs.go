@@ -16,6 +16,67 @@ const docTemplate = `{
     "basePath": "{{.BasePath}}",
     "paths": {
         "/admin/announcements": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "管理员列出所有公告，需要认证及管理员权限",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "公告管理"
+                ],
+                "summary": "列出公告",
+                "parameters": [
+                    {
+                        "description": "公告信息",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.ListAnnouncementsRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "创建成功",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "请求参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "无权限（非管理员）",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    }
+                }
+            },
             "post": {
                 "security": [
                     {
@@ -103,7 +164,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/request.ListAnnouncements"
+                            "$ref": "#/definitions/request.ListAnnouncementsRequest"
                         }
                     }
                 ],
@@ -748,7 +809,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/board.ReviewApplicationRequest"
+                            "$ref": "#/definitions/request.ReviewApplicationRequest"
                         }
                     }
                 ],
@@ -779,6 +840,296 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "申请不存在",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/config/history": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "配置管理"
+                ],
+                "summary": "获取配置变更历史",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "配置文件名 (不传则查所有)",
+                        "name": "file",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 50,
+                        "description": "数量限制",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.BasicResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/config.ConfigHistory"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/config/list": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "配置管理"
+                ],
+                "summary": "获取所有配置文件列表",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.BasicResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/config.ConfigFileInfo"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/config/reload": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "配置管理"
+                ],
+                "summary": "手动重载所有配置",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/config/{file}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "配置管理"
+                ],
+                "summary": "获取配置文件内容",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "配置文件名 (如 basic.yml)",
+                        "name": "file",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "返回格式: yaml(默认) 或 kv",
+                        "name": "format",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.BasicResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "content": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "put": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "配置管理"
+                ],
+                "summary": "更新配置文件",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "配置文件名 (如 basic.yml)",
+                        "name": "file",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "配置内容",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "content": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/config/{file}/kv": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "配置管理"
+                ],
+                "summary": "获取配置文件的键值对格式",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "配置文件名 (如 basic.yml)",
+                        "name": "file",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.BasicResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "config": {
+                                                    "type": "object",
+                                                    "additionalProperties": {
+                                                        "type": "string"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "put": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "配置管理"
+                ],
+                "summary": "通过键值对更新配置文件",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "配置文件名 (如 basic.yml)",
+                        "name": "file",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "键值对配置",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "config": {
+                                    "type": "object",
+                                    "additionalProperties": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/common.BasicResponse"
                         }
@@ -977,199 +1328,69 @@ const docTemplate = `{
                 }
             }
         },
-        "/admin/risk/audit/logs": {
+        "/admin/reports": {
             "get": {
-                "description": "根据目标类型和ID查询管理员对审核任务的操作记录（批准/拒绝）",
-                "consumes": [
-                    "application/json"
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
                 ],
+                "description": "管理员查看所有的举报信息",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "风险管理"
+                    "举报管理"
                 ],
-                "summary": "查询审核操作日志",
+                "summary": "列出所有举报内容",
                 "parameters": [
                     {
+                        "enum": [
+                            "pending",
+                            "resolved",
+                            "rejected"
+                        ],
                         "type": "string",
-                        "description": "目标类型，如 post、comment、user 等",
-                        "name": "target_type",
+                        "description": "举报状态",
+                        "name": "status",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "description": "目标ID",
-                        "name": "target_id",
+                        "default": 1,
+                        "description": "页码",
+                        "name": "page",
                         "in": "query"
                     },
-                    {
-                        "type": "integer",
-                        "default": 50,
-                        "description": "返回条数，默认50，最大200",
-                        "name": "limit",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "成功",
-                        "schema": {
-                            "$ref": "#/definitions/common.BasicResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "参数错误（target_id无效）",
-                        "schema": {
-                            "$ref": "#/definitions/common.BasicResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "服务器内部错误",
-                        "schema": {
-                            "$ref": "#/definitions/common.BasicResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/admin/risk/audit/tasks": {
-            "get": {
-                "description": "分页查询所有状态为 pending 的审核任务（内容安全检测不通过待人工审核）",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "风险管理"
-                ],
-                "summary": "获取待审核内容列表",
-                "parameters": [
                     {
                         "type": "integer",
                         "default": 20,
-                        "description": "每页数量，默认20，最大100",
-                        "name": "limit",
+                        "description": "每页数量",
+                        "name": "page_size",
                         "in": "query"
                     },
                     {
-                        "type": "integer",
-                        "default": 0,
-                        "description": "偏移量，默认0",
-                        "name": "offset",
+                        "type": "string",
+                        "description": "关键词",
+                        "name": "keyword",
                         "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "成功",
+                        "description": "获取成功",
                         "schema": {
                             "$ref": "#/definitions/common.BasicResponse"
                         }
                     },
-                    "500": {
-                        "description": "服务器内部错误",
-                        "schema": {
-                            "$ref": "#/definitions/common.BasicResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/admin/risk/audit/tasks/{id}/approve": {
-            "post": {
-                "description": "将指定审核任务标记为通过，恢复内容为 published 状态，并记录操作日志",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "风险管理"
-                ],
-                "summary": "审核通过",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "审核任务ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "审核备注",
-                        "name": "input",
-                        "in": "body",
-                        "schema": {
-                            "$ref": "#/definitions/risk.resolveTaskInput"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "操作成功",
+                    "401": {
+                        "description": "未授权",
                         "schema": {
                             "$ref": "#/definitions/common.BasicResponse"
                         }
                     },
-                    "400": {
-                        "description": "请求参数错误",
-                        "schema": {
-                            "$ref": "#/definitions/common.BasicResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "服务器内部错误",
-                        "schema": {
-                            "$ref": "#/definitions/common.BasicResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/admin/risk/audit/tasks/{id}/reject": {
-            "post": {
-                "description": "将指定审核任务标记为拒绝，内容状态改为 hidden（屏蔽），并记录操作日志",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "风险管理"
-                ],
-                "summary": "审核拒绝",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "审核任务ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "审核备注",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/risk.resolveTaskInput"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "操作成功",
-                        "schema": {
-                            "$ref": "#/definitions/common.BasicResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "请求参数错误",
+                    "403": {
+                        "description": "无权限（需要管理员权限）",
                         "schema": {
                             "$ref": "#/definitions/common.BasicResponse"
                         }
@@ -1488,6 +1709,65 @@ const docTemplate = `{
             }
         },
         "/admin/users/{id}/score": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "获取指定用户积分",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "管理员后台"
+                ],
+                "summary": "获取用户积分",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "用户ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    }
+                }
+            },
             "put": {
                 "security": [
                     {
@@ -1520,7 +1800,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/user.AdminSetScoreRequest"
+                            "$ref": "#/definitions/request.AdminSetScoreRequest"
                         }
                     }
                 ],
@@ -1805,88 +2085,21 @@ const docTemplate = `{
                 }
             }
         },
-        "/answers/{id}/answer": {
+        "/answers/{id}/accept/{question_id}": {
             "post": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "对指定问答帖提交一个回答",
-                "consumes": [
-                    "application/json"
-                ],
+                "description": "采纳某个回答作为问题的正确答案（仅问题作者可操作）",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "回答管理"
                 ],
-                "summary": "提交回答",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "帖子ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "回答内容",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/answer.CreateAnswerRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "提交成功",
-                        "schema": {
-                            "$ref": "#/definitions/common.BasicResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "请求参数错误或非问答帖",
-                        "schema": {
-                            "$ref": "#/definitions/common.BasicResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "未授权",
-                        "schema": {
-                            "$ref": "#/definitions/common.BasicResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "帖子不存在",
-                        "schema": {
-                            "$ref": "#/definitions/common.BasicResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/answers/{id}/status": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "获取指定回答的投票统计信息（赞同数、反对数、总票数）以及当前用户的投票状态",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "回答管理"
-                ],
-                "summary": "获取回答投票状态",
+                "summary": "采纳答案",
                 "parameters": [
                     {
                         "type": "integer",
@@ -1894,17 +2107,24 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "问题帖子ID",
+                        "name": "question_id",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "获取成功",
+                        "description": "采纳成功",
                         "schema": {
                             "$ref": "#/definitions/common.BasicResponse"
                         }
                     },
                     "400": {
-                        "description": "无效的回答ID",
+                        "description": "无效的ID或操作失败",
                         "schema": {
                             "$ref": "#/definitions/common.BasicResponse"
                         }
@@ -1915,8 +2135,14 @@ const docTemplate = `{
                             "$ref": "#/definitions/common.BasicResponse"
                         }
                     },
-                    "500": {
-                        "description": "服务器内部错误",
+                    "403": {
+                        "description": "无权限（非问题作者）",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "问题或回答不存在",
                         "schema": {
                             "$ref": "#/definitions/common.BasicResponse"
                         }
@@ -2074,131 +2300,6 @@ const docTemplate = `{
                     },
                     "401": {
                         "description": "未授权",
-                        "schema": {
-                            "$ref": "#/definitions/common.BasicResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/answers/{post_id}/answers": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "分页获取指定问题的所有回答，已采纳的回答排在最前",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "回答管理"
-                ],
-                "summary": "获取问题的回答列表",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "问题帖子ID",
-                        "name": "post_id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "default": 1,
-                        "description": "页码",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "default": 20,
-                        "description": "每页数量",
-                        "name": "page_size",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "获取成功",
-                        "schema": {
-                            "$ref": "#/definitions/common.BasicResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "无效的帖子ID",
-                        "schema": {
-                            "$ref": "#/definitions/common.BasicResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "问题不存在",
-                        "schema": {
-                            "$ref": "#/definitions/common.BasicResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/answers/{question_id}/accept/{answer_id}": {
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "采纳某个回答作为问题的正确答案（仅问题作者可操作）",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "回答管理"
-                ],
-                "summary": "采纳答案",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "问题帖子ID",
-                        "name": "question_id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "回答评论ID",
-                        "name": "answer_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "采纳成功",
-                        "schema": {
-                            "$ref": "#/definitions/common.BasicResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "无效的ID或操作失败",
-                        "schema": {
-                            "$ref": "#/definitions/common.BasicResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "未授权",
-                        "schema": {
-                            "$ref": "#/definitions/common.BasicResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "无权限（非问题作者）",
-                        "schema": {
-                            "$ref": "#/definitions/common.BasicResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "问题或回答不存在",
                         "schema": {
                             "$ref": "#/definitions/common.BasicResponse"
                         }
@@ -2465,6 +2566,62 @@ const docTemplate = `{
                 }
             }
         },
+        "/auth/account/password": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "验证管理"
+                ],
+                "summary": "修改密码",
+                "parameters": [
+                    {
+                        "description": "修改密码请求",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.ChangePasswordRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "无效的请求参数",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/auth/account/permanent": {
             "delete": {
                 "security": [
@@ -2642,6 +2799,33 @@ const docTemplate = `{
         },
         "/auth/password/reset": {
             "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "验证管理"
+                ],
+                "summary": "重置密码",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/password/reset-withtoken": {
+            "put": {
                 "description": "使用邮件中的token重置密码",
                 "consumes": [
                     "application/json"
@@ -2811,7 +2995,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/board.CreateBoardInput"
+                            "$ref": "#/definitions/bo.CreateBoardInput"
                         }
                     }
                 ],
@@ -2901,7 +3085,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/boards/moderators/applications": {
+        "/boards/moderators/apply-status": {
             "get": {
                 "security": [
                     {
@@ -3180,7 +3364,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/board.CreateBoardInput"
+                            "$ref": "#/definitions/bo.CreateBoardInput"
                         }
                     }
                 ],
@@ -4173,7 +4357,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/bot.ValidateFlowRequest"
+                            "$ref": "#/definitions/request.ValidateFlowRequest"
                         }
                     }
                 ],
@@ -4367,7 +4551,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/comment.CreateCommentInput"
+                            "$ref": "#/definitions/bo.CreateCommentInput"
                         }
                     }
                 ],
@@ -4441,6 +4625,47 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/comments/post/{post_id}/tree": {
+            "get": {
+                "description": "以树形结构返回某篇帖子的全部评论",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "评论管理"
+                ],
+                "summary": "获取评论树",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "帖子ID",
+                        "name": "post_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "获取成功",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "无效的帖子ID",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "帖子不存在",
                         "schema": {
                             "$ref": "#/definitions/common.BasicResponse"
                         }
@@ -4561,6 +4786,94 @@ const docTemplate = `{
                     },
                     "403": {
                         "description": "无权限",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/comments/{id}/like": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "评论管理"
+                ],
+                "summary": "点赞评论",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "评论ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "点赞成功",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "无效的评论ID",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "评论管理"
+                ],
+                "summary": "取消点赞评论",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "评论ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "已取消点赞",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "无效的评论ID",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
                         "schema": {
                             "$ref": "#/definitions/common.BasicResponse"
                         }
@@ -4858,7 +5171,7 @@ const docTemplate = `{
             }
         },
         "/notifications/{id}/read": {
-            "post": {
+            "patch": {
                 "security": [
                     {
                         "ApiKeyAuth": []
@@ -4914,35 +5227,6 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "服务器内部错误",
-                        "schema": {
-                            "$ref": "#/definitions/common.BasicResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/pligins/delete": {
-            "get": {
-                "description": "删除插件",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "插件管理"
-                ],
-                "summary": "删除插件",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/common.BasicResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/common.BasicResponse"
                         }
@@ -5011,9 +5295,7 @@ const docTemplate = `{
                         }
                     }
                 }
-            }
-        },
-        "/plugins/upload": {
+            },
             "post": {
                 "description": "上传一个 ZIP 压缩包，包含 manifest.json 和插件资源，进行插件安装",
                 "consumes": [
@@ -5051,7 +5333,74 @@ const docTemplate = `{
                 }
             }
         },
-        "/plugins/user/me": {
+        "/plugins/browser": {
+            "get": {
+                "description": "返回一个 HTML 页面用于浏览插件目录文件",
+                "produces": [
+                    "text/html"
+                ],
+                "tags": [
+                    "插件"
+                ],
+                "summary": "插件目录浏览器页面",
+                "responses": {
+                    "200": {
+                        "description": "HTML 页面",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/plugins/files": {
+            "get": {
+                "description": "列出 store/plugins 目录下的文件与子目录（含路径遍历防护）",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "插件"
+                ],
+                "summary": "列出插件目录文件",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": ".",
+                        "description": "相对子路径",
+                        "name": "path",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "文件列表",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "无效路径",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "访问被拒绝",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "目录不存在",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/plugins/me": {
             "get": {
                 "description": "获取当前登录用户已安装（上传）的插件列表，通常是通过 author_id 查询",
                 "consumes": [
@@ -5064,6 +5413,81 @@ const docTemplate = `{
                     "插件管理"
                 ],
                 "summary": "当前用户安装的插件",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/plugins/{slug}": {
+            "delete": {
+                "description": "删除插件",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "插件管理"
+                ],
+                "summary": "删除插件",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "插件标识",
+                        "name": "slug",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/plugins/{slug}/toggle": {
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "切换插件状态",
+                "tags": [
+                    "插件管理"
+                ],
+                "summary": "切换插件状态",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "插件标识",
+                        "name": "slug",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -5186,7 +5610,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/post.CreatePostInput"
+                            "$ref": "#/definitions/request.CreatePostRequest"
                         }
                     }
                 ],
@@ -5294,7 +5718,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/post.UpdatePostInput"
+                            "$ref": "#/definitions/request.UpdatePostRequest"
                         }
                     }
                 ],
@@ -5738,22 +6162,179 @@ const docTemplate = `{
                 }
             }
         },
-        "/statistics": {
+        "/questions/{post_id}/answers": {
             "get": {
                 "security": [
                     {
-                        "BearerAuth": []
+                        "ApiKeyAuth": []
                     }
                 ],
-                "tags": [
-                    "统计"
+                "description": "分页获取指定问题的所有回答，已采纳的回答排在最前",
+                "produces": [
+                    "application/json"
                 ],
-                "summary": "获取全局统计数据",
+                "tags": [
+                    "回答管理"
+                ],
+                "summary": "获取问题的回答列表",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "问题帖子ID",
+                        "name": "post_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 20,
+                        "description": "每页数量",
+                        "name": "page_size",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "返回统计数据",
+                        "description": "获取成功",
                         "schema": {
-                            "$ref": "#/definitions/vo.UserStatsInfo"
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "无效的帖子ID",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "问题不存在",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "对指定问答帖提交一个回答",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "回答管理"
+                ],
+                "summary": "提交回答",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "帖子ID",
+                        "name": "post_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "回答内容",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/answer.CreateAnswerRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "提交成功",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "请求参数错误或非问答帖",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "帖子不存在",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/risk/audit/logs": {
+            "get": {
+                "description": "根据目标类型和ID查询管理员对审核任务的操作记录（批准/拒绝）",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "风险管理"
+                ],
+                "summary": "查询审核操作日志",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "目标类型，如 post、comment、user 等",
+                        "name": "target_type",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "目标ID",
+                        "name": "target_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 50,
+                        "description": "返回条数，默认50，最大200",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误（target_id无效）",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
                         }
                     }
                 }
@@ -6096,7 +6677,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/tag.CreateTagInput"
+                            "$ref": "#/definitions/request.CreateTagRequest"
                         }
                     }
                 ],
@@ -6199,7 +6780,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/tag.CreateTagInput"
+                            "$ref": "#/definitions/request.CreateTagRequest"
                         }
                     }
                 ],
@@ -6305,21 +6886,21 @@ const docTemplate = `{
                 }
             }
         },
-        "/timeline/following": {
+        "/timeline": {
             "get": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "获取当前用户关注的人的内容时间线",
+                "description": "获取当前用户首页的时间线（推荐内容）",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "时间线管理"
                 ],
-                "summary": "获取关注时间线",
+                "summary": "获取首页时间线",
                 "parameters": [
                     {
                         "type": "integer",
@@ -6358,21 +6939,21 @@ const docTemplate = `{
                 }
             }
         },
-        "/timeline/home": {
+        "/timeline/following": {
             "get": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "获取当前用户首页的时间线（推荐内容）",
+                "description": "获取当前用户关注的人的内容时间线",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "时间线管理"
                 ],
-                "summary": "获取首页时间线",
+                "summary": "获取关注时间线",
                 "parameters": [
                     {
                         "type": "integer",
@@ -6679,7 +7260,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/topic.CreateTopicInput"
+                            "$ref": "#/definitions/request.CreateTopicReqeust"
                         }
                     }
                 ],
@@ -6837,7 +7418,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/topic.CreateTopicInput"
+                            "$ref": "#/definitions/request.CreateTopicReqeust"
                         }
                     }
                 ],
@@ -7421,6 +8002,37 @@ const docTemplate = `{
                 }
             }
         },
+        "/users/me/profile": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户管理"
+                ],
+                "summary": "更新用户资料",
+                "parameters": [
+                    {
+                        "description": "资料",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/do.UpdateProfileInput"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
         "/users/me/role": {
             "get": {
                 "security": [
@@ -7461,6 +8073,27 @@ const docTemplate = `{
                 }
             }
         },
+        "/users/me/stats": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "统计"
+                ],
+                "summary": "获取全局统计数据",
+                "responses": {
+                    "200": {
+                        "description": "返回统计数据",
+                        "schema": {
+                            "$ref": "#/definitions/vo.UserStatsInfo"
+                        }
+                    }
+                }
+            }
+        },
         "/users/me/violations": {
             "get": {
                 "description": "获取用户违规记录",
@@ -7488,54 +8121,6 @@ const docTemplate = `{
                         }
                     }
                 }
-            }
-        },
-        "/users/profile": {
-            "put": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "用户管理"
-                ],
-                "summary": "更新用户资料",
-                "parameters": [
-                    {
-                        "description": "资料",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/do.UpdateProfileInput"
-                        }
-                    }
-                ],
-                "responses": {}
-            }
-        },
-        "/users/score": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "用户管理"
-                ],
-                "summary": "查询积分",
-                "responses": {}
             }
         },
         "/users/{id}": {
@@ -7657,6 +8242,51 @@ const docTemplate = `{
                 ],
                 "responses": {}
             }
+        },
+        "/users/{id}/score": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户管理"
+                ],
+                "summary": "查询积分",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "用户ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "积分信息",
+                        "schema": {
+                            "$ref": "#/definitions/vo.UserScoreVO"
+                        }
+                    },
+                    "400": {
+                        "description": "无效的用户ID",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/common.BasicResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -7667,14 +8297,14 @@ const docTemplate = `{
             ],
             "properties": {
                 "content": {
-                    "description": "回答内容",
+                    "description": "QuestionID int    ` + "`" + `json:\"question_id\" binding:\"required,min=1\"` + "`" + `      // 问题ID",
                     "type": "string",
                     "maxLength": 5000,
                     "minLength": 1
                 }
             }
         },
-        "board.CreateBoardInput": {
+        "bo.CreateBoardInput": {
             "type": "object",
             "required": [
                 "name",
@@ -7720,48 +8350,7 @@ const docTemplate = `{
                 }
             }
         },
-        "board.ReviewApplicationRequest": {
-            "type": "object",
-            "required": [
-                "approve"
-            ],
-            "properties": {
-                "approve": {
-                    "type": "boolean"
-                },
-                "can_ban_user": {
-                    "type": "boolean"
-                },
-                "can_delete_post": {
-                    "type": "boolean"
-                },
-                "can_edit_any_post": {
-                    "type": "boolean"
-                },
-                "can_manage_moderator": {
-                    "type": "boolean"
-                },
-                "can_pin_post": {
-                    "type": "boolean"
-                },
-                "review_note": {
-                    "type": "string",
-                    "maxLength": 500
-                }
-            }
-        },
-        "bot.ValidateFlowRequest": {
-            "type": "object",
-            "required": [
-                "flow"
-            ],
-            "properties": {
-                "flow": {
-                    "$ref": "#/definitions/nocode.Flow"
-                }
-            }
-        },
-        "comment.CreateCommentInput": {
+        "bo.CreateCommentInput": {
             "type": "object",
             "required": [
                 "content",
@@ -7809,12 +8398,59 @@ const docTemplate = `{
                 }
             }
         },
+        "config.ConfigFileInfo": {
+            "type": "object",
+            "properties": {
+                "editable": {
+                    "type": "boolean"
+                },
+                "format": {
+                    "type": "string"
+                },
+                "mod_time": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "path": {
+                    "type": "string"
+                },
+                "size": {
+                    "type": "integer"
+                }
+            }
+        },
+        "config.ConfigHistory": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "fileName": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "operation": {
+                    "description": "create, update, delete, reload",
+                    "type": "string"
+                },
+                "operator": {
+                    "type": "string"
+                }
+            }
+        },
         "do.AnnouncementStatus": {
-            "type": "integer",
+            "type": "string",
             "enum": [
-                0,
-                1,
-                2
+                "draft",
+                "published",
+                "archived"
             ],
             "x-enum-comments": {
                 "AnnouncementStatusArchived": "已归档",
@@ -7833,12 +8469,12 @@ const docTemplate = `{
             ]
         },
         "do.AnnouncementType": {
-            "type": "integer",
+            "type": "string",
             "enum": [
-                0,
-                1,
-                2,
-                3
+                "normal",
+                "important",
+                "emergency",
+                "event"
             ],
             "x-enum-comments": {
                 "AnnouncementTypeEmergency": "紧急公告",
@@ -7869,59 +8505,105 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 500
                 },
-                "req_ban_user": {
-                    "type": "boolean"
-                },
-                "req_delete_post": {
-                    "type": "boolean"
-                },
-                "req_edit_any_post": {
-                    "type": "boolean"
-                },
-                "req_manage_moderator": {
-                    "type": "boolean"
-                },
-                "req_pin_post": {
-                    "type": "boolean"
+                "requested_permissions": {
+                    "description": "申请的权限列表",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/do.ModeratorPermission"
+                    }
                 }
             }
         },
         "do.BotConfigField": {
             "type": "object",
             "properties": {
-                "defaultValue": {},
+                "defaultValue": {
+                    "description": "默认值"
+                },
                 "description": {
+                    "description": "描述",
                     "type": "string"
                 },
                 "key": {
+                    "description": "唯一标识",
                     "type": "string"
                 },
                 "label": {
+                    "description": "显示名称",
                     "type": "string"
                 },
                 "options": {
+                    "description": "选项",
                     "type": "array",
                     "items": {
                         "type": "object",
                         "properties": {
                             "label": {
+                                "description": "显示名称",
                                 "type": "string"
                             },
-                            "value": {}
+                            "value": {
+                                "description": "值"
+                            }
                         }
                     }
                 },
                 "placeholder": {
+                    "description": "占位符",
                     "type": "string"
                 },
                 "required": {
+                    "description": "是否必填",
                     "type": "boolean"
                 },
                 "type": {
-                    "description": "text, number, boolean, select, textarea, secret",
-                    "type": "string"
+                    "description": "类型",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/do.BotConfigFieldType"
+                        }
+                    ]
                 }
             }
+        },
+        "do.BotConfigFieldType": {
+            "type": "string",
+            "enum": [
+                "text",
+                "number",
+                "bool",
+                "select",
+                "textarea",
+                "secret",
+                "array"
+            ],
+            "x-enum-comments": {
+                "FieldTypeArray": "数组",
+                "FieldTypeBool": "布尔",
+                "FieldTypeNumber": "数字",
+                "FieldTypeSecret": "密码",
+                "FieldTypeSelect": "选择",
+                "FieldTypeText": "文本",
+                "FieldTypeTextArea": "多行文本"
+            },
+            "x-enum-descriptions": [
+                "文本",
+                "数字",
+                "布尔",
+                "选择",
+                "多行文本",
+                "密码",
+                "数组"
+            ],
+            "x-enum-varnames": [
+                "FieldTypeText",
+                "FieldTypeNumber",
+                "FieldTypeBool",
+                "FieldTypeSelect",
+                "FieldTypeTextArea",
+                "FieldTypeSecret",
+                "FieldTypeArray"
+            ]
         },
         "do.BotPermission": {
             "type": "string",
@@ -7934,6 +8616,26 @@ const docTemplate = `{
                 "send:message",
                 "manage:content",
                 "read:stats"
+            ],
+            "x-enum-comments": {
+                "BotPermReadComments": "读取评论信息",
+                "BotPermReadPosts": "读取帖子信息",
+                "BotPermReadUser": "读取用户信息",
+                "BotPermWriteComments": "写入评论信息",
+                "BotPermWritePosts": "写入帖子信息",
+                "PermManageContent": "管理内容",
+                "PermReadStats": "读取统计信息",
+                "PermSendMessage": "发送消息"
+            },
+            "x-enum-descriptions": [
+                "读取用户信息",
+                "读取帖子信息",
+                "写入帖子信息",
+                "读取评论信息",
+                "写入评论信息",
+                "发送消息",
+                "管理内容",
+                "读取统计信息"
             ],
             "x-enum-varnames": [
                 "BotPermReadUser",
@@ -7950,18 +8652,27 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "cycle": {
+                    "description": "周期",
                     "type": "string"
                 },
                 "freeLimit": {
+                    "description": "免费限制",
                     "type": "string"
                 },
                 "model": {
-                    "$ref": "#/definitions/do.BotPricingModel"
+                    "description": "定价模型",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/do.BotPricingModel"
+                        }
+                    ]
                 },
                 "price": {
+                    "description": "价格",
                     "type": "number"
                 },
                 "purchaseUrl": {
+                    "description": "购买链接",
                     "type": "string"
                 }
             }
@@ -7973,6 +8684,18 @@ const docTemplate = `{
                 "freemium",
                 "paid",
                 "subscription"
+            ],
+            "x-enum-comments": {
+                "BotPricingFree": "免费",
+                "BotPricingFreemium": "试用",
+                "BotPricingPaid": "付费",
+                "PricingSubscription": "订阅"
+            },
+            "x-enum-descriptions": [
+                "免费",
+                "试用",
+                "付费",
+                "订阅"
             ],
             "x-enum-varnames": [
                 "BotPricingFree",
@@ -7988,6 +8711,18 @@ const docTemplate = `{
                 "event",
                 "webhook",
                 "manual"
+            ],
+            "x-enum-comments": {
+                "TriggerEvent": "事件",
+                "TriggerManual": "手动",
+                "TriggerSchedule": "定时",
+                "TriggerWebhook": "webhook"
+            },
+            "x-enum-descriptions": [
+                "定时",
+                "事件",
+                "webhook",
+                "手动"
             ],
             "x-enum-varnames": [
                 "TriggerSchedule",
@@ -8007,6 +8742,24 @@ const docTemplate = `{
                 "webhook",
                 "analysis"
             ],
+            "x-enum-comments": {
+                "BotTypeAnalysis": "分析",
+                "BotTypeChat": "聊天",
+                "BotTypeModerate": "审核",
+                "BotTypeNotify": "通知",
+                "BotTypeSync": "同步",
+                "BotTypeTask": "任务",
+                "BotTypeWebhook": "webhook"
+            },
+            "x-enum-descriptions": [
+                "聊天",
+                "审核",
+                "通知",
+                "同步",
+                "任务",
+                "webhook",
+                "分析"
+            ],
             "x-enum-varnames": [
                 "BotTypeChat",
                 "BotTypeModerate",
@@ -8017,7 +8770,7 @@ const docTemplate = `{
                 "BotTypeAnalysis"
             ]
         },
-        "do.PostStatus": {
+        "do.CreationStatus": {
             "type": "string",
             "enum": [
                 "draft",
@@ -8025,20 +8778,65 @@ const docTemplate = `{
                 "published",
                 "hidden"
             ],
+            "x-enum-comments": {
+                "CreationStatusDraft": "草稿（用户保存未发布）",
+                "CreationStatusHidden": "用户隐藏（如自己删除/隐藏，或管理员操作但以用户视角展示）",
+                "CreationStatusPending": "待用户确认/提交（如编辑后重新提交）",
+                "CreationStatusPublished": "已发布（用户主动发布）"
+            },
+            "x-enum-descriptions": [
+                "草稿（用户保存未发布）",
+                "待用户确认/提交（如编辑后重新提交）",
+                "已发布（用户主动发布）",
+                "用户隐藏（如自己删除/隐藏，或管理员操作但以用户视角展示）"
+            ],
             "x-enum-varnames": [
-                "PostStatusDraft",
-                "PostStatusPending",
-                "PostStatusPublished",
-                "PostStatusHidden"
+                "CreationStatusDraft",
+                "CreationStatusPending",
+                "CreationStatusPublished",
+                "CreationStatusHidden"
+            ]
+        },
+        "do.ModeratorPermission": {
+            "type": "string",
+            "enum": [
+                "delete_post",
+                "pin_post",
+                "edit_any_post",
+                "manage_moderator",
+                "ban_user"
+            ],
+            "x-enum-comments": {
+                "PerModBanUser": "封禁用户",
+                "PerModDeletePost": "删除帖子",
+                "PerModEditAnyPost": "编辑任意帖子",
+                "PerModManageModerator": "管理版主",
+                "PerMoePinPost": "置顶帖子"
+            },
+            "x-enum-descriptions": [
+                "删除帖子",
+                "置顶帖子",
+                "编辑任意帖子",
+                "管理版主",
+                "封禁用户"
+            ],
+            "x-enum-varnames": [
+                "PerModDeletePost",
+                "PerMoePinPost",
+                "PerModEditAnyPost",
+                "PerModManageModerator",
+                "PerModBanUser"
             ]
         },
         "do.ResourceLimit": {
             "type": "object",
             "properties": {
                 "maxCPU": {
+                    "description": "最大 CPU 核心数",
                     "type": "integer"
                 },
                 "maxMemoryMB": {
+                    "description": "最大内存（MB）",
                     "type": "integer"
                 }
             }
@@ -8046,7 +8844,7 @@ const docTemplate = `{
         "do.UpdateProfileInput": {
             "type": "object",
             "properties": {
-                "avatar": {
+                "avatar_url": {
                     "type": "string"
                 },
                 "bio": {
@@ -8122,6 +8920,25 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.ChangePasswordRequest": {
+            "type": "object",
+            "required": [
+                "new_password",
+                "old_password"
+            ],
+            "properties": {
+                "new_password": {
+                    "description": "新密码",
+                    "type": "string",
+                    "maxLength": 32,
+                    "minLength": 8
+                },
+                "old_password": {
+                    "description": "旧密码",
+                    "type": "string"
+                }
+            }
+        },
         "dto.CreateQuestionRequest": {
             "type": "object",
             "required": [
@@ -8144,7 +8961,7 @@ const docTemplate = `{
                     "minimum": 0
                 },
                 "status": {
-                    "$ref": "#/definitions/do.PostStatus"
+                    "$ref": "#/definitions/do.CreationStatus"
                 },
                 "summary": {
                     "type": "string",
@@ -8177,7 +8994,7 @@ const docTemplate = `{
         "dto.LeaderboardUserDetail": {
             "type": "object",
             "properties": {
-                "avatar": {
+                "avatar_url": {
                     "type": "string"
                 },
                 "email": {
@@ -8300,37 +9117,6 @@ const docTemplate = `{
                 "CondCustomExpr"
             ]
         },
-        "nocode.Flow": {
-            "type": "object",
-            "properties": {
-                "actions": {
-                    "description": "顺序执行的动作列表",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/nocode.ActionNode"
-                    }
-                },
-                "conditions": {
-                    "description": "前置条件，全部满足才执行 Actions",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/nocode.CondNode"
-                    }
-                },
-                "trigger": {
-                    "description": "触发器（唯一）",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/nocode.TriggerNode"
-                        }
-                    ]
-                },
-                "version": {
-                    "description": "目前固定 \"1\"",
-                    "type": "string"
-                }
-            }
-        },
         "nocode.NocodeMetadata": {
             "type": "object",
             "properties": {
@@ -8448,69 +9234,30 @@ const docTemplate = `{
                 "TriggerOnManual"
             ]
         },
-        "post.CreatePostInput": {
+        "request.AdminSetScoreRequest": {
             "type": "object",
             "required": [
-                "board_id",
-                "content",
-                "title"
+                "operation",
+                "reason",
+                "score"
             ],
             "properties": {
-                "board_id": {
-                    "type": "integer"
-                },
-                "content": {
+                "operation": {
                     "type": "string",
-                    "minLength": 10
+                    "enum": [
+                        "set",
+                        "add",
+                        "subtract"
+                    ]
                 },
-                "cover": {
-                    "type": "string"
-                },
-                "status": {
-                    "$ref": "#/definitions/do.PostStatus"
-                },
-                "summary": {
-                    "type": "string"
-                },
-                "tag_ids": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
-                },
-                "title": {
+                "reason": {
                     "type": "string",
-                    "maxLength": 200,
-                    "minLength": 2
+                    "maxLength": 200
                 },
-                "type": {
-                    "type": "string"
-                }
-            }
-        },
-        "post.UpdatePostInput": {
-            "type": "object",
-            "properties": {
-                "content": {
-                    "type": "string",
-                    "minLength": 10
-                },
-                "cover": {
-                    "type": "string"
-                },
-                "summary": {
-                    "type": "string"
-                },
-                "tag_ids": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
-                },
-                "title": {
-                    "type": "string",
-                    "maxLength": 200,
-                    "minLength": 2
+                "score": {
+                    "type": "integer",
+                    "maximum": 999999,
+                    "minimum": 0
                 }
             }
         },
@@ -8555,17 +9302,7 @@ const docTemplate = `{
                     "minLength": 1
                 },
                 "type": {
-                    "enum": [
-                        0,
-                        1,
-                        2,
-                        3
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/do.AnnouncementType"
-                        }
-                    ]
+                    "$ref": "#/definitions/do.AnnouncementType"
                 }
             }
         },
@@ -8579,83 +9316,111 @@ const docTemplate = `{
             ],
             "properties": {
                 "avatarUrl": {
+                    "description": "头像",
                     "type": "string"
                 },
                 "configSchema": {
+                    "description": "配置项",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/do.BotConfigField"
                     }
                 },
                 "configValues": {
+                    "description": "配置值",
                     "type": "object",
                     "additionalProperties": {}
                 },
                 "cronExpr": {
+                    "description": "cron表达式",
                     "type": "string"
                 },
                 "description": {
+                    "description": "描述",
                     "type": "string"
                 },
                 "envVars": {
+                    "description": "环境变量",
                     "type": "object",
                     "additionalProperties": {
                         "type": "string"
                     }
                 },
                 "eventFilter": {
+                    "description": "事件过滤器",
                     "type": "string"
                 },
                 "homepageUrl": {
+                    "description": "主页",
                     "type": "string"
                 },
                 "name": {
+                    "description": "名称",
                     "type": "string",
                     "maxLength": 100,
                     "minLength": 1
                 },
                 "permissions": {
+                    "description": "权限",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/do.BotPermission"
                     }
                 },
                 "pricing": {
-                    "$ref": "#/definitions/do.BotPricing"
+                    "description": "定价",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/do.BotPricing"
+                        }
+                    ]
                 },
                 "resourceLimit": {
-                    "$ref": "#/definitions/do.ResourceLimit"
+                    "description": "资源限制",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/do.ResourceLimit"
+                        }
+                    ]
                 },
                 "retryTimes": {
+                    "description": "重试次数",
                     "type": "integer"
                 },
                 "screenshots": {
+                    "description": "截图",
                     "type": "array",
                     "items": {
                         "type": "string"
                     }
                 },
                 "scriptCode": {
+                    "description": "脚本代码",
                     "type": "string"
                 },
                 "scriptUrl": {
+                    "description": "脚本URL",
                     "type": "string"
                 },
                 "summary": {
+                    "description": "简介",
                     "type": "string"
                 },
                 "tags": {
+                    "description": "标签",
                     "type": "array",
                     "items": {
                         "type": "string"
                     }
                 },
                 "timeoutSec": {
+                    "description": "超时时间",
                     "type": "integer",
                     "maximum": 300,
                     "minimum": 1
                 },
                 "triggerType": {
+                    "description": "触发类型",
                     "enum": [
                         "schedule",
                         "event",
@@ -8669,6 +9434,7 @@ const docTemplate = `{
                     ]
                 },
                 "type": {
+                    "description": "类型",
                     "enum": [
                         "chat",
                         "moderate",
@@ -8685,7 +9451,91 @@ const docTemplate = `{
                     ]
                 },
                 "version": {
+                    "description": "版本",
                     "type": "string"
+                }
+            }
+        },
+        "request.CreatePostRequest": {
+            "type": "object",
+            "required": [
+                "board_id",
+                "content",
+                "title"
+            ],
+            "properties": {
+                "board_id": {
+                    "type": "integer"
+                },
+                "content": {
+                    "type": "string",
+                    "minLength": 10
+                },
+                "cover": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/do.CreationStatus"
+                },
+                "summary": {
+                    "type": "string"
+                },
+                "tag_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "title": {
+                    "type": "string",
+                    "maxLength": 200,
+                    "minLength": 2
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.CreateTagRequest": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "color": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 1
+                }
+            }
+        },
+        "request.CreateTopicReqeust": {
+            "type": "object",
+            "required": [
+                "title"
+            ],
+            "properties": {
+                "cover_url": {
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "description": {
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "is_public": {
+                    "type": "boolean"
+                },
+                "title": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "minLength": 2
                 }
             }
         },
@@ -8700,7 +9550,7 @@ const docTemplate = `{
                 }
             }
         },
-        "request.ListAnnouncements": {
+        "request.ListAnnouncementsRequest": {
             "type": "object",
             "properties": {
                 "board_id": {
@@ -8731,29 +9581,10 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "status": {
-                    "enum": [
-                        0,
-                        1,
-                        2
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/do.AnnouncementStatus"
-                        }
-                    ]
+                    "$ref": "#/definitions/do.AnnouncementStatus"
                 },
                 "type": {
-                    "enum": [
-                        0,
-                        1,
-                        2,
-                        3
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/do.AnnouncementType"
-                        }
-                    ]
+                    "$ref": "#/definitions/do.AnnouncementType"
                 }
             }
         },
@@ -8776,6 +9607,39 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 50,
                     "minLength": 2
+                }
+            }
+        },
+        "request.ReviewApplicationRequest": {
+            "type": "object",
+            "required": [
+                "application_id"
+            ],
+            "properties": {
+                "application_id": {
+                    "type": "integer"
+                },
+                "approve": {
+                    "type": "boolean"
+                },
+                "can_ban_user": {
+                    "type": "boolean"
+                },
+                "can_delete_post": {
+                    "type": "boolean"
+                },
+                "can_edit_any_post": {
+                    "type": "boolean"
+                },
+                "can_manage_moderator": {
+                    "type": "boolean"
+                },
+                "can_pin_post": {
+                    "type": "boolean"
+                },
+                "review_note": {
+                    "type": "string",
+                    "maxLength": 500
                 }
             }
         },
@@ -8825,16 +9689,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "status": {
-                    "enum": [
-                        0,
-                        1,
-                        2
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/do.AnnouncementStatus"
-                        }
-                    ]
+                    "$ref": "#/definitions/do.AnnouncementStatus"
                 },
                 "summary": {
                     "type": "string"
@@ -8843,17 +9698,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "type": {
-                    "enum": [
-                        0,
-                        1,
-                        2,
-                        3
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/do.AnnouncementType"
-                        }
-                    ]
+                    "$ref": "#/definitions/do.AnnouncementType"
                 }
             }
         },
@@ -8926,31 +9771,60 @@ const docTemplate = `{
                 }
             }
         },
-        "risk.resolveTaskInput": {
+        "request.UpdatePostRequest": {
             "type": "object",
             "properties": {
-                "note": {
+                "content": {
                     "type": "string",
-                    "maxLength": 500
+                    "minLength": 10
+                },
+                "cover": {
+                    "type": "string"
+                },
+                "summary": {
+                    "type": "string"
+                },
+                "tag_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "title": {
+                    "type": "string",
+                    "maxLength": 200,
+                    "minLength": 2
                 }
             }
         },
-        "tag.CreateTagInput": {
+        "request.ValidateFlowRequest": {
             "type": "object",
-            "required": [
-                "name"
-            ],
             "properties": {
-                "color": {
-                    "type": "string"
+                "actions": {
+                    "description": "顺序执行的动作列表",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/nocode.ActionNode"
+                    }
                 },
-                "description": {
-                    "type": "string"
+                "conditions": {
+                    "description": "前置条件，全部满足才执行 Actions",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/nocode.CondNode"
+                    }
                 },
-                "name": {
-                    "type": "string",
-                    "maxLength": 50,
-                    "minLength": 1
+                "trigger": {
+                    "description": "触发器（唯一）",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/nocode.TriggerNode"
+                        }
+                    ]
+                },
+                "version": {
+                    "description": "目前固定 \"1\"",
+                    "type": "string"
                 }
             }
         },
@@ -8969,57 +9843,6 @@ const docTemplate = `{
                     "description": "排序顺序",
                     "type": "integer",
                     "example": 0
-                }
-            }
-        },
-        "topic.CreateTopicInput": {
-            "type": "object",
-            "required": [
-                "title"
-            ],
-            "properties": {
-                "cover": {
-                    "type": "string",
-                    "maxLength": 500
-                },
-                "description": {
-                    "type": "string",
-                    "maxLength": 500
-                },
-                "is_public": {
-                    "type": "boolean"
-                },
-                "title": {
-                    "type": "string",
-                    "maxLength": 100,
-                    "minLength": 2
-                }
-            }
-        },
-        "user.AdminSetScoreRequest": {
-            "type": "object",
-            "required": [
-                "operation",
-                "reason",
-                "score"
-            ],
-            "properties": {
-                "operation": {
-                    "type": "string",
-                    "enum": [
-                        "set",
-                        "add",
-                        "subtract"
-                    ]
-                },
-                "reason": {
-                    "type": "string",
-                    "maxLength": 200
-                },
-                "score": {
-                    "type": "integer",
-                    "maximum": 999999,
-                    "minimum": 0
                 }
             }
         },
@@ -9058,7 +9881,7 @@ const docTemplate = `{
         "vo.UserPrivateVO": {
             "type": "object",
             "properties": {
-                "avatar": {
+                "avatar_url": {
                     "type": "string"
                 },
                 "bio": {
@@ -9096,6 +9919,17 @@ const docTemplate = `{
                 },
                 "username": {
                     "type": "string"
+                }
+            }
+        },
+        "vo.UserScoreVO": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "score": {
+                    "type": "integer"
                 }
             }
         },
@@ -9152,25 +9986,17 @@ const docTemplate = `{
                 }
             }
         }
-    },
-    "securityDefinitions": {
-        "ApiKeyAuth": {
-            "description": "Type \"Bearer\" followed by a space and the JWT token.",
-            "type": "apiKey",
-            "name": "Authorization",
-            "in": "header"
-        }
     }
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "1.0",
-	Host:             "localhost:8080",
-	BasePath:         "/api/v1",
+	Version:          "",
+	Host:             "",
+	BasePath:         "",
 	Schemes:          []string{},
-	Title:            "Tiny Forum API",
-	Description:      "一个基于 Gin 的论坛系统 API",
+	Title:            "",
+	Description:      "",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

@@ -39,7 +39,3 @@ export interface BaseModel {
   updated_at: string;
   deleted_at: string;
 }
-export interface ResponseResultVO {
-  message: string;
-  pass: boolean;
-}

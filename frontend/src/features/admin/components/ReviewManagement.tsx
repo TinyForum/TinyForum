@@ -188,10 +188,10 @@ export function ReviewManagement() {
                     <div className="flex items-center gap-2 mb-1">
                       <span className="font-medium">
                         {post.creation.author?.username ||
-                          `用户${post.creation.author_id}`}
+                          `用户${post.creation.author?.id}`}
                       </span>
                       <span className="text-xs text-gray-400">
-                        #{post.creation.author_id}
+                        #{post.creation.author?.id}
                       </span>
                       {post.risk_score && post.risk_score > 0 && (
                         <span className="badge badge-warning badge-sm">
@@ -263,9 +263,9 @@ export function ReviewManagement() {
                 <div>
                   用户名：
                   {selectedPost.creation.author?.username ||
-                    `ID ${selectedPost.creation.author_id}`}
+                    `ID ${selectedPost.creation.author?.id}`}
                 </div>
-                <div>用户ID：{selectedPost.creation.author_id}</div>
+                <div>用户ID：{selectedPost.creation.author?.id}</div>
                 {selectedPost.creation.author?.email && (
                   <div>邮箱：{selectedPost.creation.author.email}</div>
                 )}

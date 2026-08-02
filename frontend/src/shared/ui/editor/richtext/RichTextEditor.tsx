@@ -1,4 +1,4 @@
-// components/RichTextEditor.tsx
+// 文章和帖子的富文本编辑器
 "use client";
 
 import React from "react";

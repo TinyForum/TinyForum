@@ -12,7 +12,6 @@ import {
   ExclamationTriangleIcon,
   SparklesIcon,
 } from "@heroicons/react/24/outline";
-import { ApiResponse } from "@/shared/api/types/basic.model";
 
 interface AnswerFormProps {
   questionId: number;
@@ -30,12 +29,6 @@ interface ErrorResponse {
     };
   };
   message?: string;
-}
-
-interface CreateAnswerResponse {
-  id: number;
-  content: string;
-  created_at: string;
 }
 
 export function AnswerForm({
@@ -72,10 +65,9 @@ export function AnswerForm({
 
     setSubmitting(true);
     try {
-      const response: { data: ApiResponse<CreateAnswerResponse> } =
-        await questionApi.createAnswer(questionId, {
-          content: content.trim(),
-        });
+      const response = await questionApi.createAnswer(questionId, {
+        content: content.trim(),
+      });
 
       // 统一使用 code === 0 判断成功
       if (response.data.code === 0) {

@@ -14,7 +14,11 @@ import { useTimelineEvents } from "@/features/timeline/hooks/useTimelineEvents";
 import { useBoardTree } from "@/features/boards/hooks/useBoardTree";
 import { usePosts } from "@/features/post/hooks/usePosts";
 import { useTags } from "@/features/tag/hooks/useTags";
-import { useQuestions } from "@/features/qustion/hooks/useQuestions";
+import { useQuestionList } from "@/features/qustion/hooks/useQuestions";
+import type { Post } from "@/shared/api/types/post.model";
+import type { QuestionSimple } from "@/shared/api/types/question.model";
+// 导入新的 Hook
+// import { useQuestionList } from "@/features/qustion/hooks/useQuestions";
 
 export default function HomePage() {
   const { isAuthenticated, user } = useAuthStore();
@@ -31,7 +35,7 @@ export default function HomePage() {
   const { unreadCount } = useUnreadCount();
   const { data: timelineEvents = [] } = useTimelineEvents(isAuthenticated);
 
-  // ----- 根据 filterType 配置参数和启用状态 -----
+  // 根据 filterType 配置参数
   let postParams = undefined;
   let questionParams = undefined;
   let usePostsEnabled = false;
@@ -44,10 +48,10 @@ export default function HomePage() {
         page,
         page_size: 15,
         board_id: selectedBoard ?? undefined,
+        // 可能还有 sort_by 等，根据接口补充
       };
       break;
     default:
-      // 处理 all, posts, articles, topic 等
       usePostsEnabled = true;
       postParams = {
         page,
@@ -60,38 +64,36 @@ export default function HomePage() {
       break;
   }
 
-  // ----- 调用 Hooks（始终在顶层） -----
+  // 调用 Hooks
   const {
     data: postsData,
     isLoading: postsLoading,
     refetch: refetchPosts,
   } = usePosts(postParams, { enabled: usePostsEnabled });
 
+  // 使用新 Hook
   const {
     data: questionsData,
     isLoading: questionsLoading,
     refetch: refetchQuestions,
-  } = useQuestions(questionParams, { enabled: useQuestionsEnabled });
+  } = useQuestionList(questionParams, { enabled: useQuestionsEnabled });
 
-  // ----- 根据 filterType 选择数据、加载状态、刷新函数、总数 -----
-  let rawData: any[] = [];
+  // 统一数据选择
+  let rawData: (Post | QuestionSimple)[] = [];
   let isLoading = false;
   let refetch: () => void = () => {};
   let total = 0;
 
-  switch (filterType) {
-    case "questions":
-      rawData = questionsData?.list ?? [];
-      isLoading = questionsLoading;
-      refetch = refetchQuestions;
-      total = questionsData?.total ?? 0;
-      break;
-    default:
-      rawData = postsData?.list ?? [];
-      isLoading = postsLoading;
-      refetch = refetchPosts;
-      total = postsData?.total ?? 0;
-      break;
+  if (filterType === "questions") {
+    rawData = questionsData?.list ?? [];
+    isLoading = questionsLoading;
+    refetch = refetchQuestions;
+    total = questionsData?.total ?? 0;
+  } else {
+    rawData = postsData?.list ?? [];
+    isLoading = postsLoading;
+    refetch = refetchPosts;
+    total = postsData?.total ?? 0;
   }
 
   const totalPages = Math.ceil(total / 15);
@@ -154,7 +156,7 @@ export default function HomePage() {
                   case "questions":
                     return (
                       <QuestionList
-                        questions={rawData}
+                        questions={rawData as QuestionSimple[]}
                         isLoading={isLoading}
                         totalPages={totalPages}
                         currentPage={page}
@@ -164,7 +166,7 @@ export default function HomePage() {
                   default:
                     return (
                       <PostList
-                        posts={rawData}
+                        posts={rawData as Post[]}
                         isLoading={isLoading}
                         totalPages={totalPages}
                         currentPage={page}

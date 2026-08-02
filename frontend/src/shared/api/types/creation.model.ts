@@ -22,6 +22,7 @@ export interface Creation {
   is_original: boolean;
   pin_in_board: boolean;
   board_id: number;
+  author_id: number;
   author?: UserDO;
   board?: Board;
   tags?: Tag[];
