@@ -2,7 +2,7 @@
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from "axios";
 import { routing } from "@/i18n/routing";
 
-const API_BASE_URL = "/api/v1";
+// const API_BASE_URL = "/api/v1";
 
 function resolveLoginPath(): string {
   const segments = window.location.pathname.split("/");
@@ -15,7 +15,7 @@ function resolveLoginPath(): string {
   return `/${routing.defaultLocale}/auth/login`;
 }
 
-// const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 function createClient(config?: AxiosRequestConfig): AxiosInstance {
   const instance = axios.create({
     baseURL: API_BASE_URL,

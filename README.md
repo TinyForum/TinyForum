@@ -48,6 +48,19 @@ make backend # 启动后端
 make frontend # 启动前端
 ```
 
+前端必要的文件：
+`.env.example` 复制为 `.env.local`
+
+```bash
+
+```
+
+## 管理后台
+
+> 管理后台使用 Next.js 15.5 的 App Router，需要使用 `http://localhost:3000/admin` 访问
+
+## 管理员权限
+
 默认管理员用户:
 
 - 用户名: admin@test.com
