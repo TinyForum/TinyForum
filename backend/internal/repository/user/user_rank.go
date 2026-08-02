@@ -20,7 +20,7 @@ func (r *userRepository) GetTopScoreUsersSimple(ctx context.Context, limit int, 
 	var users []dto.LeaderboardUserSimple
 	db := r.db.WithContext(ctx).Model(&do.User{}).
 		Where("score IS NOT NULL").
-		Select("id", "username", "avatar", "score").
+		Select("id", "username", "avatar_url", "score").
 		Order("score DESC").
 		Limit(limit)
 	if excludeBlocked {

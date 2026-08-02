@@ -37,9 +37,16 @@ function createClient(config?: AxiosRequestConfig): AxiosInstance {
   instance.interceptors.response.use(
     (res) => res,
     (err: AxiosError) => {
-      // ✅ 跳过登出接口
-      if (err.config?.url?.includes("/auth/logout")) {
+      const url = err.config?.url ?? "";
+
+      // ✅ 登出接口：直接返回成功，不触发重定向
+      if (url.includes("/auth/logout")) {
         return Promise.resolve({ data: { code: 0 } });
+      }
+
+      // ✅ 会话检查接口：仅拒绝，由调用方（auth store / useUserRole）自行处理 logout
+      if (url.includes("/users/me/role")) {
+        return Promise.reject(err);
       }
 
       if (err.response?.status === 401) {

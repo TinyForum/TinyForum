@@ -67,11 +67,9 @@ export default function LeaderboardClient() {
           <div className="space-y-3">
             {/* 前三名特别展示 */}
             {users.slice(0, 3).map((user, index) => (
-              <>
-                <div className="m-2">
-                  <UserRankCard key={user.id} user={user} rank={index} />
-                </div>
-              </>
+              <div className="m-2" key={user.id}>
+                <UserRankCard user={user} rank={index} />
+              </div>
             ))}
 
             {/* 分隔线 */}
