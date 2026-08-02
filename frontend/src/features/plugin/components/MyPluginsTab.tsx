@@ -34,6 +34,7 @@ export function MyPluginsTab() {
     isLoading,
     setPage,
     handleDelete,
+    handleToggle,
   } = useAdminPlugins();
 
   // 删除插件
@@ -181,9 +182,7 @@ export function MyPluginsTab() {
                   <div className="flex gap-2">
                     <button
                       className="btn btn-sm btn-ghost gap-1"
-                      onClick={() => {
-                        toast("启用/禁用功能开发中");
-                      }}
+                      onClick={() => handleToggle(plugin.slug, !plugin.enabled)}
                     >
                       {plugin.enabled ? (
                         <PowerOff className="w-4 h-4" />

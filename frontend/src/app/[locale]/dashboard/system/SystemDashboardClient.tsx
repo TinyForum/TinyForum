@@ -31,7 +31,7 @@ export default function SystemDashboardClient() {
   const [activeMenu, setActiveMenu] = useState<SystemMenuId>("website_config");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
-  const { config, update, save, isSaving } = useSiteConfig();
+  const { config, update, save, reloadConfig, isSaving, isReloading } = useSiteConfig();
   const { grouped, enabledCount, features, toggle, enableAll, togglingId } =
     useFeatureFlags();
 
@@ -64,8 +64,10 @@ export default function SystemDashboardClient() {
               <SiteConfigPanel
                 config={config}
                 isSaving={isSaving}
+                isReloading={isReloading}
                 update={update}
                 onSave={save}
+                onReload={reloadConfig}
               />
             )}
             {activeMenu === "plugins_center" && <SystemPluginsPanel />}

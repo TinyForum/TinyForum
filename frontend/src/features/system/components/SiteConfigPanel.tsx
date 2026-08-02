@@ -1,21 +1,26 @@
 "use client";
 
-import { Save, Globe, Mail, FileText, Hash, Layout, Moon } from "lucide-react";
+import { Save, Globe, Mail, FileText, Hash, Layout, Moon, RefreshCw } from "lucide-react";
 import { Switch } from "@headlessui/react";
 import type { SiteConfig } from "../hooks/useSiteConfig";
+import type { ConfigReloadResult } from "@/shared/api/modules/config";
 
 interface SiteConfigPanelProps {
   config: SiteConfig;
   isSaving: boolean;
+  isReloading: boolean;
   update: <K extends keyof SiteConfig>(key: K, value: SiteConfig[K]) => void;
   onSave: () => void;
+  onReload: () => Promise<ConfigReloadResult | null>;
 }
 
 export function SiteConfigPanel({
   config,
   isSaving,
+  isReloading,
   update,
   onSave,
+  onReload,
 }: SiteConfigPanelProps) {
   return (
     <div className="space-y-6">
@@ -122,7 +127,15 @@ export function SiteConfigPanel({
         </div>
       </SectionCard>
 
-      <div className="flex justify-end">
+      <div className="flex justify-end gap-3">
+        <button
+          onClick={onReload}
+          disabled={isReloading}
+          className="btn btn-outline gap-2"
+        >
+          <RefreshCw className={`w-4 h-4 ${isReloading ? "animate-spin" : ""}`} />
+          {isReloading ? "重载中..." : "重载配置"}
+        </button>
         <button
           onClick={onSave}
           disabled={isSaving}

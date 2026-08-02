@@ -81,8 +81,8 @@ export function SidebarMenu({
       color: "text-accent",
     },
     {
-      id: "system",
-      label: t("system"),
+      id: "statistics",
+      label: t("statistics"),
       icon: BarChart3,
       color: "text-primary",
     },

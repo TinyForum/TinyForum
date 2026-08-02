@@ -184,5 +184,8 @@
   "operation_type": "Operation type",
   "operation_at": "Operation time",
   "login": "Login",
-  "register": "Register"
+  "register": "Register",
+  "settings_coming": "This feature is under development",
+  "settings_go_to_system": "System settings are available in the system management panel",
+  "go_to_system_settings": "Go to System Settings"
 }
