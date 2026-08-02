@@ -8,6 +8,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+const defaultLookbackDays = 30 // 默认最近30天
+const maxRangeDays = 90        // 最大日期范围
+
 // @Summary 获取指定日期范围的统计数据
 // @Description 根据日期范围和统计类型获取统计数据
 // @Tags 统计管理
@@ -37,7 +40,7 @@ func (h *StatsHandler) GetStatsRange(c *gin.Context) {
 
 	// 解析日期范围，默认最近30天
 	endDate := time.Now()
-	startDate := endDate.AddDate(0, 0, -29) // 最近30天（包含今天）
+	startDate := endDate.AddDate(0, 0, -(defaultLookbackDays - 1)) // 最近30天（包含今天）
 
 	if req.EndDate != "" {
 		parsed, err := time.Parse("2006-01-02", req.EndDate)
@@ -57,7 +60,7 @@ func (h *StatsHandler) GetStatsRange(c *gin.Context) {
 	}
 
 	// 校验范围不超过90天（可选）
-	if endDate.Sub(startDate).Hours()/24 > 90 {
+	if endDate.Sub(startDate).Hours()/24 > maxRangeDays {
 		response.BadRequest(c, "日期范围不能超过90天")
 		return
 	}

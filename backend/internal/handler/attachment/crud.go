@@ -115,7 +115,7 @@ func (h *AttachmentHandler) GetFile(c *gin.Context) {
 	fileID := c.Param("file_id")
 	fileInfo, err := h.svc.GetFile(c.Request.Context(), fileID)
 	if err != nil {
-		logger.Errorf("获取文件源信息错误: ", err)
+		logger.Errorf("获取文件源信息错误: %v", err)
 		response.HandleError(c, err)
 		return
 	}

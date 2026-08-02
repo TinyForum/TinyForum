@@ -157,7 +157,7 @@ func (h *ArticleHandler) List(c *gin.Context) {
 	var req request.ListPosts
 
 	if err := c.ShouldBindQuery(&req); err != nil {
-		logger.Errorf("用户获取文章列表失败: ", err)
+		logger.Errorf("用户获取文章列表失败: %v", err)
 		response.HandleError(c, err)
 		return
 	}

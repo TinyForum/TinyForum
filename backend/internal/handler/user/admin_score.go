@@ -10,6 +10,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+const maxScoreLimit = 999999
+
 // AdminSetScore 管理员设置用户积分
 // @Summary 管理员设置用户积分
 // @Description 管理员可以通过此接口对指定用户的积分进行设置、增加或扣除操作。支持三种操作模式：<br>
@@ -59,7 +61,7 @@ func (h *UserHandler) AdminSetScore(c *gin.Context) {
 		response.BadRequest(c, "积分不能为负数")
 		return
 	}
-	if newScore > 999999 {
+	if newScore > maxScoreLimit {
 		response.BadRequest(c, "积分超出最大限制")
 		return
 	}
@@ -118,9 +120,5 @@ func (h *UserHandler) AdminGetUserScore(c *gin.Context) {
 	// 	response.InternalError(c, apperrors.ErrFailedToQueryScore.Error())
 	// 	return
 	// }
-	// response.Success(c, gin.H{
-	// 	"user_id": id,
-	// 	"score":   score,
-	// })
-	panic("方法已被弃用，请使用 admin 实现")
+	response.NotFound(c, "该方法已被弃用，请使用 /admin/users/score 接口")
 }

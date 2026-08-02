@@ -183,12 +183,12 @@ func (h *AdminHandler) SetRoleUser(c *gin.Context) {
 	}
 	var body request.SetUserRoleRequest
 	if err := c.ShouldBindJSON(&body); err != nil {
-		logger.Errorf("修改用户角色失败: ", err.Error())
+		logger.Errorf("修改用户角色失败: %s", err.Error())
 		response.HandleError(c, err)
 		return
 	}
 	if err := h.service.SetRoleUser(operatorID.(uint), uint(targetID), body.Role); err != nil {
-		logger.Errorf("修改用户角色失败: ", err.Error())
+		logger.Errorf("修改用户角色失败: %s", err.Error())
 		response.HandleError(c, err)
 		return
 	}

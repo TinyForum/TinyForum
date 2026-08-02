@@ -1,6 +1,8 @@
 package question
 
 import (
+	"context"
+
 	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/dto"
 	"tiny-forum/internal/model/request"
@@ -15,7 +17,7 @@ import (
 )
 
 type QuestionService interface {
-	AcceptAnswer(questionID, answerID uint, userID uint) error
+	AcceptAnswer(ctx context.Context, questionID, answerID uint, userID uint) error
 	VoteAnswer(userID uint, input request.VoteAnswerRequest) (*vo.VoteAnswerVO, error)
 	GetAnswerVoteStatus(userID, commentID uint) (map[string]any, error)
 	GetAnswersList(questionID uint, page, pageSize int) ([]do.Answer, int64, error)

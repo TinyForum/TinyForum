@@ -1,14 +1,16 @@
 package auth
 
 import (
-	"log"
 	"os"
+	"strconv"
 	"tiny-forum/internal/model/common"
 	userService "tiny-forum/internal/service/user"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
 )
+
+const cookieMaxAgeSeconds = 604800 // 7天
 
 // Login godoc
 // @Summary 用户登录
@@ -37,7 +39,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 
 	// gin 的 SetCookie 不直接支持 SameSite，需要手动拼接 Set-Cookie header
 	cookieValue := "tiny_forum_token=" + result.Token +
-		"; Max-Age=604800" + // 7天
+		"; Max-Age=" + strconv.Itoa(cookieMaxAgeSeconds) +
 		"; Path=/" +
 		// "; Domain=" + h.cfg.Basic.Server.Host +
 		"; HttpOnly" +
@@ -45,9 +47,6 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	if isProduction {
 		cookieValue += "; Secure"
 	}
-	log.Printf("JWT secret used for signing: %s", h.cfg.Private.JWT.Secret)
-	log.Printf("JWT secret length: %d", len(h.cfg.Private.JWT.Secret))
-
 	c.Header("Set-Cookie", cookieValue)
 
 	response.Success(c, result.User)
