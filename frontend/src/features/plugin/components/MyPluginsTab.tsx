@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   CheckCircle2,
   Trash2,
@@ -11,9 +11,9 @@ import {
   Upload,
 } from "lucide-react";
 import toast from "react-hot-toast";
-import { useUpload } from "@/features/plugin/hooks/useUpload";
 import { useAdminPlugins } from "../useAdminPlugins";
 import { Pagination } from "@/shared/ui/common/Pagination";
+import { pluginKeys } from "../hooks/usePluginKeys";
 
 // 假设 getUserPluginsList 现在返回 { list: FileInfo[], total: number }
 // 如果实际 API 不支持，请先修改后端或增加一个获取总数的接口
@@ -22,46 +22,26 @@ export function MyPluginsTab() {
   const queryClient = useQueryClient();
   const [showUploadForm, setShowUploadForm] = useState(false);
   const [uploadedFlag, setUploadedFlag] = useState(false);
-  // 分页状态
-  const [currentPage, setCurrentPage] = useState(1);
 
   const {
     isUploading,
+    upload,
+    plugins,
+    page,
+    pageSize,
+    total,
+    pageTotal,
+    isLoading,
+    setPage,
+    handleDelete,
+  } = useAdminPlugins();
 
-    error: uploadError,
-    resetError,
-    getUserPluginsList, // 应返回 { list: FileInfo[], total: number }
-    deleteFile,
-  } = useUpload();
-  const { upload, plugins, page, pageSize, total, pageTotal } =
-    useAdminPlugins();
-  // setCurrentPage(page);
-
-  useEffect(() => {
-    setCurrentPage(page);
-  }, [page]); // 仅在 page 变化时更新
-  // 查询我的插件列表（假设返回分页对象）
-  const { isLoading } = useQuery({
-    queryKey: ["myPlugins", page, pageSize],
-    queryFn: () => getUserPluginsList({ page, page_size: pageSize }),
-    // 如果 getUserPluginsList 仍返回数组，请使用下方 adapter
-    // select: (data) => ({ list: data, total: data.length }) // 临时兼容
-  });
-
-  // 兼容两种情况：后端返回 { list, total } 或仅返回数组
-  // const plugins = (data as any)?.list || data || [];
-  // const total = plugins.length;
-  // const totalPages = Math.ceil(total / pageSize);
-
-  // 删除 mutation
-  const deleteMutation = useMutation({
-    mutationFn: (pluginId: string) => deleteFile("plugin", pluginId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["myPlugins"] });
-      toast.success("插件已删除");
-    },
-    onError: () => toast.error("删除失败，请重试"),
-  });
+  // 删除插件
+  const handleDeletePlugin = (pluginSlug: string) => {
+    handleDelete(pluginSlug);
+    queryClient.invalidateQueries({ queryKey: pluginKeys.all });
+    toast.success("插件已删除");
+  };
 
   // 上传文件处理
   const [file, setFile] = useState<File | null>(null);
@@ -71,16 +51,15 @@ export function MyPluginsTab() {
       toast.error("请选择 ZIP 文件");
       return;
     }
-    resetError();
     const result = await upload(file);
     if (result) {
       setUploadedFlag(true);
       setFile(null);
       setShowUploadForm(false);
-      queryClient.invalidateQueries({ queryKey: ["myPlugins"] });
+      queryClient.invalidateQueries({ queryKey: pluginKeys.all });
       setTimeout(() => setUploadedFlag(false), 3000);
     } else {
-      toast.error(uploadError || "上传失败");
+      toast.error("上传失败");
     }
   };
 
@@ -214,8 +193,7 @@ export function MyPluginsTab() {
                     </button>
                     <button
                       className="btn btn-sm btn-ghost text-error gap-1"
-                      onClick={() => deleteMutation.mutate(plugin.slug)}
-                      disabled={deleteMutation.isPending}
+                      onClick={() => handleDeletePlugin(plugin.slug)}
                     >
                       <Trash2 className="w-4 h-4" />
                       删除
@@ -229,8 +207,8 @@ export function MyPluginsTab() {
           {/* 使用通用分页组件 */}
           <Pagination
             totalPages={pageTotal}
-            currentPage={currentPage}
-            onPageChange={(newPage) => setCurrentPage(newPage)}
+            currentPage={page}
+            onPageChange={setPage}
             totalItems={total}
             pageSize={pageSize}
           />

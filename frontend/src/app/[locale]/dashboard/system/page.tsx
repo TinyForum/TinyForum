@@ -1,85 +1,43 @@
-"use client";
+// src/app/[locale]/dashboard/system/page.tsx (服务端组件)
+import { Suspense } from "react";
+import { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
+import SystemDashboardClient from "./SystemDashboardClient";
 
-import { useState } from "react";
-import {
-  SystemSidebar,
-  type SystemMenuId,
-} from "@/features/system/components/SystemSidebar";
-import { SiteConfigPanel } from "@/features/system/components/SiteConfigPanel";
-import { SystemPluginsPanel } from "@/features/system/components/SystemPluginsPanel";
-import { FeatureFlagsPanel } from "@/features/system/components/FeatureFlagsPanel";
-import { useSiteConfig } from "@/features/system/hooks/useSiteConfig";
-import { useFeatureFlags } from "@/features/system/hooks/useFeatureFlags";
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "Site" });
+  return {
+    title: t("systemTitle"),
+    description: t("systemDescription"),
+  };
+}
 
-const PAGE_META: Record<SystemMenuId, { title: string; subtitle: string }> = {
-  website_config: {
-    title: "website_config",
-    subtitle: "管理站点基础信息、显示偏好与高级选项",
-  },
-  plugins_center: {
-    title: "plugins_center",
-    subtitle: "安装、启用或移除扩展插件，变更在下次页面加载时生效",
-  },
-  features_flags: {
-    title: "features_flags",
-    subtitle: "实时控制各功能模块的启用状态，修改后立即生效",
-  },
-};
-
-export default function SystemPage() {
-  const [activeMenu, setActiveMenu] = useState<SystemMenuId>("website_config");
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-
-  const { config, update, save, isSaving } = useSiteConfig();
-  const { grouped, enabledCount, features, toggle, enableAll, togglingId } =
-    useFeatureFlags();
-
-  const meta = PAGE_META[activeMenu];
+export default async function SystemDashboardPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  await params;
 
   return (
-    <div className="flex h-[calc(100vh-64px)] bg-base-200 overflow-hidden rounded-xl border border-base-300 shadow-sm">
-      {/* Sidebar */}
-      <SystemSidebar
-        active={activeMenu}
-        collapsed={sidebarCollapsed}
-        onSelect={(id) => setActiveMenu(id)}
-        onToggleCollapse={() => setSidebarCollapsed((v) => !v)}
-      />
+    <Suspense fallback={<SystemDashboardSkeleton />}>
+      <SystemDashboardClient />
+    </Suspense>
+  );
+}
 
-      {/* Main content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Page header */}
-        <header className="shrink-0 px-6 py-4 border-b border-base-300 bg-base-100 flex items-end gap-3">
-          <div>
-            <h1 className="text-lg font-bold leading-none">{meta.title}</h1>
-            <p className="text-xs text-base-content/40 mt-1">{meta.subtitle}</p>
-          </div>
-        </header>
-
-        {/* Scrollable content */}
-        <div className="flex-1 overflow-y-auto custom-scrollbar">
-          <div className="p-6 max-w-3xl">
-            {activeMenu === "website_config" && (
-              <SiteConfigPanel
-                config={config}
-                isSaving={isSaving}
-                update={update}
-                onSave={save}
-              />
-            )}
-            {activeMenu === "plugins_center" && <SystemPluginsPanel />}
-            {activeMenu === "features_flags" && (
-              <FeatureFlagsPanel
-                grouped={grouped}
-                enabledCount={enabledCount}
-                total={features.length}
-                togglingId={togglingId}
-                onToggle={toggle}
-                onEnableAll={enableAll}
-              />
-            )}
-          </div>
-        </div>
+function SystemDashboardSkeleton() {
+  return (
+    <div className="flex h-[calc(100vh-64px)] bg-base-200 overflow-hidden rounded-xl border border-base-300 shadow-sm animate-pulse">
+      <div className="w-56 bg-base-300 border-r border-base-300" />
+      <div className="flex-1 p-6 space-y-4">
+        <div className="skeleton h-6 w-40" />
+        <div className="skeleton h-64 w-full rounded-2xl" />
       </div>
     </div>
   );

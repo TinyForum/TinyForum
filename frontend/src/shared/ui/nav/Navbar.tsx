@@ -20,6 +20,7 @@ import MobileNavbar from "./MobileNavbar";
 import { useMediaQuery } from "@/features/common/hooks/useMediaQuery";
 import { notificationApi } from "@/shared/api/modules/notifications";
 import { timelineApi } from "@/shared/api/modules/timeline";
+import { notificationKeys } from "@/features/notification/hooks/useNotificationKeys";
 
 // ─────────────────────────────────────────────
 // Navbar — 入口组件，只负责：
@@ -39,13 +40,10 @@ export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
-  useEffect(() => {
-    console.log("isUserDropdownOpen", isUserDropdownOpen);
-  }, [isUserDropdownOpen]);
 
   // ── 数据查询 ──────────────────────────────────
   const { data: unreadData } = useQuery({
-    queryKey: ["notifications", "unread"],
+    queryKey: notificationKeys.unread(),
     queryFn: () => notificationApi.unreadCount().then((r) => r.data.data),
     enabled: isAuthenticated,
     refetchInterval: 30000,

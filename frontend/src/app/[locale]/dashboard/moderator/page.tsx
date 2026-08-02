@@ -1,328 +1,43 @@
-// app/[locale]/dashboard/moderator/page.tsx
-"use client";
+// src/app/[locale]/dashboard/moderator/page.tsx (服务端组件)
+import { Suspense } from "react";
+import { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
+import ModeratorDashboardClient from "./ModeratorDashboardClient";
 
-import { useState } from "react";
-import Link from "next/link";
-import { useTranslations } from "next-intl";
-import { Pagination } from "@/features/admin/components/Pagination";
-import { BannedUsersTable } from "@/features/moderator/components/BannedUsersTable";
-import { BanUserModal } from "@/features/moderator/components/BanUserModal";
-import { ModeratorDashboard } from "@/features/moderator/components/ModeratorDashboard";
-import { ModeratorSidebar } from "@/features/moderator/components/ModeratorSidebar";
-import {
-  PendingPostsTable,
-  PendingPost,
-} from "@/features/moderator/components/PendingPostsTable";
-import {
-  useMyModeratorBoards,
-  useModeratorPermissions,
-  useBanUser,
-  useUnbanUser,
-  useDeletePost,
-  usePinPost,
-} from "@/features/moderator/hooks/useModerator";
-import { useModeratorAuth } from "@/features/moderator/hooks/useModeratorAuth";
-import { useModeratorBannedUsers } from "@/features/moderator/hooks/useModeratorBannedUsers";
-import { useModeratorPosts } from "@/features/moderator/hooks/useModeratorPosts";
-import { useModeratorReports } from "@/features/moderator/hooks/useModeratorReports";
-import { ReportedContentTable } from "@/layout/reviewer/ReportedContentTable";
-import SearchBar from "@/shared/ui/nav/SearchBar";
-import { ModeratorBoard } from "@/shared/api/types/moderator.model";
-
-export default function ModeratorPage() {
-  const t = useTranslations("Moderator");
-  const { isCheckingAuth, isModerator } = useModeratorAuth();
-
-  const [activeMenu, setActiveMenu] = useState("dashboard");
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [keyword, setKeyword] = useState("");
-  const [page, setPage] = useState(1);
-  const [selectedBoardId, setSelectedBoardId] = useState<number | null>(null);
-
-  // 获取当前用户管理的板块
-  const { data: boardsData, isLoading: boardsLoading } = useMyModeratorBoards();
-  const boards: ModeratorBoard[] = boardsData || [];
-
-  // 选择第一个板块作为默认板块
-  const currentBoardId =
-    selectedBoardId || (boards.length > 0 ? boards[0]?.id : null);
-  const currentBoard = boards.find(
-    (b: ModeratorBoard) => b.id === currentBoardId,
-  );
-
-  // 当前板块的版主权限
-  const permissions = useModeratorPermissions(currentBoardId || 0);
-
-  // 数据获取（只在对应菜单激活时获取）
-  const postsData = useModeratorPosts(
-    currentBoardId || 0,
-    page,
-    keyword,
-    activeMenu === "posts" && !!currentBoardId,
-  );
-
-  const reportsData = useModeratorReports(
-    currentBoardId || 0,
-    page,
-    activeMenu === "reports" && !!currentBoardId,
-  );
-
-  const bannedUsersData = useModeratorBannedUsers(
-    currentBoardId || 0,
-    page,
-    activeMenu === "bans" && !!currentBoardId,
-  );
-
-  // Mutations
-  const { mutate: banUser, isPending: isBanning } = useBanUser(
-    currentBoardId || 0,
-  );
-  const { mutate: unbanUser, isPending: isUnbanning } = useUnbanUser(
-    currentBoardId || 0,
-  );
-  const { mutate: deletePost, isPending: isDeleting } = useDeletePost(
-    currentBoardId || 0,
-  );
-  const { mutate: pinPost, isPending: isPinning } = usePinPost(
-    currentBoardId || 0,
-  );
-
-  // 处理禁言
-  const handleBanUser = (data: {
-    userId: number;
-    reason: string;
-    expiresAt?: string;
-  }) => {
-    banUser({
-      user_id: data.userId,
-      reason: data.reason,
-      expires_at: data.expiresAt,
-    });
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "Site" });
+  return {
+    title: t("moderatorTitle"),
+    description: t("moderatorDescription"),
   };
+}
 
-  // 处理解禁
-  const handleUnbanUser = (userId: number) => {
-    if (confirm(t("confirm_unban"))) {
-      unbanUser(userId);
-    }
-  };
-
-  // 处理删除帖子
-  const handleDeletePost = (postId: number) => {
-    if (confirm(t("confirm_delete_post"))) {
-      deletePost(postId);
-    }
-  };
-
-  // 处理置顶帖子
-  const handlePinPost = (postId: number, pin: boolean) => {
-    pinPost({ postId, pinInBoard: pin });
-  };
-
-  // 加载状态
-  if (isCheckingAuth || boardsLoading) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <span className="loading loading-spinner loading-lg text-primary" />
-      </div>
-    );
-  }
-
-  if (!isModerator) {
-    return null;
-  }
-
-  // 如果没有管理的板块
-  if (boards.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center h-screen">
-        <div className="card bg-base-100 border border-base-300 p-8 text-center">
-          <h2 className="text-xl font-bold mb-2">{t("no_managed_boards")}</h2>
-          <p className="text-base-content/60 mb-4">
-            {t("no_managed_boards_desc")}
-          </p>
-          <Link href="/boards/apply" className="btn btn-primary">
-            {t("apply_for_moderator")}
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
-  // 渲染右侧内容
-  const renderContent = () => {
-    if (!currentBoardId || !currentBoard) {
-      return (
-        <div className="card bg-base-100 border border-base-300">
-          <div className="card-body items-center text-center py-12">
-            <p className="text-base-content/50">{t("no_board_selected")}</p>
-          </div>
-        </div>
-      );
-    }
-
-    switch (activeMenu) {
-      case "dashboard":
-        return (
-          <ModeratorDashboard
-            board={currentBoard}
-            permissions={permissions}
-            stats={{
-              postCount: postsData.total || 0,
-              reportCount: reportsData.total || 0,
-              bannedCount: bannedUsersData.total || 0,
-            }}
-            t={t}
-          />
-        );
-
-      case "posts":
-        return (
-          <div className="space-y-4">
-            <SearchBar
-              keyword={keyword}
-              onKeywordChange={(value: string) => {
-                setKeyword(value);
-                setPage(1);
-              }}
-              placeholder={t("search_posts")}
-            />
-            <PendingPostsTable
-              posts={postsData.posts as unknown as PendingPost[]}
-              onDelete={
-                permissions.canDeletePost ? handleDeletePost : undefined
-              }
-              onPin={permissions.canPinPost ? handlePinPost : undefined}
-              isDeleting={isDeleting}
-              isPinning={isPinning}
-              permissions={permissions}
-              t={t}
-            />
-            <Pagination
-              currentPage={page}
-              total={postsData.total || 0}
-              pageSize={20}
-              onPageChange={setPage}
-            />
-          </div>
-        );
-
-      case "reports":
-        return (
-          <div className="space-y-4">
-            <ReportedContentTable
-              reports={reportsData.reports || []}
-              onDelete={
-                permissions.canDeletePost ? handleDeletePost : undefined
-              }
-              onBanUser={permissions.canBanUser ? handleBanUser : undefined}
-              isDeleting={isDeleting}
-              isBanning={isBanning}
-              permissions={permissions}
-            />
-            <Pagination
-              currentPage={page}
-              total={reportsData.total || 0}
-              pageSize={20}
-              onPageChange={setPage}
-            />
-          </div>
-        );
-
-      case "bans":
-        return (
-          <div className="space-y-4">
-            {permissions.canBanUser && (
-              <div className="flex justify-end">
-                <BanUserModal
-                  boardId={currentBoardId}
-                  onBan={handleBanUser}
-                  isBanning={isBanning}
-                  t={t}
-                />
-              </div>
-            )}
-            <BannedUsersTable
-              users={bannedUsersData.users}
-              onUnban={permissions.canBanUser ? handleUnbanUser : undefined}
-              isUnbanning={isUnbanning}
-              t={t}
-            />
-            <Pagination
-              currentPage={page}
-              total={bannedUsersData.total || 0}
-              pageSize={20}
-              onPageChange={setPage}
-            />
-          </div>
-        );
-
-      default:
-        return null;
-    }
-  };
+export default async function ModeratorDashboardPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  await params;
 
   return (
-    <div className="flex h-screen bg-base-100">
-      {/* 左侧菜单 */}
-      <ModeratorSidebar
-        activeMenu={activeMenu}
-        onMenuChange={setActiveMenu}
-        collapsed={sidebarCollapsed}
-        onCollapsedChange={setSidebarCollapsed}
-        boards={boards}
-        currentBoardId={currentBoardId}
-        onBoardChange={setSelectedBoardId}
-        permissions={permissions}
-        t={t}
-      />
+    <Suspense fallback={<ModeratorDashboardSkeleton />}>
+      <ModeratorDashboardClient />
+    </Suspense>
+  );
+}
 
-      {/* 右侧内容区域 */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="p-6">
-          {/* 页面标题 */}
-          <div className="mb-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-2xl font-bold">
-                  {currentBoard?.name || t("moderator_panel")} - {t(activeMenu)}
-                </h1>
-                <p className="text-sm text-base-content/60 mt-1">
-                  {t(`${activeMenu}_description`)}
-                </p>
-              </div>
-            </div>
-
-            {/* 权限标签 */}
-            {permissions.isModerator && (
-              <div className="flex gap-2 mt-2">
-                {permissions.canDeletePost && (
-                  <span className="badge badge-sm badge-success">
-                    {t("can_delete_post")}
-                  </span>
-                )}
-                {permissions.canPinPost && (
-                  <span className="badge badge-sm badge-info">
-                    {t("can_pin_post")}
-                  </span>
-                )}
-                {permissions.canBanUser && (
-                  <span className="badge badge-sm badge-warning">
-                    {t("can_ban_user")}
-                  </span>
-                )}
-                {permissions.canManageModerator && (
-                  <span className="badge badge-sm badge-error">
-                    {t("can_manage_moderator")}
-                  </span>
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* 内容 */}
-          <div className="min-h-[calc(100vh-120px)]">{renderContent()}</div>
-        </div>
+function ModeratorDashboardSkeleton() {
+  return (
+    <div className="flex h-screen bg-base-100 animate-pulse">
+      <div className="w-60 bg-base-200 border-r border-base-300" />
+      <div className="flex-1 p-6 space-y-4">
+        <div className="skeleton h-8 w-40" />
+        <div className="skeleton h-64 w-full rounded-2xl" />
       </div>
     </div>
   );

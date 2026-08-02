@@ -1,11 +1,22 @@
 // src/app/users/[id]/page.tsx (服务端组件)
 import { Suspense } from "react";
 import { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import UserProfileClient from "@/features/user/components/UserProfileClient";
-export const metadata: Metadata = {
-  title: "user",
-  description: "User page",
-};
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "Site" });
+  return {
+    title: t("userTitle"),
+    description: t("userDescription"),
+  };
+}
+
 export default async function UserProfilePage({
   params,
 }: {

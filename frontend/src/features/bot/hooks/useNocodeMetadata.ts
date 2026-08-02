@@ -5,7 +5,7 @@ import { botApi } from "@/shared/api/modules/bot";
 import { getErrorMessage } from "@/shared/lib/utils";
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { NocodeMetadata } from "../noco.type";
+import { NocodeMetadata } from "@/shared/api/types/nocode.model";
 import { Flow } from "@/shared/api/types/bot.model";
 import { botKeys } from "./useBotKeys";
 

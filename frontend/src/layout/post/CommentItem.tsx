@@ -5,11 +5,9 @@ import Link from "next/link";
 import { timeAgo } from "@/shared/lib/utils";
 import { CornerDownRight, Trash2 } from "lucide-react";
 import { useAuthStore } from "@/store/auth";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import toast from "react-hot-toast";
 import { useTranslations } from "next-intl";
-import Avatar from "@/features/user/components/Avatar";
-import { commentApi } from "@/shared/api/modules/comments";
+import Avatar from "@/shared/ui/common/Avatar";
+import { useCommentDelete } from "@/features/comment/hooks/useCommentDelete";
 import { Reply } from "@/shared/api/types/comment.model";
 
 interface CommentItemProps {
@@ -24,18 +22,10 @@ export default function CommentItem({
   onReply,
 }: CommentItemProps) {
   const { user, isAuthenticated } = useAuthStore();
-  const queryClient = useQueryClient();
   const [showReplies, setShowReplies] = useState(true);
   const t = useTranslations("Comment");
 
-  const deleteMutation = useMutation({
-    mutationFn: () => commentApi.delete(reply.id),
-    onSuccess: () => {
-      toast.success(t("deleted"));
-      queryClient.invalidateQueries({ queryKey: ["comments", postId] });
-    },
-    onError: () => toast.error(t("delete_failed")),
-  });
+  const deleteMutation = useCommentDelete(postId);
 
   const canDelete = user?.id === reply.author_id || user?.role === "admin";
 
@@ -96,7 +86,7 @@ export default function CommentItem({
           {canDelete && (
             <button
               className="text-xs text-error/60 hover:text-error transition-colors flex items-center gap-1 ml-auto"
-              onClick={() => deleteMutation.mutate()}
+              onClick={() => deleteMutation.mutate(reply.id)}
               disabled={deleteMutation.isPending}
             >
               <Trash2 className="w-3 h-3" /> {t("delete")}

@@ -1,4 +1,4 @@
-import Avatar from "@/features/user/components/Avatar";
+import Avatar from "@/shared/ui/common/Avatar";
 import { Crown, Star } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { RankBadge } from "./RankBadge";

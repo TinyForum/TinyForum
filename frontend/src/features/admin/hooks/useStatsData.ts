@@ -4,6 +4,7 @@ import { statsApi } from "@/shared/api/modules/stats";
 // import { StatsInfoResp } from "@/shared/api/types/stats.type";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, useEffect, useCallback } from "react";
+import { statsKeys } from "@/features/statistic/hooks/useStatsKeys";
 
 // 注释掉未使用的接口
 // interface UseStatsDataOptions {
@@ -55,7 +56,7 @@ export function useStatsData(enabled: boolean = true) {
     isLoading: totalLoading,
     // refetchTotal, // 移除未使用的变量
   } = useQuery({
-    queryKey: ["stats", "total", dateRange.start, dateRange.end],
+    queryKey: statsKeys.totals(dateRange.start, dateRange.end),
     queryFn: () =>
       statsApi.total({
         start_date: dateRange.start,
@@ -68,7 +69,7 @@ export function useStatsData(enabled: boolean = true) {
 
   // 2. 获取用户增长趋势
   const { data: userTrend, isLoading: userTrendLoading } = useQuery({
-    queryKey: ["stats", "trend", "users", dateRange.start, dateRange.end],
+    queryKey: statsKeys.trend("users", dateRange.start, dateRange.end),
     queryFn: () =>
       statsApi.trend({
         start_date: dateRange.start,
@@ -82,7 +83,7 @@ export function useStatsData(enabled: boolean = true) {
 
   // 3. 获取帖子增长趋势
   const { data: postTrend, isLoading: postTrendLoading } = useQuery({
-    queryKey: ["stats", "trend", "posts", dateRange.start, dateRange.end],
+    queryKey: statsKeys.trend("posts", dateRange.start, dateRange.end),
     queryFn: () =>
       statsApi.trend({
         start_date: dateRange.start,
@@ -183,7 +184,7 @@ export function useStatsData(enabled: boolean = true) {
 
   // 刷新所有数据
   const refreshAll = useCallback(() => {
-    queryClient.invalidateQueries({ queryKey: ["stats"] });
+    queryClient.invalidateQueries({ queryKey: statsKeys.all });
   }, [queryClient]);
 
   // 更新日期范围

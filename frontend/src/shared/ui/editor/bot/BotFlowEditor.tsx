@@ -26,7 +26,7 @@ import {
   useNocodeMetadata,
   useValidateFlow,
 } from "@/features/bot/hooks/useNocodeMetadata";
-import { NodeMeta, NocodeMetadata } from "@/features/bot/noco.type";
+import { NodeMeta, NocodeMetadata } from "@/shared/api/types/nocode.model";
 import toast from "react-hot-toast";
 import { CollapsibleSection } from "./components/CollapsibleSection";
 import { ConfigModal } from "./components/ConfigModal";

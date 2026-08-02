@@ -29,7 +29,7 @@ import {
 import { useLogoutStore } from "@/store/logout";
 import toast from "react-hot-toast";
 import { useTranslations } from "next-intl";
-import Avatar from "@/features/user/components/Avatar";
+import Avatar from "@/shared/ui/common/Avatar";
 import { createPortal } from "react-dom";
 import { UserDO } from "@/shared/api/types/user.model.do";
 

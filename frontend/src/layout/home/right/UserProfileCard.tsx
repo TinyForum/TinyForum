@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { User, Bell, Activity, Award, Clock } from "lucide-react";
-import Avatar from "@/features/user/components/Avatar";
+import Avatar from "@/shared/ui/common/Avatar";
 
 interface UserProfile {
   id: number;

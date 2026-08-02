@@ -30,22 +30,17 @@ export const CommunityStats = ({ className = "" }: CommunityStatsProps) => {
     totalStats,
     rangeStats,
     rangeLoading,
-    fetchRangeStats,
     isLoading,
   } = useStatistics({
     autoFetch: true,
-  });
-
-  const chartRef = useRef<HTMLDivElement>(null);
-
-  // 获取最近7天的范围统计（仅帖子数量）
-  useEffect(() => {
-    fetchRangeStats({
+    rangeParams: {
       start_date: getLast7DaysStart(),
       end_date: getToday(),
       type: "posts",
-    });
-  }, [fetchRangeStats]);
+    },
+  });
+
+  const chartRef = useRef<HTMLDivElement>(null);
 
   // 渲染迷你趋势图
   useEffect(() => {

@@ -1,13 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { FileText, MessageSquare, BookOpen, Hash } from "lucide-react";
 import { ViolationStatus } from "./ViolationStatus";
 import PostCard from "@/shared/ui/creation/PostCard";
-import { postApi } from "@/shared/api/modules/posts";
 import { PostType } from "@/shared/api/types/post.model";
+import { useProfileContent } from "../hooks/useProfileContent";
 
 interface ProfileContentProps {
   userId: number;
@@ -29,18 +28,7 @@ export function ProfileContent({
   const t = useTranslations("Profile");
 
   // 获取用户的帖子/文章
-  const { data: postsData, isLoading } = useQuery({
-    queryKey: ["user-posts", userId, tab],
-    queryFn: () =>
-      postApi
-        .list({
-          author_id: userId,
-          type: ["article", "post", "question"].includes(tab) ? tab : "topic",
-          page: 1,
-          page_size: 20,
-        })
-        .then((r) => r.data.data),
-  });
+  const { data: postsData, isLoading } = useProfileContent(userId, tab);
 
   const posts = postsData?.list ?? [];
   const currentTabConfig = TAB_CONFIG.find((t) => t.key === tab);

@@ -17,8 +17,9 @@ export function Dashboard({ t }: { t: (key: string) => string }) {
   const { stats, exportData, isLoading } = useStatsData(true);
 
   // 获取范围统计数据（最近30天，type=all）
-  const { rangeStats, fetchRangeStats } = useStatistics({
+  const { rangeStats } = useStatistics({
     autoFetch: false,
+    rangeParams: { type: "all" },
   });
 
   // 图表 refs
@@ -26,11 +27,6 @@ export function Dashboard({ t }: { t: (key: string) => string }) {
   const newPostTrendRef = useRef<HTMLDivElement>(null);
   const newCommentTrendRef = useRef<HTMLDivElement>(null);
   const allTrendRef = useRef<HTMLDivElement>(null);
-
-  // 获取范围数据（默认最近30天）
-  useEffect(() => {
-    fetchRangeStats({ type: "all" });
-  }, [fetchRangeStats]);
 
   // 新增用户趋势图
   useEffect(() => {

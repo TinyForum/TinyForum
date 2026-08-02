@@ -54,41 +54,39 @@ export const pluginApi = {
     const formData = new FormData();
     formData.append("file", file);
     formData.append("file_type", fileType);
-    return apiClient.post<{ data: string }>("/plugins", formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
+    return apiClient.post<ApiResponse<PluginMeta>>("/plugins", formData);
   },
   /** 获取已启用插件（前端运行时加载用） */
   listEnabled() {
-    return apiClient.get<ApiResponse<{ data: PluginMeta[] }>>("/plugins", {
+    return apiClient.get<ApiResponse<PageData<PluginMeta>>>("/plugins", {
       params: { enabled: true },
     });
   },
 
   /** 获取单个插件详情 */
   get(id: string) {
-    return apiClient.get<{ data: PluginMeta }>(`/plugins/${id}`);
+    return apiClient.get<ApiResponse<PluginMeta>>(`/plugins/${id}`);
   },
 
   // /** 创建/安装插件 */
   create(payload: CreatePluginPayload) {
-    return apiClient.post<{ data: PluginMeta }>("/plugins", payload);
+    return apiClient.post<ApiResponse<PluginMeta>>("/plugins", payload);
   },
 
   /** 更新插件信息 */
   update({ id, ...payload }: UpdatePluginPayload) {
-    return apiClient.put<{ data: PluginMeta }>(`/plugins/${id}`, payload);
+    return apiClient.put<ApiResponse<PluginMeta>>(`/plugins/${id}`, payload);
   },
 
   /** 启用/禁用插件 */
   toggle(id: string, enabled: boolean) {
-    return apiClient.patch<{ data: PluginMeta }>(`/plugins/${id}/toggle`, {
+    return apiClient.patch<ApiResponse<PluginMeta>>(`/plugins/${id}/toggle`, {
       enabled,
     });
   },
 
   /** 删除插件 */
   delete(id: string) {
-    return apiClient.delete(`/plugins/${id}`);
+    return apiClient.delete<ApiResponse<null>>(`/plugins/${id}`);
   },
 };

@@ -6,6 +6,8 @@ import { useTranslations } from "next-intl";
 import { useAuthStore } from "@/store";
 import { ApiResponse } from "@/shared/api/types/basic.model";
 import { moderatorApi } from "@/shared/api/modules/moderator";
+import { postKeys } from "@/features/post/hooks/usePosts";
+import { moderatorKeys } from "./useModeratorKeys";
 import {
   ApplyModeratorForm,
   BanUserRequest,
@@ -33,7 +35,7 @@ export function useMyApplications(params?: {
   page_size?: number;
 }) {
   return useQuery({
-    queryKey: ["moderator", "my-applications", params],
+    queryKey: moderatorKeys.myApplications(params),
     queryFn: () =>
       moderatorApi
         .getMyApplications(params)
@@ -51,9 +53,7 @@ export function useApplyModerator(boardId: number) {
       moderatorApi.applyModerator(boardId, data),
     onSuccess: () => {
       toast.success(t("application_submitted"));
-      queryClient.invalidateQueries({
-        queryKey: ["moderator", "my-applications"],
-      });
+      queryClient.invalidateQueries({ queryKey: moderatorKeys.myApplications() });
     },
     onError: (error: unknown) => {
       const err = error as ErrorResponse;
@@ -71,9 +71,7 @@ export function useCancelApplication() {
       moderatorApi.cancelApplication(applicationId),
     onSuccess: () => {
       toast.success(t("application_canceled"));
-      queryClient.invalidateQueries({
-        queryKey: ["moderator", "my-applications"],
-      });
+      queryClient.invalidateQueries({ queryKey: moderatorKeys.myApplications() });
     },
     onError: (error: unknown) => {
       const err = error as ErrorResponse;
@@ -85,7 +83,7 @@ export function useCancelApplication() {
 // ========== 版主操作 ==========
 export function useModerators(boardId: number, enabled: boolean = true) {
   return useQuery({
-    queryKey: ["moderator", "list", boardId],
+    queryKey: moderatorKeys.list(boardId),
     queryFn: () =>
       moderatorApi
         .getModerators(boardId)
@@ -103,7 +101,7 @@ export function useBanUser(boardId: number) {
     onSuccess: () => {
       toast.success(t("user_banned"));
       queryClient.invalidateQueries({
-        queryKey: ["moderator", "bans", boardId],
+        queryKey: moderatorKeys.bannedUsers(boardId),
       });
     },
     onError: (error: unknown) => {
@@ -122,7 +120,7 @@ export function useUnbanUser(boardId: number) {
     onSuccess: () => {
       toast.success(t("user_unbanned"));
       queryClient.invalidateQueries({
-        queryKey: ["moderator", "bans", boardId],
+        queryKey: moderatorKeys.bannedUsers(boardId),
       });
     },
     onError: (error: unknown) => {
@@ -140,7 +138,9 @@ export function useDeletePost(boardId: number) {
     mutationFn: (postId: number) => moderatorApi.deletePost(boardId, postId),
     onSuccess: () => {
       toast.success(t("post_deleted"));
-      queryClient.invalidateQueries({ queryKey: ["posts", boardId] });
+      queryClient.invalidateQueries({
+        queryKey: moderatorKeys.posts(boardId),
+      });
     },
     onError: (error: unknown) => {
       const err = error as ErrorResponse;
@@ -160,8 +160,12 @@ export function usePinPost(boardId: number) {
       toast.success(
         variables.pinInBoard ? t("post_pinned") : t("post_unpinned"),
       );
-      queryClient.invalidateQueries({ queryKey: ["posts", boardId] });
-      queryClient.invalidateQueries({ queryKey: ["post", variables.postId] });
+      queryClient.invalidateQueries({
+        queryKey: moderatorKeys.posts(boardId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: postKeys.detail(variables.postId),
+      });
     },
     onError: (error: unknown) => {
       const err = error as ErrorResponse;
@@ -198,7 +202,7 @@ export function useMyModeratorBoards() {
   const { user, isHydrated } = useAuthStore();
 
   return useQuery<ModeratorBoard[]>({
-    queryKey: ["moderator", "my-boards", user?.id],
+    queryKey: moderatorKeys.myBoards(user?.id),
     queryFn: async (): Promise<ModeratorBoard[]> => {
       const response = await moderatorApi.getMyModeratorBoards();
       const data = response.data?.data;

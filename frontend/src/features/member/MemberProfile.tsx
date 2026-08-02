@@ -3,7 +3,7 @@
 
 import { useTranslations } from "next-intl";
 import { useState } from "react";
-import Avatar from "../user/components/Avatar";
+import Avatar from "@/shared/ui/common/Avatar";
 
 export function MemberProfile() {
   const t = useTranslations("Member");

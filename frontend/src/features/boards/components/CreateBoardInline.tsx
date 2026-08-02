@@ -6,7 +6,7 @@ import Link from "next/link";
 import { ArrowLeftIcon, FolderPlusIcon, MailIcon } from "lucide-react";
 import { useState } from "react";
 import { Board } from "@/shared/api/types/board.model";
-import { boardApi } from "@/shared/api/modules/boards";
+import { useBoardCreate } from "@/features/boards/hooks/useBoardCreate";
 
 interface CreateBoardInlineProps {
   slug: string;
@@ -37,6 +37,7 @@ export function CreateBoardInline({ slug, onCreated }: CreateBoardInlineProps) {
   });
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
+  const createBoard = useBoardCreate();
 
   // 申请表单相关状态
   const [showApplyForm, setShowApplyForm] = useState<boolean>(false);
@@ -69,21 +70,25 @@ export function CreateBoardInline({ slug, onCreated }: CreateBoardInlineProps) {
 
     setSubmitting(true);
     try {
-      const res = await boardApi.create({
+      const board = await createBoard.mutateAsync({
         name: form.name.trim(),
         slug: form.slug.trim(),
         description: form.description.trim(),
       });
 
-      // 修复：检查 res.data.data 是否存在
-      if (res.data.data) {
-        onCreated(res.data.data);
+      // 修复：检查返回的板块数据是否存在
+      if (board) {
+        onCreated(board);
       } else {
         setError("创建成功但未返回板块数据");
       }
     } catch (err: unknown) {
       const error = err as ErrorResponse;
-      setError(error.response?.data?.message || "创建失败，请稍后重试");
+      setError(
+        error.response?.data?.message ||
+          (error instanceof Error ? error.message : "") ||
+          "创建失败，请稍后重试",
+      );
     } finally {
       setSubmitting(false);
     }

@@ -4,8 +4,8 @@ import Link from "next/link"; // Next.js 路由链接
 import { ChatBubbleLeftRightIcon } from "@heroicons/react/24/outline";
 import { Heart, Eye, HeartCrack } from "lucide-react";
 import { useState } from "react";
-import { postApi } from "@/shared/api/modules/posts";
-import Avatar from "@/features/user/components/Avatar";
+import Avatar from "@/shared/ui/common/Avatar";
+import { useBoardPostLike } from "@/features/boards/hooks/useBoardPostLike";
 import { BoardPostListItem } from "@/shared/api/types/board.model";
 
 export function BoardPostCard({ post }: { post: BoardPostListItem }) {
@@ -13,15 +13,16 @@ export function BoardPostCard({ post }: { post: BoardPostListItem }) {
   const [likeCount, setLikeCount] = useState(0); // 后端列表未返回，默认为0
   const [viewCount] = useState(0); // 后端未返回，暂为0
   const [commentCount] = useState(0); // 后端未返回，暂为0
+  const { like: likeMutation, unlike: unlikeMutation } = useBoardPostLike();
 
   const handleLike = async (e: React.MouseEvent) => {
     e.preventDefault();
     try {
       if (liked) {
-        await postApi.unlike(post.id);
+        await unlikeMutation.mutateAsync(post.id);
         setLikeCount((prev) => prev - 1);
       } else {
-        await postApi.like(post.id);
+        await likeMutation.mutateAsync(post.id);
         setLikeCount((prev) => prev + 1);
       }
       setLiked(!liked);

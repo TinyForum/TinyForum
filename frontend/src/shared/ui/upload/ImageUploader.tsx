@@ -81,7 +81,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
           ((f: File) =>
             uploadApi
               .uploadPostFile("postId", f)
-              .then((res) => ({ url: res.data.data })));
+              .then((res) => ({ url: res.data.data?.url ?? "" })));
         const { url } = await upload(item.file!);
         setImages((prev) =>
           prev.map((img) =>

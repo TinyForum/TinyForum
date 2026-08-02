@@ -1,5 +1,5 @@
-// features/upload/hooks/useUpload.ts
-import { uploadApi } from "@/shared/api/modules/uploads";
+import { uploadApi, type UploadResponse } from "@/shared/api/modules/uploads";
+import type { ApiResponse } from "@/shared/api/types/basic.model";
 import { useState, useCallback } from "react";
 import {
   useQuery,
@@ -10,22 +10,19 @@ import { getErrorMessage } from "@/shared/lib/utils";
 import type { AxiosResponse } from "axios";
 import { userFileKeys } from "./useUploadKeys";
 
-// 文件信息类型（根据后端实际结构定义，此处示例）
+// 文件信息类型（与后端 GET /attachments 返回的 FileInfoResponse 对齐）
 export interface UserFile {
-  id: string;
-  filename: string;
-  url: string;
+  file_id: string;
+  original_name: string;
   size: number;
   mime_type: string;
+  url: string;
+  file_type: string;
   created_at: string;
 }
 
-export interface PluginFile extends UserFile {
-  file_type: string;
-}
-
-// 通用文件上传响应（post/comment/plugin）: 直接返回 { data: "url" }
-type UploadFileResponse = AxiosResponse<{ data: string }>;
+// 通用文件上传响应（post/comment/plugin）: ApiResponse<UploadResponse>
+type UploadFileResponse = AxiosResponse<ApiResponse<UploadResponse>>;
 
 // 头像上传响应: 包含 code 和 data.url
 // interface AvatarData {
@@ -40,16 +37,14 @@ type UploadFileResponse = AxiosResponse<{ data: string }>;
 
 // 获取单个文件信息响应
 interface FileInfo {
-  id: string;
-  filename: string;
-  url: string;
+  file_id: string;
+  original_name: string;
   size: number;
   mime_type: string;
+  url: string;
+  file_type: string;
   created_at: string;
 }
-
-// 文件内容响应（Blob）
-type FileContentResponse = AxiosResponse<Blob>;
 
 // 上传 Hook（适配多种响应格式）
 export function useUpload() {
@@ -70,7 +65,7 @@ export function useUpload() {
       setUploadError(null);
       try {
         const response = await uploadFn();
-        const fileUrl = response.data.data;
+        const fileUrl = response.data.data?.url;
         if (fileUrl && typeof fileUrl === "string") {
           return fileUrl;
         }
@@ -98,36 +93,21 @@ export function useUpload() {
   // 上传帖子文件
   const uploadPostFile = useCallback(
     async (postId: string | number, file: File): Promise<string | null> =>
-      handleUpload(
-        () =>
-          uploadApi.uploadPostFile(postId, file) as Promise<UploadFileResponse>,
-      ),
+      handleUpload(() => uploadApi.uploadPostFile(postId, file)),
     [handleUpload],
   );
 
   // 上传评论文件
   const uploadCommentFile = useCallback(
     async (commentId: string | number, file: File): Promise<string | null> =>
-      handleUpload(
-        () =>
-          uploadApi.uploadCommentFile(
-            commentId,
-            file,
-          ) as Promise<UploadFileResponse>,
-      ),
+      handleUpload(() => uploadApi.uploadCommentFile(commentId, file)),
     [handleUpload],
   );
 
   // 上传插件文件
   const uploadPluginFile = useCallback(
     async (file: File, fileType: string = "plugin"): Promise<string | null> =>
-      handleUpload(
-        () =>
-          uploadApi.uploadPluginFile(
-            file,
-            fileType,
-          ) as Promise<UploadFileResponse>,
-      ),
+      handleUpload(() => uploadApi.uploadPluginFile(file, fileType)),
     [handleUpload],
   );
 
@@ -194,10 +174,7 @@ export function useUserFiles() {
         page: pageParams.page,
         page_size: pageParams.pageSize,
       });
-      const data = res.data as
-        | { items: UserFile[]; total: number }
-        | undefined;
-      return data ?? { items: [], total: 0 };
+      return res.data.data ?? { list: [], total: 0 };
     },
   });
 
@@ -212,15 +189,12 @@ export function useUserFiles() {
         page: pageParams.page,
         page_size: pageParams.pageSize,
       });
-      const data = res.data as
-        | { items: PluginFile[]; total: number }
-        | undefined;
-      return data ?? { items: [], total: 0 };
+      return res.data.data ?? { list: [], total: 0 };
     },
   });
 
-  const files = filesQuery.data?.items ?? [];
-  const plugins = pluginsQuery.data?.items ?? [];
+  const files = filesQuery.data?.list ?? [];
+  const plugins = pluginsQuery.data?.list ?? [];
   const isLoading = filesQuery.isLoading || pluginsQuery.isLoading;
   const queryError = filesQuery.error ?? pluginsQuery.error;
   const error = queryError ? getErrorMessage(queryError) : null;
@@ -280,14 +254,14 @@ export function useUserFiles() {
         queryFn: async () => {
           if (type === "post") {
             const res = await uploadApi.getPostFile(fileId);
-            return res.data as FileInfo;
+            return res.data.data ?? null;
           }
           if (type === "comment") {
             const res = await uploadApi.getCommentFile(fileId);
-            return res.data as FileInfo;
+            return res.data.data ?? null;
           }
           const res = await uploadApi.getPluginFile(fileId);
-          return res.data as FileInfo;
+          return res.data.data ?? null;
         },
       });
       return data ?? null;
@@ -322,9 +296,7 @@ export function useFileServe() {
       setIsLoading(true);
       setError(null);
       try {
-        const response = (await uploadApi.serveFile(
-          fileId,
-        )) as FileContentResponse;
+        const response = await uploadApi.serveFile(fileId);
         const blob = response.data;
         const url = URL.createObjectURL(blob);
         if (options?.download) {

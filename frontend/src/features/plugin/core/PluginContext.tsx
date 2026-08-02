@@ -10,6 +10,7 @@ import React, {
 } from "react";
 import { loadPlugins } from "../PluginLoader";
 import { pluginRegistry } from "../PluginRegistry";
+import { pluginApi } from "@/shared/api/modules/plugin/plugins";
 import { PluginMeta, RegisteredPlugin } from "@/shared/api/types/plugin.model";
 
 interface PluginContextValue {
@@ -28,26 +29,11 @@ const PluginContext = createContext<PluginContextValue>({
 
 // ── 直接请求 API，不依赖 hook ────────────────────────────────────────────────
 // PluginContext 是全局 Provider，不能用 useQuery（它在 QueryClientProvider 内部）
-// 用 fetch 直接请求，避免循环依赖和 Hook 规则问题
+// 统一走 shared/api Client 层，复用 axios 实例（withCredentials、401 处理）
 async function fetchEnabledPlugins(): Promise<PluginMeta[]> {
   try {
-    const res = await fetch("/api/v1/plugins?enabled=true");
-
-    if (!res.ok) {
-      console.warn("[PluginContext] fetchEnabledPlugins: HTTP", res.status);
-      return [];
-    }
-    const json = await res.json();
-    // 兼容两种后端返回结构：
-    // 1. { data: { list: [...] } }  — 分页结构
-    // 2. { data: [...] }            — 数组结构
-    const payload = json?.data;
-    if (Array.isArray(payload)) return payload;
-    if (Array.isArray(payload?.list)) return payload.list;
-    if (Array.isArray(payload?.data)) return payload.data;
-    if (Array.isArray(payload?.data?.list)) return payload.data.list;
-    console.warn("[PluginContext] fetchEnabledPlugins: unexpected shape", json);
-    return [];
+    const res = await pluginApi.listEnabled();
+    return res.data.data?.list ?? [];
   } catch (err) {
     console.error("[PluginContext] fetchEnabledPlugins error:", err);
     return [];

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { announcementApi } from '@/shared/api/modules/announcements'
 import toast from 'react-hot-toast'
@@ -31,29 +31,20 @@ export function useAdminAnnouncement(
 ): UseAnnouncementReturn {
   const queryClient = useQueryClient()
   const { autoLoad = true } = options || {}
-  const [activeId, setActiveId] = useState<number | null>(id ?? null)
-
-  // 同步外部传入的 id
-  useEffect(() => {
-    if (id !== undefined) {
-      setActiveId(id)
-    }
-  }, [id])
 
   // 公告详情查询
   const query = useQuery({
-    queryKey: announcementKeys.detail(activeId ?? -1),
+    queryKey: announcementKeys.detail(id ?? -1),
     queryFn: async () => {
-      const res = await announcementApi.getById(activeId as number)
+      const res = await announcementApi.getById(id as number)
       return unwrap<AnnouncementDO>(res.data)
     },
-    enabled: autoLoad && !!activeId,
+    enabled: autoLoad && !!id,
   })
 
   // 手动获取公告详情
   const fetch = useCallback(
     async (announcementId: number): Promise<AnnouncementDO | null> => {
-      setActiveId(announcementId)
       try {
         return await queryClient.fetchQuery({
           queryKey: announcementKeys.detail(announcementId),
@@ -71,9 +62,7 @@ export function useAdminAnnouncement(
     [queryClient],
   )
 
-  const clear = useCallback(() => {
-    setActiveId(null)
-  }, [])
+  const clear = useCallback(() => {}, [])
 
   return {
     announcement: query.data ?? null,

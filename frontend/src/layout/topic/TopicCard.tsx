@@ -11,11 +11,12 @@ import {
 } from "@heroicons/react/24/outline";
 import { HeartIcon as HeartSolidIcon } from "@heroicons/react/24/solid";
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { Topic } from "@/shared/api/types/topic.model";
-import { topicApi } from "@/shared/api/modules/topics";
+import { useFollowTopic } from "@/features/topic/hooks/useFollowTopic";
 
 // 类型定义
 interface ErrorResponse {
@@ -37,6 +38,8 @@ export function TopicCard({
 }) {
   const router = useRouter();
   const { isAuthenticated } = useAuthStore();
+  const { follow: followMutation, unfollow: unfollowMutation } =
+    useFollowTopic();
   // 修复：topic.is_public 表示话题是否公开，而不是是否已关注
   // 应该从 topic 中获取关注状态，或者通过 API 获取
   const [following, setFollowing] = useState<boolean>(false);
@@ -55,11 +58,11 @@ export function TopicCard({
     setFollowLoading(true);
     try {
       if (following) {
-        await topicApi.unfollow(topic.id);
+        await unfollowMutation.mutateAsync(topic.id);
         setFollowing(false);
         toast.success("已取消收藏");
       } else {
-        await topicApi.follow(topic.id);
+        await followMutation.mutateAsync(topic.id);
         setFollowing(true);
         toast.success("已收藏话题");
       }
@@ -78,11 +81,12 @@ export function TopicCard({
         {/* 话题封面 */}
         {topic.cover && (
           <figure className="relative overflow-hidden">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            <Image
               src={topic.cover}
               alt={topic.title}
-              className="w-full h-40 object-cover group-hover:scale-105 transition-transform duration-500"
+              fill
+              sizes="(max-width: 768px) 100vw, 33vw"
+              className="object-cover group-hover:scale-105 transition-transform duration-500"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           </figure>

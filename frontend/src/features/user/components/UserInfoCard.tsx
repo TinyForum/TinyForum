@@ -1,6 +1,6 @@
 "use client";
 
-import Avatar from "./Avatar";
+import Avatar from "@/shared/ui/common/Avatar";
 import { useTranslations } from "next-intl";
 import { formatDate } from "@/shared/lib/utils";
 import { UserDO } from "@/shared/api/types/user.model.do";

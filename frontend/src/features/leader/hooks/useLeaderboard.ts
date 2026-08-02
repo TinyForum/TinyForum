@@ -6,6 +6,7 @@ import {
   LeaderboardRequest,
 } from "@/shared/api/types/user.model";
 import { useQuery, UseQueryOptions } from "@tanstack/react-query";
+import { leaderboardKeys } from "./useLeaderboardKeys";
 
 /**
  * 获取排行榜数据
@@ -20,7 +21,7 @@ export const useLeaderboard = (
   >,
 ) => {
   return useQuery({
-    queryKey: ["leaderboard", params?.limit],
+    queryKey: leaderboardKeys.list(params),
     queryFn: async (): Promise<LeaderboardItemResponse[]> => {
       const { data } = await userApi.getLeaderboardDetail(params);
       // 确保返回数组，如果 data.data 为 undefined 则返回空数组

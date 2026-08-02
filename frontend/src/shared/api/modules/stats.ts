@@ -8,7 +8,7 @@ import {
   GetStatsTrendParams,
   GetStatsRangeParams,
   StatsRangeResponse,
-} from "@/shared/api/types/stats.type";
+} from "@/shared/api/types/stats.model";
 import { ApiResponse } from "../types/basic.model";
 
 export const statsApi = {

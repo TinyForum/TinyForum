@@ -1,17 +1,36 @@
 // lib/api/client.ts
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from "axios";
+import { routing } from "@/i18n/routing";
 
 const API_BASE_URL = "/api/v1";
 
+function resolveLoginPath(): string {
+  const segments = window.location.pathname.split("/");
+  const first = segments[1] ?? "";
+  // 已带 locale 前缀（如 /zh-CN/auth/login）时直接复用
+  if (routing.locales.includes(first as (typeof routing.locales)[number])) {
+    return `/${first}/auth/login`;
+  }
+  // 无前缀（如 /auth/login 或 /），用默认 locale 补齐
+  return `/${routing.defaultLocale}/auth/login`;
+}
+
 // const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 function createClient(config?: AxiosRequestConfig): AxiosInstance {
-  console.log("API_BASE_URL: ", API_BASE_URL, "  config: ", config);
   const instance = axios.create({
     baseURL: API_BASE_URL,
     headers: { "Content-Type": "application/json" },
     timeout: 10_000,
     withCredentials: true, // Cookie 自动携带
     ...config,
+  });
+
+  // 请求拦截：FormData 交由浏览器生成 boundary，移除手动 Content-Type
+  instance.interceptors.request.use((config) => {
+    if (config.data instanceof FormData) {
+      delete config.headers?.["Content-Type"];
+    }
+    return config;
   });
 
   // 响应拦截：401 处理
@@ -24,7 +43,7 @@ function createClient(config?: AxiosRequestConfig): AxiosInstance {
       }
 
       if (err.response?.status === 401) {
-        window.location.href = `/auth/login`;
+        window.location.href = resolveLoginPath();
       }
       return Promise.reject(err);
     },
