@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import { notificationKeys } from './useNotificationKeys'
 import { notificationApi } from '@/shared/api/modules/notifications'
 
-export function useUnreadCount() {
+export function useUnreadCount(isAuthenticated: boolean = false) {
   const [unreadCount, setUnreadCount] = useState<number>(0)
 
   // 查询：获取未读数量
@@ -20,6 +20,7 @@ export function useUnreadCount() {
       }
       return res.data.data
     },
+    enabled: isAuthenticated,
   })
 
   // 查询结果同步到本地状态，保证与服务端数据一致

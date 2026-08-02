@@ -1,0 +1,15 @@
+{
+  "pending_publish": "待发布",
+  "pinned": "已置顶",
+  "views": "次阅读",
+  "draft": "草稿",
+  "expired": "已过期",
+  "published": "已发布",
+  "archived": "已归档",
+  "unknown": "未知",
+  "normal": "普通",
+  "important": "重要",
+  "emergency": "紧急",
+  "event": "事件",
+  "published_by": "发布者："
+}

@@ -105,5 +105,19 @@
   "export_data": "Export data",
   "refresh": "Refresh",
   "settings": "Settings",
-  "logout": "Logout"
+  "logout": "Logout",
+  "in_current_board": "In current board",
+  "currently_banned": "Currently banned",
+  "awaiting_review": "Awaiting review",
+  "application_submitted": "Application submitted",
+  "application_failed": "Application failed",
+  "application_canceled": "Application canceled",
+  "cancel_failed": "Cancel failed",
+  "user_banned": "User banned",
+  "user_unbanned": "User unbanned",
+  "post_deleted": "Post deleted",
+  "delete_post_failed": "Delete post failed",
+  "post_pinned": "Post pinned",
+  "post_unpinned": "Post unpinned",
+  "pin_failed": "Pin failed"
 }

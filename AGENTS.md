@@ -1,14 +1,60 @@
-# AGENTS.md — TinyForum
+# AGENTS Rules — TinyForum（全局 AI 协作总控）
+
+> 本文件是 TinyForum 项目的**最高优先级 AI 协作宪章**，覆盖 **Go 后端 + Next.js 前端 + Vite 插件** 三大子项目。  
+> **所有 AI 生成的代码、修复建议、重构方案，必须无条件遵守本文件约定。**  
+> **核心理念**：**拒绝“症状缓解”（打补丁），强制“根因治疗”（修本质）。**
+
+---
+
+## 0. AI 修复协议（最高优先级：五步根因法）
+
+> 本协议优先级高于所有编码规范。AI 在修复任何 Bug 时必须强制执行以下五步，**严禁跳过步骤直接输出 diff**。
+
+### 第一步：5-Why 根因分析
+
+AI 必须回答：
+
+1. **现象**：报错/用户反馈的具体表现？
+2. **表层直接原因**：哪一行代码抛出了异常或返回了错误数据？
+3. **深层根因（追问 5 次）**：为什么会出现这个数据/状态？——是并发写入未加锁？数据库字段溢出？前端传参与后端结构体不匹配？状态机流转遗漏了事件？
+4. **影响范围**：孤立模块还是影响全局？
+
+### 第二步：复现测试先行（红灯准入）
+
+- AI **必须先编写单元测试**捕获 Bug，再修改生产代码。
+- 后端：生成 `_test.go`，运行 `go test` 必须**失败（Red）**。
+- 前端：用 Vitest 模拟异常 API 响应或状态。
+- **门禁**：未提供可复现的失败测试，生产代码改动不予通过。
+
+### 第三步：强制分层定位（禁止跨层绕过）
+
+AI 必须明确修复发生的**层级**，禁止用上层 `if` 掩盖下层缺陷：
+
+| 层级                   | 允许的“根本修复”                                    | 严厉禁止的“补丁行为”                                    |
+| :--------------------- | :-------------------------------------------------- | :------------------------------------------------------ |
+| **Repository（后端）** | 修正 SQL 条件、添加索引、处理 NULL/零值、使用乐观锁 | 在 Service 层加 `if` 过滤空数据                         |
+| **Service（后端）**    | 修正状态机流转、引入幂等/重试、添加事务边界         | 在 Handler 用 `recover()` 捕获 panic 返回 200           |
+| **Handler（后端）**    | 修正参数校验规则 `binding`、修正 VO 字段映射        | 在响应中硬编码 `"data": null` 或 `"code": 0`            |
+| **View/Hook（前端）**  | 修正 Zustand 状态更新、修正 TanStack Query 依赖键   | 加 `setTimeout` 延迟等待、用 `try...catch` 静默吞掉错误 |
+
+### 第四步：数据迁移解耦（若涉及 Schema）
+
+- **严禁**在 Go 代码中做类型转换来“适配”错误的数据库字段。
+- **必须**提供 `backend/migrations/` 下的 `.up.sql` 和 `.down.sql` 迁移文件。
+- **兼容性铁律**：删除列或重命名必须**分两步提交**（先增后弃），确保新旧代码同时兼容。
+
+### 第五步：提交信息自审
+
+- **坏的描述（补丁）**：`fix [auth]: add nil check for token`
+- **好的描述（根因）**：`fix [auth]: ensure JWT parser returns ErrInvalidToken on malformed signature instead of panic`
+
+> **子文档落地**：后端 AI 协议细则见 `backend/AGENTS.md` 第 0 章；前端 AI 协议细则见 `frontend/AGENTS.md` 第 0 章。
+
+---
+
+## 1. 项目概览
 
 Tiny Forum 是一个开源论坛项目：**Go（Gin + GORM）后端** × **Next.js（App Router）前端** × **Vite 插件体系** × PostgreSQL 持久化。
-
-本文件约定**跨子项目的代码编写规范与最佳实践**。运行命令、数据库相关请勿在这里维护，分别见各子项目文档：
-
-- 后端：`backend/AGENTS.md`
-- 前端：`frontend/AGENTS.md`
-- 插件：`plugin/`（见 `manifest.json` 与 `docs/zh-CN/dev/plugin.md`）
-
-## 仓库组成
 
 | 子项目    | 位置          | 技术栈                                                                                                        |
 | --------- | ------------- | ------------------------------------------------------------------------------------------------------------- |
@@ -18,162 +64,207 @@ Tiny Forum 是一个开源论坛项目：**Go（Gin + GORM）后端** × **Next.
 | Make 脚本 | `dev-script/` | 用于启动、构建、测试、打包项目                                                                                |
 | 文档      | `docs/`       | 项目 docsify 文档，涵盖用户手册、开发手册、架构说明等                                                         |
 
-## 全局代码规范
+---
 
-### 分层架构
+## 2. 跨项目代码规范（总纲）
 
-- 后端依赖方向严格单向：`handler → service → repository`，禁止反向依赖。
-- 前端依赖方向：`View → State/Query → Client`；数据流向 `User Action → View → Query/State → Client → 后端`。
-- 层内职责单一：后端 handler 只绑定参数与写响应，service 只放业务规则，repository 只做数据访问；前端 View 只渲染 UI，不直接调 API。
+### 2.1 分层架构
 
-### 注释
+- **后端依赖方向严格单向**：`handler → service → repository`，禁止反向依赖。
+- **前端依赖方向**：`View → State/Query → Client`；数据流向 `User Action → View → Query/State → Client → 后端`。
+- **层内职责单一**：后端 handler 只绑定参数与写响应，service 只放业务规则，repository 只做数据访问；前端 View 只渲染 UI，不直接调 API。
 
-- 代码内注释统一用中文；公开的 Go 类型、接口方法、handler 必须带注释。
-- 不新增无意义注释；重构时保留既有中文注释，不随意改写他人注释风格。
+### 2.2 注释与命名
 
-### 命名
+- **注释**：代码内统一用中文；公开的 Go 类型、接口方法、handler 必须带注释。不新增无意义注释；重构时保留既有中文注释。
+- **后端命名**：包名小写单数（`handler/announcement`）；接口 `XxxService` / `XxxRepository` + 实现 `xxxService` / `xxxRepository` + `NewXxxService(...)` 构造器。
+- **前端命名**：文件 `PascalCase.tsx`、`camelCase.ts`、hook 以 `use` 开头；领域类型以 `XxxDO` / `XxxVO` / `XxxListParams` 命名。
 
-- 后端：包名小写单数（`handler/announcement`、`service/announcement`、`repository/announcement`）；接口 `XxxService` / `XxxRepository` + 实现 `xxxService` / `xxxRepository` + `NewXxxService(...)` 构造器。
-- 前端：文件 `PascalCase.tsx`、`camelCase.ts`、hook 以 `use` 开头；领域类型以 `XxxDO` / `XxxVO` / `XxxListParams` 命名。
+### 2.3 质量门禁
 
-### 质量门禁
+- **后端**：改动后保证 `go build ./...` 通过；新增/修改装配逻辑后运行 `make wire`；运行 `golangci-lint`（含 govet、gofmt）。
+- **前端**：改动后保证 `type-check` 与 `lint` 通过，`strict` 模式下不得用 `any`（仅存量兼容）；提交前执行 Prettier（单引号、无分号）。
 
-- 后端：改动后保证 `go build ./...` 通过；新增/修改装配逻辑后运行 `make wire` 重新生成依赖注入代码；运行 `golangci-lint`（含 govet、gofmt）。
-- 前端：改动后保证 `type-check` 与 `lint` 通过，`strict` 模式下不得用 `any` 逃逸类型检查（仅存量兼容）。
-- 前端提交前执行格式化（Prettier：单引号、无分号）。
+### 2.4 SOLID 原则
 
-## 后端最佳实践（详见 backend/AGENTS.md）
+- **单一职责**：每个类、函数、组件只做一件事。
+- **开闭原则**：对扩展开放，对修改封闭。
+- **里氏替换**：子类对象必须能替换父类对象。
+- **接口隔离**：接口应小而专，避免“胖接口”。
+- **依赖倒置**：高层模块不应依赖低层模块，两者都应依赖抽象。
 
-- **响应统一**：一律用 `pkg/response`（`Success` / `SuccessPage` / `Created` / `HandleError` 等），格式为 `{"code": 0, "message": "success", "data": ...}`。
-- **错误处理**：业务错误复用 `pkg/errors` 预定义 `AppError`（如 `apperrors.ErrPostNotFound`），附加信息用链式方法 `ErrXxx.WithDetail(...).WithCause(err)`，**不要直接修改全局错误实例**；handler 层统一 `response.HandleError(c, err)` 收口。
-- **依赖注入**：新增 handler/service/repository 后，在 `internal/wire/` 手工装配（`NewServices`/`NewHandlers`/`NewRepositories`）。
-- **接口文档**：所有 handler 方法加 Swagger 注解（`@Summary` / `@Tags` / `@Router` 等），与前端响应类型保持一致。
-- **模型分层**：`do`（GORM 实体）/ `request`（入参）/ `vo`（出参）/ `dto`（层间传递）/ `bo`（业务对象）各归其位，不混放。
-- **安全**：JWT 密钥等敏感配置放 `config/private.yml`，禁止提交真实密钥；私有路由统一 `Auth` + `CasbinAuth`。
+---
 
-## 前端最佳实践（详见 frontend/AGENTS.md）
+## 3. Git 协作底线（跨项目统一）
 
-- **数据请求**：统一经 `shared/api/` Client 层（axios 实例，baseURL `/api/v1`，响应 `{ code, message, data }`）；API 方法返回 `apiClient.get<ApiResponse<T>>(...)`，hook 解出 `response.data.data` 消费。
-- **状态分层**：跨组件共享状态才进 Zustand `src/store/`（如 auth）；局部状态留在组件内；服务端数据用 TanStack Query 的 Query/Mutation 管理。
-- **Query key**：用集中定义的 `xxxKeys` 工厂（如 `postKeys.list(params)`）；mutation 成功后 `invalidateQueries` 刷新列表/详情。
-- **新增模块流程**：`shared/api/types/<module>.model.ts` 定义类型 → `shared/api/modules/<module>.ts` 定义 api 对象 → `features/<module>/hooks` 封装 Query/Mutation。
-- **国际化**：文案经 next-intl 消息文件（`messages/zh-CN`、`messages/en-US`），不硬编码到组件。
-- **组件样式**：遵循 Tailwind + DaisyUI 现有模式，不用内联样式；import 别名统一 `@/`。
+### 3.1 分支策略
 
-## 插件开发
+- `main` 为生产保护分支，**任何人（包括 AI）严禁直接 push**。
+- 所有变更必须通过 `dev` → PR/MR 合并。
+- **前缀强制**：修复任务 `fix-[issue_id]`；新功能 `feat-[name]`；重构 `refactor-[name]`；文档 `docs-[name]`；插件 `update-[name]`。
 
-- 插件独立构建（Vite + React），产物为 `dist/main.js`，由 `manifest.json` 声明 `slug`、`slots`、`configSchema`、`permissions`。
-- 插件通过 PluginSlot 槽位（如 `after-header`、`before-footer`）注入 UI，`slotProps` 传入页面数据（如 `postId`）。
-- 插件改动不依赖前后端重新构建；扩展后端能力遵循 `docs/zh-CN/dev/plugin.md` 约定。
+### 3.2 提交信息格式（全局统一）
 
-## 代码更新规范
+`<type> [<module>]: <description>`
 
-- 所有的 fix 任务必须在 "fix-[name]" 中进行，避免污染 main 分支。
-- 所有的功能更新必须在 "feat-[name]" 中进行，避免污染 main 分支。
-- 所有的文档更新必须在 "docs-[name]" 中进行，避免污染 main 分支。
-- 所有的插件更新必须在 "update-[name]" 中进行，避免污染 main 分支。
-- 所有的重构任务必须在 "refactor-[name]" 中进行，避免污染 main 分支。
-- dev 分支用于开发，main 分支用于发布，不允许直接向 main 分支提交代码。
-- 禁止向 main 分支提交代码，必须先向 dev 分支提交代码，然后合并到 main 分支。
+- **type**：`feat` / `fix` / `docs` / `update` / `refactor` / `perf` / `test` / `chore`
+- **[module]**：影响模块（如 `post`、`auth`），多模块逗号分隔
+- **description**：英文，现在时态，不超过 50 字符
 
-## Git 提交规范
-
-### 提交信息格式
-
-提交信息采用 `<type> [<module>]: <description>` 格式，其中：
-
-- **`type`**：表示提交类别，必须为以下之一：
-  - `feat`：新增功能（对应语义化版本 MINOR 递增）
-  - `fix`：修复 Bug（对应语义化版本 PATCH 递增）
-  - `docs`：仅文档变更（README、注释等）
-  - `update`：更新依赖库、配置文件、环境变量等非业务逻辑调整
-  - `refactor`：代码重构（不改变外部行为，不新增功能，也不修复 Bug）
-  - `perf`：性能优化
-  - `test`：增加或修改测试代码
-  - `chore`：构建工具、CI/CD、辅助脚本等杂务
-
-- **`[module]`**：方括号内填写影响模块，如 `post`、`comment`、`auth`、`plugin` 等。若同时影响多个模块，使用逗号分隔，例如 `[auth, post]`。模块名请统一使用英文小写。
-
-- **`description`**：使用英文，简明扼要描述本次提交（建议不超过 50 个字符）。
-
-#### 示例
+示例：
 
 ```
+
 fix [post]: fix post like
 feat [auth]: add remember me
-update [comment]: update nested reply
 refactor [auth, api]: extract common validator
-perf [image]: lazy load thumbnails
+
 ```
 
-### 提交命令
+### 3.3 破坏性变更（BREAKING CHANGE）
 
-使用 `-m` 参数提供摘要与详细描述（摘要与正文之间 Git 会自动添加空行）：
-
-```bash
-git commit -m "<type> [<module>]: <description>" -m "<details changes>"
-```
-
-如果详细描述内容较多（超过 3 行），建议直接运行 `git commit` 进入编辑器编写，并保持每行不超过 **72 个字符**，以便在终端下排版整洁。
-
-### 破坏性变更（BREAKING CHANGE）
-
-当提交包含不兼容的 API 改动时（需要升级主版本号 MAJOR），必须在提交信息的**正文或页脚**中以 `BREAKING CHANGE:` 开头说明，或在 `type` 后紧跟 `!` 标记（两种方式择一即可）：
+必须在 footer 包含 `BREAKING CHANGE:` 说明，或在 `type` 后紧跟 `!`：
 
 ```bash
-# 方式一：页脚注明
-git commit -m "refactor [auth]: rewrite permission interceptor" -m "BREAKING CHANGE: 移除旧版 checkRole 方法，请改用 verifyScope。"
-
-# 方式二：感叹号标记（推荐）
 git commit -m "feat! [api]: change response structure" -m "详见迁移指南。"
 ```
 
-### 标签（Tag）规范
+### 3.4 标签（Tag）规范
 
-发布正式版本时，使用**附注标签（annotated tag）**并附带结构化的发布说明：
+正式发布使用附注标签：
 
 ```bash
-# 创建标签（标题 + 详细变更列表）
-git tag -a v1.0.0 -m "v1.0.0 发布（支持多因素认证）" -m "- 新增：OAuth2 登录\n- 修复：高并发下的 session 冲突\n- 移除：旧版短信网关接口"
-
-# 推送标签到远程仓库
+git tag -a v1.0.0 -m "v1.0.0 发布（支持多因素认证）" -m "- 新增：OAuth2 登录\n- 修复：高并发下的 session 冲突"
 git push origin v1.0.0
 ```
 
-建议同时推送代码和标签时使用 `git push --follow-tags`。
+---
 
-- 提交粒度：每次提交应只解决一个逻辑单元，避免混合多个不相关的改动。
-- 分支命名：除您已有的前缀（fix-、feat- 等），建议加上 issue 编号或简短描述，如 fix-answer-vote-bug。
-- 合并前检查：在合并到 dev 或 main 前，必须通过 CI 测试（构建、单元测试、代码规范检查）。
-- 代码审查：所有合并请求（PR/MR）至少一名同事审阅，尤其是对核心模块的修改。
-- 回滚预案：确保每次发布都可快速回滚（如保留 tag 或 release 版本号）。
-- 代码修复：紧急修复必须先在 fix-[main] 分支进行，然后合并到 dev 分支，并立即 push 到远程仓库。
-- 提交与推送：使用 `git commit -m "<type> [<module>]: <描述>"` 提交代码，然后使用 `git push` 推送到远程仓库。
-- 提交描述：描述应该使用英文
+## 4. 跨项目协作约束
 
-## 代码删除
+- **文件修改限制**：单次对话中，AI 不得一次性修改超过 **10 个文件**，除非用户明确要求“全量重构”。
+- **依赖引入**：AI 不得主动引入新的第三方依赖（Go module / npm package），必须先注释说明理由并等待用户批准。
+- **代码删除**：删除任何逻辑前，AI 必须输出“备份提示”并标记为临时注释（`// TODO: confirm before removal`），确保不影响现有调用链。
+- **环境启动**：根目录提供 `docker-compose.yml` 启动 Postgres；启动前复制 `backend/config/private.yml.example` 并填入真实值。根目录运行 `make dev`（后端）和 `pnpm dev`（前端）分别启动。
 
-- 删除代码，前应备份，标记为临时删除，并在测试系统无影响后，进行彻底删除。
-- 如果需要删除代码，必须先进行代码审查，确保删除的代码不会影响系统的正常运行。
-- 如果删除的代码是必要的，必须提供充分的理由和计划，确保删除后的系统仍然可以正常运行。
+---
 
-## 测试与质量红线
+## 5. 文档编写规范
 
-- 后端 Service 层改动必须附带对应 `_test.go` 单元测试（覆盖率增量不得低于 70%），运行 `go test ./... -cover` 验证。
-- 前端核心逻辑（API Client、Utils）需用 Vitest 编写单测；UI 交互变更需自测通过。
-- 禁止使用 `any` 类型（后端 interface{} / 前端 any），存量代码逐步替换，新增代码零容忍。
+- **文档存放**：所有项目文档统一放在 `docs/` 目录，使用 docsify 构建。
+- **分类结构**：
+  - **用户手册**：面向最终用户，介绍论坛功能、操作流程、常见问题等，位于 `docs/zh-CN/user/` 和 `docs/en-US/user/`。
+  - **开发手册**：面向开发者，包含项目架构设计、模块说明、API 接口文档、插件开发指南、环境搭建等，位于 `docs/zh-CN/dev/` 和 `docs/en-US/dev/`。
+  - **架构设计文档**：描述系统整体架构、技术选型、数据流、部署方案等，位于 `docs/zh-CN/architecture/` 和 `docs/en-US/architecture/`。
+- **语言与格式**：文档使用 Markdown 编写，中文优先（同时提供英文版本）。代码示例、配置片段必须与实际代码保持一致。
+- **更新时机**：任何代码变更（新增功能、修复 Bug、重构）若影响用户行为或开发流程，必须同步更新相关文档。AI 在提交代码前必须检查是否需要更新文档，并在 Commit Message 中注明 `docs` 类型或关联文档更新。
+- **文档审查**：文档变更也需要经过 PR 审查，确保准确性和可读性。
+- **索引**：根目录 `docs/README.md` 提供文档导航，所有分类文档均需在此索引中链接。
 
-## 数据库变更（Migration）
+> 子项目内置注释（如 Go 的 godoc）不属于 `docs/` 文档体系，但 API 的 Swagger 注解应与开发手册中的接口说明保持同步。
 
-- 禁用 `AutoMigrate` 操作生产库；表结构变更需在 `backend/migrations/` 生成 SQL 迁移文件，命名格式 `YYYYMMDDHHMMSS_描述.up.sql` / `down.sql`。
-- 删除列或重命名列必须分两步走（先代码兼容，后迁移清理）。
+---
 
-## 环境与启动
+## 6. 子项目专属规范（引用入口）
 
-- 根目录提供 `docker-compose.yml` 启动 Postgres 依赖；启动前必须复制 `backend/config/private.yml.example` 并填入真实值。
-- 根目录运行 `make dev`（后端）和 `pnpm dev`（前端）分别启动。
+> 所有技术实现细节（具体命令、代码示例、测试框架配置）均在子项目 AGENTS.md 中维护，全局文档仅定义跨项目原则。
 
-## AI 协作约束
+- **后端**：`backend/AGENTS.md`（含响应/错误处理、路由/中间件、WebSocket、Migration、Wire 装配细则）
+- **前端**：`frontend/AGENTS.md`（含 Client 层、Query/Zustand 状态边界、国际化、文件上传、实时通信细则）
+- **插件**：`plugin/`（见 `manifest.json` 与 `docs/zh-CN/dev/plugin.md`）
 
-- 任何改动必须先给出实施计划，不得一次修改超过 10 个文件（除非用户明确要求）。
-- 新增依赖需先注释说明理由，待用户批准后再引入。
+---
+
+## 7. 质量红线（全局零容忍）
+
+AI 生成的代码若触及以下红线，**视为无效交付，必须重写**：
+
+1. **类型逃逸**：后端 `interface{}` 无类型断言，前端 `any` 逃逸 TypeScript（存量兼容除外）。
+2. **硬编码**：前端文案未通过 `next-intl`；后端配置（JWT 密钥、DB DSN）硬编码在代码中。
+3. **裸日志**：捕获错误后仅 `fmt.Println` / `console.log`，未接入 Zap / 统一错误上报。
+4. **魔数/魔字符串**：业务状态码未定义为常量或枚举。
+5. **跳过 Migration**：修改 GORM 模型 `do` 但未生成 SQL 迁移文件，或注释了 `AutoMigrate`。
+
+---
+
+## 8. Make 脚本与 Shell 规范
+
+项目使用 `dev-script/` 目录集中管理所有构建、运行、测试、部署相关的 Makefile 和 Shell 脚本。
+
+### 8.1 目录结构
+
+```
+dev-script/
+├── backend/               # 后端相关配置（如 config/ 下的环境模板）
+├── scripts/               # 可执行脚本（按功能分层）
+│   ├── dev/               # 开发环境脚本（启动、检查、环境检测等）
+│   ├── env/               # 环境变量解析与验证
+│   ├── db/                # 数据库操作（mock 数据、清理等）
+│   └── nginx/             # Nginx 配置辅助脚本
+├── help.mk                # 帮助信息（make help）
+├── Makefile.bench         # 基准测试
+├── Makefile.cfg           # 配置生成/检查
+├── Makefile.check         # 代码检查（lint、format）
+├── Makefile.clean         # 清理产物
+├── Makefile.code          # 代码生成（wire、swagger）
+├── Makefile.common        # 公共变量与通用规则
+├── Makefile.dev           # 开发环境启动
+├── Makefile.docker        # Docker 镜像构建
+├── Makefile.env           # 环境变量加载
+├── Makefile.log           # 日志操作
+├── Makefile.main          # 主入口（包含 .DEFAULT_GOAL 或 core targets）
+├── Makefile.nginx         # Nginx 相关
+├── Makefile.podman        # Podman 替代 Docker 的命令
+├── Makefile.prod          # 生产环境构建/部署
+└── scripts/               # （已列）
+```
+
+### 8.2 命名与职责
+
+- **Makefile.\***：每个文件聚焦单一职责（如 `Makefile.dev` 只含开发环境目标，`Makefile.prod` 只含生产目标）。根目录的 `Makefile`（通常位于项目根）通过 `include dev-script/*.mk` 引入这些片段。
+- **脚本文件**：位于 `scripts/` 下的子目录，使用 `.sh` 后缀，功能专一，避免大杂烩。
+  - `dev/`：开发辅助（`backend.sh`、`frontend.sh`、`postgres.sh`、`redis.sh` 等），由 Makefile.dev 调用。
+  - `env/`：环境变量加载、验证、解析（`core.sh`、`validator.sh`、`yaml_parser.sh` 等）。
+  - `db/`：数据库数据准备（`mock_data.sh`、`clean_data.sh`）。
+  - `nginx/`：Nginx 配置或代理设置。
+
+### 8.3 编码规范
+
+#### Shell 脚本（Bash）
+
+- **解释器**：统一使用 `#!/usr/bin/env bash`，并启用严格模式：
+  ```bash
+  set -euo pipefail
+  IFS=$'\n\t'
+  ```
+- **函数命名**：使用 `snake_case`，并添加注释说明功能及参数。
+- **变量**：全部大写常量，局部变量使用 `local` 修饰，引用时加双引号（`"$var"`）防止分词。
+- **错误处理**：捕获错误时输出明确信息到 stderr，非零退出码。
+- **可移植性**：尽量使用 POSIX 兼容语法，避免 GNU 扩展（如 `bash` 特有的数组用法仅在确认可用时使用）。
+- **依赖检查**：脚本开头应检查所需命令（如 `docker`、`go`、`pnpm`）是否存在，缺失时给出友好提示并退出。
+- **日志**：关键操作输出带时间戳的日志，便于调试。
+
+#### Makefile
+
+- **目标命名**：使用 `snake_case` 或 `kebab-case`（统一即可），推荐 `kebab-case`（如 `run-dev`、`clean-all`）。
+- **伪目标**：所有非文件目标须声明为 `.PHONY`。
+- **变量**：统一在 `Makefile.common` 中定义全局变量（如 `GOBIN`、`NODE_VERSION`），其他文件引用。
+- **依赖关系**：明确声明目标间的依赖，避免冗余执行。
+- **安全性**：使用 `$(MAKE)` 递归调用子 Makefile，避免硬编码 `make` 路径。
+- **帮助信息**：在 `help.mk` 中定义 `help` 目标，自动提取各 Makefile 中带 `##` 注释的目标说明，提供统一帮助入口。
+
+### 8.4 使用原则
+
+- **入口**：用户在根目录执行 `make <target>`，实际解析由根目录 `Makefile` 通过 `include` 组合完成。
+- **环境隔离**：所有脚本应能独立运行（即不依赖当前工作目录），通常以 `dev-script/` 为基准路径。
+- **跨平台**：优先考虑 Linux/macOS 兼容性；若需 Windows 支持，使用 Git Bash 或 WSL。
+
+### 8.5 AI 协作约束
+
+- 修改任何 `.mk` 或 `.sh` 文件时，AI 必须遵循第 0 章的“五步根因法”，不得以“先能跑起来”为由引入临时补丁。
+- 新增脚本或目标须先在 `help.mk` 中添加说明，并更新 `docs/` 中对应的开发手册。
+- 任何脚本变量或路径变更，必须同步更新 `Makefile.common` 和 `scripts/env/` 下的环境加载逻辑。
+
+---
+
+**生效声明**：本文件覆盖项目内所有 `*.md` 文档。当其他文档与本文冲突时，以本文的“AI 修复协议”和“质量红线”为准。

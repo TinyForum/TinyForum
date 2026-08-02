@@ -108,5 +108,16 @@
   "logout": "退出登录",
   "in_current_board": "当前板块",
   "currently_banned": "当前禁言用户",
-  "awaiting_review": "待审核"
+  "awaiting_review": "待审核",
+  "application_submitted": "申请已提交",
+  "application_failed": "申请失败",
+  "application_canceled": "申请已取消",
+  "cancel_failed": "取消失败",
+  "user_banned": "用户已被禁言",
+  "user_unbanned": "用户已解除禁言",
+  "post_deleted": "帖子已删除",
+  "delete_post_failed": "删除帖子失败",
+  "post_pinned": "帖子已置顶",
+  "post_unpinned": "帖子已取消置顶",
+  "pin_failed": "置顶操作失败"
 }

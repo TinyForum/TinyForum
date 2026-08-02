@@ -20,7 +20,7 @@ export function useAdminManagePosts({
   enabled = true,
 }: UseAdminManagePostsOptions) {
   const queryClient = useQueryClient();
-  const t = useTranslations("admin");
+  const t = useTranslations("Admin");
 
   const invalidateQueries = () => {
     queryClient.invalidateQueries({ queryKey: adminKeys.pendingPosts() });

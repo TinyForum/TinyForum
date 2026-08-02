@@ -12,6 +12,7 @@ import { loadPlugins } from "../PluginLoader";
 import { pluginRegistry } from "../PluginRegistry";
 import { pluginApi } from "@/shared/api/modules/plugin/plugins";
 import { PluginMeta, RegisteredPlugin } from "@/shared/api/types/plugin.model";
+import { useAuthStore } from "@/store";
 
 interface PluginContextValue {
   plugins: RegisteredPlugin[];
@@ -49,6 +50,8 @@ export function PluginProvider({
   getUser: () => { id: string; username: string; role: string } | null;
   // getLocale: () => string;
 }) {
+  const { isAuthenticated, isHydrated } = useAuthStore();
+
   const [plugins, setPlugins] = useState<RegisteredPlugin[]>([]);
   const [isInitialized, setIsInitialized] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -83,9 +86,14 @@ export function PluginProvider({
 
   useEffect(() => {
     if (initializedRef.current) return;
+    if (!isHydrated) return;
     initializedRef.current = true;
+    if (!isAuthenticated) {
+      setIsInitialized(true);
+      return;
+    }
     load();
-  }, [load]);
+  }, [load, isAuthenticated, isHydrated]);
 
   return (
     <PluginContext.Provider

@@ -2,5 +2,7 @@
   "title": "通知中心",
   "mark_all_read": "全部标记为已读",
   "no_notifications": "暂无通知",
-  "view_all": "查看所有通知"
+  "view_all": "查看所有通知",
+  "mark_all_success": "已全部标记为已读",
+  "marking": "标记中..."
 }
