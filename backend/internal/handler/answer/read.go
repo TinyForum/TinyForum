@@ -51,7 +51,7 @@ func (h *AnswerHandler) GetAnswer(c *gin.Context) {
 // @Success 200 {object} common.BasicResponse "获取成功"
 // @Failure 400 {object} common.BasicResponse "无效的帖子ID"
 // @Failure 404 {object} common.BasicResponse "问题不存在"
-// @Router /answers/{post_id}/answers [get]
+// @Router /questions/{post_id}/answers [get]
 func (h *AnswerHandler) GetQuestionAnswers(c *gin.Context) {
 	postID, err := strconv.ParseUint(c.Param("post_id"), 10, 64)
 	if err != nil {

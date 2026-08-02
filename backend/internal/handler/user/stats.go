@@ -12,7 +12,7 @@ import (
 // @Tags 统计
 // @Security BearerAuth
 // @Success 200 {object} vo.UserStatsInfo "返回统计数据"
-// @Router /statistics [get]
+// @Router /users/me/stats [get]
 func (h *UserHandler) GetStatisticsCount(c *gin.Context) {
 	userID := c.GetUint("user_id")
 	stats, err := h.userSvc.GetGlobalStatsCount(c.Request.Context(), userID)

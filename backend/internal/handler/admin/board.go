@@ -59,7 +59,7 @@ func (h *AdminHandler) ListApplications(c *gin.Context) {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param application_id path int true "申请ID"
-// @Param body body ReviewApplicationRequest true "审批信息"
+// @Param body body request.ReviewApplicationRequest true "审批信息"
 // @Success 200 {object} common.BasicResponse  "审批完成"
 // @Failure 400 {object} common.BasicResponse"请求参数错误或申请ID无效"
 // @Failure 401 {object} common.BasicResponse"未授权"

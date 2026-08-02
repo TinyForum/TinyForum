@@ -11,6 +11,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// ListPluginFiles 列出插件目录文件
+// @Summary 列出插件目录文件
+// @Description 列出 store/plugins 目录下的文件与子目录（含路径遍历防护）
+// @Tags 插件
+// @Produce json
+// @Param path query string false "相对子路径" default(.)
+// @Success 200 {object} common.BasicResponse "文件列表"
+// @Failure 400 {object} common.BasicResponse "无效路径"
+// @Failure 403 {object} common.BasicResponse "访问被拒绝"
+// @Failure 404 {object} common.BasicResponse "目录不存在"
+// @Router /plugins/files [get]
 func ListPluginFiles(c *gin.Context) {
 
 	// 允许访问的根目录

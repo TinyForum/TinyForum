@@ -18,7 +18,7 @@ func (h *Handler) RegisterRoutes(api *gin.RouterGroup, mw middleware.MiddlewareS
 		g.GET("/:id", h.Get)       // 获取机器人详情
 
 		// ── 用户维度 ──────────────────────────────────────────────────
-		// 注意：/user/me 必须在 /:id 之前注册，否则 gin 会把 "user" 当 id 匹配
+		// 静态路径 /user/me 与 /:id 互不冲突，gin 静态段优先匹配
 		g.GET("/user/me", h.ListMyBot) // 我创建的机器人
 
 		// ── 执行 ──────────────────────────────────────────────────────

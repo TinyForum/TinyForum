@@ -83,7 +83,7 @@ func (h *Handler) ListPlugins(c *gin.Context) {
 // @Param file formData file true "插件 ZIP 文件"
 // @Success 200 {object} common.BasicResponse
 // @Failure 400 {object} common.BasicResponse
-// @Router /plugins/upload [post]
+// @Router /plugins [post]
 func (h *Handler) UploadPlugin(c *gin.Context) {
 	userID := c.GetUint("user_id")
 	file, err := c.FormFile("file")
@@ -107,7 +107,7 @@ func (h *Handler) UploadPlugin(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} common.BasicResponse
 // @Failure 400 {object} common.BasicResponse
-// @Router /plugins/user/me [get]
+// @Router /plugins/me [get]
 func (h *Handler) ListMyPlugins(c *gin.Context) {
 	userID := c.GetUint("user_id")
 	plugins, err := h.svc.ListUserPlugins(c.Request.Context(), userID)
@@ -124,9 +124,10 @@ func (h *Handler) ListMyPlugins(c *gin.Context) {
 // @Tags 插件管理
 // @Accept json
 // @Produce json
+// @Param slug path string true "插件标识"
 // @Success 200 {object} common.BasicResponse
 // @Failure 400 {object} common.BasicResponse
-// @Router /pligins/delete [get]
+// @Router /plugins/{slug} [delete]
 func (h *Handler) DeletePlugin(c *gin.Context) {
 	// 1. 获取当前用户ID
 	userID := c.GetUint("user_id")

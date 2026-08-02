@@ -42,7 +42,7 @@ func (h *UserHandler) GetProfile(c *gin.Context) {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param body body do.UpdateProfileInput true "资料"
-// @Router /users/profile [put]
+// @Router /users/me/profile [put]
 func (h *UserHandler) UpdateProfile(c *gin.Context) {
 	userID := c.GetUint("user_id")
 	var input do.UpdateProfileInput
@@ -65,6 +65,7 @@ func (h *UserHandler) UpdateProfile(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} common.BasicResponse
 // @Router /auth/me [get]
+// Deprecated: 无路由引用，当前用户信息由前端 auth 状态提供
 func (h *UserHandler) Me(c *gin.Context) {
 	userID := c.GetUint("user_id")
 	user, err := h.userSvc.GetProfile(userID)

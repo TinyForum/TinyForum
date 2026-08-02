@@ -20,7 +20,7 @@ import (
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param body body board.CreateBoardInput true "板块信息"
+// @Param body body bo.CreateBoardInput true "板块信息"
 // @Success 200 {object} common.BasicResponse  "创建成功"
 // @Failure 400 {object} common.BasicResponse"请求参数错误"
 // @Failure 401 {object} common.BasicResponse"未授权"
@@ -48,7 +48,7 @@ func (h *BoardHandler) Create(c *gin.Context) {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path int true "板块ID" minimum(1) example(1)
-// @Param body body board.CreateBoardInput true "板块信息"
+// @Param body body bo.CreateBoardInput true "板块信息"
 // @Success 200 {object} common.BasicResponse  "更新成功"
 // @Failure 400 {object} common.BasicResponse"请求参数错误或板块ID无效"
 // @Failure 401 {object} common.BasicResponse"未授权"

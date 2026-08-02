@@ -29,8 +29,8 @@ func NewConfigHandler(configSvc *config.ConfigService) *ConfigHandler {
 // @Summary 获取所有配置文件列表
 // @Tags 配置管理
 // @Produce json
-// @Success 200 {object} response.Response{data=[]config.ConfigFileInfo}
-// @Router /api/admin/config/list [get]
+// @Success 200 {object} common.BasicResponse{data=[]config.ConfigFileInfo}
+// @Router /admin/config/list [get]
 func (h *ConfigHandler) ListConfigs(c *gin.Context) {
 	files, err := h.configSvc.ListConfigFiles()
 	if err != nil {
@@ -46,8 +46,8 @@ func (h *ConfigHandler) ListConfigs(c *gin.Context) {
 // @Produce json
 // @Param file path string true "配置文件名 (如 basic.yml)"
 // @Param format query string false "返回格式: yaml(默认) 或 kv"
-// @Success 200 {object} response.Response{data=object{content=string}}
-// @Router /api/admin/config/{file} [get]
+// @Success 200 {object} common.BasicResponse{data=object{content=string}}
+// @Router /admin/config/{file} [get]
 func (h *ConfigHandler) GetConfig(c *gin.Context) {
 	fileName := c.Param("file")
 	if fileName == "" {
@@ -96,8 +96,8 @@ func (h *ConfigHandler) GetConfig(c *gin.Context) {
 // @Tags 配置管理
 // @Produce json
 // @Param file path string true "配置文件名 (如 basic.yml)"
-// @Success 200 {object} response.Response{data=object{config=map[string]string}}
-// @Router /api/admin/config/{file}/kv [get]
+// @Success 200 {object} common.BasicResponse{data=object{config=map[string]string}}
+// @Router /admin/config/{file}/kv [get]
 func (h *ConfigHandler) GetConfigKV(c *gin.Context) {
 	fileName := c.Param("file")
 	if fileName == "" {
@@ -136,8 +136,8 @@ func (h *ConfigHandler) GetConfigKV(c *gin.Context) {
 // @Produce json
 // @Param file path string true "配置文件名 (如 basic.yml)"
 // @Param request body object{content=string} true "配置内容"
-// @Success 200 {object} response.Response
-// @Router /api/admin/config/{file} [put]
+// @Success 200 {object} common.BasicResponse
+// @Router /admin/config/{file} [put]
 func (h *ConfigHandler) UpdateConfig(c *gin.Context) {
 	fileName := c.Param("file")
 	if fileName == "" {
@@ -179,8 +179,8 @@ func (h *ConfigHandler) UpdateConfig(c *gin.Context) {
 // @Produce json
 // @Param file path string true "配置文件名 (如 basic.yml)"
 // @Param request body object{config=map[string]string} true "键值对配置"
-// @Success 200 {object} response.Response
-// @Router /api/admin/config/{file}/kv [put]
+// @Success 200 {object} common.BasicResponse
+// @Router /admin/config/{file}/kv [put]
 func (h *ConfigHandler) UpdateConfigKV(c *gin.Context) {
 	fileName := c.Param("file")
 	if fileName == "" {
@@ -244,8 +244,8 @@ func (h *ConfigHandler) UpdateConfigKV(c *gin.Context) {
 // @Summary 手动重载所有配置
 // @Tags 配置管理
 // @Produce json
-// @Success 200 {object} response.Response
-// @Router /api/admin/config/reload [post]
+// @Success 200 {object} common.BasicResponse
+// @Router /admin/config/reload [post]
 func (h *ConfigHandler) ReloadConfig(c *gin.Context) {
 	operator := c.GetString("username")
 	if operator == "" {
@@ -268,8 +268,8 @@ func (h *ConfigHandler) ReloadConfig(c *gin.Context) {
 // @Produce json
 // @Param file query string false "配置文件名 (不传则查所有)"
 // @Param limit query int false "数量限制" default(50)
-// @Success 200 {object} response.Response{data=[]config.ConfigHistory}
-// @Router /api/admin/config/history [get]
+// @Success 200 {object} common.BasicResponse{data=[]config.ConfigHistory}
+// @Router /admin/config/history [get]
 func (h *ConfigHandler) GetHistory(c *gin.Context) {
 	fileName := c.Query("file")
 	if fileName != "" && fileName != "all" {

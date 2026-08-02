@@ -14,7 +14,7 @@ import (
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param body body ValidateFlowRequest true "Flow 配置"
+// @Param body body request.ValidateFlowRequest true "Flow 配置"
 // @Success 200 {object} common.BasicResponse{data=object{valid=bool,errors=array}}
 // @Router /bots/nocode/validate [post]
 func (h *Handler) ValidateFlow(c *gin.Context) {

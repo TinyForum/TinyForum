@@ -64,6 +64,7 @@ func (h *ArticleHandler) AdminList(c *gin.Context) {
 // @Failure 403 {object} common.BasicResponse"无权限"
 // @Failure 500 {object} common.BasicResponse"服务器内部错误"
 // @Router /admin/posts/{id}/pin [put]
+// Deprecated: 迁移到 adminHandler，无路由引用
 func (h *ArticleHandler) AdminTogglePin(c *gin.Context) {
 	postID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
@@ -133,6 +134,7 @@ func (h *ArticleHandler) AdminGetModerationRequire(c *gin.Context) {
 // @Failure 404 {object} common.BasicResponse"帖子不存在"
 // @Failure 500 {object} common.BasicResponse"服务器内部错误"
 // @Router /admin/audit/tasks/{id}/approve [put]
+// Deprecated: 迁移到 adminHandler，无路由引用
 func (h *ArticleHandler) AdminApprovePost(c *gin.Context) {
 	postID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
@@ -171,6 +173,7 @@ func (h *ArticleHandler) AdminApprovePost(c *gin.Context) {
 // @Failure 404 {object} common.BasicResponse"帖子不存在"
 // @Failure 500 {object} common.BasicResponse"服务器内部错误"
 // @Router /admin/audit/tasks/{id}/reject [put]
+// Deprecated: 迁移到 adminHandler，无路由引用
 func (h *ArticleHandler) AdminRejectPost(c *gin.Context) {
 	postID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {

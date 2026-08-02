@@ -77,7 +77,7 @@ func (c *AuthHandler) ResetPassword(ctx *gin.Context) {
 // @Param request body dto.ResetPasswordWithTokenRequest true "重置密码请求"
 // @Success 200 {object} common.BasicResponse
 // @Failure 400 {object} common.BasicResponse
-// @Router /auth/password/reset [put]
+// @Router /auth/password/reset-withtoken [put]
 func (h *AuthHandler) ResetPasswordWithToken(ctx *gin.Context) {
 	logger.Info("=== ResetPasswordWithToken called ===")
 

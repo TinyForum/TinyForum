@@ -10,6 +10,7 @@ import (
 	announcementSvc "tiny-forum/internal/service/announcement"
 	postSvc "tiny-forum/internal/service/article"
 	"tiny-forum/internal/service/board"
+	reportsSvc "tiny-forum/internal/service/reports"
 	userSvc "tiny-forum/internal/service/user"
 )
 
@@ -36,6 +37,8 @@ type AdminService interface {
 	// board
 	ListApplications(boardID *uint, status do.ApplicationStatus, page, pageSize int) ([]do.ModeratorApplication, int64, error)
 	ReviewApplication(ctx context.Context, input request.ReviewApplicationRequest, reviewerID uint) error
+	// reports
+	ListReports(ctx context.Context, query *common.PageQuery[bo.ListReportBO]) ([]do.Report, int64, error)
 }
 
 type adminService struct {
@@ -47,6 +50,7 @@ type adminService struct {
 	userSvc         userSvc.UserService
 	boardSvc        board.BoardService
 	postSvc         postSvc.ArticleService
+	reportsSvc      reportsSvc.ReportsService
 }
 
 func NewAdminService(
@@ -58,6 +62,7 @@ func NewAdminService(
 	userSvc userSvc.UserService,
 	postSvc postSvc.ArticleService,
 	boardSvc board.BoardService,
+	reportsSvc reportsSvc.ReportsService,
 ) AdminService {
 	return &adminService{
 		// 	postRepo:        postRepo,
@@ -68,5 +73,6 @@ func NewAdminService(
 		userSvc:         userSvc,
 		postSvc:         postSvc,
 		boardSvc:        boardSvc,
+		reportsSvc:      reportsSvc,
 	}
 }

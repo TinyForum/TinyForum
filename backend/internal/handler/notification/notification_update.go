@@ -66,7 +66,7 @@ func (h *NotificationHandler) BatchMarkRead(c *gin.Context) {
 // @Failure 403 {object} common.BasicResponse"无权操作"
 // @Failure 404 {object} common.BasicResponse"通知不存在"
 // @Failure 500 {object} common.BasicResponse"服务器内部错误"
-// @Router /notifications/{id}/read [post]
+// @Router /notifications/{id}/read [patch]
 func (h *NotificationHandler) MarkRead(c *gin.Context) {
 	userID := c.GetUint("user_id")
 	notifIDStr := c.Param("id")

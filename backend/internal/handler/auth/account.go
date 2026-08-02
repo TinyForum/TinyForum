@@ -2,6 +2,7 @@ package auth
 
 import (
 	"tiny-forum/internal/model/common"
+	"tiny-forum/internal/model/dto"
 	"tiny-forum/internal/model/request"
 	"tiny-forum/internal/model/vo"
 	apperrors "tiny-forum/pkg/errors"
@@ -147,12 +148,19 @@ func (h *AuthHandler) ConfirmDeletion(c *gin.Context) {
 }
 
 // ChangePassword 修改密码（登录后）
-// PUT /api/v1/auth/password
+// @Summary 修改密码
+// @Tags 验证管理
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param request body dto.ChangePasswordRequest true "修改密码请求"
+// @Success 200 {object} common.BasicResponse
+// @Failure 400 {object} common.BasicResponse "无效的请求参数"
+// @Failure 401 {object} common.BasicResponse "未授权"
+// @Failure 500 {object} common.BasicResponse "服务器内部错误"
+// @Router /auth/account/password [put]
 func (h *AuthHandler) ChangePassword(c *gin.Context) {
-	var req struct {
-		OldPassword string `json:"old_password" binding:"required"`
-		NewPassword string `json:"new_password" binding:"required,min=8,max=32"`
-	}
+	var req dto.ChangePasswordRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		logger.Debugf("ChangePassword bind error: %v", err)

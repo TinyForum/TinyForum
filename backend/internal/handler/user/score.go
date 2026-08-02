@@ -15,7 +15,11 @@ import (
 // @Tags 用户管理
 // @Produce json
 // @Security ApiKeyAuth
-// @Router /users/score [get]
+// @Param id path int true "用户ID"
+// @Success 200 {object} vo.UserScoreVO "积分信息"
+// @Failure 400 {object} common.BasicResponse "无效的用户ID"
+// @Failure 401 {object} common.BasicResponse "未授权"
+// @Router /users/{id}/score [get]
 func (h *UserHandler) GetScore(c *gin.Context) {
 	viewerID, exists := c.Get("user_id")
 	if !exists {

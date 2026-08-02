@@ -20,14 +20,14 @@ import (
 // @Tags 回答管理
 // @Produce json
 // @Security ApiKeyAuth
+// @Param id path int true "回答ID"
 // @Param question_id path int true "问题帖子ID"
-// @Param answer_id path int true "回答评论ID"
 // @Success 200 {object} common.BasicResponse "采纳成功"
 // @Failure 400 {object} common.BasicResponse"无效的ID或操作失败"
 // @Failure 401 {object} common.BasicResponse"未授权"
 // @Failure 403 {object} common.BasicResponse"无权限（非问题作者）"
 // @Failure 404 {object} common.BasicResponse"问题或回答不存在"
-// @Router /answers/{question_id}/accept/{answer_id} [post]
+// @Router /answers/{id}/accept/{question_id} [post]
 func (h *AnswerHandler) AcceptAnswer(c *gin.Context) {
 	questionID, err := strconv.ParseUint(c.Param("question_id"), 10, 64)
 	if err != nil {
