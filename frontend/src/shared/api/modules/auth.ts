@@ -13,8 +13,12 @@ export const authApi = {
       withCredentials: true,
     }),
 
+  /**
+   * 登录：后端通过 Set-Cookie 设置 HttpOnly Cookie 传递 token
+   * JSON body 返回扁平的 UserLoginVO（不含外层 {token, user} 包装）
+   */
   login: (data: LoginPayload) =>
-    apiClient.post<ApiResponse<AuthResultVO>>("/auth/login", data, {
+    apiClient.post<ApiResponse<UserDO>>("/auth/login", data, {
       withCredentials: true,
     }),
 
