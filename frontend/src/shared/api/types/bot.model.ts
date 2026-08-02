@@ -146,8 +146,8 @@ export interface BotVO {
   tags: string[];
   creatorId: number;
   creatorName: string;
-  scriptCode: string; // Lua 脚本
-  scriptUrl?: string; // 可选外部 URL
+  scriptCode: string;
+  scriptUrl?: string;
   triggerType: BotTriggerType;
   cronExpr: string;
   eventFilter: string;
@@ -162,8 +162,10 @@ export interface BotVO {
   execCount: number;
   lastExecAt?: string;
   errorMsg: string;
+  lastExecLogs: string[];
+  lastExecDurationMs: number;
   configSchema: BotConfigField[];
-  configValues: Record<string, unknown>; // 替换 Record<string, any>
+  configValues: Record<string, unknown>;
   createdAt: string;
   updatedAt: string;
 }
@@ -247,7 +249,15 @@ export type CondType =
   | "user_post_count_gte"
   | "board_id_in"
   | "time_range"
-  | "custom_expr";
+  | "custom_expr"
+  | "field_equals"
+  | "field_not_equals"
+  | "field_contains"
+  | "field_not_contains"
+  | "field_greater_than"
+  | "field_less_than"
+  | "field_is_empty"
+  | "field_is_not_empty";
 
 export type ActionType =
   | "reply_post"
@@ -281,9 +291,42 @@ export interface ActionNode {
   params: Record<string, unknown>;
 }
 
+export type ToolType = "wait" | "set_variable" | "stop_if" | "webhook" | "notify_admin";
+
+export interface VarOutput {
+  name: string;
+  type: string;
+  desc?: string;
+}
+
+export interface BranchConfig {
+  condition: CondNode;
+  true: FlowStep[];
+  false?: FlowStep[];
+}
+
+export interface LoopConfig {
+  condition: CondNode;
+  body: FlowStep[];
+  max_iter?: number;
+}
+
+export interface FlowStep {
+  id?: string;
+  type: string;
+  label?: string;
+  params?: Record<string, unknown>;
+  branch?: BranchConfig;
+  loop?: LoopConfig;
+  outputs?: VarOutput[];
+}
+
 export interface Flow {
   version: string;
   trigger: TriggerNode;
+  steps?: FlowStep[];
+  // 向下兼容旧格式
   conditions?: CondNode[];
-  actions: ActionNode[];
+  tools?: FlowStep[];
+  actions?: FlowStep[];
 }

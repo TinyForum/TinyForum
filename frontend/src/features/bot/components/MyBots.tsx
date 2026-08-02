@@ -8,6 +8,13 @@ import {
 import { useMyBots, useBotActions } from "../hooks/bot";
 import { Pagination } from "@/shared/ui/common/Pagination";
 import { BotFormModal } from "./BotFormModal";
+import { BotExecutionLog } from "./BotExecutionLog";
+
+interface MyBotsProps {
+  page: number;
+  pageSize: number;
+  onPageChange: (page: number) => void;
+}
 
 interface MyBotsProps {
   page: number;
@@ -147,6 +154,8 @@ export function MyBots({ page, pageSize, onPageChange }: MyBotsProps) {
                     删除
                   </button>
                 </div>
+
+                <BotExecutionLog bot={bot} />
               </div>
             </div>
           ))}

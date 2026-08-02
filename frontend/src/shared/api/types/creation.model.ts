@@ -11,6 +11,7 @@ export interface Creation {
   content: string;
   summary: string;
   cover_url: string;
+  video_url: string;
   slug: string;
   image_urls: string[];
   creation_type: PostType;

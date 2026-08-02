@@ -1,40 +1,41 @@
+"use client";
+
 import { useState, useCallback, useMemo } from "react";
-import {
-  DndContext,
-  closestCenter,
-  DragEndEvent,
-  PointerSensor,
-  useSensor,
-  useSensors,
-} from "@dnd-kit/core";
-import {
-  SortableContext,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
-import {
-  ActionNode,
-  ActionType,
-  CondNode,
-  CondType,
-  CreateBotRequest,
-  Flow,
-  TriggerNode,
-  TriggerType,
-} from "@/shared/api/types/bot.model";
-import { useBotActions } from "@/features/bot/hooks/bot";
+import ReactFlow, {
+  Controls,
+  Background,
+  MiniMap,
+  ReactFlowProvider,
+  ReactFlowInstance,
+  useNodesState,
+  useEdgesState,
+  addEdge,
+  Connection,
+  MarkerType,
+  Node,
+} from "reactflow";
+import "reactflow/dist/style.css";
+
 import {
   useNocodeMetadata,
   useValidateFlow,
 } from "@/features/bot/hooks/useNocodeMetadata";
-import { NodeMeta, NocodeMetadata } from "@/shared/api/types/nocode.model";
+import { useBotActions } from "@/features/bot/hooks/bot";
+import { CreateBotRequest, TriggerNode } from "@/shared/api/types/bot.model";
+import { BotTriggerType } from "@/shared/api/types/bot.model.do";
+import { NodeMeta } from "@/shared/api/types/nocode.model";
 import toast from "react-hot-toast";
-import { CollapsibleSection } from "./components/CollapsibleSection";
-import { ConfigModal } from "./components/ConfigModal";
-import { SortableItem } from "./components/SortableItem";
+
+import { NodePalette } from "./components/NodePalette";
+import { FlowNode, FlowNodeData } from "./components/FlowNode";
+import { ParamFormModal } from "./components/ParamFormModal";
+import { generateNodeId, graphToFlow, validateDepth } from "./flowUtils";
 import { createDefaultParams } from "./helper";
 
-// ---------- 主组件 ----------
-export function BotFlowEditor() {
+const nodeTypes = { flowNode: FlowNode };
+
+// ── 主编辑器组件 ──
+function FlowEditor() {
   const {
     metadata,
     loading: metaLoading,
@@ -43,205 +44,208 @@ export function BotFlowEditor() {
   const { validate, loading: validating } = useValidateFlow();
   const { createBot, loading: saving } = useBotActions();
 
-  // 线性数据结构
-  const [trigger, setTrigger] = useState<TriggerNode | null>(null);
-  const [conditions, setConditions] = useState<CondNode[]>([]);
-  const [actions, setActions] = useState<ActionNode[]>([]);
-  const [savingError, setSavingError] = useState<string | null>(null);
+  const [nodes, setNodes, onNodesChange] = useNodesState<FlowNodeData>([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const [reactFlowInstance, setReactFlowInstance] =
+    useState<ReactFlowInstance | null>(null);
 
-  // 配置弹窗状态
-  const [editingItem, setEditingItem] = useState<{
-    type: "trigger" | "condition" | "action";
-    index?: number;
-    node: TriggerNode | CondNode | ActionNode;
-    label: string;
+  const [editingNode, setEditingNode] = useState<{
+    id: string;
+    meta: NodeMeta;
   } | null>(null);
 
-  // 拖拽传感器
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-  );
-
-  const {
-    triggers,
-    conditions: condMetas,
-    actions: actionMetas,
-  } = useMemo<NocodeMetadata>(() => {
-    if (!metadata) return { triggers: [], conditions: [], actions: [] };
-    return metadata;
+  // 合并所有节点元数据（便于按 type 查找）
+  const allMetas = useMemo<NodeMeta[]>(() => {
+    if (!metadata) return [];
+    return [
+      ...metadata.triggers,
+      ...metadata.control,
+      ...metadata.variables,
+      ...metadata.actions,
+    ];
   }, [metadata]);
 
-  // 添加触发器（替换）
-  const addTrigger = useCallback((nodeMeta: NodeMeta) => {
-    const newTrigger: TriggerNode = {
-      type: nodeMeta.type as TriggerType,
-      params: createDefaultParams(nodeMeta),
-    };
-    setTrigger(newTrigger);
-  }, []);
-
-  // 添加条件（追加）
-  const addCondition = useCallback((nodeMeta: NodeMeta) => {
-    const newCond: CondNode = {
-      type: nodeMeta.type as CondType,
-      negate: false,
-      params: createDefaultParams(nodeMeta),
-    };
-    setConditions((prev) => [...prev, newCond]);
-  }, []);
-
-  // 添加动作
-  const addAction = useCallback((nodeMeta: NodeMeta) => {
-    const newAction: ActionNode = {
-      type: nodeMeta.type as ActionType,
-      params: createDefaultParams(nodeMeta),
-    };
-    setActions((prev) => [...prev, newAction]);
-  }, []);
-
-  // 更新条件配置
-  const updateCondition = useCallback(
-    (index: number, params: Record<string, unknown>) => {
-      setConditions((prev) =>
-        prev.map((c, i) => (i === index ? { ...c, params } : c)),
+  // ── 连线 ──
+  const onConnect = useCallback(
+    (connection: Connection) => {
+      setEdges((eds) =>
+        addEdge(
+          {
+            ...connection,
+            markerEnd: { type: MarkerType.ArrowClosed },
+            style: { stroke: "#94a3b8", strokeWidth: 2 },
+          },
+          eds,
+        ),
       );
     },
-    [],
+    [setEdges],
   );
 
-  // 更新动作配置
-  const updateAction = useCallback(
-    (index: number, params: Record<string, unknown>) => {
-      setActions((prev) =>
-        prev.map((a, i) => (i === index ? { ...a, params } : a)),
+  // ── 允许拖放 ──
+  const onDragOver = useCallback((event: React.DragEvent) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "move";
+  }, []);
+
+  // ── 从画板拖入节点 ──
+  const onDrop = useCallback(
+    (event: React.DragEvent) => {
+      event.preventDefault();
+
+      const type = event.dataTransfer.getData("application/reactflow-type");
+      const categoryStr = event.dataTransfer.getData(
+        "application/reactflow-category",
+      );
+      const label = event.dataTransfer.getData("application/reactflow-label");
+
+      if (!type || !categoryStr || !reactFlowInstance) return;
+
+      const category = categoryStr as FlowNodeData["category"];
+      const position = reactFlowInstance.screenToFlowPosition({
+        x: event.clientX,
+        y: event.clientY,
+      });
+
+      const meta = allMetas.find((m) => m.type === type);
+      const newNode: Node<FlowNodeData> = {
+        id: generateNodeId(),
+        type: "flowNode",
+        position,
+        data: {
+          nodeType: type,
+          label,
+          category,
+          params: meta ? createDefaultParams(meta) : {},
+        },
+      };
+
+      setNodes((nds) => [...nds, newNode]);
+    },
+    [reactFlowInstance, allMetas, setNodes],
+  );
+
+  // ── 双击打开配置 ──
+  const onNodeDoubleClick = useCallback(
+    (_event: React.MouseEvent, node: Node<FlowNodeData>) => {
+      const meta = allMetas.find((m) => m.type === node.data.nodeType);
+      if (meta) {
+        setEditingNode({ id: node.id, meta });
+      }
+    },
+    [allMetas],
+  );
+
+  // ── 更新节点参数 ──
+  const updateNodeParams = useCallback(
+    (nodeId: string, newParams: Record<string, unknown>) => {
+      setNodes((nds) =>
+        nds.map((n) =>
+          n.id === nodeId
+            ? { ...n, data: { ...n.data, params: newParams } }
+            : n,
+        ),
       );
     },
-    [],
+    [setNodes],
   );
 
-  // 更新触发器配置
-  const updateTriggerConfig = useCallback((params: Record<string, unknown>) => {
-    setTrigger((prev) => (prev ? { ...prev, params } : prev));
-  }, []);
-
-  // 删除条件
-  const deleteCondition = useCallback((index: number) => {
-    setConditions((prev) => prev.filter((_, i) => i !== index));
-  }, []);
-
-  // 删除动作
-  const deleteAction = useCallback((index: number) => {
-    setActions((prev) => prev.filter((_, i) => i !== index));
-  }, []);
-
-  // 条件拖拽排序结束
-  const handleConditionDragEnd = useCallback(
-    (event: DragEndEvent) => {
-      const { active, over } = event;
-      if (over && active.id !== over.id) {
-        const oldIndex = conditions.findIndex(
-          (_, i) => String(i) === active.id,
-        );
-        const newIndex = conditions.findIndex((_, i) => String(i) === over.id);
-        if (oldIndex !== -1 && newIndex !== -1) {
-          const newConditions = [...conditions];
-          const [moved] = newConditions.splice(oldIndex, 1);
-          newConditions.splice(newIndex, 0, moved);
-          setConditions(newConditions);
-        }
-      }
-    },
-    [conditions],
-  );
-
-  // 动作拖拽排序结束
-  const handleActionDragEnd = useCallback(
-    (event: DragEndEvent) => {
-      const { active, over } = event;
-      if (over && active.id !== over.id) {
-        const oldIndex = actions.findIndex((_, i) => String(i) === active.id);
-        const newIndex = actions.findIndex((_, i) => String(i) === over.id);
-        if (oldIndex !== -1 && newIndex !== -1) {
-          const newActions = [...actions];
-          const [moved] = newActions.splice(oldIndex, 1);
-          newActions.splice(newIndex, 0, moved);
-          setActions(newActions);
-        }
-      }
-    },
-    [actions],
-  );
-
-  // 构建线性 Flow 对象
-  const buildFlowPayload = useCallback((): Flow | null => {
-    if (!trigger) return null;
-    return {
-      version: "1",
-      trigger,
-      conditions: conditions.length > 0 ? conditions : undefined,
-      actions,
-    };
-  }, [trigger, conditions, actions]);
-
-  // 校验流程
-  const handleValidate = async () => {
-    const flow = buildFlowPayload();
-    if (!flow) {
-      toast.error("请先配置触发器");
-      return false;
+  // ── 根据 nocode 触发器类型推导 bot 顶层字段 ──
+  const deriveTriggerFields = (trigger: TriggerNode): {
+    triggerType: BotTriggerType;
+    eventFilter?: string;
+    cronExpr?: string;
+  } => {
+    switch (trigger.type) {
+      case "on_schedule":
+        return {
+          triggerType: "schedule",
+          cronExpr: (trigger.params?.cron as string) || "",
+        };
+      case "on_new_post":
+        return { triggerType: "event", eventFilter: "post.created" };
+      case "on_new_comment":
+        return { triggerType: "event", eventFilter: "comment.created" };
+      case "on_user_register":
+        return { triggerType: "event", eventFilter: "user.registered" };
+      case "on_keyword":
+        return { triggerType: "event", eventFilter: "post.created,comment.created" };
+      default:
+        return { triggerType: "manual" };
     }
-    const result = await validate(flow);
-    if (!result.valid) {
-      toast.error(`校验失败：\n${result.errors?.join("\n") || "未知错误"}`);
-    } else {
-      toast.success("流程校验通过！");
-    }
-    return result.valid;
   };
 
-  // 保存机器人
+  // ── 构建 Flow 并保存 ──
   const handleSave = async () => {
-    setSavingError(null);
-    const flow = buildFlowPayload();
-    console.log("保存机器人: ", flow);
-    if (!flow) {
-      toast.error("请先配置触发器");
+    // 深度检查
+    const depthCheck = validateDepth(nodes, edges);
+    if (!depthCheck.valid) {
+      toast.error(`流程校验失败：\n${depthCheck.errors.join("\n")}`);
       return;
     }
+
+    const flow = graphToFlow(nodes, edges);
+    if (!flow) {
+      toast.error("请先添加一个触发器节点");
+      return;
+    }
+
+    const nonTriggerNodes = nodes.filter(
+      (n) => n.data.category !== "trigger",
+    );
+    if (nonTriggerNodes.length === 0) {
+      toast.error("请至少添加一个节点（控制/变量/动作）");
+      return;
+    }
+
     const validation = await validate(flow);
     if (!validation.valid) {
-      toast.error(`保存前校验失败：\n${validation.errors?.join("\n")}`);
+      toast.error(
+        `校验失败：\n${validation.errors?.join("\n") || "未知错误"}`,
+      );
       return;
     }
+
+    const { triggerType, eventFilter, cronExpr } = deriveTriggerFields(
+      flow.trigger,
+    );
 
     const requestData: CreateBotRequest = {
       name: "未命名零代码机器人",
       version: "1.0.0",
-      description: "通过线性流程创建",
+      description: "通过可视化节点图创建",
       type: "task",
-      scriptCode: "",
-      triggerType: "manual",
+      scriptCode: "nocode",
+      triggerType,
+      eventFilter,
+      cronExpr,
+      timeoutSec: 10,
       configValues: { flow },
     };
 
     const id = await createBot(requestData);
     if (id) {
       toast.success(`机器人创建成功！ID: ${id}`);
-      // 重置状态
-      setTrigger(null);
-      setConditions([]);
-      setActions([]);
-    } else {
-      setSavingError("保存失败，请重试");
+      setNodes([]);
+      setEdges([]);
     }
   };
 
+  // ── 加载态 / 错误态 ──
   if (metaLoading) {
-    return <div className="p-4 text-center">加载节点定义中...</div>;
-  }
-  if (metaError) {
     return (
-      <div className="p-4 text-center text-red-500">加载失败：{metaError}</div>
+      <div className="flex items-center justify-center h-[calc(100vh-24rem)]">
+        <span className="loading loading-spinner loading-md" />
+        <span className="ml-3 text-gray-500">加载节点定义中...</span>
+      </div>
+    );
+  }
+
+  if (metaError || !metadata) {
+    return (
+      <div className="flex items-center justify-center h-[calc(100vh-24rem)] text-red-500">
+        加载失败：{metaError || "未知错误"}
+      </div>
     );
   }
 
@@ -249,198 +253,101 @@ export function BotFlowEditor() {
     <div className="flex flex-col h-[calc(100vh-24rem)] border rounded-lg overflow-hidden">
       <div className="flex flex-1 min-h-0">
         {/* 左侧节点库 */}
-        <div className="w-64 bg-gray-100 p-3 overflow-y-auto border-r h-full">
-          <CollapsibleSection title="触发器" defaultOpen>
-            {triggers.map((t) => (
-              <div
-                key={t.type}
-                className="p-2 bg-white rounded shadow cursor-pointer hover:bg-blue-50"
-                onClick={() => addTrigger(t)}
-              >
-                {t.label}
-              </div>
-            ))}
-          </CollapsibleSection>
-
-          <CollapsibleSection title="条件" defaultOpen>
-            {condMetas.map((c) => (
-              <div
-                key={c.type}
-                className="p-2 bg-white rounded shadow cursor-pointer hover:bg-blue-50"
-                onClick={() => addCondition(c)}
-              >
-                {c.label}
-              </div>
-            ))}
-          </CollapsibleSection>
-
-          <CollapsibleSection title="动作" defaultOpen>
-            {actionMetas.map((a) => (
-              <div
-                key={a.type}
-                className="p-2 bg-white rounded shadow cursor-pointer hover:bg-blue-50"
-                onClick={() => addAction(a)}
-              >
-                {a.label}
-              </div>
-            ))}
-          </CollapsibleSection>
+        <div className="w-64 flex-shrink-0 border-r bg-white">
+          <NodePalette metadata={metadata} />
         </div>
 
-        {/* 右侧流程编辑区 */}
-        <div className="flex-1 p-4 overflow-y-auto space-y-6">
-          {/* 触发器区块 */}
-          <div>
-            <h2 className="font-bold text-lg mb-2">触发器</h2>
-            {trigger ? (
-              <div className="bg-gray-50 border rounded p-3 flex justify-between items-center">
-                <span className="font-medium">{trigger.type}</span>
-                <button
-                  onClick={() =>
-                    setEditingItem({
-                      type: "trigger",
-                      node: trigger,
-                      label: trigger.type,
-                    })
-                  }
-                  className="text-blue-600 hover:text-blue-800 text-sm"
-                >
-                  配置
-                </button>
-              </div>
-            ) : (
-              <div className="text-gray-400 italic">请从左侧点击添加触发器</div>
-            )}
-          </div>
-
-          {/* 条件区块（可拖拽排序） */}
-          <div>
-            <h2 className="font-bold text-lg mb-2">条件（全部满足）</h2>
-            {conditions.length === 0 ? (
-              <div className="text-gray-400 italic">暂无条件，点击左侧添加</div>
-            ) : (
-              <DndContext
-                sensors={sensors}
-                collisionDetection={closestCenter}
-                onDragEnd={handleConditionDragEnd}
-              >
-                <SortableContext
-                  items={conditions.map((_, i) => String(i))}
-                  strategy={verticalListSortingStrategy}
-                >
-                  <div className="space-y-2">
-                    {conditions.map((cond, idx) => (
-                      <SortableItem
-                        key={idx}
-                        id={String(idx)}
-                        typeLabel={cond.type}
-                        onEdit={() =>
-                          setEditingItem({
-                            type: "condition",
-                            index: idx,
-                            node: cond,
-                            label: cond.type,
-                          })
-                        }
-                        onDelete={() => deleteCondition(idx)}
-                      />
-                    ))}
-                  </div>
-                </SortableContext>
-              </DndContext>
-            )}
-          </div>
-
-          {/* 动作区块（可拖拽排序） */}
-          <div>
-            <h2 className="font-bold text-lg mb-2">动作（顺序执行）</h2>
-            {actions.length === 0 ? (
-              <div className="text-gray-400 italic">暂无动作，点击左侧添加</div>
-            ) : (
-              <DndContext
-                sensors={sensors}
-                collisionDetection={closestCenter}
-                onDragEnd={handleActionDragEnd}
-              >
-                <SortableContext
-                  items={actions.map((_, i) => String(i))}
-                  strategy={verticalListSortingStrategy}
-                >
-                  <div className="space-y-2">
-                    {actions.map((action, idx) => (
-                      <SortableItem
-                        key={idx}
-                        id={String(idx)}
-                        typeLabel={action.type}
-                        onEdit={() =>
-                          setEditingItem({
-                            type: "action",
-                            index: idx,
-                            node: action,
-                            label: action.type,
-                          })
-                        }
-                        onDelete={() => deleteAction(idx)}
-                      />
-                    ))}
-                  </div>
-                </SortableContext>
-              </DndContext>
-            )}
-          </div>
+        {/* 中间画布 */}
+        <div className="flex-1">
+          <ReactFlow
+            nodes={nodes}
+            edges={edges}
+            onNodesChange={onNodesChange}
+            onEdgesChange={onEdgesChange}
+            onConnect={onConnect}
+            onDragOver={onDragOver}
+            onDrop={onDrop}
+            onNodeDoubleClick={onNodeDoubleClick}
+            onInit={setReactFlowInstance}
+            nodeTypes={nodeTypes}
+            fitView
+            deleteKeyCode={["Backspace", "Delete"]}
+            multiSelectionKeyCode="Shift"
+            snapToGrid
+            snapGrid={[20, 20]}
+            defaultEdgeOptions={{
+              type: "smoothstep",
+              animated: true,
+              style: { stroke: "#94a3b8", strokeWidth: 2 },
+              markerEnd: { type: MarkerType.ArrowClosed, color: "#94a3b8" },
+            }}
+          >
+            <Controls />
+            <Background gap={20} size={1} color="#e2e8f0" />
+            <MiniMap
+              nodeStrokeColor="#94a3b8"
+              nodeColor={(n) => {
+                const d = n.data as FlowNodeData | undefined;
+                if (d?.category === "trigger") return "#bbf7d0";
+                if (d?.category === "control") return "#fed7aa";
+                if (d?.category === "variable") return "#e9d5ff";
+                if (d?.category === "action") return "#bfdbfe";
+                return "#e2e8f0";
+              }}
+              maskColor="rgba(0,0,0,0.05)"
+            />
+          </ReactFlow>
         </div>
       </div>
 
-      {/* 底部按钮 */}
-      <div className="p-3 border-t flex justify-end gap-2">
-        <button
-          className="px-3 py-1 border rounded text-sm hover:bg-gray-50"
-          onClick={handleValidate}
-          disabled={validating}
-        >
-          {validating ? "校验中..." : "校验流程"}
-        </button>
-        <button
-          className="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 disabled:bg-gray-400"
-          onClick={handleSave}
-          disabled={saving}
-        >
-          {saving ? "保存中..." : "保存机器人"}
-        </button>
+      {/* 底部操作栏 */}
+      <div className="flex-shrink-0 border-t bg-white px-4 py-3 flex items-center justify-between">
+        <div className="text-sm text-gray-500">
+          拖拽左侧节点到画布 · 双击节点配置参数 · 连接节点定义流程顺序
+        </div>
+        <div className="flex gap-2">
+          <button
+            className="px-4 py-2 border rounded-lg text-sm hover:bg-gray-50
+              disabled:opacity-50"
+            disabled={validating}
+          >
+            {validating ? "校验中..." : "校验流程"}
+          </button>
+          <button
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm
+              hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+            onClick={handleSave}
+            disabled={saving || validating}
+          >
+            {saving ? "保存中..." : "保存机器人"}
+          </button>
+        </div>
       </div>
 
-      {savingError && (
-        <div className="text-red-500 text-center p-2">{savingError}</div>
-      )}
-
-      {/* 配置弹窗 */}
-      {editingItem && (
-        <ConfigModal
-          title={editingItem.label}
+      {/* 参数配置弹窗 */}
+      {editingNode && (
+        <ParamFormModal
+          title={editingNode.meta.label}
           params={
-            editingItem.type === "trigger"
-              ? (editingItem.node as TriggerNode).params || {}
-              : (editingItem.node as CondNode | ActionNode).params
+            nodes.find((n) => n.id === editingNode.id)?.data.params || {}
           }
+          paramMetas={editingNode.meta.params || []}
           onSave={(newParams) => {
-            if (editingItem.type === "trigger") {
-              updateTriggerConfig(newParams);
-            } else if (
-              editingItem.type === "condition" &&
-              editingItem.index !== undefined
-            ) {
-              updateCondition(editingItem.index, newParams);
-            } else if (
-              editingItem.type === "action" &&
-              editingItem.index !== undefined
-            ) {
-              updateAction(editingItem.index, newParams);
-            }
-            setEditingItem(null);
+            updateNodeParams(editingNode.id, newParams);
+            setEditingNode(null);
           }}
-          onClose={() => setEditingItem(null)}
+          onClose={() => setEditingNode(null)}
         />
       )}
     </div>
+  );
+}
+
+// ── 导出（包裹 ReactFlowProvider） ──
+export function BotFlowEditor() {
+  return (
+    <ReactFlowProvider>
+      <FlowEditor />
+    </ReactFlowProvider>
   );
 }

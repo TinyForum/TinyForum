@@ -13,6 +13,7 @@ import (
 	tagRepo "tiny-forum/internal/repository/tag"
 	"tiny-forum/internal/repository/transaction"
 	userRepo "tiny-forum/internal/repository/user"
+	"tiny-forum/internal/service/bot"
 	"tiny-forum/internal/service/notification"
 )
 
@@ -38,6 +39,7 @@ type questionService struct {
 	commentRepo  commentRepo.CommentRepository
 	userRepo     userRepo.UserRepository
 	notifSvc     notification.NotificationService
+	botSvc       bot.Service
 	tagRepo      tagRepo.TagRepository
 	txManager    transaction.TransactionManager
 }
@@ -48,6 +50,7 @@ func NewQuestionService(
 	commentRepo commentRepo.CommentRepository,
 	userRepo userRepo.UserRepository,
 	notifSvc notification.NotificationService,
+	botSvc bot.Service,
 	tagRepo tagRepo.TagRepository,
 	txManager transaction.TransactionManager,
 ) QuestionService {
@@ -57,6 +60,7 @@ func NewQuestionService(
 		commentRepo:  commentRepo,
 		userRepo:     userRepo,
 		notifSvc:     notifSvc,
+		botSvc:       botSvc,
 		tagRepo:      tagRepo,
 		txManager:    txManager,
 	}

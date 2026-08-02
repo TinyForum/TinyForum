@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { FileText, MessageSquare, BookOpen, Hash } from "lucide-react";
 import { ViolationStatus } from "./ViolationStatus";
-import PostCard from "@/shared/ui/creation/PostCard";
+import WorkCard from "@/shared/ui/creation/WorkCard";
 import { PostType } from "@/shared/api/types/post.model";
 import { useProfileContent } from "../hooks/useProfileContent";
 
@@ -14,7 +14,7 @@ interface ProfileContentProps {
 }
 
 const TAB_CONFIG = [
-  { key: "post" as PostType, label: "the_posts", icon: FileText },
+  { key: "image_text" as PostType, label: "the_posts", icon: FileText },
   { key: "article" as PostType, label: "the_articles", icon: BookOpen },
   { key: "question" as PostType, label: "the_questions", icon: MessageSquare },
   { key: "topic" as PostType, label: "the_topics", icon: Hash },
@@ -24,14 +24,13 @@ export function ProfileContent({
   userId,
   isAuthenticated,
 }: ProfileContentProps) {
-  const [tab, setTab] = useState<PostType>("post");
+  const [tab, setTab] = useState<PostType>("image_text");
   const t = useTranslations("Profile");
 
-  // 获取用户的帖子/文章
   const { data: postsData, isLoading } = useProfileContent(userId, tab);
 
   const posts = postsData?.list ?? [];
-  const currentTabConfig = TAB_CONFIG.find((t) => t.key === tab);
+  const currentTabConfig = TAB_CONFIG.find((tb) => tb.key === tab);
 
   if (isLoading) {
     return (
@@ -45,10 +44,8 @@ export function ProfileContent({
 
   return (
     <div className="space-y-4">
-      {/* 违规状态（已登录时） */}
       {isAuthenticated && <ViolationStatus />}
 
-      {/* Tab 切换栏 */}
       <div className="tabs tabs-boxed bg-base-100 border border-base-300 p-1">
         {TAB_CONFIG.map(({ key, label, icon: Icon }) => (
           <button
@@ -62,18 +59,17 @@ export function ProfileContent({
         ))}
       </div>
 
-      {/* 内容列表 */}
       {posts.length === 0 ? (
         <div className="text-center py-16 bg-base-100 rounded-xl border border-base-200">
           {currentTabConfig && (
             <currentTabConfig.icon className="w-12 h-12 mx-auto mb-3 opacity-30" />
           )}
           <p className="text-base-content/40">
-            {tab === "post"
+            {tab === "image_text"
               ? t("no_posts")
               : tab === "article"
                 ? t("no_articles")
-                : tab === "questions"
+                : tab === "question"
                   ? t("no_questions")
                   : t("no_topics")}
           </p>
@@ -81,7 +77,7 @@ export function ProfileContent({
       ) : (
         <div className="space-y-3">
           {posts.map((post) => (
-            <PostCard key={post.id} post={post} />
+            <WorkCard key={post.id} post={post} />
           ))}
         </div>
       )}

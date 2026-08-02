@@ -160,3 +160,22 @@ func (s *service) GetUserFiles(ctx context.Context, userID uint, fileTypeStr str
 func (s *service) AssociateWithPost(ctx context.Context, fileID string, postID int64) error {
 	return s.repo.AssociateWithPost(ctx, fileID, postID)
 }
+
+// DeleteByPostID 删除帖子的所有附件（物理文件 + 数据库记录）
+func (s *service) DeleteByPostID(ctx context.Context, postID int64) error {
+	attachments, err := s.repo.FindByPostID(ctx, postID)
+	if err != nil {
+		return err
+	}
+	for _, att := range attachments {
+		// 删除物理文件
+		if delErr := s.uploadEng.DeleteFile(ctx, att.StoredPath); delErr != nil {
+			logger.Warnf("删除物理文件失败 (path=%s): %v", att.StoredPath, delErr)
+		}
+		// 软删除数据库记录
+		if softErr := s.repo.SoftDelete(ctx, att.FileID); softErr != nil {
+			logger.Warnf("软删除附件记录失败 (file_id=%s): %v", att.FileID, softErr)
+		}
+	}
+	return nil
+}

@@ -11,6 +11,8 @@ import (
 	tagRepo "tiny-forum/internal/repository/tag"
 	userRepo "tiny-forum/internal/repository/user"
 
+	attachment "tiny-forum/internal/service/attachment"
+	"tiny-forum/internal/service/bot"
 	"tiny-forum/internal/service/check"
 	"tiny-forum/internal/service/notification"
 
@@ -36,12 +38,13 @@ type ArticleService interface {
 }
 
 type articleService struct {
-	postRepo  postRepo.ArticleRepository
-	tagRepo   tagRepo.TagRepository
-	boardRepo boardRepo.BoardRepository
-	userRepo  userRepo.UserRepository
-	notifSvc  notification.NotificationService
-	// riskSvc         *risk.RiskService
+	postRepo       postRepo.ArticleRepository
+	tagRepo        tagRepo.TagRepository
+	boardRepo      boardRepo.BoardRepository
+	userRepo       userRepo.UserRepository
+	notifSvc       notification.NotificationService
+	botSvc         bot.Service
+	attachmentSvc  attachment.AttachmentService
 	contentcheckSvc check.ContentCheckService
 }
 
@@ -51,16 +54,18 @@ func NewPostService(
 	userRepo userRepo.UserRepository,
 	boardRepo boardRepo.BoardRepository,
 	notifSvc notification.NotificationService,
-	// riskSvc *risk.RiskService,
+	botSvc bot.Service,
+	attachmentSvc attachment.AttachmentService,
 	contentcheckSvc check.ContentCheckService,
 ) ArticleService {
 	return &articleService{
-		postRepo:  postRepo,
-		tagRepo:   tagRepo,
-		userRepo:  userRepo,
-		boardRepo: boardRepo,
-		notifSvc:  notifSvc,
-		// riskSvc:         riskSvc,
+		postRepo:       postRepo,
+		tagRepo:        tagRepo,
+		userRepo:       userRepo,
+		boardRepo:       boardRepo,
+		notifSvc:       notifSvc,
+		botSvc:         botSvc,
+		attachmentSvc:  attachmentSvc,
 		contentcheckSvc: contentcheckSvc,
 	}
 }

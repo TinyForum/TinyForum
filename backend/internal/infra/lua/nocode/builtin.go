@@ -1,12 +1,12 @@
 package nocode
 
-// BuiltinTriggers 内置触发器元数据
+// ─── 触发器 ──────────────────────────────────────────────────────────
+
 var BuiltinTriggers = []NodeMeta{
 	{Type: string(TriggerOnSchedule), Label: "定时触发", Icon: "clock",
 		Description: "按 Cron 表达式定时执行",
 		Params: []ParamMeta{
-			{Key: "cron", Label: "Cron 表达式", Type: "cron", Required: true,
-				Placeholder: "0 9 * * 1（每周一 9:00）"},
+			{Key: "cron", Label: "Cron 表达式", Type: "cron", Required: true, Placeholder: "0 9 * * 1"},
 		},
 	},
 	{Type: string(TriggerOnNewPost), Label: "新帖触发", Icon: "file-text",
@@ -16,120 +16,241 @@ var BuiltinTriggers = []NodeMeta{
 		},
 	},
 	{Type: string(TriggerOnNewComment), Label: "新评论触发", Icon: "message-circle",
-		Description: "有新评论时触发"},
+		Description: "有新评论时触发",
+	},
 	{Type: string(TriggerOnUserRegister), Label: "新用户注册", Icon: "user-plus",
-		Description: "新用户完成注册时触发"},
+		Description: "新用户完成注册时触发",
+	},
 	{Type: string(TriggerOnKeyword), Label: "关键词触发", Icon: "search",
 		Description: "帖子或评论包含关键词时触发",
 		Params: []ParamMeta{
-			{Key: "keywords", Label: "关键词列表", Type: "tags", Required: true},
-			{Key: "scope", Label: "检测范围", Type: "select", Required: true, Default: "both",
+			{Key: "keywords", Label: "关键词", Type: "tags", Required: true},
+			{Key: "scope", Label: "范围", Type: "select", Required: true, Default: "both",
 				Options: []OptionMeta{
-					{Label: "帖子", Value: "post"},
-					{Label: "评论", Value: "comment"},
-					{Label: "全部", Value: "both"},
+					{Label: "帖子", Value: "post"}, {Label: "评论", Value: "comment"}, {Label: "全部", Value: "both"},
 				}},
 		},
 	},
 	{Type: string(TriggerOnManual), Label: "手动触发", Icon: "play",
-		Description: "仅通过 API 手动触发"},
+		Description: "仅通过 API 手动触发",
+	},
 }
 
-// BuiltinConditions 内置条件元数据
-var BuiltinConditions = []NodeMeta{
-	{Type: string(CondPostTitleContains), Label: "标题含关键词", Icon: "type",
-		Params: []ParamMeta{{Key: "keywords", Label: "关键词列表", Type: "tags", Required: true}}},
-	{Type: string(CondPostContentContains), Label: "正文含关键词", Icon: "file-text",
-		Params: []ParamMeta{{Key: "keywords", Label: "关键词列表", Type: "tags", Required: true}}},
-	{Type: string(CondUserRoleIs), Label: "用户角色是", Icon: "shield",
+// ─── 控制 ────────────────────────────────────────────────────────────
+
+var BuiltinControl = []NodeMeta{
+	{Type: "if", Label: "条件分支 (if/else)", Icon: "git-branch", Category: "flow",
+		Description: "条件为真执行 true 路径，否则走 false 路径",
 		Params: []ParamMeta{
-			{Key: "role", Label: "角色", Type: "select", Required: true,
+			{Key: "condition_field", Label: "检查字段", Type: "select", Required: true,
+				Options: fieldOptions(),
+			},
+			{Key: "condition_op", Label: "运算符", Type: "select", Required: true, Default: "equals",
 				Options: []OptionMeta{
-					{Label: "普通用户", Value: "user"},
-					{Label: "版主", Value: "moderator"},
-					{Label: "管理员", Value: "admin"},
-				}},
+					{Label: "等于", Value: "equals"},
+					{Label: "不等于", Value: "not_equals"},
+					{Label: "包含", Value: "contains"},
+					{Label: "大于", Value: "greater_than"},
+					{Label: "小于", Value: "less_than"},
+					{Label: "为空", Value: "is_empty"},
+					{Label: "非空", Value: "is_not_empty"},
+				},
+			},
+			{Key: "condition_value", Label: "比较值", Type: "text", Placeholder: "支持模板 {{var}}"},
 		},
 	},
-	{Type: string(CondUserPostCountGte), Label: "用户发帖数 ≥", Icon: "bar-chart-2",
-		Params: []ParamMeta{{Key: "count", Label: "发帖数阈值", Type: "number", Required: true, Default: 10}}},
-	{Type: string(CondBoardIDIn), Label: "所在板块是", Icon: "folder",
-		Params: []ParamMeta{{Key: "ids", Label: "板块 ID 列表", Type: "tags", Required: true}}},
-	{Type: string(CondTimeRange), Label: "时间在区间内", Icon: "clock",
+	{Type: "while", Label: "循环 (while)", Icon: "refresh-cw", Category: "flow",
+		Description: "条件为真时反复执行 body 内的步骤",
 		Params: []ParamMeta{
-			{Key: "start", Label: "开始时间 (HH:mm)", Type: "text", Required: true, Placeholder: "09:00"},
-			{Key: "end", Label: "结束时间 (HH:mm)", Type: "text", Required: true, Placeholder: "18:00"},
-			{Key: "tz", Label: "时区", Type: "text", Default: "Asia/Shanghai"},
+			{Key: "condition_field", Label: "检查字段", Type: "select", Required: true,
+				Options: fieldOptions(),
+			},
+			{Key: "condition_op", Label: "运算符", Type: "select", Required: true, Default: "less_than",
+				Options: []OptionMeta{
+					{Label: "小于", Value: "less_than"},
+					{Label: "大于", Value: "greater_than"},
+					{Label: "不等于", Value: "not_equals"},
+				},
+			},
+			{Key: "condition_value", Label: "比较值", Type: "text", Required: true, Placeholder: "支持 {{var}}"},
+			{Key: "max_iter", Label: "最大迭代", Type: "number", Default: 100},
 		},
 	},
-	{Type: string(CondCustomExpr), Label: "自定义表达式", Icon: "code",
-		Description: "支持简单比较：event.score > 80",
+	{Type: "wait", Label: "等待", Icon: "pause", Category: "control",
+		Description: "暂停执行指定秒数",
 		Params: []ParamMeta{
-			{Key: "expr", Label: "表达式", Type: "text", Required: true, Placeholder: "event.score > 80"},
+			{Key: "seconds", Label: "秒数", Type: "number", Required: true, Default: 1},
 		},
+	},
+	{Type: "stop", Label: "终止流程", Icon: "stop-circle", Category: "control",
+		Description: "提前结束整个流程",
 	},
 }
 
-// BuiltinActions 内置动作元数据
-var BuiltinActions = []NodeMeta{
-	{Type: string(ActionReplyPost), Label: "回复帖子", Icon: "reply", Category: "post",
+// ─── 变量 ────────────────────────────────────────────────────────────
+
+var BuiltinVariables = []NodeMeta{
+	{Type: "set_variable", Label: "设置变量", Icon: "edit-3", Category: "variable",
+		Description: "设置一个变量，后续节点可通过 {{name}} 引用",
 		Params: []ParamMeta{
-			{Key: "content", Label: "回复内容", Type: "textarea", Required: true,
-				Placeholder: "支持模板变量：{{.username}}"},
+			{Key: "name", Label: "变量名", Type: "text", Required: true},
+			{Key: "value", Label: "值", Type: "text", Required: true, Placeholder: "支持模板 {{var}}"},
+		},
+		Outputs: []VarOutput{{Name: "__custom__", Type: "string", Desc: "用户自定义变量名"}},
+	},
+
+	// ── 数据获取 ──
+	{Type: "get_post_info", Label: "获取帖子信息", Icon: "file-text", Category: "data",
+		Description: "从当前事件中提取帖子字段并存入变量",
+		Outputs: []VarOutput{
+			{Name: "post_id", Type: "number", Desc: "帖子ID"},
+			{Name: "post_title", Type: "string", Desc: "帖子标题"},
+			{Name: "post_content", Type: "string", Desc: "帖子正文"},
+			{Name: "post_author_id", Type: "number", Desc: "作者ID"},
+			{Name: "post_author_name", Type: "string", Desc: "作者名"},
+			{Name: "board_id", Type: "number", Desc: "板块ID"},
 		},
 	},
-	{Type: string(ActionDeletePost), Label: "删除帖子", Icon: "trash-2", Category: "post"},
-	{Type: string(ActionHidePost), Label: "隐藏帖子", Icon: "eye-off", Category: "post"},
-	{Type: string(ActionPinPost), Label: "置顶帖子", Icon: "pin", Category: "post"},
-	{Type: string(ActionLockPost), Label: "锁定帖子", Icon: "lock", Category: "post"},
-	{Type: string(ActionCreatePost), Label: "发布新帖", Icon: "plus-square", Category: "post",
+	{Type: "get_user_info", Label: "获取用户信息", Icon: "user", Category: "data",
+		Description: "提取当前事件的用户字段到变量",
+		Outputs: []VarOutput{
+			{Name: "user_id", Type: "number", Desc: "用户ID"},
+			{Name: "username", Type: "string", Desc: "用户名"},
+			{Name: "user_role", Type: "string", Desc: "用户角色"},
+			{Name: "user_post_count", Type: "number", Desc: "发帖数"},
+		},
+	},
+	{Type: "get_comment_info", Label: "获取评论信息", Icon: "message-circle", Category: "data",
+		Description: "提取当前事件的评论字段到变量",
+		Outputs: []VarOutput{
+			{Name: "comment_id", Type: "number", Desc: "评论ID"},
+			{Name: "comment_content", Type: "string", Desc: "评论内容"},
+			{Name: "comment_author_id", Type: "number", Desc: "评论者ID"},
+		},
+	},
+
+	// ── 算术 ──
+	{Type: "add", Label: "加法", Icon: "plus", Category: "math",
+		Description: "a + b，结果存入目标变量",
 		Params: []ParamMeta{
-			{Key: "board_id", Label: "板块 ID", Type: "number", Required: true},
+			{Key: "target", Label: "结果变量", Type: "text", Required: true},
+			{Key: "a", Label: "a", Type: "text", Required: true, Placeholder: "数字或 {{var}}"},
+			{Key: "b", Label: "b", Type: "text", Required: true, Placeholder: "数字或 {{var}}"},
+		},
+		Outputs: []VarOutput{{Name: "__custom__", Type: "number", Desc: "运算结果"}},
+	},
+	{Type: "subtract", Label: "减法", Icon: "minus", Category: "math",
+		Params: []ParamMeta{
+			{Key: "target", Label: "结果变量", Type: "text", Required: true},
+			{Key: "a", Label: "a", Type: "text", Required: true},
+			{Key: "b", Label: "b", Type: "text", Required: true},
+		},
+		Outputs: []VarOutput{{Name: "__custom__", Type: "number", Desc: "运算结果"}},
+	},
+	{Type: "multiply", Label: "乘法", Icon: "x", Category: "math",
+		Params: []ParamMeta{
+			{Key: "target", Label: "结果变量", Type: "text", Required: true},
+			{Key: "a", Label: "a", Type: "text", Required: true},
+			{Key: "b", Label: "b", Type: "text", Required: true},
+		},
+		Outputs: []VarOutput{{Name: "__custom__", Type: "number", Desc: "运算结果"}},
+	},
+	{Type: "divide", Label: "除法", Icon: "divide", Category: "math",
+		Params: []ParamMeta{
+			{Key: "target", Label: "结果变量", Type: "text", Required: true},
+			{Key: "a", Label: "a", Type: "text", Required: true},
+			{Key: "b", Label: "b", Type: "text", Required: true},
+		},
+		Outputs: []VarOutput{{Name: "__custom__", Type: "number", Desc: "运算结果"}},
+	},
+	{Type: "modulo", Label: "取余", Icon: "percent", Category: "math",
+		Params: []ParamMeta{
+			{Key: "target", Label: "结果变量", Type: "text", Required: true},
+			{Key: "a", Label: "a", Type: "text", Required: true},
+			{Key: "b", Label: "b", Type: "text", Required: true},
+		},
+		Outputs: []VarOutput{{Name: "__custom__", Type: "number", Desc: "运算结果"}},
+	},
+	{Type: "concat", Label: "字符串拼接", Icon: "align-left", Category: "string",
+		Params: []ParamMeta{
+			{Key: "target", Label: "结果变量", Type: "text", Required: true},
+			{Key: "a", Label: "字符串 a", Type: "text", Required: true, Placeholder: "支持 {{var}}"},
+			{Key: "b", Label: "字符串 b", Type: "text", Required: true, Placeholder: "支持 {{var}}"},
+		},
+		Outputs: []VarOutput{{Name: "__custom__", Type: "string", Desc: "拼接结果"}},
+	},
+	{Type: "length", Label: "取长度", Icon: "ruler", Category: "string",
+		Params: []ParamMeta{
+			{Key: "target", Label: "结果变量", Type: "text", Required: true},
+			{Key: "source", Label: "源字符串", Type: "text", Required: true, Placeholder: "支持 {{var}}"},
+		},
+		Outputs: []VarOutput{{Name: "__custom__", Type: "number", Desc: "字符串长度"}},
+	},
+}
+
+// ─── 动作 ────────────────────────────────────────────────────────────
+
+var BuiltinActions = []NodeMeta{
+	// 帖子
+	{Type: "reply_post", Label: "回复帖子", Icon: "reply", Category: "post",
+		Params: []ParamMeta{
+			{Key: "content", Label: "回复内容", Type: "textarea", Required: true, Placeholder: "支持模板 {{username}}"},
+		},
+	},
+	{Type: "delete_post", Label: "删除帖子", Icon: "trash-2", Category: "post"},
+	{Type: "hide_post", Label: "隐藏帖子", Icon: "eye-off", Category: "post"},
+	{Type: "pin_post", Label: "置顶帖子", Icon: "pin", Category: "post"},
+	{Type: "lock_post", Label: "锁定帖子", Icon: "lock", Category: "post"},
+	{Type: "create_post", Label: "发布帖子", Icon: "plus-square", Category: "post",
+		Params: []ParamMeta{
+			{Key: "board_id", Label: "板块ID", Type: "number", Required: true},
 			{Key: "title", Label: "标题", Type: "text", Required: true},
 			{Key: "content", Label: "正文", Type: "textarea", Required: true},
 		},
 	},
-	{Type: string(ActionDeleteComment), Label: "删除评论", Icon: "x-circle", Category: "comment"},
-	{Type: string(ActionBanUser), Label: "封禁用户", Icon: "user-x", Category: "user",
+	// 评论
+	{Type: "delete_comment", Label: "删除评论", Icon: "x-circle", Category: "comment"},
+	// 用户
+	{Type: "ban_user", Label: "封禁用户", Icon: "user-x", Category: "user",
 		Params: []ParamMeta{
-			{Key: "reason", Label: "封禁原因", Type: "text", Required: true},
+			{Key: "reason", Label: "原因", Type: "text", Required: true},
 			{Key: "duration_sec", Label: "时长（秒）", Type: "number", Default: 86400},
 		},
 	},
-	{Type: string(ActionSendMessage), Label: "发送私信", Icon: "mail", Category: "user",
+	{Type: "send_message", Label: "发送私信", Icon: "mail", Category: "user",
 		Params: []ParamMeta{
-			{Key: "to_user_id", Label: "接收用户 ID（空=触发者）", Type: "number"},
+			{Key: "to_user_id", Label: "接收者ID", Type: "number", Placeholder: "空=触发者"},
 			{Key: "content", Label: "消息内容", Type: "textarea", Required: true},
 		},
 	},
-	{Type: string(ActionWebhook), Label: "调用 Webhook", Icon: "link", Category: "integration",
+	// 集成
+	{Type: "webhook", Label: "调用 Webhook", Icon: "link", Category: "integration",
 		Params: []ParamMeta{
-			{Key: "url", Label: "Webhook URL", Type: "text", Required: true},
-			{Key: "method", Label: "HTTP 方法", Type: "select", Default: "POST",
+			{Key: "url", Label: "URL", Type: "text", Required: true},
+			{Key: "method", Label: "方法", Type: "select", Default: "POST",
 				Options: []OptionMeta{{Label: "POST", Value: "POST"}, {Label: "GET", Value: "GET"}}},
-			{Key: "body", Label: "请求体（支持模板）", Type: "textarea"},
-			{Key: "headers", Label: "请求头 JSON", Type: "textarea"},
+			{Key: "body", Label: "请求体", Type: "textarea"},
 		},
 	},
-	{Type: string(ActionNotifyAdmin), Label: "通知管理员", Icon: "bell", Category: "integration",
+	{Type: "notify_admin", Label: "通知管理员", Icon: "bell", Category: "integration",
 		Params: []ParamMeta{
 			{Key: "message", Label: "通知内容", Type: "textarea", Required: true},
 		},
 	},
-	{Type: string(ActionWait), Label: "等待", Icon: "pause", Category: "control",
-		Params: []ParamMeta{
-			{Key: "seconds", Label: "等待秒数", Type: "number", Required: true, Default: 1},
-		},
-	},
-	{Type: string(ActionSetVariable), Label: "设置变量", Icon: "edit-3", Category: "control",
-		Params: []ParamMeta{
-			{Key: "name", Label: "变量名", Type: "text", Required: true},
-			{Key: "value", Label: "值（支持模板）", Type: "text", Required: true},
-		},
-	},
-	{Type: string(ActionStopIf), Label: "条件停止", Icon: "stop-circle", Category: "control",
-		Params: []ParamMeta{
-			{Key: "expr", Label: "停止条件", Type: "text", Required: true, Placeholder: "event.score > 80"},
-		},
-	},
+}
+
+func fieldOptions() []OptionMeta {
+	return []OptionMeta{
+		{Label: "帖子ID (post_id)", Value: "post_id"},
+		{Label: "帖子标题 (post_title)", Value: "post_title"},
+		{Label: "帖子正文 (post_content)", Value: "post_content"},
+		{Label: "作者ID (author_id)", Value: "author_id"},
+		{Label: "用户名 (username)", Value: "username"},
+		{Label: "板块ID (board_id)", Value: "board_id"},
+		{Label: "用户角色 (user_role)", Value: "user_role"},
+		{Label: "发帖数 (user_post_count)", Value: "user_post_count"},
+		{Label: "评论ID (comment_id)", Value: "comment_id"},
+		{Label: "评论内容 (comment_content)", Value: "comment_content"},
+		{Label: "自定义变量", Value: "__custom__"},
+	}
 }

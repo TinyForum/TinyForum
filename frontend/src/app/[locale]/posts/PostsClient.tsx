@@ -7,7 +7,7 @@ import { useState } from "react";
 import { Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { usePosts } from "@/features/post/hooks/usePosts";
-import PostCard from "@/shared/ui/creation/PostCard";
+import WorkCard from "@/shared/ui/creation/WorkCard";
 
 function PostsContent() {
   const searchParams = useSearchParams();
@@ -57,7 +57,7 @@ function PostsContent() {
       ) : (
         <div className="space-y-3">
           {posts.map((post) => (
-            <PostCard key={post.id} post={post} />
+            <WorkCard key={post.id} post={post} />
           ))}
         </div>
       )}

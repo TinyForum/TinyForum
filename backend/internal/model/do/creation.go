@@ -14,7 +14,8 @@ type Creation struct {
 	Summary string `gorm:"size:500" json:"summary"`           // 摘要
 	Slug    string `gorm:"size:180;uniqueIndex" json:"slug"`  // URL标识
 
-	CoverUrl  string                      `gorm:"size:500" json:"cover_url"`                            // 封面
+	CoverUrl  string                      `gorm:"size:500" json:"cover_url"`                            // 封面/视频缩略图
+	VideoUrl  string                      `gorm:"size:500" json:"video_url"`                            // 视频地址
 	ImageUrls datatypes.JSONSlice[string] `gorm:"type:text" json:"image_urls"`                          // 图片
 	Type      CreationType                `gorm:"type:varchar(20);not null;index" json:"creation_type"` // 类型
 

@@ -3,7 +3,6 @@ package bot
 import (
 	"context"
 	"errors"
-	"fmt"
 	"time"
 	"tiny-forum/internal/botapi"
 	"tiny-forum/internal/infra/lua/nocode"
@@ -39,16 +38,10 @@ func (s *service) executeBot(bot *do.Bot, eventData map[string]any) {
 	for i, p := range bot.Permissions {
 		perms[i] = string(p)
 	}
-	api := botapi.NewForumAPI(do.SystemBotID, s.postRepo, s.commentRepo, s.userRepo, s.notifRepo)
+	api := botapi.NewForumAPI(do.SystemBotID, s.postRepo, s.commentRepo, s.userRepo, s.notifRepo, s.attachmentRepo)
 
-	if bot.ScriptCode != "" {
-		// ── Lua 脚本 ──────────────────────────────────────────────────
-		result := s.sandbox.Execute(ctx, bot, api, eventData)
-		execErr = result.Err
-		logs = result.Logs
-
-	} else if flowRaw, ok := bot.ConfigValues["flow"]; ok {
-		// ── 零代码流程 ────────────────────────────────────────────────
+	if flowRaw, ok := bot.ConfigValues["flow"]; ok {
+		// ── 零代码流程（优先于 Lua） ──────────────────────────────────
 		flow := parseFlowRequestRaw(flowRaw)
 		if flow == nil {
 			execErr = errors.New("invalid flow configuration")
@@ -60,40 +53,33 @@ func (s *service) executeBot(bot *do.Bot, eventData map[string]any) {
 			}
 			execErr = err
 		}
+
+	} else if bot.ScriptCode != "" {
+		// ── Lua 脚本 ──────────────────────────────────────────────────
+		result := s.sandbox.Execute(ctx, bot, api, eventData)
+		execErr = result.Err
+		logs = result.Logs
+
 	} else {
-		execErr = errors.New("bot has neither script_code nor nocode flow")
+		execErr = errors.New("bot has neither nocode flow nor script_code")
 	}
 
 	duration := time.Since(start).Milliseconds()
-	s.recordLog(bot.ID, execErr == nil, duration, logs, execErr)
 
-	// 更新 bot 状态
+	// 更新 bot 状态 + 执行日志
 	bgCtx := context.Background()
+	updates := map[string]interface{}{
+		"last_exec_duration_ms": duration,
+		"last_exec_logs":        sanitizeLogs(logs),
+	}
 	if execErr != nil {
-		_ = s.repo.Update(bgCtx, bot.ID, map[string]interface{}{
-			"status":    do.BotStatusError,
-			"error_msg": execErr.Error(),
-		})
+		updates["status"] = do.BotStatusError
+		updates["error_msg"] = sanitizeError(execErr)
 	} else {
-		_ = s.repo.Update(bgCtx, bot.ID, map[string]interface{}{
-			"exec_count":   gorm.Expr("exec_count + 1"),
-			"last_exec_at": time.Now(),
-			"status":       do.BotStatusActive,
-			"error_msg":    "",
-		})
+		updates["exec_count"] = gorm.Expr("exec_count + 1")
+		updates["last_exec_at"] = time.Now()
+		updates["status"] = do.BotStatusActive
+		updates["error_msg"] = ""
 	}
-}
-
-func (s *service) recordLog(botID uint, success bool, durationMs int64, logs []string, err error) {
-	// TODO: 写入 bot_execution_logs 表
-	status := "success"
-	errMsg := ""
-	if !success {
-		status = "fail"
-		if err != nil {
-			errMsg = err.Error()
-		}
-	}
-	fmt.Printf("[BotLog] bot=%d status=%s duration=%dms logs=%d err=%s\n",
-		botID, status, durationMs, len(logs), errMsg)
+	_ = s.repo.Update(bgCtx, bot.ID, updates)
 }

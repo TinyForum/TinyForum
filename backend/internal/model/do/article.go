@@ -14,19 +14,24 @@ type Article struct {
 type CreationType string
 
 const (
-	CreationTypePost     CreationType = "post"     // 短文
-	CreationTypeArticle  CreationType = "article"  // 长文
-	CreationTypeTopic    CreationType = "topic"    // 观点
-	CreationTypeQuestion CreationType = "question" // 问题
+	CreationTypeImageText CreationType = "image_text" // 图文
+	CreationTypeShortVideo CreationType = "short_video" // 短视频
+	CreationTypeLongVideo  CreationType = "long_video"  // 长视频
+	CreationTypeImage     CreationType = "image"       // 图片
+	CreationTypeArticle   CreationType = "article"     // 文章
+	CreationTypeQuestion  CreationType = "question"    // 问答
+	CreationTypeTopic     CreationType = "topic"       // 话题
 )
-
-// enum [PostTypePost PostTypeArticle PostTypeTopic PostTypeQuestion]
 
 // 合法的帖子类型集合
 var validPostTypes = map[CreationType]bool{
-	CreationTypePost:    true,
-	CreationTypeArticle: true,
-	CreationTypeTopic:   true,
+	CreationTypeImageText:  true,
+	CreationTypeShortVideo: true,
+	CreationTypeLongVideo:  true,
+	CreationTypeImage:     true,
+	CreationTypeArticle:   true,
+	CreationTypeQuestion:  true,
+	CreationTypeTopic:     true,
 }
 
 var validCreationStatuses = map[CreationStatus]bool{

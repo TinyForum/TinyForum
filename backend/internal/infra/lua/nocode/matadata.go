@@ -2,12 +2,12 @@ package nocode
 
 // NocodeMetadata 包含所有内置节点的元数据，通过 API 下发给前端。
 type NocodeMetadata struct {
-	Triggers   []NodeMeta `json:"triggers"`
-	Conditions []NodeMeta `json:"conditions"`
-	Actions    []NodeMeta `json:"actions"`
+	Triggers  []NodeMeta `json:"triggers"`
+	Control   []NodeMeta `json:"control"`
+	Variables []NodeMeta `json:"variables"`
+	Actions   []NodeMeta `json:"actions"`
 }
 
-// NodeMeta 描述一种节点类型的展示信息和参数定义
 type NodeMeta struct {
 	Type        string      `json:"type"`
 	Label       string      `json:"label"`
@@ -15,6 +15,7 @@ type NodeMeta struct {
 	Icon        string      `json:"icon,omitempty"`
 	Category    string      `json:"category,omitempty"`
 	Params      []ParamMeta `json:"params,omitempty"`
+	Outputs     []VarOutput `json:"outputs,omitempty"` // 该节点产生的变量
 }
 
 type ParamMeta struct {

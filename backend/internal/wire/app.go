@@ -93,6 +93,7 @@ func InitAppWithDynamic(dynCfg *config.DynamicConfig) (*App, error) {
 		repos.Comment,
 		repos.User,
 		repos.Notification,
+		repos.Attachment,
 	)
 
 	// 8. 初始化服务层

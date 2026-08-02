@@ -16,7 +16,7 @@ type AttachmentService interface {
 	DeleteFile(ctx context.Context, userID uint, fileID string) error                                                                                                // 删除文件
 	GetUserFiles(ctx context.Context, userID uint, fileType string, page, pageSize int) ([]*dto.FileInfo, int64, error)                                              // 获取用户上传的文件列表
 	AssociateWithPost(ctx context.Context, fileID string, postID int64) error                                                                                        // 关联附件与帖子
-
+	DeleteByPostID(ctx context.Context, postID int64) error                                                                                                          // 删除帖子的所有附件（物理文件+数据库记录）
 }
 
 type service struct {

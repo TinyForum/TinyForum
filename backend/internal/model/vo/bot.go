@@ -31,6 +31,8 @@ type BotResponse struct {
 	ExecCount     int64               `json:"execCount"`
 	LastExecAt    *time.Time          `json:"lastExecAt"`
 	ErrorMsg      string              `json:"errorMsg"`
+	LastExecLogs  []string            `json:"lastExecLogs"`      // 最近一次执行的步骤日志
+	LastExecDurMs int64               `json:"lastExecDurationMs"` // 最近一次执行耗时（毫秒）
 	ConfigSchema  []do.BotConfigField `json:"configSchema,omitempty"`
 	ConfigValues  map[string]any      `json:"configValues,omitempty"`
 	CreatedAt     time.Time           `json:"createdAt"`

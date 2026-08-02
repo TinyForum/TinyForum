@@ -21,7 +21,7 @@ func (s *articleService) Create(ctx *gin.Context, authorID uint, input request.C
 	// 1. 帖子类型校验
 	postType := do.CreationType(input.Type)
 	if postType == "" || !postType.IsValid() {
-		postType = do.CreationTypePost
+		postType = do.CreationTypeImageText
 	}
 
 	// 2. 板块校验
@@ -65,6 +65,7 @@ func (s *articleService) Create(ctx *gin.Context, authorID uint, input request.C
 			Content:          input.Content,
 			Summary:          input.Summary,
 			CoverUrl:         input.Cover,
+			VideoUrl:         input.VideoUrl,
 			Slug:             utils.GenerateSlug(),
 			Type:             postType,
 			AuthorID:         authorID,
@@ -105,7 +106,17 @@ func (s *articleService) Create(ctx *gin.Context, authorID uint, input request.C
 		return nil, err
 	}
 
-	// 12. 异步创建审核任务（如有需要）
+	// 12. 发布事件（触发零代码机器人，须在 reload 后获取 Author 信息）
+	s.botSvc.PublishEvent("post.created", map[string]any{
+		"post_id":      post.ID,
+		"post_title":   post.Creation.Title,
+		"post_content": post.Creation.Content,
+		"author_id":    post.Creation.AuthorID,
+		"username":     post.Creation.Author.Username,
+		"board_id":     post.Creation.BoardID,
+	})
+
+	// 13. 异步创建审核任务（如有需要）
 	if reviewRequired || shadowed || replaced {
 		go func() {
 			_ = s.contentcheckSvc.CreateAuditTaskForPost(post.ID, "sensitive_word", allHitWords)
@@ -136,6 +147,9 @@ func (s *articleService) Update(postID, userID uint, isAdmin bool, input request
 	if input.Cover != "" {
 		post.Creation.CoverUrl = input.Cover
 	}
+	if input.VideoUrl != "" {
+		post.Creation.VideoUrl = input.VideoUrl
+	}
 	if len(input.TagIDs) > 0 {
 		var tags []do.Tag
 		for _, id := range input.TagIDs {
@@ -161,6 +175,8 @@ func (s *articleService) Delete(postID, userID uint, isAdmin bool) error {
 	if post.Creation.AuthorID != userID && !isAdmin {
 		return apperrors.ErrInsufficientPermission
 	}
+	// 级联删除帖子关联的附件
+	_ = s.attachmentSvc.DeleteByPostID(context.Background(), int64(postID))
 	return s.postRepo.Delete(postID)
 }
 

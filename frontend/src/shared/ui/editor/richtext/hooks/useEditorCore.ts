@@ -1,6 +1,6 @@
 // hooks/useEditorCore.ts
 import { useEditor, Editor } from "@tiptap/react";
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useRef } from "react";
 import { Extension } from "@tiptap/core";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
@@ -58,28 +58,38 @@ export const useEditorCore = ({
     extensions.push(placeholderExtension);
   }
 
+  // 防止 setContent 触发的 onUpdate 回环
+  const isSettingRef = useRef(false);
+
   const editor = useEditor({
     extensions,
     content,
     editable,
-    onUpdate: ({ editor }) => onUpdate(editor),
+    onUpdate: ({ editor }) => {
+      if (isSettingRef.current) return;
+      onUpdate(editor);
+    },
   });
 
-  // 同步外部内容
+  // 同步外部内容变化到编辑器
   useEffect(() => {
-    if (editor && content !== editor.getHTML()) {
+    if (!editor || editor.isDestroyed) return;
+    const currentHTML = editor.getHTML();
+    if (content !== currentHTML) {
+      isSettingRef.current = true;
       editor.commands.setContent(content);
+      isSettingRef.current = false;
     }
   }, [content, editor]);
 
-  // 同步编辑状态
+  // 同步可编辑状态
   useEffect(() => {
     if (editor) {
       editor.setEditable(editable);
     }
   }, [editor, editable]);
 
-  // 清理
+  // 清理编辑器实例
   useEffect(() => {
     return () => {
       if (editor && !editor.isDestroyed) {

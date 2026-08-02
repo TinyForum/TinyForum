@@ -4,8 +4,16 @@ import { Creation } from "./creation.model";
 // import { Tag } from "./tag.model";
 // import { UserDO } from "./user.model.do";
 
-// ─── 普通帖子 ─────────────────────────────────────────────────────────────────
-export type PostType = "post" | "article" | "topic" | "questions";
+// ─── 八种作品类型 ─────────────────────────────────────────────────────────────
+export type PostType =
+  | "image_text"
+  | "short_video"
+  | "long_video"
+  | "image"
+  | "article"
+  | "question"
+  | "topic"
+  | "post";
 export type PostStatus = "draft" | "published" | "pending" | "hidden";
 export interface Post {
   id: number;
@@ -32,6 +40,7 @@ export interface CreatePostPayload {
   content: string;
   summary?: string;
   cover?: string;
+  video_url?: string;
   type?: PostType;
   board_id?: number;
   tag_ids?: number[];
@@ -43,6 +52,7 @@ export interface UpdatePostPayload {
   content?: string;
   summary?: string;
   cover?: string;
+  video_url?: string;
   tag_ids?: number[];
 }
 

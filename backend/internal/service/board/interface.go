@@ -10,6 +10,7 @@ import (
 	postRepo "tiny-forum/internal/repository/article"
 	boardRepo "tiny-forum/internal/repository/board"
 	userRepo "tiny-forum/internal/repository/user"
+	attachment "tiny-forum/internal/service/attachment"
 	"tiny-forum/internal/service/notification"
 )
 
@@ -47,10 +48,11 @@ type BoardService interface {
 	PinPost(boardID, postID uint, pin bool) error
 }
 type boardService struct {
-	boardRepo boardRepo.BoardRepository
-	userRepo  userRepo.UserRepository
-	postRepo  postRepo.ArticleRepository
-	notifSvc  notification.NotificationService // 需导入 "tiny-forum/internal/service/notification"
+	boardRepo     boardRepo.BoardRepository
+	userRepo      userRepo.UserRepository
+	postRepo      postRepo.ArticleRepository
+	notifSvc      notification.NotificationService
+	attachmentSvc attachment.AttachmentService
 }
 
 func NewBoardService(
@@ -58,11 +60,13 @@ func NewBoardService(
 	userRepo userRepo.UserRepository,
 	postRepo postRepo.ArticleRepository,
 	notifSvc notification.NotificationService,
+	attachmentSvc attachment.AttachmentService,
 ) BoardService {
 	return &boardService{
-		boardRepo: boardRepo,
-		userRepo:  userRepo,
-		postRepo:  postRepo,
-		notifSvc:  notifSvc,
+		boardRepo:     boardRepo,
+		userRepo:      userRepo,
+		postRepo:      postRepo,
+		notifSvc:      notifSvc,
+		attachmentSvc: attachmentSvc,
 	}
 }

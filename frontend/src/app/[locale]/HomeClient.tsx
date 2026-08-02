@@ -1,7 +1,7 @@
 // src/app/[locale]/page.tsx 客户端组件
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useAuthStore } from "@/store/auth";
 import LeftSidebar, { FilterType } from "@/layout/home/LeftSidebar";
 import { useLeaderboard } from "@/features/leader/hooks/useLeaderboard";
@@ -18,8 +18,6 @@ import { useTags } from "@/features/tag/hooks/useTags";
 import { useQuestionList } from "@/features/qustion/hooks/useQuestions";
 import type { Post } from "@/shared/api/types/post.model";
 import type { QuestionSimple } from "@/shared/api/types/question.model";
-// 导入新的 Hook
-// import { useQuestionList } from "@/features/qustion/hooks/useQuestions";
 
 export default function HomeClient() {
   const { isAuthenticated, user } = useAuthStore();
@@ -29,6 +27,14 @@ export default function HomeClient() {
   const [selectedBoard, setSelectedBoard] = useState<number | null>(null);
   const [filterType, setFilterType] = useState<FilterType>("all");
   const [page, setPage] = useState(1);
+  const [accumulatedPosts, setAccumulatedPosts] = useState<Post[]>([]);
+  const [accumulatedQuestions, setAccumulatedQuestions] = useState<QuestionSimple[]>([]);
+  const [total, setTotal] = useState(0);
+  const pageRef = useRef(page);
+
+  useEffect(() => {
+    pageRef.current = page;
+  }, [page]);
 
   const { data: boards = [] } = useBoardTree();
   const { tags = [] } = useTags();
@@ -36,28 +42,28 @@ export default function HomeClient() {
   const { unreadCount } = useUnreadCount(isAuthenticated);
   const { data: timelineEvents = [] } = useTimelineEvents(isAuthenticated);
 
-  // 根据 filterType 配置参数
+  const pageSize = 15;
+
   let postParams = undefined;
   let questionParams = undefined;
   let usePostsEnabled = false;
   let useQuestionsEnabled = false;
 
   switch (filterType) {
-    case "questions":
+    case "question":
       useQuestionsEnabled = true;
       questionParams = {
         page,
-        page_size: 15,
+        page_size: pageSize,
         board_id: selectedBoard ?? undefined,
-        // 可能还有 sort_by 等，根据接口补充
       };
       break;
     default:
       usePostsEnabled = true;
       postParams = {
         page,
-        page_size: 15,
-        sort_by: sortBy === "latest" ? "latest" : undefined,
+        page_size: pageSize,
+        sort_by: sortBy,
         type: filterType !== "all" ? filterType : undefined,
         board_id: selectedBoard ?? undefined,
         tag_id: selectedTag ?? undefined,
@@ -65,68 +71,105 @@ export default function HomeClient() {
       break;
   }
 
-  // 调用 Hooks
   const {
     data: postsData,
     isLoading: postsLoading,
+    isFetching: postsFetching,
     refetch: refetchPosts,
   } = usePosts(postParams, { enabled: usePostsEnabled });
 
-  // 使用新 Hook
   const {
     data: questionsData,
     isLoading: questionsLoading,
+    isFetching: questionsFetching,
     refetch: refetchQuestions,
   } = useQuestionList(questionParams, { enabled: useQuestionsEnabled });
 
-  // 统一数据选择
-  let rawData: (Post | QuestionSimple)[] = [];
-  let isLoading = false;
-  let refetch: () => void = () => {};
-  let total = 0;
+  useEffect(() => {
+    if (filterType === "question" && questionsData) {
+      if (page === 1) {
+        setAccumulatedQuestions(questionsData.list ?? []);
+      } else {
+        setAccumulatedQuestions((prev) => [...prev, ...(questionsData.list ?? [])]);
+      }
+      setTotal(questionsData.total ?? 0);
+    } else if (postsData) {
+      if (page === 1) {
+        setAccumulatedPosts(postsData.list ?? []);
+      } else {
+        setAccumulatedPosts((prev) => [...prev, ...(postsData.list ?? [])]);
+      }
+      setTotal(postsData.total ?? 0);
+    }
+  }, [postsData, questionsData, filterType, page]);
 
-  if (filterType === "questions") {
-    rawData = questionsData?.list ?? [];
-    isLoading = questionsLoading;
-    refetch = refetchQuestions;
-    total = questionsData?.total ?? 0;
-  } else {
-    rawData = postsData?.list ?? [];
-    isLoading = postsLoading;
-    refetch = refetchPosts;
-    total = postsData?.total ?? 0;
-  }
+  const handleLoadMore = useCallback(() => {
+    if (filterType === "question") {
+      if (accumulatedQuestions.length < total && !questionsFetching) {
+        setPage((p) => p + 1);
+      }
+    } else {
+      if (accumulatedPosts.length < total && !postsFetching) {
+        setPage((p) => p + 1);
+      }
+    }
+  }, [accumulatedPosts.length, accumulatedQuestions.length, total, questionsFetching, postsFetching, filterType]);
 
-  const totalPages = Math.ceil(total / 15);
-
-  // ----- 事件处理 -----
-  const handleSortChange = (newSortBy: SortBy) => {
-    setSortBy(newSortBy);
+  const resetAndRefetch = useCallback(() => {
     setPage(1);
+    setAccumulatedPosts([]);
+    setAccumulatedQuestions([]);
+    setTotal(0);
+  }, []);
+
+  const handleSortChange = (newSortBy: SortBy) => {
+    resetAndRefetch();
+    setSortBy(newSortBy);
+    setTimeout(() => {
+      if (filterType === "question") refetchQuestions();
+      else refetchPosts();
+    }, 0);
   };
 
   const handleTagChange = (tagId: number | null) => {
+    resetAndRefetch();
     setSelectedTag(tagId);
     setSelectedBoard(null);
-    setPage(1);
+    setTimeout(() => {
+      if (filterType === "question") refetchQuestions();
+      else refetchPosts();
+    }, 0);
   };
 
   const handleBoardChange = (boardId: number | null) => {
+    resetAndRefetch();
     setSelectedBoard(boardId);
     setSelectedTag(null);
-    setPage(1);
+    setTimeout(() => {
+      if (filterType === "question") refetchQuestions();
+      else refetchPosts();
+    }, 0);
   };
 
   const handlePostTypeChange = (type: FilterType) => {
+    resetAndRefetch();
     setFilterType(type);
-    setPage(1);
+    setTimeout(() => {
+      if (type === "question") refetchQuestions();
+      else refetchPosts();
+    }, 0);
   };
+
+  const isLoading = filterType === "question" ? questionsLoading : postsLoading;
+  const isFetching = filterType === "question" ? questionsFetching : postsFetching;
+  const hasMore = filterType === "question"
+    ? accumulatedQuestions.length < total
+    : accumulatedPosts.length < total;
 
   return (
     <div className="h-full">
       <div className="container mx-auto max-w-7xl px-4 h-full">
         <div className="flex gap-6 h-full">
-          {/* 左侧边栏 */}
           <div className="lg:w-64 xl:w-72 flex-none overflow-y-auto custom-scrollbar sticky top-6 max-h-[calc(100vh-6rem)]">
             <LeftSidebar
               boards={boards}
@@ -140,26 +183,31 @@ export default function HomeClient() {
             />
           </div>
 
-          {/* 中间内容区域 */}
           <div className="flex-1 min-w-0 flex flex-col h-full">
             <div className="flex-shrink-0 sticky top-0 bg-base-200 pb-4 z-[10]">
               <PostFilterBar
                 sortBy={sortBy}
                 onSortChange={handleSortChange}
                 isAuthenticated={isAuthenticated}
-                onRefetch={refetch}
+                onRefetch={() => {
+                  resetAndRefetch();
+                  setTimeout(() => {
+                    if (filterType === "question") refetchQuestions();
+                    else refetchPosts();
+                  }, 0);
+                }}
               />
             </div>
 
             <div className="flex-1 overflow-y-auto custom-scrollbar pb-6">
               {(() => {
                 switch (filterType) {
-                  case "questions":
+                  case "question":
                     return (
                       <QuestionList
-                        questions={rawData as QuestionSimple[]}
+                        questions={accumulatedQuestions}
                         isLoading={isLoading}
-                        totalPages={totalPages}
+                        totalPages={0}
                         currentPage={page}
                         onPageChange={setPage}
                       />
@@ -167,11 +215,11 @@ export default function HomeClient() {
                   default:
                     return (
                       <PostList
-                        posts={rawData as Post[]}
-                        isLoading={isLoading}
-                        totalPages={totalPages}
-                        currentPage={page}
-                        onPageChange={setPage}
+                        posts={accumulatedPosts}
+                        isLoading={isLoading || isFetching}
+                        hasMore={hasMore}
+                        onLoadMore={handleLoadMore}
+                        layout="waterfall"
                       />
                     );
                 }
@@ -179,7 +227,6 @@ export default function HomeClient() {
             </div>
           </div>
 
-          {/* 右侧边栏 */}
           <div className="lg:w-64 xl:w-72 flex-none overflow-y-auto custom-scrollbar sticky top-6 max-h-[calc(100vh-6rem)]">
             <RightSidebar
               isAuthenticated={isAuthenticated}

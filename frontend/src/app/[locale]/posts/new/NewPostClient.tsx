@@ -4,6 +4,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useForm, Controller, useWatch } from "react-hook-form";
+import type { FieldErrors } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuthStore } from "@/store/auth";
 import toast from "react-hot-toast";
@@ -16,6 +17,7 @@ import { useCreatePost } from "@/features/post/hooks/usePosts";
 import { PostEditor } from "./PostEditor";
 import { PostSettings } from "./PostSettings";
 import { PostForm, postSchema } from "./newPost.types";
+import { PostType } from "@/shared/api/types/post.model";
 
 export default function NewPostClient() {
   const router = useRouter();
@@ -43,7 +45,7 @@ export default function NewPostClient() {
   } = useForm<PostForm>({
     resolver: zodResolver(postSchema),
     defaultValues: {
-      type: "post",
+      type: "image_text",
       board_id: undefined,
       tag_ids: [],
       status: "published",
@@ -63,6 +65,8 @@ export default function NewPostClient() {
     defaultValue: "published",
   });
   const coverValue = useWatch({ control, name: "cover", defaultValue: "" });
+  const selectedType = useWatch({ control, name: "type", defaultValue: "image_text" }) as PostType;
+  const [imageUrls, setImageUrls] = useState<string[]>([]);
 
   const toggleTag = useCallback(
     (tagId: number) => {
@@ -90,10 +94,18 @@ export default function NewPostClient() {
 
       setLoading(true);
       try {
+        let content = data.content;
+        if (imageUrls.length > 0) {
+          const imgTags = imageUrls.map((url) => `<img src="${url}" alt="" />`).join("");
+          content = imgTags + content;
+        }
+
         const created = await createPost({
           ...data,
+          content,
           cover: data.cover || undefined,
           summary: data.summary || undefined,
+          video_url: data.video_url || undefined,
         });
         toast.success(t("publish_success"));
         const postId = created?.id;
@@ -104,7 +116,19 @@ export default function NewPostClient() {
         setLoading(false);
       }
     },
-    [createPost, router, t],
+    [createPost, router, t, imageUrls],
+  );
+
+  const onError = useCallback(
+    (errors: FieldErrors<PostForm>) => {
+      const firstError = Object.values(errors).find(
+        (e) => e?.message,
+      );
+      if (firstError?.message) {
+        toast.error(String(firstError.message));
+      }
+    },
+    [],
   );
 
   if (!isAuthenticated) return null;
@@ -119,7 +143,7 @@ export default function NewPostClient() {
         <h1 className="text-2xl font-bold">{t("publish_new_post")}</h1>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit(onSubmit, onError)}>
         <div className="flex flex-col lg:flex-row gap-6">
           {/* 左侧：设置区 */}
           <div className="lg:w-80 flex-shrink-0">
@@ -133,9 +157,12 @@ export default function NewPostClient() {
                   boardsLoading={boardsLoading}
                   selectedTagIds={selectedTagIds}
                   selectedStatus={selectedStatus}
+                  selectedType={selectedType}
                   coverValue={coverValue || ""}
                   onToggleTag={toggleTag}
                   onCoverChange={(url) => setValue("cover", url)}
+                  onVideoChange={(videoUrl) => setValue("video_url", videoUrl)}
+                  onImageUrlsChange={(urls) => setImageUrls(urls)}
                   t={t}
                 />
               </div>

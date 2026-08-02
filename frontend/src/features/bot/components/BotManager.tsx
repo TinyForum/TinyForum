@@ -31,9 +31,6 @@ export function BotManager() {
       {/* ========= 固定区域：标题 & Tab ========= */}
       <div className="flex-shrink-0 border-b border-base-200 bg-base-100/95 backdrop-blur-sm z-10">
         <div className="container mx-auto px-4 py-4">
-          {/* 页面标题（可自定义） */}
-          <h1 className="text-2xl font-bold mb-2">机器人管理</h1>
-
           {/* Tabs 组件 */}
           <div className="tabs tabs-boxed">
             <button

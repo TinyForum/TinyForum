@@ -14,14 +14,17 @@ type FileType string
 const (
 	FileTypeAvatar       FileType = "avatar"        // 用户头像
 	FileTypePostImage    FileType = "post_image"    // 帖子图片
+	FileTypePostCover    FileType = "post_cover"    // 帖子封面图
+	FileTypeTopicCover   FileType = "topic_cover"   // 话题封面图
 	FileTypePostFile     FileType = "post_file"     // 帖子普通附件
 	FileTypeCommentImage FileType = "comment_image" // 评论图片
 	FileTypePlugin       FileType = "plugin"        // 插件资源文件
+	FileTypeVideo        FileType = "video"         // 视频文件
 )
 
 func (f FileType) IsValid() bool {
 	switch f {
-	case FileTypeAvatar, FileTypePostImage, FileTypePostFile, FileTypePlugin:
+	case FileTypeAvatar, FileTypePostImage, FileTypePostCover, FileTypeTopicCover, FileTypePostFile, FileTypePlugin, FileTypeVideo:
 		return true
 	}
 	return false
