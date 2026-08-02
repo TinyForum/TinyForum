@@ -4,6 +4,7 @@ import { moderatorApi } from "@/shared/api/modules/moderator";
 import { ReviewApplicationRequest } from "@/shared/api/types/moderator.model";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
+import { adminKeys } from "./useAdminKeys";
 // import { ApiResponse } from "@/shared/api/types";
 
 // ============ 类型定义 ============
@@ -60,7 +61,7 @@ interface PinPostParams {
 // 管理员 - 版主申请管理
 export const useAdminApplications = (params?: ApplicationParams) => {
   return useQuery({
-    queryKey: ["admin", "applications", params],
+    queryKey: adminKeys.applications(params),
     queryFn: async () => {
       const res = await adminModeratorApi.listApplications(params);
       return res.data.data;
@@ -82,7 +83,7 @@ export const useReviewApplication = () => {
     }) => adminModeratorApi.reviewApplication(applicationId, data),
     onSuccess: () => {
       toast.success("审批成功");
-      queryClient.invalidateQueries({ queryKey: ["admin", "applications"] });
+      queryClient.invalidateQueries({ queryKey: adminKeys.applications() });
       queryClient.invalidateQueries({
         queryKey: ["boards", "moderators", "apply"],
       });

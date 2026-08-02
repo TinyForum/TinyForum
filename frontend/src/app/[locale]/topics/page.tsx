@@ -211,9 +211,9 @@ function CreateTopicModal({
   // 封面图上传函数（使用通用上传接口）
   const handleUploadCover = async (file: File): Promise<{ url: string }> => {
     try {
-      // 使用上传插件文件的接口（或单独的上传接口，返回 URL）
+      // 使用通用附件上传接口，返回 { data: { url } }
       const res = await uploadApi.uploadPluginFile(file, "topic_cover");
-      return { url: res.data.data }; // 假设返回 { data: "url" }
+      return { url: res.data.data?.url ?? "" };
     } catch (error) {
       toast.error("封面上传失败");
       throw error;

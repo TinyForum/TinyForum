@@ -6,7 +6,7 @@ import { EmptyPostList } from "@/shared/ui/common/EmptyPostList";
 import { Pagination } from "@/shared/ui/common/Pagination";
 import { QuestionSimple } from "@/shared/api/types/question.model";
 import Link from "next/link";
-import Avatar from "@/features/user/components/Avatar";
+import Avatar from "@/shared/ui/common/Avatar";
 import { Tag } from "lucide-react";
 
 // 简单的问答卡片组件

@@ -193,7 +193,7 @@ export default function EditPostPage({
               initialImages={[{ url: "https://example.com/1.jpg" }]}
               uploadFn={async (file) => {
                 const res = await uploadApi.uploadPostFile(postId, file);
-                return { url: res.data.data };
+                return { url: res.data.data?.url ?? "" };
               }}
               maxCount={6}
               supportCover={true}

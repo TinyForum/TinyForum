@@ -4,6 +4,7 @@ import { PageData } from "@/shared/api/types/basic.model";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import toast from "react-hot-toast";
+import { adminKeys } from "./useAdminKeys";
 
 interface UseAdminManagePostsOptions {
   page: number;
@@ -22,13 +23,13 @@ export function useAdminManagePosts({
   const t = useTranslations("admin");
 
   const invalidateQueries = () => {
-    queryClient.invalidateQueries({ queryKey: ["admin-pending-posts"] });
-    queryClient.invalidateQueries({ queryKey: ["admin-posts"] });
+    queryClient.invalidateQueries({ queryKey: adminKeys.pendingPosts() });
+    queryClient.invalidateQueries({ queryKey: adminKeys.posts() });
   };
 
   // 获取待审核帖子列表
   const { data, isLoading, refetch } = useQuery<PageData<Post>>({
-    queryKey: ["admin-pending-posts", page, keyword],
+    queryKey: adminKeys.pendingPosts(page, keyword),
     queryFn: async (): Promise<PageData<Post>> => {
       const response = await adminPostsApi.listPendingPosts({
         page,

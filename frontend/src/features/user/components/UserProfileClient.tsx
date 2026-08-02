@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/auth";
 import { useTranslations } from "next-intl";
 import { ProfileSidebar } from "./ProfileSidebar";
@@ -12,10 +13,12 @@ import { userApi } from "@/shared/api/modules/user";
 import { UserDO } from "@/shared/api/types/user.model.do";
 import { useFollowAction } from "../hooks/useFollowAction";
 import { useFollowList } from "../hooks/useFollowList";
+import { userKeys } from "../hooks/useUserKeys";
 
 export default function UserProfileClient({ userId }: { userId: number }) {
   const { user: currentUser, isAuthenticated } = useAuthStore();
   const t = useTranslations("Profile");
+  const router = useRouter();
 
   // 弹窗状态
   const [showFollowers, setShowFollowers] = useState(false);
@@ -49,7 +52,7 @@ export default function UserProfileClient({ userId }: { userId: number }) {
 
   // 5. 当前用户是否已关注该用户（通过查询当前用户的关注列表判断）
   const { data: isFollowing, refetch: refetchFollowStatus } = useQuery({
-    queryKey: ["check-following", userId, currentUser?.id],
+    queryKey: userKeys.followStatus(userId, currentUser?.id),
     queryFn: async () => {
       if (!currentUser || currentUser.id === userId) return false;
       const res = await userApi.getFollowing(currentUser.id, {
@@ -103,7 +106,7 @@ export default function UserProfileClient({ userId }: { userId: number }) {
   };
 
   const handleUserClick = (clickedUserId: number) => {
-    window.location.href = `/users/${clickedUserId}`;
+    router.push(`/users/${clickedUserId}`);
   };
 
   if (profileLoading) {

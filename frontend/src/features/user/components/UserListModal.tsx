@@ -1,7 +1,7 @@
 "use client";
 
 import { X } from "lucide-react";
-import Avatar from "./Avatar";
+import Avatar from "@/shared/ui/common/Avatar";
 import { UserDO } from "@/shared/api/types/user.model.do";
 
 interface UserListModalProps {

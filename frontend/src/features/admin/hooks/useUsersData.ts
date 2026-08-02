@@ -3,6 +3,7 @@ import { useTranslations } from "next-intl";
 import toast from "react-hot-toast";
 import { adminUsersApi } from "@/shared/api/modules/admin/user";
 import { ApiResponse } from "@/shared/api/types/basic.model";
+import { adminKeys } from "./useAdminKeys";
 
 // 类型定义
 interface UserListResponse {
@@ -39,7 +40,7 @@ export function useUsersData(page: number, keyword: string, enabled: boolean) {
 
   // 获取用户列表
   const { data, isLoading } = useQuery({
-    queryKey: ["admin-users", page, keyword],
+    queryKey: adminKeys.users(page, keyword),
     queryFn: () =>
       adminUsersApi
         .listUsers({ page, page_size: 20, keyword })
@@ -52,7 +53,7 @@ export function useUsersData(page: number, keyword: string, enabled: boolean) {
     mutationFn: ({ id, active }: { id: number; active: boolean }) =>
       adminUsersApi.setUserActive(id, active),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+      queryClient.invalidateQueries({ queryKey: adminKeys.users() });
       toast.success(t("operation_successful"));
     },
     onError: () => toast.error(t("operation_failed")),
@@ -63,7 +64,7 @@ export function useUsersData(page: number, keyword: string, enabled: boolean) {
     mutationFn: ({ id, blocked }: { id: number; blocked: boolean }) =>
       adminUsersApi.setUserBlocked(id, blocked),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+      queryClient.invalidateQueries({ queryKey: adminKeys.users() });
       toast.success(t("operation_successful"));
     },
     onError: () => toast.error(t("operation_failed")),
@@ -74,7 +75,7 @@ export function useUsersData(page: number, keyword: string, enabled: boolean) {
     mutationFn: ({ id, role }: { id: number; role: string }) =>
       adminUsersApi.setUserRole(id, role),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+      queryClient.invalidateQueries({ queryKey: adminKeys.users() });
       toast.success(t("operation_successful"));
     },
     onError: () => toast.error(t("operation_failed")),
@@ -85,7 +86,7 @@ export function useUsersData(page: number, keyword: string, enabled: boolean) {
     mutationFn: ({ id }: { id: number }) => adminUsersApi.deleteUser(id),
     onSuccess: () => {
       // 移除未使用的 _ 和 variables 参数
-      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+      queryClient.invalidateQueries({ queryKey: adminKeys.users() });
       toast.success(t("user_deleted_successfully"));
     },
     onError: () => toast.error(t("delete_failed")),
@@ -99,7 +100,7 @@ export function useUsersData(page: number, keyword: string, enabled: boolean) {
       toast.success(t("password_reset_and_notified"), {
         duration: 5000,
       });
-      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+      queryClient.invalidateQueries({ queryKey: adminKeys.users() });
     },
     onError: (error: unknown) => {
       // 修复 any 类型

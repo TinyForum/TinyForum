@@ -14,6 +14,7 @@ import type { Post } from "@/shared/api/types/post.model";
 import DOMPurify from "dompurify";
 import Image from "next/image";
 import { adminPostsApi } from "@/shared/api/modules/admin/post";
+import { adminKeys } from "../hooks/useAdminKeys";
 
 // 扩展 Post 类型以包含风险信息
 interface PostWithRisk extends Post {
@@ -59,7 +60,7 @@ export function ReviewManagement() {
 
   // 查询待审核列表 - 移除泛型，让 TypeScript 自动推断
   const { data, isLoading, refetch } = useQuery({
-    queryKey: ["admin-pending-posts", page, keyword],
+    queryKey: adminKeys.pendingPosts(page, keyword),
     queryFn: () => fetchPendingPosts({ page, page_size: 20, keyword }),
     placeholderData: (prev) => prev,
   });
@@ -70,7 +71,7 @@ export function ReviewManagement() {
       adminPostsApi.approvePost(id, note),
     onSuccess: (_, variables) => {
       toast.success("帖子已通过审核");
-      queryClient.invalidateQueries({ queryKey: ["admin-pending-posts"] });
+      queryClient.invalidateQueries({ queryKey: adminKeys.pendingPosts() });
       if (selectedPost && selectedPost.id === variables.id) {
         setIsModalOpen(false);
         setSelectedPost(null);
@@ -86,7 +87,7 @@ export function ReviewManagement() {
       adminPostsApi.rejectPost(id, reason),
     onSuccess: (_, variables) => {
       toast.success("帖子已拒绝");
-      queryClient.invalidateQueries({ queryKey: ["admin-pending-posts"] });
+      queryClient.invalidateQueries({ queryKey: adminKeys.pendingPosts() });
       if (selectedPost && selectedPost.id === variables.id) {
         setIsModalOpen(false);
         setSelectedPost(null);

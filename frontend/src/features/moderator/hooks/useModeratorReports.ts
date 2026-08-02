@@ -1,6 +1,7 @@
 // hooks/moderators/useModeratorReports.ts
 import { useQuery } from "@tanstack/react-query";
 import { moderatorApi } from "@/shared/api/modules/moderator";
+import { moderatorKeys } from "./useModeratorKeys";
 
 export function useModeratorReports(
   boardId: number,
@@ -8,7 +9,7 @@ export function useModeratorReports(
   enabled: boolean = true,
 ) {
   const query = useQuery({
-    queryKey: ["moderator", "reports", boardId, page],
+    queryKey: moderatorKeys.reports(boardId, page),
     queryFn: () =>
       moderatorApi
         .getBoardReports(boardId, { page, page_size: 20 })

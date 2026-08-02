@@ -1,4 +1,4 @@
-// src/components/user/Avatar.tsx
+// src/shared/ui/common/Avatar.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -50,7 +50,6 @@ export default function Avatar({
   ringOffsetColor = "base-100",
   zIndex = "auto",
 }: AvatarProps) {
-  console.log("avatarUrl: ", avatarUrl);
   const [hasError, setHasError] = useState(false);
   const [normalizedSrc, setNormalizedSrc] = useState<string>("");
 

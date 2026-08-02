@@ -1,28 +1,15 @@
 // hooks/useUpload.ts
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { uploadApi } from "@/shared/api/modules/uploads";
-import { PluginListParams } from "@/shared/api/modules/plugin/plugins";
+import {
+  uploadApi,
+  type FileInfoResponse,
+} from "@/shared/api/modules/uploads";
+import { pluginApi, PluginListParams } from "@/shared/api/modules/plugin/plugins";
 import { PluginMeta } from "@/shared/api/types/plugin.model";
-import { ApiResponse, PageData } from "@/shared/api/types/basic.model";
 import { userFileKeys } from "@/features/upload/hooks/useUploadKeys";
 
 type UploadType = "post" | "comment" | "plugin";
-
-interface FileInfo {
-  file_id: string;
-  user_id: number;
-  post_id?: number;
-  original_name: string;
-  stored_name: string;
-  stored_path: string;
-  size: number;
-  mime_type: string;
-  file_type: string;
-  ext: string;
-  status: number;
-  created_at: string;
-}
 
 interface UseUploadReturn {
   isUploading: boolean;
@@ -38,8 +25,11 @@ interface UseUploadReturn {
   getUserFiles: (params?: {
     page?: number;
     page_size?: number;
-  }) => Promise<FileInfo>;
-  getFileInfo: (type: UploadType, fileId: string) => Promise<FileInfo>;
+  }) => Promise<FileInfoResponse[]>;
+  getFileInfo: (
+    type: UploadType,
+    fileId: string,
+  ) => Promise<FileInfoResponse | null>;
   getUserPluginsList: (params: PluginListParams) => Promise<PluginMeta[]>;
   deleteFile: (type: UploadType, fileId: string) => Promise<boolean>;
   serveFile: (fileId: string) => Promise<Blob | null>;
@@ -67,7 +57,7 @@ export function useUpload(): UseUploadReturn {
     setError(null);
     try {
       const res = await uploadApi.uploadPostFile(postId, file);
-      return res.data.data;
+      return res.data.data?.url ?? null;
     } catch (err) {
       return setErrorAndReturnNull(err);
     } finally {
@@ -83,7 +73,7 @@ export function useUpload(): UseUploadReturn {
     setError(null);
     try {
       const res = await uploadApi.uploadCommentFile(commentId, file);
-      return res.data.data;
+      return res.data.data?.url ?? null;
     } catch (err) {
       return setErrorAndReturnNull(err);
     } finally {
@@ -95,7 +85,7 @@ export function useUpload(): UseUploadReturn {
   const getUserFiles = async (params?: {
     page?: number;
     page_size?: number;
-  }): Promise<FileInfo> => {
+  }): Promise<FileInfoResponse[]> => {
     setIsUploading(true);
     setError(null);
     try {
@@ -103,7 +93,7 @@ export function useUpload(): UseUploadReturn {
         queryKey: userFileKeys.filesList(params ?? {}),
         queryFn: async () => {
           const res = await uploadApi.getUserFiles(params);
-          return res.data as FileInfo;
+          return res.data.data?.list ?? [];
         },
       });
     } catch (err) {
@@ -118,7 +108,7 @@ export function useUpload(): UseUploadReturn {
   const getFileInfo = async (
     type: UploadType,
     fileId: string,
-  ): Promise<FileInfo> => {
+  ): Promise<FileInfoResponse | null> => {
     setIsUploading(true);
     setError(null);
     try {
@@ -127,14 +117,14 @@ export function useUpload(): UseUploadReturn {
         queryFn: async () => {
           if (type === "post") {
             const res = await uploadApi.getPostFile(fileId);
-            return res.data as FileInfo;
+            return res.data.data ?? null;
           }
           if (type === "comment") {
             const res = await uploadApi.getCommentFile(fileId);
-            return res.data as FileInfo;
+            return res.data.data ?? null;
           }
           const res = await uploadApi.getPluginFile(fileId);
-          return res.data as FileInfo;
+          return res.data.data ?? null;
         },
       });
     } catch (err) {
@@ -151,15 +141,12 @@ export function useUpload(): UseUploadReturn {
   ): Promise<PluginMeta[]> => {
     setIsUploading(true);
     setError(null);
-    // params.type = "plugin";
-
     try {
       return await queryClient.fetchQuery({
         queryKey: userFileKeys.pluginsList(params),
         queryFn: async () => {
-          const res = await uploadApi.getUserPlugins(params);
-          const data = res.data as ApiResponse<PageData<PluginMeta>>;
-          return data.data?.list ?? [];
+          const res = await pluginApi.list(params);
+          return res.data.data?.list ?? [];
         },
       });
     } catch (err) {

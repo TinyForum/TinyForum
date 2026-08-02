@@ -18,7 +18,7 @@ import { zhCN } from "date-fns/locale";
 import { toast } from "react-hot-toast";
 import { Tag } from "@/shared/api/types/tag.model";
 import { QuestionResponse } from "@/shared/api/types/question.model";
-import Avatar from "@/features/user/components/Avatar";
+import Avatar from "@/shared/ui/common/Avatar";
 
 interface QuestionHeaderProps {
   question: QuestionResponse;

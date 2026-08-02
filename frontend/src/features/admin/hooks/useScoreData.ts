@@ -1,13 +1,14 @@
 // /hooks/admin/useScoreData.ts
 import { adminScoreApi } from "@/shared/api/modules/admin/score";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { scoreKeys } from "./useScoreKeys";
 
 export function useScoreData(userId?: string | undefined) {
   const queryClient = useQueryClient();
 
   // 获取所有用户积分列表
   const { data: scoreRecords, isLoading: isLoadingRecords } = useQuery({
-    queryKey: ["score", "list", userId],
+    queryKey: scoreKeys.list(userId),
     queryFn: () =>
       adminScoreApi.getAllUserScore({
         id: userId ? Number(userId) : undefined,
@@ -17,7 +18,7 @@ export function useScoreData(userId?: string | undefined) {
 
   // 获取当前用户自己的积分
   const { data: myScore, isLoading: isLoadingMyScore } = useQuery({
-    queryKey: ["score", "me"],
+    queryKey: scoreKeys.me(),
     queryFn: () => adminScoreApi.getUserScore(),
   });
 
@@ -33,7 +34,7 @@ export function useScoreData(userId?: string | undefined) {
       reason: string;
     }) => adminScoreApi.setUserScore(userId, score, reason),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["score"] });
+      queryClient.invalidateQueries({ queryKey: scoreKeys.all });
     },
   });
 
@@ -49,7 +50,7 @@ export function useScoreData(userId?: string | undefined) {
       reason: string;
     }) => adminScoreApi.addUserScore(userId, increment, reason),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["score"] });
+      queryClient.invalidateQueries({ queryKey: scoreKeys.all });
     },
   });
 
@@ -65,7 +66,7 @@ export function useScoreData(userId?: string | undefined) {
       reason: string;
     }) => adminScoreApi.subtractUserScore(userId, decrement, reason),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["score"] });
+      queryClient.invalidateQueries({ queryKey: scoreKeys.all });
     },
   });
 

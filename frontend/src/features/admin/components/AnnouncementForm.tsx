@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Loader2 } from "lucide-react";
 import { useEffect } from "react";
-import { Modal } from "./Modal";
+import { Modal } from "@/shared/ui/common/Modal";
 import Image from "next/image";
 import {
   AnnouncementFormValues,

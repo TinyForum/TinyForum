@@ -3,7 +3,7 @@
  * 机器人管理相关 API（全部需登录）
  */
 
-import { NocodeMetadata } from "@/features/bot/noco.type";
+import { NocodeMetadata } from "@/shared/api/types/nocode.model";
 import apiClient from "../client";
 import { ApiResponse } from "../types/basic.model";
 import {

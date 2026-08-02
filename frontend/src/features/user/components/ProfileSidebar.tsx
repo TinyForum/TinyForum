@@ -12,7 +12,7 @@ import {
   Shield,
   Mail,
 } from "lucide-react";
-import Avatar from "./Avatar";
+import Avatar from "@/shared/ui/common/Avatar";
 import { ProfileResponse } from "@/shared/api/types/user.model.do";
 
 interface ProfileSidebarProps {

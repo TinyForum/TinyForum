@@ -1,6 +1,7 @@
 // hooks/moderators/useModeratorPosts.ts
 import { useQuery } from "@tanstack/react-query";
 import { moderatorApi } from "@/shared/api/modules/moderator";
+import { moderatorKeys } from "./useModeratorKeys";
 
 export function useModeratorPosts(
   boardId: number,
@@ -9,7 +10,7 @@ export function useModeratorPosts(
   enabled: boolean = true,
 ) {
   const query = useQuery({
-    queryKey: ["moderator", "posts", boardId, page, keyword],
+    queryKey: moderatorKeys.posts(boardId, page, keyword),
     queryFn: () =>
       moderatorApi
         .getBoardPosts(boardId, { page, page_size: 20, keyword })

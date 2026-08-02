@@ -4,7 +4,7 @@ import { Ban, CheckCircle, XCircle } from "lucide-react";
 import { formatDate } from "@/shared/lib/utils";
 import { UserActionMenu } from "./UserActionMenu";
 import { useTranslations } from "next-intl";
-import Avatar from "@/features/user/components/Avatar";
+import Avatar from "@/shared/ui/common/Avatar";
 import { RoleBadge } from "@/layout/common/RoleBadge";
 import { UserRoleType } from "@/shared/api/types/roles.model";
 import { UserDO } from "@/shared/api/types/user.model.do";

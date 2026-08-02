@@ -92,7 +92,7 @@ func validateUploadRequest(req *request.UploadPostFileRequest) error {
 		if req.ReplyID == 0 {
 			return errors.New("reply_id is required for comment_file")
 		}
-	case "avatar", "plugin":
+	case "avatar", "plugin", "post_cover", "topic_cover":
 		// 无需额外参数
 	default:
 		return fmt.Errorf("invalid type: %s", req.Type)

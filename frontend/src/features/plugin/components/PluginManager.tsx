@@ -15,7 +15,7 @@ import {
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
-import { Modal } from "@/features/admin/components/Modal";
+import { Modal } from "@/shared/ui/common/Modal";
 import { useAdminPlugins } from "../useAdminPlugins";
 import { PluginUploadForm } from "./PluginUploadForm";
 import { CreatePluginPayload } from "@/shared/api/modules/plugin/plugins";

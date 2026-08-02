@@ -16,6 +16,7 @@ import {
 } from "@headlessui/react";
 import { formatDate } from "@/shared/lib/utils";
 import { useNotifications } from "@/features/notification/hooks/useNotification";
+import { notificationKeys } from "@/features/notification/hooks/useNotificationKeys";
 import { notificationApi } from "@/shared/api/modules/notifications";
 import { Notification } from "@/shared/api/types/notification.model";
 
@@ -64,7 +65,7 @@ export default function NotificationBell({
   }, []);
 
   const { data: previewData, refetch } = useQuery({
-    queryKey: ["notifications", "preview"],
+    queryKey: notificationKeys.preview(),
     queryFn: () =>
       notificationApi.list({ page: 1, page_size: 5 }).then((r) => r.data.data),
     enabled: false,
@@ -75,7 +76,7 @@ export default function NotificationBell({
       notificationApi.markRead(notificationId),
     onSuccess: () => {
       queryClient.setQueryData(
-        ["notifications", "preview"],
+        notificationKeys.preview(),
         (oldData: Notification[]) => {
           if (!oldData) return oldData;
           return {
@@ -86,7 +87,12 @@ export default function NotificationBell({
           };
         },
       );
-      queryClient.invalidateQueries({ queryKey: ["unreadCount"] });
+      queryClient.invalidateQueries({
+        queryKey: notificationKeys.unread(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: notificationKeys.unreadCount(),
+      });
     },
   });
 

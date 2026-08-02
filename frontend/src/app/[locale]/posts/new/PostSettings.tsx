@@ -61,9 +61,9 @@ export function PostSettings({
   // 封面上传函数（无需 postId）
   const handleUploadCover = async (file: File): Promise<{ url: string }> => {
     try {
-      // 使用通用附件上传接口（需后端支持，返回 { data: { url } }）
+      // 使用通用附件上传接口，返回 { data: { url } }
       const res = await uploadApi.uploadPluginFile(file, "post_cover");
-      return { url: res.data.data };
+      return { url: res.data.data?.url ?? "" };
     } catch (error) {
       toast.error(t("cover_upload_failed"));
       throw error;

@@ -15,7 +15,7 @@ import {
 import toast from "react-hot-toast";
 import { useTranslations } from "next-intl";
 import { timeAgo } from "@/shared/lib/utils";
-import Avatar from "@/features/user/components/Avatar";
+import Avatar from "@/shared/ui/common/Avatar";
 import { useNotifications } from "@/features/notification/hooks/useNotification";
 
 // 通知图标组件

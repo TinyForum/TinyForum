@@ -4,7 +4,7 @@
 //   return nodeMeta.label;
 // }
 
-import { NodeMeta } from "@/features/bot/noco.type";
+import { NodeMeta } from "@/shared/api/types/nocode.model";
 
 /**
  * 创建默认节点参数的函数

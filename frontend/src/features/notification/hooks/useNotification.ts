@@ -65,6 +65,7 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
       queryClient.invalidateQueries({
         queryKey: notificationKeys.unreadCount(),
       })
+      queryClient.invalidateQueries({ queryKey: notificationKeys.unread() })
     },
   })
 
@@ -80,6 +81,7 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
       queryClient.invalidateQueries({
         queryKey: notificationKeys.unreadCount(),
       })
+      queryClient.invalidateQueries({ queryKey: notificationKeys.unread() })
     },
   })
 

@@ -1,4 +1,4 @@
-import { Modal } from "@/features/admin/components/Modal";
+import { Modal } from "@/shared/ui/common/Modal";
 import { EmptyState } from "@/features/system/components/DetailRow";
 import { PluginDetail } from "@/features/system/components/PluginDetail";
 import { PluginRow } from "@/features/system/components/PluginRow";

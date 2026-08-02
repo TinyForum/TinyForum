@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { TrendingUp } from "lucide-react";
-import Avatar from "@/features/user/components/Avatar";
+import Avatar from "@/shared/ui/common/Avatar";
 import { LeaderboardItemResponse } from "@/shared/api/types/user.model";
 
 interface LeaderboardProps {

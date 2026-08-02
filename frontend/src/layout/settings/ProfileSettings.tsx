@@ -8,7 +8,7 @@ import { useAuthStore } from "@/store/auth";
 import toast from "react-hot-toast";
 import { getErrorMessage } from "@/shared/lib/utils";
 import { Save, AlertCircle, Camera } from "lucide-react";
-import Avatar from "@/features/user/components/Avatar";
+import Avatar from "@/shared/ui/common/Avatar";
 import { userApi } from "@/shared/api/modules/user";
 import { UserDO } from "@/shared/api/types/user.model.do";
 

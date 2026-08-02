@@ -6,4 +6,6 @@ export const notificationKeys = {
   details: () => [...notificationKeys.all, 'detail'] as const,
   detail: (id: number) => [...notificationKeys.details(), id] as const,
   unreadCount: () => [...notificationKeys.all, 'unreadCount'] as const,
+  unread: () => [...notificationKeys.all, 'unread'] as const,
+  preview: () => [...notificationKeys.all, 'preview'] as const,
 }

@@ -5,7 +5,7 @@ import { ChatBubbleLeftRightIcon } from "@heroicons/react/24/outline";
 import { Heart, Eye, HeartCrack } from "lucide-react";
 import { useState } from "react";
 import { postApi } from "@/shared/api/modules/posts";
-import Avatar from "@/features/user/components/Avatar";
+import Avatar from "@/shared/ui/common/Avatar";
 import { BoardPostListItem } from "@/shared/api/types/board.model";
 
 export function BoardPostCard({ post }: { post: BoardPostListItem }) {

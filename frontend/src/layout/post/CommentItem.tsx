@@ -8,7 +8,7 @@ import { useAuthStore } from "@/store/auth";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { useTranslations } from "next-intl";
-import Avatar from "@/features/user/components/Avatar";
+import Avatar from "@/shared/ui/common/Avatar";
 import { commentApi } from "@/shared/api/modules/comments";
 import { Reply } from "@/shared/api/types/comment.model";
 

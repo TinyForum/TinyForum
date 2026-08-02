@@ -4,6 +4,7 @@ import toast from "react-hot-toast";
 import { adminPostsApi } from "@/shared/api/modules/admin/post";
 import { Post } from "@/shared/api/types/post.model";
 import { ApiResponse, PageData } from "@/shared/api/types/basic.model";
+import { adminKeys } from "./useAdminKeys";
 
 type AdminApiListResponse = { data: ApiResponse<PageData<Post>> };
 interface UsePostsDataReturn {
@@ -24,7 +25,7 @@ export function usePostsData(
 ): UsePostsDataReturn {
   const queryClient = useQueryClient();
   const t = useTranslations("admin");
-  const queryKey = ["admin-posts", page, keyword] as const;
+  const queryKey = adminKeys.posts(page, keyword);
 
   // 显式指定泛型：查询返回的类型是 PageData<Post>，错误类型为 Error
   const { data, isLoading } = useQuery<PageData<Post>, Error>({
@@ -55,7 +56,7 @@ export function usePostsData(
       await adminPostsApi.togglePin(id);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin-posts"] });
+      queryClient.invalidateQueries({ queryKey: adminKeys.posts() });
       toast.success(t("operation_successful"));
     },
     onError: (error: unknown) => {

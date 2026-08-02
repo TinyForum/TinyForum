@@ -7,7 +7,9 @@ export type UploadFileType =
   | "post_image"
   | "comment_file"
   | "avatar"
-  | "plugin";
+  | "plugin"
+  | "post_cover"
+  | "topic_cover";
 
 /** 上传文件响应数据 */
 export interface UploadFileResponse {
@@ -25,11 +27,8 @@ export interface FileInfoResponse {
   size: number;
   mime_type: string;
   url: string;
-  type: UploadFileType; // 业务类型
-  post_id?: number;
-  reply_id?: number;
+  file_type: string; // 业务类型
   created_at: string;
-  updated_at: string;
 }
 
 /** 用户文件列表响应 */
@@ -66,9 +65,6 @@ export const attachmentApi = {
     return apiClient.post<ApiResponse<UploadFileResponse>>(
       "/attachments",
       formData,
-      {
-        headers: { "Content-Type": "multipart/form-data" },
-      },
     );
   },
 
@@ -125,7 +121,7 @@ export const attachmentApi = {
    * @param fileId - 文件ID
    */
   serveFile(fileId: string) {
-    return apiClient.get(`/files/${fileId}`, {
+    return apiClient.get<Blob>(`/files/${fileId}`, {
       responseType: "blob",
     });
   },

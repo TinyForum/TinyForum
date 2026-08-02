@@ -2,5 +2,7 @@
   "brand": "Tiny Forum",
   "description": "A fully open source forum project built with Nextjs and Gin",
   "repo": "https://github.com/caoyang2002/TinyForum",
-  "license": "MIT"
+  "license": "MIT",
+  "userTitle": "User Profile",
+  "userDescription": "View user profile, posts and activity"
 }
