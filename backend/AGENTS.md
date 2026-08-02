@@ -59,8 +59,6 @@ go test ./...     # 运行测试
 golangci-lint run # 静态检查（启用 govet；gofmt 作为 formatter）
 ```
 
-````
-
 运行参数（`cmd/server/flags.go`）：`--config-dir`、`--port`、`--env`、`--verbosity`、`--audit`、`--version`。
 
 ---
@@ -288,6 +286,14 @@ git commit -m "feat! [api]: change response structure" -m "详见迁移指南。
 - 修复任务切 `fix-[issue_id]`；新功能切 `feat-[name]`；重构切 `refactor-[name]`。
 - 所有变更必须通过 `dev` → PR/MR 合并。
 
+### 9.4 项目规范
+
+- 任何对代码的修改都应该创建新的分支，修改完成后应该 commit
+- 每次提交应该包含一个 commit，并且每个 commit 只做一件事情
+- 每个提交信息应该简洁明了，并且应该包含一个简短的描述
+- 每个提交信息应该使用英文，并且应该使用现在时态
+- 提交的代码应该经过代码审查，并且应该通过所有的测试
+
 ---
 
 ## 10. AI 工作量约束
@@ -303,4 +309,3 @@ git commit -m "feat! [api]: change response structure" -m "详见迁移指南。
 - 修改业务代码后至少保证 `go build ./...` 通过。
 - 涉及配置加载、参数校验、错误映射的逻辑，检查 `golangci-lint run` 与相关 `go test ./...`。
 - 修改路由/中间件时对照 `internal/wire/routes.go` 的中间件顺序约定，避免破坏 RBAC 与限流。
-````
