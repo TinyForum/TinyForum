@@ -13,7 +13,7 @@ import (
 )
 
 // AcceptAnswer 采纳答案
-func (s *questionService) AcceptAnswer(questionID, answerID uint, userID uint) error {
+func (s *questionService) AcceptAnswer(ctx context.Context, questionID, answerID uint, userID uint) error {
 	question, err := s.postRepo.FindQuestionByQuestionID(questionID)
 	if err != nil {
 		return apperrors.ErrPostNotFound
@@ -35,7 +35,7 @@ func (s *questionService) AcceptAnswer(questionID, answerID uint, userID uint) e
 		}
 	}
 
-	if err := s.txManager.ExecuteInTransaction(context.Background(), func(tx *gorm.DB) error {
+	if err := s.txManager.ExecuteInTransaction(ctx, func(tx *gorm.DB) error {
 		if err := tx.Model(&do.Question{}).Where("id = ?", questionID).
 			Updates(map[string]interface{}{
 				"accepted_answer_id": answerID,

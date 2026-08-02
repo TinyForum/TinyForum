@@ -1,11 +1,6 @@
 package question
 
 import (
-	"bytes"
-	"fmt"
-	"io"
-	"net/http"
-
 	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/dto"
 	"tiny-forum/pkg/response"
@@ -27,14 +22,6 @@ import (
 // @Failure 403 {object} common.BasicResponse"积分不足"
 // @Router /questions/create [post]
 func (h *QuestionHandler) CreateQuestion(c *gin.Context) {
-	body, err := io.ReadAll(c.Request.Body)
-	if err != nil {
-		fmt.Printf("读取请求体失败: %v\n", err)
-	} else {
-		fmt.Printf("原始请求体: %s\n", string(body))
-		c.Request.Body = io.NopCloser(bytes.NewBuffer(body))
-	}
-
 	var input dto.CreateQuestionRequest
 	if err := c.ShouldBindJSON(&input); err != nil {
 		response.HandleError(c, err)
@@ -57,12 +44,7 @@ func (h *QuestionHandler) CreateQuestion(c *gin.Context) {
 
 	question, err := h.questionSvc.CreateQuestion(userID.(uint), input)
 	if err != nil {
-		switch err.Error() {
-		case "积分不足":
-			c.JSON(http.StatusForbidden, gin.H{"message": err.Error()})
-		default:
-			response.HandleError(c, err)
-		}
+		response.HandleError(c, err)
 		return
 	}
 

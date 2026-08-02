@@ -122,7 +122,7 @@ func (h *CommentHandler) AcceptAnswer(c *gin.Context) {
 
 	userID := c.GetUint("user_id")
 
-	if err := h.questionSvc.AcceptAnswer(uint(postID), uint(commentID), userID); err != nil {
+	if err := h.questionSvc.AcceptAnswer(c.Request.Context(), uint(postID), uint(commentID), userID); err != nil {
 		response.HandleError(c, err)
 		return
 	}

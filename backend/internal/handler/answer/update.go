@@ -43,7 +43,7 @@ func (h *AnswerHandler) AcceptAnswer(c *gin.Context) {
 
 	userID := c.GetUint("user_id")
 
-	if err := h.questionSvc.AcceptAnswer(uint(questionID), uint(answerID), userID); err != nil {
+	if err := h.questionSvc.AcceptAnswer(c.Request.Context(), uint(questionID), uint(answerID), userID); err != nil {
 		switch {
 		case errors.Is(err, apperrors.ErrPostNotFound):
 			response.HandleError(c, err)
