@@ -130,11 +130,11 @@ export default function BoardsClient() {
 
           {user && (
             <Link
-              href="/boards/new"
+              href="/posts/new"
               className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white text-sm font-medium rounded-xl shadow-md hover:shadow-lg transition-all"
             >
               <PlusIcon className="w-4 h-4" />
-              创建新板块
+              发布新帖
             </Link>
           )}
         </div>

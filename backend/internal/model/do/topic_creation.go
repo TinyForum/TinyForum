@@ -32,7 +32,7 @@ type TopicCreation struct {
 
 	IsPublic      bool `gorm:"default:true;index" json:"is_public"` // 是否公开
 	PostCount     int  `gorm:"default:0" json:"post_count"`         // 帖子数量
-	FollowerCount int  `gorm:"defult:0" json:"follower_count"`      // 关注者数量
+	FollowerCount int  `gorm:"default:0" json:"follower_count"`      // 关注者数量
 	SortOrder     int  `gorm:"default:0"`                           // 排序顺序
 	CreatorID     uint `gorm:"not null;index"`                      // 添加者ID
 

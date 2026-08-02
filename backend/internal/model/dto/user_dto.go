@@ -6,7 +6,6 @@ type LeaderboardUserDetail struct {
 	Username  string `json:"username"`
 	AvatarUrl string `json:"avatar_url"`
 	Score     int    `json:"score"`
-	Email     string `json:"email"`
 	Role      string `json:"role"`
 	Rank      int    `json:"rank"`
 }

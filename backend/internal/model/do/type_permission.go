@@ -1,7 +1,5 @@
 package do
 
-import "fmt"
-
 // ── 权限定义 ────────────────────────────────────────────────────────────────
 
 // 权限
@@ -237,11 +235,10 @@ func CanOperateTarget(operatorRole UserRole, currentTargetRole UserRole) bool {
 	return false
 }
 
-// IsValidRole 检查角色字符串是否合法（）
+// IsValidRole 检查角色字符串是否合法
 func IsValidRole(role UserRole) bool {
 	switch role {
 	case RoleUser, RoleMember, RoleModerator, RoleReviewer, RoleAdmin, RoleBot, RoleSuperAdmin, RoleSystemMaintainer:
-		fmt.Printf("无效角色: %v", role)
 		return true
 	}
 	return false

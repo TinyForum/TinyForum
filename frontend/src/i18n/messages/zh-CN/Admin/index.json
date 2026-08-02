@@ -232,6 +232,8 @@
   "batch_reject_success": "批量驳回成功",
   "system_settings": "系统设置",
   "settings_coming": "此功能正在开发中，敬请期待",
+  "settings_go_to_system": "系统设置请前往系统管理面板",
+  "go_to_system_settings": "前往系统设置",
   "unknown": "未知",
   "delete_posts": "删除帖子",
   "can_delete_posts_desc": "允许删除板块内的帖子",

@@ -3,20 +3,25 @@
  */
 
 import apiClient from "../client";
-import { LoginPayload, RegisterPayload } from "../types/auth.model";
-// import { AuthResult } from "../types";
+import { AuthResultVO, LoginPayload, RegisterPayload } from "../types/auth.model";
 import { ApiResponse } from "../types/basic.model";
 import { UserDO } from "../types/user.model.do";
 
 export const authApi = {
   register: (data: RegisterPayload) =>
-    apiClient.post<ApiResponse<UserDO>>("/auth/register", data),
+    apiClient.post<ApiResponse<AuthResultVO>>("/auth/register", data, {
+      withCredentials: true,
+    }),
 
-  // 登录：后端通过 Set-Cookie 设置 HttpOnly Cookie
+  /**
+   * 登录：后端通过 Set-Cookie 设置 HttpOnly Cookie 传递 token
+   * JSON body 返回扁平的 UserLoginVO（不含外层 {token, user} 包装）
+   */
   login: (data: LoginPayload) =>
-    apiClient.post<ApiResponse<UserDO>>("/auth/login", data),
+    apiClient.post<ApiResponse<UserDO>>("/auth/login", data, {
+      withCredentials: true,
+    }),
 
-  // 获取当前用户：Cookie 会自动携带
   me: () =>
     apiClient.get<ApiResponse<UserDO>>("/auth/me", {
       withCredentials: true,

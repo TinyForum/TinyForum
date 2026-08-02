@@ -392,7 +392,7 @@ export default function TimelineClient() {
   // 重定向未认证用户
   useEffect(() => {
     if (!isAuthenticated) {
-      router.push("/login?redirect=/timeline");
+      router.push("/auth/login?redirect=/timeline");
     }
   }, [isAuthenticated, router]);
 

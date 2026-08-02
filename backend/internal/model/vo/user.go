@@ -70,10 +70,17 @@ type UserPublicVO struct {
 }
 
 type UserProfileVO struct {
-	*do.User
-	FollowerCount  int64 `json:"follower_count"`
-	FollowingCount int64 `json:"following_count"`
-	IsFollowing    bool  `json:"is_following"`
+	ID             uint        `json:"id"`
+	CreatedAt      time.Time   `json:"created_at"`
+	UpdatedAt      time.Time   `json:"updated_at"`
+	Username       string      `json:"username"`
+	AvatarUrl      string      `json:"avatar_url"`
+	Bio            string      `json:"bio"`
+	Role           do.UserRole `json:"role"`
+	Score          int         `json:"score"`
+	FollowerCount  int64       `json:"follower_count"`
+	FollowingCount int64       `json:"following_count"`
+	IsFollowing    bool        `json:"is_following"`
 }
 
 // AdminSetScoreResponse 管理员设置积分响应

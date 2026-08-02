@@ -47,11 +47,43 @@ func (s *announcementService) List(ctx context.Context, req *request.ListAnnounc
 	if err != nil {
 		return nil, err
 	}
+
+	vos := make([]vo.AnnouncementVO, len(announcements))
+	for i, a := range announcements {
+		vos[i] = vo.AnnouncementVO{
+			ID:          a.ID,
+			CreatedAt:   a.CreatedAt,
+			UpdatedAt:   a.UpdatedAt,
+			Title:       a.Title,
+			Content:     a.Content,
+			Summary:     a.Summary,
+			Cover:       a.Cover,
+			Type:        a.Type,
+			Status:      a.Status,
+			IsPinned:    a.IsPinned,
+			IsGlobal:    a.IsGlobal,
+			BoardID:     a.BoardID,
+			PublishedAt: a.PublishedAt,
+			ExpiredAt:   a.ExpiredAt,
+			ViewCount:   a.ViewCount,
+			CreatedBy:   a.CreatedBy,
+		}
+		if a.Creator != nil {
+			vos[i].Creator.ID = a.Creator.ID
+			vos[i].Creator.Username = a.Creator.Username
+			vos[i].Creator.AvatarUrl = a.Creator.AvatarUrl
+		}
+		if a.Board != nil {
+			vos[i].Board.ID = a.Board.ID
+			vos[i].Board.Name = a.Board.Name
+		}
+	}
+
 	return &vo.ListAnnouncements{
 		Total:         total,
 		Page:          req.Page,
 		PageSize:      req.PageSize,
-		Announcements: announcements,
+		Announcements: vos,
 	}, nil
 }
 

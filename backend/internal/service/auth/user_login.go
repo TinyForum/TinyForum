@@ -44,10 +44,6 @@ func (s *authService) Login(ctx context.Context, input userSvc.LoginInput) (*vo.
 			return nil, apperrors.ErrUserPermanentlyDeleted
 		}
 	}
-	if deletionStatus != nil {
-		panic("deletionStatus is not nil")
-	}
-
 	now := time.Now()
 	user.LastLogin = &now
 	_ = s.userRepo.Update(ctx, user)
@@ -71,6 +67,6 @@ func (s *authService) Login(ctx context.Context, input userSvc.LoginInput) (*vo.
 			CreatedAt:   user.CreatedAt,
 			InvitedByID: user.InvitedByID,
 		},
-		// DeletionStatus: deletionStatus,
+		DeletionStatus: deletionStatus,
 	}, nil
 }

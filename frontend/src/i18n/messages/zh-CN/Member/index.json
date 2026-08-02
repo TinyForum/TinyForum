@@ -52,5 +52,7 @@
   "delete_account_warning": "删除账户将永久移除您的所有数据，此操作不可恢复。",
   "delete_account": "删除账户",
   "confirm_delete": "确认删除",
-  "cancel": "取消"
+  "cancel": "取消",
+  "feature_under_development": "功能开发中",
+  "feature_coming_soon": "{feature} 功能正在建设中，敬请期待。"
 }

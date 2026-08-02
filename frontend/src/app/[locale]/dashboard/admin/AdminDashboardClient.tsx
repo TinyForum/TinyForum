@@ -2,6 +2,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useTranslations } from "next-intl";
 
 import { AdminSearchBar } from "@/features/admin/components/AdminSearchBar";
@@ -17,7 +18,6 @@ import { Statistics } from "@/features/admin/components/Statistics";
 import { UsersTable } from "@/features/admin/components/UsersTable";
 import { useAdminAuth } from "@/features/admin/hooks/useAdminAuth";
 import { usePostsData } from "@/features/admin/hooks/usePostsData";
-import { useQAData } from "@/features/admin/hooks/useQAData";
 import { useUsersData } from "@/features/admin/hooks/useUsersData";
 import { UserDO } from "@/shared/api/types/user.model.do";
 import { BotManager } from "@/features/bot/components/BotManager";
@@ -45,8 +45,6 @@ export default function AdminDashboardClient() {
     keyword,
     activeMenu === "posts" && isAdmin,
   );
-
-  const qaData = useQAData();
 
   // 处理用户激活/停用
   const handleToggleActive = async (userId: number, active: boolean) => {
@@ -141,7 +139,7 @@ export default function AdminDashboardClient() {
 
       // 版主管理
       case "moderators_management":
-        return <ModeratorsTable boardId={0} />;
+        return <ModeratorsTable boardId={1} />;
 
       // 帖子管理
       case "posts":
@@ -171,30 +169,19 @@ export default function AdminDashboardClient() {
           </div>
         );
 
-      // 问答
+      // 问答 - 跳转到问答管理
       case "qa":
         return (
-          <div className="space-y-4">
-            <AdminSearchBar
-              tab="qa"
-              keyword={keyword}
-              onKeywordChange={(k) => {
-                setKeyword(k);
-                setPage(1);
-              }}
-              onPageReset={() => setPage(1)}
-              t={t}
-            />
-            <div className="card bg-base-100 border border-base-300">
-              <div className="card-body">
-                <p className="text-center text-base-content/50">TODO</p>
-              </div>
+          <div className="card bg-base-100 border border-base-300">
+            <div className="card-body text-center py-12">
+              <h3 className="font-semibold mb-2">{t("qa_management")}</h3>
+              <p className="text-base-content/50 mb-4">
+                {t("qa_feature_coming_soon")}
+              </p>
+              <Link href="/questions" className="btn btn-outline mx-auto">
+                前往问答社区
+              </Link>
             </div>
-            <Pagination
-              currentPage={page}
-              total={qaData.total}
-              onPageChange={setPage}
-            />
           </div>
         );
 
@@ -206,15 +193,19 @@ export default function AdminDashboardClient() {
       case "statistics":
         return <Statistics />;
 
-      // 设置
+      // 设置 - 跳转到系统设置
       case "settings":
+      case "system":
         return (
           <div className="card bg-base-100 border border-base-300">
-            <div className="card-body">
-              <h3 className="font-semibold mb-4">{t("system_settings")}</h3>
-              <p className="text-center text-base-content/50">
-                {t("settings_coming")}
+            <div className="card-body text-center py-12">
+              <h3 className="font-semibold mb-2">{t("system_settings")}</h3>
+              <p className="text-base-content/50 mb-4">
+                {t("settings_go_to_system")}
               </p>
+              <Link href="/dashboard/system" className="btn btn-primary mx-auto">
+                {t("go_to_system_settings")}
+              </Link>
             </div>
           </div>
         );
