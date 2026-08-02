@@ -21,6 +21,16 @@ func (s *questionService) CreateQuestion(userID uint, input dto.CreateQuestionRe
 	if err != nil {
 		return nil, apperrors.ErrCreateQuestionFailed
 	}
+
+	// 发布事件（触发零代码机器人）
+	s.botSvc.PublishEvent("post.created", map[string]any{
+		"post_id":   question.ID,
+		"title":     question.Title,
+		"content":   question.Content,
+		"author_id": userID,
+		"board_id":  input.BoardID,
+	})
+
 	return question, nil
 }
 

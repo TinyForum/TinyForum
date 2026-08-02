@@ -52,7 +52,7 @@ func (a *forumAPIImpl) CreatePost(ctx context.Context, req sdk.CreatePostReq) (*
 
 func (a *forumAPIImpl) ReplyPost(ctx context.Context, postID uint, content string) (*sdk.CommentVO, error) {
 	c := &do.Comment{
-
+		WorksID: uint(postID),
 		Reply: &do.Reply{
 			AuthorID: a.botActorID,
 			Content:  content,
@@ -73,6 +73,10 @@ func (a *forumAPIImpl) ReplyPost(ctx context.Context, postID uint, content strin
 }
 
 func (a *forumAPIImpl) DeletePost(ctx context.Context, postID uint) error {
+	attachments, _ := a.attachmentRepo.FindByPostID(ctx, int64(postID))
+	for _, att := range attachments {
+		_ = a.attachmentRepo.SoftDelete(ctx, att.FileID)
+	}
 	return a.postRepo.Delete(uint(postID))
 }
 
@@ -94,6 +98,10 @@ func (a *forumAPIImpl) ModeratePost(ctx context.Context, postID uint, action, re
 		p.Creation.CreationStatus = do.CreationStatusHidden
 		return a.postRepo.Update(p)
 	case "delete":
+		attachments, _ := a.attachmentRepo.FindByPostID(ctx, int64(postID))
+		for _, att := range attachments {
+			_ = a.attachmentRepo.SoftDelete(ctx, att.FileID)
+		}
 		return a.postRepo.Delete(uint(postID))
 	default:
 		return fmt.Errorf("unknown moderate action: %s", action)

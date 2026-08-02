@@ -8,6 +8,7 @@ import {
 import { useBots, useBotActions } from "../hooks/bot";
 import { Pagination } from "@/shared/ui/common/Pagination";
 import { BotFormModal } from "./BotFormModal";
+import { BotExecutionLog } from "./BotExecutionLog";
 
 interface AdminBotsProps {
   page: number;
@@ -148,6 +149,8 @@ export function AdminBots({ page, pageSize, onPageChange }: AdminBotsProps) {
                     删除
                   </button>
                 </div>
+
+                <BotExecutionLog bot={bot} />
               </div>
             </div>
           ))}

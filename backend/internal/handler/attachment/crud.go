@@ -85,14 +85,12 @@ func (h *AttachmentHandler) UploadFile(c *gin.Context) {
 func validateUploadRequest(req *request.UploadPostFileRequest) error {
 	switch req.Type {
 	case "post_image":
-		if req.PostID == 0 {
-			return errors.New("post_id is required for post_image")
-		}
+		// post_id=0 允许预上传（创建帖子前上传），后续通过帖子内容关联
 	case "comment_file":
 		if req.ReplyID == 0 {
 			return errors.New("reply_id is required for comment_file")
 		}
-	case "avatar", "plugin", "post_cover", "topic_cover":
+	case "avatar", "plugin", "post_cover", "topic_cover", "video":
 		// 无需额外参数
 	default:
 		return fmt.Errorf("invalid type: %s", req.Type)

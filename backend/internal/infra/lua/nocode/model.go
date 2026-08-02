@@ -1,8 +1,8 @@
 // Package nocode 定义零代码机器人的流程节点模型。
 //
-// 用户通过前端拖拽，将节点组合成如下线性流程：
+// 四类节点：
 //
-//	Trigger → [Condition…] → [Action…]
+//	触发器 → 控制 → 变量 → 动作
 //
 // Flow 序列化后存储在 bot.config_values["flow"] 中（JSON 字符串）。
 package nocode
@@ -11,12 +11,11 @@ import "encoding/json"
 
 // ─── Flow ────────────────────────────────────────────────────────────────────
 
-// Flow 是一个零代码机器人的完整流程描述。
 type Flow struct {
-	Version    string       `json:"version"`              // 目前固定 "1"
-	Trigger    TriggerNode  `json:"trigger"`              // 触发器（唯一）
-	Conditions []CondNode   `json:"conditions,omitempty"` // 前置条件，全部满足才执行 Actions
-	Actions    []ActionNode `json:"actions"`              // 顺序执行的动作列表
+	Version string      `json:"version"`
+	Trigger TriggerNode `json:"trigger"`
+	Steps   []FlowStep  `json:"steps"` // 统一步骤（控制/变量/动作）
+	Actions []FlowStep  `json:"actions,omitempty"`
 }
 
 func FlowToJSON(f *Flow) (string, error) {
@@ -42,13 +41,9 @@ const (
 	TriggerOnManual       TriggerType = "on_manual"
 )
 
-// TriggerNode 描述触发方式和参数
 type TriggerNode struct {
 	Type   TriggerType    `json:"type"`
 	Params map[string]any `json:"params,omitempty"`
-	// on_schedule  → { "cron": "0 9 * * 1" }
-	// on_keyword   → { "keywords": ["广告"], "scope": "post|comment|both" }
-	// on_new_post  → { "board_ids": [1,2] }  // 空=全部板块
 }
 
 // ─── Condition ───────────────────────────────────────────────────────────────
@@ -63,59 +58,95 @@ const (
 	CondBoardIDIn           CondType = "board_id_in"
 	CondTimeRange           CondType = "time_range"
 	CondCustomExpr          CondType = "custom_expr"
+	CondFieldEquals         CondType = "field_equals"
+	CondFieldNotEquals      CondType = "field_not_equals"
+	CondFieldContains       CondType = "field_contains"
+	CondFieldNotContains    CondType = "field_not_contains"
+	CondFieldGreaterThan    CondType = "field_greater_than"
+	CondFieldLessThan       CondType = "field_less_than"
+	CondFieldIsEmpty        CondType = "field_is_empty"
+	CondFieldNotEmpty       CondType = "field_is_not_empty"
 )
 
-// CondNode 单个条件
 type CondNode struct {
 	Type   CondType       `json:"type"`
-	Negate bool           `json:"negate,omitempty"` // true → NOT 取反
+	Negate bool           `json:"negate,omitempty"`
 	Params map[string]any `json:"params"`
 }
 
-// ─── Action ──────────────────────────────────────────────────────────────────
+// ─── FlowStep ────────────────────────────────────────────────────────────────
+
+type VarOutput struct {
+	Name string `json:"name"`
+	Type string `json:"type"` // string | number | boolean | object
+	Desc string `json:"desc,omitempty"`
+}
+
+type FlowStep struct {
+	ID      string         `json:"id,omitempty"`
+	Type    string         `json:"type"`
+	Label   string         `json:"label,omitempty"`
+	Params  map[string]any `json:"params,omitempty"`
+	Branch  *BranchConfig  `json:"branch,omitempty"`
+	Loop    *LoopConfig    `json:"loop,omitempty"`
+	Outputs []VarOutput    `json:"outputs,omitempty"` // 该节点产生的变量
+}
+
+type BranchConfig struct {
+	Condition  CondNode   `json:"condition"`
+	TrueSteps  []FlowStep `json:"true"`
+	FalseSteps []FlowStep `json:"false,omitempty"`
+}
+
+type LoopConfig struct {
+	Condition CondNode   `json:"condition"`
+	Body      []FlowStep `json:"body"`
+	MaxIter   int        `json:"max_iter,omitempty"`
+}
+
+// ─── ActionType（向后兼容）────────────────────────────────────────────────
 
 type ActionType string
 
 const (
-	// Post
-	ActionReplyPost  ActionType = "reply_post"
-	ActionDeletePost ActionType = "delete_post"
-	ActionHidePost   ActionType = "hide_post"
-	ActionPinPost    ActionType = "pin_post"
-	ActionLockPost   ActionType = "lock_post"
-	ActionCreatePost ActionType = "create_post"
-	// Comment
+	ActionReplyPost     ActionType = "reply_post"
+	ActionDeletePost    ActionType = "delete_post"
+	ActionHidePost      ActionType = "hide_post"
+	ActionPinPost       ActionType = "pin_post"
+	ActionLockPost      ActionType = "lock_post"
+	ActionCreatePost    ActionType = "create_post"
 	ActionDeleteComment ActionType = "delete_comment"
-	// User
-	ActionBanUser     ActionType = "ban_user"
-	ActionSendMessage ActionType = "send_message"
-	// Integration
-	ActionWebhook     ActionType = "webhook"
-	ActionNotifyAdmin ActionType = "notify_admin"
-	// Control
-	ActionWait        ActionType = "wait"
-	ActionSetVariable ActionType = "set_variable"
-	ActionStopIf      ActionType = "stop_if"
+	ActionBanUser       ActionType = "ban_user"
+	ActionSendMessage   ActionType = "send_message"
+	ActionWebhook       ActionType = "webhook"
+	ActionNotifyAdmin   ActionType = "notify_admin"
+	ActionWait          ActionType = "wait"
+	ActionStopIf        ActionType = "stop_if"
+	// 变量/数据
+	ActionSetVariable    ActionType = "set_variable"
+	ActionGetPostInfo    ActionType = "get_post_info"
+	ActionGetUserInfo    ActionType = "get_user_info"
+	ActionGetCommentInfo ActionType = "get_comment_info"
+	// 控制
+	ActionBranch ActionType = "branch"
+	ActionLoop   ActionType = "loop"
+	// 算术
+	ActionAdd      ActionType = "add"
+	ActionSubtract ActionType = "subtract"
+	ActionMultiply ActionType = "multiply"
+	ActionDivide   ActionType = "divide"
+	ActionModulo   ActionType = "modulo"
+	ActionConcat   ActionType = "concat"
+	ActionLength   ActionType = "length"
 )
-
-// ActionNode 单个动作
-type ActionNode struct {
-	Type   ActionType     `json:"type"`
-	Params map[string]any `json:"params"`
-	// reply_post   → { "content": "感谢 {{username}} 发帖！" }
-	// ban_user     → { "reason": "违规", "duration_sec": 86400 }
-	// webhook      → { "url": "https://...", "method": "POST", "body": "..." }
-	// wait         → { "seconds": 3 }
-	// set_variable → { "name": "score", "value": "{{event.score}}" }
-}
 
 // ─── FlowContext ──────────────────────────────────────────────────────────────
 
-// FlowContext 在一次流程执行中传递，供条件和动作读写变量。
 type FlowContext struct {
-	Event     map[string]any // 触发事件原始数据
-	Variables map[string]any // set_variable 写入的变量
+	Event     map[string]any
+	Variables map[string]any
 	Logs      []string
+	Depth     int // 当前嵌套深度
 }
 
 func NewFlowContext(event map[string]any) *FlowContext {
@@ -132,7 +163,6 @@ func (c *FlowContext) Log(msg string) {
 	c.Logs = append(c.Logs, msg)
 }
 
-// Get 从 Variables（优先）或 Event 中读取值
 func (c *FlowContext) Get(key string) (any, bool) {
 	if v, ok := c.Variables[key]; ok {
 		return v, true
@@ -140,3 +170,5 @@ func (c *FlowContext) Get(key string) (any, bool) {
 	v, ok := c.Event[key]
 	return v, ok
 }
+
+const MaxNestingDepth = 5

@@ -90,9 +90,9 @@ type Edge struct {
 
 func (f *ValidateFlowRequest) ToFlow() nocode.Flow {
 	return nocode.Flow{
-		Version:    f.Version,
-		Trigger:    f.Trigger,
-		Conditions: f.Conditions,
-		Actions:    f.Actions,
+		Version: f.Version,
+		Trigger: f.Trigger,
+		Steps:   f.Steps,
+		Actions: f.Actions,
 	}
 }

@@ -19,6 +19,7 @@ type AttachmentRepository interface {
 	ListByUser(ctx context.Context, userID uint, fileType *do.FileType, page, pageSize int) ([]*do.Attachment, int64, error) // 根据用户ID获取附件列表
 	FindDuplicate(ctx context.Context, fileHash string, fileType do.FileType) (*do.Attachment, error)                        // 查找重复文件
 	AssociateWithPost(ctx context.Context, fileID string, postID int64) error                                                // 将附件关联到帖子
+	FindByPostID(ctx context.Context, postID int64) ([]*do.Attachment, error)                                                // 根据帖子ID查找所有附件
 }
 
 type attachmentRepo struct {

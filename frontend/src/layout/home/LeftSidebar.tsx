@@ -13,7 +13,11 @@ import {
   ChevronDown,
   ChevronRight,
   TagIcon,
+  Image as ImageIcon,
+  Play,
+  Film,
   PenIcon,
+  MessageSquare,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/shared/lib/utils";
@@ -164,20 +168,17 @@ export default function LeftSidebar({
             onClick={() => {
               onBoardChange(null);
               onTagChange(null);
-              onPostTypeChange("questions");
+              onPostTypeChange("question");
             }}
             className={cn(
               "w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors",
-              filterType === "questions"
+              filterType === "question"
                 ? "bg-primary/10 text-primary font-medium"
                 : "hover:bg-muted text-muted-foreground hover:text-foreground",
             )}
           >
             <HelpCircle className="w-4 h-4" />
             {t("questions")}
-            <span className="ml-auto text-xs text-muted-foreground">
-              {/* TODO count */}
-            </span>
           </button>
 
           {/* 文章 */}
@@ -196,9 +197,96 @@ export default function LeftSidebar({
           >
             <FileText className="w-4 h-4" />
             {t("articles")}
-            <span className="ml-auto text-xs text-muted-foreground">
-              {/* TODO count */}
-            </span>
+          </button>
+
+          {/* 图文 */}
+          <button
+            onClick={() => {
+              onBoardChange(null);
+              onTagChange(null);
+              onPostTypeChange("image_text");
+            }}
+            className={cn(
+              "w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors",
+              filterType === "image_text"
+                ? "bg-primary/10 text-primary font-medium"
+                : "hover:bg-muted text-muted-foreground hover:text-foreground",
+            )}
+          >
+            <PenIcon className="w-4 h-4" />
+            {t("image_text")}
+          </button>
+
+          {/* 图片 */}
+          <button
+            onClick={() => {
+              onBoardChange(null);
+              onTagChange(null);
+              onPostTypeChange("image");
+            }}
+            className={cn(
+              "w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors",
+              filterType === "image"
+                ? "bg-primary/10 text-primary font-medium"
+                : "hover:bg-muted text-muted-foreground hover:text-foreground",
+            )}
+          >
+            <ImageIcon className="w-4 h-4" />
+            {t("images")}
+          </button>
+
+          {/* 短视频 */}
+          <button
+            onClick={() => {
+              onBoardChange(null);
+              onTagChange(null);
+              onPostTypeChange("short_video");
+            }}
+            className={cn(
+              "w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors",
+              filterType === "short_video"
+                ? "bg-primary/10 text-primary font-medium"
+                : "hover:bg-muted text-muted-foreground hover:text-foreground",
+            )}
+          >
+            <Play className="w-4 h-4" />
+            {t("short_videos")}
+          </button>
+
+          {/* 长视频 */}
+          <button
+            onClick={() => {
+              onBoardChange(null);
+              onTagChange(null);
+              onPostTypeChange("long_video");
+            }}
+            className={cn(
+              "w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors",
+              filterType === "long_video"
+                ? "bg-primary/10 text-primary font-medium"
+                : "hover:bg-muted text-muted-foreground hover:text-foreground",
+            )}
+          >
+            <Film className="w-4 h-4" />
+            {t("long_videos")}
+          </button>
+
+          {/* 话题 */}
+          <button
+            onClick={() => {
+              onBoardChange(null);
+              onTagChange(null);
+              onPostTypeChange("topic");
+            }}
+            className={cn(
+              "w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors",
+              filterType === "topic"
+                ? "bg-primary/10 text-primary font-medium"
+                : "hover:bg-muted text-muted-foreground hover:text-foreground",
+            )}
+          >
+            <Hash className="w-4 h-4" />
+            {t("topics")}
           </button>
 
           {/* 帖子 */}
@@ -215,11 +303,8 @@ export default function LeftSidebar({
                 : "hover:bg-muted text-muted-foreground hover:text-foreground",
             )}
           >
-            <PenIcon className="w-4 h-4" />
-            {t("posts")}
-            <span className="ml-auto text-xs text-muted-foreground">
-              {/* TODO count */}
-            </span>
+            <MessageSquare className="w-4 h-4" />
+            {t("post")}
           </button>
         </div>
       </div>

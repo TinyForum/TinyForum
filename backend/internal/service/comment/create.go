@@ -33,6 +33,15 @@ func (s *commentService) CreateComment(authorID uint, input bo.CreateCommentInpu
 		return nil, err
 	}
 
+	// 发布事件（触发零代码机器人）
+	s.botSvc.PublishEvent("comment.created", map[string]any{
+		"comment_id":   comment.ID,
+		"post_id":      input.PostID,
+		"post_content": input.Content,
+		"author_id":    authorID,
+		"parent_id":    input.ParentID,
+	})
+
 	_ = s.userRepo.AddScore(authorID, 3)
 
 	if post.Creation.AuthorID != authorID {
@@ -74,6 +83,14 @@ func (s *commentService) CreateAnswer(authorID uint, input bo.CreateAnswerInput)
 	if err := s.commentRepo.CreateAnswer(comment); err != nil {
 		return nil, err
 	}
+
+	// 发布事件（触发零代码机器人）
+	s.botSvc.PublishEvent("comment.created", map[string]any{
+		"comment_id":  comment.ID,
+		"post_id":     input.QuestionID,
+		"content":     input.Content,
+		"author_id":   authorID,
+	})
 
 	_ = s.userRepo.AddScore(authorID, 2)
 

@@ -1,6 +1,7 @@
 package board
 
 import (
+	"context"
 	apperrors "tiny-forum/pkg/errors"
 )
 
@@ -17,6 +18,8 @@ func (s *boardService) DeletePost(boardID, postID, userID uint, isAdmin bool) er
 		return apperrors.ErrInsufficientPermission
 	}
 	s.writeLog(userID, boardID, "delete_post", "post", postID, "版主删除")
+	// 级联删除帖子关联的附件
+	_ = s.attachmentSvc.DeleteByPostID(context.Background(), int64(postID))
 	return s.postRepo.Delete(postID)
 }
 

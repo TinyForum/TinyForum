@@ -112,3 +112,12 @@ func (r *attachmentRepo) AssociateWithPost(ctx context.Context, fileID string, p
 		Where("file_id = ? AND deleted_at IS NULL", fileID).
 		Update("post_id", postID).Error
 }
+
+// FindByPostID 根据帖子ID查找所有未软删除的附件
+func (r *attachmentRepo) FindByPostID(ctx context.Context, postID int64) ([]*do.Attachment, error) {
+	var list []*do.Attachment
+	err := r.db.WithContext(ctx).
+		Where("post_id = ? AND deleted_at IS NULL", postID).
+		Find(&list).Error
+	return list, err
+}

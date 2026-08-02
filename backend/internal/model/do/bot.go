@@ -40,7 +40,10 @@ type Bot struct {
 	Status     BotStatus  `json:"status" gorm:"type:varchar(20);default:'inactive'"` // 状态
 	ExecCount  int64      `json:"exec_count" gorm:"default:0"`                       // 执行次数
 	LastExecAt *time.Time `json:"last_exec_at" gorm:"type:timestamp"`                // 最后执行时间
-	ErrorMsg   string     `json:"error_msg" gorm:"type:text"`
+	ErrorMsg   string     `json:"error_msg" gorm:"type:text"`                        // 最近错误信息（脱敏）
+
+	LastExecLogs       []string `json:"last_exec_logs" gorm:"type:json;serializer:json"`      // 最近一次执行的步骤日志
+	LastExecDurationMs int64    `json:"last_exec_duration_ms" gorm:"default:0"`                // 最近一次执行耗时（毫秒）
 
 	ConfigSchema []BotConfigField `json:"config_schema" gorm:"type:json;serializer:json"` // 配置项
 	ConfigValues map[string]any   `json:"config_values" gorm:"type:json;serializer:json"` // 配置值

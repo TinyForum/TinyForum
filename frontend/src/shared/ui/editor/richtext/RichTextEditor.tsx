@@ -9,7 +9,7 @@ import { EditorToolbar } from "./components/EditorToolbar";
 import { FloatingMenuToolbar } from "./components/FloatingMenuToolbar";
 import { MarkdownEditor } from "./components/MarkdownEditor";
 import { ModeSwitcher } from "./components/ModeSwitcher";
-import { useEditorCore } from "./hooks/useEditorCore.ts";
+import { useEditorCore } from "./hooks/useEditorCore";
 import { useMarkdownMode } from "./hooks/useMarkdownMode";
 
 export const RichTextEditor: React.FC<RichTextEditorProps> = ({

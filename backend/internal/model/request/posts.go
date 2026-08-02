@@ -16,20 +16,22 @@ type ListPosts struct {
 }
 
 type CreatePostRequest struct {
-	Title   string            `json:"title" binding:"required,min=2,max=200"`
-	Content string            `json:"content" binding:"required,min=10"`
-	Summary string            `json:"summary"`
-	Cover   string            `json:"cover"`
-	Type    string            `json:"type"`
-	BoardID uint              `json:"board_id" binding:"required"`
-	TagIDs  []uint            `json:"tag_ids"`
-	Status  do.CreationStatus `json:"status"`
+	Title    string            `json:"title" binding:"required,min=2,max=200"`
+	Content  string            `json:"content" binding:"required,min=10"`
+	Summary  string            `json:"summary"`
+	Cover    string            `json:"cover"`
+	VideoUrl string            `json:"video_url"`
+	Type     string            `json:"type"`
+	BoardID  uint              `json:"board_id" binding:"required"`
+	TagIDs   []uint            `json:"tag_ids"`
+	Status   do.CreationStatus `json:"status"`
 }
 
 type UpdatePostRequest struct {
-	Title   string `json:"title" binding:"min=2,max=200"`
-	Content string `json:"content" binding:"min=10"`
-	Summary string `json:"summary"`
-	Cover   string `json:"cover"`
-	TagIDs  []uint `json:"tag_ids"`
+	Title    string `json:"title" binding:"min=2,max=200"`
+	Content  string `json:"content" binding:"min=10"`
+	Summary  string `json:"summary"`
+	Cover    string `json:"cover"`
+	VideoUrl string `json:"video_url"`
+	TagIDs   []uint `json:"tag_ids"`
 }

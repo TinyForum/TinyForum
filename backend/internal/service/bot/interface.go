@@ -12,6 +12,7 @@ import (
 	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/request"
 	"tiny-forum/internal/model/vo"
+	attachmentrepo "tiny-forum/internal/repository/attachment"
 	postrepo "tiny-forum/internal/repository/article"
 	botrepo "tiny-forum/internal/repository/bot"
 	commentrepo "tiny-forum/internal/repository/comment"
@@ -47,14 +48,15 @@ type Service interface {
 // ─── service 实现 ─────────────────────────────────────────────────────────
 
 type service struct {
-	repo        botrepo.Repository
-	sandbox     *engine.LuaSandbox
-	cron        *cron.Cron
-	eventBus    *EventBus
-	postRepo    postrepo.ArticleRepository
-	commentRepo commentrepo.CommentRepository
-	userRepo    userrepo.UserRepository
-	notifRepo   notificationrepo.NotificationRepository
+	repo           botrepo.Repository
+	sandbox        *engine.LuaSandbox
+	cron           *cron.Cron
+	eventBus       *EventBus
+	postRepo       postrepo.ArticleRepository
+	commentRepo    commentrepo.CommentRepository
+	userRepo       userrepo.UserRepository
+	notifRepo      notificationrepo.NotificationRepository
+	attachmentRepo attachmentrepo.AttachmentRepository
 }
 
 // NewService 创建 bot Service。依赖现有各 repository，由 wire/service.go 注入。
@@ -64,15 +66,17 @@ func NewService(
 	commentRepo commentrepo.CommentRepository,
 	userRepo userrepo.UserRepository,
 	notifRepo notificationrepo.NotificationRepository,
+	attachmentRepo attachmentrepo.AttachmentRepository,
 ) Service {
 	return &service{
-		repo:        repo,
-		sandbox:     engine.NewLuaSandbox(30, []string{"0.0.0.0", "127.0.0.1"}),
-		cron:        cron.New(),
-		eventBus:    NewEventBus(),
-		postRepo:    postRepo,
-		commentRepo: commentRepo,
-		userRepo:    userRepo,
-		notifRepo:   notifRepo,
+		repo:           repo,
+		sandbox:        engine.NewLuaSandbox(30, []string{"0.0.0.0", "127.0.0.1"}),
+		cron:           cron.New(),
+		eventBus:       NewEventBus(),
+		postRepo:       postRepo,
+		commentRepo:    commentRepo,
+		userRepo:       userRepo,
+		notifRepo:      notifRepo,
+		attachmentRepo: attachmentRepo,
 	}
 }

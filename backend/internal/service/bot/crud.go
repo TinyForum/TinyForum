@@ -62,6 +62,8 @@ func (s *service) Create(ctx context.Context, creatorID uint, req *request.Creat
 	if err := s.repo.Create(ctx, bot); err != nil {
 		return nil, err
 	}
+	// 动态注册到调度器（EventBus / Cron）
+	s.registerBot(bot)
 	return bot, nil
 }
 

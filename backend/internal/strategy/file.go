@@ -76,6 +76,15 @@ func (h *AvatarHandler) GetStoragePath(meta *do.Attachment) string {
 	return filepath.Join("avatars", fmt.Sprintf("%d", meta.UserID), meta.StoredName)
 }
 
+// VideoHandler 视频文件
+type VideoHandler struct {
+	BaseHandler
+}
+
+func (h *VideoHandler) GetStoragePath(meta *do.Attachment) string {
+	return filepath.Join("videos", fmt.Sprintf("%d", meta.UserID), meta.StoredName)
+}
+
 // HandlerRegistry 注册表
 type HandlerRegistry struct {
 	handlers map[do.FileType]FileTypeHandler
@@ -104,7 +113,20 @@ func NewHandlerRegistry() *HandlerRegistry {
 			AllowedMime: []string{"application/zip", "application/x-zip-compressed"},
 		},
 	})
-	// 可继续注册其他类型
+	reg.Register(do.FileTypePostCover, &PostImageHandler{
+		BaseHandler: BaseHandler{MaxSize: 10 << 20, AllowedMime: []string{"image/"}},
+		MaxWidth:    4096,
+	})
+	reg.Register(do.FileTypeTopicCover, &PostImageHandler{
+		BaseHandler: BaseHandler{MaxSize: 10 << 20, AllowedMime: []string{"image/"}},
+		MaxWidth:    4096,
+	})
+	reg.Register(do.FileTypeVideo, &VideoHandler{
+		BaseHandler: BaseHandler{
+			MaxSize:     500 << 20, // 500MB
+			AllowedMime: []string{"video/"},
+		},
+	})
 	return reg
 }
 

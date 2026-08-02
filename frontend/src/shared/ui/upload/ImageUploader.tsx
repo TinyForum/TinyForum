@@ -5,6 +5,14 @@ import React, { useState, useRef, useEffect } from "react";
 import toast from "react-hot-toast";
 import { ImageUploaderProps, ImageItem, LayoutMode } from "./upload.types";
 
+function normalizeImageUrl(url: string): string {
+  if (!url) return url;
+  if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("/")) {
+    return url;
+  }
+  return "/" + url;
+}
+
 export const ImageUploader: React.FC<ImageUploaderProps> = ({
   initialImages = [],
   uploadFn,
@@ -74,19 +82,18 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
     }));
     setImages((prev) => [...prev, ...newImages]);
 
+    const upload = uploadFn || (async (f: File) => {
+      const res = await uploadApi.uploadFile({ file: f, type: "post_image" });
+      return { url: res.data.data?.url ?? "", file_id: res.data.data?.file_id };
+    });
+
     for (const item of newImages) {
       try {
-        const upload =
-          uploadFn ||
-          ((f: File) =>
-            uploadApi
-              .uploadPostFile("postId", f)
-              .then((res) => ({ url: res.data.data?.url ?? "" })));
-        const { url } = await upload(item.file!);
+        const { url, file_id } = await upload(item.file!);
         setImages((prev) =>
           prev.map((img) =>
             img.id === item.id
-              ? { ...img, url, uploading: false, file: undefined }
+              ? { ...img, url, file_id, uploading: false, file: undefined }
               : img,
           ),
         );
@@ -102,9 +109,17 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
     }
   };
 
-  const handleDelete = (image: ImageItem) => {
+  const handleDelete = async (image: ImageItem) => {
     if (image.url && image.url.startsWith("blob:")) {
       URL.revokeObjectURL(image.url);
+    }
+    // 删除后端文件
+    if (image.file_id) {
+      try {
+        await uploadApi.deletePostFile(image.file_id);
+      } catch {
+        // 静默失败，前端先移除 UI
+      }
     }
     const newImages = images.filter((img) => img.id !== image.id);
     setImages(newImages);
@@ -187,7 +202,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
       >
         <div className="relative aspect-square">
           <Image
-            src={image.url}
+            src={normalizeImageUrl(image.url)}
             alt="预览"
             fill // 新增：让图片填满父容器
             className="object-cover" // 保留 object-cover，移除 w-full h-full（fill 自动填满）
