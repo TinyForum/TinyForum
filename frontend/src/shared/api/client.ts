@@ -44,8 +44,13 @@ function createClient(config?: AxiosRequestConfig): AxiosInstance {
         return Promise.resolve({ data: { code: 0 } });
       }
 
-      // ✅ 会话检查接口：仅拒绝，由调用方（auth store / useUserRole）自行处理 logout
-      if (url.includes("/users/me/role")) {
+      // ✅ 会话检查/账户状态接口：仅拒绝，由调用方自行处理
+      //    （auth store refreshUser / PostLoginHandler / useUserRole 等）
+      if (
+        url.includes("/users/me/role") ||
+        url.includes("/auth/account/") ||
+        url.includes("/auth/me")
+      ) {
         return Promise.reject(err);
       }
 
