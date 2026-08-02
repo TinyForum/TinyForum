@@ -12,6 +12,7 @@ export default function DashboardClient() {
   const locale = useLocale();
   const {
     isLoading,
+    isUser,
     isMember,
     isAdmin,
     isSuperAdmin,
@@ -29,19 +30,18 @@ export default function DashboardClient() {
     } else if (isModerator) {
       router.replace(`/${locale}/dashboard/moderator`);
     } else if (isReviewer) {
-      // 审核员重定向到审核员后台
       router.replace(`/${locale}/dashboard/reviewer`);
     } else if (isMember) {
-      // 普通用户重定向到个人中心
       router.replace(`/${locale}/dashboard/member`);
+    } else if (isUser) {
+      router.replace(`/${locale}/dashboard/user`);
     } else if (isSystemMaintainer) {
-      // 未登录用户重定向到登录页面
       router.replace(`/${locale}/dashboard/system`);
     } else {
-      // 普通用户重定向到首页
-      router.replace(`/${locale}`);
+      router.replace(`/${locale}/auth/login`);
     }
   }, [
+    isUser,
     isMember,
     isModerator,
     isReviewer,
