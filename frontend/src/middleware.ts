@@ -1,19 +1,19 @@
 // src/middleware.ts
-import { jwtVerify, JWTVerifyResult } from "jose";
+import { jwtVerify } from "jose";
 import createMiddleware from "next-intl/middleware";
 import { NextRequest, NextResponse } from "next/server";
 import { routing } from "./i18n/routing";
 
-// 创建 i18n middleware
+// 创建 i18n 中间件实例
 const intlMiddleware = createMiddleware(routing);
 
-// 需要认证的路由
-const authRoutes: string[] = ["/dashboard/admin", "/settings", "/posts/new"];
-// 管理路由
-const adminRoutes: string[] = ["/dashboard/admin"];
-const allowedRoles: string[] = ["admin", "super_admin"];
+// ---------- 路由配置 ----------
+const publicAuthRoutes = ["/auth/login", "/auth/register"]; // 公开但需特殊处理（已登录时重定向）
+const authRoutes = ["/dashboard/admin", "/settings", "/posts/new"]; // 需要登录的页面
+const adminRoutes = ["/dashboard/admin"]; // 需要管理员角色的页面
+const allowedRoles = ["admin", "super_admin"];
 
-// 调试函数：打印请求详情
+// ---------- 调试日志（开发环境可用，生产可移除） ----------
 function logRequestDetails(request: NextRequest, stage: string) {
   console.log(`\n🔍 [${stage}] Request Details:`);
   console.log(`  URL: ${request.url}`);
@@ -28,11 +28,9 @@ function logRequestDetails(request: NextRequest, stage: string) {
   );
 }
 
-// 调试函数：打印所有 Cookie
 function logAllCookies(request: NextRequest) {
   const cookieHeader = request.headers.get("cookie");
   console.log(`\n🍪 All Cookies: ${cookieHeader || "none"}`);
-
   if (cookieHeader) {
     const cookies = cookieHeader.split(";").map((c) => c.trim());
     cookies.forEach((cookie) => {
@@ -44,37 +42,32 @@ function logAllCookies(request: NextRequest) {
   }
 }
 
+// ---------- 核心中间件 ----------
 export async function middleware(request: NextRequest): Promise<NextResponse> {
   console.log("\n" + "=".repeat(60));
   console.log("🚀 MIDDLEWARE START");
   console.log("=".repeat(60));
-
-  // 打印请求详情
   logRequestDetails(request, "START");
 
-  // 获取路径
-  let pathname: string = request.nextUrl.pathname;
+  // ----- 1. 解析路径和语言 -----
+  const pathname = request.nextUrl.pathname;
   console.log(`\n📂 Original Pathname: ${pathname}`);
 
-  // 提取当前语言（从路径的第一段）
-  const pathnameParts: string[] = pathname.split("/");
-  let currentLocale: string = pathnameParts[1];
+  // 提取当前语言（路径第一段）
+  const pathnameParts = pathname.split("/");
+  let currentLocale = pathnameParts[1] || routing.defaultLocale;
 
   // 验证语言是否有效
-  if (
-    !currentLocale ||
-    !routing.locales.includes((currentLocale as "en-US") || "zh-CN")
-  ) {
+  if (!routing.locales.includes(currentLocale as any)) {
     currentLocale = routing.defaultLocale;
     console.log(`🌍 Using default locale: ${currentLocale}`);
   } else {
     console.log(`🌍 Detected locale: ${currentLocale}`);
   }
 
-  // 去除语言前缀的路径
-  let pathnameWithoutLocale: string = pathname;
+  // 去除语言前缀，得到不带 locale 的路径
+  let pathnameWithoutLocale = pathname;
   for (const locale of routing.locales) {
-    console.log(`  Checking locale: ${locale}`);
     if (pathname === `/${locale}` || pathname.startsWith(`/${locale}/`)) {
       pathnameWithoutLocale = pathname.replace(`/${locale}`, "") || "/";
       console.log(
@@ -84,166 +77,132 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
     }
   }
 
-  // 获取 Token（从 Cookie）
-  const token: string | undefined =
-    request.cookies.get("tiny_forum_token")?.value;
-  console.log(
-    `\n🔑 Token from cookie: ${token ? `${token.substring(0, 20)}... (length: ${token.length})` : "NOT FOUND"}`,
-  );
-
-  // 也检查 Authorization header（备份方案）
+  // ----- 2. 获取 Token（Cookie 优先，Authorization Header 作为备选） -----
+  const token = request.cookies.get("tiny_forum_token")?.value;
   const authHeader = request.headers.get("authorization");
   const headerToken = authHeader?.startsWith("Bearer ")
     ? authHeader.substring(7)
     : null;
+  const finalToken = token || headerToken;
+
+  console.log(
+    `\n🔑 Token from cookie: ${token ? `${token.substring(0, 20)}... (length: ${token.length})` : "NOT FOUND"}`,
+  );
   if (headerToken && !token) {
     console.log(
       `📝 Token found in Authorization header: ${headerToken.substring(0, 20)}...`,
     );
   }
-
-  // 打印所有 Cookie（调试用）
   logAllCookies(request);
-
-  // 检查是否是 API 请求
-  const isApiRequest = pathname.includes("/api/");
-  if (isApiRequest) {
-    console.log(`🔌 API Request detected: ${pathname}`);
-    // 对于 API 请求，检查是否需要认证
-    const needsAuth =
-      pathname.includes("/auth/logout") ||
-      pathname.includes("/users/me") ||
-      pathname.includes("/timeline/following") ||
-      pathname.includes("/notifications");
-
-    if (needsAuth && !token && !headerToken) {
-      console.log(
-        `❌ API ${pathname} requires authentication but no token provided`,
-      );
-      // 返回 401 响应
-      const response = NextResponse.json(
-        { code: 40101, message: "未认证，请先登录" },
-        { status: 401 },
-      );
-      console.log("=".repeat(60) + "\n");
-      return response;
-    }
-  }
-
-  // 检查是否是认证路由
-  const isAuthRoute: boolean = authRoutes.some((route: string) =>
-    pathnameWithoutLocale.startsWith(route),
-  );
-  const isAdminRoute: boolean = adminRoutes.some((route: string) =>
-    pathnameWithoutLocale.startsWith(route),
-  );
 
   console.log(`\n🛣️ Route Analysis:`);
   console.log(`  Path without locale: ${pathnameWithoutLocale}`);
-  console.log(`  Is auth route: ${isAuthRoute}`);
-  console.log(`  Is admin route: ${isAdminRoute}`);
-  console.log(`  Has token: ${!!token || !!headerToken}`);
+  console.log(`  Has token: ${!!finalToken}`);
 
-  // 认证路由检查
-  if (isAuthRoute && !token && !headerToken) {
+  // ----- 3. 公开认证路由（登录/注册）处理 -----
+  // 这类页面：已登录用户重定向到首页，未登录或无效 token 则正常显示
+  if (publicAuthRoutes.includes(pathnameWithoutLocale)) {
+    // 如果有 token，尝试验证
+    if (finalToken) {
+      try {
+        const secret = new TextEncoder().encode(process.env.JWT_SECRET);
+        await jwtVerify(finalToken, secret);
+        // token 有效 → 重定向到首页
+        console.log(`✅ 已登录用户访问公开认证页，重定向到首页`);
+        return NextResponse.redirect(new URL(`/${currentLocale}`, request.url));
+      } catch {
+        // token 无效 → 清除 cookie，并返回 i18n 响应（显示登录页）
+        console.warn(`⚠️ 无效 token，已清除，允许访问登录页`);
+        const response = intlMiddleware(request);
+        if (response) {
+          response.cookies.delete("tiny_forum_token");
+          return response;
+        }
+        // 保底：生成新响应并清除 cookie
+        const fallback = NextResponse.next();
+        fallback.cookies.delete("tiny_forum_token");
+        return fallback;
+      }
+    }
+    // 无 token → 直接渲染登录页（不再执行任何其他检查）
+    console.log(`🔓 未登录，允许访问登录页`);
+    const response = intlMiddleware(request);
+    return response || NextResponse.next();
+  }
+
+  // ----- 4. API 请求处理（仅做简单的身份验证，不修改请求头） -----
+  if (pathname.includes("/api/")) {
+    const needsAuth = [
+      "/auth/logout",
+      "/users/me",
+      "/timeline/following",
+      "/notifications",
+    ].some((api) => pathname.includes(api));
+    if (needsAuth && !finalToken) {
+      console.log(`❌ API ${pathname} 需要认证但无 token`);
+      return NextResponse.json(
+        { code: 40101, message: "未认证，请先登录" },
+        { status: 401 },
+      );
+    }
+    // 其他 API 请求放行（客户端自行携带 token）
+    console.log(`🔌 API 请求放行`);
+    return intlMiddleware(request) || NextResponse.next();
+  }
+
+  // ----- 5. 普通受保护路由（需要登录） -----
+  const isAuthRoute = authRoutes.some((route) =>
+    pathnameWithoutLocale.startsWith(route),
+  );
+  if (isAuthRoute && !finalToken) {
     console.log(
-      `❌ Auth route ${pathnameWithoutLocale} requires authentication but no token found`,
+      `❌ 受保护路由 ${pathnameWithoutLocale} 需要登录，重定向到登录页`,
     );
-    const loginUrl: URL = new URL(`/${currentLocale}/auth/login`, request.url);
+    const loginUrl = new URL(`/${currentLocale}/auth/login`, request.url);
     loginUrl.searchParams.set("redirect", pathnameWithoutLocale);
-    console.log(`🔄 Redirecting to: ${loginUrl.toString()}`);
-    console.log("=".repeat(60) + "\n");
     return NextResponse.redirect(loginUrl);
   }
 
-  // 管理员路由验证
-  if (isAdminRoute && (token || headerToken)) {
-    const finalToken = token || headerToken;
-    const jwt: string | undefined = process.env.JWT_SECRET;
-    console.log(`\n🔐 Admin route verification:`);
-    console.log(`  JWT_SECRET exists: ${!!jwt}`);
-    console.log(`  Token length: ${finalToken?.length}`);
-    console.log(`🔐 JWT_SECRET from env: "${process.env.JWT_SECRET}"`);
-    console.log(`🔐 JWT_SECRET length: ${process.env.JWT_SECRET?.length}`);
-
+  // ----- 6. 管理员路由（需要特定角色） -----
+  const isAdminRoute = adminRoutes.some((route) =>
+    pathnameWithoutLocale.startsWith(route),
+  );
+  if (isAdminRoute && finalToken) {
     try {
-      if (!jwt) {
-        throw new Error("JWT_SECRET is not set in environment variables");
-      }
-
-      const secret: Uint8Array = new TextEncoder().encode(jwt);
-      console.log(`  Verifying token...`);
-      const { payload }: JWTVerifyResult = await jwtVerify(finalToken!, secret);
-      const role: string = payload.role as string;
-      const userId: number = payload.id as number;
-      const username: string = payload.username as string;
-
-      console.log(`  ✅ Token verified successfully:`);
-      console.log(`    - User ID: ${userId}`);
-      console.log(`    - Username: ${username}`);
-      console.log(`    - Role: ${role}`);
-      console.log(
-        `    - Expiration: ${new Date((payload.exp || 0) * 1000).toLocaleString()}`,
-      );
-      console.log(`  Role allowed: ${allowedRoles.includes(role)}`);
-
+      const secret = new TextEncoder().encode(process.env.JWT_SECRET);
+      const { payload } = await jwtVerify(finalToken, secret);
+      const role = payload.role as string;
       if (!allowedRoles.includes(role)) {
-        console.log(
-          `❌ Role ${role} not allowed for admin route, redirecting to home`,
-        );
-        console.log("=".repeat(60) + "\n");
+        console.log(`❌ 角色 ${role} 无权访问管理员页面，重定向到首页`);
         return NextResponse.redirect(new URL(`/${currentLocale}`, request.url));
       }
-
-      console.log(`✅ Admin access granted for ${username}`);
-    } catch (error: unknown) {
-      console.error(`❌ JWT verification failed:`, error);
-      if (error instanceof Error) {
-        console.error(`  Error message: ${error.message}`);
-        console.error(`  Error stack: ${error.stack}`);
-      }
-
-      const response: NextResponse = NextResponse.redirect(
+      console.log(`✅ 管理员访问允许（角色：${role}）`);
+    } catch (error) {
+      // token 无效 → 清除并重定向到登录页
+      console.warn(`⚠️ 管理员路由验证失败，清除 token 并跳转登录`);
+      const response = NextResponse.redirect(
         new URL(`/${currentLocale}/auth/login`, request.url),
       );
       response.cookies.delete("tiny_forum_token");
-      console.log(`  Deleted invalid token cookie`);
-      console.log(`🔄 Redirecting to login`);
-      console.log("=".repeat(60) + "\n");
       return response;
     }
   }
 
-  // 对于 API 请求，如果有 token，添加到 headers
-  if (isApiRequest && (token || headerToken)) {
-    console.log(`📤 Adding token to API request headers`);
-    const requestHeaders = new Headers(request.headers);
-    requestHeaders.set("Authorization", `Bearer ${token || headerToken}`);
-
-    // 修改请求以包含 Authorization header
-    const response = intlMiddleware(request);
-    if (response) {
-      console.log("  Token added to request headers");
-      console.log("=".repeat(60) + "\n");
-      return response;
-    }
-  }
-
-  // 处理 i18n
-  console.log(`\n🌐 Processing i18n middleware...`);
-  const intlResponse: NextResponse | undefined = intlMiddleware(request);
-
+  // ----- 7. 其他所有请求（默认走 i18n 中间件） -----
+  console.log(`🌐 执行 i18n 中间件（默认）`);
+  const intlResponse = intlMiddleware(request);
   if (intlResponse) {
-    console.log(`✅ i18n middleware returned response`);
+    console.log(`✅ i18n 中间件返回响应`);
     console.log("=".repeat(60) + "\n");
     return intlResponse;
   }
 
-  console.log(`✅ No middleware action needed, continuing`);
+  console.log(`✅ 无特殊处理，继续执行`);
   console.log("=".repeat(60) + "\n");
   return NextResponse.next();
 }
 
+// ----- 中间件匹配器（排除静态资源等） -----
 export const config = {
   matcher: [
     "/((?!api|_next/static|_next/image|favicon.ico|robots.txt|.*\\.(?:jpg|jpeg|gif|png|svg|ico|webp|css|js)$).*)",

@@ -27,6 +27,8 @@ images:
     - protocol: http
       hostname: localhost
 
+# 允许的来源（dev 模式 HMR / _next 资源校验）：局域网 IP 与内网穿透域名需在此登记，
+# 内网穿透域名每次可能变化，可改为通配符形式，如 "*.ngrok-free.app"
 allowed_dev_origins:
   - "${local_ip}"
   - "127.0.0.1"
@@ -37,6 +39,8 @@ experimental:
 
 proxy:
   enabled: true
+  # 生产模式（pnpm start）也启用 /api/v1 代理，否则内网/穿透设备访问时 API 404
+  enabled_dev_only: false
   backend_url: "${backend_url}"
   source: "/api/v1/:path*"
   destination_pattern: "/api/v1/:path*"

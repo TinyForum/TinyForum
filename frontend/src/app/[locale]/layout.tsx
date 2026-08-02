@@ -66,9 +66,9 @@ export default async function RootLayout({
         className={`${inter.variable} ${firaCode.variable} font-sans h-screen overflow-hidden bg-base-200`}
       >
         <InnerProviders>
-          <AuthProvider>
-            <NextIntlClientProvider locale={locale} messages={messages}>
-              <Providers>
+          <Providers>
+            <AuthProvider>
+              <NextIntlClientProvider locale={locale} messages={messages}>
                 <div className="flex flex-col h-full">
                   <Navbar />
                   <main className="flex-1 overflow-y-auto custom-scrollbar">
@@ -77,9 +77,9 @@ export default async function RootLayout({
                     </div>
                   </main>
                 </div>
-              </Providers>
-            </NextIntlClientProvider>
-          </AuthProvider>
+              </NextIntlClientProvider>
+            </AuthProvider>
+          </Providers>
         </InnerProviders>
       </body>
     </html>
