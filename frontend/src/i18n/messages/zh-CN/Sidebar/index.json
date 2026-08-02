@@ -37,5 +37,13 @@
   "view_the_full_rankings": "查看完整排行榜",
   "no_announcements": "暂无公告",
   "post_count": "帖子数",
-  "last_7_days_posts_trend": "最近7天发帖趋势"
+  "last_7_days_posts_trend": "最近7天发帖趋势",
+  "user": "用户",
+  "posted_a_new_thread": "发布了新帖子",
+  "commented": "发表了评论",
+  "liked_a_post": "赞了帖子",
+  "liked_a_comment": "赞了评论",
+  "followed_you": "关注了你",
+  "accepted_your_answer": "接受了你的回答",
+  "has_a_new_activity": "有新动态"
 }

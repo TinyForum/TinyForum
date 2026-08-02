@@ -46,7 +46,7 @@ export function useMyApplications(params?: {
 
 export function useApplyModerator(boardId: number) {
   const queryClient = useQueryClient();
-  const t = useTranslations("moderator");
+  const t = useTranslations("Moderator");
 
   return useMutation({
     mutationFn: (data: ApplyModeratorForm) =>
@@ -64,7 +64,7 @@ export function useApplyModerator(boardId: number) {
 
 export function useCancelApplication() {
   const queryClient = useQueryClient();
-  const t = useTranslations("moderator");
+  const t = useTranslations("Moderator");
 
   return useMutation({
     mutationFn: (applicationId: number) =>
@@ -94,7 +94,7 @@ export function useModerators(boardId: number, enabled: boolean = true) {
 
 export function useBanUser(boardId: number) {
   const queryClient = useQueryClient();
-  const t = useTranslations("moderator");
+  const t = useTranslations("Moderator");
 
   return useMutation({
     mutationFn: (data: BanUserRequest) => moderatorApi.banUser(boardId, data),
@@ -113,7 +113,7 @@ export function useBanUser(boardId: number) {
 
 export function useUnbanUser(boardId: number) {
   const queryClient = useQueryClient();
-  const t = useTranslations("moderator");
+  const t = useTranslations("Moderator");
 
   return useMutation({
     mutationFn: (userId: number) => moderatorApi.unbanUser(boardId, userId),
@@ -132,7 +132,7 @@ export function useUnbanUser(boardId: number) {
 
 export function useDeletePost(boardId: number) {
   const queryClient = useQueryClient();
-  const t = useTranslations("moderator");
+  const t = useTranslations("Moderator");
 
   return useMutation({
     mutationFn: (postId: number) => moderatorApi.deletePost(boardId, postId),
@@ -151,7 +151,7 @@ export function useDeletePost(boardId: number) {
 
 export function usePinPost(boardId: number) {
   const queryClient = useQueryClient();
-  const t = useTranslations("moderator");
+  const t = useTranslations("Moderator");
 
   return useMutation({
     mutationFn: ({ postId, pinInBoard }: PinPostParams) =>

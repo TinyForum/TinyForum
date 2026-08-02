@@ -15,5 +15,6 @@
   "please": "Please",
   "login": "log in",
   "to_comment": "to comment",
-  "no_comments": "No comments yet. Be the first to comment!"
+  "no_comments": "No comments yet. Be the first to comment!",
+  "comment_success": "Comment posted successfully"
 }

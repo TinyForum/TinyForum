@@ -24,7 +24,7 @@ export function usePostsData(
   enabled: boolean,
 ): UsePostsDataReturn {
   const queryClient = useQueryClient();
-  const t = useTranslations("admin");
+  const t = useTranslations("Admin");
   const queryKey = adminKeys.posts(page, keyword);
 
   // 显式指定泛型：查询返回的类型是 PageData<Post>，错误类型为 Error

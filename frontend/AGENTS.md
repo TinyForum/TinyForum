@@ -1,4 +1,4 @@
-# AGENTS.md — TinyForum Frontend
+# AGENTS Rules — TinyForum Frontend
 
 Next.js 16（App Router）+ React 19 + TypeScript 实现的论坛前端。技术栈：Tailwind + DaisyUI、TanStack Query、Zustand、Tiptap、next-intl。
 
@@ -103,13 +103,61 @@ config.yml           # 前端构建配置（由 make init-dev 生成，勿手工
 - `features/*/components`：依赖 Query/Store 的容器组件，可组合 `shared/ui`。
 - 禁止跨 `features` 模块直接导入组件，公共逻辑抽至 `shared/lib`。
 
-## 代码风格
+---
 
-- import 别名用 `@/`（`@/shared/...`、`@/features/...`、`@/store/...`）。
-- 代码注释习惯用中文；不新增无意义注释，重构时保留既有中文注释。
-- 新增文件遵守 Prettier（单引号、无分号），提交前跑 `pnpm run fmt`。
-- ESLint 禁用 `react/prop-types`（TS 类型已足够）、`react-hooks/set-state-in-effect`；新增组件按现有模式写。
-- TypeScript 保持 `strict`；不要在组件里用 `any` 逃逸类型检查（现有代码中的 `as any` 仅作兼容，新代码避免）。
+## [NEW] AI 代码修复协议（根本原因修复原则）
+
+> 本协议优先级高于普通编码规范，AI 在修复任何前端 Bug 时必须强制执行以下五步，**严禁跳过步骤直接输出 diff**。
+
+### 第一步：5-Why 根因分析（前端专属视角）
+
+AI 必须回答：
+
+1. **现象**：用户看到什么错误（UI 白屏、数据错乱、请求失败、状态不同步）？
+2. **表层原因**：是哪个 Hook/组件/API 调用抛出了异常或返回了意外数据？
+3. **深层根因（追到状态源头）**：
+   - 是否是 **Query 缓存未失效** 导致旧数据显示？
+   - 是否是 **Zustand 中错误存储了服务端数据**，导致多组件不同步？
+   - 是否是 **依赖数组遗漏** 导致副作用未更新？
+   - 是否是 **API 响应类型定义错误**（`any` 掩盖了字段缺失）？
+   - 是否是 **国际化消息缺失** 导致渲染崩溃？
+4. **影响范围**：该问题是否影响其他页面或模块？
+
+### 第二步：复现测试先行（红灯准入）
+
+- 用 **Vitest** 编写单元测试或 **React Testing Library** 组件测试，模拟异常场景（如 API 返回 `null`、网络超时、权限不足）。
+- 测试必须**失败（Red）**，证明 Bug 真实存在。未提供可复现测试的修复视为无效。
+
+### 第三步：强制分层定位（禁止跨层绕过）
+
+AI 必须明确修复发生在哪一层，并遵守以下对照表：
+
+| 层级                       | 允许的“根本修复”                                                      | 严厉禁止的“补丁行为”（触犯即驳回）                                     |
+| :------------------------- | :-------------------------------------------------------------------- | :--------------------------------------------------------------------- |
+| **View（组件）**           | 修正条件渲染逻辑、修正 `cn` 类名、添加加载/错误态                     | 在组件内直接调用 `apiClient` 或 `fetch`；用 `try...catch` 静默吞掉错误 |
+| **Hook（Query/Mutation）** | 修正 `queryKey` 依赖、调整 `staleTime`、在 `onSuccess` 中正确更新缓存 | 在 `useEffect` 中手动调用 `refetch` 或 `mutate` 来“补救”依赖变化       |
+| **Client 层（API）**       | 修正请求参数序列化、调整 `baseURL`、完善响应类型定义                  | 在 `apiClient` 拦截器中添加特殊 case 绕过统一错误处理                  |
+| **State（Zustand）**       | 修正状态更新逻辑、添加中间件（如 `persist`）                          | **将 API 列表/详情数据存入 Zustand**（应存于 Query 缓存）              |
+| **国际化**                 | 补齐缺失的翻译 key、修正 `useTranslations` 作用域                     | 在组件中硬编码中文文案作为 fallback                                    |
+
+### 第四步：缓存与状态修复（前端特有“根因”）
+
+如果问题涉及数据不一致或页面闪烁：
+
+- **补丁做法**：在 `useEffect` 中 `setTimeout` 延迟刷新，或强制 `window.location.reload()`。
+- **根本修复**：
+  - 使用 `queryClient.setQueryData` 直接更新缓存，或调用 `invalidateQueries` 让 Query 自动刷新。
+  - 如果数据需要跨组件共享，且确实为客户端状态（如主题、当前 Tab），才放入 Zustand。
+  - 使用 `useOptimistic` 或 Mutation 的 `onMutate` 实现乐观更新，回滚由 Query 自动处理。
+
+### 第五步：提交信息自审（反向验证）
+
+Commit Message 必须能体现修复深度：
+
+- **坏的描述（补丁）**：`fix [post]: add loading state to avoid crash`（只描述加了加载态）。
+- **好的描述（根因）**：`fix [post]: correct queryKey to include userId so cache is invalidated on profile change`（揭示了数据依赖错误）。
+
+---
 
 ## 生产级执行规范
 

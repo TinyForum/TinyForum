@@ -215,7 +215,7 @@ export default function AnnouncementDetailClient({ id }: { id: string }) {
               {announcement.created_by && (
                 <div className="flex items-center gap-1.5">
                   <UserIcon className="w-4 h-4" />
-                  <span> {t(`published_by${announcement.created_by}`)}</span>
+                  <span> {t("published_by")}{announcement.created_by}</span>
                 </div>
               )}
             </div>

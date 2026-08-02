@@ -24,7 +24,7 @@ export function ReviewerSidebar({
   menus,
   stats,
 }: ReviewerSidebarProps) {
-  const t = useTranslations("Reveiw");
+  const t = useTranslations("Reviewer");
   return (
     <div
       className={`bg-base-200 border-r border-base-300 transition-all duration-300 ${

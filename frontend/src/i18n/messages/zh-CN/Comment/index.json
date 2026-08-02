@@ -15,5 +15,6 @@
   "please": "请",
   "login": "登录",
   "to_comment": "后发表评论",
-  "no_comments": "暂无评论，快来发表第一条评论吧！"
+  "no_comments": "暂无评论，快来发表第一条评论吧！",
+  "comment_success": "评论发布成功"
 }

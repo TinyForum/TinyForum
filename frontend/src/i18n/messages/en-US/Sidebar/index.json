@@ -35,5 +35,15 @@
   "total_users": "Total users",
   "total_posts": "Total posts",
   "view_the_full_rankings": "View full rankings",
-  "no_announcements": "No announcements"
+  "no_announcements": "No announcements",
+  "post_count": "Post count",
+  "last_7_days_posts_trend": "Posts trend (last 7 days)",
+  "user": "User",
+  "posted_a_new_thread": "posted a new thread",
+  "commented": "commented",
+  "liked_a_post": "liked a post",
+  "liked_a_comment": "liked a comment",
+  "followed_you": "followed you",
+  "accepted_your_answer": "accepted your answer",
+  "has_a_new_activity": "has a new activity"
 }

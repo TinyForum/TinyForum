@@ -33,7 +33,7 @@ import { notificationKeys } from "@/features/notification/hooks/useNotificationK
 
 export default function Navbar() {
   const isDesktop = useMediaQuery("(min-width: 1024px)"); // lg = 1024px
-  const { user, isAuthenticated, logout } = useAuthStore();
+  const { user, isAuthenticated, isHydrated, logout } = useAuthStore();
   const router = useRouter();
   const t = useTranslations("Nav");
 
@@ -42,10 +42,12 @@ export default function Navbar() {
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
 
   // ── 数据查询 ──────────────────────────────────
+  const isQueryEnabled = isHydrated && isAuthenticated;
+
   const { data: unreadData } = useQuery({
     queryKey: notificationKeys.unread(),
     queryFn: () => notificationApi.unreadCount().then((r) => r.data.data),
-    enabled: isAuthenticated,
+    enabled: isQueryEnabled,
     refetchInterval: 30000,
   });
 
@@ -55,7 +57,7 @@ export default function Navbar() {
       timelineApi
         .getFollowing({ page: 1, page_size: 1 })
         .then((r) => r.data.data),
-    enabled: isAuthenticated,
+    enabled: isQueryEnabled,
     refetchInterval: 60000,
   });
 

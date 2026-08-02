@@ -1,0 +1,15 @@
+{
+  "pending_publish": "Pending",
+  "pinned": "Pinned",
+  "views": "views",
+  "draft": "Draft",
+  "expired": "Expired",
+  "published": "Published",
+  "archived": "Archived",
+  "unknown": "Unknown",
+  "normal": "Normal",
+  "important": "Important",
+  "emergency": "Emergency",
+  "event": "Event",
+  "published_by": "Published by: "
+}

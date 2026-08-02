@@ -33,7 +33,7 @@ export default function HomeClient() {
   const { data: boards = [] } = useBoardTree();
   const { tags = [] } = useTags();
   const { data: leaderboard } = useLeaderboard({ limit: 10 });
-  const { unreadCount } = useUnreadCount();
+  const { unreadCount } = useUnreadCount(isAuthenticated);
   const { data: timelineEvents = [] } = useTimelineEvents(isAuthenticated);
 
   // 根据 filterType 配置参数
