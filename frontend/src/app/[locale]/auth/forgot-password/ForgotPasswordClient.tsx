@@ -23,8 +23,6 @@ export default function ForgotPasswordClient() {
 
   const [isLoading, setIsLoading] = useState(false);
   const [isEmailSent, setIsEmailSent] = useState(false);
-  const [submittedEmail, setSubmittedEmail] = useState("");
-  console.log(submittedEmail);
 
   const {
     register,
@@ -46,7 +44,6 @@ export default function ForgotPasswordClient() {
       const sent = await forgotPassword(data.email);
 
       if (sent) {
-        setSubmittedEmail(data.email);
         setIsEmailSent(true);
         // 不显示具体的成功消息，使用统一的提示
         toast.success(t("reset_link_sent") || "重置密码链接已发送");

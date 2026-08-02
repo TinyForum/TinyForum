@@ -65,8 +65,6 @@ export const useAuthStore = create<AuthState>()(
             };
 
             set({ user: updatedUser, isAuthenticated: true });
-
-            console.log("用户角色已刷新:", role);
           }
         } catch (error) {
           console.error("刷新用户信息失败:", error);

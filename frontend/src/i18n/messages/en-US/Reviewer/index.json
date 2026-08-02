@@ -44,5 +44,7 @@
   "search_reports": "Search reports...",
   "confirm_delete": "Are you sure you want to delete this content?",
   "reviewer": "Reviewer",
-  "reviewers": "Reviewers"
+  "reviewers": "Reviewers",
+  "feature_under_development": "Feature Under Development",
+  "feature_coming_soon": "{feature} is under construction, stay tuned."
 }

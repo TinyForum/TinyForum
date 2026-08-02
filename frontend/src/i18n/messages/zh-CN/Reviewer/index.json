@@ -44,5 +44,7 @@
   "search_reports": "搜索举报...",
   "confirm_delete": "确定要删除此内容吗？",
   "reviewer": "审核员",
-  "reviewers": "审核员列表"
+  "reviewers": "审核员列表",
+  "feature_under_development": "功能开发中",
+  "feature_coming_soon": "{feature} 功能正在建设中，敬请期待。"
 }

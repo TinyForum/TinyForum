@@ -1,0 +1,4 @@
+# SQL migration files for TinyForum
+# Naming convention: {timestamp}_{description}.up.sql / .down.sql
+# Example: 20240801000001_add_user_avatar.up.sql
+# Run: make migrate-up / make migrate-down

@@ -187,7 +187,9 @@ export default function AdminDashboardClient() {
             />
             <div className="card bg-base-100 border border-base-300">
               <div className="card-body">
-                <p className="text-center text-base-content/50">TODO</p>
+                <p className="text-center text-base-content/50">
+                  {t("qa_feature_coming_soon")}
+                </p>
               </div>
             </div>
             <Pagination

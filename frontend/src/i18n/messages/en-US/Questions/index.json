@@ -48,5 +48,8 @@
   "please_login": "Please log in first",
   "answer_accepted": "Answer accepted",
   "operation_failed": "Operation failed",
-  "question_not_found": "Question not found"
+  "question_not_found": "Question not found",
+  "my_questions": "My Questions",
+  "my_questions_coming_soon": "My questions list is under development, stay tuned.",
+  "browse_questions": "Browse Questions"
 }

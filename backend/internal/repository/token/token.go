@@ -13,7 +13,7 @@ import (
 func (r *tokenRepository) FindUserByResetToken(ctx context.Context, token string) (uint, error) {
 	var resetToken do.RefreshToken
 	err := r.db.WithContext(ctx).
-		Where("token = ? AND expires_at > ? AND used = ?", token, time.Now(), false).
+		Where("token = ? AND expires_at > ? AND is_used = ?", token, time.Now(), false).
 		First(&resetToken).Error
 
 	if err != nil {
@@ -50,7 +50,7 @@ func (r *tokenRepository) MarkResetTokenAsUsed(ctx context.Context, token string
 		Model(&do.RefreshToken{}).
 		Where("token = ?", token).
 		Updates(map[string]interface{}{
-			"used":       true,
+			"is_used":    true,
 			"used_at":    time.Now(),
 			"updated_at": time.Now(),
 		}).Error

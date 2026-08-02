@@ -3,194 +3,62 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { Pagination } from "@/features/admin/components/Pagination";
-import { MemberCommentsTable } from "@/features/member/MemberCommentsTable";
-import { MemberFavorites } from "@/features/member/MemberFavorites";
-import { MemberNotifications } from "@/features/member/MemberNotifications";
-import { MemberPostsTable } from "@/features/member/MemberPostsTable";
 import { MemberProfile } from "@/features/member/MemberProfile";
 import { MemberSidebar } from "@/features/member/MemberSidebar";
 import { MemberStats } from "@/features/member/MemberStats";
-import SearchBar from "@/features/moderator/components/SearchBar"; // TODO: 修改为共享组件
-
-// 组件导入
+import { useUserStats } from "@/features/user/hooks/useUserStats";
 
 export default function MemberDashboardClient() {
   const t = useTranslations("Member");
 
   const [activeMenu, setActiveMenu] = useState("dashboard");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [keyword, setKeyword] = useState("");
-  const [page, setPage] = useState(1);
 
-  // TODO: 获取会员信息
-  // const { member, loading: memberLoading } = useCurrentMember();
+  const { total_post, total_comment, total_favorite, isLoading } =
+    useUserStats();
 
-  // TODO: 获取统计数据
-  // const { data: stats, loading: statsLoading } = useMemberStats();
-
-  // TODO: 获取帖子列表
-  // const { data: postsData, loading: postsLoading } = useMemberPosts({
-  //   page,
-  //   keyword,
-  //   enabled: activeMenu === "posts",
-  // });
-
-  // TODO: 获取评论列表
-  // const { data: commentsData, loading: commentsLoading } = useMemberComments({
-  //   page,
-  //   enabled: activeMenu === "comments",
-  // });
-
-  // TODO: 获取收藏列表
-  // const { data: favoritesData, loading: favoritesLoading } = useMemberFavorites({
-  //   page,
-  //   enabled: activeMenu === "favorites",
-  // });
-
-  // TODO: 获取通知列表
-  // const { data: notificationsData, loading: notificationsLoading } = useMemberNotifications({
-  //   page,
-  //   enabled: activeMenu === "notifications",
-  // });
-
-  // TODO: 删除帖子
-  // const { mutate: deletePost, isPending: isDeleting } = useDeleteMemberPost();
-
-  // TODO: 删除评论
-  // const { mutate: deleteComment, isPending: isDeletingComment } = useDeleteMemberComment();
-
-  // TODO: 取消收藏
-  // const { mutate: removeFavorite, isPending: isRemoving } = useRemoveFavorite();
-
-  // TODO: 标记通知已读
-  // const { mutate: markAsRead } = useMarkNotificationRead();
-
-  // TODO: 统计数据
-  const stats = {
-    posts: 0,
-    comments: 0,
-    favorites: 0,
-    unreadNotif: 0,
-  };
+  const stats = isLoading
+    ? { posts: 0, comments: 0, favorites: 0, unreadNotif: 0 }
+    : {
+        posts: total_post ?? 0,
+        comments: total_comment ?? 0,
+        favorites: total_favorite ?? 0,
+        unreadNotif: 0,
+      };
 
   const menus = [
     { id: "dashboard", label: t("dashboard"), icon: "📊" },
     { id: "posts", label: t("my_posts"), icon: "📝", badge: stats.posts },
-    {
-      id: "comments",
-      label: t("my_comments"),
-      icon: "💬",
-      badge: stats.comments,
-    },
-    {
-      id: "favorites",
-      label: t("my_favorites"),
-      icon: "❤️",
-      badge: stats.favorites,
-    },
-    {
-      id: "notifications",
-      label: t("notifications"),
-      icon: "🔔",
-      badge: stats.unreadNotif,
-    },
+    { id: "comments", label: t("my_comments"), icon: "💬", badge: stats.comments },
+    { id: "favorites", label: t("my_favorites"), icon: "❤️", badge: stats.favorites },
+    { id: "notifications", label: t("notifications"), icon: "🔔", badge: stats.unreadNotif },
     { id: "profile", label: t("profile"), icon: "👤" },
   ];
+
+  const renderPlaceholder = (feature: string) => (
+    <div className="flex flex-col items-center justify-center py-20 text-center">
+      <span className="text-4xl mb-4">🚧</span>
+      <h3 className="text-lg font-semibold">{t("feature_under_development")}</h3>
+      <p className="text-sm text-base-content/60 mt-2">
+        {t("feature_coming_soon", { feature })}
+      </p>
+    </div>
+  );
 
   const renderContent = () => {
     switch (activeMenu) {
       case "dashboard":
         return <MemberStats stats={stats} />;
-
       case "posts":
-        return (
-          <div className="space-y-4">
-            <SearchBar
-              keyword={keyword}
-              onKeywordChange={(value: string) => {
-                setKeyword(value);
-                setPage(1);
-              }}
-              placeholder={t("search_my_posts")}
-            />
-            <MemberPostsTable
-              onDelete={(id) => {
-                console.log(id);
-                // TODO: 删除帖子
-              }}
-            />
-            <Pagination
-              currentPage={page}
-              total={stats.posts}
-              pageSize={20}
-              onPageChange={setPage}
-            />
-          </div>
-        );
-
+        return renderPlaceholder(t("my_posts"));
       case "comments":
-        return (
-          <div className="space-y-4">
-            <MemberCommentsTable
-              onDelete={(id) => {
-                console.log(id);
-                // TODO: 删除评论
-              }}
-            />
-            <Pagination
-              currentPage={page}
-              total={stats.comments}
-              pageSize={20}
-              onPageChange={setPage}
-            />
-          </div>
-        );
-
+        return renderPlaceholder(t("my_comments"));
       case "favorites":
-        return (
-          <div className="space-y-4">
-            <MemberFavorites
-              onRemove={(id) => {
-                console.log(id);
-                // TODO: 取消收藏
-              }}
-              favorites={[]}
-            />
-            <Pagination
-              currentPage={page}
-              total={stats.favorites}
-              pageSize={20}
-              onPageChange={setPage}
-            />
-          </div>
-        );
-
+        return renderPlaceholder(t("my_favorites"));
       case "notifications":
-        return (
-          <div className="space-y-4">
-            <MemberNotifications
-              onMarkRead={(id) => {
-                console.log(id);
-                // TODO: 标记已读
-              }}
-              onMarkAllRead={() => {
-                // TODO: 全部标记已读
-              }}
-              notifications={[]}
-            />
-            <Pagination
-              currentPage={page}
-              total={stats.unreadNotif}
-              pageSize={20}
-              onPageChange={setPage}
-            />
-          </div>
-        );
-
+        return renderPlaceholder(t("notifications"));
       case "profile":
         return <MemberProfile />;
-
       default:
         return null;
     }

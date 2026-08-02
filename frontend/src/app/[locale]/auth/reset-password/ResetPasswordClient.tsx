@@ -49,41 +49,26 @@ export default function ResetPasswordClient() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // ✅ 将 URL 中的 token 设置到 store
+  // 将 URL 中的 token 设置到 store
   useEffect(() => {
     if (tokenFromUrl) {
-      console.log("Setting token to store:", tokenFromUrl);
-      setToken(tokenFromUrl); // 关键：将 token 设置到 store
+      setToken(tokenFromUrl);
     }
   }, [tokenFromUrl, setToken]);
 
   // 验证 token
   useEffect(() => {
-    console.log("=== Effect triggered ===");
-    console.log("Token from URL:", tokenFromUrl);
-
     if (tokenFromUrl) {
-      console.log("Calling validateToken...");
-      validateToken(tokenFromUrl).then((result) => {
-        console.log("Validation promise resolved:", result);
-      });
+      validateToken(tokenFromUrl);
     } else {
-      console.log("No token, resetting validation");
       resetValidation();
     }
 
     return () => {
-      console.log("Cleanup");
       resetValidation();
       resetResetForm();
     };
-  }, [tokenFromUrl, resetResetForm, resetValidation, validateToken]); // 依赖 tokenFromUrl
-
-  // 监听状态变化
-  useEffect(() => {
-    console.log("Store token value:", token);
-    console.log("IsValid:", isValid);
-  }, [token, isValid]);
+  }, [tokenFromUrl, resetResetForm, resetValidation, validateToken]);
 
   // 验证中
   if (isValidating) {

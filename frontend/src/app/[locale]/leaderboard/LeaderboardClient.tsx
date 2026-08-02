@@ -15,8 +15,6 @@ export default function LeaderboardClient() {
     limit: 50,
     //  fields: "id,username,avatar,score,bio", // FIXME: 用户、成员参与排名，管理员、版主、审核员不参与
   });
-  console.log(data);
-
   const t = useTranslations("Leaderboard");
   const users: LeaderboardItemResponse[] = data ?? [];
   const totalUsers = users.length;

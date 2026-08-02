@@ -7,7 +7,7 @@ import (
 
 type Article struct {
 	common.BaseModel
-	CreationID uint     `gorm:"uniqueIndex;not null" json:"creations_id"` // 外键，唯一索引保证一对一
+	CreationID uint     `gorm:"uniqueIndex;not null" json:"creation_id"` // 外键，唯一索引保证一对一
 	Creation   Creation `gorm:"foreignKey:CreationID;references:ID" json:"creation,omitempty"`
 	// 如果有 Article 特有字段，加在这里；若无，可保留空结构体
 }

@@ -11,5 +11,5 @@ type Question struct {
 	AnswerCount      int      `gorm:"default:0" json:"answer_count"`
 	ViewCount        int      `gorm:"default:0" json:"view_count"`
 	LikeCount        int      `gorm:"default:0" json:"like_count"`
-	AcceptedAnswer   Comment  `gorm:"foreignKey:AcceptedAnswerID" json:"accepted_answer,omitempty"`
+	AcceptedAnswer   Answer   `gorm:"foreignKey:AcceptedAnswerID" json:"accepted_answer,omitempty"`
 }

@@ -52,5 +52,7 @@
   "delete_account_warning": "Deleting your account will permanently remove all your data. This action cannot be undone.",
   "delete_account": "Delete account",
   "confirm_delete": "Confirm delete",
-  "cancel": "Cancel"
+  "cancel": "Cancel",
+  "feature_under_development": "Feature Under Development",
+  "feature_coming_soon": "{feature} is under construction, stay tuned."
 }

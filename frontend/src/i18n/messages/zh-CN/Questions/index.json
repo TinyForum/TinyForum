@@ -48,5 +48,8 @@
   "please_login": "请先登录",
   "answer_accepted": "已采纳答案",
   "operation_failed": "操作失败",
-  "question_not_found": "问题不存在"
+  "question_not_found": "问题不存在",
+  "my_questions": "我的问答",
+  "my_questions_coming_soon": "我的问答列表功能正在开发中，敬请期待。",
+  "browse_questions": "浏览问答"
 }

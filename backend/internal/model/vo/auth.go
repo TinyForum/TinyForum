@@ -8,11 +8,10 @@ import (
 // 用户注册
 type UserRegisterResultVO struct {
 	Token string `json:"token"` // JWT 访问令牌
-	// TokenType string `json:"token_type"` // "Bearer"
-	// ExpiresIn int64  `json:"expires_in"` // 过期时间（秒）
 
 	// 只返回前端渲染 UI 必要的字段
-	User *UserRegisterVO `json:"user"`
+	User           *UserRegisterVO `json:"user"`
+	DeletionStatus *DeletionStatus `json:"deletion_status,omitempty"`
 }
 
 type UserRegisterVO struct {
@@ -28,11 +27,10 @@ type UserRegisterVO struct {
 // 用户登录
 type UserLoginResultVO struct {
 	Token string `json:"token"` // JWT 访问令牌
-	// TokenType string `json:"token_type"` // "Bearer"
-	// ExpiresIn int64  `json:"expires_in"` // 过期时间（秒）
 
 	// 只返回前端渲染 UI 必要的字段
-	User *UserLoginVO `json:"user"`
+	User           *UserLoginVO    `json:"user"`
+	DeletionStatus *DeletionStatus `json:"deletion_status,omitempty"`
 }
 type UserLoginVO struct {
 	ID        uint        `json:"id"`

@@ -8,7 +8,6 @@ export default async function PostDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  console.log(params);
   const { id } = await params;
   const postId = Number(id);
 

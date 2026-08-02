@@ -3,7 +3,6 @@ package topic
 import (
 	"errors"
 	"tiny-forum/internal/model/do"
-	apperrors "tiny-forum/pkg/errors"
 
 	"gorm.io/gorm"
 )
@@ -20,8 +19,8 @@ func (r *topicRepository) Follow(follow *do.TopicFollow) error {
 			// 如果已软删除，恢复（设置 deleted_at = NULL）
 			return r.db.Unscoped().Model(&existing).Update("deleted_at", nil).Error
 		}
-		// 否则已经有效关注，返回已关注错误
-		return apperrors.ErrAlreadyFollow
+		// 否则已经有效关注，幂等返回 nil（follow.ID 保持为 0 表示未创建新记录）
+		return nil
 	}
 
 	if !errors.Is(err, gorm.ErrRecordNotFound) {
@@ -37,9 +36,7 @@ func (r *topicRepository) Unfollow(userID, topicID uint) error {
 	if result.Error != nil {
 		return result.Error
 	}
-	if result.RowsAffected == 0 {
-		return apperrors.ErrNotFollow
-	}
+	// 幂等：取消不存在的关注不报错
 	return nil
 }
 
