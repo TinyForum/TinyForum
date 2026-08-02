@@ -6,4 +6,7 @@ export const boardKeys = {
   details: () => [...boardKeys.all, "detail"] as const,
   detail: (id: number) => [...boardKeys.details(), id] as const,
   tree: () => [...boardKeys.all, "tree"] as const,
+  slug: (slug: string) => [...boardKeys.all, "slug", slug] as const,
+  postsBySlug: (slug: string, page: number) =>
+    [...boardKeys.all, slug, "posts", page] as const,
 };

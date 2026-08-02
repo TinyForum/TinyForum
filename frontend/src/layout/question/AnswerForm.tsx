@@ -1,9 +1,9 @@
 // components/question/AnswerForm.tsx
 "use client";
 
-import { questionApi } from "@/shared/api/modules/questions";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
+import { useAnswerSubmit } from "@/features/question/hooks/useAnswerSubmit";
 import {
   PaperAirplaneIcon,
   XMarkIcon,
@@ -42,6 +42,7 @@ export function AnswerForm({
   const [content, setContent] = useState<string>("");
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [showPreview, setShowPreview] = useState<boolean>(false);
+  const submitAnswer = useAnswerSubmit(questionId);
 
   const contentLength: number = content.trim().length;
   const isContentValid: boolean = contentLength >= 10;
@@ -65,27 +66,21 @@ export function AnswerForm({
 
     setSubmitting(true);
     try {
-      const response = await questionApi.createAnswer(questionId, {
-        content: content.trim(),
-      });
+      await submitAnswer.mutateAsync(content.trim());
 
       // 统一使用 code === 0 判断成功
-      if (response.data.code === 0) {
-        setContent("");
-        setShowPreview(false);
-        toast.success("回答发布成功");
+      setContent("");
+      setShowPreview(false);
+      toast.success("回答发布成功");
 
-        // 如果有悬赏，显示额外提示
-        if (rewardScore > 0 && questionAuthorId) {
-          toast.success(`💡 回答被采纳可获得 ${rewardScore} 积分悬赏`, {
-            duration: 5000,
-          });
-        }
-
-        onSuccess();
-      } else {
-        toast.error(response.data.message || "发布失败");
+      // 如果有悬赏，显示额外提示
+      if (rewardScore > 0 && questionAuthorId) {
+        toast.success(`💡 回答被采纳可获得 ${rewardScore} 积分悬赏`, {
+          duration: 5000,
+        });
       }
+
+      onSuccess();
     } catch (err: unknown) {
       console.error("发布回答失败:", err);
       const error = err as ErrorResponse;

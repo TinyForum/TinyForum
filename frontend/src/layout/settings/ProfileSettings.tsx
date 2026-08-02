@@ -9,10 +9,10 @@ import toast from "react-hot-toast";
 import { getErrorMessage } from "@/shared/lib/utils";
 import { Save, AlertCircle, Camera } from "lucide-react";
 import Avatar from "@/shared/ui/common/Avatar";
-import { userApi } from "@/shared/api/modules/user";
 import { UserDO } from "@/shared/api/types/user.model.do";
 
 import { useUpload } from "@/features/upload/hooks/useUpload";
+import { useProfileSettings } from "@/features/user/hooks/useProfileSettings";
 
 // 移除 avatar 的 URL 校验，允许任意字符串（包括相对路径、协议相对路径）
 const profileSchema = z.object({
@@ -29,6 +29,7 @@ interface ProfileSettingsProps {
 export default function ProfileSettings({ user }: ProfileSettingsProps) {
   const { updateUser } = useAuthStore();
   const { uploadAvatar, isUploading, uploadError } = useUpload();
+  const { updateProfile } = useProfileSettings();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const {
@@ -88,7 +89,7 @@ export default function ProfileSettings({ user }: ProfileSettingsProps) {
 
   const onSubmit = async (data: ProfileForm) => {
     try {
-      await userApi.updateProfile(data);
+      await updateProfile(data);
       updateUser({ ...user, ...data });
       toast.success("资料已更新");
     } catch (err) {

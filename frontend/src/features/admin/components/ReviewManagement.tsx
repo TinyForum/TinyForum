@@ -1,7 +1,5 @@
 // components/admin/PostModeration.tsx
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import toast from "react-hot-toast";
 import {
   CheckCircle,
   XCircle,
@@ -10,92 +8,21 @@ import {
   FileText,
   AlertTriangle,
 } from "lucide-react";
-import type { Post } from "@/shared/api/types/post.model";
 import DOMPurify from "dompurify";
 import Image from "next/image";
-import { adminPostsApi } from "@/shared/api/modules/admin/post";
-import { adminKeys } from "../hooks/useAdminKeys";
-
-// 扩展 Post 类型以包含风险信息
-interface PostWithRisk extends Post {
-  risk_score?: number;
-  risk_reason?: string;
-  risk_logs?: Array<{
-    id: number;
-    level: string;
-    rule: string;
-    matched_content: string;
-    created_at: string;
-  }>;
-}
-
-// 后端返回的分页数据结构
-interface PendingPostsResponse {
-  list: PostWithRisk[];
-  total: number;
-}
-
-// 获取待审核帖子列表 - 修复返回类型
-const fetchPendingPosts = async (params: {
-  page: number;
-  page_size: number;
-  keyword?: string;
-}): Promise<PendingPostsResponse> => {
-  const res = await adminPostsApi.listPendingPosts(params);
-  // 确保返回的数据结构正确，并处理可能的 undefined
-  const data = res.data.data;
-  return {
-    list: data?.list || [],
-    total: data?.total || 0,
-  };
-};
+import { useReviewPendingPosts } from "../hooks/useReviewPendingPosts";
+import type { PostWithRisk } from "../hooks/useReviewPendingPosts";
 
 export function ReviewManagement() {
-  const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
   const [keyword, setKeyword] = useState("");
   const [selectedPost, setSelectedPost] = useState<PostWithRisk | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [reviewNote, setReviewNote] = useState(""); // 审核备注/拒绝原因
 
-  // 查询待审核列表 - 移除泛型，让 TypeScript 自动推断
-  const { data, isLoading, refetch } = useQuery({
-    queryKey: adminKeys.pendingPosts(page, keyword),
-    queryFn: () => fetchPendingPosts({ page, page_size: 20, keyword }),
-    placeholderData: (prev) => prev,
-  });
-
-  // 审核通过 mutation
-  const approveMutation = useMutation({
-    mutationFn: ({ id, note }: { id: number; note?: string }) =>
-      adminPostsApi.approvePost(id, note),
-    onSuccess: (_, variables) => {
-      toast.success("帖子已通过审核");
-      queryClient.invalidateQueries({ queryKey: adminKeys.pendingPosts() });
-      if (selectedPost && selectedPost.id === variables.id) {
-        setIsModalOpen(false);
-        setSelectedPost(null);
-        setReviewNote("");
-      }
-    },
-    onError: () => toast.error("审核通过失败"),
-  });
-
-  // 审核拒绝 mutation
-  const rejectMutation = useMutation({
-    mutationFn: ({ id, reason }: { id: number; reason?: string }) =>
-      adminPostsApi.rejectPost(id, reason),
-    onSuccess: (_, variables) => {
-      toast.success("帖子已拒绝");
-      queryClient.invalidateQueries({ queryKey: adminKeys.pendingPosts() });
-      if (selectedPost && selectedPost.id === variables.id) {
-        setIsModalOpen(false);
-        setSelectedPost(null);
-        setReviewNote("");
-      }
-    },
-    onError: () => toast.error("拒绝失败"),
-  });
+  // 查询待审核列表 + 审核通过/拒绝操作
+  const { posts, total, isLoading, refetch, approveMutation, rejectMutation } =
+    useReviewPendingPosts(page, keyword);
 
   const handleOpenModal = (post: PostWithRisk) => {
     setSelectedPost(post);
@@ -105,22 +32,36 @@ export function ReviewManagement() {
 
   const handleApprove = () => {
     if (!selectedPost) return;
-    approveMutation.mutate({
-      id: selectedPost.id,
-      note: reviewNote.trim() || undefined,
-    });
+    approveMutation.mutate(
+      { id: selectedPost.id, note: reviewNote.trim() || undefined },
+      {
+        onSuccess: (_, variables) => {
+          if (selectedPost && selectedPost.id === variables.id) {
+            setIsModalOpen(false);
+            setSelectedPost(null);
+            setReviewNote("");
+          }
+        },
+      },
+    );
   };
 
   const handleReject = () => {
     if (!selectedPost) return;
-    rejectMutation.mutate({
-      id: selectedPost.id,
-      reason: reviewNote.trim() || undefined,
-    });
+    rejectMutation.mutate(
+      { id: selectedPost.id, reason: reviewNote.trim() || undefined },
+      {
+        onSuccess: (_, variables) => {
+          if (selectedPost && selectedPost.id === variables.id) {
+            setIsModalOpen(false);
+            setSelectedPost(null);
+            setReviewNote("");
+          }
+        },
+      },
+    );
   };
 
-  const posts = data?.list ?? [];
-  const total = data?.total ?? 0;
   const totalPages = Math.ceil(total / 20);
 
   const sanitizeHtml = (html: string) => ({

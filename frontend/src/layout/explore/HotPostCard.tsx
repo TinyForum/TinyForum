@@ -1,5 +1,5 @@
-import { postApi } from "@/shared/api/modules/posts";
 import { Post } from "@/shared/api/types/post.model";
+import { useLikePost, useUnlikePost } from "@/features/post/hooks/usePosts";
 import { ChatBubbleLeftRightIcon } from "@heroicons/react/24/outline";
 import { Link, EyeIcon, HeartIcon, HeartCrack } from "lucide-react";
 import { useState } from "react";
@@ -9,16 +9,18 @@ import toast from "react-hot-toast";
 export function HotPostCard({ post, rank }: { post: Post; rank: number }) {
   const [liked, setLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(post.creation.like_count || 0);
+  const likePost = useLikePost();
+  const unlikePost = useUnlikePost();
 
   const handleLike = async () => {
     if (!post.id) return;
     try {
       if (liked) {
-        await postApi.unlike(post.id);
+        await unlikePost.mutateAsync(post.id);
         setLiked(false);
         setLikesCount((prev) => prev - 1);
       } else {
-        await postApi.like(post.id);
+        await likePost.mutateAsync(post.id);
         setLiked(true);
         setLikesCount((prev) => prev + 1);
       }

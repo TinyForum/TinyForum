@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/auth";
 import { useTranslations } from "next-intl";
@@ -9,11 +8,9 @@ import { ProfileSidebar } from "./ProfileSidebar";
 import { ProfileContent } from "./ProfileContent";
 import { UserListModal } from "./UserListModal";
 import { useUserProfile } from "../hooks/useUserProfile";
-import { userApi } from "@/shared/api/modules/user";
-import { UserDO } from "@/shared/api/types/user.model.do";
 import { useFollowAction } from "../hooks/useFollowAction";
 import { useFollowList } from "../hooks/useFollowList";
-import { userKeys } from "../hooks/useUserKeys";
+import { useFollowStatus } from "../hooks/useFollowStatus";
 
 export default function UserProfileClient({ userId }: { userId: number }) {
   const { user: currentUser, isAuthenticated } = useAuthStore();
@@ -51,19 +48,7 @@ export default function UserProfileClient({ userId }: { userId: number }) {
   const { follow, unfollow, loading: followActionLoading } = useFollowAction();
 
   // 5. 当前用户是否已关注该用户（通过查询当前用户的关注列表判断）
-  const { data: isFollowing, refetch: refetchFollowStatus } = useQuery({
-    queryKey: userKeys.followStatus(userId, currentUser?.id),
-    queryFn: async () => {
-      if (!currentUser || currentUser.id === userId) return false;
-      const res = await userApi.getFollowing(currentUser.id, {
-        page: 1,
-        page_size: 100,
-      });
-      const data = res.data.data;
-      return data?.list?.some((u: UserDO) => u.id === userId) ?? false;
-    },
-    enabled: !!currentUser && currentUser.id !== userId,
-  });
+  const { isFollowing, refetchFollowStatus } = useFollowStatus(userId);
 
   // 加载用户资料
   useEffect(() => {

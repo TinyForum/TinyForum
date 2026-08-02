@@ -6,7 +6,7 @@ import toast from "react-hot-toast";
 import { Board } from "@/shared/api/types/board.model";
 import { Tag } from "@/shared/api/types/tag.model";
 import { ImageUploader } from "@/shared/ui/upload/ImageUploader";
-import { uploadApi } from "@/shared/api/modules/uploads";
+import { useCoverUpload } from "@/features/upload/hooks/useCoverUpload";
 import { FolderOpen, X } from "lucide-react";
 import { PostForm } from "./newPost.types";
 import { ImageItem } from "@/shared/ui/upload/upload.types";
@@ -39,6 +39,8 @@ export function PostSettings({
   onCoverChange,
   t,
 }: PostSettingsProps) {
+  const { uploadCover } = useCoverUpload();
+
   const statusOptions = [
     { value: "draft", label: t("status_draft"), desc: t("status_draft_desc") },
     {
@@ -62,8 +64,7 @@ export function PostSettings({
   const handleUploadCover = async (file: File): Promise<{ url: string }> => {
     try {
       // 使用通用附件上传接口，返回 { data: { url } }
-      const res = await uploadApi.uploadPluginFile(file, "post_cover");
-      return { url: res.data.data?.url ?? "" };
+      return await uploadCover(file);
     } catch (error) {
       toast.error(t("cover_upload_failed"));
       throw error;

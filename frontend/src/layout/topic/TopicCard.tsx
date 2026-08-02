@@ -16,7 +16,7 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { Topic } from "@/shared/api/types/topic.model";
-import { topicApi } from "@/shared/api/modules/topics";
+import { useFollowTopic } from "@/features/topic/hooks/useFollowTopic";
 
 // 类型定义
 interface ErrorResponse {
@@ -38,6 +38,8 @@ export function TopicCard({
 }) {
   const router = useRouter();
   const { isAuthenticated } = useAuthStore();
+  const { follow: followMutation, unfollow: unfollowMutation } =
+    useFollowTopic();
   // 修复：topic.is_public 表示话题是否公开，而不是是否已关注
   // 应该从 topic 中获取关注状态，或者通过 API 获取
   const [following, setFollowing] = useState<boolean>(false);
@@ -56,11 +58,11 @@ export function TopicCard({
     setFollowLoading(true);
     try {
       if (following) {
-        await topicApi.unfollow(topic.id);
+        await unfollowMutation.mutateAsync(topic.id);
         setFollowing(false);
         toast.success("已取消收藏");
       } else {
-        await topicApi.follow(topic.id);
+        await followMutation.mutateAsync(topic.id);
         setFollowing(true);
         toast.success("已收藏话题");
       }
