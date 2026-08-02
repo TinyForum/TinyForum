@@ -70,7 +70,6 @@ func (h *UserHandler) LeaderboardDetail(c *gin.Context) {
 			ID:        u.ID,
 			Username:  u.Username,
 			AvatarUrl: u.AvatarUrl,
-			Email:     u.Email,
 			Role:      u.Role,
 			Score:     u.Score,
 			Rank:      i + 1,

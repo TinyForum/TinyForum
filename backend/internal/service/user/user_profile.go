@@ -44,13 +44,50 @@ func (s *userService) GetUserProfile(targetID, viewerID uint) (*vo.UserProfileVO
 	}
 
 	resp := &vo.UserProfileVO{
-		User:           user,
+		ID:             user.ID,
+		CreatedAt:      user.CreatedAt,
+		UpdatedAt:      user.UpdatedAt,
+		Username:       user.Username,
+		AvatarUrl:      user.AvatarUrl,
+		Bio:            user.Bio,
+		Role:           user.Role,
+		Score:          user.Score,
 		FollowerCount:  s.repo.GetFollowerCount(targetID),
 		FollowingCount: s.repo.GetFollowingCount(targetID),
 	}
 
 	if viewerID > 0 {
 		resp.IsFollowing = s.repo.IsFollowing(viewerID, targetID)
+	}
+
+	return resp, nil
+}
+
+// GetUserProfileByUsername 通过用户名获取他人资料
+func (s *userService) GetUserProfileByUsername(username string, viewerID uint) (*vo.UserProfileVO, error) {
+	user, err := s.repo.FindByUsername(username)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, apperrors.ErrUserNotFound.WithMessagef("用户名: %s", username)
+		}
+		return nil, fmt.Errorf("查询用户失败: %w", err)
+	}
+
+	resp := &vo.UserProfileVO{
+		ID:             user.ID,
+		CreatedAt:      user.CreatedAt,
+		UpdatedAt:      user.UpdatedAt,
+		Username:       user.Username,
+		AvatarUrl:      user.AvatarUrl,
+		Bio:            user.Bio,
+		Role:           user.Role,
+		Score:          user.Score,
+		FollowerCount:  s.repo.GetFollowerCount(user.ID),
+		FollowingCount: s.repo.GetFollowingCount(user.ID),
+	}
+
+	if viewerID > 0 {
+		resp.IsFollowing = s.repo.IsFollowing(viewerID, user.ID)
 	}
 
 	return resp, nil

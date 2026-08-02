@@ -1,15 +1,24 @@
-// hooks/useBoardPostLike.ts
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { postApi } from "@/shared/api/modules/posts";
+import { postKeys } from "@/features/post/hooks/usePosts";
 
-// 板块帖子卡片：点赞/取消点赞
 export function useBoardPostLike() {
+  const queryClient = useQueryClient();
+
   return {
     like: useMutation({
       mutationFn: (id: number) => postApi.like(id),
+      onSettled: (_data, _error, variables) => {
+        queryClient.invalidateQueries({ queryKey: postKeys.lists() });
+        queryClient.invalidateQueries({ queryKey: postKeys.detail(variables) });
+      },
     }),
     unlike: useMutation({
       mutationFn: (id: number) => postApi.unlike(id),
+      onSettled: (_data, _error, variables) => {
+        queryClient.invalidateQueries({ queryKey: postKeys.lists() });
+        queryClient.invalidateQueries({ queryKey: postKeys.detail(variables) });
+      },
     }),
   };
 }

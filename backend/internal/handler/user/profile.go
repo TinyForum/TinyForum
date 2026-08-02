@@ -3,35 +3,37 @@ package user
 import (
 	"strconv"
 	"tiny-forum/internal/model/do"
-	"tiny-forum/pkg/logger"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
 )
 
-// GetProfile 获取用户资料
+// GetProfile 获取用户资料（支持用户名或数字ID）
 // @Summary 获取用户资料
 // @Tags 用户管理
 // @Produce json
-// @Param id path int true "用户ID"
+// @Param id path string true "用户名或用户ID"
 // @Success 200 {object} common.BasicResponse
 // @Router /users/{id} [get]
 func (h *UserHandler) GetProfile(c *gin.Context) {
-	targetID, err := strconv.ParseUint(c.Param("id"), 10, 64)
-	if err != nil {
+	idParam := c.Param("id")
+	viewerID := getViewerID(c)
 
-		response.ValidationFailed(c, []response.ValidationError{
-			{Field: "id", Message: "无效的用户ID格式"},
-		})
+	if targetID, err := strconv.ParseUint(idParam, 10, 64); err == nil {
+		profile, err := h.userSvc.GetUserProfile(uint(targetID), viewerID)
+		if err != nil {
+			response.HandleError(c, err)
+			return
+		}
+		response.Success(c, profile)
 		return
 	}
-	viewerID := getViewerID(c)
-	profile, err := h.userSvc.GetUserProfile(uint(targetID), viewerID)
+
+	profile, err := h.userSvc.GetUserProfileByUsername(idParam, viewerID)
 	if err != nil {
 		response.HandleError(c, err)
 		return
 	}
-	logger.Debugf("用户信息: %+v", profile)
 	response.Success(c, profile)
 }
 

@@ -45,8 +45,19 @@ func (h *RiskHandler) ListAuditLogs(c *gin.Context) {
 		return
 	}
 
+	vos := make([]vo.AuditLogVO, len(logs))
+	for i, l := range logs {
+		vos[i] = vo.AuditLogVO{
+			ID:        l.ID,
+			CreatedAt: l.CreatedAt,
+			Action:    string(l.Action),
+			Target:    l.TargetType,
+			Operator:  l.Reason,
+		}
+	}
+
 	responseData := vo.AuditLogsVO{
-		Log: logs,
+		Log: vos,
 	}
 	response.Success(c, responseData)
 }
