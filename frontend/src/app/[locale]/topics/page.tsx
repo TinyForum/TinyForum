@@ -1,7 +1,8 @@
 // app/[locale]/topics/page.tsx (优化版)
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "@/store/auth";
 import { topicApi } from "@/shared/api/modules/topics";
 import { toast } from "react-hot-toast";
@@ -386,33 +387,26 @@ function CreateTopicModal({
 
 export default function TopicsPage() {
   const { isAuthenticated } = useAuthStore();
-  const [topics, setTopics] = useState<Topic[]>([]);
-  const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
-  const [total, setTotal] = useState(0);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const pageSize = 20;
+  const queryClient = useQueryClient();
 
   // 加载话题列表
-  const loadTopics = useCallback(async () => {
-    setLoading(true);
-    try {
+  const { data, isLoading: loading, refetch } = useQuery({
+    queryKey: ["topics", "list", page],
+    queryFn: async () => {
       const response = await topicApi.list({ page, page_size: pageSize });
-      if (response.data.code === 0) {
-        const data = response.data.data;
-        setTopics(data?.list || []);
-        setTotal(data?.total || 0);
-      } else {
+      if (response.data.code !== 0) {
         toast.error(response.data.message || "加载失败");
+        throw new Error(response.data.message || "加载失败");
       }
-    } catch (err: unknown) {
-      console.error("Failed to load topics:", err);
-      const error = err as ErrorResponse;
-      toast.error(error.response?.data?.message || "加载失败");
-    } finally {
-      setLoading(false);
-    }
-  }, [page]);
+      return response.data.data;
+    },
+  });
+
+  const topics: Topic[] = data?.list ?? [];
+  const total = data?.total ?? 0;
 
   // 创建话题
   const handleCreateTopic = async (data: {
@@ -431,7 +425,7 @@ export default function TopicsPage() {
 
       if (response.data.code === 0) {
         toast.success("话题创建成功");
-        await loadTopics();
+        await queryClient.invalidateQueries({ queryKey: ["topics", "list"] });
       } else {
         toast.error(response.data.message || "创建失败");
         throw new Error(response.data.message);
@@ -442,10 +436,6 @@ export default function TopicsPage() {
       throw err;
     }
   };
-
-  useEffect(() => {
-    loadTopics();
-  }, [loadTopics]);
 
   const totalPages = Math.ceil(total / pageSize);
   const totalFollowers = topics.reduce(
@@ -514,7 +504,7 @@ export default function TopicsPage() {
                   className="animate-fade-in"
                   style={{ animationDelay: `${index * 50}ms` }}
                 >
-                  <TopicCard topic={topic} onFollowChange={loadTopics} />
+                  <TopicCard topic={topic} onFollowChange={() => refetch()} />
                 </div>
               ))}
             </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/auth";
@@ -312,11 +313,8 @@ function ErrorState({ onRetry }: { onRetry: () => void }) {
 export default function MyApplicationsPage() {
   const { isAuthenticated } = useAuthStore();
   const router = useRouter();
-  const [applications, setApplications] = useState<ExtendedApplication[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
-  const [total, setTotal] = useState(0);
   const [cancelLoadingId, setCancelLoadingId] = useState<number | null>(null);
 
   const PAGE_SIZE = 10;
@@ -350,32 +348,25 @@ export default function MyApplicationsPage() {
   });
 
   // 加载用户的所有申请
-  const loadApplications = useCallback(async () => {
-    if (!isAuthenticated) return;
-
-    setLoading(true);
-    setError(null);
-
-    try {
+  const { data, isLoading: loading, error, refetch } = useQuery({
+    queryKey: ["my-applications", page],
+    queryFn: async () => {
       const res = await moderatorApi.getMyApplications({
         page,
         page_size: PAGE_SIZE,
       });
+      return {
+        list: (res?.data?.data?.list || []).map((app: ApiApplication) =>
+          transformApplication(app),
+        ),
+        total: res?.data?.data?.total ?? 0,
+      };
+    },
+    enabled: isAuthenticated,
+  });
 
-      if (res?.data?.data) {
-        // 使用类型安全的方式转换数据
-        const apps: ExtendedApplication[] = (res.data.data.list || []).map(
-          (app: ApiApplication) => transformApplication(app),
-        );
-        setApplications(apps);
-        setTotal(res.data.data.total);
-      }
-    } catch {
-      setError("加载申请记录失败");
-    } finally {
-      setLoading(false);
-    }
-  }, [page, isAuthenticated]);
+  const applications = data?.list ?? [];
+  const total = data?.total ?? 0;
 
   // 撤销申请
   const handleCancel = useCallback(
@@ -385,7 +376,7 @@ export default function MyApplicationsPage() {
       setCancelLoadingId(applicationId);
       try {
         await moderatorApi.cancelApplication(applicationId);
-        await loadApplications();
+        await queryClient.invalidateQueries({ queryKey: ["my-applications"] });
       } catch (err) {
         console.error("撤销失败:", err);
         toast.error("撤销失败，请重试");
@@ -393,12 +384,8 @@ export default function MyApplicationsPage() {
         setCancelLoadingId(null);
       }
     },
-    [loadApplications],
+    [queryClient],
   );
-
-  useEffect(() => {
-    loadApplications();
-  }, [loadApplications]);
 
   const totalPages = useMemo(() => Math.ceil(total / PAGE_SIZE), [total]);
 
@@ -411,8 +398,8 @@ export default function MyApplicationsPage() {
   );
 
   const handleRetry = useCallback(() => {
-    loadApplications();
-  }, [loadApplications]);
+    refetch();
+  }, [refetch]);
 
   // 未认证时不渲染内容
   if (!isAuthenticated) return null;

@@ -2,6 +2,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -21,7 +22,6 @@ import {
   HomeIcon,
 } from "@heroicons/react/24/outline";
 import { TimelineEvent } from "@/shared/api/types/timeline.model";
-import { Subscription } from "@/shared/api/types/timeline.model";
 
 // 错误响应类型
 interface ErrorResponse {
@@ -381,51 +381,52 @@ function Pagination({
 export default function Timeline() {
   const router = useRouter();
   const { isAuthenticated } = useAuthStore();
-  const [events, setEvents] = useState<TimelineEvent[]>([]);
-  const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<"home" | "following">("home");
   const [page, setPage] = useState(1);
-  const [total, setTotal] = useState(0);
   const [showSubscriptions, setShowSubscriptions] = useState(false);
   const pageSize = 20;
 
+  // 重定向未认证用户
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.push("/login?redirect=/timeline");
+    }
+  }, [isAuthenticated, router]);
+
   // 加载时间线
-  const loadTimeline = useCallback(async () => {
-    setLoading(true);
-    try {
+  const { data, isLoading: loading } = useQuery({
+    queryKey: ["timeline", activeTab, page],
+    queryFn: async () => {
       const response =
         activeTab === "home"
           ? await timelineApi.getHome({ page, page_size: pageSize })
           : await timelineApi.getFollowing({ page, page_size: pageSize });
 
-      if (response.data.code === 0) {
-        const data = response.data.data;
-        setEvents(data?.list || []);
-        setTotal(data?.total || 0);
-      } else {
-        toast.error(response.data.message || "加载失败");
+      if (response.data.code !== 0) {
+        throw new Error(response.data.message || "加载失败");
       }
-    } catch (err: unknown) {
-      const error = err as ErrorResponse;
-      console.error("Failed to load timeline:", error);
-      toast.error(error.response?.data?.message || "加载失败");
-    } finally {
-      setLoading(false);
-    }
-  }, [activeTab, page]);
+      return response.data.data;
+    },
+    enabled: isAuthenticated,
+  });
 
   // 加载订阅列表
-  const loadSubscriptions = useCallback(async () => {
-    try {
+  const { data: subscriptionData } = useQuery({
+    queryKey: ["timeline-subscriptions"],
+    queryFn: async () => {
       const response = await timelineApi.getSubscriptions();
-      if (response.data.code === 0) {
-        setSubscriptions(response.data.data || []);
+      if (response.data.code !== 0) {
+        throw new Error(response.data.message || "加载失败");
       }
-    } catch (err) {
-      console.error("Failed to load subscriptions:", err);
-    }
-  }, []);
+      return response.data.data;
+    },
+    enabled: isAuthenticated,
+  });
+
+  const events = data?.list ?? [];
+  const total = data?.total ?? 0;
+  const subscriptions = subscriptionData ?? [];
 
   // 取消关注
   const handleUnsubscribe = useCallback(
@@ -434,10 +435,10 @@ export default function Timeline() {
         const response = await timelineApi.unsubscribe(userId);
         if (response.data.code === 0) {
           toast.success("已取消关注");
-          await loadSubscriptions();
-          if (activeTab === "following") {
-            await loadTimeline();
-          }
+          await queryClient.invalidateQueries({ queryKey: ["timeline"] });
+          await queryClient.invalidateQueries({
+            queryKey: ["timeline-subscriptions"],
+          });
         } else {
           toast.error(response.data.message || "操作失败");
         }
@@ -446,24 +447,8 @@ export default function Timeline() {
         toast.error(error.response?.data?.message || "操作失败");
       }
     },
-    [activeTab, loadSubscriptions, loadTimeline],
+    [queryClient],
   );
-
-  useEffect(() => {
-    if (!isAuthenticated) {
-      router.push("/login?redirect=/timeline");
-      return;
-    }
-    loadTimeline();
-    loadSubscriptions();
-  }, [
-    isAuthenticated,
-    router,
-    activeTab,
-    page,
-    loadTimeline,
-    loadSubscriptions,
-  ]);
 
   if (!isAuthenticated) {
     return null;

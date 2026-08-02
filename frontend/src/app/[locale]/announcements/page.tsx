@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { announcementApi } from "@/shared/api/modules/announcements";
-import { toast } from "react-hot-toast";
 import {
   MegaphoneIcon,
   PinIcon,
@@ -11,10 +11,7 @@ import {
   ChevronRightIcon,
 } from "lucide-react";
 import { AnnouncementCard } from "@/features/announcements/components/AnnouncementCard";
-import {
-  AnnouncementDO,
-  AnnouncementStatus,
-} from "@/shared/api/types/announcement.model.do";
+import { AnnouncementStatus } from "@/shared/api/types/announcement.model.do";
 
 // 分页组件
 function Pagination({
@@ -113,40 +110,24 @@ function EmptyState() {
 }
 
 export default function AnnouncementsPage() {
-  const [announcements, setAnnouncements] = useState<AnnouncementDO[]>([]);
-  const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
-  const [total, setTotal] = useState(0);
   const pageSize = 12;
 
-  const loadAnnouncements = useCallback(async () => {
-    setLoading(true);
-    try {
-      const response = await announcementApi.list({
+  // 查询：分页获取已发布公告列表
+  const { data, isLoading: loading } = useQuery({
+    queryKey: ["announcements", "published", page],
+    queryFn: async () => {
+      const res = await announcementApi.list({
         page,
         page_size: pageSize,
         status: AnnouncementStatus.Published,
       });
+      return res.data.data;
+    },
+  });
 
-      if (response.data.code === 0) {
-        if (response.data.data) {
-          setAnnouncements(response.data.data.list || []);
-          setTotal(response.data.data.total || 0);
-        }
-      } else {
-        toast.error(response.data.message || "加载失败");
-      }
-    } catch {
-      toast.error("加载失败，请稍后重试");
-    } finally {
-      setLoading(false);
-    }
-  }, [page]);
-
-  useEffect(() => {
-    loadAnnouncements();
-  }, [page, loadAnnouncements]);
-
+  const announcements = data?.list ?? [];
+  const total = data?.total ?? 0;
   const totalPages = Math.ceil(total / pageSize);
 
   const pinnedAnnouncements = announcements.filter((a) => a.is_pinned);

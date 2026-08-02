@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react"
+import { useCallback } from "react"
 import {
   useQuery,
   useMutation,
@@ -23,8 +23,6 @@ interface UseViolationReturn {
 
 export function useUserViolation(): UseViolationReturn {
   const queryClient = useQueryClient()
-  // 首次通过 loadViolations 触发查询
-  const [loaded, setLoaded] = useState(false)
 
   // 查询：拉取当前用户的违规列表
   const { data, isLoading, error, refetch } = useQuery<ViolationVO[]>({
@@ -36,12 +34,10 @@ export function useUserViolation(): UseViolationReturn {
       }
       return res.data.data ?? []
     },
-    enabled: loaded,
   })
 
-  // 命令式入口：启用查询并重新拉取
+  // 命令式入口：重新拉取
   const loadViolations = useCallback(async (): Promise<void> => {
-    setLoaded(true)
     await refetch()
   }, [refetch])
 

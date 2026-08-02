@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
@@ -22,19 +23,11 @@ import {
 } from "@/shared/api/modules/questions";
 import { useTranslations } from "next-intl";
 import { QuestionSimple } from "@/shared/api/types/question.model";
-import { ApiResponse } from "@/shared/api/types/basic.model";
 
 type SortType = "latest" | "hot" | "score";
 
 // API 接受的排序类型
 type ApiSortType = "latest" | "hot" | "unanswered";
-
-interface QuestionListResponse {
-  list: QuestionSimple[];
-  total: number;
-  page: number;
-  page_size: number;
-}
 
 export default function QuestionsPage() {
   const t = useTranslations("Questions");
@@ -42,9 +35,6 @@ export default function QuestionsPage() {
   const searchParams = useSearchParams();
   const { isAuthenticated } = useAuthStore();
 
-  const [questions, setQuestions] = useState<QuestionSimple[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [filter, setFilter] = useState<QuestionFilterType>(
     (searchParams.get("filter") as QuestionFilterType) || "all",
@@ -63,9 +53,9 @@ export default function QuestionsPage() {
   };
 
   // 加载问题列表
-  const loadQuestions = useCallback(async () => {
-    setLoading(true);
-    try {
+  const { data, isLoading: loading } = useQuery({
+    queryKey: ["questions", filter, sort, keyword, page],
+    queryFn: async () => {
       const params: QuestionListParams = {
         page,
         page_size: pageSize,
@@ -78,34 +68,22 @@ export default function QuestionsPage() {
       // 只有当 sort 不是 "score" 时才传递
       if (sort !== "latest" && sort !== "score") {
         params.sort = getApiSort(sort);
-      } else if (sort === "score") {
-        // score 排序可能需要特殊处理，或者使用默认排序
-        // 这里选择不传递 sort 参数
       }
 
       if (keyword) {
         params.keyword = keyword;
       }
 
-      const response: { data: ApiResponse<QuestionListResponse> } =
-        await questionApi.getSimple(params);
-
-      if (response.data.code === 0 && response.data.data) {
-        setQuestions(response.data.data.list || []);
-        setTotal(response.data.data.total || 0);
-
-        const urlParams = new URLSearchParams();
-        if (filter !== "all") urlParams.set("filter", filter);
-        if (sort !== "latest") urlParams.set("sort", sort);
-        if (keyword) urlParams.set("keyword", keyword);
-        router.replace(`/questions?${urlParams.toString()}`, { scroll: false });
+      const response = await questionApi.getSimple(params);
+      if (response.data.code !== 0) {
+        throw new Error(response.data.message || "加载失败");
       }
-    } catch (error) {
-      console.error("Failed to load questions:", error);
-    } finally {
-      setLoading(false);
-    }
-  }, [page, filter, sort, keyword, pageSize, router]);
+      return response.data.data;
+    },
+  });
+
+  const questions = data?.list ?? [];
+  const total = data?.total ?? 0;
 
   // 监听路由参数变化
   useEffect(() => {
@@ -118,17 +96,18 @@ export default function QuestionsPage() {
     if (newKeyword) setKeyword(newKeyword);
   }, [searchParams]);
 
-  // 加载数据
+  // 同步筛选状态到 URL
   useEffect(() => {
-    loadQuestions();
-  }, [loadQuestions]);
+    const urlParams = new URLSearchParams();
+    if (filter !== "all") urlParams.set("filter", filter);
+    if (sort !== "latest") urlParams.set("sort", sort);
+    if (keyword) urlParams.set("keyword", keyword);
+    router.replace(`/questions?${urlParams.toString()}`, { scroll: false });
+  }, [filter, sort, keyword, router]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     setPage(1);
-    // 需要等待 page 状态更新，但 loadQuestions 会使用当前的 page
-    // 使用 setTimeout 或直接调用 loadQuestions（它会读取当前 page 状态）
-    loadQuestions();
   };
 
   const handleFilterChange = (newFilter: QuestionFilterType) => {

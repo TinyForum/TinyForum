@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
 import { useAuthStore } from "@/store/auth";
 import {
   MagnifyingGlassIcon,
@@ -15,42 +16,25 @@ import {
 import { BoardCard } from "@/features/boards/components/BoardCard";
 import { Board } from "@/shared/api/types/board.model";
 import { boardApi } from "@/shared/api/modules/boards";
+import { boardKeys } from "@/features/boards/hooks/useBoardKeys";
 
 export default function BoardsPage() {
   const { user } = useAuthStore();
-  const [boards, setBoards] = useState<Board[]>([]);
-  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [page] = useState(1);
   const [pageSize] = useState(20);
-  const [total, setTotal] = useState(0);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
+  // 查询：分页获取板块列表
+  const { data, isLoading: loading } = useQuery({
+    queryKey: boardKeys.list({ page, page_size: pageSize }),
+    queryFn: async () => {
       const res = await boardApi.list({ page, page_size: pageSize });
-      const pageData = res.data.data;
+      return res.data.data;
+    },
+  });
 
-      // 添加安全检查
-      if (pageData) {
-        setBoards(pageData.list || []);
-        setTotal(pageData.total || 0);
-      } else {
-        setBoards([]);
-        setTotal(0);
-      }
-    } catch (err) {
-      console.error("Failed to load boards:", err);
-      setBoards([]);
-      setTotal(0);
-    } finally {
-      setLoading(false);
-    }
-  }, [page, pageSize]);
-
-  useEffect(() => {
-    load();
-  }, [load]);
+  const boards: Board[] = data?.list ?? [];
+  const total = data?.total ?? 0;
 
   // 搜索过滤
   const filtered = search.trim()

@@ -2,7 +2,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { getViolationStatusBadge } from "@/shared/lib/utils/violation";
 import { ViolationRecord } from "@/shared/api/types/violation.model";
 import { useUserViolation } from "../hooks/useViolation";
@@ -54,7 +54,6 @@ export function ViolationPanel() {
   } = useUserViolation();
 
   // 安全转换后的展示数据
-  const [violations, setViolations] = useState<ViolationRecord[]>([]);
   const [appealModal, setAppealModal] = useState({
     open: false,
     violationId: "",
@@ -72,15 +71,10 @@ export function ViolationPanel() {
   }, [rawViolations]);
 
   // 将安全的违规数据转换为 UI 数据
-  useEffect(() => {
-    setViolations(safeViolations.map(toViolationRecord));
-  }, [safeViolations]);
-
-  // 首次加载数据
-  useEffect(() => {
-    loadViolations();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const violations = useMemo(
+    () => safeViolations.map(toViolationRecord),
+    [safeViolations],
+  );
 
   const canAppeal = (record: ViolationRecord) => {
     if (record.status !== "pending") return false;

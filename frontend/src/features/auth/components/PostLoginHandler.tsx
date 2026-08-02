@@ -2,10 +2,10 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 import { useAuthStore } from "@/store/auth";
 import { authApi } from "@/shared/api/modules/auth";
 import toast from "react-hot-toast";
-import { ApiResponse } from "@/shared/api/types/basic.model";
 import RestoreDialog from "./RestoreDialog";
 
 interface DeletionStatus {
@@ -54,37 +54,38 @@ export default function PostLoginHandler({
     router.refresh();
   }, [logout, redirectOnLogout, router]);
 
-  // 检查删除状态
-  const checkDeletionStatus = useCallback(async (): Promise<void> => {
-    try {
-      const response: { data: ApiResponse<DeletionStatus> } =
-        await authApi.getDeletionStatus();
-      const status = response.data.data;
+  // 查询：拉取账户删除状态（已认证且未处理时自动获取）
+  const { data: deletionStatusQuery } = useQuery<DeletionStatus>({
+    queryKey: ["auth", "deletion-status"],
+    queryFn: async () => {
+      const res = await authApi.getDeletionStatus();
+      const status = res.data.data;
+      if (!status) throw new Error("获取删除状态失败");
+      return status;
+    },
+    enabled: isAuthenticated && !!user && !hasShown,
+    retry: false,
+  });
 
-      if (status) {
-        setDeletionStatus(status);
-
-        if (status.is_deleted && status.can_restore) {
-          // 显示恢复对话框
-          setIsDialogOpen(true);
-          setHasShown(true);
-        } else if (status.is_deleted && !status.can_restore) {
-          // 账户已永久删除，强制登出
-          toast.error("您的账户已被永久删除，请联系管理员");
-          await handleForceLogout();
-        }
-      }
-    } catch (error: unknown) {
-      console.error("获取删除状态失败:", error);
-    }
-  }, [handleForceLogout]);
-
+  // 根据删除状态驱动恢复对话框 / 强制退出（仅触发一次）
   useEffect(() => {
-    // 只在已认证且未显示过提示时执行
-    if (isAuthenticated && user && !hasShown) {
-      checkDeletionStatus();
+    if (!deletionStatusQuery || hasShown) return;
+    setHasShown(true);
+
+    setDeletionStatus(deletionStatusQuery);
+
+    if (deletionStatusQuery.is_deleted && deletionStatusQuery.can_restore) {
+      // 显示恢复对话框
+      setIsDialogOpen(true);
+    } else if (
+      deletionStatusQuery.is_deleted &&
+      !deletionStatusQuery.can_restore
+    ) {
+      // 账户已永久删除，强制登出
+      toast.error("您的账户已被永久删除，请联系管理员");
+      handleForceLogout();
     }
-  }, [isAuthenticated, user, hasShown, checkDeletionStatus]);
+  }, [deletionStatusQuery, hasShown, handleForceLogout]);
 
   // 恢复账户
   const handleRestore = useCallback(async (): Promise<void> => {

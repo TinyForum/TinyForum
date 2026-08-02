@@ -1,8 +1,9 @@
 // app/[locale]/explore/page.tsx
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
 import { useAuthStore } from "@/store/auth";
 import { toast } from "react-hot-toast";
 import {
@@ -66,88 +67,103 @@ const exploreTabs = [
 export default function Explore() {
   const { isAuthenticated } = useAuthStore();
   const [activeTab, setActiveTab] = useState("hot");
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [hotTags, setHotTags] = useState<Tag[]>([]);
-  const [hotTopics, setHotTopics] = useState<Topic[]>([]);
-  const [activeUsers, setActiveUsers] = useState<LeaderboardItemResponse[]>([]);
-  const [loading, setLoading] = useState(true);
   const [searchKeyword, setSearchKeyword] = useState("");
-  const [searchResults, setSearchResults] = useState<Post[]>([]);
-  const [searching, setSearching] = useState(false);
+  const [submittedKeyword, setSubmittedKeyword] = useState("");
 
-  // 加载探索数据 - 使用 useCallback 包装
-  const loadExploreData = useCallback(async () => {
-    setLoading(true);
-    try {
-      const currentTab = exploreTabs.find((tab) => tab.id === activeTab);
-      const [postsResponse, tagsResponse, topicsResponse, usersResponse] =
-        await Promise.all([
-          postApi.list({ page: 1, page_size: 10, sort_by: currentTab?.sortBy }),
-          tagApi.list(),
-          topicApi.list({ page: 1, page_size: 8 }),
-          userApi.getLeaderboardSimple({ limit: 10 }),
-        ]);
-      // 添加安全检查
-      if (postsResponse.data.code === 0 && postsResponse.data.data) {
-        setPosts(postsResponse.data.data.list || []);
+  // 加载探索数据 - 由 useQuery 驱动
+  const { data: exploreData, isLoading: loading } = useQuery({
+    queryKey: ["explore", activeTab],
+    queryFn: async () => {
+      try {
+        const currentTab = exploreTabs.find((tab) => tab.id === activeTab);
+        const [postsResponse, tagsResponse, topicsResponse, usersResponse] =
+          await Promise.all([
+            postApi.list({
+              page: 1,
+              page_size: 10,
+              sort_by: currentTab?.sortBy,
+            }),
+            tagApi.list(),
+            topicApi.list({ page: 1, page_size: 8 }),
+            userApi.getLeaderboardSimple({ limit: 10 }),
+          ]);
+        // 添加安全检查
+        const posts =
+          postsResponse.data.code === 0 && postsResponse.data.data
+            ? postsResponse.data.data.list || []
+            : [];
+        const sortedTags =
+          tagsResponse.data.code === 0
+            ? [...(tagsResponse.data.data || [])].sort(
+                (a, b) => (b.post_count || 0) - (a.post_count || 0),
+              )
+            : [];
+        return {
+          posts,
+          hotTags: sortedTags.slice(0, 12),
+          hotTopics:
+            topicsResponse.data.code === 0
+              ? topicsResponse.data.data?.list || []
+              : [],
+          activeUsers:
+            usersResponse.data.code === 0 ? usersResponse.data.data || [] : [],
+        };
+      } catch (error) {
+        console.error("Failed to load explore data:", error);
+        toast.error("加载失败");
+        throw error;
       }
-      if (tagsResponse.data.code === 0 && tagsResponse.data.data) {
-        const sortedTags = [...(tagsResponse.data.data || [])].sort(
-          (a, b) => (b.post_count || 0) - (a.post_count || 0),
-        );
-        setHotTags(sortedTags.slice(0, 12));
+    },
+  });
+
+  const posts: Post[] = exploreData?.posts ?? [];
+  const hotTags: Tag[] = exploreData?.hotTags ?? [];
+  const hotTopics: Topic[] = exploreData?.hotTopics ?? [];
+  const activeUsers: LeaderboardItemResponse[] = exploreData?.activeUsers ?? [];
+
+  // 搜索 - 提交关键词变化时自动触发查询
+  const { data: searchData, isFetching: searching } = useQuery({
+    queryKey: ["explore-search", submittedKeyword],
+    queryFn: async () => {
+      try {
+        const response = await postApi.list({
+          keyword: submittedKeyword,
+          page: 1,
+          page_size: 20,
+        });
+        if (response.data.code !== 0) {
+          throw new Error(response.data.message || "搜索失败");
+        }
+        const list = response.data.data?.list || [];
+        if (list.length === 0) {
+          toast("未找到相关结果");
+        }
+        return list;
+      } catch (error) {
+        console.error("Search failed:", error);
+        toast.error("搜索失败");
+        throw error;
       }
-      if (topicsResponse.data.code === 0 && topicsResponse.data.data) {
-        setHotTopics(topicsResponse.data.data.list || []);
-      }
-      if (usersResponse.data.code === 0 && usersResponse.data.data) {
-        setActiveUsers(usersResponse.data.data || []);
-      }
-    } catch (error) {
-      console.error("Failed to load explore data:", error);
-      toast.error("加载失败");
-    } finally {
-      setLoading(false);
-    }
-  }, [activeTab]); // 依赖 activeTab
+    },
+    enabled: submittedKeyword.trim().length > 0,
+  });
+
+  const searchResults: Post[] = searchData ?? [];
 
   // 搜索
-  const handleSearch = async () => {
+  const handleSearch = () => {
     if (!searchKeyword.trim()) {
       toast.error("请输入搜索关键词");
       return;
     }
-
-    setSearching(true);
-    try {
-      const response = await postApi.list({
-        keyword: searchKeyword,
-        page: 1,
-        page_size: 20,
-      });
-      if (response.data.code === 0 && response.data.data) {
-        setSearchResults(response.data.data.list || []);
-        if (response.data.data.list?.length === 0) {
-          toast("未找到相关结果");
-        }
-      }
-    } catch (error) {
-      console.error("Search failed:", error);
-      toast.error("搜索失败");
-    } finally {
-      setSearching(false);
-    }
+    setSubmittedKeyword(searchKeyword.trim());
   };
 
   // 清除搜索
   const clearSearch = () => {
     setSearchKeyword("");
-    setSearchResults([]);
+    setSubmittedKeyword("");
   };
-
-  useEffect(() => {
-    loadExploreData();
-  }, [loadExploreData]); // 依赖 loadExploreData
 
   const displayPosts = searchKeyword ? searchResults : posts;
 

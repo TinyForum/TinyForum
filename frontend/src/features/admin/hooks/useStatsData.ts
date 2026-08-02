@@ -4,7 +4,7 @@ import { statsApi } from "@/shared/api/modules/stats";
 // import { StatsInfoResp } from "@/shared/api/types/stats.type";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, useEffect, useCallback } from "react";
-import { statsKeys } from "./useStatsKeys";
+import { statsKeys } from "@/features/statistic/hooks/useStatsKeys";
 
 // 注释掉未使用的接口
 // interface UseStatsDataOptions {
