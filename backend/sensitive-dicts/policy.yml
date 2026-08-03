@@ -1,0 +1,28 @@
+version: 1
+
+actions:
+  block: 
+    score: 90
+    categories:
+      - pornography
+      - violence
+      - terrorism
+      - weapons
+
+  review:
+    score: 60
+    categories:
+      - politics
+      - medical
+      - finance
+
+  shadow:
+    score: 40
+    categories:
+      - spam
+      - advertisement
+
+  replace:
+    score: 20
+    categories:
+      - profanity

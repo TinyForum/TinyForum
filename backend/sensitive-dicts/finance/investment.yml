@@ -1,0 +1,41 @@
+version: 1
+
+name: investment
+
+description: 投资理财风险宣传
+
+rules:
+  - id: INV001
+    label: 保本收益承诺
+    category: investment
+    tags:
+      - 投资诈骗
+      - 收益承诺
+    level: block
+    score: 90
+    regex: "(保本|保息|保底).{0,6}(收益|回报|盈利)?"
+
+  - id: INV002
+    label: 稳定盈利承诺
+    score: 90
+    regex: "(稳赚不赔|包赚不赔|绝对赚钱|零风险|无风险回报)"
+
+  - id: INV003
+    label: 高收益诱导
+    score: 70
+    regex: "(高额|高收益|快速|超高).{0,6}(回报|收益|盈利)"
+
+  - id: INV004
+    label: 收益率宣传
+    score: 80
+    regex: '\d{1,3}%\s*(收益|回报)'
+
+  - id: INV005
+    label: 年化收益
+    score: 50
+    regex: "年化收益(率)?"
+
+  - id: INV006
+    label: 被动收入骗局
+    score: 80
+    regex: "(躺赚|睡后收入|月入过万|日赚)"

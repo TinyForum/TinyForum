@@ -1,0 +1,14 @@
+version: 1
+
+name: funeral
+
+rules:
+  - id: FU001
+    action: review
+    score: 40
+    regex: "(冥币|纸钱|纸扎|烧纸|祭祖|上坟|扫墓|供品|香烛)"
+
+  - id: FU002
+    action: block
+    score: 100
+    regex: "(冥婚|阴婚|配阴婚)"

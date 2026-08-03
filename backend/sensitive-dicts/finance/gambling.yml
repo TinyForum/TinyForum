@@ -1,0 +1,55 @@
+version: 1
+
+name: gambling
+
+rules:
+  - id: GAMBLE_001
+
+    category: gambling
+    label: 赌博
+    risk_level: high
+    action: block
+    score: 90
+    regex: >
+      (
+      六合彩|
+      赌球|
+      真人百家乐|
+      赌场|
+      网赌|
+      网络赌博|
+      赌博平台|
+      时时彩|
+      外围|
+      赌博|
+      跑分
+      )
+
+  - id: GAMBLE_002
+    label: 金融诈骗
+    action: review
+    score: 80
+    regex: >
+      (
+      杀猪盘|
+      高利贷|
+      套现|
+      刷单返利|
+      充值返利
+      )
+
+  # ==================================================
+  # 赌博
+  # ==================================================
+
+  - id: GAMBLE_003
+    label: 赌
+    action: block
+    score: 100
+    regex: >
+      (
+        六合彩|
+        足球投注|
+        送qb|
+        q币
+      )

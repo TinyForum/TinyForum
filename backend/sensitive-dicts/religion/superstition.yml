@@ -1,0 +1,25 @@
+version: 1
+
+name: superstition
+
+description: 算命、占卜、命理
+
+rules:
+  - id: SUP001
+    label: 算命服务
+    category: superstition
+    action: review
+    score: 60
+    regex: "(算命|算命先生|半仙|大师)"
+
+  - id: SUP002
+    label: 命理预测
+    action: review
+    score: 50
+    regex: "(八字|四柱八字|紫微斗数|奇门遁甲|六爻|梅花易数|称骨算命|铁板神数|大六壬|小六壬|金口诀)"
+
+  - id: SUP003
+    label: 占卜
+    action: review
+    score: 50
+    regex: "(占卜|卜卦|卜算|预测|塔罗(牌)?|灵摆|水晶球|占星|星盘|星座运势)"

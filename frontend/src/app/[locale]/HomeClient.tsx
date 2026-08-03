@@ -13,7 +13,7 @@ import QuestionList from "@/layout/home/mid/QuestionList";
 import { SortBy } from "@/shared/ui/type/home.type";
 import { useTimelineEvents } from "@/features/timeline/hooks/useTimelineEvents";
 import { useBoardTree } from "@/features/boards/hooks/useBoardTree";
-import { usePosts } from "@/features/post/hooks/usePosts";
+import { usePostsInfinite } from "@/features/post/hooks/usePosts";
 import { useTags } from "@/features/tag/hooks/useTags";
 import { useQuestionList } from "@/features/qustion/hooks/useQuestions";
 import type { Post } from "@/shared/api/types/post.model";
@@ -27,14 +27,10 @@ export default function HomeClient() {
   const [selectedBoard, setSelectedBoard] = useState<number | null>(null);
   const [filterType, setFilterType] = useState<FilterType>("all");
   const [page, setPage] = useState(1);
-  const [accumulatedPosts, setAccumulatedPosts] = useState<Post[]>([]);
   const [accumulatedQuestions, setAccumulatedQuestions] = useState<QuestionSimple[]>([]);
   const [total, setTotal] = useState(0);
-  const pageRef = useRef(page);
-
-  useEffect(() => {
-    pageRef.current = page;
-  }, [page]);
+  const lastAccumulatedPageRef = useRef(0);
+  const noMoreDataRef = useRef(false);
 
   const { data: boards = [] } = useBoardTree();
   const { tags = [] } = useTags();
@@ -61,7 +57,6 @@ export default function HomeClient() {
     default:
       usePostsEnabled = true;
       postParams = {
-        page,
         page_size: pageSize,
         sort_by: sortBy,
         type: filterType !== "all" ? filterType : undefined,
@@ -72,11 +67,14 @@ export default function HomeClient() {
   }
 
   const {
-    data: postsData,
+    data: postsInfiniteData,
     isLoading: postsLoading,
     isFetching: postsFetching,
+    isFetchingNextPage: postsFetchingNext,
+    hasNextPage: postsHasMore,
+    fetchNextPage: postsFetchNext,
     refetch: refetchPosts,
-  } = usePosts(postParams, { enabled: usePostsEnabled });
+  } = usePostsInfinite(postParams, { enabled: usePostsEnabled });
 
   const {
     data: questionsData,
@@ -85,23 +83,33 @@ export default function HomeClient() {
     refetch: refetchQuestions,
   } = useQuestionList(questionParams, { enabled: useQuestionsEnabled });
 
+  const allPosts: Post[] = (() => {
+    const flat = postsInfiniteData?.pages.flatMap((p) => p.list) ?? [];
+    const seen = new Set<number>();
+    return flat.filter((p) => {
+      if (seen.has(p.id)) return false;
+      seen.add(p.id);
+      return true;
+    });
+  })();
+
   useEffect(() => {
-    if (filterType === "question" && questionsData) {
-      if (page === 1) {
-        setAccumulatedQuestions(questionsData.list ?? []);
-      } else {
-        setAccumulatedQuestions((prev) => [...prev, ...(questionsData.list ?? [])]);
-      }
-      setTotal(questionsData.total ?? 0);
-    } else if (postsData) {
-      if (page === 1) {
-        setAccumulatedPosts(postsData.list ?? []);
-      } else {
-        setAccumulatedPosts((prev) => [...prev, ...(postsData.list ?? [])]);
-      }
-      setTotal(postsData.total ?? 0);
+    if (filterType !== "question") return;
+    if (!questionsData) return;
+    if (page <= lastAccumulatedPageRef.current || noMoreDataRef.current) return;
+    const list = questionsData.list ?? [];
+    if (list.length === 0 && page > 1) {
+      noMoreDataRef.current = true;
+      return;
     }
-  }, [postsData, questionsData, filterType, page]);
+    lastAccumulatedPageRef.current = page;
+    if (page === 1) {
+      setAccumulatedQuestions(list);
+    } else {
+      setAccumulatedQuestions((prev) => [...prev, ...list]);
+    }
+    setTotal(questionsData.total ?? 0);
+  }, [questionsData, filterType, page]);
 
   const handleLoadMore = useCallback(() => {
     if (filterType === "question") {
@@ -109,15 +117,16 @@ export default function HomeClient() {
         setPage((p) => p + 1);
       }
     } else {
-      if (accumulatedPosts.length < total && !postsFetching) {
-        setPage((p) => p + 1);
+      if (postsHasMore && !postsFetchingNext) {
+        postsFetchNext();
       }
     }
-  }, [accumulatedPosts.length, accumulatedQuestions.length, total, questionsFetching, postsFetching, filterType]);
+  }, [accumulatedQuestions.length, total, questionsFetching, postsHasMore, postsFetchingNext, postsFetchNext, filterType]);
 
   const resetAndRefetch = useCallback(() => {
+    lastAccumulatedPageRef.current = 0;
+    noMoreDataRef.current = false;
     setPage(1);
-    setAccumulatedPosts([]);
     setAccumulatedQuestions([]);
     setTotal(0);
   }, []);
@@ -161,10 +170,10 @@ export default function HomeClient() {
   };
 
   const isLoading = filterType === "question" ? questionsLoading : postsLoading;
-  const isFetching = filterType === "question" ? questionsFetching : postsFetching;
+  const isFetching = filterType === "question" ? questionsFetching : (postsFetching && !postsFetchingNext);
   const hasMore = filterType === "question"
     ? accumulatedQuestions.length < total
-    : accumulatedPosts.length < total;
+    : !!postsHasMore;
 
   return (
     <div className="h-full">
@@ -215,7 +224,7 @@ export default function HomeClient() {
                   default:
                     return (
                       <PostList
-                        posts={accumulatedPosts}
+                        posts={allPosts}
                         isLoading={isLoading || isFetching}
                         hasMore={hasMore}
                         onLoadMore={handleLoadMore}

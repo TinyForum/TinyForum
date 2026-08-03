@@ -1,0 +1,9 @@
+version: 0.1
+
+name: teenager # 青少年
+
+description: 未成年保护
+
+rules:
+  - id: TE001
+    regex: "未成年|青少年|少年|儿童|小孩"

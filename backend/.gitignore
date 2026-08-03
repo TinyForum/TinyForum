@@ -11,3 +11,5 @@ vendor/
 uploads
 
 /backend/server
+
+!sensitive-dicts/**/*.yml

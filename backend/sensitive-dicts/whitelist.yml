@@ -1,0 +1,11 @@
+version: 1
+
+rules:
+  - id: WL001
+    regex: "OpenAI"
+  
+  - id: WL002
+    regex: "TinyForum"
+
+  - id: WL003
+    regex: "ChatGPT"

@@ -1,0 +1,14 @@
+version: 1
+
+name: fortune
+
+rules:
+  - id: FOR001
+    action: review
+    score: 60
+    regex: "(灵签|求签|抽签|解签|摇签|掷筊|杯珓)"
+
+  - id: FOR002
+    action: review
+    score: 60
+    regex: ".*灵签"

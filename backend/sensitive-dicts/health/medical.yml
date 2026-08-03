@@ -1,0 +1,8 @@
+version: 1
+
+rules:
+  - id: MD001
+    regex: "(肿瘤|肝炎|类风湿|关节炎)"
+
+  - id: MD002
+    regex: "(助孕|生精)"

@@ -10,10 +10,13 @@ import {
 } from "@/shared/api/types/post.model";
 import {
   useQuery,
+  useInfiniteQuery,
   useMutation,
   useQueryClient,
   UseQueryOptions,
   UseMutationOptions,
+  InfiniteData,
+  UseInfiniteQueryResult,
 } from "@tanstack/react-query";
 
 // ---------- Query Keys ----------
@@ -60,6 +63,33 @@ export const usePosts = (
     queryFn: async () => {
       const response = await postApi.list(params);
       return assertData(response.data.data);
+    },
+    ...options,
+  });
+};
+
+/**
+ * 无限滚动获取帖子列表（游标分页）
+ */
+export const usePostsInfinite = (
+  params?: Omit<PostListParams, "cursor">,
+  options?: { enabled?: boolean },
+): UseInfiniteQueryResult<InfiniteData<PageData<Post>>> => {
+  return useInfiniteQuery({
+    queryKey: [...postKeys.lists(), "infinite", params] as const,
+    queryFn: async ({ pageParam }: { pageParam: string | undefined }) => {
+      const response = await postApi.list({
+        ...params,
+        page_size: params?.page_size ?? 15,
+        cursor: pageParam,
+      });
+      return assertData(response.data.data);
+    },
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (lastPage: PageData<Post>) => {
+      if (!lastPage.has_more || lastPage.list.length === 0) return undefined;
+      const last = lastPage.list[lastPage.list.length - 1];
+      return `${last.creation.created_at},${last.creation.id}`;
     },
     ...options,
   });

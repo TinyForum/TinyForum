@@ -1,0 +1,19 @@
+version: 1
+
+name: occult
+
+rules:
+  - id: OC001
+    action: block
+    score: 100
+    regex: "(通灵|招魂|驱鬼|鬼上身|附体)"
+
+  - id: OC002
+    action: block
+    score: 100
+    regex: "(巫术|黑魔法|白魔法|下降头|养小鬼|古曼童)"
+
+  - id: OC003
+    action: block
+    score: 100
+    regex: "(请神|送神|跳大神|神打)"

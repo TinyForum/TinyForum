@@ -1,0 +1,20 @@
+version: 0.1
+name: weapons # 武器
+description: 涉及武器的内容，包括但不限于枪支、刀具、炸药、弹药等。
+
+rule: # 规则
+  - id: WEAPONS_001
+    label: 武器
+    action: review
+    score: 80
+    regex: >
+      (
+      AK|
+      M4|
+      M14|
+      M9|
+      M1911|
+      M4A1|
+      RPG|
+      M16
+      )

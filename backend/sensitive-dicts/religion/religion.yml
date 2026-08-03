@@ -1,0 +1,14 @@
+version: 1
+
+name: religion
+
+rules:
+  - id: RL001
+    action: review
+    score: 20
+    regex: "(拜佛|烧香|供灯|供花|供果|布施|放生|功德|结缘|随喜)"
+
+  - id: RL002
+    action: review
+    score: 20
+    regex: "(活佛|仁波切|法王|上师|高僧)"

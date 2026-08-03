@@ -3,6 +3,7 @@ package article
 import (
 	"context"
 	"fmt"
+	"strings"
 	"tiny-forum/internal/model/common"
 	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/request"
@@ -58,12 +59,38 @@ func (r *articleRepository) List(ctx context.Context, ListPostsDO *common.PageQu
 		baseQuery = baseQuery.Where("creations.title LIKE ? OR creations.content LIKE ?", "%"+ListPostsDO.Keyword+"%", "%"+ListPostsDO.Keyword+"%")
 	}
 
+	// 游标分页：使用 (created_at, id) 复合游标，避免时间戳相同时出现重复/遗漏
+	if ListPostsDO.Cursor != "" {
+		limit := ListPostsDO.PageSize + 1 // +1 用于判断 has_more
+		if limit <= 1 {
+			limit = 16 // 默认 15 + 1
+		}
+		orderExpr := "creations.created_at DESC, creations.id DESC"
+		if ListPostsDO.SortBy == "hot" {
+			orderExpr = "creations.like_count DESC, creations.view_count DESC, creations.created_at DESC, creations.id DESC"
+		}
+
+		// 解析复合游标 "created_at,id"
+		parts := strings.SplitN(ListPostsDO.Cursor, ",", 2)
+		cursorTime := parts[0]
+		cursorID := "0"
+		if len(parts) > 1 {
+			cursorID = parts[1]
+		}
+
+		err := baseQuery.Where("(creations.created_at, creations.id) < (?, ?)", cursorTime, cursorID).
+			Preload("Creation.Author").Preload("Creation.Tags").Preload("Creation").
+			Order(orderExpr).
+			Limit(limit).
+			Find(&posts).Error
+
+		return posts, int64(len(posts)), err
+	}
+
 	// 统计总数：使用 Session 克隆，避免影响后续 Find
 	if err := baseQuery.Session(&gorm.Session{}).Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
-
-	// 分页参数
 	offset := (ListPostsDO.Page - 1) * ListPostsDO.PageSize
 	orderExpr := "creations.pin_top DESC, creations.created_at DESC"
 	if ListPostsDO.SortBy == "hot" {

@@ -1,0 +1,14 @@
+version: 1
+
+name: fengshui
+
+rules:
+  - id: FS001
+    action: review
+    score: 50
+    regex: "(风水|阴宅|阳宅|龙脉|龙穴|风水宝地)"
+
+  - id: FS002
+    action: block
+    score: 90
+    regex: "(开运|改运|招财|镇宅|辟邪|挡煞|化煞|消灾|解厄)"

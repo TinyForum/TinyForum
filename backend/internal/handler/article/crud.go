@@ -189,6 +189,7 @@ func (h *ArticleHandler) List(c *gin.Context) {
 	listPostsBO := &common.PageQuery[bo.ListPosts]{
 		Page:     req.Page,
 		PageSize: req.PageSize,
+		Cursor:   req.Cursor,
 		Data: bo.ListPosts{
 			AuthorID:         req.AuthorID,
 			PostStatus:       do.CreationStatusPublished,
@@ -206,6 +207,20 @@ func (h *ArticleHandler) List(c *gin.Context) {
 		return
 	}
 	logger.Infof("查询到数据: %d", len(posts))
+
+	if req.Cursor != "" {
+		pageSize := req.PageSize
+		if pageSize <= 0 {
+			pageSize = 15
+		}
+		hasMore := int(total) > pageSize
+		if hasMore {
+			posts = posts[:pageSize]
+		}
+		response.SuccessCursor(c, posts, pageSize, hasMore)
+		return
+	}
+
 	response.SuccessPage(c, posts, total, req.Page, req.PageSize)
 }
 
