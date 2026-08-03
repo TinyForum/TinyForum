@@ -78,6 +78,18 @@ func SuccessPage[T any](c *gin.Context, list []T, total int64, page, pageSize in
 	Success(c, result, opts...)
 }
 
+// SuccessCursor 游标分页成功响应
+func SuccessCursor[T any](c *gin.Context, list []T, pageSize int, hasMore bool, opts ...Option) {
+	result := common.PageResult[T]{
+		Total:    0,
+		Page:     0,
+		PageSize: pageSize,
+		List:     list,
+		HasMore:  hasMore,
+	}
+	Success(c, result, opts...)
+}
+
 // Created 创建资源成功响应 (HTTP 201)，同时写入 Location 头
 // c: gin.Context 对象
 // data: 创建的资源数据

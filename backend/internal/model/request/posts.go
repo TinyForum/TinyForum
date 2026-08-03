@@ -5,6 +5,7 @@ import "tiny-forum/internal/model/do"
 type ListPosts struct {
 	Page             int      `form:"page"`
 	PageSize         int      `form:"page_size"`
+	Cursor           string   `form:"cursor"` // 游标分页
 	Keyword          string   `form:"keyword"`
 	SortBy           string   `form:"sort_by"`
 	PostType         string   `form:"type"`

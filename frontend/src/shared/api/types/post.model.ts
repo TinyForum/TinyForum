@@ -27,6 +27,7 @@ export interface Post {
 export interface PostListParams {
   page?: number;
   page_size?: number;
+  cursor?: string;
   keyword?: string;
   sort_by?: string;
   type?: PostType;
