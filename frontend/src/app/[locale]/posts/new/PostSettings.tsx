@@ -278,7 +278,9 @@ export function PostSettings({
             layout="grid"
             gridSize={3}
             onChange={(images: ImageItem[]) => {
-              const urls = images.map((img) => img.url).filter(Boolean);
+              const urls = images
+                .map((img) => img.url)
+                .filter((url) => url && !url.startsWith("blob:"));
               onImageUrlsChange(urls);
             }}
           />

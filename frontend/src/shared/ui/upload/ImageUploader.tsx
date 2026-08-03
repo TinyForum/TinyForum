@@ -63,9 +63,20 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
     }
   }, [images, supportCover]);
 
+  // 使用 ref 避免 onChange 引用变化触发重复回调
+  const onChangeRef = useRef(onChange);
   useEffect(() => {
-    onChange?.(images);
-  }, [images, onChange]);
+    onChangeRef.current = onChange;
+  });
+  const prevImagesKey = useRef("");
+
+  useEffect(() => {
+    const key = images.map((i) => i.id + i.url + (i.isCover ? "c" : "")).join("|");
+    if (key !== prevImagesKey.current) {
+      prevImagesKey.current = key;
+      onChangeRef.current?.(images);
+    }
+  }, [images]);
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);

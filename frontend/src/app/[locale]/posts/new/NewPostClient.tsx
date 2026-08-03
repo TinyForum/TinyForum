@@ -68,6 +68,13 @@ export default function NewPostClient() {
   const selectedType = useWatch({ control, name: "type", defaultValue: "image_text" }) as PostType;
   const [imageUrls, setImageUrls] = useState<string[]>([]);
 
+  const handleImageUrlsChange = useCallback((urls: string[]) => {
+    setImageUrls((prev) => {
+      if (prev.length === urls.length && prev.every((u, i) => u === urls[i])) return prev;
+      return urls;
+    });
+  }, []);
+
   const toggleTag = useCallback(
     (tagId: number) => {
       const current = selectedTagIds ?? [];
@@ -162,7 +169,7 @@ export default function NewPostClient() {
                   onToggleTag={toggleTag}
                   onCoverChange={(url) => setValue("cover", url)}
                   onVideoChange={(videoUrl) => setValue("video_url", videoUrl)}
-                  onImageUrlsChange={(urls) => setImageUrls(urls)}
+                  onImageUrlsChange={handleImageUrlsChange}
                   t={t}
                 />
               </div>

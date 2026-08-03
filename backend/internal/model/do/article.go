@@ -21,6 +21,7 @@ const (
 	CreationTypeArticle   CreationType = "article"     // 文章
 	CreationTypeQuestion  CreationType = "question"    // 问答
 	CreationTypeTopic     CreationType = "topic"       // 话题
+	CreationTypePost     CreationType = "post"        // 帖子
 )
 
 // 合法的帖子类型集合
@@ -32,6 +33,7 @@ var validPostTypes = map[CreationType]bool{
 	CreationTypeArticle:   true,
 	CreationTypeQuestion:  true,
 	CreationTypeTopic:     true,
+	CreationTypePost:      true,
 }
 
 var validCreationStatuses = map[CreationStatus]bool{
