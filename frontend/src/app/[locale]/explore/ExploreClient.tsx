@@ -26,6 +26,7 @@ import {
   useExploreData,
   useExploreSearch,
 } from "@/features/explore/hooks/useExploreData";
+import { useRecommendationFeed } from "@/features/explore/hooks/useRecommendations";
 import { Topic } from "@/shared/api/types/topic.model";
 import { Post } from "@/shared/api/types/post.model";
 import { Tag } from "@/shared/api/types/tag.model";
@@ -72,14 +73,22 @@ export default function ExploreClient() {
   // 加载探索数据 - 由 useQuery 驱动
   const currentTab = exploreTabs.find((tab) => tab.id === activeTab);
   const { data: exploreData, isLoading: loading } = useExploreData(
-    activeTab,
+    activeTab !== "recommended" ? activeTab : "hot",
     currentTab?.sortBy,
+  );
+
+  const { data: recommendData, isLoading: recLoading } = useRecommendationFeed(
+    { page: 1, page_size: 10 },
+    { enabled: activeTab === "recommended" && isAuthenticated },
   );
 
   const posts: Post[] = exploreData?.posts ?? [];
   const hotTags: Tag[] = exploreData?.hotTags ?? [];
   const hotTopics: Topic[] = exploreData?.hotTopics ?? [];
   const activeUsers: LeaderboardItemResponse[] = exploreData?.activeUsers ?? [];
+
+  const recPosts = recommendData?.items ?? [];
+  const isLoading = activeTab === "recommended" && isAuthenticated ? recLoading : loading;
 
   // 搜索 - 提交关键词变化时自动触发查询
   const { data: searchData, isFetching: searching } =
@@ -190,7 +199,7 @@ export default function ExploreClient() {
             )}
 
             {/* 帖子列表 */}
-            {loading && !searchKeyword ? (
+            {isLoading && !searchKeyword ? (
               <div className="space-y-3">
                 {[1, 2, 3, 4, 5].map((i) => (
                   <div
@@ -203,6 +212,51 @@ export default function ExploreClient() {
                       <div className="flex gap-4 mt-3">
                         <div className="h-3 bg-base-200 rounded w-16 animate-pulse" />
                         <div className="h-3 bg-base-200 rounded w-16 animate-pulse" />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : activeTab === "recommended" && !isAuthenticated ? (
+              <div className="card bg-base-100 shadow-md border border-base-200">
+                <div className="card-body py-16 text-center">
+                  <div className="text-6xl mb-4">✨</div>
+                  <h3 className="text-lg font-semibold text-base-content mb-2">
+                    登录后获得个性化推荐
+                  </h3>
+                  <p className="text-base-content/60 mb-4">
+                    系统将根据您的浏览和互动行为，为您推荐感兴趣的内容
+                  </p>
+                  <Link href="/auth/login" className="btn btn-primary">
+                    立即登录
+                    <ArrowRightIcon className="w-4 h-4" />
+                  </Link>
+                </div>
+              </div>
+            ) : activeTab === "recommended" && isAuthenticated && recPosts.length > 0 ? (
+              <div className="space-y-3">
+                {recPosts.map((item) => (
+                  <div key={item.creation_id} className="card bg-base-100 shadow-md border border-base-200 hover:shadow-lg transition-shadow">
+                    <div className="card-body p-5">
+                      <Link href={`/posts/${item.creation_id}`}>
+                        <h3 className="font-semibold text-base-content hover:text-primary mb-2 line-clamp-1">
+                          {item.title}
+                        </h3>
+                      </Link>
+                      {item.summary && (
+                        <p className="text-sm text-base-content/60 mb-3 line-clamp-2">
+                          {item.summary}
+                        </p>
+                      )}
+                      <div className="flex items-center justify-between text-xs text-base-content/40">
+                        <div className="flex items-center gap-3">
+                          <span>{item.view_count} 浏览</span>
+                          <span>{item.like_count} 赞</span>
+                          <span>{item.comment_count} 评论</span>
+                        </div>
+                        <span className="badge badge-sm badge-outline text-purple-500 border-purple-300">
+                          {item.reason}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -252,7 +306,7 @@ export default function ExploreClient() {
                   </div>
                   <h2 className="font-semibold text-base-content">热门标签</h2>
                 </div>
-                {loading ? (
+                {isLoading ? (
                   <div className="space-y-2">
                     {[1, 2, 3, 4].map((i) => (
                       <div
@@ -284,7 +338,7 @@ export default function ExploreClient() {
                   </div>
                   <h2 className="font-semibold text-base-content">热门话题</h2>
                 </div>
-                {loading ? (
+                {isLoading ? (
                   <div className="space-y-2">
                     {[1, 2, 3].map((i) => (
                       <div
@@ -323,7 +377,7 @@ export default function ExploreClient() {
                   </div>
                   <h2 className="font-semibold text-base-content">积分榜</h2>
                 </div>
-                {loading ? (
+                {isLoading ? (
                   <div className="space-y-2">
                     {[1, 2, 3, 4].map((i) => (
                       <div

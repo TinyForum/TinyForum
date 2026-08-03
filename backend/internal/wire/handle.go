@@ -16,6 +16,7 @@ import (
 	notificationHandler "tiny-forum/internal/handler/notification"
 	pluginHandler "tiny-forum/internal/handler/plugin"
 	questionHandler "tiny-forum/internal/handler/questions"
+	recHandler "tiny-forum/internal/handler/recommendation"
 	riskhandler "tiny-forum/internal/handler/risk"
 	statsHandler "tiny-forum/internal/handler/stats"
 	tagHandler "tiny-forum/internal/handler/tags"
@@ -48,6 +49,7 @@ type Handlers struct {
 	Plugin       *pluginHandler.Handler
 	Config       *configHandler.ConfigHandler
 	Bot          *botHandler.Handler
+	Recommendation *recHandler.Handler
 }
 
 // NewHandlers 创建所有 Handler 实例
@@ -72,6 +74,7 @@ func NewHandlers(svc *Services, timeHelpers *timeutil.TimeHelpers, cfg *config.C
 	plugin := pluginHandler.NewHandler(svc.Plugin)
 	bot := botHandler.NewHandler(svc.Bot)
 	config := configHandler.NewConfigHandler(configSvc)
+	recommendation := recHandler.NewHandler(svc.Recommendation)
 	return &Handlers{
 		Auth:         auth,
 		User:         user,
@@ -90,8 +93,9 @@ func NewHandlers(svc *Services, timeHelpers *timeutil.TimeHelpers, cfg *config.C
 		Attachment:   attachment,
 		Admin:        admin,
 		Plugin:       plugin,
-		Bot:          bot,
-		Config:       config,
+		Bot:           bot,
+		Config:        config,
+		Recommendation: recommendation,
 	}
 }
 

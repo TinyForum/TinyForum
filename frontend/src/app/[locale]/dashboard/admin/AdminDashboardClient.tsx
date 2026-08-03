@@ -15,6 +15,8 @@ import { PointsManager } from "@/features/admin/components/PointsManager";
 import { PostsTable } from "@/features/admin/components/PostsTable";
 import { SidebarMenu } from "@/features/admin/components/SidebarMenu";
 import { Statistics } from "@/features/admin/components/Statistics";
+import { RecommendationAnalytics } from "@/features/admin/components/RecommendationAnalytics";
+import { UserAnalyticsV2 } from "@/features/admin/components/UserAnalyticsV2";
 import { UsersTable } from "@/features/admin/components/UsersTable";
 import { useAdminAuth } from "@/features/admin/hooks/useAdminAuth";
 import { usePostsData } from "@/features/admin/hooks/usePostsData";
@@ -192,6 +194,14 @@ export default function AdminDashboardClient() {
       // 系统统计
       case "statistics":
         return <Statistics />;
+
+      // 推荐系统
+      case "recommendation":
+        return <RecommendationAnalytics />;
+
+      // 用户分析
+      case "user_analysis":
+        return <UserAnalyticsV2 />;
 
       // 设置 - 跳转到系统设置
       case "settings":

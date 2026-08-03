@@ -3,6 +3,7 @@ package comment
 import (
 	"tiny-forum/internal/model/bo"
 	"tiny-forum/internal/model/do"
+	"tiny-forum/internal/model/request"
 	apperrors "tiny-forum/pkg/errors"
 )
 
@@ -56,6 +57,14 @@ func (s *commentService) CreateComment(authorID uint, input bo.CreateCommentInpu
 				"有人回复了你的评论", input.ParentID, "comment")
 		}
 	}
+
+	// 异步记录评论行为，供推荐系统使用
+	go s.recSvc.RecordBehavior(authorID, request.RecordBehaviorRequest{
+		TargetID:     input.PostID,
+		TargetType:   "creation",
+		BehaviorType: string(do.BehaviorComment),
+		Value:        3.0,
+	})
 
 	return s.commentRepo.FindByCommentID(comment.ID)
 }

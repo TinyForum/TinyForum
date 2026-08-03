@@ -11,6 +11,7 @@ import (
 	"tiny-forum/internal/repository/notification"
 	"tiny-forum/internal/repository/plugin"
 	"tiny-forum/internal/repository/question"
+	"tiny-forum/internal/repository/recommendation"
 	"tiny-forum/internal/repository/reports"
 	"tiny-forum/internal/repository/risk"
 	"tiny-forum/internal/repository/stats"
@@ -48,8 +49,9 @@ type Repositories struct {
 	Transaction  transaction.TransactionManager
 	Attachment   attachment.AttachmentRepository
 	Plugin       plugin.PluginRepository
-	Bot          bot.Repository
-	Reports      reports.ReportsRepository
+	Bot            bot.Repository
+	Reports        reports.ReportsRepository
+	Recommendation recommendation.RecommendationRepository
 }
 
 // NewRepositories 创建所有 Repository 实例
@@ -78,7 +80,8 @@ func NewRepositories(db *gorm.DB, redis *redis.Client) *Repositories {
 		Transaction:  transaction.NewTransactionManager(db),
 		Attachment:   attachment.NewAttachmentRepository(db),
 		Plugin:       plugin.NewPluginRepository(db),
-		Bot:          bot.NewRepository(db),
-		Reports:      reports.NewRiskRepository(db),
+		Bot:            bot.NewRepository(db),
+		Reports:        reports.NewRiskRepository(db),
+		Recommendation: recommendation.NewRecommendationRepository(db),
 	}
 }

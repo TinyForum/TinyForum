@@ -11,6 +11,7 @@ import {
   Megaphone,
   Settings,
   Shield,
+  Sparkles,
   User2Icon,
   Users,
   Workflow,
@@ -85,6 +86,18 @@ export function SidebarMenu({
       label: t("statistics"),
       icon: BarChart3,
       color: "text-primary",
+    },
+    {
+      id: "recommendation",
+      label: t("recommendation"),
+      icon: Sparkles,
+      color: "text-secondary",
+    },
+    {
+      id: "user_analysis",
+      label: t("user_analysis"),
+      icon: Users,
+      color: "text-accent",
     },
     {
       id: "settings",

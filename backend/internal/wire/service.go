@@ -16,6 +16,7 @@ import (
 	"tiny-forum/internal/service/notification"
 	"tiny-forum/internal/service/plugin"
 	"tiny-forum/internal/service/question"
+	"tiny-forum/internal/service/recommendation"
 	"tiny-forum/internal/service/reports"
 	"tiny-forum/internal/service/risk"
 	"tiny-forum/internal/service/stats"
@@ -51,6 +52,7 @@ type Services struct {
 	Plugin       plugin.PluginService
 	Bot          bot.Service
 	Reports      reports.ReportsService
+	Recommendation recommendation.RecommendationService
 }
 
 // NewServices 创建所有 Service 实例
@@ -84,8 +86,10 @@ func NewServices(
 	topicSvc := topic.NewTopicService(repos.Topic, repos.Post, repos.User, notifSvc)
 	botSvc := bot.NewService(repos.Bot, repos.Post, repos.Comment, repos.User, repos.Notification, repos.Attachment)
 	questionSvc := question.NewQuestionService(repos.Question, repos.Post, repos.Comment, repos.User, notifSvc, botSvc, repos.Tag, repos.Transaction)
-	articleSvc := article.NewPostService(repos.Post, repos.Tag, repos.User, repos.Board, notifSvc, botSvc, attachmentSvc, checkSvc)
-	commentSvc := comment.NewCommentService(repos.Comment, repos.Post, repos.User, notifSvc, botSvc, repos.Vote)
+	// 推荐服务须先于 article/comment 创建，以便注入
+	recSvc := recommendation.NewRecommendationService(repos.Recommendation, repos.Transaction.DB())
+	articleSvc := article.NewPostService(repos.Post, repos.Tag, repos.User, repos.Board, notifSvc, botSvc, attachmentSvc, checkSvc, recSvc)
+	commentSvc := comment.NewCommentService(repos.Comment, repos.Post, repos.User, notifSvc, botSvc, repos.Vote, recSvc)
 	announcementSvc := announcement.NewAnnouncementService(repos.Announcement)
 	statsSvc := stats.NewStatsService(repos.Stats, repos.Post, repos.Tag, repos.Board, repos.User, repos.Comment)
 	emailSvc := email.NewEmailService(&cfg.Private.Email)
@@ -112,7 +116,8 @@ func NewServices(
 		Attachment:   attachmentSvc,
 		Admin:        adminSvc,
 		Plugin:       pluginSvc,
-		Bot:          botSvc,
-		Reports:      reportsSvc,
+		Bot:            botSvc,
+		Reports:        reportsSvc,
+		Recommendation: recSvc,
 	}
 }
