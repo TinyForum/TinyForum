@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>文档中心 | Documentation Center</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0" />
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css" />
+
+  <style>
+    /* ─── 语言切换栏 ─── */
+    .lang-bar {
+      position: fixed;
+      top: 0;
+      right: 128px;
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      height: 50px;          /* 与 Docsify 顶栏同高 */
+    }
+
+    .lang-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3px 10px;
+      border: 1.5px solid #42b983;
+      border-radius: 4px;
+      background: transparent;
+      color: #42b983;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+      line-height: 1;
+    }
+
+    .lang-btn:hover   { background: rgba(66, 185, 131, 0.12); }
+    .lang-btn.active  { background: #42b983; color: #fff; }
+    .lang-sep         { color: #ccc; font-size: 13px; user-select: none; }
+
+    /* ─── Toast 提示 ─── */
+    .i18n-toast {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%) translateY(10px);
+      background: rgba(0,0,0,.75);
+      color: #fff;
+      padding: 7px 18px;
+      border-radius: 20px;
+      font-size: 13px;
+      z-index: 9999;
+      opacity: 0;
+      transition: opacity .25s, transform .25s;
+      pointer-events: none;
+    }
+    .i18n-toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ─── 移动端 ─── */
+    @media (max-width: 768px) {
+      .lang-bar { right: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">加载中 / Loading…</div>
+
+  <!-- 语言切换按钮（放在 body，Docsify 渲染后仍可见） -->
+  <div class="lang-bar">
+    <button class="lang-btn" id="btn-zh">中文</button>
+    <span class="lang-sep">|</span>
+    <button class="lang-btn" id="btn-en">EN</button>
+  </div>
+
+  <!-- Toast -->
+  <div class="i18n-toast" id="i18n-toast"></div>
+
+  <script>
+  // ════════════════════════════════════════════
+  //  语言路由策略：
+  //  中文 → hash 前缀 #/zh-CN/…
+  //  英文 → hash 前缀 #/en/…
+  //  Docsify alias 把前缀映射到真实文件路径
+  // ════════════════════════════════════════════
+
+  /* ── 读取 & 写入偏好语言 ── */
+  function getLang() {
+    return localStorage.getItem('doc-lang') ||
+           (navigator.language.startsWith('zh') ? 'zh-CN' : 'en');
+  }
+  function setLang(lang) {
+    localStorage.setItem('doc-lang', lang);
+    document.documentElement.lang = lang;
+  }
+
+  /* ── 当前 hash 属于哪个语言 ── */
+  function detectLangFromHash() {
+    const h = location.hash || '';
+    if (h.startsWith('#/en/') || h === '#/en')   return 'en';
+    if (h.startsWith('#/zh-CN/') || h === '#/zh-CN') return 'zh-CN';
+    return null;
+  }
+
+  /* ── 把任意 hash 路径规范化到指定语言前缀 ── */
+  function rebuildHash(hash, lang) {
+    // 去掉已有的语言前缀
+    let path = hash.replace(/^#\//, '').replace(/^(zh-CN|en)(\/|$)/, '') || '';
+    return path ? `#/${lang}/${path}` : `#/${lang}/`;
+  }
+
+  /* ── 初始跳转：确保 hash 有语言前缀 ── */
+  (function bootstrap() {
+    const fromHash = detectLangFromHash();
+    const preferred = getLang();
+    if (fromHash) {
+      // hash 里已有语言，以 hash 为准并记住
+      setLang(fromHash);
+    } else {
+      // 没有语言前缀，跳到偏好语言首页
+      setLang(preferred);
+      location.hash = `/${preferred}/`;
+    }
+  })();
+
+  /* ── Docsify 配置 ── */
+  window.$docsify = {
+    name:            '文档中心 / Docs',
+    repo:            '',
+    loadSidebar:     true,
+    loadNavbar:      false,
+    subMaxLevel:     2,
+    auto2top:        true,
+    relativePath:    false,
+
+    repo:"https://github.com/caoyang2002/TinyForum",
+
+    // alias：把语言前缀路径映射到真实文件目录
+    alias: {
+      '/zh-CN/(.*)':        '/zh-CN/$1',
+      '/zh-CN/_sidebar.md': '/zh-CN/_sidebar.md',
+      '/en/(.*)':           '/en/$1',
+      '/en/_sidebar.md':    '/en/_sidebar.md',
+      // 兜底：根路径走中文
+      '/_sidebar.md':       '/zh-CN/_sidebar.md',
+    },
+
+    // 搜索插件
+    search: {
+      maxAge:      86400000,
+      paths:       'auto',
+      placeholder: { '/en/': 'Search docs…', '/':  '搜索文档…' },
+      noData:      { '/en/': 'No results.', '/': '没有结果。' },
+    },
+
+    // 404 回退
+    notFoundPage: {
+      '/en/': '/en/404.md',
+      '/':    '/zh-CN/404.md',
+    },
+
+    plugins: [
+      function (hook) {
+        hook.ready(function () {
+          syncButtons();
+        });
+        hook.doneEach(function () {
+          syncButtons();
+        });
+      }
+    ]
+  };
+
+  /* ── 同步按钮高亮 ── */
+  function syncButtons() {
+    const lang = detectLangFromHash() || getLang();
+    document.getElementById('btn-zh').classList.toggle('active', lang === 'zh-CN');
+    document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+  }
+
+  /* ── 切换语言 ── */
+  function switchLang(lang) {
+    if (detectLangFromHash() === lang) return;
+    setLang(lang);
+    const newHash = rebuildHash(location.hash, lang);
+    location.hash = newHash;
+    syncButtons();
+    showToast(lang === 'zh-CN' ? '已切换到中文 🇨🇳' : 'Switched to English 🇺🇸');
+  }
+
+  /* ── Toast ── */
+  function showToast(msg) {
+    const el = document.getElementById('i18n-toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(el._t);
+    el._t = setTimeout(() => el.classList.remove('show'), 2200);
+  }
+
+  /* ── 按钮事件（DOM 已存在，可直接绑定） ── */
+  document.getElementById('btn-zh').addEventListener('click', () => switchLang('zh-CN'));
+  document.getElementById('btn-en').addEventListener('click', () => switchLang('en'));
+  </script>
+
+  <!-- Docsify 核心 -->
+  <script src="//cdn.jsdelivr.net/npm/docsify@4/lib/docsify.min.js"></script>
+  <!-- 插件 -->
+  <script src="//cdn.jsdelivr.net/npm/docsify@4/lib/plugins/search.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/docsify-copy-code@2"></script>
+  <!-- 代码高亮 -->
+  <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-bash.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-javascript.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-python.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,3 @@
+- **数据库**
+  - [数据库设计](/zh-CN/dev/database/intro)
+  - [架构设计](/zh-CN/dev/architecture)
