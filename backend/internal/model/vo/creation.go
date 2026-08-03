@@ -13,6 +13,7 @@ type CreationVO struct {
 	Slug    string `gorm:"size:180;uniqueIndex" json:"slug"`  // URL标识
 
 	CoverUrl  string                      `gorm:"size:500" json:"cover_url"`                            // 封面
+	VideoUrl  string                      `gorm:"size:500" json:"video_url"`                            // 视频地址
 	ImageUrls datatypes.JSONSlice[string] `gorm:"type:text" json:"image_urls"`                          // 图片
 	Type      do.CreationType             `gorm:"type:varchar(20);not null;index" json:"creation_type"` // 类型
 

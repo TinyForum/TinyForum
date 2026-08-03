@@ -66,7 +66,7 @@ func (h *AttachmentHandler) UploadFile(c *gin.Context) {
 	}
 
 	// 6. 验证业务逻辑
-	if err := validateUploadRequest(&req); err != nil {
+	if err = validateUploadRequest(&req); err != nil {
 		response.HandleError(c, err)
 		return
 	}

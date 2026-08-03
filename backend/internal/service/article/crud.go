@@ -3,6 +3,7 @@ package article
 import (
 	"context"
 	"errors"
+	"regexp"
 
 	"tiny-forum/internal/middleware"
 	"tiny-forum/internal/model/bo"
@@ -14,6 +15,7 @@ import (
 	"tiny-forum/pkg/utils"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/datatypes"
 )
 
 // Create 创建帖子
@@ -66,6 +68,7 @@ func (s *articleService) Create(ctx *gin.Context, authorID uint, input request.C
 			Summary:          input.Summary,
 			CoverUrl:         input.Cover,
 			VideoUrl:         input.VideoUrl,
+			ImageUrls:        toJSONSlice(extractImageUrls(input.Content)),
 			Slug:             utils.GenerateSlug(),
 			Type:             postType,
 			AuthorID:         authorID,
@@ -140,6 +143,7 @@ func (s *articleService) Update(postID, userID uint, isAdmin bool, input request
 	}
 	if input.Content != "" {
 		post.Creation.Content = input.Content
+		post.Creation.ImageUrls = toJSONSlice(extractImageUrls(input.Content))
 	}
 	if input.Summary != "" {
 		post.Creation.Summary = input.Summary
@@ -210,4 +214,28 @@ func (s *articleService) List(ctx context.Context, listPostsBO *common.PageQuery
 	}
 
 	return s.postRepo.List(ctx, listPostsDO)
+}
+
+var imgSrcRe = regexp.MustCompile(`<img[^>]+src=["']([^"']+)["']`)
+
+func extractImageUrls(html string) []string {
+	matches := imgSrcRe.FindAllStringSubmatch(html, -1)
+	urls := make([]string, 0, len(matches))
+	seen := make(map[string]bool, len(matches))
+	for _, m := range matches {
+		if len(m) > 1 && m[1] != "" && !seen[m[1]] {
+			urls = append(urls, m[1])
+			seen[m[1]] = true
+		}
+	}
+	return urls
+}
+
+func toJSONSlice(urls []string) datatypes.JSONSlice[string] {
+	if urls == nil {
+		return nil
+	}
+	result := make(datatypes.JSONSlice[string], len(urls))
+	copy(result, urls)
+	return result
 }

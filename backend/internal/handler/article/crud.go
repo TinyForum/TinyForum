@@ -99,7 +99,20 @@ func (h *ArticleHandler) GetByID(c *gin.Context) {
 		Creation: vo.CreationVO{
 			Title:          post.Creation.Title,
 			Content:        post.Creation.Content,
+			Summary:        post.Creation.Summary,
+			CoverUrl:       post.Creation.CoverUrl,
+			VideoUrl:       post.Creation.VideoUrl,
+			ImageUrls:      post.Creation.ImageUrls,
+			Type:           post.Creation.Type,
+			Slug:           post.Creation.Slug,
 			CreationStatus: post.Creation.CreationStatus,
+			AuthorID:       post.Creation.AuthorID,
+			ViewCount:      post.Creation.ViewCount,
+			LikeCount:      post.Creation.LikeCount,
+			PinTop:         post.Creation.PinTop,
+			IsOriginal:     post.Creation.IsOriginal,
+			BoardID:        post.Creation.BoardID,
+			PinInBoard:     post.Creation.PinInBoard,
 			Author: vo.UserVO{
 				ID:        post.Creation.Author.ID,
 				Username:  post.Creation.Author.Username,
@@ -110,8 +123,6 @@ func (h *ArticleHandler) GetByID(c *gin.Context) {
 				Name: post.Creation.Board.Name,
 			},
 			Tags:      convertTags(post.Creation.Tags),
-			LikeCount: post.Creation.LikeCount,
-			ViewCount: post.Creation.ViewCount,
 		},
 	}
 
