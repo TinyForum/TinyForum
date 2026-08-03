@@ -8,7 +8,6 @@ import { timeAgo, formatDate } from "@/shared/lib/utils";
 import {
   Eye,
   Heart,
-  HeartOff,
   Share2,
   Pencil,
   Trash2,
@@ -141,104 +140,11 @@ export default function PostDetailClient({ postId }: { postId: number }) {
         <ArrowLeft className="w-4 h-4" /> {t("back")}
       </button>
 
-      <article className="card bg-base-100 border border-base-300 shadow-sm mb-6">
-        <div className="card-body p-6 lg:p-8">
-          {/* 类型与标签 */}
-          <div className="flex items-center flex-wrap gap-2 mb-3">
-            <span
-              className={`badge ${
-                post.creation.creation_type === "article"
-                  ? "badge-secondary"
-                  : post.creation.creation_type === "topic"
-                    ? "badge-accent"
-                    : "badge-ghost"
-              }`}
-            >
-              {post.creation.creation_type === "article"
-                ? "文章"
-                : post.creation.creation_type === "topic"
-                  ? t("the_topic")
-                  : t("the_post")}
-            </span>
-            {post.creation.tags?.map((tag) => (
-              <Link
-                key={tag.id}
-                href={`/posts?tag_id=${tag.id}`}
-                className="badge badge-sm gap-1"
-                style={{
-                  backgroundColor: tag.color + "20",
-                  color: tag.color,
-                  borderColor: tag.color + "40",
-                }}
-              >
-                <Tag className="w-2.5 h-2.5" /> {tag.name}
-              </Link>
-            ))}
-          </div>
-
-          {/* 标题 */}
-          <h1 className="text-2xl lg:text-3xl font-bold text-base-content leading-tight">
-            {post.creation.title}
-          </h1>
-
-          {/* 作者信息 */}
-          <div className="flex items-center gap-3 mt-4 pb-4 border-b border-base-300">
-            <Link href={`/users/${post.creation.author?.id}`}>
-              <div className="avatar">
-                <div className="w-10 h-10 rounded-full">
-                  <Avatar
-                    username={post.creation.author?.username}
-                    avatarUrl={post.creation.author?.avatar_url}
-                    size="md"
-                  />
-                </div>
-              </div>
-            </Link>
-            <div>
-              <Link
-                href={`/users/${post.creation.author?.id}`}
-                className="font-medium hover:text-primary transition-colors text-sm"
-              >
-                {post.creation.author?.username}
-              </Link>
-              <div className="flex items-center gap-2 text-xs text-base-content/40">
-                <Clock className="w-3 h-3" />
-                <span title={formatDate(post.created_at)}>
-                  {timeAgo(post.created_at)}
-                </span>
-                <span>·</span>
-                <Eye className="w-3 h-3" />
-                <span>
-                  {post.creation.view_count} {t("read")}
-                </span>
-              </div>
-            </div>
-
-            {/* 操作按钮（编辑/删除） */}
-            <div className="ml-auto flex items-center gap-1">
-              {(isAuthor || isAdmin) && (
-                <>
-                  <Link
-                    href={`/posts/${postId}/edit`}
-                    className="btn btn-ghost btn-xs gap-1"
-                  >
-                    <Pencil className="w-3.5 h-3.5" /> {t("to_edit")}
-                  </Link>
-                  <button
-                    className="btn btn-ghost btn-xs text-error gap-1"
-                    onClick={handleDelete}
-                    disabled={deletePost.isPending}
-                  >
-                    <Trash2 className="w-3.5 h-3.5" /> {t("delete")}
-                  </button>
-                </>
-              )}
-            </div>
-          </div>
-
-          {/* 视频 */}
+      <article className="card bg-base-100 border border-base-200/60 shadow-sm rounded-2xl overflow-hidden mb-6">
+        <div className="card-body p-0">
+          {/* 视频首屏 */}
           {post.creation.video_url && (
-            <div className="my-4 rounded-xl overflow-hidden">
+            <div className="bg-black">
               {isYouTubeUrl(post.creation.video_url) ? (
                 <div className="relative w-full aspect-video">
                   <iframe
@@ -249,66 +155,118 @@ export default function PostDetailClient({ postId }: { postId: number }) {
                   />
                 </div>
               ) : (
-                <div className="relative w-full aspect-video bg-base-200">
-                  <video
-                    src={normalizeUrl(post.creation.video_url)}
-                    controls
-                    className="w-full h-full object-contain"
-                    preload="metadata"
-                  >
-                    您的浏览器不支持视频播放
-                  </video>
-                </div>
+                <video
+                  src={normalizeUrl(post.creation.video_url)}
+                  controls
+                  className="w-full max-h-[70vh] object-contain"
+                  preload="metadata"
+                  poster={post.creation.cover_url ? normalizeUrl(post.creation.cover_url) : undefined}
+                />
               )}
             </div>
           )}
 
-          {/* 封面图 */}
-          {post.creation.cover_url && (
-            <div className="my-4 rounded-xl overflow-hidden">
+          {/* 封面图 Hero */}
+          {!post.creation.video_url && post.creation.cover_url && (
+            <div className="relative w-full aspect-[2/1] lg:aspect-[3/1] max-h-96">
               <Image
                 src={normalizeUrl(post.creation.cover_url)}
                 alt={post.creation.title}
-                width={800}
-                height={400}
-                className="w-full object-cover max-h-72"
+                fill
+                className="object-cover"
+                priority
+                sizes="(max-width: 768px) 100vw, 768px"
               />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
             </div>
           )}
 
-          {/* 图片矩阵 */}
-          {post.creation.image_urls && post.creation.image_urls.length > 0 && (
-            <div className="my-4">
-              <ImageGrid images={post.creation.image_urls} />
-            </div>
-          )}
-
-          {/* 正文内容 */}
-          <div
-            className="prose-content mt-4 text-base-content/80 leading-relaxed"
-            dangerouslySetInnerHTML={{ __html: post.creation.content }}
-          />
-
-          {/* 底部操作栏 */}
-          <div className="flex items-center gap-3 mt-8 pt-4 border-t border-base-300">
-            <button
-              className={`btn btn-sm gap-2 ${liked ? "btn-error" : "btn-ghost"}`}
-              onClick={handleLikeClick}
-              disabled={likePost.isPending || unlikePost.isPending}
-            >
-              {liked ? (
-                <HeartOff className="w-4 h-4" />
-              ) : (
-                <Heart className="w-4 h-4" />
+          {/* 正文区域 */}
+          <div className="p-5 lg:p-8">
+            {/* 作者行 */}
+            <div className="flex items-center gap-3 mb-5">
+              <Link href={`/users/${post.creation.author?.id}`}>
+                <Avatar
+                  username={post.creation.author?.username}
+                  avatarUrl={post.creation.author?.avatar_url}
+                  size="md"
+                />
+              </Link>
+              <div className="flex-1 min-w-0">
+                <Link href={`/users/${post.creation.author?.id}`} className="font-semibold text-sm hover:text-primary transition-colors">
+                  {post.creation.author?.username}
+                </Link>
+                <div className="flex items-center gap-2 text-xs text-base-content/40 mt-0.5">
+                  <Clock className="w-3 h-3" />
+                  <span title={formatDate(post.created_at)}>{timeAgo(post.created_at)}</span>
+                  <span>·</span>
+                  <Eye className="w-3 h-3" />
+                  <span>{post.creation.view_count} 阅读</span>
+                </div>
+              </div>
+              {(isAuthor || isAdmin) && (
+                <div className="flex gap-1">
+                  <Link href={`/posts/${postId}/edit`} className="btn btn-ghost btn-sm btn-circle">
+                    <Pencil className="w-4 h-4" />
+                  </Link>
+                  <button className="btn btn-ghost btn-sm btn-circle text-error" onClick={handleDelete} disabled={deletePost.isPending}>
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
               )}
-              {post.creation.like_count} {t("like")}
-            </button>
-            <button
-              className="btn btn-ghost btn-sm gap-2"
-              onClick={handleShare}
-            >
-              <Share2 className="w-4 h-4" /> {t("share")}
-            </button>
+            </div>
+
+            {/* 类型标签 */}
+            <div className="flex items-center flex-wrap gap-1.5 mb-4">
+              <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-base-200 text-base-content/60">
+                {post.creation.creation_type === "article" ? "文章" : post.creation.creation_type === "topic" ? t("the_topic") : post.creation.creation_type === "question" ? "问答" : t("the_post")}
+              </span>
+              {post.creation.tags?.map((tag) => (
+                <Link key={tag.id} href={`/posts?tag_id=${tag.id}`}
+                  className="text-xs px-2.5 py-1 rounded-full"
+                  style={{ backgroundColor: tag.color + "18", color: tag.color, borderColor: tag.color + "30" }}
+                >
+                  <Tag className="w-2.5 h-2.5 inline mr-0.5" />{tag.name}
+                </Link>
+              ))}
+            </div>
+
+            {/* 标题 */}
+            <h1 className="text-xl lg:text-2xl font-bold text-base-content leading-snug mb-4">
+              {post.creation.title}
+            </h1>
+
+            {/* 图片矩阵 */}
+            {post.creation.image_urls && post.creation.image_urls.length > 0 && (
+              <div className="mb-5 -mx-5 lg:-mx-8">
+                <ImageGrid images={post.creation.image_urls} />
+              </div>
+            )}
+
+            {/* 正文内容 */}
+            <div
+              className="prose-content text-base-content/80 leading-relaxed text-[15px]"
+              dangerouslySetInnerHTML={{ __html: post.creation.content }}
+            />
+
+            {/* 底部操作栏 */}
+            <div className="flex items-center justify-center gap-6 mt-8 pt-5 border-t border-base-200">
+              <button
+                className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                  liked
+                    ? "bg-error/10 text-error"
+                    : "bg-base-200 text-base-content/60 hover:bg-base-300"
+                }`}
+                onClick={handleLikeClick}
+                disabled={likePost.isPending || unlikePost.isPending}
+              >
+                {liked ? <Heart className="w-4 h-4 fill-current" /> : <Heart className="w-4 h-4" />}
+                {post.creation.like_count}
+              </button>
+              <button className="flex items-center gap-2 px-4 py-2 rounded-full text-sm bg-base-200 text-base-content/60 hover:bg-base-300 transition-all" onClick={handleShare}>
+                <Share2 className="w-4 h-4" /> 分享
+              </button>
+            </div>
           </div>
         </div>
       </article>
