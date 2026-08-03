@@ -81,6 +81,14 @@
     @apply rounded-lg max-w-full my-4;
   }
 
+  .prose-content video {
+    @apply rounded-lg max-w-full my-4;
+  }
+
+  .prose-content iframe {
+    @apply rounded-lg max-w-full my-4 aspect-video;
+  }
+
   .prose-content hr {
     @apply my-6 border-base-300;
   }

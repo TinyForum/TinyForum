@@ -27,6 +27,22 @@ import {
   useUnlikePost,
 } from "@/features/post/hooks/usePosts";
 
+function normalizeUrl(url: string): string {
+  if (!url) return url;
+  if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("/")) return url;
+  return "/" + url;
+}
+
+function isYouTubeUrl(url: string): boolean {
+  return /(youtube\.com|youtu\.be)/.test(url);
+}
+
+function getYouTubeEmbedUrl(url: string): string {
+  const match = url.match(/(?:v=|\/)([\w-]{11})/);
+  if (match) return `https://www.youtube.com/embed/${match[1]}`;
+  return url.replace("watch?v=", "embed/").replace("youtu.be/", "youtube.com/embed/");
+}
+
 // 导入自定义 hooks
 
 export default function PostDetailClient({ postId }: { postId: number }) {
@@ -220,16 +236,50 @@ export default function PostDetailClient({ postId }: { postId: number }) {
             </div>
           </div>
 
+          {/* 视频 */}
+          {post.creation.video_url && (
+            <div className="my-4 rounded-xl overflow-hidden">
+              {isYouTubeUrl(post.creation.video_url) ? (
+                <div className="relative w-full aspect-video">
+                  <iframe
+                    src={getYouTubeEmbedUrl(post.creation.video_url)}
+                    title={post.creation.title}
+                    className="w-full h-full"
+                    allowFullScreen
+                  />
+                </div>
+              ) : (
+                <div className="relative w-full aspect-video bg-base-200">
+                  <video
+                    src={normalizeUrl(post.creation.video_url)}
+                    controls
+                    className="w-full h-full object-contain"
+                    preload="metadata"
+                  >
+                    您的浏览器不支持视频播放
+                  </video>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* 封面图 */}
           {post.creation.cover_url && (
             <div className="my-4 rounded-xl overflow-hidden">
               <Image
-                src={post.creation.cover_url}
+                src={normalizeUrl(post.creation.cover_url)}
                 alt={post.creation.title}
                 width={800}
                 height={400}
                 className="w-full object-cover max-h-72"
               />
+            </div>
+          )}
+
+          {/* 图片矩阵 */}
+          {post.creation.image_urls && post.creation.image_urls.length > 0 && (
+            <div className="my-4">
+              <ImageGrid images={post.creation.image_urls} />
             </div>
           )}
 
@@ -263,6 +313,32 @@ export default function PostDetailClient({ postId }: { postId: number }) {
         </div>
       </article>
     </>
+  );
+}
+
+/** 图片矩阵展示 */
+function ImageGrid({ images }: { images: string[] }) {
+  const count = images.length;
+  if (count === 0) return null;
+  const cols = count === 1 ? 1 : count === 2 ? 2 : count === 4 ? 2 : 3;
+
+  return (
+    <div
+      className="grid gap-1 rounded-xl overflow-hidden"
+      style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}
+    >
+      {images.map((url, idx) => (
+        <div key={idx} className="relative aspect-square cursor-pointer">
+          <Image
+            src={normalizeUrl(url)}
+            alt={`图片 ${idx + 1}`}
+            fill
+            className="object-cover hover:scale-105 transition-transform"
+            sizes={cols === 1 ? "100vw" : cols === 2 ? "50vw" : "33vw"}
+          />
+        </div>
+      ))}
+    </div>
   );
 }
 
