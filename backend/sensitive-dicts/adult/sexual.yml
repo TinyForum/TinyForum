@@ -1,0 +1,41 @@
+version: 1
+
+name: sexual
+
+rules:
+  - id: SEX_001
+    category: sexual
+    label: 色情内容
+    risk_level: high
+    action: block
+    score: 100
+    regex: >
+      (
+        约炮|
+        裸聊|
+        做爱|
+        屌|
+        鸡巴|
+        骚货|
+        卖淫|
+        啪啪啪|
+        文爱|
+        磕炮|
+        色图|
+        黄片|
+        AV|
+        无码|
+        偷拍裙底|
+        开房
+      )
+
+  - id: SEX_002
+    label: 未成年人色情风险
+    risk_level: critical
+    action: block
+    score: 100
+    regex: >
+      (
+      幼齿|
+      萝莉
+      )

@@ -1,0 +1,56 @@
+version: 1
+
+name: fraud
+
+description: 金融诈骗
+
+rules:
+  - id: FR001
+
+    label: 非法集资
+
+    level: block
+
+    score: 100
+
+    regex: "(非法集资|资金盘|传销盘|庞氏骗局)"
+
+  - id: FR002
+
+    label: 非法资金
+
+    score: 100
+
+    regex: "(洗钱|跑分|刷单洗钱|洗黑钱)"
+
+  - id: FR003
+
+    label: 地下金融
+
+    score: 100
+
+    regex: "(地下钱庄|地下银行|外汇黑市|非法换汇)"
+
+  - id: FR004
+
+    label: 杀猪盘
+
+    score: 100
+
+    regex: "(杀猪盘|荐股杀猪)"
+
+  - id: FR005
+
+    label: 虚假平台
+
+    score: 100
+
+    regex: "(黑平台|假平台|虚拟盘|对赌平台)"
+
+  - id: FR006
+
+    label: 高息借贷
+
+    score: 90
+
+    regex: "(高息揽储|套路贷|砍头息)"

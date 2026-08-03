@@ -1,0 +1,10 @@
+version: 1
+
+rules:
+  - id: DG001
+    action: block
+    regex: "(完全自杀手册|切腹)"
+
+  - id: DG002
+    action: review
+    regex: "(危险化学品|爆炸物)"

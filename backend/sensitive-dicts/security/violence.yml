@@ -1,0 +1,39 @@
+version: 1
+
+name: violence
+
+description: 暴力威胁
+
+rules:
+  - id: VIOLENCE_001
+    category: violence
+    label: 暴力威胁
+    tags:
+      - threat
+      - violence
+    risk_level: high
+    action: review
+    score: 90
+    regex: >
+      (
+      杀人|
+      我杀了你|
+      弄死你|
+      去死吧|
+      砍死|
+      捅人|
+      打群架|
+      绑起来|
+      校园暴力
+      )
+
+  - id: VIOLENCE_002
+    label: 武器危险
+    action: review
+    score: 80
+    regex: >
+      (
+      枪支|
+      炸药|
+      砍刀
+      )

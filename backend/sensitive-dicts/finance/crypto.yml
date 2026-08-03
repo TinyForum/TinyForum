@@ -1,0 +1,32 @@
+version: 1
+
+name: crypto
+
+description: 虚拟资产交易风险
+
+rules:
+  - id: CR001
+    label: 虚拟货币
+    level: review
+    score: 70
+    regex: "(虚拟货币|数字货币|加密货币|数字资产)"
+
+  - id: CR002
+    label: 主流币
+    score: 50
+    regex: "(比特币|BTC|以太坊|ETH|USDT|泰达币)"
+
+  - id: CR003
+    label: 币圈交易
+    score: 80
+    regex: "(币圈|交易所注册|虚拟币兑换)"
+
+  - id: CR004
+    label: 挖矿
+    score: 80
+    regex: "(云挖矿|挖矿)"
+
+  - id: CR005
+    label: NFT
+    score: 50
+    regex: "(NFT|数字藏品)"

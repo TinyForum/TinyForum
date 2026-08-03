@@ -1,0 +1,28 @@
+version: 1
+dictionaries:
+  - path: blacklist.yml
+    priority: 1000
+
+  - path: society/politics.yml
+    priority: 900
+
+  - path: security/weapons.yml
+    priority: 900
+
+  - path: adult/pornography.yml
+    priority: 900
+
+  - path: finance/fraud.yml
+    priority: 800
+
+  - path: finance/investment.yml
+    priority: 700
+
+  - path: advertisement.yml
+    priority: 500
+
+  - path: spam/spam.yml
+    priority: 300
+    
+  - path: whitelist.yml
+    priority: 2000

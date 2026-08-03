@@ -1,0 +1,47 @@
+version: 1
+
+name: minor
+
+description: 未成年人保护
+
+rules:
+  - id: MINOR_001
+
+    label: 校园欺凌
+
+    action: review
+
+    score: 80
+
+    regex: >
+
+      (
+      欺负同学|
+      霸凌|
+      孤立同学|
+      打同学|
+      收保护费|
+      撕课本|
+      辱骂老师
+      )
+
+  - id: MINOR_002
+
+    label: 学业作弊
+
+    action: review
+
+    score: 60
+
+    regex: >
+
+      (
+      代写作业|
+      代写论文|
+      作弊|
+      抄袭|
+      小抄|
+      替考|
+      逃学|
+      翘课
+      )

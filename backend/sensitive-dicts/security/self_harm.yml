@@ -1,0 +1,44 @@
+version: 1
+
+name: self_harm
+
+description: 自伤、自杀风险
+
+rules:
+  - id: SELF_001
+    category: self_harm
+    label: 自杀表达
+    tags:
+      - suicide
+      - safety
+    risk_level: critical
+    action: block
+    score: 100
+    regex: >
+      (
+      自杀|
+      自残|
+      不如去死|
+      跳楼|
+      割腕|
+      吞药|
+      窒息游戏|
+      自杀方法|
+      自残教程
+      )
+
+  - id: SELF_002
+    label: 危险挑战
+    action: review
+    score: 80
+    regex: >
+      (
+      蓝鲸游戏|
+      极限自拍|
+      危险挑战|
+      爬楼|
+      车顶跳舞|
+      飙车|
+      翘头|
+      玩火
+      )

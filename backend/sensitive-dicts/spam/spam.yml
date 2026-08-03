@@ -1,0 +1,11 @@
+version: 1
+
+rules:
+  - id: SP001
+    regex: "(淘宝|微店|拼多多)"
+
+  - id: SP002
+    regex: "(销售热线|客服)"
+
+  - id: SP003
+    regex: "点击.{0,8}(领取|进入)"

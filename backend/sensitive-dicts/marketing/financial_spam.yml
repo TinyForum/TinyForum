@@ -1,0 +1,46 @@
+version: 1
+
+name: financial_spam
+
+description: 金融广告引流
+
+rules:
+  - id: FS001
+
+    label: 联系方式引导
+
+    score: 60
+
+    regex: "(加VX|加微信|添加好友|私信我)"
+
+  - id: FS002
+
+    label: 群运营
+
+    score: 70
+
+    regex: "(进群|加群|群交流|扫码进群)"
+
+  - id: FS003
+
+    label: 客服引流
+
+    score: 60
+
+    regex: "(添加客服|添加助理)"
+
+  - id: FS004
+
+    label: 资料领取
+
+    score: 60
+
+    regex: "(领取资料|扫码领取|了解更多)"
+
+  - id: FS005
+
+    label: 活动诱导
+
+    score: 50
+
+    regex: "(限时福利|立即投资)"

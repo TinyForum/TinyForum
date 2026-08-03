@@ -1,0 +1,18 @@
+version: 1
+
+rules:
+  - id: AU001
+
+    regex: "专家推荐"
+
+  - id: AU002
+
+    regex: "(央视|CCTV)品牌"
+
+  - id: AU003
+
+    regex: "国家(级|免检|认证)?"
+
+  - id: AU004
+
+    regex: "中国驰名(商标)?"

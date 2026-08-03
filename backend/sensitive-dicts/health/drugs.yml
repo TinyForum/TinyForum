@@ -1,0 +1,44 @@
+version: 1
+
+name: dangerous
+
+rules:
+  - id: DANGER_001
+    label: 危险行为
+    action: review
+    score: 70
+    regex: >
+      (
+      抽烟|
+      吸烟|
+      电子烟|
+      喝酒|
+      醉酒|
+      酗酒|
+      文身|
+      纹身|
+      暴饮暴食|
+      催吐|
+      夜店|
+      买烟|
+      吸电子烟
+      )
+
+  - id: DANGER_002
+    label: 不良价值导向
+    action: review
+    score: 50
+    regex: >
+      (
+      炫富|
+      拜金|
+      豪车|
+      名牌包|
+      钱能解决一切|
+      读书无用|
+      不需要学历|
+      早恋万岁|
+      颓废|
+      躺平人生|
+      享乐主义
+      )

@@ -1,0 +1,35 @@
+version: 1
+
+name: addiction
+
+rules:
+  - id: ADD_001
+    label: 游戏消费风险
+    action: review
+    score: 50
+    regex: >
+      (
+      充值|
+      打赏|
+      氪金|
+      抽卡|
+      盲盒|
+      游戏充值|
+      借钱充游戏|
+      刷礼物|
+      送火箭|
+      解锁会员
+      )
+
+  - id: ADD_002
+    label: 饭圈消费
+    action: review
+    score: 40
+    regex: >
+      (
+      饭圈集资|
+      应援打榜|
+      买代言|
+      为了哥哥|
+      妹妹充钱
+      )

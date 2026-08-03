@@ -1,0 +1,41 @@
+version: 1
+
+name: stock
+
+description: 股票荐股操盘
+
+rules:
+  - id: ST001
+    label: 推荐股票
+    score: 90
+    regex: "(推荐|荐).{0,4}(股票|个股)"
+
+  - id: ST002
+    label: 跟随交易
+    score: 80
+    regex: "(跟买|跟单|抄作业)"
+
+  - id: ST003
+    label: 操盘指导
+    score: 80
+    regex: "(带操作|带队操作|专业操盘手)"
+
+  - id: ST004
+    label: 内幕消息
+    score: 100
+    regex: "(内幕|内部).{0,4}(消息|股|份额)"
+
+  - id: ST005
+    label: 涨停诱导
+    score: 80
+    regex: "(涨停板|打板神器|游资战法)"
+
+  - id: ST006
+    label: 盘后票
+    score: 80
+    regex: "盘后票"
+
+  - id: ST007
+    label: 荐股群
+    score: 100
+    regex: "(加群|扫码|进群).{0,8}(荐股|炒股)"

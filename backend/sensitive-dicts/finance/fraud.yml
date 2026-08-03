@@ -1,0 +1,9 @@
+version: 0.1
+name: fraud
+description: 金融欺诈相关敏感词
+action: block
+score: 100
+regex: >
+  (
+  
+  )

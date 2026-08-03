@@ -1,0 +1,10 @@
+version: 1
+
+rules:
+  - id: BL001
+    action: block
+    regex: "测试永久封禁"
+
+  - id: BL002
+    action: block
+    regex: "违规测试"

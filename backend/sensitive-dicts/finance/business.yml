@@ -1,0 +1,20 @@
+version: 1
+
+name: financial_context
+
+rules:
+  - id: FC001
+    label: 金融关键词
+    action: review
+    score: 20
+    regex: "(理财|基金|股票|期货|外汇|黄金投资)"
+
+  - id: FC002
+    label: 借贷
+    score: 40
+    regex: "(借贷|贷款|贷款中介|资金周转)"
+
+  - id: FC003
+    label: 新经济投资
+    score: 40
+    regex: "(区块链|AI投资|人工智能理财|低空经济|能源矿产)"

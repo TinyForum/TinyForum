@@ -1,0 +1,9 @@
+version: 1
+
+name: cultivation
+
+rules:
+  - id: CU001
+    action: ignore
+    score: 0
+    regex: "(修仙|筑基|金丹|元婴|飞升|渡劫|炼丹)"
