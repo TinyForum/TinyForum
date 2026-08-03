@@ -126,6 +126,11 @@ func (s *articleService) Create(ctx *gin.Context, authorID uint, input request.C
 		}()
 	}
 
+	// 14. 异步分析内容特征，供推荐系统使用
+	go func() {
+		_ = s.recSvc.AnalyzeContent(context.Background(), post.ID)
+	}()
+
 	return post, nil
 }
 
@@ -194,6 +199,10 @@ func (s *articleService) GetByID(postID, viewerID uint) (*do.Article, bool, erro
 	liked := false
 	if viewerID > 0 {
 		liked = s.postRepo.IsLiked(viewerID, postID)
+		// 异步记录浏览行为，供推荐系统使用
+		go func() {
+			_ = s.recSvc.RecordView(context.Background(), viewerID, postID, "")
+		}()
 	}
 	return post, liked, nil
 }

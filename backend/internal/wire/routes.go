@@ -97,6 +97,9 @@ func RegisterRoutes(
 	// 配置
 	handlers.Config.RegisterRoutes(api, mw)
 
+	// 推荐系统
+	handlers.Recommendation.RegisterRoutes(api, mw)
+
 	// 静态路由
 	engine.StaticFS("/store", http.Dir("./store"))
 	engine.StaticFS("/uploads", http.Dir("./uploads"))

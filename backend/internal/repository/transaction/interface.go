@@ -9,6 +9,7 @@ import (
 type TransactionManager interface {
 	ExecuteInTransaction(ctx context.Context, fn func(tx *gorm.DB) error) error
 	BeginTx(ctx context.Context) *gorm.DB
+	DB() *gorm.DB
 }
 
 type transactionManager struct {

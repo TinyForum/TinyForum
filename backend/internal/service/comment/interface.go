@@ -9,6 +9,7 @@ import (
 	voteRepo "tiny-forum/internal/repository/vote"
 	"tiny-forum/internal/service/bot"
 	"tiny-forum/internal/service/notification"
+	recSvc "tiny-forum/internal/service/recommendation"
 )
 
 type CommentService interface {
@@ -47,6 +48,7 @@ type commentService struct {
 	notifSvc    notification.NotificationService
 	botSvc      bot.Service
 	voteRepo    voteRepo.VoteRepository
+	recSvc      recSvc.RecommendationService
 }
 
 func NewCommentService(
@@ -56,6 +58,7 @@ func NewCommentService(
 	notifSvc notification.NotificationService,
 	botSvc bot.Service,
 	voteRepo voteRepo.VoteRepository,
+	recSvc recSvc.RecommendationService,
 ) CommentService {
 	return &commentService{
 		commentRepo: commentRepo,
@@ -64,5 +67,6 @@ func NewCommentService(
 		notifSvc:    notifSvc,
 		botSvc:      botSvc,
 		voteRepo:    voteRepo,
+		recSvc:      recSvc,
 	}
 }

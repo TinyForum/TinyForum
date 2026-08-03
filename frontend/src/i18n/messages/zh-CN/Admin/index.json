@@ -9,6 +9,10 @@
   "bot": "机器人",
   "bot_description": "管理论坛机器人",
 
+  "recommendation": "推荐系统",
+  "recommendation_description": "管理论坛推荐系统",
+  "user_analysis": "用户分析",
+  "user_analysis_description": "分析论坛用户行为",
   "tasks": "任务",
   "confirm_reset": "确认重置",
   "change_role": "更改角色",
@@ -31,7 +35,8 @@
     "super_moderator": "超级版主",
     "full_moderator": "全权限版主",
     "content_moderator": "内容版主",
-    "junior_moderator": "初级版主"
+    "junior_moderator": "初级版主",
+    "system_maintainer": "系统维护员"
   },
   "roles": "角色",
   "activated": "已激活",

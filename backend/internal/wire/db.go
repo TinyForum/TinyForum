@@ -104,6 +104,12 @@ func InitDB(cfg *config.Config) (*gorm.DB, error) {
 		&do.PluginManifest{},   // 插件元数据
 		// 机器人
 		&do.Bot{}, // 机器人
+
+		// 推荐系统
+		&do.UserBehaviorEvent{},
+		&do.ContentFeature{},
+		&do.RecommendationFeedback{},
+		&do.UserInterestProfile{},
 	); err != nil {
 		return nil, fmt.Errorf("auto migrate failed: %w", err)
 	}

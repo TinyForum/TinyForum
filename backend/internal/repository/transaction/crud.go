@@ -13,3 +13,7 @@ func (tm *transactionManager) ExecuteInTransaction(ctx context.Context, fn func(
 func (tm *transactionManager) BeginTx(ctx context.Context) *gorm.DB {
 	return tm.db.WithContext(ctx).Begin()
 }
+
+func (tm *transactionManager) DB() *gorm.DB {
+	return tm.db
+}

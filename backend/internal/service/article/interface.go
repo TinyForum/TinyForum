@@ -15,6 +15,7 @@ import (
 	"tiny-forum/internal/service/bot"
 	"tiny-forum/internal/service/check"
 	"tiny-forum/internal/service/notification"
+	recSvc "tiny-forum/internal/service/recommendation"
 
 	"github.com/gin-gonic/gin"
 )
@@ -38,14 +39,15 @@ type ArticleService interface {
 }
 
 type articleService struct {
-	postRepo       postRepo.ArticleRepository
-	tagRepo        tagRepo.TagRepository
-	boardRepo      boardRepo.BoardRepository
-	userRepo       userRepo.UserRepository
-	notifSvc       notification.NotificationService
-	botSvc         bot.Service
-	attachmentSvc  attachment.AttachmentService
+	postRepo        postRepo.ArticleRepository
+	tagRepo         tagRepo.TagRepository
+	boardRepo       boardRepo.BoardRepository
+	userRepo        userRepo.UserRepository
+	notifSvc        notification.NotificationService
+	botSvc          bot.Service
+	attachmentSvc   attachment.AttachmentService
 	contentcheckSvc check.ContentCheckService
+	recSvc          recSvc.RecommendationService
 }
 
 func NewPostService(
@@ -57,15 +59,17 @@ func NewPostService(
 	botSvc bot.Service,
 	attachmentSvc attachment.AttachmentService,
 	contentcheckSvc check.ContentCheckService,
+	recSvc recSvc.RecommendationService,
 ) ArticleService {
 	return &articleService{
-		postRepo:       postRepo,
-		tagRepo:        tagRepo,
-		userRepo:       userRepo,
-		boardRepo:       boardRepo,
-		notifSvc:       notifSvc,
-		botSvc:         botSvc,
-		attachmentSvc:  attachmentSvc,
+		postRepo:        postRepo,
+		tagRepo:         tagRepo,
+		userRepo:        userRepo,
+		boardRepo:        boardRepo,
+		notifSvc:        notifSvc,
+		botSvc:          botSvc,
+		attachmentSvc:   attachmentSvc,
 		contentcheckSvc: contentcheckSvc,
+		recSvc:          recSvc,
 	}
 }
