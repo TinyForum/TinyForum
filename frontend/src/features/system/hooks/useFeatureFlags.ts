@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import toast from "react-hot-toast";
 import { configApi } from "@/shared/api/modules/config";
 
@@ -22,6 +23,7 @@ const INITIAL_FEATURES: Feature[] = [
 ];
 
 export function useFeatureFlags() {
+  const t = useTranslations("System");
   const [features, setFeatures] = useState<Feature[]>(INITIAL_FEATURES);
   const [togglingId, setTogglingId] = useState<string | null>(null);
 
@@ -53,10 +55,10 @@ export function useFeatureFlags() {
         await configApi.update("basic", {
           debug: id === "api_access" ? !enabled : undefined,
         } as Record<string, unknown>);
-        toast.success(`${feature.name} 已${enabled ? "开启" : "关闭"}`);
+        toast.success(enabled ? t("feature_enabled", { name: feature.name }) : t("feature_disabled", { name: feature.name }));
       } catch {
         setFeatures(prev);
-        toast.error("操作失败，请重试");
+        toast.error(t("operation_failed_retry"));
       } finally {
         setTogglingId(null);
       }
@@ -66,7 +68,7 @@ export function useFeatureFlags() {
 
   const enableAll = useCallback(() => {
     setFeatures((prev) => prev.map((f) => ({ ...f, enabled: true })));
-    toast.success("已启用所有功能");
+    toast.success(t("all_features_enabled"));
   }, []);
 
   const grouped = features.reduce<Record<string, Feature[]>>((acc, f) => {

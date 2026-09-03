@@ -88,5 +88,20 @@
   "image_upload": "Image Upload",
   "image_upload_hint": "Up to {max} images",
 
-  "share": "Share"
+  "share": "Share",
+
+  "work_type_image_text": "Image Text",
+  "work_type_short_video": "Short Video",
+  "work_type_long_video": "Long Video",
+  "work_type_image": "Image",
+  "work_type_question": "Q&A",
+  "image_number": "Image {count}",
+  "write_post_content": "Write your post content...",
+  "title_min_length": "Title must be at least 2 characters",
+  "title_max_length": "Title must be at most 200 characters",
+  "content_min_length": "Content must be at least 10 characters",
+  "summary_max_length": "Summary must be at most 500 characters",
+  "invalid_image_url": "Please enter a valid image URL",
+  "max_tags_error": "Select up to 5 tags",
+  "data_empty": "API returned empty data"
 }

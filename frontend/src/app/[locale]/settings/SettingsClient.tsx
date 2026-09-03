@@ -2,6 +2,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { useAuthStore } from "@/store/auth";
 import AppearanceSettings from "@/layout/settings/AppearanceSettings";
 import DangerZone from "@/layout/settings/DangerZone";
@@ -18,6 +19,7 @@ export type SettingsTab =
   | "danger";
 
 export default function SettingsClient() {
+  const t = useTranslations("Settings");
   const { user } = useAuthStore();
   const [activeTab, setActiveTab] = useState<SettingsTab>("profile");
 
@@ -26,7 +28,7 @@ export default function SettingsClient() {
       <div className="flex justify-center items-center min-h-[400px]">
         <div className="flex flex-col items-center gap-4">
           <span className="loading loading-spinner loading-lg text-primary"></span>
-          <p className="text-base-content/60">加载中...</p>
+          <p className="text-base-content/60">{t("loading")}</p>
         </div>
       </div>
     );

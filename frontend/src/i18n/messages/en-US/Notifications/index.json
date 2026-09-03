@@ -4,5 +4,21 @@
   "no_notifications": "No notifications",
   "view_all": "View all",
   "mark_all_success": "All marked as read",
-  "marking": "Marking..."
+  "marking": "Marking...",
+  "notification_detail": "Notification details",
+  "mark_read": "Mark read",
+  "send_time": "Sent: ",
+  "view_details": "View details",
+  "notification_bell": "Notifications",
+  "just_now": "Just now",
+  "minutes_ago": "{count} min ago",
+  "hours_ago": "{count} h ago",
+  "days_ago": "{count} d ago",
+  "notification_type_label": "Type: ",
+  "fetch_unread_count_failed": "Failed to fetch unread count",
+  "unread_count_empty": "Unread count data is empty",
+  "fetch_list_failed": "Failed to fetch notification list",
+  "list_empty": "Notification data is empty",
+  "mark_failed": "Mark failed",
+  "operation_failed": "Operation failed"
 }

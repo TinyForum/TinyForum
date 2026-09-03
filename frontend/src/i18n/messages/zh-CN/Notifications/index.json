@@ -4,5 +4,21 @@
   "no_notifications": "暂无通知",
   "view_all": "查看所有通知",
   "mark_all_success": "已全部标记为已读",
-  "marking": "标记中..."
+  "marking": "标记中...",
+  "notification_detail": "通知详情",
+  "mark_read": "已读",
+  "send_time": "发送时间：",
+  "view_details": "查看详情",
+  "notification_bell": "通知",
+  "just_now": "刚刚",
+  "minutes_ago": "{count}分钟前",
+  "hours_ago": "{count}小时前",
+  "days_ago": "{count}天前",
+  "notification_type_label": "类型：",
+  "fetch_unread_count_failed": "获取未读数量失败",
+  "unread_count_empty": "未读数量数据为空",
+  "fetch_list_failed": "获取通知列表失败",
+  "list_empty": "通知数据为空",
+  "mark_failed": "标记失败",
+  "operation_failed": "操作失败"
 }

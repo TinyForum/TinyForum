@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useEffect, useCallback, useMemo } from "react";
+import { useTranslations } from "next-intl";
 import { useAuthStore } from "@/store/auth";
 import type { Post } from "@/shared/api/types/post.model";
 import { PostListSkeleton } from "@/shared/ui/common/PostListSkeleton";
@@ -48,6 +49,7 @@ export default function PostList({
   layout = "waterfall",
 }: PostListProps) {
   const { isAuthenticated } = useAuthStore();
+  const t = useTranslations("Home");
   const sentinelRef = useRef<HTMLDivElement>(null);
 
   const columns = useMemo(() => {
@@ -119,7 +121,7 @@ export default function PostList({
 
       {!hasMore && posts.length > 0 && (
         <p className="text-center text-sm text-base-content/40 py-6">
-          已经到底了
+          {t("no_more_content")}
         </p>
       )}
     </>

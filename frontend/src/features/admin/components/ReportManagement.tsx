@@ -1,5 +1,6 @@
 import { Flag, CheckCircle, XCircle, Trash2 } from "lucide-react";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 import type { ReportResponse } from "@/shared/api/modules/admin/report";
 import {
@@ -14,6 +15,7 @@ interface ReportWithTarget extends ReportResponse {
 }
 
 export function ReportManagement() {
+  const t = useTranslations("Admin");
   const [status, setStatus] = useState<string>("pending");
   const [page, setPage] = useState(1);
   const pageSize = 20;
@@ -32,20 +34,20 @@ export function ReportManagement() {
   const { mutate: handleReport, isPending: isHandling } =
     useAdminHandleReport();
 
-  // 处理通过举报
+    // 处理通过举报
   const handleResolve = (reportId: number) => {
     handleReport({
       id: reportId,
       data: {
         status: "resolved",
-        handle_note: "内容违规，已处理",
+        handle_note: t("content_violation_handled"),
       },
     });
   };
 
   // 处理驳回举报
   const handleReject = (reportId: number, reason?: string) => {
-    const rejectReason = reason || "举报不成立";
+    const rejectReason = reason || t("report_not_established");
     handleReport({
       id: reportId,
       data: {
@@ -77,16 +79,16 @@ export function ReportManagement() {
       <div className="flex gap-4 flex-wrap">
         <div className="form-control">
           <label className="label">
-            <span className="label-text">状态</span>
+            <span className="label-text">{t("status")}</span>
           </label>
           <select
             className="select select-bordered w-32"
             value={status}
             onChange={(e) => setStatus(e.target.value)}
           >
-            <option value="pending">待处理</option>
-            <option value="resolved">已处理</option>
-            <option value="rejected">已驳回</option>
+            <option value="pending">{t("pending")}</option>
+            <option value="resolved">{t("resolved")}</option>
+            <option value="rejected">{t("reject_success")}</option>
           </select>
         </div>
         <div className="form-control">
@@ -94,7 +96,7 @@ export function ReportManagement() {
             <span className="label-text">&nbsp;</span>
           </label>
           <button className="btn btn-outline" onClick={() => refetch()}>
-            刷新
+            {t("refresh")}
           </button>
         </div>
       </div>
@@ -119,9 +121,9 @@ export function ReportManagement() {
                       }`}
                     >
                       <Flag className="w-3 h-3" />
-                      {report.status === "pending" && "待处理"}
-                      {report.status === "resolved" && "已处理"}
-                      {report.status === "rejected" && "已驳回"}
+                      {report.status === "pending" && t("pending")}
+                      {report.status === "resolved" && t("resolved")}
+                      {report.status === "rejected" && t("reject_success")}
                     </div>
                     <div className="badge badge-ghost badge-sm">
                       {report.target_type}
@@ -133,29 +135,29 @@ export function ReportManagement() {
                 </div>
 
                 <p className="text-sm">
-                  <strong className="text-base-content/70">举报人:</strong>{" "}
+                  <strong className="text-base-content/70">{t("reporter")}:</strong>{" "}
                   {report.is_anonymous
-                    ? "匿名用户"
+                    ? t("anonymous_user")
                     : report.reporter?.nickname || `用户${report.reporter?.id}`}
                 </p>
 
                 {/* 目标标题如果有，可以从 target_info 获取 */}
                 {(report as ReportWithTarget).target_title && (
                   <p className="text-sm">
-                    <strong className="text-base-content/70">标题:</strong>{" "}
+                    <strong className="text-base-content/70">{t("title")}:</strong>{" "}
                     {(report as ReportWithTarget).target_title}
                   </p>
                 )}
 
                 <p className="text-sm">
-                  <strong className="text-base-content/70">被举报内容:</strong>{" "}
+                  <strong className="text-base-content/70">{t("reported_content")}:</strong>{" "}
                   <span className="line-clamp-2">
-                    {report.content_snapshot || "无内容预览"}
+                    {report.content_snapshot || t("no_content_preview")}
                   </span>
                 </p>
 
                 <p className="text-sm">
-                  <strong className="text-base-content/70">原因:</strong>{" "}
+                  <strong className="text-base-content/70">{t("reason")}:</strong>{" "}
                   {report.reason}
                 </p>
 
@@ -167,7 +169,7 @@ export function ReportManagement() {
                       disabled={isHandling}
                     >
                       <CheckCircle className="w-4 h-4" />
-                      通过
+                      {t("approve")}
                     </button>
                     <button
                       className="btn btn-sm btn-outline gap-1"
@@ -175,7 +177,7 @@ export function ReportManagement() {
                       disabled={isHandling}
                     >
                       <XCircle className="w-4 h-4" />
-                      驳回
+                      {t("reject")}
                     </button>
                     <button
                       className="btn btn-sm btn-error gap-1"
@@ -183,7 +185,7 @@ export function ReportManagement() {
                       disabled={isHandling}
                     >
                       <Trash2 className="w-4 h-4" />
-                      删除内容
+                      {t("delete_content")}
                     </button>
                   </div>
                 )}
@@ -195,7 +197,7 @@ export function ReportManagement() {
         {reportList.length === 0 && (
           <div className="text-center py-12 text-base-content/50">
             <Flag className="w-12 h-12 mx-auto mb-3 opacity-30" />
-            <p>暂无举报</p>
+            <p>{t("no_reports")}</p>
           </div>
         )}
       </div>
@@ -212,7 +214,7 @@ export function ReportManagement() {
               «
             </button>
             <span className="join-item btn btn-sm">
-              第 {page} / {Math.ceil(pageData.total / pageSize)} 页
+              {t("page_info", { page, totalPages: Math.ceil(pageData.total / pageSize) })}
             </span>
             <button
               className="join-item btn btn-sm"

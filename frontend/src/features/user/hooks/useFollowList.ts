@@ -1,5 +1,6 @@
 // hooks/useFollowList.ts
 import { useCallback, useState } from "react"
+import { useTranslations } from "next-intl"
 import { useQuery } from "@tanstack/react-query"
 import { userApi } from "@/shared/api/modules/user"
 import { UserDO } from "@/shared/api/types/user.model.do"
@@ -34,6 +35,7 @@ interface UseFollowListReturn {
 }
 
 export function useFollowList(): UseFollowListReturn {
+  const t = useTranslations("Profile")
   const [query, setQuery] = useState<FollowListQuery>({
     userId: null,
     kind: "followers",
@@ -55,7 +57,7 @@ export function useFollowList(): UseFollowListReturn {
           }),
     queryFn: async () => {
       if (query.userId === null) {
-        throw new Error("缺少用户 ID")
+        throw new Error(t("missing_user_id"))
       }
       const params = { page: query.page, page_size: query.pageSize }
       const res =
@@ -63,7 +65,9 @@ export function useFollowList(): UseFollowListReturn {
           ? await userApi.getFollowers(query.userId, params)
           : await userApi.getFollowing(query.userId, params)
       const failMsg =
-        query.kind === "followers" ? "获取粉丝列表失败" : "获取关注列表失败"
+        query.kind === "followers"
+          ? t("followers_load_failed")
+          : t("following_load_failed")
       if (res.data.code !== 0) {
         throw new Error(res.data.message || failMsg)
       }

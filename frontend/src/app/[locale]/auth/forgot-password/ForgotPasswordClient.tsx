@@ -1,7 +1,7 @@
 // auth/forgot-password/page.tsx 客户端组件
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,15 +11,20 @@ import { Mail, ArrowLeft, Send, CheckCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useResetPassword } from "@/features/auth/hooks/useResetPassword";
 
-const forgotPasswordSchema = z.object({
-  email: z.string().email("请输入有效的邮箱"),
-});
-
-type ForgotPasswordForm = z.infer<typeof forgotPasswordSchema>;
+// 类型声明需要提前，但 schema 实例在组件内用 useMemo 生成
+type ForgotPasswordForm = { email: string };
 
 export default function ForgotPasswordClient() {
   const t = useTranslations("Auth");
   const { forgotPassword } = useResetPassword();
+
+  const forgotPasswordSchema = useMemo(
+    () =>
+      z.object({
+        email: z.string().email(t("invalid_email_address")),
+      }),
+    [t],
+  );
 
   const [isLoading, setIsLoading] = useState(false);
   const [isEmailSent, setIsEmailSent] = useState(false);

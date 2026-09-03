@@ -4,12 +4,13 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 // import { useCurrentUserProfile } from "@/hooks/useUserProfile";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useUserRole } from "@/features/user/hooks/useUserRole";
 
 export default function DashboardClient() {
   const router = useRouter();
   const locale = useLocale();
+  const t = useTranslations("Dashboard");
   const {
     isLoading,
     isUser,
@@ -58,7 +59,7 @@ export default function DashboardClient() {
     return (
       <div className="flex flex-col items-center justify-center h-screen">
         <div className="loading loading-spinner loading-lg text-primary"></div>
-        <p className="mt-4 text-base-content/60">验证权限中...</p>
+        <p className="mt-4 text-base-content/60">{t("verifying_permissions")}</p>
       </div>
     );
   }
@@ -67,7 +68,7 @@ export default function DashboardClient() {
   return (
     <div className="flex flex-col items-center justify-center h-screen">
       <div className="loading loading-spinner loading-lg text-primary"></div>
-      <p className="mt-4 text-base-content/60">正在跳转...</p>
+      <p className="mt-4 text-base-content/60">{t("redirecting")}</p>
     </div>
   );
 }

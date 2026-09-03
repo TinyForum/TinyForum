@@ -2,6 +2,7 @@
 import { useCallback, useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'react-hot-toast'
+import { useTranslations } from 'next-intl'
 import { notificationKeys } from './useNotificationKeys'
 import { notificationApi } from '@/shared/api/modules/notifications'
 import { Notification } from '@/shared/api/types/notification.model'
@@ -15,6 +16,7 @@ interface UseNotificationsOptions {
 export function useNotifications(options: UseNotificationsOptions = {}) {
   const { pageSize = 10, autoLoad = true } = options
   const queryClient = useQueryClient()
+  const t = useTranslations('Notifications')
   const [page, setPage] = useState<number>(1)
 
   // 查询：分页获取通知列表
@@ -23,10 +25,10 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
     queryFn: async () => {
       const res = await notificationApi.list({ page, page_size: pageSize })
       if (res.data.code !== 0) {
-        throw new Error(res.data.message || '获取通知列表失败')
+        throw new Error(res.data.message || t('fetch_list_failed'))
       }
       if (!res.data.data) {
-        throw new Error('通知数据为空')
+        throw new Error(t('list_empty'))
       }
       return res.data.data
     },
@@ -56,7 +58,7 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
     mutationFn: async (id: number) => {
       const res = await notificationApi.markRead(id)
       if (res.data.code !== 0) {
-        throw new Error(res.data.message || '标记失败')
+        throw new Error(res.data.message || t('mark_failed'))
       }
     },
     onSuccess: () => {
@@ -73,7 +75,7 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
     mutationFn: async () => {
       const res = await notificationApi.markAllRead()
       if (res.data.code !== 0) {
-        throw new Error(res.data.message || '操作失败')
+        throw new Error(res.data.message || t('operation_failed'))
       }
     },
     onSuccess: () => {
@@ -90,7 +92,7 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
     try {
       await markAsReadMutation.mutateAsync(id)
     } catch (err) {
-      toast.error(err instanceof Error ? err.message || '操作失败' : '操作失败')
+      toast.error(err instanceof Error ? err.message || t('operation_failed') : t('operation_failed'))
     }
   }
 
@@ -98,7 +100,7 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
     try {
       await markAllAsReadMutation.mutateAsync()
     } catch (err) {
-      toast.error(err instanceof Error ? err.message || '操作失败' : '操作失败')
+      toast.error(err instanceof Error ? err.message || t('operation_failed') : t('operation_failed'))
     }
   }
 

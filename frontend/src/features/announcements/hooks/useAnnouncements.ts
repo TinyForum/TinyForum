@@ -1,5 +1,6 @@
 // hooks/useAnnouncements.ts
 import { useQuery } from '@tanstack/react-query'
+import { useTranslations } from 'next-intl'
 import { announcementApi } from '@/shared/api/modules/announcements'
 import {
   AnnouncementListParams,
@@ -9,9 +10,9 @@ import { AnnouncementStatus } from '@/shared/api/types/announcement.model.do'
 import { announcementKeys } from './useAnnouncementKeys'
 
 // 辅助：解包后端响应，非 0 code 抛错
-function unwrap<T>(res: { code: number; message?: string; data?: T }): T {
+function unwrap<T>(res: { code: number; message?: string; data?: T }, fallbackMsg: string): T {
   if (res.code !== 0) {
-    throw new Error(res.message || '请求失败')
+    throw new Error(res.message || fallbackMsg)
   }
   return res.data as T
 }
@@ -26,6 +27,7 @@ function unwrap<T>(res: { code: number; message?: string; data?: T }): T {
  * @param boardId - 可选，板块ID（版主用于获取板块公告）
  */
 export function useAnnouncements(boardId?: number) {
+  const t = useTranslations('Announcement')
   // 使用模块中已定义的类型
   const params: AnnouncementListParams = {
     page: 1,
@@ -46,7 +48,7 @@ export function useAnnouncements(boardId?: number) {
     queryKey: announcementKeys.list(params),
     queryFn: async () => {
       const res = await announcementApi.list(params)
-      return unwrap<AnnouncementListResponse>(res.data)
+      return unwrap<AnnouncementListResponse>(res.data, t('request_failed'))
     },
   })
 
@@ -56,7 +58,7 @@ export function useAnnouncements(boardId?: number) {
     error: query.error
       ? query.error instanceof Error
         ? query.error.message
-        : '获取公告失败'
+        : t('fetch_failed')
       : null,
     refetch: () => query.refetch().then(() => undefined),
   }

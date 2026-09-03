@@ -1,4 +1,5 @@
 // ===================== 自定义 Hook =====================
+// 返回翻译 key，消费者需用 t() 转换
 export interface PasswordStrength {
   score: number;
   level: string;
@@ -8,7 +9,7 @@ export interface PasswordStrength {
 
 export function usePasswordStrength(password: string): PasswordStrength {
   if (!password) {
-    return { score: 0, level: "无", color: "bg-gray-200", message: "" };
+    return { score: 0, level: "password_strength_none", color: "bg-gray-200", message: "" };
   }
 
   let score = 0;
@@ -22,23 +23,23 @@ export function usePasswordStrength(password: string): PasswordStrength {
   if (score <= 2) {
     return {
       score,
-      level: "弱",
+      level: "password_strength_weak",
       color: "bg-red-500",
-      message: "密码强度较弱，建议增加复杂度",
+      message: "password_strength_weak_message",
     };
   }
   if (score <= 4) {
     return {
       score,
-      level: "中",
+      level: "password_strength_medium",
       color: "bg-yellow-500",
-      message: "密码强度中等，可以更强一些",
+      message: "password_strength_medium_message",
     };
   }
   return {
     score,
-    level: "强",
+    level: "password_strength_strong",
     color: "bg-green-500",
-    message: "密码强度很好！",
+    message: "password_strength_strong_message",
   };
 }

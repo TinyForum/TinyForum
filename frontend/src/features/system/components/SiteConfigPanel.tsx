@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { useTranslations } from "next-intl";
 import {
   Save,
   RefreshCw,
@@ -39,16 +40,16 @@ const GROUP_ICONS: Record<string, React.ReactNode> = {
   general: <Layers className="w-4 h-4" />,
 };
 
-const GROUP_LABELS: Record<string, string> = {
-  server: "服务器",
-  api: "API 配置",
-  frontend: "前端配置",
-  log: "日志配置",
-  attachment: "附件配置",
-  plugins: "插件配置",
-  allow_origins: "跨域来源",
-  version: "版本",
-  general: "通用配置",
+const GROUP_LABEL_KEYS: Record<string, string> = {
+  server: "server",
+  api: "api_config",
+  frontend: "frontend_config",
+  log: "log_config",
+  attachment: "attachment_config",
+  plugins: "plugins_config",
+  allow_origins: "cors_origins",
+  version: "version",
+  general: "general_config",
 };
 
 export function SiteConfigPanel({
@@ -63,6 +64,7 @@ export function SiteConfigPanel({
   onSave,
   onReload,
 }: SiteConfigPanelProps) {
+  const t = useTranslations("System");
   const hasSensitive = useMemo(() => {
     for (const g of groupOrder) {
       for (const f of groups[g]) {
@@ -76,7 +78,7 @@ export function SiteConfigPanel({
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-4">
         <span className="loading loading-spinner loading-lg text-primary" />
-        <p className="text-sm text-base-content/50">加载配置中...</p>
+        <p className="text-sm text-base-content/50">{t("loading_config")}</p>
       </div>
     );
   }
@@ -85,7 +87,7 @@ export function SiteConfigPanel({
     <div className="space-y-4">
       {/* 配置文件选择 */}
       <div className="flex items-center gap-3">
-        <label className="text-sm font-medium">配置文件:</label>
+        <label className="text-sm font-medium">{t("config_file")}</label>
         <select
           className="select select-bordered select-sm"
           value={configFile}
@@ -98,7 +100,7 @@ export function SiteConfigPanel({
 
       {groupOrder.length === 0 && (
         <div className="text-center py-12 text-base-content/50">
-          暂无配置项
+          {t("no_config_items")}
         </div>
       )}
 
@@ -108,7 +110,7 @@ export function SiteConfigPanel({
         return (
           <ConfigSection
             key={groupKey}
-            title={GROUP_LABELS[groupKey] ?? groupKey}
+            title={t(GROUP_LABEL_KEYS[groupKey]) ?? groupKey}
             icon={GROUP_ICONS[groupKey]}
           >
             {groupFields.map((field) => (
@@ -125,7 +127,7 @@ export function SiteConfigPanel({
       {hasSensitive && (
         <div className="flex items-center gap-2 text-xs text-warning/80 p-3 bg-warning/5 rounded-lg border border-warning/20">
           <EyeOff className="w-3.5 h-3.5" />
-          部分敏感字段已被隐藏，不参与保存。
+          {t("sensitive_fields_hidden")}
         </div>
       )}
 
@@ -137,7 +139,7 @@ export function SiteConfigPanel({
           className="btn btn-outline gap-2 btn-sm"
         >
           <RefreshCw className={`w-4 h-4 ${isReloading ? "animate-spin" : ""}`} />
-          {isReloading ? "重载中..." : "重载配置"}
+          {isReloading ? t("reloading") : t("reload_config")}
         </button>
         <button
           onClick={onSave}
@@ -149,7 +151,7 @@ export function SiteConfigPanel({
           ) : (
             <Save className="w-4 h-4" />
           )}
-          {isSaving ? "保存中..." : "保存配置"}
+          {isSaving ? t("saving") : t("save_config")}
         </button>
       </div>
     </div>
@@ -211,6 +213,7 @@ function FieldInput({
   field: ConfigField;
   onChange: (v: unknown) => void;
 }) {
+  const t = useTranslations("System");
   const { type } = field;
 
   if (type === "boolean") {
@@ -265,7 +268,7 @@ function FieldInput({
         className="input input-bordered input-sm w-36 text-right font-mono"
         value={String(field.value)}
         onChange={(e) => onChange(e.target.value)}
-        placeholder="30s / 5m / 24h"
+        placeholder={t("duration_placeholder")}
       />
     );
   }
@@ -284,7 +287,7 @@ function FieldInput({
             .filter(Boolean);
           onChange(items);
         }}
-        placeholder="逗号分隔"
+        placeholder={t("comma_separated")}
       />
     );
   }

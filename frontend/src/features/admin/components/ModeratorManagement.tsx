@@ -1,8 +1,13 @@
 import { UserPlus, UserMinus } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
-
-// 类型定义
+import { useTranslations } from "next-intl";
+import { Shield } from "lucide-react";
+import {
+  useAdminModeratorList,
+  useAddModerator,
+  useRemoveModerator,
+} from "../hooks/useAdminModerator";
 interface User {
   id: number;
   username: string;
@@ -39,6 +44,7 @@ const DEFAULT_PERMISSIONS: ModeratorPermissions = {
 };
 
 export function ModeratorManagement() {
+  const t = useTranslations("Admin");
   const [selectedBoardId, setSelectedBoardId] = useState<number>(1);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState<boolean>(false);
   const [userId, setUserId] = useState<string>("");
@@ -58,7 +64,7 @@ export function ModeratorManagement() {
 
   const handleAddModerator = async () => {
     if (!userId) {
-      toast.error("请输入用户 ID");
+      toast.error(t("enter_user_id"));
       return;
     }
 
@@ -67,24 +73,24 @@ export function ModeratorManagement() {
         user_id: parseInt(userId),
         ...permissions,
       });
-      toast.success("版主任命成功");
+      toast.success(t("moderator_appointed"));
       setIsAddDialogOpen(false);
       setUserId("");
       setPermissions(DEFAULT_PERMISSIONS);
       refetch();
     } catch {
-      toast.error("操作失败");
+      toast.error(t("operation_failed"));
     }
   };
 
   const handleRemoveModerator = async (userId: number, username?: string) => {
-    if (confirm(`确定要移除版主「${username || userId}」吗？`)) {
+    if (confirm(t("confirm_remove_moderator_confirm", { username: username || String(userId) }))) {
       try {
         await removeModerator.mutateAsync(userId);
-        toast.success("版主已移除");
+        toast.success(t("moderator_removed_msg"));
         refetch();
       } catch {
-        toast.error("操作失败");
+        toast.error(t("operation_failed"));
       }
     }
   };
@@ -102,12 +108,12 @@ export function ModeratorManagement() {
       <div className="flex justify-between items-center gap-4 flex-wrap">
         <div className="flex gap-2">
           <div className="form-control">
-            <label className="label">
-              <span className="label-text">板块 ID</span>
-            </label>
-            <input
-              type="number"
-              placeholder="板块 ID"
+              <label className="label">
+                  <span className="label-text">{t("board_id")}</span>
+                </label>
+                <input
+                  type="number"
+                  placeholder={t("board_id")}
               value={selectedBoardId}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 setSelectedBoardId(parseInt(e.target.value) || 1)
@@ -119,9 +125,9 @@ export function ModeratorManagement() {
             <label className="label">
               <span className="label-text">&nbsp;</span>
             </label>
-            <button className="btn btn-outline" onClick={() => refetch()}>
-              刷新
-            </button>
+              <button className="btn btn-outline" onClick={() => refetch()}>
+                {t("refresh")}
+              </button>
           </div>
         </div>
         <div className="form-control">
@@ -133,7 +139,7 @@ export function ModeratorManagement() {
             onClick={() => setIsAddDialogOpen(true)}
           >
             <UserPlus className="w-4 h-4 mr-1" />
-            任命版主
+            {t("appoint_moderator")}
           </button>
         </div>
       </div>
@@ -161,21 +167,21 @@ export function ModeratorManagement() {
                     <div className="flex gap-2 mt-1 flex-wrap">
                       {mod.can_delete_post && (
                         <span className="badge badge-sm badge-ghost">
-                          删除帖子
+                          {t("delete_posts")}
                         </span>
                       )}
                       {mod.can_pin_post && (
-                        <span className="badge badge-sm badge-ghost">置顶</span>
+                        <span className="badge badge-sm badge-ghost">{t("pin")}</span>
                       )}
                       {mod.can_ban_user && (
-                        <span className="badge badge-sm badge-ghost">禁言</span>
+                        <span className="badge badge-sm badge-ghost">{t("ban")}</span>
                       )}
                       {mod.can_edit_any_post && (
-                        <span className="badge badge-sm badge-ghost">编辑</span>
+                        <span className="badge badge-sm badge-ghost">{t("edit")}</span>
                       )}
                       {mod.can_manage_moderator && (
                         <span className="badge badge-sm badge-warning">
-                          管理版主
+                          {t("manage_moderators")}
                         </span>
                       )}
                     </div>
@@ -187,7 +193,7 @@ export function ModeratorManagement() {
                     handleRemoveModerator(mod.user_id, mod.user?.username)
                   }
                   disabled={removeModerator.isPending}
-                  title="移除版主"
+                  title={t("remove_moderator")}
                 >
                   <UserMinus className="w-4 h-4" />
                 </button>
@@ -199,7 +205,7 @@ export function ModeratorManagement() {
         {moderatorList.length === 0 && (
           <div className="text-center py-12 text-base-content/50">
             <Shield className="w-12 h-12 mx-auto mb-3 opacity-30" />
-            <p>暂无版主</p>
+            <p>{t("no_moderators")}</p>
           </div>
         )}
       </div>
@@ -215,15 +221,15 @@ export function ModeratorManagement() {
           }}
         >
           <div className="modal-box" onClick={(e) => e.stopPropagation()}>
-            <h3 className="font-bold text-lg">任命版主</h3>
+            <h3 className="font-bold text-lg">{t("appoint_moderator")}</h3>
             <div className="space-y-4 mt-4">
               <div className="form-control">
                 <label className="label">
-                  <span className="label-text font-medium">用户 ID</span>
+                  <span className="label-text font-medium">{t("user_id")}</span>
                 </label>
                 <input
                   type="number"
-                  placeholder="用户 ID"
+                  placeholder={t("user_id")}
                   value={userId}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                     setUserId(e.target.value)
@@ -245,7 +251,7 @@ export function ModeratorManagement() {
                     }
                     className="checkbox checkbox-sm checkbox-primary"
                   />
-                  <span>可以删除帖子</span>
+                  <span>{t("can_delete_post")}</span>
                 </label>
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
@@ -259,7 +265,7 @@ export function ModeratorManagement() {
                     }
                     className="checkbox checkbox-sm checkbox-primary"
                   />
-                  <span>可以置顶帖子</span>
+                  <span>{t("can_pin_post")}</span>
                 </label>
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
@@ -273,7 +279,7 @@ export function ModeratorManagement() {
                     }
                     className="checkbox checkbox-sm checkbox-primary"
                   />
-                  <span>可以编辑任何帖子</span>
+                  <span>{t("can_edit_any_post")}</span>
                 </label>
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
@@ -287,7 +293,7 @@ export function ModeratorManagement() {
                     }
                     className="checkbox checkbox-sm checkbox-primary"
                   />
-                  <span>可以管理其他版主</span>
+                  <span>{t("can_manage_moderator")}</span>
                 </label>
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
@@ -301,13 +307,13 @@ export function ModeratorManagement() {
                     }
                     className="checkbox checkbox-sm checkbox-primary"
                   />
-                  <span>可以禁言用户</span>
+                  <span>{t("can_ban_user")}</span>
                 </label>
               </div>
             </div>
             <div className="modal-action">
               <button className="btn" onClick={() => setIsAddDialogOpen(false)}>
-                取消
+                {t("cancel")}
               </button>
               <button
                 className="btn btn-primary"
@@ -317,7 +323,7 @@ export function ModeratorManagement() {
                 {addModerator.isPending ? (
                   <span className="loading loading-spinner loading-sm" />
                 ) : null}
-                确认任命
+                {t("confirm_appoint")}
               </button>
             </div>
           </div>
@@ -326,11 +332,3 @@ export function ModeratorManagement() {
     </div>
   );
 }
-
-// 需要导入 Shield 图标
-import { Shield } from "lucide-react";
-import {
-  useAdminModeratorList,
-  useAddModerator,
-  useRemoveModerator,
-} from "../hooks/useAdminModerator";

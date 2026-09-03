@@ -2,6 +2,7 @@
 
 import { useState, useRef, useCallback } from "react";
 import toast from "react-hot-toast";
+import { useTranslations } from "next-intl";
 import { uploadApi } from "@/shared/api/modules/uploads";
 import { Play, X } from "lucide-react";
 
@@ -35,6 +36,7 @@ export function VideoUploader({
   onChange,
   className = "",
 }: VideoUploaderProps) {
+  const t = useTranslations("Upload");
   const [video, setVideo] = useState<VideoItem | null>(() =>
     initialVideo?.url
       ? { id: "initial-video", url: initialVideo.url, file_id: initialVideo.file_id }
@@ -54,7 +56,7 @@ export function VideoUploader({
     if (!file) return;
 
     if (file.size > maxSizeMB * 1024 * 1024) {
-      toast.error(`视频文件不能超过 ${maxSizeMB}MB`);
+      toast.error(t("video_too_large", { size: maxSizeMB }));
       return;
     }
 
@@ -78,7 +80,7 @@ export function VideoUploader({
       setVideo(uploaded);
       notifyChange(uploaded);
     } catch {
-      const failed: VideoItem = { ...newVideo, uploading: false, error: "上传失败" };
+      const failed: VideoItem = { ...newVideo, uploading: false, error: t("upload_failed") };
       setVideo(failed);
       notifyChange(failed);
     }
@@ -127,8 +129,12 @@ export function VideoUploader({
           className="w-full flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-base-300 hover:border-primary transition bg-base-100 py-10 gap-2"
         >
           <Play className="w-10 h-10 text-base-content/30" />
-          <span className="text-sm text-base-content/50">点击上传视频</span>
-          <span className="text-xs text-base-content/30">支持 MP4、WebM 等格式，最大 {maxSizeMB}MB</span>
+          <span className="text-sm text-base-content/50">
+            {t("click_to_upload_video")}
+          </span>
+          <span className="text-xs text-base-content/30">
+            {t("video_support_formats", { size: maxSizeMB })}
+          </span>
         </button>
       )}
       <input

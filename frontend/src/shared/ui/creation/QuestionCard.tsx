@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { timeAgo, truncate } from "@/shared/lib/utils";
 import { MessageSquare, HelpCircle } from "lucide-react";
+import { useTranslations } from "next-intl";
 import Avatar from "@/shared/ui/common/Avatar";
 import { UserDO } from "@/shared/api/types/user.model.do";
 
@@ -22,6 +23,8 @@ export function QuestionCard({
   createdAt: string;
   commentCount?: number;
 }) {
+  const t = useTranslations("Common");
+
   return (
     <div className="p-4">
       <div className="flex items-start gap-2">
@@ -51,7 +54,7 @@ export function QuestionCard({
             <span>{timeAgo(createdAt)}</span>
             <span className="flex items-center gap-1">
               <MessageSquare className="w-3 h-3" />
-              {commentCount ?? 0} 回答
+              {t("answered", { count: commentCount ?? 0 })}
             </span>
           </div>
         </div>

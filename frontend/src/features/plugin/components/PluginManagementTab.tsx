@@ -56,14 +56,14 @@ export function PluginManagementTab() {
           <Puzzle className="w-5 h-5 text-secondary" />
           <h2 className="text-base font-semibold">{t("installed_plugins")}</h2>
           <span className="badge badge-ghost badge-sm">
-            {activeCount} 启用 / {total} 已安装
+            {t("enabled_count", { active: activeCount, total })}
           </span>
         </div>
         <button
           onClick={() => setIsInstallOpen(true)}
           className="btn btn-secondary btn-sm gap-2"
         >
-          <Plus className="w-4 h-4" /> 自定义安装
+          <Plus className="w-4 h-4" /> {t("custom_install")}
         </button>
       </div>
 
@@ -72,7 +72,7 @@ export function PluginManagementTab() {
         <Search className="w-3.5 h-3.5" />
         <input
           type="text"
-          placeholder="搜索插件..."
+          placeholder={t("plugins_center_search")}
           value={keyword}
           onChange={(e) => setKeyword(e.target.value)}
           className="grow"
@@ -87,7 +87,7 @@ export function PluginManagementTab() {
       <div className="alert py-2 text-sm bg-base-200 border-base-300">
         <AlertCircle className="w-4 h-4 shrink-0" />
         <span className="text-base-content/60">
-          插件为外部 JS 文件，请仅安装可信来源的插件。
+          {t("security_warning")}
         </span>
       </div>
 
@@ -160,7 +160,7 @@ export function PluginManagementTab() {
       <Modal
         isOpen={isInstallOpen}
         onClose={() => setIsInstallOpen(false)}
-        title="自定义安装插件"
+        title={t("custom_install_title")}
       >
         <PluginUploadForm
           onSubmit={async (p) => {
@@ -174,7 +174,7 @@ export function PluginManagementTab() {
       <Modal
         isOpen={!!editTarget}
         onClose={() => setEditTarget(null)}
-        title={`编辑插件：${editTarget?.name}`}
+        title={t("edit_plugin_title", { name: editTarget?.name ?? "" })}
       >
         {editTarget && (
           <PluginUploadForm
@@ -191,18 +191,17 @@ export function PluginManagementTab() {
       <Modal
         isOpen={!!deleteTarget}
         onClose={() => setDeleteTarget(null)}
-        title="确认移除插件"
+        title={t("confirm_remove_title")}
       >
         <div className="space-y-4">
           <div className="flex gap-3 p-3 rounded-lg bg-error/10 border border-error/20">
             <AlertCircle className="w-5 h-5 text-error shrink-0 mt-0.5" />
             <div>
               <p className="text-sm font-medium">
-                确定要移除{" "}
-                <span className="text-error">{deleteTarget?.name}</span> 吗？
+                {t("confirm_remove_message", { name: deleteTarget?.name ?? "" })}
               </p>
               <p className="text-xs text-base-content/50 mt-1">
-                此操作将删除插件配置，脚本文件不受影响。
+                {t("confirm_remove_desc")}
               </p>
             </div>
           </div>
@@ -211,7 +210,7 @@ export function PluginManagementTab() {
               onClick={() => setDeleteTarget(null)}
               className="btn btn-ghost btn-sm"
             >
-              取消
+              {t("cancel")}
             </button>
             <button
               onClick={() => {
@@ -222,7 +221,7 @@ export function PluginManagementTab() {
               }}
               className="btn btn-error btn-sm gap-2"
             >
-              <Trash2 className="w-4 h-4" /> 确认移除
+              <Trash2 className="w-4 h-4" /> {t("confirm_remove")}
             </button>
           </div>
         </div>

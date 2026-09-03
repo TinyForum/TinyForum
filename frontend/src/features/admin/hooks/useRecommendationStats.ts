@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { adminKeys } from "./useAdminKeys";
 import {
   adminRecApi,
@@ -21,11 +22,12 @@ export const recAdminKeys = {
 };
 
 export function useRecOverview(enabled = true) {
+  const t = useTranslations("Admin");
   return useQuery<RecOverviewStats>({
     queryKey: recAdminKeys.overview(),
     queryFn: async () => {
       const res = await adminRecApi.getOverview();
-      if (res.data.code !== 0) throw new Error(res.data.message || "获取概览失败");
+      if (res.data.code !== 0) throw new Error(res.data.message || t("get_overview_failed"));
       return res.data.data as RecOverviewStats;
     },
     enabled,
@@ -34,11 +36,12 @@ export function useRecOverview(enabled = true) {
 }
 
 export function useRecBehaviorStats(days = 7, enabled = true) {
+  const t = useTranslations("Admin");
   return useQuery<BehaviorStats>({
     queryKey: recAdminKeys.behaviors(days),
     queryFn: async () => {
       const res = await adminRecApi.getBehaviorStats(days);
-      if (res.data.code !== 0) throw new Error(res.data.message || "获取行为统计失败");
+      if (res.data.code !== 0) throw new Error(res.data.message || t("get_behavior_stats_failed"));
       return res.data.data as BehaviorStats;
     },
     enabled,
@@ -47,11 +50,12 @@ export function useRecBehaviorStats(days = 7, enabled = true) {
 }
 
 export function useRecUserAnalysis(days = 7, enabled = true) {
+  const t = useTranslations("Admin");
   return useQuery<UserAnalysis>({
     queryKey: recAdminKeys.users(days),
     queryFn: async () => {
       const res = await adminRecApi.getUserAnalysis(days);
-      if (res.data.code !== 0) throw new Error(res.data.message || "获取用户分析失败");
+      if (res.data.code !== 0) throw new Error(res.data.message || t("get_user_analysis_failed"));
       return res.data.data as UserAnalysis;
     },
     enabled,
@@ -60,11 +64,12 @@ export function useRecUserAnalysis(days = 7, enabled = true) {
 }
 
 export function useRecContentPerformance(enabled = true) {
+  const t = useTranslations("Admin");
   return useQuery<ContentPerformance>({
     queryKey: recAdminKeys.content(),
     queryFn: async () => {
       const res = await adminRecApi.getContentPerformance();
-      if (res.data.code !== 0) throw new Error(res.data.message || "获取内容表现失败");
+      if (res.data.code !== 0) throw new Error(res.data.message || t("get_content_performance_failed"));
       return res.data.data as ContentPerformance;
     },
     enabled,
@@ -73,11 +78,12 @@ export function useRecContentPerformance(enabled = true) {
 }
 
 export function useRecRiskAnalysis(enabled = true) {
+  const t = useTranslations("Admin");
   return useQuery<RiskAnalysis>({
     queryKey: recAdminKeys.risk(),
     queryFn: async () => {
       const res = await adminRecApi.getRiskAnalysis();
-      if (res.data.code !== 0) throw new Error(res.data.message || "获取风险分析失败");
+      if (res.data.code !== 0) throw new Error(res.data.message || t("get_risk_analysis_failed"));
       return res.data.data as RiskAnalysis;
     },
     enabled,
@@ -86,11 +92,12 @@ export function useRecRiskAnalysis(enabled = true) {
 }
 
 export function useComprehensiveUserAnalysis(enabled = true) {
+  const t = useTranslations("Admin");
   return useQuery<ComprehensiveUserAnalysis>({
     queryKey: recAdminKeys.userAnalysis(),
     queryFn: async () => {
       const res = await adminRecApi.getComprehensiveUserAnalysis();
-      if (res.data.code !== 0) throw new Error(res.data.message || "获取用户分析失败");
+      if (res.data.code !== 0) throw new Error(res.data.message || t("get_user_analysis_failed"));
       return res.data.data as ComprehensiveUserAnalysis;
     },
     enabled,

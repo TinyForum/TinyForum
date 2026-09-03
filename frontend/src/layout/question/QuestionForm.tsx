@@ -7,6 +7,7 @@ import {
   ExclamationTriangleIcon,
   CheckCircleIcon,
 } from "@heroicons/react/24/outline";
+import { useTranslations } from "next-intl";
 import { AskFormData } from "@/features/qustion/hooks/useQuestionForm";
 
 interface QuestionFormProps {
@@ -22,6 +23,7 @@ export function QuestionForm({
   content,
   setContent,
 }: QuestionFormProps) {
+  const t = useTranslations("Questions");
   const contentLength = content.length;
   const isContentValid = contentLength > 0;
   const minContentLength = 20;
@@ -32,20 +34,20 @@ export function QuestionForm({
       <div className="form-control w-full">
         <label className="label">
           <span className="label-text font-medium">
-            标题 <span className="text-red-500">*</span>
+            {t("title_label")} <span className="text-red-500">*</span>
           </span>
           <span className="label-text-alt text-base-content/60">
-            5-100 字符
+            {t("title_char_range")}
           </span>
         </label>
         <input
           {...register("title", {
-            required: "请输入标题",
-            minLength: { value: 5, message: "标题至少 5 个字符" },
-            maxLength: { value: 100, message: "标题最多 100 个字符" },
+            required: t("title_required"),
+            minLength: { value: 5, message: t("title_min_5") },
+            maxLength: { value: 100, message: t("title_max_100") },
           })}
           type="text"
-          placeholder="例如：如何在 Next.js 中实现动态路由？"
+          placeholder={t("title_placeholder")}
           className={`input input-bordered w-full focus:input-primary ${
             errors.title ? "input-error" : ""
           }`}
@@ -60,7 +62,7 @@ export function QuestionForm({
         ) : (
           <label className="label">
             <span className="label-text-alt text-base-content/40">
-              一个好的标题能吸引更多回答者
+              {t("title_hint")}
             </span>
           </label>
         )}
@@ -70,10 +72,10 @@ export function QuestionForm({
       <div className="form-control w-full">
         <label className="label">
           <span className="label-text font-medium">
-            问题描述 <span className="text-red-500">*</span>
+            {t("content_label")} <span className="text-red-500">*</span>
           </span>
           <span className="label-text-alt text-base-content/60">
-            {contentLength} / 建议 ≥{minContentLength}
+            {t("content_length_hint", { count: contentLength, min: minContentLength })}
           </span>
         </label>
 
@@ -82,13 +84,7 @@ export function QuestionForm({
             value={content}
             onChange={(e) => setContent(e.target.value)}
             rows={12}
-            placeholder={`详细描述你的问题...
-
-💡 建议包含以下内容：
-1. 你想要实现什么功能？
-2. 你尝试过哪些方法？
-3. 遇到了什么具体的错误？
-4. 提供相关的代码片段`}
+            placeholder={t("content_placeholder")}
             className={`textarea textarea-bordered w-full font-mono text-sm resize-y ${
               !isContentValid && contentLength > 0 ? "textarea-error" : ""
             } focus:textarea-primary`}
@@ -99,7 +95,7 @@ export function QuestionForm({
             <div className="absolute bottom-2 right-2">
               <div
                 className="tooltip tooltip-left"
-                data-tip="内容太简短，建议提供更多细节"
+                data-tip={t("content_too_short_tip")}
               >
                 <ExclamationTriangleIcon className="w-4 h-4 text-warning" />
               </div>
@@ -111,7 +107,7 @@ export function QuestionForm({
           <label className="label">
             <span className="label-text-alt text-error flex items-center gap-1">
               <ExclamationTriangleIcon className="w-3 h-3" />
-              请输入问题内容
+              {t("content_required")}
             </span>
           </label>
         )}
@@ -120,7 +116,7 @@ export function QuestionForm({
           <label className="label">
             <span className="label-text-alt text-success flex items-center gap-1">
               <CheckCircleIcon className="w-3 h-3" />
-              内容完整，可以发布了
+              {t("content_complete")}
             </span>
           </label>
         )}
@@ -128,7 +124,7 @@ export function QuestionForm({
         <label className="label">
           <span className="label-text-alt text-base-content/40 flex items-center gap-1">
             <InformationCircleIcon className="w-3 h-3" />
-            支持 Markdown 格式，代码块语法高亮
+            {t("markdown_hint")}
           </span>
         </label>
       </div>
@@ -136,20 +132,20 @@ export function QuestionForm({
       {/* 摘要 */}
       <div className="form-control w-full">
         <label className="label">
-          <span className="label-text font-medium">问题摘要</span>
+          <span className="label-text font-medium">{t("summary_label")}</span>
           <span className="label-text-alt text-base-content/60">
-            可选，最多 500 字符
+            {t("summary_optional_hint")}
           </span>
         </label>
         <textarea
           {...register("summary")}
           rows={2}
-          placeholder="简要描述问题（将显示在列表中，帮助用户快速了解）"
+          placeholder={t("summary_placeholder")}
           className="textarea textarea-bordered w-full resize-none focus:textarea-primary"
         />
         <label className="label">
           <span className="label-text-alt text-base-content/40">
-            如果留空，将自动从内容中提取摘要
+            {t("summary_auto_hint")}
           </span>
         </label>
       </div>
@@ -158,12 +154,12 @@ export function QuestionForm({
       <div className="alert alert-info bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/30">
         <InformationCircleIcon className="w-4 h-4 text-blue-500" />
         <div className="text-xs text-blue-600 dark:text-blue-400">
-          <p className="font-medium mb-1">📝 提问小贴士：</p>
+          <p className="font-medium mb-1">{t("tips_title")}</p>
           <ul className="space-y-0.5">
-            <li>• 标题简洁明了，概括问题核心</li>
-            <li>• 提供详细的背景和错误信息</li>
-            <li>• 附上相关代码和运行环境</li>
-            <li>• 设置悬赏积分可以吸引更多回答</li>
+            <li>{t("tip_title_concise")}</li>
+            <li>{t("tip_background_details")}</li>
+            <li>{t("tip_code_and_env")}</li>
+            <li>{t("tip_reward")}</li>
           </ul>
         </div>
       </div>

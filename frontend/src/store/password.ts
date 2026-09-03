@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+import { useTranslations } from "next-intl";
 import { getErrorMessage } from "@/shared/lib/utils";
 import { authApi } from "@/shared/api/modules/auth";
 
@@ -12,6 +13,7 @@ interface UseChangePasswordOptions {
 
 export function useChangePassword(options: UseChangePasswordOptions = {}) {
   const router = useRouter();
+  const t = useTranslations("Settings");
   const [isLoading, setIsLoading] = useState(false);
 
   const changePassword = async (oldPassword: string, newPassword: string) => {
@@ -25,12 +27,12 @@ export function useChangePassword(options: UseChangePasswordOptions = {}) {
         new_password: newPassword,
       });
 
-      toast.success("密码修改成功");
+      toast.success(t("password_changed_successfully"));
       options.onSuccess?.();
 
       // 3 秒后登出并跳转到登录页
       setTimeout(() => {
-        toast.success("即将退出，请使用新密码重新登录");
+        toast.success(t("about_to_logout_relogin"));
         authApi.logout();
         router.push("/auth/login");
       }, 3000);
@@ -38,7 +40,7 @@ export function useChangePassword(options: UseChangePasswordOptions = {}) {
       return true;
     } catch (err: unknown) {
       const errorMsg = getErrorMessage(err);
-      toast.error(errorMsg);
+      toast.error(t(errorMsg));
       options.onError?.(errorMsg);
       return false;
     } finally {

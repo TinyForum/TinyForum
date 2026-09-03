@@ -156,10 +156,10 @@ export default function NotificationBell({
     const diffMins = Math.floor(diffMs / 60000);
     const diffHours = Math.floor(diffMs / 3600000);
     const diffDays = Math.floor(diffMs / 86400000);
-    if (diffMins < 1) return "刚刚";
-    if (diffMins < 60) return `${diffMins}分钟前`;
-    if (diffHours < 24) return `${diffHours}小时前`;
-    if (diffDays < 7) return `${diffDays}天前`;
+    if (diffMins < 1) return t("just_now");
+    if (diffMins < 60) return t("minutes_ago", { count: diffMins });
+    if (diffHours < 24) return t("hours_ago", { count: diffHours });
+    if (diffDays < 7) return t("days_ago", { count: diffDays });
     return date.toLocaleDateString();
   };
 
@@ -267,7 +267,7 @@ export default function NotificationBell({
         ref={buttonRef}
         onClick={handleOpen}
         className={`btn btn-ghost btn-sm relative focus:outline-none ${compact ? "btn-square" : "btn-circle"}`}
-        aria-label="通知"
+        aria-label={t("notification_bell")}
       >
         <Bell className="w-5 h-5" />
         {unreadCount > 0 && (
@@ -313,7 +313,7 @@ export default function NotificationBell({
                   <DialogPanel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 p-6 shadow-xl transition-all">
                     <div className="flex items-center justify-between mb-4">
                       <DialogTitle className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                        通知详情
+                        {t("notification_detail")}
                       </DialogTitle>
                       <button
                         onClick={() => setIsModalOpen(false)}
@@ -344,7 +344,7 @@ export default function NotificationBell({
                                   setIsModalOpen(false);
                                 }}
                               >
-                                已读
+                                {t("mark_read")}
                               </Button>
                             </div>
                           )}
@@ -352,12 +352,13 @@ export default function NotificationBell({
                         <div className="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-gray-700">
                           <div className="text-xs text-gray-400 dark:text-gray-500 space-y-1">
                             <div>
-                              发送时间：
+                              {t("send_time")}
                               {formatDate(selectedNotification.created_at)}
                             </div>
                             {selectedNotification.type && (
                               <div>
-                                类型：{t(`${selectedNotification.type}_notify`)}
+                                {t("notification_type_label")}
+                                {t(`${selectedNotification.type}_notify`)}
                               </div>
                             )}
                           </div>
@@ -367,7 +368,7 @@ export default function NotificationBell({
                               onClick={() => setIsModalOpen(false)}
                               className="px-3 py-1.5 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                             >
-                              查看详情
+                              {t("view_details")}
                             </Link>
                           )}
                         </div>

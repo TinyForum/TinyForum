@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { NocodeMetadata, NodeMeta } from "@/shared/api/types/nocode.model";
 import { CollapsibleSection } from "./CollapsibleSection";
 import { FlowNodeData } from "./FlowNode";
@@ -72,31 +73,33 @@ const sectionColors: Record<string, string> = {
 };
 
 export function NodePalette({ metadata }: NodePaletteProps) {
+  const t = useTranslations("Bot");
+
   return (
     <div className="h-full overflow-y-auto p-3 space-y-3 bg-gray-50">
-      <div className="text-sm font-bold text-gray-600 mb-2">拖拽节点到画布</div>
+      <div className="text-sm font-bold text-gray-600 mb-2">{t("drag_node_to_canvas")}</div>
 
       <Section
         color="trigger"
-        title="触发器"
+        title={t("trigger_section")}
         items={metadata.triggers}
         category="trigger"
       />
       <Section
         color="control"
-        title="控制"
+        title={t("control_section")}
         items={metadata.control}
         category="control"
       />
       <Section
         color="variable"
-        title="变量"
+        title={t("variable_section")}
         items={metadata.variables}
         category="variable"
       />
       <Section
         color="action"
-        title="动作"
+        title={t("action_section")}
         items={metadata.actions}
         category="action"
       />

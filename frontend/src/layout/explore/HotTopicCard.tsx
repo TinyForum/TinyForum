@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { Topic } from "@/shared/api/types/topic.model";
 import Link from "next/link";
 import {
@@ -14,6 +15,8 @@ interface HotTopicCardProps {
 }
 
 export function HotTopicCard({ topic, rank }: HotTopicCardProps) {
+  const t = useTranslations("Explore");
+
   // 获取排名样式
   const getRankStyles = (rank: number) => {
     switch (rank) {
@@ -68,7 +71,7 @@ export function HotTopicCard({ topic, rank }: HotTopicCardProps) {
                 </h4>
                 {topic.post_count !== undefined && topic.post_count > 50 && (
                   <span className="badge badge-primary badge-xs shrink-0">
-                    热门
+                    {t("badge_hot")}
                   </span>
                 )}
               </div>
@@ -80,11 +83,11 @@ export function HotTopicCard({ topic, rank }: HotTopicCardProps) {
               <div className="flex items-center flex-wrap gap-x-3 gap-y-1 text-xs text-base-content/50">
                 <span className="flex items-center gap-1">
                   <ChatBubbleLeftRightIcon className="w-3 h-3" />
-                  {topic.post_count || 0} 帖子
+                  {t("post_count", { count: topic.post_count || 0 })}
                 </span>
                 <span className="flex items-center gap-1">
                   <UserGroupIcon className="w-3 h-3" />
-                  {topic.follower_count || 0} 关注
+                  {t("follower_count", { count: topic.follower_count || 0 })}
                 </span>
                 {/* {showTodayCount && topic.today_count !== undefined && topic.today_count > 0 && (
                   <span className="flex items-center gap-1 text-orange-500">

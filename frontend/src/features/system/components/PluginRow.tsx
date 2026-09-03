@@ -1,5 +1,6 @@
 // ── Sub-components ─────────────────────────────────────────────────────────────
 
+import { useTranslations } from "next-intl";
 import { PluginMeta } from "@/shared/api/types/plugin.model";
 import { Switch } from "@headlessui/react";
 import {
@@ -27,6 +28,8 @@ export function PluginRow({
   onEdit: () => void;
   onDelete: () => void;
 }) {
+  const t = useTranslations("System");
+
   return (
     <div className="flex items-center gap-3 px-4 py-3 hover:bg-base-50 transition-colors">
       {/* Icon */}
@@ -73,7 +76,7 @@ export function PluginRow({
         ) : (
           <PowerOff className="w-3 h-3" />
         )}
-        {plugin.enabled ? "启用" : "禁用"}
+        {plugin.enabled ? t("enabled") : t("disabled")}
       </span>
 
       {/* Toggle */}
@@ -92,14 +95,14 @@ export function PluginRow({
         <button
           onClick={onEdit}
           className="btn btn-ghost btn-xs btn-square"
-          title="编辑"
+          title={t("edit")}
         >
           <Pencil className="w-3.5 h-3.5" />
         </button>
         <button
           onClick={onDelete}
           className="btn btn-ghost btn-xs btn-square text-error hover:text-error"
-          title="移除"
+          title={t("remove")}
         >
           <Trash2 className="w-3.5 h-3.5" />
         </button>

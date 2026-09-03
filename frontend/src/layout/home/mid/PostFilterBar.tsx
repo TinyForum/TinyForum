@@ -33,6 +33,7 @@ export default function PostFilterBar({
   totalCount,
 }: PostFilterBarProps) {
   const t = useTranslations("Post");
+  const tHome = useTranslations("Home");
   const isDesktop = useMediaQuery("(min-width: 1024px)");
 
   const sortOptions: { value: SortBy; label: string; icon: React.ReactNode }[] =
@@ -84,7 +85,7 @@ export default function PostFilterBar({
         {/* 统计信息 */}
         {totalCount !== undefined && totalCount > 0 && (
           <div className="text-xs text-base-content/60 whitespace-nowrap hidden sm:block">
-            {isDesktop ? t("total_posts", { count: totalCount }) : totalCount}
+            {isDesktop ? tHome("total_posts", { count: totalCount }) : totalCount}
           </div>
         )}
       </div>

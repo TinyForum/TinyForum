@@ -1,0 +1,21 @@
+{
+  "video_too_large": "视频文件不能超过 {size}MB",
+  "click_to_upload_video": "点击上传视频",
+  "video_support_formats": "支持 MP4、WebM 等格式，最大 {size}MB",
+  "upload_failed": "上传失败",
+  "invalid_upload_response": "上传响应无效",
+  "invalid_url_returned": "返回的URL无效",
+  "get_file_failed": "获取文件失败",
+  "max_images": "最多上传 {max} 张图片",
+  "upload_image": "上传图片",
+  "set_as_cover": "设为封面",
+  "cover": "封面",
+  "delete": "删除",
+  "expand": "展开",
+  "collapse": "折叠",
+  "grid_layout": "网格",
+  "waterfall_layout": "瀑布流",
+  "horizontal_scroll_layout": "横向滚动",
+  "tile_layout": "平铺",
+  "preview_alt": "预览"
+}

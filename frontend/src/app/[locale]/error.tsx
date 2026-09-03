@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 interface ErrorProps {
   error: Error & { digest?: string };
@@ -9,6 +10,8 @@ interface ErrorProps {
 }
 
 export default function Error({ error, reset }: ErrorProps) {
+  const t = useTranslations("Home");
+
   useEffect(() => {
     console.error("Unhandled page error:", error);
   }, [error]);
@@ -16,19 +19,19 @@ export default function Error({ error, reset }: ErrorProps) {
   return (
     <div className="min-h-screen flex items-center justify-center bg-base-100">
       <div className="text-center space-y-6">
-        <h1 className="text-6xl font-bold text-error">Error</h1>
+        <h1 className="text-6xl font-bold text-error">{t("error_title")}</h1>
         <h2 className="text-2xl font-semibold text-base-content">
-          Something went wrong
+          {t("something_wrong")}
         </h2>
         <p className="text-base-content/60 max-w-md mx-auto">
-          An unexpected error occurred. Please try again.
+          {t("something_wrong_desc")}
         </p>
         <div className="flex gap-4 justify-center">
           <button onClick={reset} className="btn btn-primary">
-            Try Again
+            {t("try_again")}
           </button>
           <Link href="/" className="btn btn-outline">
-            Back to Home
+            {t("back_to_home")}
           </Link>
         </div>
       </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import {
   Settings,
   Puzzle,
@@ -15,7 +16,7 @@ export type SystemMenuId =
 
 interface MenuItem {
   id: SystemMenuId;
-  label: string;
+  labelKey: string;
   sublabel: string;
   icon: React.ReactNode;
   accent: string;
@@ -24,21 +25,21 @@ interface MenuItem {
 const MENUS: MenuItem[] = [
   {
     id: "website_config",
-    label: "网站配置",
+    labelKey: "website_config",
     sublabel: "Site Config",
     icon: <Settings className="w-5 h-5" />,
     accent: "text-primary",
   },
   {
     id: "plugins_center",
-    label: "插件中心",
+    labelKey: "plugins_center",
     sublabel: "Plugins",
     icon: <Puzzle className="w-5 h-5" />,
     accent: "text-secondary",
   },
   {
     id: "features_flags",
-    label: "功能开关",
+    labelKey: "features_flags",
     sublabel: "Feature Flags",
     icon: <ToggleLeft className="w-5 h-5" />,
     accent: "text-accent",
@@ -58,6 +59,8 @@ export function SystemSidebar({
   onSelect,
   onToggleCollapse,
 }: SystemSidebarProps) {
+  const t = useTranslations("System");
+
   return (
     <aside
       className={`${
@@ -69,7 +72,7 @@ export function SystemSidebar({
         {!collapsed && (
           <div className="overflow-hidden">
             <p className="font-bold text-base leading-tight truncate">
-              系统管理
+              {t("system_management")}
             </p>
             <p className="text-[11px] text-base-content/40 tracking-widest uppercase">
               System
@@ -79,7 +82,7 @@ export function SystemSidebar({
         <button
           onClick={onToggleCollapse}
           className="btn btn-ghost btn-xs btn-square shrink-0 ml-auto"
-          title={collapsed ? "展开" : "收起"}
+          title={collapsed ? t("expand") : t("collapse")}
         >
           {collapsed ? (
             <ChevronRight className="w-4 h-4" />
@@ -97,7 +100,7 @@ export function SystemSidebar({
             <button
               key={menu.id}
               onClick={() => onSelect(menu.id)}
-              title={collapsed ? menu.label : undefined}
+              title={collapsed ? t(menu.labelKey) : undefined}
               className={`
                 w-full flex items-center gap-3 rounded-lg px-3 py-2.5 text-left
                 transition-all duration-150 group
@@ -114,7 +117,7 @@ export function SystemSidebar({
               {!collapsed && (
                 <div className="overflow-hidden">
                   <p className="text-sm font-medium leading-none truncate">
-                    {menu.label}
+                    {t(menu.labelKey)}
                   </p>
                   <p
                     className={`text-[10px] mt-0.5 truncate ${isActive ? "text-primary-content/60" : "text-base-content/30"}`}
@@ -135,7 +138,7 @@ export function SystemSidebar({
       {!collapsed && (
         <div className="p-3 border-t border-base-300">
           <p className="text-[10px] text-base-content/25 text-center leading-relaxed">
-            修改配置后立即生效
+            {t("config_effective_immediately")}
           </p>
         </div>
       )}

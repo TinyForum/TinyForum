@@ -1,9 +1,9 @@
 {
-  "score_label": "积分",
-  "navigation": "导航",
-  "quick_actions": "快捷操作",
-  "ask_question": "提问",
-  "admin_dashboard": "管理后台",
+  "score_label": "Score",
+  "navigation": "Navigation",
+  "quick_actions": "Quick actions",
+  "ask_question": "Ask question",
+  "admin_dashboard": "Admin dashboard",
   "boards": "Boards",
   "brand": "Tiny Forum",
   "create_post": "Create post",
@@ -21,5 +21,11 @@
   "track": "Track",
   "questions": "Q&A",
   "topics": "Topics",
-  "timeline": "Timeline"
+  "timeline": "Timeline",
+
+  "mobile_menu": "Menu",
+  "language_chinese_simplified": "简体中文",
+  "language_english": "English",
+  "language_chinese_short": "中文",
+  "language_english_short": "EN"
 }

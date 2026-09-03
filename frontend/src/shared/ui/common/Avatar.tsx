@@ -2,6 +2,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 
 interface AvatarProps {
@@ -50,6 +51,7 @@ export default function Avatar({
   ringOffsetColor = "base-100",
   zIndex = "auto",
 }: AvatarProps) {
+  const t = useTranslations("Common");
   const [hasError, setHasError] = useState(false);
   const [normalizedSrc, setNormalizedSrc] = useState<string>("");
 
@@ -148,7 +150,7 @@ export default function Avatar({
       <div className={innerClasses}>
         <Image
           src={normalizedSrc}
-          alt={username || "用户头像"}
+          alt={username || t("avatar_alt")}
           fill
           className="object-cover"
           onError={handleError}

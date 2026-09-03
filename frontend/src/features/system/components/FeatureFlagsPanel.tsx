@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Switch } from "@headlessui/react";
 import { CheckCircle2, Circle } from "lucide-react";
 import type { Feature } from "../hooks/useFeatureFlags";
@@ -21,6 +22,7 @@ export function FeatureFlagsPanel({
   onToggle,
   onEnableAll,
 }: FeatureFlagsPanelProps) {
+  const t = useTranslations("System");
   const pct = total > 0 ? Math.round((enabledCount / total) * 100) : 0;
 
   return (
@@ -30,7 +32,7 @@ export function FeatureFlagsPanel({
         <div className="card-body py-4 flex-row items-center gap-6">
           <div className="flex-1 space-y-1.5">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-base-content/60">功能启用率</span>
+              <span className="text-base-content/60">{t("feature_enable_rate")}</span>
               <span className="font-bold tabular-nums">
                 {enabledCount} / {total}
               </span>
@@ -46,10 +48,10 @@ export function FeatureFlagsPanel({
             <p className="text-2xl font-bold text-primary tabular-nums">
               {pct}%
             </p>
-            <p className="text-xs text-base-content/40">启用率</p>
+            <p className="text-xs text-base-content/40">{t("enable_rate")}</p>
           </div>
           <button onClick={onEnableAll} className="btn btn-ghost btn-sm">
-            全部启用
+            {t("enable_all")}
           </button>
         </div>
       </div>

@@ -1,0 +1,52 @@
+{
+  "loading_failed": "加载失败",
+  "search_failed": "搜索失败",
+  "no_results_found": "未找到相关结果",
+
+  "hot": "热门",
+  "latest": "最新",
+  "trending": "趋势",
+  "recommended": "推荐",
+
+  "title": "探索",
+  "subtitle": "发现热门内容、话题和活跃用户",
+  "search_placeholder": "搜索帖子...",
+  "search_button": "搜索",
+  "clear_button": "清除",
+  "enter_search_keyword": "请输入搜索关键词",
+
+  "login_for_recommendation": "登录后获得个性化推荐",
+  "recommendation_desc": "系统将根据您的浏览和互动行为，为您推荐感兴趣的内容",
+  "login_now": "立即登录",
+
+  "views": "{count} 浏览",
+  "likes": "{count} 赞",
+  "comments": "{count} 评论",
+  "view": "浏览",
+  "like": "赞",
+  "comment": "评论",
+
+  "no_results": "未找到相关结果",
+  "no_content": "暂无内容",
+  "try_other_keywords": "尝试使用其他关键词",
+  "no_content_create": "还没有内容，去发布第一个帖子吧！",
+  "publish_post": "发布帖子",
+
+  "hot_tags": "热门标签",
+  "hot_topics": "热门话题",
+  "leaderboard": "积分榜",
+  "discover_more": "发现更多",
+  "discover_more_desc": "关注热门话题、标签和活跃用户，发现更多精彩内容",
+  "login_for_personalized": "登录后获得个性化推荐",
+
+  "view_more_topics": "查看更多话题",
+  "no_tags": "暂无标签",
+  "no_topics": "暂无话题",
+  "no_users": "暂无用户",
+
+  "badge_hot": "热门",
+  "post_count": "{count} 帖子",
+  "follower_count": "{count} 关注",
+  "tag_post_count": "{count} 个帖子",
+  "operation_failed": "操作失败"
+}

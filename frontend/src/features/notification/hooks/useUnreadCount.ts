@@ -1,10 +1,12 @@
 // hooks/useUnreadCount.ts
 import { useState, useEffect, useCallback } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { useTranslations } from 'next-intl'
 import { notificationKeys } from './useNotificationKeys'
 import { notificationApi } from '@/shared/api/modules/notifications'
 
 export function useUnreadCount(isAuthenticated: boolean = false) {
+  const t = useTranslations('Notifications')
   const [unreadCount, setUnreadCount] = useState<number>(0)
 
   // 查询：获取未读数量
@@ -13,10 +15,10 @@ export function useUnreadCount(isAuthenticated: boolean = false) {
     queryFn: async () => {
       const res = await notificationApi.unreadCount()
       if (res.data.code !== 0) {
-        throw new Error(res.data.message || '获取未读数量失败')
+        throw new Error(res.data.message || t('fetch_unread_count_failed'))
       }
       if (!res.data.data) {
-        throw new Error('未读数量数据为空')
+        throw new Error(t('unread_count_empty'))
       }
       return res.data.data
     },

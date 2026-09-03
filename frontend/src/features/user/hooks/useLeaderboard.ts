@@ -1,4 +1,5 @@
 import { useCallback, useState } from "react"
+import { useTranslations } from "next-intl"
 import { useQuery } from "@tanstack/react-query"
 import { userApi } from "@/shared/api/modules/user"
 import { LeaderboardItemResponse } from "@/shared/api/types/user.model"
@@ -18,6 +19,7 @@ interface LeaderboardParams {
 }
 
 export function useLeaderboard(): UseLeaderboardReturn {
+  const t = useTranslations("User")
   const [params, setParams] = useState<LeaderboardParams>({
     simple: true,
     limit: 100,
@@ -31,10 +33,10 @@ export function useLeaderboard(): UseLeaderboardReturn {
         ? await userApi.getLeaderboardSimple({ limit: params.limit })
         : await userApi.getLeaderboardDetail({ limit: params.limit })
       if (res.data.code !== 0) {
-        throw new Error(res.data.message || "加载排行榜失败")
+        throw new Error(res.data.message || t("leaderboard_load_failed"))
       }
       if (!res.data.data) {
-        throw new Error("加载排行榜失败")
+        throw new Error(t("leaderboard_load_failed"))
       }
       return res.data.data
     },

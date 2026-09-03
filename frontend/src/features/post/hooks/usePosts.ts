@@ -18,6 +18,7 @@ import {
   InfiniteData,
   UseInfiniteQueryResult,
 } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 
 // ---------- Query Keys ----------
 export const postKeys = {
@@ -29,9 +30,9 @@ export const postKeys = {
 };
 
 // ---------- Helper: 确保 API 返回有效数据 ----------
-function assertData<T>(data: T | undefined | null): T {
+function assertData<T>(data: T | undefined | null, message: string): T {
   if (data === undefined || data === null) {
-    throw new Error("API 返回的数据为空");
+    throw new Error(message);
   }
   return data;
 }
@@ -58,11 +59,12 @@ export const usePosts = (
   params?: PostListParams,
   options?: Omit<UseQueryOptions<PageData<Post>>, "queryKey" | "queryFn">,
 ) => {
+  const t = useTranslations("Post");
   return useQuery({
     queryKey: postKeys.list(params),
     queryFn: async () => {
       const response = await postApi.list(params);
-      return assertData(response.data.data);
+      return assertData(response.data.data, t("data_empty"));
     },
     ...options,
   });
@@ -75,6 +77,7 @@ export const usePostsInfinite = (
   params?: Omit<PostListParams, "cursor">,
   options?: { enabled?: boolean },
 ): UseInfiniteQueryResult<InfiniteData<PageData<Post>>> => {
+  const t = useTranslations("Post");
   return useInfiniteQuery({
     queryKey: [...postKeys.lists(), "infinite", params] as const,
     queryFn: async ({ pageParam }: { pageParam: string | undefined }) => {
@@ -83,7 +86,7 @@ export const usePostsInfinite = (
         page_size: params?.page_size ?? 15,
         cursor: pageParam,
       });
-      return assertData(response.data.data);
+      return assertData(response.data.data, t("data_empty"));
     },
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (lastPage: PageData<Post>) => {
@@ -102,11 +105,12 @@ export const usePost = (
   id: number,
   options?: Omit<UseQueryOptions<PostDetailResponse>, "queryKey" | "queryFn">,
 ) => {
+  const t = useTranslations("Post");
   return useQuery({
     queryKey: postKeys.detail(id),
     queryFn: async () => {
       const response = await postApi.getById(id);
-      return assertData(response.data.data);
+      return assertData(response.data.data, t("data_empty"));
     },
     enabled: !!id,
     ...options,
@@ -120,11 +124,12 @@ export const useCreatePost = (
   options?: UseMutationOptions<Post, Error, CreatePostPayload>,
 ) => {
   const queryClient = useQueryClient();
+  const t = useTranslations("Post");
 
   return useMutation({
     mutationFn: async (payload: CreatePostPayload) => {
       const response = await postApi.create(payload);
-      return assertData(response.data.data);
+      return assertData(response.data.data, t("data_empty"));
     },
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: postKeys.lists() });
@@ -146,11 +151,12 @@ export const useUpdatePost = (
   >,
 ) => {
   const queryClient = useQueryClient();
+  const t = useTranslations("Post");
 
   return useMutation({
     mutationFn: async ({ id, data }) => {
       const response = await postApi.update(id, data);
-      return assertData(response.data.data);
+      return assertData(response.data.data, t("data_empty"));
     },
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({

@@ -1,0 +1,71 @@
+{
+  "website_config": "Site Config",
+  "plugins_center": "Plugins Center",
+  "features_flags": "Feature Flags",
+  "system_management": "System",
+  "expand": "Expand",
+  "collapse": "Collapse",
+  "config_effective_immediately": "Changes take effect immediately",
+
+  "auto_load_from_backend": "Auto-load config from backend, save and reload instantly",
+  "plugin_install_tip": "Install, enable or remove plugins",
+  "feature_control_tip": "Control feature module states in real time",
+
+  "config_file": "Config File:",
+  "no_config_items": "No config items",
+  "sensitive_fields_hidden": "Some sensitive fields are hidden and excluded from saving.",
+  "reloading": "Reloading...",
+  "reload_config": "Reload Config",
+  "saving": "Saving...",
+  "save_config": "Save Config",
+  "loading_config": "Loading config...",
+
+  "server": "Server",
+  "api_config": "API Config",
+  "frontend_config": "Frontend Config",
+  "log_config": "Log Config",
+  "attachment_config": "Attachment Config",
+  "plugins_config": "Plugins Config",
+  "cors_origins": "CORS Origins",
+  "version": "Version",
+  "general_config": "General Config",
+
+  "duration_placeholder": "30s / 5m / 24h",
+  "comma_separated": "Comma separated",
+
+  "description": "Description",
+  "slots": "Slots",
+  "not_declared": "Not declared",
+  "last_updated": "Last Updated",
+
+  "no_plugins_found": "No plugins found matching \"{keyword}\"",
+  "no_plugins_installed": "No plugins installed yet",
+  "install_first_plugin": "Install first plugin",
+
+  "feature_enable_rate": "Feature Enable Rate",
+  "enable_rate": "Enable Rate",
+  "enable_all": "Enable All",
+
+  "plugin_management": "Manage",
+  "plugin_market": "Market",
+  "plugin_config": "Config",
+  "runtime_logs": "Logs",
+  "developer_tools": "Dev Tools",
+  "upload_plugin": "Upload",
+  "my_plugins": "My Plugins",
+
+  "enabled": "Enabled",
+  "disabled": "Disabled",
+  "edit": "Edit",
+  "remove": "Remove",
+
+  "config_saved": "Config saved, auto-reloaded",
+  "save_failed": "Save failed",
+  "config_reloaded": "Config reloaded ({count} files)",
+  "reload_failed": "Reload failed",
+  "config_load_failed": "Failed to load config",
+  "feature_enabled": "{name} enabled",
+  "feature_disabled": "{name} disabled",
+  "operation_failed_retry": "Operation failed, please retry",
+  "all_features_enabled": "All features enabled"
+}

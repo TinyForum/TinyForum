@@ -5,6 +5,7 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useAuthStore } from "@/store/auth";
 import {
   ShieldCheckIcon,
@@ -75,25 +76,25 @@ const STATUS_MAP: Record<
 > = {
   pending: {
     icon: ClockIcon,
-    label: "审核中",
+    label: "status_pending",
     cls: "text-yellow-600 bg-yellow-100 dark:bg-yellow-900/30 dark:text-yellow-400",
     borderCls: "border-yellow-200 dark:border-yellow-800",
   },
   approved: {
     icon: CheckCircleIcon,
-    label: "已通过",
+    label: "status_approved",
     cls: "text-green-600 bg-green-100 dark:bg-green-900/30 dark:text-green-400",
     borderCls: "border-green-200 dark:border-green-800",
   },
   rejected: {
     icon: XCircleIcon,
-    label: "已拒绝",
+    label: "status_rejected",
     cls: "text-red-600 bg-red-100 dark:bg-red-900/30 dark:text-red-400",
     borderCls: "border-red-200 dark:border-red-800",
   },
   canceled: {
     icon: XCircleIcon,
-    label: "已撤销",
+    label: "status_revoked",
     cls: "text-gray-600 bg-gray-100 dark:bg-gray-900/30 dark:text-gray-400",
     borderCls: "border-gray-200 dark:border-gray-700",
   },
@@ -103,18 +104,19 @@ const formatDate = (dateString: string, locale = "zh-CN"): string => {
   try {
     return new Date(dateString).toLocaleString(locale);
   } catch {
-    return "日期无效";
+    return "invalid_date";
   }
 };
 
 function StatusBadge({ status }: { status: ApplicationStatus }) {
+  const t = useTranslations("Board");
   const { icon: Icon, label, cls } = STATUS_MAP[status];
   return (
     <span
       className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium transition-colors ${cls}`}
     >
       <Icon className="w-4 h-4" aria-hidden="true" />
-      {label}
+      {t(label)}
     </span>
   );
 }
@@ -128,6 +130,7 @@ function ApplicationCard({
   onCancel?: (id: number) => void;
   cancelLoadingId?: number | null;
 }) {
+  const t = useTranslations("Board");
   const isHandled = app.status !== "pending";
   const hasReviewNote = !!app.review_note;
   const canCancel = app.status === "pending";
@@ -148,13 +151,13 @@ function ApplicationCard({
           </Link>
           <p className="text-xs text-gray-400 mt-1">
             <time dateTime={app.created_at}>
-              提交于 {formatDate(app.created_at)}
+               {t("submitted_on")}{t(formatDate(app.created_at))}
             </time>
             {isHandled && app.reviewed_at && (
               <>
                 {" · "}
                 <time dateTime={app.reviewed_at}>
-                  处理于 {formatDate(app.reviewed_at)}
+                   {t("reviewed_on")}{t(formatDate(app.reviewed_at))}
                 </time>
               </>
             )}
@@ -165,40 +168,40 @@ function ApplicationCard({
 
       {/* Reason */}
       <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg px-4 py-3 mb-3">
-        <p className="text-xs font-medium text-gray-400 mb-1">申请理由</p>
+        <p className="text-xs font-medium text-gray-400 mb-1">{t("apply_reason_label")}</p>
         <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap break-words">
-          {app.reason || "未提供理由"}
+          {app.reason || t("no_reason")}
         </p>
       </div>
 
       {/* Requested Permissions */}
       {app.requested_perms && (
         <div className="mb-3">
-          <p className="text-xs font-medium text-gray-400 mb-2">申请权限</p>
+          <p className="text-xs font-medium text-gray-400 mb-2">{t("requested_permissions")}</p>
           <div className="flex flex-wrap gap-2">
             {app.requested_perms.delete_post && (
               <span className="text-xs px-2 py-1 rounded bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400">
-                删除帖子
+                {t("badge_delete_post")}
               </span>
             )}
             {app.requested_perms.pin_post && (
               <span className="text-xs px-2 py-1 rounded bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400">
-                置顶帖子
+                {t("badge_pin_post")}
               </span>
             )}
             {app.requested_perms.edit_any_post && (
               <span className="text-xs px-2 py-1 rounded bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400">
-                编辑任意帖子
+                {t("badge_edit_any_post")}
               </span>
             )}
             {app.requested_perms.manage_moderator && (
               <span className="text-xs px-2 py-1 rounded bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400">
-                管理版主
+                {t("badge_manage_moderator")}
               </span>
             )}
             {app.requested_perms.ban_user && (
               <span className="text-xs px-2 py-1 rounded bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400">
-                禁言用户
+                {t("badge_ban_user")}
               </span>
             )}
           </div>
@@ -215,12 +218,12 @@ function ApplicationCard({
           }`}
         >
           <p className="font-medium mb-1">
-            {app.status === "approved" ? "通过说明" : "拒绝理由"}
+            {app.status === "approved" ? t("approval_note") : t("rejection_note")}
           </p>
           <p className="whitespace-pre-wrap break-words">{app.review_note}</p>
           {app.reviewer_id && (
             <p className="text-xs opacity-70 mt-2">
-              处理人ID：{app.reviewer_id}
+              {t("reviewer_id")}{app.reviewer_id}
             </p>
           )}
         </div>
@@ -234,7 +237,7 @@ function ApplicationCard({
             disabled={isLoading}
             className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isLoading ? "撤销中..." : "撤销申请"}
+            {isLoading ? t("revoking") : t("revoke_application")}
           </button>
         )}
         {app.status === "approved" && (
@@ -242,7 +245,7 @@ function ApplicationCard({
             href={`/boards/${app.board_slug}`}
             className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors group"
           >
-            进入板块
+            {t("enter_board")}
             <ArrowTopRightOnSquareIcon className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
           </Link>
         )}
@@ -251,7 +254,7 @@ function ApplicationCard({
             href={`/boards/${app.board_slug}/apply`}
             className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors"
           >
-            重新申请
+            {t("reapply")}
           </Link>
         )}
       </div>
@@ -260,8 +263,9 @@ function ApplicationCard({
 }
 
 function LoadingSkeleton() {
+  const t = useTranslations("Board");
   return (
-    <div className="space-y-4" aria-label="加载中">
+    <div className="space-y-4" aria-label={t("loading")}>
       {[...Array(3)].map((_, i) => (
         <div
           key={i}
@@ -274,6 +278,7 @@ function LoadingSkeleton() {
 }
 
 function EmptyState() {
+  const t = useTranslations("Board");
   return (
     <div className="text-center py-20 bg-white dark:bg-gray-800 rounded-2xl border border-dashed border-gray-200 dark:border-gray-700">
       <ShieldCheckIcon
@@ -281,31 +286,32 @@ function EmptyState() {
         aria-hidden="true"
       />
       <p className="text-gray-500 dark:text-gray-400 mb-4">
-        还没有提交过版主申请
+        {t("no_applications_yet")}
       </p>
       <Link
         href="/boards"
         className="inline-block px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-xl font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
       >
-        浏览板块
+        {t("browse_boards")}
       </Link>
     </div>
   );
 }
 
 function ErrorState({ onRetry }: { onRetry: () => void }) {
+  const t = useTranslations("Board");
   return (
     <div className="text-center py-20 bg-white dark:bg-gray-800 rounded-2xl border border-red-200 dark:border-red-800">
       <ExclamationTriangleIcon
         className="w-12 h-12 text-red-400 mx-auto mb-3"
         aria-hidden="true"
       />
-      <p className="text-gray-600 dark:text-gray-400 mb-4">加载申请记录失败</p>
+      <p className="text-gray-600 dark:text-gray-400 mb-4">{t("load_applications_failed")}</p>
       <button
         onClick={onRetry}
         className="inline-block px-5 py-2 bg-gray-600 hover:bg-gray-700 text-white text-sm rounded-xl font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
       >
-        重试
+        {t("retry")}
       </button>
     </div>
   );
@@ -315,6 +321,7 @@ export default function BoardApplicationsClient() {
   const { isAuthenticated } = useAuthStore();
   const router = useRouter();
   const queryClient = useQueryClient();
+  const t = useTranslations("Board");
   const [page, setPage] = useState(1);
   const [cancelLoadingId, setCancelLoadingId] = useState<number | null>(null);
 
@@ -331,7 +338,7 @@ export default function BoardApplicationsClient() {
   const transformApplication = (app: ApiApplication): ExtendedApplication => ({
     id: app.id,
     board_id: app.board_id,
-    board_name: app.board?.name || `板块 #${app.board_id}`,
+    board_name: app.board?.name || t("board_fallback", { id: app.board_id }),
     board_slug: app.board?.slug || `board-${app.board_id}`,
     reason: app.reason,
     status: app.status,
@@ -363,7 +370,7 @@ export default function BoardApplicationsClient() {
   // 撤销申请
   const handleCancel = useCallback(
     async (applicationId: number) => {
-      if (!confirm("确定要撤销这个申请吗？")) return;
+      if (!confirm(t("confirm_revoke"))) return;
 
       setCancelLoadingId(applicationId);
       try {
@@ -371,7 +378,7 @@ export default function BoardApplicationsClient() {
         await queryClient.invalidateQueries({ queryKey: ["my-applications"] });
       } catch (err) {
         console.error("撤销失败:", err);
-        toast.error("撤销失败，请重试");
+        toast.error(t("revoke_failed_retry"));
       } finally {
         setCancelLoadingId(null);
       }
@@ -408,10 +415,10 @@ export default function BoardApplicationsClient() {
         </div>
         <div>
           <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-            我的版主申请
+            {t("my_applications")}
           </h1>
           <p className="text-sm text-gray-400">
-            共 {applications.length} 条申请记录
+             {t("application_count", { count: applications.length })}
           </p>
         </div>
       </div>
@@ -440,30 +447,26 @@ export default function BoardApplicationsClient() {
           {totalPages > 1 && (
             <nav
               className="flex items-center justify-center gap-2 mt-8"
-              aria-label="分页导航"
+              aria-label={t("pagination_nav")}
             >
               <button
                 onClick={() => handlePageChange(page - 1)}
                 disabled={page === 1}
                 className="p-2 rounded-lg border border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
-                aria-label="上一页"
+                aria-label={t("previous_page")}
               >
                 <ChevronLeftIcon className="w-4 h-4" aria-hidden="true" />
               </button>
 
               <span className="text-sm text-gray-500">
-                第{" "}
-                <strong className="text-gray-900 dark:text-white">
-                  {page}
-                </strong>{" "}
-                / {totalPages} 页
+                {t("page_of", { page, totalPages })}
               </span>
 
               <button
                 onClick={() => handlePageChange(page + 1)}
                 disabled={page >= totalPages}
                 className="p-2 rounded-lg border border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
-                aria-label="下一页"
+                aria-label={t("next_page")}
               >
                 <ChevronRightIcon className="w-4 h-4" aria-hidden="true" />
               </button>

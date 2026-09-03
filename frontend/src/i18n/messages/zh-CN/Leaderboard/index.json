@@ -19,5 +19,7 @@
   "no_data": "暂无数据",
   "showing_top_users": "显示前 {count} 名用户",
   "no_data_description": "还没有用户数据，成为第一个上榜的人吧！",
-  "active_score": "流通积分"
+  "active_score": "流通积分",
+  "load_failed": "加载失败",
+  "retry_later": "请稍后重试"
 }

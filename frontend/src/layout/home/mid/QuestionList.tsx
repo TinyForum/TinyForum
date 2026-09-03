@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useAuthStore } from "@/store/auth";
 import { PostListSkeleton } from "@/shared/ui/common/PostListSkeleton";
 import { EmptyPostList } from "@/shared/ui/common/EmptyPostList";
@@ -11,7 +12,7 @@ import { Tag } from "lucide-react";
 
 // 简单的问答卡片组件
 function QuestionCard({ question }: { question: QuestionSimple }) {
-  // const { isAuthenticated } = useAuthStore();
+  const t = useTranslations("Home");
 
   return (
     <div className="bg-base-100 rounded-lg shadow-sm p-5 hover:shadow-md transition-shadow">
@@ -45,7 +46,7 @@ function QuestionCard({ question }: { question: QuestionSimple }) {
         )}
         {/* 已采纳标记 */}
         {question.accepted_answer_id && (
-          <span className="badge badge-success badge-sm">已采纳</span>
+          <span className="badge badge-success badge-sm">{t("accepted")}</span>
         )}
       </div>
     </div>

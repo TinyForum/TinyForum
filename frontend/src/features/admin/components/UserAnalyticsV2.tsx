@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import * as echarts from "echarts";
+import { useTranslations } from "next-intl";
 import {
   Users, Activity, PieChart, TrendingUp, Shield, Layers, BarChart3,
   AlertTriangle, Ban, Clock, Target, UserX,
@@ -10,15 +11,6 @@ import {
   useUAOverview, useUASegments, useUAProfiles, useUABehavior, useUACohorts, useUARisk,
 } from "../hooks/useUAAdmin";
 import { UATrendPoint, UAHourlyItem, UACohort } from "@/shared/api/modules/admin/user_analysis";
-
-const tabs = [
-  { id: "overview", label: "概览", icon: BarChart3 },
-  { id: "segments", label: "用户分群", icon: Layers },
-  { id: "profiles", label: "用户画像", icon: Users },
-  { id: "behavior", label: "行为分析", icon: Activity },
-  { id: "cohorts", label: "同期群分析", icon: Clock },
-  { id: "risk", label: "风险评估", icon: Shield },
-];
 
 function TrendChart({ data }: { data: UATrendPoint[] }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -112,6 +104,15 @@ function KPI({ icon: Icon, label, value, sub, color }: { icon: typeof Users; lab
 }
 
 export function UserAnalyticsV2() {
+  const t = useTranslations("Admin");
+  const tabs = [
+    { id: "overview", label: t("overview"), icon: BarChart3 },
+    { id: "segments", label: t("user_segments"), icon: Layers },
+    { id: "profiles", label: t("user_profiles"), icon: Users },
+    { id: "behavior", label: t("behavior_analysis"), icon: Activity },
+    { id: "cohorts", label: t("cohort_analysis"), icon: Clock },
+    { id: "risk", label: t("risk_assessment"), icon: Shield },
+  ];
   const [tab, setTab] = useState("overview");
   const [profileParams, setProfileParams] = useState({ page: 1, page_size: 20, keyword: "", tier: "", sort_by: "" });
   const { data: overview } = useUAOverview(tab === "overview");

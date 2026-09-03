@@ -9,8 +9,7 @@ import {
   AlertTriangle,
   Settings,
 } from "lucide-react";
-// import { useTranslations } from "next-intl";
-// import { SettingsTab } from '@/app/settings/page';
+import { useTranslations } from "next-intl";
 
 interface SettingsSidebarProps {
   activeTab: SettingsTab;
@@ -29,40 +28,42 @@ export default function SettingsSidebar({
   activeTab,
   onTabChange,
 }: SettingsSidebarProps) {
+  const t = useTranslations("Settings");
+
   const menuItems: MenuItem[] = [
     {
       id: "profile",
-      label: "个人资料",
+      label: t("profile"),
       icon: User,
-      description: "管理您的个人信息和头像",
+      description: t("profile_desc"),
       color: "text-blue-500",
     },
     {
       id: "security",
-      label: "安全设置",
+      label: t("security_settings"),
       icon: Shield,
-      description: "修改密码和账户安全",
+      description: t("security_settings_sidebar_desc"),
       color: "text-green-500",
     },
     {
       id: "appearance",
-      label: "外观主题",
+      label: t("appearance_theme"),
       icon: Palette,
-      description: "自定义界面主题和布局",
+      description: t("appearance_theme_desc"),
       color: "text-purple-500",
     },
     {
       id: "notifications",
-      label: "通知设置",
+      label: t("notification_settings"),
       icon: Bell,
-      description: "管理消息通知偏好",
+      description: t("notification_settings_desc"),
       color: "text-yellow-500",
     },
     {
       id: "danger",
-      label: "危险区域",
+      label: t("danger_zone"),
       icon: AlertTriangle,
-      description: "删除账户等危险操作",
+      description: t("danger_zone_desc"),
       color: "text-red-500",
     },
   ];
@@ -77,8 +78,8 @@ export default function SettingsSidebar({
               <Settings className="w-5 h-5 text-primary" />
             </div>
             <div>
-              <h2 className="text-xl font-bold">设置</h2>
-              <p className="text-xs text-base-content/60">个性化您的体验</p>
+              <h2 className="text-xl font-bold">{t("title")}</h2>
+              <p className="text-xs text-base-content/60">{t("settings_subtitle")}</p>
             </div>
           </div>
         </div>

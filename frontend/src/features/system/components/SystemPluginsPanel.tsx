@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   Puzzle,
   Store,
@@ -18,18 +19,19 @@ import { UploadPluginTab } from "@/features/plugin/components/UploadPluginTab";
 import { MyPluginsTab } from "@/features/plugin/components/MyPluginsTab";
 
 export function SystemPluginsPanel() {
+  const t = useTranslations("System");
   const [activeTab, setActiveTab] = useState<
     "manage" | "market" | "config" | "logs" | "dev" | "upload" | "my"
   >("manage");
 
   const tabs = [
-    { id: "manage", label: "插件管理", icon: Puzzle },
-    { id: "market", label: "插件市场", icon: Store },
-    { id: "config", label: "插件配置", icon: Settings },
-    { id: "logs", label: "运行日志", icon: Activity },
-    { id: "dev", label: "开发工具", icon: Wrench },
-    { id: "upload", label: "上传插件", icon: CloudUpload },
-    { id: "my", label: "我的插件", icon: Puzzle },
+    { id: "manage", labelKey: "plugin_management", icon: Puzzle },
+    { id: "market", labelKey: "plugin_market", icon: Store },
+    { id: "config", labelKey: "plugin_config", icon: Settings },
+    { id: "logs", labelKey: "runtime_logs", icon: Activity },
+    { id: "dev", labelKey: "developer_tools", icon: Wrench },
+    { id: "upload", labelKey: "upload_plugin", icon: CloudUpload },
+    { id: "my", labelKey: "my_plugins", icon: Puzzle },
   ] as const;
 
   return (
@@ -44,7 +46,7 @@ export function SystemPluginsPanel() {
               onClick={() => setActiveTab(tab.id)}
             >
               <Icon className="w-4 h-4" />
-              <span className="hidden sm:inline">{tab.label}</span>
+              <span className="hidden sm:inline">{t(tab.labelKey)}</span>
             </button>
           );
         })}

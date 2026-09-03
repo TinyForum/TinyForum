@@ -1,6 +1,7 @@
 import { Ban, Unlock, Shield } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { useTranslations } from "next-intl";
 import {
   useAdminBannedUsers,
   useAdminBanUser,
@@ -42,6 +43,7 @@ const DURATION_MAP: Record<string, number> = {
 };
 
 export function BanManagement() {
+  const t = useTranslations("Admin");
   const [selectedBoardId, setSelectedBoardId] = useState<number>(1);
   const [isBanDialogOpen, setIsBanDialogOpen] = useState<boolean>(false);
   const [banUserId, setBanUserId] = useState<string>("");
@@ -62,7 +64,7 @@ export function BanManagement() {
 
   const handleBanUser = () => {
     if (!banUserId || !banReason) {
-      toast.error("请填写完整信息");
+      toast.error(t("please_fill_complete_info"));
       return;
     }
 
@@ -81,7 +83,7 @@ export function BanManagement() {
       },
       {
         onSuccess: () => {
-          toast.success("禁言成功");
+          toast.success(t("ban_success"));
           setIsBanDialogOpen(false);
           setBanUserId("");
           setBanReason("");
@@ -89,21 +91,21 @@ export function BanManagement() {
           refetch();
         },
         onError: () => {
-          toast.error("操作失败");
+          toast.error(t("operation_failed"));
         },
       },
     );
   };
 
   const handleUnbanUser = (userId: number, username?: string) => {
-    if (confirm(`确定要解除用户「${username || userId}」的禁言吗？`)) {
+    if (confirm(t("confirm_unban", { username: username || String(userId) }))) {
       unbanUser.mutate(userId, {
         onSuccess: () => {
-          toast.success("解除禁言成功");
+          toast.success(t("unban_success"));
           refetch();
         },
         onError: () => {
-          toast.error("操作失败");
+          toast.error(t("operation_failed"));
         },
       });
     }
@@ -123,11 +125,11 @@ export function BanManagement() {
         <div className="flex gap-2">
           <div className="form-control">
             <label className="label">
-              <span className="label-text">板块 ID</span>
+              <span className="label-text">{t("board_id")}</span>
             </label>
             <input
               type="number"
-              placeholder="板块 ID"
+              placeholder={t("board_id")}
               value={selectedBoardId}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 setSelectedBoardId(parseInt(e.target.value) || 1)
@@ -140,7 +142,7 @@ export function BanManagement() {
               <span className="label-text">&nbsp;</span>
             </label>
             <button className="btn btn-outline" onClick={() => refetch()}>
-              刷新
+              {t("refresh")}
             </button>
           </div>
         </div>
@@ -153,7 +155,7 @@ export function BanManagement() {
             onClick={() => setIsBanDialogOpen(true)}
           >
             <Ban className="w-4 h-4 mr-1" />
-            禁言用户
+            {t("ban_user")}
           </button>
         </div>
       </div>
@@ -178,26 +180,26 @@ export function BanManagement() {
                     <p className="font-medium">
                       {ban.user?.username || `用户${ban.user_id}`}
                     </p>
-                    <span className="badge badge-error badge-sm">已禁言</span>
+                    <span className="badge badge-error badge-sm">{t("already_banned")}</span>
                   </div>
                   <div className="mt-2 space-y-1">
                     <p className="text-sm text-base-content/70">
-                      <strong className="font-medium">禁言原因:</strong>{" "}
+                      <strong className="font-medium">{t("ban_reason")}:</strong>{" "}
                       {ban.reason}
                     </p>
                     {ban.expires_at && (
                       <p className="text-sm text-base-content/50">
-                        <strong>到期时间:</strong>{" "}
+                        <strong>{t("expires_at_label")}:</strong>{" "}
                         {new Date(ban.expires_at).toLocaleString()}
                       </p>
                     )}
                     {ban.expires_at === null && (
                       <p className="text-sm text-base-content/50">
-                        <strong>类型:</strong> 永久禁言
+                        <strong>{t("type")}:</strong> {t("permanent_ban")}
                       </p>
                     )}
                     <p className="text-sm text-base-content/50">
-                      <strong>禁言时间:</strong>{" "}
+                      <strong>{t("ban_time")}:</strong>{" "}
                       {new Date(ban.created_at).toLocaleString()}
                     </p>
                   </div>
@@ -208,7 +210,7 @@ export function BanManagement() {
                     handleUnbanUser(ban.user_id, ban.user?.username)
                   }
                   disabled={unbanUser.isPending}
-                  title="解除禁言"
+                  title={t("unblock")}
                 >
                   <Unlock className="w-4 h-4" />
                 </button>
@@ -220,7 +222,7 @@ export function BanManagement() {
         {bannedList.length === 0 && (
           <div className="text-center py-12 text-base-content/50">
             <Shield className="w-12 h-12 mx-auto mb-3 opacity-30" />
-            <p>暂无禁言用户</p>
+            <p>{t("no_banned_users")}</p>
           </div>
         )}
       </div>
@@ -236,15 +238,15 @@ export function BanManagement() {
           }}
         >
           <div className="modal-box" onClick={(e) => e.stopPropagation()}>
-            <h3 className="font-bold text-lg">禁言用户</h3>
+            <h3 className="font-bold text-lg">{t("ban_user_title")}</h3>
             <div className="space-y-4 mt-4">
               <div className="form-control">
                 <label className="label">
-                  <span className="label-text font-medium">用户 ID</span>
+                  <span className="label-text font-medium">{t("user_id")}</span>
                 </label>
                 <input
                   type="number"
-                  placeholder="用户 ID"
+                  placeholder={t("user_id")}
                   value={banUserId}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                     setBanUserId(e.target.value)
@@ -255,10 +257,10 @@ export function BanManagement() {
               </div>
               <div className="form-control">
                 <label className="label">
-                  <span className="label-text font-medium">禁言原因</span>
+                  <span className="label-text font-medium">{t("ban_reason")}</span>
                 </label>
                 <textarea
-                  placeholder="请输入禁言原因..."
+                  placeholder={t("enter_ban_reason")}
                   value={banReason}
                   onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
                     setBanReason(e.target.value)
@@ -269,7 +271,7 @@ export function BanManagement() {
               </div>
               <div className="form-control">
                 <label className="label">
-                  <span className="label-text font-medium">禁言时长</span>
+                  <span className="label-text font-medium">{t("ban_duration")}</span>
                 </label>
                 <select
                   className="select select-bordered w-full"
@@ -278,23 +280,23 @@ export function BanManagement() {
                     setBanDuration(e.target.value)
                   }
                 >
-                  <option value="">选择禁言时长</option>
-                  <option value="1d">1 天</option>
-                  <option value="3d">3 天</option>
-                  <option value="7d">7 天</option>
-                  <option value="30d">30 天</option>
-                  <option value="">永久禁言</option>
+                  <option value="">{t("select_ban_duration")}</option>
+                  <option value="1d">{t("duration_days", { count: 1 })}</option>
+                  <option value="3d">{t("duration_days", { count: 3 })}</option>
+                  <option value="7d">{t("duration_days", { count: 7 })}</option>
+                  <option value="30d">{t("duration_days", { count: 30 })}</option>
+                  <option value="">{t("permanent_ban")}</option>
                 </select>
                 <label className="label">
                   <span className="label-text-alt text-base-content/50">
-                    永久禁言将无限期限制用户发言
+                    {t("permanent_ban_desc")}
                   </span>
                 </label>
               </div>
             </div>
             <div className="modal-action">
               <button className="btn" onClick={() => setIsBanDialogOpen(false)}>
-                取消
+                {t("cancel")}
               </button>
               <button
                 className="btn btn-primary"
@@ -304,7 +306,7 @@ export function BanManagement() {
                 {banUser.isPending ? (
                   <span className="loading loading-spinner loading-sm" />
                 ) : null}
-                确认禁言
+                {t("confirm_ban")}
               </button>
             </div>
           </div>

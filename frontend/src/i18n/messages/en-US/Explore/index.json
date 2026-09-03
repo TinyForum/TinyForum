@@ -1,0 +1,52 @@
+{
+  "loading_failed": "Failed to load",
+  "search_failed": "Search failed",
+  "no_results_found": "No results found",
+
+  "hot": "Hot",
+  "latest": "Latest",
+  "trending": "Trending",
+  "recommended": "Recommended",
+
+  "title": "Explore",
+  "subtitle": "Discover trending content, topics and active users",
+  "search_placeholder": "Search posts...",
+  "search_button": "Search",
+  "clear_button": "Clear",
+  "enter_search_keyword": "Please enter a search keyword",
+
+  "login_for_recommendation": "Log in for personalized recommendations",
+  "recommendation_desc": "The system will recommend content based on your browsing and interaction behavior",
+  "login_now": "Log in now",
+
+  "views": "{count} views",
+  "likes": "{count} likes",
+  "comments": "{count} comments",
+  "view": "view",
+  "like": "like",
+  "comment": "comment",
+
+  "no_results": "No results found",
+  "no_content": "No content yet",
+  "try_other_keywords": "Try other keywords",
+  "no_content_create": "No content yet, publish your first post!",
+  "publish_post": "Publish a post",
+
+  "hot_tags": "Hot Tags",
+  "hot_topics": "Hot Topics",
+  "leaderboard": "Leaderboard",
+  "discover_more": "Discover More",
+  "discover_more_desc": "Follow hot topics, tags and active users to discover more great content",
+  "login_for_personalized": "Log in for personalized recommendations",
+
+  "view_more_topics": "View more topics",
+  "no_tags": "No tags",
+  "no_topics": "No topics",
+  "no_users": "No users",
+
+  "badge_hot": "Hot",
+  "post_count": "{count} posts",
+  "follower_count": "{count} followers",
+  "tag_post_count": "{count} posts",
+  "operation_failed": "Operation failed"
+}

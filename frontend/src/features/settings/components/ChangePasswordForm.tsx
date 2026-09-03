@@ -9,24 +9,30 @@ import {
   AlertCircle,
   CheckCircle,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { usePasswordStrength } from "@/features/settings/hooks/usePasswordStrength";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useChangePassword } from "@/store/password";
 
-const passwordSchema = z
-  .object({
-    oldPassword: z.string().min(1, "请输入旧密码"),
-    newPassword: z.string().min(8, "密码长度至少8位"),
-    confirmPassword: z.string().min(1, "请确认新密码"),
-  })
-  .refine((data) => data.newPassword === data.confirmPassword, {
-    message: "两次输入的密码不一致",
-    path: ["confirmPassword"],
-  });
-
-type PasswordForm = z.infer<typeof passwordSchema>;
+type PasswordForm = { oldPassword: string; newPassword: string; confirmPassword: string };
 
 export function ChangePasswordForm() {
+  const t = useTranslations("Settings");
+
+  const passwordSchema = useMemo(
+    () =>
+      z
+        .object({
+          oldPassword: z.string().min(1, t("enter_old_password")),
+          newPassword: z.string().min(8, t("password_length_min_eight")),
+          confirmPassword: z.string().min(1, t("please_confirm_new_password")),
+        })
+        .refine((data) => data.newPassword === data.confirmPassword, {
+          message: t("passwords_not_match"),
+          path: ["confirmPassword"],
+        }),
+    [t],
+  );
   const [showOldPassword, setShowOldPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -73,20 +79,20 @@ export function ChangePasswordForm() {
       <div className="card-body p-6">
         <div className="flex items-center gap-2 mb-4">
           <KeyRound className="w-5 h-5 text-primary" />
-          <h2 className="text-xl font-semibold">修改密码</h2>
+          <h2 className="text-xl font-semibold">{t("change_password")}</h2>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           {/* 旧密码 */}
           <div className="form-control">
             <label className="label pb-1">
-              <span className="label-text font-medium">当前密码</span>
+              <span className="label-text font-medium">{t("current_password")}</span>
             </label>
             <div className="relative">
               <input
                 {...register("oldPassword")}
                 type={showOldPassword ? "text" : "password"}
-                placeholder="请输入当前密码"
+                placeholder={t("enter_current_password_placeholder")}
                 className={`input input-bordered w-full pr-10 ${errors.oldPassword ? "input-error" : ""}`}
               />
               <button
@@ -112,13 +118,13 @@ export function ChangePasswordForm() {
           {/* 新密码 */}
           <div className="form-control">
             <label className="label pb-1">
-              <span className="label-text font-medium">新密码</span>
+              <span className="label-text font-medium">{t("new_password")}</span>
             </label>
             <div className="relative">
               <input
                 {...register("newPassword")}
                 type={showNewPassword ? "text" : "password"}
-                placeholder="请输入新密码"
+                placeholder={t("enter_new_password_placeholder")}
                 className={`input input-bordered w-full pr-10 ${errors.newPassword ? "input-error" : ""}`}
               />
               <button
@@ -138,17 +144,17 @@ export function ChangePasswordForm() {
             {newPasswordValue && (
               <div className="mt-2 space-y-1">
                 <div className="flex justify-between text-xs">
-                  <span>密码强度</span>
+                  <span>{t("password_strength")}</span>
                   <span
                     className={`font-medium ${
-                      passwordStrength.level === "强"
+                      passwordStrength.level === "password_strength_strong"
                         ? "text-green-600"
-                        : passwordStrength.level === "中"
+                        : passwordStrength.level === "password_strength_medium"
                           ? "text-yellow-600"
                           : "text-red-600"
                     }`}
                   >
-                    {passwordStrength.level}
+                    {t(passwordStrength.level)}
                   </span>
                 </div>
                 <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
@@ -158,7 +164,7 @@ export function ChangePasswordForm() {
                   />
                 </div>
                 <p className="text-xs text-base-content/60">
-                  {passwordStrength.message}
+                  {passwordStrength.message && t(passwordStrength.message)}
                 </p>
               </div>
             )}
@@ -169,20 +175,20 @@ export function ChangePasswordForm() {
               </p>
             )}
             <p className="text-xs text-base-content/40 mt-1">
-              💡 建议：使用大小写字母、数字和特殊字符组合
+              {t("password_suggestion")}
             </p>
           </div>
 
           {/* 确认密码 */}
           <div className="form-control">
             <label className="label pb-1">
-              <span className="label-text font-medium">确认新密码</span>
+              <span className="label-text font-medium">{t("confirm_new_password")}</span>
             </label>
             <div className="relative">
               <input
                 {...register("confirmPassword")}
                 type={showConfirmPassword ? "text" : "password"}
-                placeholder="请再次输入新密码"
+                placeholder={t("reenter_new_password_placeholder")}
                 className={`input input-bordered w-full pr-10 ${errors.confirmPassword ? "input-error" : ""}`}
               />
               <button
@@ -207,7 +213,7 @@ export function ChangePasswordForm() {
               newPasswordValue === confirmPasswordValue && (
                 <p className="text-success text-xs mt-1 flex items-center gap-1">
                   <CheckCircle className="w-3 h-3" />
-                  密码匹配
+                  {t("password_match")}
                 </p>
               )}
           </div>
@@ -222,7 +228,7 @@ export function ChangePasswordForm() {
             ) : (
               <Save className="w-4 h-4" />
             )}
-            {isLoading ? "修改中..." : "修改密码"}
+            {isLoading ? t("changing") : t("change_password")}
           </button>
         </form>
       </div>

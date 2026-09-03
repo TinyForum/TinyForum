@@ -1,0 +1,38 @@
+{
+  "loading_failed": "加载失败",
+  "timeline_data_empty": "时间线数据为空",
+  "subscription_data_empty": "订阅列表数据为空",
+  "operation_failed": "操作失败",
+  "unsubscribe_success": "已取消关注",
+
+  "create_post": "发布了新帖子",
+  "create_answer": "回答了问题",
+  "like_post": "点赞了帖子",
+  "like_answer": "点赞了回答",
+  "follow_user": "关注了",
+  "accept_answer": "采纳了答案",
+  "reward_question": "获得了悬赏",
+
+  "answer": "回答",
+  "view_details": "查看详情",
+  "unsubscribe": "取消关注",
+  "discover_users": "发现用户",
+
+  "no_events": "暂无动态",
+  "no_following_events": "暂无关注动态",
+  "no_events_desc": "还没有任何动态，去探索更多内容吧！",
+  "following_events_desc": "关注用户后，他们的动态会显示在这里",
+
+  "prev_page": "上一页",
+  "next_page": "下一页",
+  "all_loaded": "已加载全部内容",
+
+  "user_fallback": "用户{id}",
+
+  "title": "时间线",
+  "subtitle": "关注你感兴趣的人和内容",
+  "recommended": "推荐",
+  "following": "关注",
+  "my_following": "我关注的人 ({count})",
+  "view_more_timeline": "查看更多动态 →"
+}

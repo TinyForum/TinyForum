@@ -3,6 +3,7 @@ import { uploadApi } from "@/shared/api/modules/uploads";
 import Image from "next/image";
 import React, { useState, useRef, useEffect } from "react";
 import toast from "react-hot-toast";
+import { useTranslations } from "next-intl";
 import { ImageUploaderProps, ImageItem, LayoutMode } from "./upload.types";
 
 function normalizeImageUrl(url: string): string {
@@ -26,6 +27,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
   className = "",
   onLayoutChange,
 }) => {
+  const t = useTranslations("Upload");
   const [images, setImages] = useState<ImageItem[]>(() =>
     initialImages.map((img, idx) => ({
       id: `initial-${idx}`,
@@ -81,7 +83,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (images.length + files.length > maxCount) {
-      toast.error(`最多上传 ${maxCount} 张图片`);
+      toast.error(t("max_images", { max: maxCount }));
       return;
     }
 
@@ -112,7 +114,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
         setImages((prev) =>
           prev.map((img) =>
             img.id === item.id
-              ? { ...img, uploading: false, error: "上传失败" }
+              ? { ...img, uploading: false, error: t("upload_failed") }
               : img,
           ),
         );
@@ -214,7 +216,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
         <div className="relative aspect-square">
           <Image
             src={normalizeImageUrl(image.url)}
-            alt="预览"
+            alt={t("preview_alt")}
             fill // 新增：让图片填满父容器
             className="object-cover" // 保留 object-cover，移除 w-full h-full（fill 自动填满）
             sizes="(max-width: 768px) 100vw, 33vw" // 可选，但建议加上以优化性能
@@ -237,7 +239,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
               type="button"
               onClick={() => handleSetCover(image.id)}
               className="btn btn-xs btn-circle btn-primary"
-              title="设为封面"
+              title={t("set_as_cover")}
             >
               🌟
             </button>
@@ -246,7 +248,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
             type="button"
             onClick={() => handleDelete(image)}
             className="btn btn-xs btn-circle btn-error"
-            title="删除"
+            title={t("delete")}
           >
             ✕
           </button>
@@ -254,7 +256,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
 
         {supportCover && image.isCover && (
           <div className="absolute bottom-2 left-2 bg-primary text-primary-content text-xs px-2 py-0.5 rounded-full">
-            封面
+            {t("cover")}
           </div>
         )}
       </div>
@@ -280,7 +282,9 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
           d="M12 4v16m8-8H4"
         />
       </svg>
-      <span className="text-xs text-base-content/60 mt-1">上传图片</span>
+      <span className="text-xs text-base-content/60 mt-1">
+        {t("upload_image")}
+      </span>
     </button>
   );
 
@@ -293,17 +297,17 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
             onClick={() => setCollapsed(!collapsed)}
             className="btn btn-sm btn-ghost"
           >
-            {collapsed ? "展开" : "折叠"}
+            {collapsed ? t("expand") : t("collapse")}
           </button>
           <select
             value={layout}
             onChange={(e) => handleLayoutChange(e.target.value as LayoutMode)}
             className="select select-bordered select-sm w-32"
           >
-            <option value="grid">网格</option>
-            <option value="waterfall">瀑布流</option>
-            <option value="horizontal">横向滚动</option>
-            <option value="tile">平铺</option>
+            <option value="grid">{t("grid_layout")}</option>
+            <option value="waterfall">{t("waterfall_layout")}</option>
+            <option value="horizontal">{t("horizontal_scroll_layout")}</option>
+            <option value="tile">{t("tile_layout")}</option>
           </select>
         </div>
         <span className="text-sm text-base-content/60">

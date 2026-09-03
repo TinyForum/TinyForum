@@ -1,6 +1,10 @@
+"use client";
+
+import { useTranslations } from "next-intl";
 import { Smartphone } from "lucide-react";
 
 export function TwoFactorAuthCard() {
+  const t = useTranslations("Settings");
   return (
     <div className="card bg-primary/5 border border-primary/20">
       <div className="card-body p-4">
@@ -10,13 +14,13 @@ export function TwoFactorAuthCard() {
               <Smartphone className="w-5 h-5 text-primary" />
             </div>
             <div>
-              <p className="font-medium">两步验证</p>
+              <p className="font-medium">{t("two_factor_auth")}</p>
               <p className="text-xs text-base-content/60">
-                为账户添加额外的安全保护
+                {t("two_factor_auth_desc")}
               </p>
             </div>
           </div>
-          <button className="btn btn-sm btn-outline btn-primary">启用</button>
+          <button className="btn btn-sm btn-outline btn-primary">{t("enable")}</button>
         </div>
       </div>
     </div>

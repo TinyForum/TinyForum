@@ -2,6 +2,7 @@
 import { useCallback, useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
+import { useTranslations } from 'next-intl'
 import { announcementApi } from '@/shared/api/modules/announcements'
 import { adminAnnouncementApi } from '@/shared/api/modules/admin/announcements'
 import {
@@ -57,6 +58,7 @@ interface UseAdminAnnouncementsReturn {
 
 export function useAdminAnnouncements(): UseAdminAnnouncementsReturn {
   const queryClient = useQueryClient()
+  const t = useTranslations("Admin")
   const [page, setPage] = useState<number>(1)
   const [pageSize, setPageSize] = useState<number>(20)
 
@@ -93,7 +95,7 @@ export function useAdminAnnouncements(): UseAdminAnnouncementsReturn {
         })
       } catch (error) {
         console.error('获取公告详情失败:', error)
-        toast.error('获取公告详情失败')
+        toast.error(t('get_announcement_detail_failed_short'))
         return null
       }
     },
@@ -112,12 +114,12 @@ export function useAdminAnnouncements(): UseAdminAnnouncementsReturn {
       return result || null
     },
     onSuccess: () => {
-      toast.success('创建公告成功')
+      toast.success(t('create_announcement_success'))
       queryClient.invalidateQueries({ queryKey: announcementKeys.lists() })
     },
     onError: (error) => {
       console.error('创建公告失败:', error)
-      toast.error('创建公告失败')
+      toast.error(t('create_announcement_failed_short'))
     },
   })
 
@@ -144,12 +146,12 @@ export function useAdminAnnouncements(): UseAdminAnnouncementsReturn {
       return result || null
     },
     onSuccess: () => {
-      toast.success('更新公告成功')
+      toast.success(t('update_announcement_success'))
       queryClient.invalidateQueries({ queryKey: announcementKeys.lists() })
     },
     onError: (error) => {
       console.error('更新公告失败:', error)
-      toast.error('更新公告失败')
+      toast.error(t('update_announcement_failed_short'))
     },
   })
 
@@ -175,12 +177,12 @@ export function useAdminAnnouncements(): UseAdminAnnouncementsReturn {
       return true
     },
     onSuccess: () => {
-      toast.success('删除公告成功')
+      toast.success(t('delete_announcement_success'))
       queryClient.invalidateQueries({ queryKey: announcementKeys.lists() })
     },
     onError: (error) => {
       console.error('删除公告失败:', error)
-      toast.error('删除公告失败')
+      toast.error(t('delete_announcement_failed_short'))
     },
   })
 
@@ -206,12 +208,12 @@ export function useAdminAnnouncements(): UseAdminAnnouncementsReturn {
       return true
     },
     onSuccess: () => {
-      toast.success('发布公告成功')
+      toast.success(t('publish_announcement_success'))
       queryClient.invalidateQueries({ queryKey: announcementKeys.lists() })
     },
     onError: (error) => {
       console.error('发布公告失败:', error)
-      toast.error('发布公告失败')
+      toast.error(t('publish_announcement_failed_short'))
     },
   })
 
@@ -236,12 +238,12 @@ export function useAdminAnnouncements(): UseAdminAnnouncementsReturn {
       return true
     },
     onSuccess: () => {
-      toast.success('归档公告成功')
+      toast.success(t('archive_announcement_success'))
       queryClient.invalidateQueries({ queryKey: announcementKeys.lists() })
     },
     onError: (error) => {
       console.error('归档公告失败:', error)
-      toast.error('归档公告失败')
+      toast.error(t('archive_announcement_failed_short'))
     },
   })
 
@@ -272,7 +274,7 @@ export function useAdminAnnouncements(): UseAdminAnnouncementsReturn {
     },
     onError: (error) => {
       console.error('置顶操作失败:', error)
-      toast.error('操作失败')
+      toast.error(t('operation_failed'))
     },
   })
 

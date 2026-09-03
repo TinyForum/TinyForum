@@ -2,6 +2,7 @@
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
+import { useTranslations } from "next-intl";
 import { questionApi } from "@/shared/api/modules/questions";
 import { useAuthStore } from "@/store/auth";
 import { toast } from "react-hot-toast";
@@ -36,6 +37,7 @@ interface ErrorResponse {
 export function useQuestionForm({ onSuccess }: UseQuestionFormProps = {}) {
   const router = useRouter();
   const { user } = useAuthStore();
+  const t = useTranslations("Questions");
   const [loading, setLoading] = useState<boolean>(false);
   const [content, setContent] = useState<string>("");
 
@@ -50,38 +52,40 @@ export function useQuestionForm({ onSuccess }: UseQuestionFormProps = {}) {
   const validateForm = useCallback(
     (data: AskFormData, selectedTags: number[], boardId: number): boolean => {
       if (!boardId || boardId === 0) {
-        toast.error("请选择板块");
+        toast.error(t("select_board_error"));
         return false;
       }
 
       if (!content.trim()) {
-        toast.error("请输入问题内容");
+        toast.error(t("content_required"));
         return false;
       }
 
       if (data.title.length < 5) {
-        toast.error("标题至少需要5个字符");
+        toast.error(t("title_min_length"));
         return false;
       }
 
       if (data.title.length > 100) {
-        toast.error("标题不能超过100个字符");
+        toast.error(t("title_max_length"));
         return false;
       }
 
       if (data.reward_score > (user?.score || 0)) {
-        toast.error(`悬赏积分不能超过当前积分（${user?.score || 0}）`);
+        toast.error(
+          t("reward_exceeds_current", { score: user?.score || 0 }),
+        );
         return false;
       }
 
       if (data.reward_score > 100) {
-        toast.error("悬赏积分不能超过100");
+        toast.error(t("reward_exceeds_max"));
         return false;
       }
 
       return true;
     },
-    [content, user?.score],
+    [content, user?.score, t],
   );
 
   const filterValidTags = useCallback((tagIds: number[]): number[] => {
@@ -135,7 +139,7 @@ export function useQuestionForm({ onSuccess }: UseQuestionFormProps = {}) {
         if (isSuccess && response.data.data) {
           const questionId = response.data.data.id;
 
-          toast.success("问题发布成功！");
+          toast.success(t("question_published"));
 
           if (onSuccess && questionId) {
             onSuccess(questionId);
@@ -145,7 +149,8 @@ export function useQuestionForm({ onSuccess }: UseQuestionFormProps = {}) {
             router.push("/questions");
           }
         } else {
-          const errorMessage = response.data.message || "发布失败，请稍后重试";
+          const errorMessage =
+            response.data.message || t("publish_failed_retry");
           toast.error(errorMessage);
         }
       } catch (err: unknown) {
@@ -158,28 +163,29 @@ export function useQuestionForm({ onSuccess }: UseQuestionFormProps = {}) {
           const statusCode = error.response.status;
 
           const errorMessages: Record<number, string> = {
-            400: errorData?.message || "请求参数错误，请检查输入",
-            401: "请先登录",
-            403: errorData?.message || "积分不足或权限不足",
+            400: errorData?.message || t("bad_request_error"),
+            401: t("please_login"),
+            403: errorData?.message || t("insufficient_permission"),
           };
 
           toast.error(
-            errorMessages[statusCode || 0] || `发布失败 (${statusCode})`,
+            errorMessages[statusCode || 0] ||
+              t("publish_failed_status", { code: statusCode }),
           );
 
           if (statusCode === 401) {
             router.push("/login?redirect=/questions/ask");
           }
         } else if (error.request) {
-          toast.error("网络错误，请检查网络连接");
+          toast.error(t("network_error"));
         } else {
-          toast.error(error.message || "发布失败，请稍后重试");
+          toast.error(error.message || t("publish_failed_retry"));
         }
       } finally {
         setLoading(false);
       }
     },
-    [validateForm, buildRequestData, router, onSuccess],
+    [validateForm, buildRequestData, router, onSuccess, t],
   );
 
   return {

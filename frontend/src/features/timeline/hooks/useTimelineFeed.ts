@@ -1,5 +1,8 @@
 // hooks/useTimelineFeed.ts
+"use client";
+
 import { useQuery } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { timelineApi } from "@/shared/api/modules/timeline";
 import { timelineKeys } from "./useTimelineKeys";
 import { PageData } from "@/shared/api/types/basic.model";
@@ -12,6 +15,8 @@ export function useTimelineFeed(
   pageSize: number,
   enabled: boolean,
 ) {
+  const t = useTranslations("Timeline");
+
   return useQuery<PageData<TimelineEvent>>({
     queryKey: [...timelineKeys.all, activeTab, page],
     queryFn: async () => {
@@ -21,10 +26,10 @@ export function useTimelineFeed(
           : await timelineApi.getFollowing({ page, page_size: pageSize });
 
       if (response.data.code !== 0) {
-        throw new Error(response.data.message || "加载失败");
+        throw new Error(response.data.message || t("loading_failed"));
       }
       if (!response.data.data) {
-        throw new Error("时间线数据为空");
+        throw new Error(t("timeline_data_empty"));
       }
       return response.data.data;
     },

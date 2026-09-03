@@ -39,5 +39,27 @@
   },
   "select_role": "Select role",
   "back": "Back",
-  "reset_password_notice": "The system will generate a random temporary password and send it to the user via in-app notification, valid for 30 minutes."
+  "reset_password_notice": "The system will generate a random temporary password and send it to the user via in-app notification, valid for 30 minutes.",
+
+  "pagination_info": "{start} - {end} of {total}",
+  "prev_page": "Previous",
+  "next_page": "Next",
+  "page_label": "Page {page}",
+  "avatar_alt": "User avatar",
+  "answered": "{count} answer",
+  "pinned": "Pinned",
+
+  "creation_type": {
+    "image_text": "Photo text",
+    "short_video": "Short video",
+    "long_video": "Long video",
+    "image": "Image",
+    "article": "Article",
+    "question": "Q&A",
+    "topic": "Topic",
+    "post": "Post"
+  },
+
+  "loading": "Loading...",
+  "no_data": "No data"
 }

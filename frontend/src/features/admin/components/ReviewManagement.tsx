@@ -10,10 +10,12 @@ import {
 } from "lucide-react";
 import DOMPurify from "dompurify";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { useReviewPendingPosts } from "../hooks/useReviewPendingPosts";
 import type { PostWithRisk } from "../hooks/useReviewPendingPosts";
 
 export function ReviewManagement() {
+  const t = useTranslations("Admin");
   const [page, setPage] = useState(1);
   const [keyword, setKeyword] = useState("");
   const [selectedPost, setSelectedPost] = useState<PostWithRisk | null>(null);
@@ -97,16 +99,16 @@ export function ReviewManagement() {
         <div className="flex gap-2 flex-1">
           <input
             type="text"
-            placeholder="搜索标题或作者"
+            placeholder={t("search_title_or_author")}
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
             className="input input-bordered flex-1"
           />
           <button className="btn btn-outline" onClick={() => setPage(1)}>
-            搜索
+            {t("search")}
           </button>
           <button className="btn btn-ghost" onClick={() => refetch()}>
-            刷新
+            {t("refresh")}
           </button>
         </div>
       </div>
@@ -138,7 +140,7 @@ export function ReviewManagement() {
                       {post.risk_score && post.risk_score > 0 && (
                         <span className="badge badge-warning badge-sm">
                           <AlertTriangle className="w-3 h-3 mr-1" />
-                          风险分 {post.risk_score}
+                          {t("risk_score")} {post.risk_score}
                         </span>
                       )}
                     </div>
@@ -155,7 +157,7 @@ export function ReviewManagement() {
             </div>
           ))}
           {posts.length === 0 && (
-            <div className="text-center py-8 text-gray-500">暂无待审核帖子</div>
+            <div className="text-center py-8 text-gray-500">{t("no_pending_posts")}</div>
           )}
         </div>
       )}
@@ -168,17 +170,17 @@ export function ReviewManagement() {
             disabled={page === 1}
             onClick={() => setPage((p) => p - 1)}
           >
-            上一页
+            {t("back")}
           </button>
           <span className="btn btn-sm btn-ghost">
-            第 {page} / {totalPages} 页
+            {t("page_info", { page, totalPages })}
           </span>
           <button
             className="btn btn-sm"
             disabled={page === totalPages}
             onClick={() => setPage((p) => p + 1)}
           >
-            下一页
+            {t("next_page")}
           </button>
         </div>
       )}
@@ -193,30 +195,30 @@ export function ReviewManagement() {
             className="modal-box max-w-3xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="font-bold text-lg mb-4">帖子审核</h3>
+            <h3 className="font-bold text-lg mb-4">{t("post_review")}</h3>
 
             {/* 用户信息 */}
             <div className="mb-4 p-3 bg-base-200 rounded-lg">
               <div className="flex items-center gap-2 mb-2">
                 <UserIcon className="w-4 h-4" />
-                <span className="font-medium">发布人信息</span>
+                <span className="font-medium">{t("publisher_info")}</span>
               </div>
               <div className="grid grid-cols-2 gap-2 text-sm">
                 <div>
-                  用户名：
+                  {t("username_label")}：
                   {selectedPost.creation.author?.username ||
                     `ID ${selectedPost.creation.author?.id}`}
                 </div>
-                <div>用户ID：{selectedPost.creation.author?.id}</div>
+                <div>{t("user_id_label")}：{selectedPost.creation.author?.id}</div>
                 {selectedPost.creation.author?.email && (
-                  <div>邮箱：{selectedPost.creation.author.email}</div>
+                  <div>{t("email_label")}：{selectedPost.creation.author.email}</div>
                 )}
                 {selectedPost.creation.author?.role && (
-                  <div>角色：{selectedPost.creation.author.role}</div>
+                  <div>{t("role_label")}：{selectedPost.creation.author.role}</div>
                 )}
                 {selectedPost.creation.author?.created_at && (
                   <div>
-                    注册时间：
+                    {t("registration_time")}：
                     {new Date(
                       selectedPost.creation.author.created_at,
                     ).toLocaleString()}
@@ -229,7 +231,7 @@ export function ReviewManagement() {
             <div className="mb-4 p-3 bg-base-200 rounded-lg">
               <div className="flex items-center gap-2 mb-2">
                 <AlertTriangle className="w-4 h-4 text-warning" />
-                <span className="font-medium">风险检测日志</span>
+                <span className="font-medium">{t("risk_detection_log")}</span>
               </div>
               {selectedPost.risk_logs && selectedPost.risk_logs.length > 0 ? (
                 <div className="space-y-2 max-h-40 overflow-y-auto">
@@ -244,15 +246,15 @@ export function ReviewManagement() {
                           {new Date(log.created_at).toLocaleString()}
                         </span>
                       </div>
-                      <div className="text-gray-700">规则：{log.rule}</div>
+                      <div className="text-gray-700">{t("rule_label")}：{log.rule}</div>
                       <div className="text-gray-500 text-xs break-all">
-                        匹配内容：{log.matched_content}
+                        {t("match_content")}：{log.matched_content}
                       </div>
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className="text-sm text-gray-500">暂无风险日志</div>
+                <div className="text-sm text-gray-500">{t("no_risk_logs")}</div>
               )}
             </div>
 
@@ -260,7 +262,7 @@ export function ReviewManagement() {
             <div className="mb-4 p-3 bg-base-200 rounded-lg">
               <div className="flex items-center gap-2 mb-2">
                 <FileText className="w-4 h-4" />
-                <span className="font-medium">帖子内容</span>
+                <span className="font-medium">{t("post_content")}</span>
               </div>
               <h4 className="font-semibold mb-2">
                 {selectedPost.creation.title}
@@ -285,12 +287,12 @@ export function ReviewManagement() {
             {/* 审核备注输入框 */}
             <div className="mb-4">
               <label className="label-text">
-                审核备注（拒绝原因或通过说明）
+                {t("review_note_description")}
               </label>
               <textarea
                 className="textarea textarea-bordered w-full"
                 rows={3}
-                placeholder="选填，将记录在审核日志中"
+                placeholder={t("review_note_optional")}
                 value={reviewNote}
                 onChange={(e) => setReviewNote(e.target.value)}
               />
@@ -299,7 +301,7 @@ export function ReviewManagement() {
             {/* 操作按钮 */}
             <div className="modal-action">
               <button className="btn" onClick={() => setIsModalOpen(false)}>
-                关闭
+                {t("close")}
               </button>
               <button
                 className="btn btn-success"
@@ -307,7 +309,7 @@ export function ReviewManagement() {
                 disabled={approveMutation.isPending || rejectMutation.isPending}
               >
                 <CheckCircle className="w-4 h-4 mr-1" />
-                通过
+                {t("approve")}
               </button>
               <button
                 className="btn btn-error"
@@ -315,7 +317,7 @@ export function ReviewManagement() {
                 disabled={approveMutation.isPending || rejectMutation.isPending}
               >
                 <XCircle className="w-4 h-4 mr-1" />
-                拒绝
+                {t("reject")}
               </button>
             </div>
           </div>

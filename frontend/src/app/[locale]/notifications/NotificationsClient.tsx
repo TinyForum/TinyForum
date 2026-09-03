@@ -62,7 +62,7 @@ export default function NotificationsClient() {
     if (isMarkingAll) return;
     setIsMarkingAll(true);
     await markAllAsRead();
-    toast.success(t("mark_all_success") || "已全部标记为已读");
+    toast.success(t("mark_all_success"));
     setIsMarkingAll(false);
   };
 

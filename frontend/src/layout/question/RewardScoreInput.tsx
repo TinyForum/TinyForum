@@ -7,6 +7,7 @@ import {
   SparklesIcon,
   InformationCircleIcon,
 } from "@heroicons/react/24/outline";
+import { useTranslations } from "next-intl";
 import { UseFormRegister } from "react-hook-form";
 
 interface RewardScoreInputProps {
@@ -22,6 +23,7 @@ export function RewardScoreInput({
   userScore = 0,
   error,
 }: RewardScoreInputProps) {
+  const t = useTranslations("Questions");
   // 计算是否超出可用积分
   const isExceeded = rewardScore > userScore;
   // 预设悬赏金额
@@ -36,9 +38,9 @@ export function RewardScoreInput({
             <CurrencyDollarIcon className="w-4 h-4 text-white" />
           </div>
           <div>
-            <h3 className="font-semibold text-base-content">悬赏积分</h3>
+            <h3 className="font-semibold text-base-content">{t("reward_score_title")}</h3>
             <p className="text-xs text-base-content/60">
-              设置悬赏吸引更多优质回答
+              {t("reward_score_desc")}
             </p>
           </div>
         </div>
@@ -67,7 +69,7 @@ export function RewardScoreInput({
                     : "bg-base-100 border border-base-200 text-base-content/70 hover:border-amber-300 hover:text-amber-600 dark:hover:border-amber-700"
                 }`}
               >
-                {score === 0 ? "无悬赏" : `${score} 积分`}
+                {score === 0 ? t("no_reward") : t("score_points", { score })}
               </button>
             ))}
           </div>
@@ -78,10 +80,10 @@ export function RewardScoreInput({
               <CurrencyDollarIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-base-content/40" />
               <input
                 {...register("reward_score", {
-                  min: { value: 0, message: "悬赏积分不能为负数" },
+                  min: { value: 0, message: t("reward_no_negative") },
                   max: {
                     value: Math.min(100, userScore),
-                    message: `悬赏积分不能超过 ${Math.min(100, userScore)}`,
+                    message: t("reward_max", { max: Math.min(100, userScore) }),
                   },
                   valueAsNumber: true,
                 })}
@@ -94,14 +96,14 @@ export function RewardScoreInput({
                     ? "border-red-500 focus:ring-red-500"
                     : "border-base-200 focus:border-primary"
                 }`}
-                placeholder="自定义积分"
+                placeholder={t("reward_custom")}
               />
             </div>
 
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-base-100 border border-base-200">
               <SparklesIcon className="w-3.5 h-3.5 text-amber-500" />
               <span className="text-xs text-base-content/70">
-                可用积分:
+                {t("available_score")}
                 <span
                   className={`font-semibold ml-1 ${userScore >= rewardScore ? "text-primary" : "text-red-500"}`}
                 >
@@ -117,7 +119,7 @@ export function RewardScoreInput({
               <InformationCircleIcon className="w-4 h-4 text-red-500" />
               <span className="text-xs text-red-600 dark:text-red-400">
                 {error ||
-                  `积分不足！需要 ${rewardScore} 积分，当前只有 ${userScore} 积分`}
+                  t("reward_insufficient", { need: rewardScore, have: userScore })}
               </span>
             </div>
           )}
@@ -127,9 +129,9 @@ export function RewardScoreInput({
             <div className="alert alert-info alert-sm p-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/30">
               <SparklesIcon className="w-4 h-4 text-blue-500" />
               <div className="text-xs text-blue-600 dark:text-blue-400">
-                <p>💡 悬赏 {rewardScore} 积分后，帖子将获得更多曝光</p>
+                <p>{t("reward_exposure", { score: rewardScore })}</p>
                 <p className="text-xs opacity-75 mt-0.5">
-                  采纳回答后将扣除 {rewardScore} 积分
+                  {t("reward_deduct", { score: rewardScore })}
                 </p>
               </div>
             </div>
@@ -139,7 +141,7 @@ export function RewardScoreInput({
             <div className="alert alert-ghost alert-sm p-2 bg-base-200/50 border border-base-200">
               <InformationCircleIcon className="w-4 h-4 text-base-content/40" />
               <span className="text-xs text-base-content/60">
-                设置悬赏积分可以吸引更多回答者，提高问题解决效率
+                {t("reward_hint")}
               </span>
             </div>
           )}

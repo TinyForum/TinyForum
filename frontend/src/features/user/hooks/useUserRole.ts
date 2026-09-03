@@ -1,4 +1,5 @@
 import { useCallback } from "react"
+import { useTranslations } from "next-intl"
 import { useQuery } from "@tanstack/react-query"
 import { userApi } from "@/shared/api/modules/user"
 import { RoleResponse } from "@/shared/api/types/user.model"
@@ -20,16 +21,17 @@ interface UseUserRoleReturn {
 }
 
 export function useUserRole(): UseUserRoleReturn {
+  const t = useTranslations("User")
   // 查询：拉取当前用户角色（默认自动加载）
   const { data: role, isLoading, error, refetch } = useQuery<RoleResponse>({
     queryKey: userKeys.role(),
     queryFn: async () => {
       const res = await userApi.getMeRole()
       if (res.data.code !== 0) {
-        throw new Error(res.data.message || "获取角色失败")
+        throw new Error(res.data.message || t("role_load_failed"))
       }
       if (!res.data.data) {
-        throw new Error("获取角色失败")
+        throw new Error(t("role_load_failed"))
       }
       return res.data.data
     },

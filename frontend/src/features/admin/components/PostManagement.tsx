@@ -1,10 +1,12 @@
 import { Search, Pin, Trash2 } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 
 import type { Post } from "@/shared/api/types/post.model";
 import { useAdminGetPosts, useAdminTogglePin } from "../hooks/useAdminPosts";
 
 export function PostManagement() {
+  const t = useTranslations("Admin");
   const [keyword, setKeyword] = useState<string>("");
   const [debouncedKeyword, setDebouncedKeyword] = useState<string>("");
   const [page, setPage] = useState(1);
@@ -53,13 +55,13 @@ export function PostManagement() {
         <div className="flex-1">
           <div className="form-control">
             <label className="label">
-              <span className="label-text">搜索</span>
+              <span className="label-text">{t("search_label")}</span>
             </label>
             <div className="flex gap-2">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <input
-                  placeholder="搜索帖子（标题/内容）..."
+                  placeholder={t("search_post_title_content")}
                   value={keyword}
                   onChange={(e) => setKeyword(e.target.value)}
                   onKeyDown={(e) =>
@@ -77,7 +79,7 @@ export function PostManagement() {
                   refetch();
                 }}
               >
-                重置
+                {t("reset")}
               </button>
             </div>
           </div>
@@ -105,12 +107,12 @@ export function PostManagement() {
                       </h3>
                       <div className="flex items-center gap-3 mt-1 text-xs text-base-content/50">
                         <span>
-                          作者:{" "}
+                          {t("author")}:{" "}
                           {post.creation.author?.username ||
                             `用户${post.creation.author?.id}`}
                         </span>
                         {/* <span>回复: {post. || 0}</span> */}
-                        <span>浏览: {post.creation.view_count || 0}</span>
+                        <span>{t("views_label")}: {post.creation.view_count || 0}</span>
                         <span>
                           {new Date(post.created_at).toLocaleDateString()}
                         </span>
@@ -121,14 +123,14 @@ export function PostManagement() {
                         className="btn btn-ghost btn-sm"
                         onClick={() => handleTogglePin(post.id)}
                         disabled={togglePin.isPending}
-                        title={post.creation.pin_top ? "取消置顶" : "置顶"}
+                        title={post.creation.pin_top ? t("cancel_pin") : t("pin")}
                       >
                         <Pin className="w-4 h-4" />
                       </button>
                       <button
                         className="btn btn-ghost btn-sm text-error hover:text-error"
                         disabled
-                        title="删除功能暂未开放"
+                        title={t("delete_feature_unavailable")}
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -141,10 +143,10 @@ export function PostManagement() {
                   )}
                   <div className="flex gap-2 flex-wrap">
                     {post.creation.pin_top && (
-                      <span className="badge badge-primary badge-sm">置顶</span>
+                      <span className="badge badge-primary badge-sm">{t("pinned")}</span>
                     )}
                     {post.creation.creation_status === "published" && (
-                      <span className="badge badge-error badge-sm">已发布</span>
+                      <span className="badge badge-error badge-sm">{t("published")}</span>
                     )}
                   </div>
                 </div>
@@ -155,10 +157,10 @@ export function PostManagement() {
         {postList.length === 0 && (
           <div className="text-center py-12 text-base-content/50">
             <Search className="w-12 h-12 mx-auto mb-3 opacity-30" />
-            <p>暂无帖子</p>
+            <p>{t("no_posts")}</p>
             {debouncedKeyword && (
               <p className="text-sm mt-2">
-                没有找到 &quot;{debouncedKeyword}&quot; 相关的帖子
+                {t("no_results_for", { keyword: debouncedKeyword })}
               </p>
             )}
           </div>
@@ -177,7 +179,7 @@ export function PostManagement() {
               «
             </button>
             <span className="join-item btn btn-sm">
-              第 {page} / {totalPages} 页
+              {t("page_info", { page, totalPages })}
             </span>
             <button
               className="join-item btn btn-sm"

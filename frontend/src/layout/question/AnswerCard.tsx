@@ -15,6 +15,7 @@ import { formatDistanceToNow } from "date-fns";
 import { zhCN } from "date-fns/locale";
 import { toast } from "react-hot-toast";
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import CommentSection from "../post/CommentSection";
 import { useAnswerVote } from "@/features/answer/hooks/useAnswerVote";
 import { CommentResponse } from "@/shared/api/types/comment.model";
@@ -41,6 +42,7 @@ export function AnswerCard({
   answerNumber,
 }: AnswerCardProps) {
   const [showComments, setShowComments] = useState(false); // 控制评论区域显示
+  const t = useTranslations("Questions");
 
   const {
     userVote, // 'up' | 'down' | ''
@@ -77,29 +79,29 @@ export function AnswerCard({
     navigator.clipboard.writeText(
       `${window.location.origin}/answers/${answer.id}`,
     );
-    toast.success("链接已复制到剪贴板");
+    toast.success(t("link_copied"));
   };
 
   const handleReport = () => {
     toast(
-      (t) => (
+      (toastItem) => (
         <div className="flex flex-col gap-2">
-          <p className="text-sm">确认举报这个回答？</p>
+          <p className="text-sm">{t("confirm_report_answer")}</p>
           <div className="flex gap-2 justify-end">
             <button
               className="btn btn-xs btn-ghost"
-              onClick={() => toast.dismiss(t.id)}
+              onClick={() => toast.dismiss(toastItem.id)}
             >
-              取消
+              {t("cancel")}
             </button>
             <button
               className="btn btn-xs btn-error"
               onClick={() => {
-                toast.dismiss(t.id);
-                toast.success("举报已提交，我们会尽快处理");
+                toast.dismiss(toastItem.id);
+                toast.success(t("report_submitted"));
               }}
             >
-              确认举报
+              {t("confirm_report_btn")}
             </button>
           </div>
         </div>
@@ -145,7 +147,7 @@ export function AnswerCard({
               className={`btn btn-sm btn-ghost p-1 min-h-0 h-auto ${
                 userVote === "up" ? "text-primary" : "text-base-content/40"
               } hover:text-primary transition-colors disabled:opacity-50`}
-              aria-label="赞同"
+              aria-label={t("upvote_aria")}
             >
               <ArrowUpIcon className="w-5 h-5" />
             </button>
@@ -166,7 +168,7 @@ export function AnswerCard({
               className={`btn btn-sm btn-ghost p-1 min-h-0 h-auto ${
                 userVote === "down" ? "text-error" : "text-base-content/40"
               } hover:text-error transition-colors disabled:opacity-50`}
-              aria-label="反对"
+              aria-label={t("downvote_aria")}
             >
               <ArrowDownIcon className="w-5 h-5" />
             </button>
@@ -198,7 +200,7 @@ export function AnswerCard({
                     className="font-medium hover:text-primary transition-colors"
                   >
                     {answer.reply.author?.username ||
-                      `用户${answer.reply.author_id}`}
+                      t("user_name_fallback", { id: answer.reply.author_id })}
                   </Link>
                 </div>
 
@@ -214,7 +216,7 @@ export function AnswerCard({
                 {isAccepted && (
                   <div className="badge badge-success gap-1">
                     <TrophyIcon className="w-3 h-3" />
-                    已采纳
+                    {t("answer_accepted")}
                   </div>
                 )}
                 {rewardScore > 0 && isAccepted && (
@@ -242,7 +244,7 @@ export function AnswerCard({
                   className="btn btn-xs btn-success btn-outline gap-1"
                 >
                   <CheckBadgeIcon className="w-3.5 h-3.5" />
-                  采纳为答案
+                  {t("accept_as_answer")}
                 </button>
               )}
 
@@ -252,7 +254,7 @@ export function AnswerCard({
                 className="btn btn-xs btn-ghost gap-1"
               >
                 <ShareIcon className="w-3.5 h-3.5" />
-                分享
+                {t("share")}
               </button>
 
               {/* 举报按钮 */}
@@ -261,7 +263,7 @@ export function AnswerCard({
                 className="btn btn-xs btn-ghost gap-1 hover:text-error"
               >
                 <FlagIcon className="w-3.5 h-3.5" />
-                举报
+                {t("report")}
               </button>
 
               {/* 评论按钮 - 添加显示/隐藏评论区域功能 */}
@@ -271,7 +273,7 @@ export function AnswerCard({
               >
                 <ChatBubbleLeftRightIcon className="w-3.5 h-3.5" />
                 {/* 评论 {answer.replies?.length > 0 && `(${answer.comment_count})`} */}
-                评论{" "}
+                {t("comments")}{" "}
                 {answer.reply.replies &&
                   answer.reply.replies.length > 0 &&
                   `(${answer.reply.replies.length})`}

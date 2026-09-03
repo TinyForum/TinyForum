@@ -14,6 +14,7 @@ import {
 } from "@tanstack/react-query";
 
 import { AxiosError } from "axios";
+import { useTranslations } from "next-intl";
 
 // ---------- Query Key 工厂 ----------
 export const commentKeys = {
@@ -89,13 +90,14 @@ export function useCreateComment(
   >,
 ) {
   const queryClient = useQueryClient();
+  const t = useTranslations("Comment");
 
   return useMutation<CommentResponse, AxiosError, CreateCommentPayload>({
     mutationFn: async (payload) => {
       const response = await commentApi.create(payload);
       const comment = response.data.data;
       if (!comment) {
-        throw new Error("创建评论失败：返回数据为空");
+        throw new Error(t("create_failed_no_data"));
       }
       // 类型断言：后端实际返回符合 CommentResponse 结构
       return comment as unknown as CommentResponse;

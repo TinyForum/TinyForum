@@ -1,0 +1,12 @@
+{
+  "no_more_content": "已经到底了",
+  "accepted": "已采纳",
+  "page_not_found": "Page Not Found",
+  "page_not_found_desc": "您要查找的页面不存在或已被移动。",
+  "back_to_home": "返回首页",
+  "error_title": "Error",
+  "something_wrong": "出了点问题",
+  "something_wrong_desc": "发生了意外错误，请重试。",
+  "try_again": "重试",
+  "total_posts": "{count} 篇帖子"
+}

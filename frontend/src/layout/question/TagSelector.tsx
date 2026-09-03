@@ -2,6 +2,7 @@
 "use client";
 
 import { TagIcon, HashtagIcon } from "@heroicons/react/24/outline";
+import { useTranslations } from "next-intl";
 import { Tag } from "@/shared/api/types/tag.model";
 
 interface TagSelectorProps {
@@ -19,6 +20,7 @@ export function TagSelector({
   loading,
   maxTags = 5,
 }: TagSelectorProps) {
+  const t = useTranslations("Questions");
   const isMaxTagsReached = selectedTags.length >= maxTags;
 
   if (loading) {
@@ -26,7 +28,7 @@ export function TagSelector({
       <div className="space-y-2">
         <label className="text-sm font-medium text-base-content flex items-center gap-1">
           <TagIcon className="w-4 h-4" />
-          标签
+          {t("tags")}
         </label>
         <div className="flex flex-wrap gap-2">
           {[1, 2, 3, 4, 5].map((i) => (
@@ -45,14 +47,14 @@ export function TagSelector({
       <div className="flex items-center justify-between">
         <label className="text-sm font-medium text-base-content flex items-center gap-1">
           <TagIcon className="w-4 h-4" />
-          标签
+          {t("tags")}
           <span className="text-xs text-base-content/40 ml-1">
-            (可选，最多 {maxTags} 个)
+            {t("tags_optional", { max: maxTags })}
           </span>
         </label>
         {selectedTags.length > 0 && (
           <span className="text-xs text-base-content/40">
-            已选择 {selectedTags.length}/{maxTags}
+            {t("tags_selected", { count: selectedTags.length, max: maxTags })}
           </span>
         )}
       </div>
@@ -100,7 +102,7 @@ export function TagSelector({
                 {/* 悬停提示 */}
                 {isDisabled && !isSelected && (
                   <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-0.5 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-10">
-                    最多选择 {maxTags} 个标签
+                    {t("tags_max_tip", { max: maxTags })}
                   </div>
                 )}
               </button>
@@ -111,13 +113,13 @@ export function TagSelector({
       {tags.length === 0 && (
         <div className="text-sm text-base-content/40 text-center py-4 bg-base-200/50 rounded-lg">
           <TagIcon className="w-8 h-8 mx-auto mb-2 opacity-30" />
-          暂无可用标签
+          {t("no_tags")}
         </div>
       )}
 
       <p className="text-xs text-base-content/50 flex items-center gap-1">
         <TagIcon className="w-3 h-3" />
-        选择相关的标签，帮助其他人更快找到你的问题
+        {t("tags_hint")}
       </p>
     </div>
   );

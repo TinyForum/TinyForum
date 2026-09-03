@@ -71,7 +71,7 @@ export function MyPostsTable() {
         </div>
         <p className="text-base-content/80">{error}</p>
         <button className="btn btn-primary btn-sm" onClick={refresh}>
-          重试
+          {t("retry")}
         </button>
       </div>
     );
@@ -250,7 +250,7 @@ export function MyPostsTable() {
             {isLoading ? (
               <>
                 <span className="loading loading-spinner loading-xs"></span>
-                加载中...
+                {t("loading")}
               </>
             ) : (
               <>

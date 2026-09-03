@@ -1,6 +1,7 @@
 // hooks/useLogin.ts
 import { useState, useCallback } from "react";
 import { toast } from "react-hot-toast";
+import { useTranslations } from "next-intl";
 import { useLoginStore } from "@/store/login";
 import { useDeletionStatus } from "./useDeletionStatus";
 import { useAccountActions } from "./useAccountActions";
@@ -12,6 +13,7 @@ interface LoginForm {
 
 // 登录流程 Hook：封装登录、删除状态检查与强制退出
 export function useLogin() {
+  const t = useTranslations("Auth");
   const { setEmail, setPassword, login: storeLogin } = useLoginStore();
   const [showRestoreDialog, setShowRestoreDialog] = useState(false);
 
@@ -34,7 +36,7 @@ export function useLogin() {
         setShowRestoreDialog(true);
         return true;
       } else if (status.is_deleted && !status.can_restore) {
-        toast.error("您的账户已被永久删除，请联系管理员");
+        toast.error(t("account_permanently_deleted_contact_admin"));
         await handleForceLogout();
         return false;
       }

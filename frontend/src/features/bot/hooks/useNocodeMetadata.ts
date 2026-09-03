@@ -1,6 +1,7 @@
 // ==================== 新增：零代码相关 hooks ====================
 
 import { useQuery, useMutation } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { botApi } from "@/shared/api/modules/bot";
 import { getErrorMessage } from "@/shared/lib/utils";
 import { useState } from "react";
@@ -17,16 +18,18 @@ interface UseNocodeMetadataReturn {
 }
 
 export function useNocodeMetadata(): UseNocodeMetadataReturn {
+  const t = useTranslations("Bot");
+
   // 查询：零代码节点元数据
   const query = useQuery({
     queryKey: botKeys.metadata(),
     queryFn: async () => {
       const res = await botApi.nocode.getMetadata();
       if (res.data.code !== 0) {
-        throw new Error(res.data.message || "获取元数据失败");
+        throw new Error(res.data.message || t("get_metadata_failed"));
       }
       if (!res.data.data) {
-        throw new Error("节点元数据为空");
+        throw new Error(t("node_metadata_empty"));
       }
       return res.data.data;
     },
@@ -50,6 +53,7 @@ interface UseValidateFlowReturn {
 }
 
 export function useValidateFlow(): UseValidateFlowReturn {
+  const t = useTranslations("Bot");
   const [error, setError] = useState<string | null>(null);
 
   // 变更：校验流程
@@ -59,10 +63,10 @@ export function useValidateFlow(): UseValidateFlowReturn {
     ): Promise<{ valid: boolean; errors?: string[] }> => {
       const res = await botApi.nocode.validateFlow(flow);
       if (res.data.code !== 0) {
-        throw new Error(res.data.message || "流程校验失败");
+        throw new Error(res.data.message || t("flow_validate_failed"));
       }
       if (!res.data.data) {
-        throw new Error("流程校验返回数据为空");
+        throw new Error(t("flow_validate_empty"));
       }
       return res.data.data;
     },

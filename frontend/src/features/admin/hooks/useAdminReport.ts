@@ -7,6 +7,7 @@ import type {
 import { adminReportsApi } from "@/shared/api/modules/admin/report";
 import { PageData } from "@/shared/api/types/basic.model";
 import { toast } from "react-hot-toast";
+import { useTranslations } from "next-intl";
 
 const adminReportsKeys = {
   all: ["admin", "reports"] as const,
@@ -19,12 +20,13 @@ const adminReportsKeys = {
 
 // ========== 获取所有举报列表（支持筛选/分页）==========
 export function useAdminGetReports(params: ListReportsParams = {}) {
+  const t = useTranslations("Admin");
   return useQuery({
     queryKey: adminReportsKeys.list(params),
     queryFn: async () => {
       const res = await adminReportsApi.listReports(params);
       if (res.data.code !== 0) {
-        throw new Error(res.data.message || "获取举报列表失败");
+        throw new Error(res.data.message || t("get_report_list_failed"));
       }
       return res.data.data as PageData<ReportResponse>;
     },
@@ -33,12 +35,13 @@ export function useAdminGetReports(params: ListReportsParams = {}) {
 
 // ========== 获取单个举报详情 ==========
 export function useAdminGetReport(id: number) {
+  const t = useTranslations("Admin");
   return useQuery({
     queryKey: adminReportsKeys.detail(id),
     queryFn: async () => {
       const res = await adminReportsApi.getReport(id);
       if (res.data.code !== 0) {
-        throw new Error(res.data.message || "获取举报详情失败");
+        throw new Error(res.data.message || t("get_report_detail_failed"));
       }
       return res.data.data as ReportResponse;
     },
@@ -49,20 +52,19 @@ export function useAdminGetReport(id: number) {
 // ========== 处理举报（通过/驳回）==========
 export function useAdminHandleReport() {
   const queryClient = useQueryClient();
+  const t = useTranslations("Admin");
   return useMutation({
     mutationFn: ({ id, data }: { id: number; data: HandleReportRequest }) =>
       adminReportsApi.handleReport(id, data),
     onSuccess: (_, variables) => {
-      // 刷新所有举报列表（包括筛选过的）和详情
       queryClient.invalidateQueries({ queryKey: adminReportsKeys.all });
-      // 可选：单独刷新该条详情（虽然 all 已包含，但明确写也无害）
       queryClient.invalidateQueries({
         queryKey: adminReportsKeys.detail(variables.id),
       });
-      toast.success("举报处理成功");
+      toast.success(t("report_handled"));
     },
     onError: (error: Error) => {
-      toast.error(error.message || "处理失败");
+      toast.error(error.message || t("report_handle_failed"));
     },
   });
 }

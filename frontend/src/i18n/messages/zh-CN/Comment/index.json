@@ -16,5 +16,10 @@
   "login": "登录",
   "to_comment": "后发表评论",
   "no_comments": "暂无评论，快来发表第一条评论吧！",
-  "comment_success": "评论发布成功"
+  "comment_success": "评论发布成功",
+
+  "create_failed_no_data": "创建评论失败：返回数据为空",
+  "load_comments_failed": "获取评论列表失败",
+  "comments_data_empty": "评论数据为空",
+  "comment_data_empty": "创建评论返回数据为空"
 }

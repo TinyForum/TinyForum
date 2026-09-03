@@ -3,6 +3,7 @@
 
 import React from "react";
 import { EditorContent } from "@tiptap/react";
+import { useTranslations } from "next-intl";
 import { RichTextEditorProps } from "./types/richtext.type";
 import { BubbleMenuToolbar } from "./components/BubbleMenuToolbar";
 import { EditorToolbar } from "./components/EditorToolbar";
@@ -15,7 +16,7 @@ import { useMarkdownMode } from "./hooks/useMarkdownMode";
 export const RichTextEditor: React.FC<RichTextEditorProps> = ({
   value = "",
   onChange,
-  placeholder = "写点什么...",
+  placeholder,
   disabled = false,
   className = "",
   defaultMode = "rich",
@@ -28,11 +29,14 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
   markdownParser,
   htmlToMarkdown,
 }) => {
+  const et = useTranslations("Editor");
+  const resolvedPlaceholder = placeholder || et("write_something");
+
   const { editor, getCharacterCount } = useEditorCore({
     content: value,
     editable: !disabled && defaultMode === "rich",
     maxLength,
-    placeholder,
+    placeholder: resolvedPlaceholder,
     customExtensions: extensions,
     onUpdate: (editor) => {
       const html = editor.getHTML();
@@ -90,7 +94,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
 
         {mode === "markdown" && (
           <div className="ml-auto text-xs text-base-content/40">
-            Markdown 模式
+            {et("markdown_mode")}
           </div>
         )}
       </div>

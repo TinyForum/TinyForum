@@ -39,10 +39,10 @@ export function useBoard(options: UseBoardOptions = {}): UseBoardReturn {
     queryFn: async () => {
       const res = await boardApi.list({ page, page_size: pageSize })
       if (res.data.code !== 0) {
-        throw new Error(res.data.message || '加载板块失败')
+        throw new Error(res.data.message || 'load_boards_failed')
       }
       if (!res.data.data) {
-        throw new Error('板块数据为空')
+        throw new Error('board_data_empty')
       }
       return res.data.data
     },
@@ -96,10 +96,10 @@ export function useBoardBySlug(
     queryFn: async () => {
       const res = await boardApi.getBySlug(slug)
       if (res.data.code !== 0) {
-        throw new Error(res.data.message || '加载板块失败')
+        throw new Error(res.data.message || 'load_boards_failed')
       }
       if (!res.data.data) {
-        throw new Error('板块数据为空')
+        throw new Error('board_data_empty')
       }
       return res.data.data
     },
@@ -128,10 +128,10 @@ export function useBoardPostsBySlug(
     queryFn: async () => {
       const res = await boardApi.getPostsBySlug(slug, params)
       if (res.data.code !== 0) {
-        throw new Error(res.data.message || '加载板块帖子失败')
+        throw new Error(res.data.message || 'load_board_posts_failed')
       }
       if (!res.data.data) {
-        throw new Error('板块帖子数据为空')
+        throw new Error('board_posts_data_empty')
       }
       return res.data.data as PageData<BoardPostListItem>
     },

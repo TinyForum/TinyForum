@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { MarketBots } from "./MarketBots";
 import { MyBots } from "./MyBots";
 import { AdminBots } from "./AdminBots";
@@ -8,6 +9,7 @@ import { BotFlowEditor } from "@/shared/ui/editor/bot/BotFlowEditor";
 type TabType = "market" | "my" | "admin" | "nocode";
 
 export function BotManager() {
+  const t = useTranslations("Bot");
   const [activeTab, setActiveTab] = useState<TabType>("market");
   const [page, setPage] = useState(1);
   const pageSize = 10;
@@ -40,7 +42,7 @@ export function BotManager() {
                 setPage(1);
               }}
             >
-              机器人市场
+              {t("bot_market")}
             </button>
             <button
               className={`tab ${activeTab === "my" ? "tab-active" : ""}`}
@@ -49,7 +51,7 @@ export function BotManager() {
                 setPage(1);
               }}
             >
-              我的机器人
+              {t("my_bots")}
             </button>
             <button
               className={`tab ${activeTab === "nocode" ? "tab-active" : ""}`}
@@ -58,7 +60,7 @@ export function BotManager() {
                 setPage(1);
               }}
             >
-              可视化创建
+              {t("nocode_create")}
             </button>
             {isAdmin && (
               <button
@@ -68,7 +70,7 @@ export function BotManager() {
                   setPage(1);
                 }}
               >
-                管理机器人
+                {t("manage_bots_tab")}
               </button>
             )}
           </div>

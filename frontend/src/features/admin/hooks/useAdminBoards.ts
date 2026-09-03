@@ -17,7 +17,7 @@ export function useAdminBoards(params?: { page?: number; page_size?: number }) {
     queryFn: async () => {
       const res = await adminBoardsApi.listBoards(params);
       if (res.data.code !== 0)
-        throw new Error(res.data.message || "获取板块列表失败");
+        throw new Error(res.data.message || "get_board_list_failed");
       return res.data.data as PageData<Board>;
     },
   });

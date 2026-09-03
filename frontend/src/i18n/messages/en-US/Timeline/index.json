@@ -1,0 +1,38 @@
+{
+  "loading_failed": "Failed to load",
+  "timeline_data_empty": "Timeline data is empty",
+  "subscription_data_empty": "Subscription list data is empty",
+  "operation_failed": "Operation failed",
+  "unsubscribe_success": "Unsubscribed",
+
+  "create_post": "posted a new thread",
+  "create_answer": "answered a question",
+  "like_post": "liked a post",
+  "like_answer": "liked an answer",
+  "follow_user": "followed",
+  "accept_answer": "accepted an answer",
+  "reward_question": "received a bounty",
+
+  "answer": "Answer",
+  "view_details": "View details",
+  "unsubscribe": "Unsubscribe",
+  "discover_users": "Discover users",
+
+  "no_events": "No events",
+  "no_following_events": "No following events",
+  "no_events_desc": "No events yet, go explore more content!",
+  "following_events_desc": "After following users, their events will appear here",
+
+  "prev_page": "Previous",
+  "next_page": "Next",
+  "all_loaded": "All content loaded",
+
+  "user_fallback": "User {id}",
+
+  "title": "Timeline",
+  "subtitle": "Follow people and content you are interested in",
+  "recommended": "Recommended",
+  "following": "Following",
+  "my_following": "Following ({count})",
+  "view_more_timeline": "View more timeline →"
+}

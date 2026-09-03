@@ -1,4 +1,5 @@
 // features/bot/components/MarketBots.tsx
+import { useTranslations } from "next-intl";
 import { BotStatus } from "@/shared/api/types/bot.model.do";
 import { useBots, useBotActions } from "../hooks/bot";
 import { Pagination } from "@/shared/ui/common/Pagination";
@@ -28,6 +29,7 @@ interface MarketBotsProps {
 }
 
 export function MarketBots({ page, pageSize, onPageChange }: MarketBotsProps) {
+  const t = useTranslations("Bot");
   const { bots, loading, total, refresh } = useBots({
     page,
     pageSize,
@@ -42,7 +44,7 @@ export function MarketBots({ page, pageSize, onPageChange }: MarketBotsProps) {
     setRunningBotId(id);
     try {
       await runBot(id);
-      toast.success("机器人运行成功");
+      toast.success(t("run_bot_success_msg"));
       await refresh(); // 刷新列表以更新执行次数和状态
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "运行失败，请重试");
@@ -53,18 +55,18 @@ export function MarketBots({ page, pageSize, onPageChange }: MarketBotsProps) {
 
   // 加载中且无数据时显示全屏加载状态
   if (loading && bots.length === 0) {
-    return <div className="flex justify-center p-8">加载机器人列表中...</div>;
+    return <div className="flex justify-center p-8">{t("loading_bots")}</div>;
   }
 
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">机器人市场</h1>
+        <h1 className="text-2xl font-bold">{t("bot_market")}</h1>
       </div>
 
       {bots.length === 0 ? (
         <div className="card bg-base-100 shadow-xl p-8 text-center">
-          暂无公开机器人
+          {t("no_public_bots")}
         </div>
       ) : (
         <>
@@ -80,14 +82,14 @@ export function MarketBots({ page, pageSize, onPageChange }: MarketBotsProps) {
                     {bot.description}
                   </p>
                   <div className="flex flex-wrap gap-2 text-xs text-base-content/60 mt-2">
-                    <span>版本: {bot.version}</span>
-                    <span>类型: {bot.type}</span>
-                    <span>触发: {bot.triggerType}</span>
+                    <span>{t("version_label")} {bot.version}</span>
+                    <span>{t("type_label")} {bot.type}</span>
+                    <span>{t("trigger_label")} {bot.triggerType}</span>
                     {bot.triggerType === "schedule" && (
-                      <span>计划: {bot.cronExpr}</span>
+                      <span>{t("schedule_label")} {bot.cronExpr}</span>
                     )}
-                    <span>执行次数: {bot.execCount}</span>
-                    <span>作者: {bot.creatorName}</span>
+                    <span>{t("exec_count_label")} {bot.execCount}</span>
+                    <span>{t("author_label")} {bot.creatorName}</span>
                   </div>
                   <div className="card-actions justify-end mt-4">
                     <button
@@ -95,7 +97,7 @@ export function MarketBots({ page, pageSize, onPageChange }: MarketBotsProps) {
                       onClick={() => handleRun(bot.id)}
                       disabled={actionLoading || runningBotId === bot.id}
                     >
-                      {runningBotId === bot.id ? "运行中..." : "运行"}
+                      {runningBotId === bot.id ? t("running") : t("run")}
                     </button>
                   </div>
                 </div>

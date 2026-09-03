@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { Post } from "@/shared/api/types/post.model";
 import { useLikePost, useUnlikePost } from "@/features/post/hooks/usePosts";
 import { ChatBubbleLeftRightIcon } from "@heroicons/react/24/outline";
@@ -7,6 +8,7 @@ import toast from "react-hot-toast";
 
 // 热门帖子卡片
 export function HotPostCard({ post, rank }: { post: Post; rank: number }) {
+  const t = useTranslations("Explore");
   const [liked, setLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(post.creation.like_count || 0);
   const likePost = useLikePost();
@@ -26,7 +28,7 @@ export function HotPostCard({ post, rank }: { post: Post; rank: number }) {
       }
     } catch (error) {
       console.error("Like failed:", error);
-      toast.error("操作失败");
+      toast.error(t("operation_failed"));
     }
   };
 

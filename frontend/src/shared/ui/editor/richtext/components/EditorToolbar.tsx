@@ -1,6 +1,7 @@
 // components/EditorToolbar.tsx
 import React from "react";
 import { Editor } from "@tiptap/react";
+import { useTranslations } from "next-intl";
 import { EditorToolbarButton } from "./EditorToolbarButton";
 import {
   Bold,
@@ -172,20 +173,43 @@ interface EditorToolbarProps {
 
 export const EditorToolbar: React.FC<EditorToolbarProps> = ({
   editor,
-  buttons = DEFAULT_TOOLBAR_BUTTONS,
+  buttons,
   groups = DEFAULT_TOOLBAR_GROUPS,
   onInsertLink,
   onInsertImage,
   characterCount = 0,
   maxLength,
 }) => {
-  // 获取按钮实际执行函数（处理自定义回调）
+  const t = useTranslations("Editor");
+
+  const resolvedButtons: Record<string, ToolbarButtonConfig> = {};
+  for (const [id, config] of Object.entries(DEFAULT_TOOLBAR_BUTTONS)) {
+    resolvedButtons[id] = { ...config, title: t(id) };
+  }
+  if (buttons) {
+    for (const [id, config] of Object.entries(buttons)) {
+      resolvedButtons[id] = config;
+    }
+  }
+
   const getButtonAction = (button: ToolbarButtonConfig) => {
     if (button.id === "link" && onInsertLink) {
       return () => button.action(editor, onInsertLink);
     }
+    if (button.id === "link" && !onInsertLink) {
+      return () => {
+        const url = window.prompt(t("enter_link_url"));
+        if (url) editor.chain().focus().setLink({ href: url }).run();
+      };
+    }
     if (button.id === "image" && onInsertImage) {
       return () => button.action(editor, onInsertImage);
+    }
+    if (button.id === "image" && !onInsertImage) {
+      return () => {
+        const url = window.prompt(t("enter_image_url"));
+        if (url) editor.chain().focus().setImage({ src: url }).run();
+      };
     }
     return () => button.action(editor);
   };
@@ -198,7 +222,7 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
           className="flex gap-1 mr-2 border-r border-base-300 pr-2 last:border-r-0"
         >
           {group.buttons.map((buttonId) => {
-            const button = buttons[buttonId];
+            const button = resolvedButtons[buttonId];
             if (!button) return null;
 
             return (

@@ -3,6 +3,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useAuthStore } from "@/store/auth";
 import {
   MagnifyingGlassIcon,
@@ -18,6 +19,7 @@ import { useBoard } from "@/features/boards/hooks/useBoard";
 
 export default function BoardsClient() {
   const { user } = useAuthStore();
+  const t = useTranslations("Board");
   const [search, setSearch] = useState("");
   const [page] = useState(1);
   const [pageSize] = useState(20);
@@ -55,10 +57,10 @@ export default function BoardsClient() {
             <HashtagIcon className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-red-600 to-red-500 bg-clip-text text-transparent">
-            探索板块
+             {t("explore_boards")}
           </h1>
           <p className="text-base-content/60 mt-2 text-sm md:text-base">
-            发现你感兴趣的讨论区，参与精彩对话
+             {t("explore_boards_subtitle")}
           </p>
         </div>
 
@@ -68,7 +70,7 @@ export default function BoardsClient() {
             <div className="card bg-base-100 shadow-md border border-base-200 hover:shadow-lg transition-shadow">
               <div className="card-body p-4 flex-row items-center justify-between">
                 <div>
-                  <p className="text-base-content/60 text-sm">总板块</p>
+                   <p className="text-base-content/60 text-sm">{t("total_boards")}</p>
                   <p className="text-2xl font-bold text-primary">{total}</p>
                 </div>
                 <div className="w-10 h-10 rounded-lg bg-red-50 dark:bg-red-900/20 flex items-center justify-center">
@@ -80,7 +82,7 @@ export default function BoardsClient() {
             <div className="card bg-base-100 shadow-md border border-base-200 hover:shadow-lg transition-shadow">
               <div className="card-body p-4 flex-row items-center justify-between">
                 <div>
-                  <p className="text-base-content/60 text-sm">总帖子</p>
+                   <p className="text-base-content/60 text-sm">{t("total_posts")}</p>
                   <p className="text-2xl font-bold text-primary">
                     {totalPosts}
                   </p>
@@ -94,7 +96,7 @@ export default function BoardsClient() {
             <div className="card bg-base-100 shadow-md border border-base-200 hover:shadow-lg transition-shadow">
               <div className="card-body p-4 flex-row items-center justify-between">
                 <div>
-                  <p className="text-base-content/60 text-sm">今日活跃</p>
+                   <p className="text-base-content/60 text-sm">{t("active_today")}</p>
                   <p className="text-2xl font-bold text-orange-500">
                     {totalToday}
                   </p>
@@ -115,7 +117,7 @@ export default function BoardsClient() {
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="搜索板块名称或描述..."
+               placeholder={t("search_placeholder")}
               className="w-full pl-11 pr-4 py-3 rounded-xl border border-base-200 bg-base-100 text-base-content placeholder-base-content/40 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
             />
             {search && (
@@ -134,7 +136,7 @@ export default function BoardsClient() {
               className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white text-sm font-medium rounded-xl shadow-md hover:shadow-lg transition-all"
             >
               <PlusIcon className="w-4 h-4" />
-              发布新帖
+              {t("publish_new_post")}
             </Link>
           )}
         </div>
@@ -167,17 +169,17 @@ export default function BoardsClient() {
                   <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-red-50 dark:bg-red-900/20 flex items-center justify-center">
                     <MagnifyingGlassIcon className="w-10 h-10 text-red-400" />
                   </div>
-                  <h3 className="text-lg font-semibold text-base-content mb-2">
-                    未找到相关板块
-                  </h3>
-                  <p className="text-base-content/60 text-sm mb-4">
-                    {`没有找到匹配 ${search} 的板块`}
+                   <h3 className="text-lg font-semibold text-base-content mb-2">
+                      {t("no_boards_found")}
+                   </h3>
+                   <p className="text-base-content/60 text-sm mb-4">
+                     {t("no_board_match", { search })}
                   </p>
                   <button
                     onClick={() => setSearch("")}
                     className="btn btn-primary btn-sm"
                   >
-                    清除搜索
+                     {t("clear_search")}
                   </button>
                 </>
               ) : (
@@ -186,19 +188,19 @@ export default function BoardsClient() {
                     <FolderPlusIcon className="w-10 h-10 text-red-400" />
                   </div>
                   <h3 className="text-lg font-semibold text-base-content mb-2">
-                    暂无板块
+                     {t("no_boards_yet")}
                   </h3>
                   <p className="text-base-content/60 text-sm mb-4">
-                    还没有任何板块，快来创建第一个吧
+                     {t("no_boards_desc")}
                   </p>
                   {user ? (
                     <Link href="/boards/new" className="btn btn-primary">
                       <PlusIcon className="w-4 h-4" />
-                      创建第一个板块
+                       {t("create_first_board")}
                     </Link>
                   ) : (
                     <Link href="/auth/login" className="btn btn-primary">
-                      登录后创建
+                       {t("login_to_create")}
                     </Link>
                   )}
                 </>

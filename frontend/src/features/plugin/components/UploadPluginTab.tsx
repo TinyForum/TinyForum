@@ -1,10 +1,12 @@
 import { CheckCircle2 } from "lucide-react";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { useUpload } from "../hooks/useUpload";
 import { useAdminPlugins } from "../useAdminPlugins";
 import toast from "react-hot-toast";
 
 export function UploadPluginTab() {
+  const t = useTranslations("Plugin");
   const [file, setFile] = useState<File | null>(null);
   const [uploaded, setUploaded] = useState(false);
   const { isUploading, error, resetError } = useUpload();
@@ -13,7 +15,7 @@ export function UploadPluginTab() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!file) {
-      toast.error("请选择插件 ZIP 包");
+      toast.error(t("select_zip"));
       return;
     }
     resetError();
@@ -22,7 +24,7 @@ export function UploadPluginTab() {
       setUploaded(true);
       setFile(null);
     } else {
-      toast.error(error || "上传失败，请稍后重试");
+      toast.error(error || t("upload_failed"));
     }
   };
 
@@ -30,15 +32,15 @@ export function UploadPluginTab() {
     return (
       <div className="card bg-base-200 p-6 text-center">
         <CheckCircle2 className="w-12 h-12 text-success mx-auto mb-3" />
-        <h3 className="text-lg font-semibold">提交成功！</h3>
+        <h3 className="text-lg font-semibold">{t("submit_success")}</h3>
         <p className="text-sm text-base-content/60">
-          插件已提交审核，通过后将在插件市场上架。
+          {t("submit_success_desc")}
         </p>
         <button
           className="btn btn-sm btn-outline mt-4"
           onClick={() => setUploaded(false)}
         >
-          继续上传
+          {t("continue_upload")}
         </button>
       </div>
     );
@@ -56,7 +58,7 @@ export function UploadPluginTab() {
             className="file-input file-input-bordered w-full cursor-pointer"
           />
           <p className="text-xs text-base-content/50 mt-1">
-            请打包符合规范的插件目录为 ZIP 文件，系统将自动读取插件信息。
+            {t("zip_instruction")}
           </p>
         </div>
         <div className="flex justify-end gap-2">
@@ -68,7 +70,7 @@ export function UploadPluginTab() {
             {isUploading && (
               <span className="loading loading-spinner loading-xs" />
             )}
-            提交审核
+            {t("submit_review")}
           </button>
         </div>
       </form>

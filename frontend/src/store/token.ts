@@ -59,7 +59,7 @@ export const useValidateTokenStore = create<ValidateTokenState>()((set) => ({
 
   validateToken: async (token: string) => {
     if (!token) {
-      set({ isValid: false, error: "token is required" });
+      set({ isValid: false, error: "invalid_reset_link_expired" });
       return false;
     }
 
@@ -75,7 +75,7 @@ export const useValidateTokenStore = create<ValidateTokenState>()((set) => ({
       set({
         isValid,
         isLoading: false,
-        error: isValid ? null : "Invalid or expired token",
+        error: isValid ? null : "invalid_reset_link_expired",
       });
 
       return isValid;
@@ -85,7 +85,7 @@ export const useValidateTokenStore = create<ValidateTokenState>()((set) => ({
       set({
         isValid: false,
         isLoading: false,
-        error: error.response?.data?.message || "Token validation failed",
+        error: error.response?.data?.message || "invalid_reset_link_expired",
       });
       return false;
     }
@@ -113,14 +113,14 @@ export const useForgotPasswordStore = create<ForgotPasswordState>()(
       const { email } = get();
 
       if (!email) {
-        set({ error: "请输入邮箱地址" });
+        set({ error: "enter_email_address" });
         return { success: false };
       }
 
       // 简单的邮箱格式验证
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(email)) {
-        set({ error: "请输入有效的邮箱地址" });
+        set({ error: "invalid_email_address" });
         return { success: false };
       }
 
@@ -187,25 +187,25 @@ export const useResetPasswordStore = create<ResetPasswordState>()(
 
       if (!token) {
         console.log("❌ No token");
-        set({ error: "无效的重置链接" });
+        set({ error: "invalid_reset_link" });
         return { success: false };
       }
 
       if (!password) {
         console.log("❌ No password");
-        set({ error: "请输入新密码" });
+        set({ error: "enter_new_password" });
         return { success: false };
       }
 
       if (password.length < 6) {
         console.log("❌ Password too short");
-        set({ error: "密码长度至少为6个字符" });
+        set({ error: "password_too_short" });
         return { success: false };
       }
 
       if (password !== confirmPassword) {
         console.log("❌ Passwords don't match");
-        set({ error: "两次输入的密码不一致" });
+        set({ error: "passwords_not_match" });
         return { success: false };
       }
 
@@ -239,7 +239,7 @@ export const useResetPasswordStore = create<ResetPasswordState>()(
 
         console.log("❌ Reset failed - unexpected response");
         set({
-          error: response.data.message || "密码重置失败，请重试",
+          error: response.data.message || "reset_password_failed",
           isLoading: false,
         });
         return { success: false };
@@ -252,7 +252,7 @@ export const useResetPasswordStore = create<ResetPasswordState>()(
         console.error("Error data:", error.response?.data);
 
         set({
-          error: error.response?.data?.message || "密码重置失败，请重试",
+          error: error.response?.data?.message || "reset_password_failed",
           isLoading: false,
         });
         return { success: false };

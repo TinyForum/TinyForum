@@ -1,7 +1,7 @@
 // src/app/[locale]/posts/new/page.tsx 客户端组件
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useForm, Controller, useWatch } from "react-hook-form";
 import type { FieldErrors } from "react-hook-form";
@@ -16,7 +16,7 @@ import { useTags } from "@/features/tag/hooks/useTags";
 import { useCreatePost } from "@/features/post/hooks/usePosts";
 import { PostEditor } from "./PostEditor";
 import { PostSettings } from "./PostSettings";
-import { PostForm, postSchema } from "./newPost.types";
+import { PostForm, createPostSchema } from "./newPost.types";
 import { PostType } from "@/shared/api/types/post.model";
 
 export default function NewPostClient() {
@@ -25,6 +25,7 @@ export default function NewPostClient() {
   const [loading, setLoading] = useState(false);
   const t = useTranslations("Post");
   const { mutateAsync: createPost } = useCreatePost();
+  const postSchema = useMemo(() => createPostSchema(t), [t]);
 
   useEffect(() => {
     if (!isAuthenticated) router.push("/auth/login");

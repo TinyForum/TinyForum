@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect, useMemo } from "react";
+import { useTranslations } from "next-intl";
 import toast from "react-hot-toast";
 import { configApi } from "@/shared/api/modules/config";
 import type { ConfigReloadResult } from "@/shared/api/modules/config";
@@ -83,6 +84,7 @@ function fieldLabel(key: string): string {
 }
 
 export function useSiteConfig() {
+  const t = useTranslations("System");
   const [fields, setFields] = useState<ConfigField[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -110,7 +112,7 @@ export function useSiteConfig() {
       }
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { message?: string } } })
-        ?.response?.data?.message || "加载配置失败";
+        ?.response?.data?.message || t("config_load_failed");
       toast.error(msg);
     } finally {
       setIsLoading(false);
@@ -147,10 +149,10 @@ export function useSiteConfig() {
         kvPayload[f.key] = String(f.value);
       }
       await configApi.updateKV(configFile, kvPayload);
-      toast.success("配置保存成功，已自动重载");
+      toast.success(t("config_saved"));
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { message?: string } } })
-        ?.response?.data?.message || "保存失败";
+        ?.response?.data?.message || t("save_failed");
       toast.error(msg);
     } finally {
       setIsSaving(false);
@@ -163,12 +165,12 @@ export function useSiteConfig() {
       const res = await configApi.reload();
       const result = res.data.data;
       if (result) {
-        toast.success(`配置已重载 (${result.reloadedFiles.length} 个文件)`);
+        toast.success(t("config_reloaded", { count: result.reloadedFiles.length }));
       }
       return result || null;
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { message?: string } } })
-        ?.response?.data?.message || "重载失败";
+        ?.response?.data?.message || t("reload_failed");
       toast.error(msg);
       return null;
     } finally {

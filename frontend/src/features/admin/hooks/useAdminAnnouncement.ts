@@ -2,6 +2,7 @@ import { useCallback } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { announcementApi } from '@/shared/api/modules/announcements'
 import toast from 'react-hot-toast'
+import { useTranslations } from 'next-intl'
 import { AnnouncementDO } from '@/shared/api/types/announcement.model.do'
 import { announcementKeys } from './useAnnouncementKeys'
 
@@ -30,6 +31,7 @@ export function useAdminAnnouncement(
   options?: UseAdminAnnouncementOptions,
 ): UseAnnouncementReturn {
   const queryClient = useQueryClient()
+  const t = useTranslations("Admin")
   const { autoLoad = true } = options || {}
 
   // 公告详情查询
@@ -55,7 +57,7 @@ export function useAdminAnnouncement(
         })
       } catch (error) {
         console.error('获取公告详情失败:', error)
-        toast.error('获取公告详情失败，请稍后重试')
+        toast.error(t('get_announcement_detail_failed'))
         return null
       }
     },

@@ -48,7 +48,7 @@ export default function UserDashboardClient() {
   useEffect(() => {
     loadStats();
   }, [loadStats]);
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <div>{t("loading")}</div>;
 
   const tabs = [
     {

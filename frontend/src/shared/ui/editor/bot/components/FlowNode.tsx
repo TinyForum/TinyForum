@@ -1,6 +1,7 @@
 "use client";
 
 import { memo } from "react";
+import { useTranslations } from "next-intl";
 import { Handle, Position, NodeProps } from "reactflow";
 
 export interface FlowNodeData {
@@ -11,11 +12,18 @@ export interface FlowNodeData {
   outputs?: { name: string; type: string; desc?: string }[];
 }
 
-const categoryConfig: Record<string, { border: string; bg: string; badge: string; badgeColor: string }> = {
-  trigger:  { border: "border-green-400",  bg: "bg-green-50",  badge: "触发器", badgeColor: "bg-green-200 text-green-800" },
-  control:  { border: "border-orange-400", bg: "bg-orange-50", badge: "控制",   badgeColor: "bg-orange-200 text-orange-800" },
-  variable: { border: "border-purple-400", bg: "bg-purple-50", badge: "变量",   badgeColor: "bg-purple-200 text-purple-800" },
-  action:   { border: "border-blue-400",   bg: "bg-blue-50",   badge: "动作",   badgeColor: "bg-blue-200 text-blue-800" },
+const categoryBadgeKeys: Record<string, string> = {
+  trigger: "badge_trigger",
+  control: "badge_control",
+  variable: "badge_variable",
+  action: "badge_action",
+};
+
+const categoryConfig: Record<string, { border: string; bg: string; badgeColor: string }> = {
+  trigger:  { border: "border-green-400",  bg: "bg-green-50",  badgeColor: "bg-green-200 text-green-800" },
+  control:  { border: "border-orange-400", bg: "bg-orange-50", badgeColor: "bg-orange-200 text-orange-800" },
+  variable: { border: "border-purple-400", bg: "bg-purple-50", badgeColor: "bg-purple-200 text-purple-800" },
+  action:   { border: "border-blue-400",   bg: "bg-blue-50",   badgeColor: "bg-blue-200 text-blue-800" },
 };
 
 export const FlowNode = memo(function FlowNode({
@@ -23,6 +31,7 @@ export const FlowNode = memo(function FlowNode({
   data,
   selected,
 }: NodeProps<FlowNodeData>) {
+  const t = useTranslations("Bot");
   const config = categoryConfig[data.category] || categoryConfig.action;
   const isIf = data.nodeType === "if";
   const isWhile = data.nodeType === "while";
@@ -39,7 +48,7 @@ export const FlowNode = memo(function FlowNode({
       )}
 
       <span className={`inline-block text-xs px-1.5 py-0.5 rounded ${config.badgeColor}`}>
-        {config.badge}
+        {t(categoryBadgeKeys[data.category])}
       </span>
 
       <div className="text-sm font-medium mt-1 text-gray-800">{data.label}</div>

@@ -1,0 +1,71 @@
+{
+  "website_config": "网站配置",
+  "plugins_center": "插件中心",
+  "features_flags": "功能开关",
+  "system_management": "系统管理",
+  "expand": "展开",
+  "collapse": "收起",
+  "config_effective_immediately": "修改配置后立即生效",
+
+  "auto_load_from_backend": "自动从后端加载配置项，修改后即时保存并重载",
+  "plugin_install_tip": "安装、启用或移除扩展插件",
+  "feature_control_tip": "实时控制各功能模块的启用状态",
+
+  "config_file": "配置文件:",
+  "no_config_items": "暂无配置项",
+  "sensitive_fields_hidden": "部分敏感字段已被隐藏，不参与保存。",
+  "reloading": "重载中...",
+  "reload_config": "重载配置",
+  "saving": "保存中...",
+  "save_config": "保存配置",
+  "loading_config": "加载配置中...",
+
+  "server": "服务器",
+  "api_config": "API 配置",
+  "frontend_config": "前端配置",
+  "log_config": "日志配置",
+  "attachment_config": "附件配置",
+  "plugins_config": "插件配置",
+  "cors_origins": "跨域来源",
+  "version": "版本",
+  "general_config": "通用配置",
+
+  "duration_placeholder": "30s / 5m / 24h",
+  "comma_separated": "逗号分隔",
+
+  "description": "描述",
+  "slots": "注入插槽",
+  "not_declared": "未声明",
+  "last_updated": "最后更新",
+
+  "no_plugins_found": "没有找到\"{keyword}\"相关插件",
+  "no_plugins_installed": "尚未安装任何插件",
+  "install_first_plugin": "安装第一个插件",
+
+  "feature_enable_rate": "功能启用率",
+  "enable_rate": "启用率",
+  "enable_all": "全部启用",
+
+  "plugin_management": "插件管理",
+  "plugin_market": "插件市场",
+  "plugin_config": "插件配置",
+  "runtime_logs": "运行日志",
+  "developer_tools": "开发工具",
+  "upload_plugin": "上传插件",
+  "my_plugins": "我的插件",
+
+  "enabled": "启用",
+  "disabled": "禁用",
+  "edit": "编辑",
+  "remove": "移除",
+
+  "config_saved": "配置保存成功，已自动重载",
+  "save_failed": "保存失败",
+  "config_reloaded": "配置已重载 ({count} 个文件)",
+  "reload_failed": "重载失败",
+  "config_load_failed": "加载配置失败",
+  "feature_enabled": "{name} 已开启",
+  "feature_disabled": "{name} 已关闭",
+  "operation_failed_retry": "操作失败，请重试",
+  "all_features_enabled": "已启用所有功能"
+}

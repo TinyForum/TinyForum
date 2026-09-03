@@ -1,4 +1,5 @@
 import { useCallback } from "react"
+import { useTranslations } from "next-intl"
 import { useQuery } from "@tanstack/react-query"
 import { userStatsApi } from "@/shared/api/modules/user/stats"
 import { UserStatsVO } from "@/shared/api/types/user.model"
@@ -11,16 +12,17 @@ type UseUserStatsReturn = UserStatsVO & {
 }
 
 export function useUserStats(): UseUserStatsReturn {
+  const t = useTranslations("User")
   // 查询：拉取当前用户统计数据
   const { data, isLoading, error, refetch } = useQuery<UserStatsVO>({
     queryKey: userKeys.stats(),
     queryFn: async () => {
       const res = await userStatsApi.getUserStats()
       if (res.data.code !== 0) {
-        throw new Error(res.data.message || "获取统计数量失败")
+        throw new Error(res.data.message || t("stats_load_failed"))
       }
       if (!res.data.data) {
-        throw new Error("获取统计数量失败")
+        throw new Error(t("stats_load_failed"))
       }
       return res.data.data
     },

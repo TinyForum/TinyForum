@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useCallback } from "react";
+import { useRef, useCallback, useMemo } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -10,24 +10,31 @@ import { getErrorMessage } from "@/shared/lib/utils";
 import { Save, AlertCircle, Camera } from "lucide-react";
 import Avatar from "@/shared/ui/common/Avatar";
 import { UserDO } from "@/shared/api/types/user.model.do";
+import { useTranslations } from "next-intl";
 
 import { useUpload } from "@/features/upload/hooks/useUpload";
 import { useProfileSettings } from "@/features/user/hooks/useProfileSettings";
 
 // 移除 avatar 的 URL 校验，允许任意字符串（包括相对路径、协议相对路径）
-const profileSchema = z.object({
-  bio: z.string().max(500, "个人简介最多500字").optional().default(""),
-  avatar_url: z.string().optional().default(""),
-});
 
-type ProfileForm = z.infer<typeof profileSchema>;
+type ProfileForm = { bio?: string; avatar_url?: string };
 
 interface ProfileSettingsProps {
   user: UserDO;
 }
 
 export default function ProfileSettings({ user }: ProfileSettingsProps) {
+  const t = useTranslations("Settings");
   const { updateUser } = useAuthStore();
+
+  const profileSchema = useMemo(
+    () =>
+      z.object({
+        bio: z.string().max(500, t("bio_max_length")).optional().default(""),
+        avatar_url: z.string().optional().default(""),
+      }),
+    [t],
+  );
   const { uploadAvatar, isUploading, uploadError } = useUpload();
   const { updateProfile } = useProfileSettings();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -58,12 +65,12 @@ export default function ProfileSettings({ user }: ProfileSettingsProps) {
       if (!file) return;
 
       if (!file.type.startsWith("image/")) {
-        toast.error("请选择图片文件");
+        toast.error(t("select_image_file"));
         return;
       }
 
       if (file.size > 5 * 1024 * 1024) {
-        toast.error("图片大小不能超过 5MB");
+        toast.error(t("image_size_limit"));
         return;
       }
 
@@ -74,9 +81,9 @@ export default function ProfileSettings({ user }: ProfileSettingsProps) {
             shouldDirty: true,
             shouldValidate: true,
           });
-          toast.success("头像上传成功，请保存资料");
+          toast.success(t("avatar_upload_success"));
         } else {
-          throw new Error("上传失败，未返回URL");
+          throw new Error(t("upload_failed_no_url"));
         }
       } catch (err) {
         toast.error(getErrorMessage(err));
@@ -91,7 +98,7 @@ export default function ProfileSettings({ user }: ProfileSettingsProps) {
     try {
       await updateProfile(data);
       updateUser({ ...user, ...data });
-      toast.success("资料已更新");
+      toast.success(t("profile_updated"));
     } catch (err) {
       toast.error(getErrorMessage(err));
     }
@@ -102,9 +109,9 @@ export default function ProfileSettings({ user }: ProfileSettingsProps) {
   return (
     <div className="space-y-6">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold">个人资料</h1>
+        <h1 className="text-2xl font-bold">{t("profile")}</h1>
         <p className="text-sm text-base-content/60 mt-1">
-          管理您的个人信息和公开资料
+          {t("profile_page_desc")}
         </p>
       </div>
 
@@ -136,7 +143,7 @@ export default function ProfileSettings({ user }: ProfileSettingsProps) {
               </button>
               {currentAvatar !== user?.avatar_url && currentAvatar && (
                 <div className="absolute -top-2 -right-2 badge badge-primary badge-sm animate-pulse">
-                  未保存
+                  {t("not_saved")}
                 </div>
               )}
             </div>
@@ -163,15 +170,15 @@ export default function ProfileSettings({ user }: ProfileSettingsProps) {
             {/* 个人简介 */}
             <div className="form-control">
               <label className="label pb-1">
-                <span className="label-text font-medium">个人简介</span>
+                <span className="label-text font-medium">{t("about_me")}</span>
                 <span className="label-text-alt text-base-content/40">
-                  选填
+                  {t("optional")}
                 </span>
               </label>
               <textarea
                 {...register("bio")}
                 rows={4}
-                placeholder="介绍一下自己吧..."
+                placeholder={t("about_me_placeholder")}
                 className={`textarea textarea-bordered focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all resize-none ${errors.bio ? "textarea-error" : ""}`}
               />
               {errors.bio && (
@@ -184,7 +191,7 @@ export default function ProfileSettings({ user }: ProfileSettingsProps) {
               )}
               <div className="flex justify-between items-center mt-1">
                 <span className="text-xs text-base-content/40">
-                  支持Markdown格式
+                  {t("markdown_supported")}
                 </span>
                 <span
                   className={`text-xs ${
@@ -207,7 +214,7 @@ export default function ProfileSettings({ user }: ProfileSettingsProps) {
               ) : (
                 <Save className="w-4 h-4" />
               )}
-              {isUploading ? "上传中..." : "保存资料"}
+              {isUploading ? t("uploading") : t("save_profile")}
             </button>
           </form>
         </div>

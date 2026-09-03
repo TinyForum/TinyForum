@@ -1,6 +1,8 @@
-// hooks/useReviewPendingPosts.ts
+"use client";
+
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
+import { useTranslations } from "next-intl";
 import { adminPostsApi } from "@/shared/api/modules/admin/post";
 import { Post } from "@/shared/api/types/post.model";
 import { adminKeys } from "./useAdminKeys";
@@ -27,6 +29,7 @@ export interface PendingPostsResponse {
 // 待审核帖子 Hook：列表查询 + 审核通过/拒绝
 export function useReviewPendingPosts(page: number, keyword: string) {
   const queryClient = useQueryClient();
+  const t = useTranslations("Admin");
 
   // 查询待审核列表
   const { data, isLoading, refetch } = useQuery<PendingPostsResponse>({
@@ -52,10 +55,10 @@ export function useReviewPendingPosts(page: number, keyword: string) {
     mutationFn: ({ id, note }: { id: number; note?: string }) =>
       adminPostsApi.approvePost(id, note),
     onSuccess: () => {
-      toast.success("帖子已通过审核");
+      toast.success(t("post_approved"));
       queryClient.invalidateQueries({ queryKey: adminKeys.pendingPosts() });
     },
-    onError: () => toast.error("审核通过失败"),
+    onError: () => toast.error(t("approve_failed")),
   });
 
   // 审核拒绝 mutation
@@ -63,10 +66,10 @@ export function useReviewPendingPosts(page: number, keyword: string) {
     mutationFn: ({ id, reason }: { id: number; reason?: string }) =>
       adminPostsApi.rejectPost(id, reason),
     onSuccess: () => {
-      toast.success("帖子已拒绝");
+      toast.success(t("post_rejected"));
       queryClient.invalidateQueries({ queryKey: adminKeys.pendingPosts() });
     },
-    onError: () => toast.error("拒绝失败"),
+    onError: () => toast.error(t("reject_failed")),
   });
 
   return {

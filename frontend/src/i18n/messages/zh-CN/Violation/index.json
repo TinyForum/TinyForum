@@ -23,5 +23,7 @@
   "submit_appeal": "提交申诉",
   "appeal_submitted": "申诉已提交，请等待审核",
   "appeal_failed": "申诉提交失败，请稍后重试",
-  "no_violations": "暂无违规记录"
+  "no_violations": "暂无违规记录",
+  "retry": "重试",
+  "cancel": "取消"
 }

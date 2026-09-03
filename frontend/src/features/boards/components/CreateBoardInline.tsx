@@ -1,6 +1,7 @@
 // ─── CreateBoardInline ─────────────────────────────────────────────────────────
 
 import { useAuthStore } from "@/store/auth";
+import { useTranslations } from "next-intl";
 import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { ArrowLeftIcon, FolderPlusIcon, MailIcon } from "lucide-react";
@@ -30,6 +31,7 @@ interface ErrorResponse {
 
 export function CreateBoardInline({ slug, onCreated }: CreateBoardInlineProps) {
   const { user } = useAuthStore();
+  const t = useTranslations("Board");
   const [form, setForm] = useState<FormData>({
     name: "",
     slug: slug,
@@ -56,15 +58,15 @@ export function CreateBoardInline({ slug, onCreated }: CreateBoardInlineProps) {
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
     if (!form.name.trim()) {
-      setError("请填写板块名称");
+      setError("validation_board_name_required");
       return;
     }
     if (!form.slug.trim()) {
-      setError("请填写板块标识");
+      setError("validation_board_slug_required");
       return;
     }
     if (!/^[a-z0-9-]+$/.test(form.slug)) {
-      setError("标识只能包含小写字母、数字和连字符");
+      setError("validation_slug_format");
       return;
     }
 
@@ -80,14 +82,14 @@ export function CreateBoardInline({ slug, onCreated }: CreateBoardInlineProps) {
       if (board) {
         onCreated(board);
       } else {
-        setError("创建成功但未返回板块数据");
+        setError("create_success_no_data");
       }
     } catch (err: unknown) {
       const error = err as ErrorResponse;
       setError(
         error.response?.data?.message ||
           (error instanceof Error ? error.message : "") ||
-          "创建失败，请稍后重试",
+          "create_failed_retry",
       );
     } finally {
       setSubmitting(false);
@@ -98,7 +100,7 @@ export function CreateBoardInline({ slug, onCreated }: CreateBoardInlineProps) {
   const handleApplySubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
     if (!applyReason.trim()) {
-      setApplyError("请填写申请理由");
+      setApplyError("validation_reason_required");
       return;
     }
 
@@ -118,7 +120,7 @@ export function CreateBoardInline({ slug, onCreated }: CreateBoardInlineProps) {
       }, 3000);
     } catch (err: unknown) {
       const error = err as ErrorResponse;
-      setApplyError(error.response?.data?.message || "提交失败，请稍后重试");
+      setApplyError(error.response?.data?.message || "submit_failed_retry");
     } finally {
       setApplySubmitting(false);
     }
@@ -136,32 +138,32 @@ export function CreateBoardInline({ slug, onCreated }: CreateBoardInlineProps) {
             <ExclamationCircleIcon className="w-8 h-8 text-blue-500" />
           </div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            板块不存在
+            {t("board_not_exists")}
           </h1>
           <p className="mt-2 text-gray-500 dark:text-gray-400">
             <span className="font-mono bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded text-sm text-blue-600 dark:text-blue-400">
               /{slug}
             </span>{" "}
-            尚未创建。
+             {t("board_not_created")}
           </p>
         </div>
 
         {!user ? (
           // 未登录状态
           <div className="text-center space-y-3">
-            <p className="text-gray-500">需要登录才能创建板块</p>
+            <p className="text-gray-500">{t("login_to_create_board")}</p>
             <Link
               href={`/auth/login?redirect=/boards/${slug}`}
               className="inline-block px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition-colors"
             >
-              去登录
+               {t("go_login")}
             </Link>
             <div className="pt-2">
               <Link
                 href="/boards"
                 className="text-sm text-gray-400 hover:text-blue-500 transition-colors"
               >
-                ← 返回板块列表
+                 {t("back_to_board_list")}
               </Link>
             </div>
           </div>
@@ -173,20 +175,20 @@ export function CreateBoardInline({ slug, onCreated }: CreateBoardInlineProps) {
           >
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                板块名称 <span className="text-red-500">*</span>
+                 {t("board_name")} <span className="text-red-500">*</span>
               </label>
               <input
                 name="name"
                 value={form.name}
                 onChange={handleChange}
-                placeholder="例如：前端技术交流"
+                placeholder={t("board_name_placeholder")}
                 className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                板块标识 <span className="text-red-500">*</span>
+                 {t("board_slug")} <span className="text-red-500">*</span>
               </label>
               <div className="flex items-center rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent transition">
                 <span className="pl-4 pr-1 text-gray-400 text-sm select-none">
@@ -201,19 +203,19 @@ export function CreateBoardInline({ slug, onCreated }: CreateBoardInlineProps) {
                 />
               </div>
               <p className="mt-1 text-xs text-gray-400">
-                仅小写字母、数字、连字符
+                 {t("board_slug_hint")}
               </p>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                板块描述
+                 {t("board_description")}
               </label>
               <textarea
                 name="description"
                 value={form.description}
                 onChange={handleChange}
-                placeholder="简单介绍这个板块的用途..."
+                placeholder={t("board_description_placeholder")}
                 rows={3}
                 className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition resize-none"
               />
@@ -221,7 +223,7 @@ export function CreateBoardInline({ slug, onCreated }: CreateBoardInlineProps) {
 
             {error && (
               <p className="text-sm text-red-500 bg-red-50 dark:bg-red-900/20 px-4 py-2 rounded-lg">
-                {error}
+                {t(error)}
               </p>
             )}
 
@@ -231,7 +233,7 @@ export function CreateBoardInline({ slug, onCreated }: CreateBoardInlineProps) {
                 className="text-sm text-gray-400 hover:text-blue-500 transition-colors flex items-center gap-1"
               >
                 <ArrowLeftIcon className="w-3.5 h-3.5" />
-                返回列表
+                 {t("back_to_list")}
               </Link>
               <button
                 type="submit"
@@ -239,7 +241,7 @@ export function CreateBoardInline({ slug, onCreated }: CreateBoardInlineProps) {
                 className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed text-white rounded-xl font-medium transition-colors"
               >
                 <FolderPlusIcon className="w-4 h-4" />
-                {submitting ? "创建中..." : "创建板块"}
+                {submitting ? t("creating") : t("create_board")}
               </button>
             </div>
           </form>
@@ -254,10 +256,10 @@ export function CreateBoardInline({ slug, onCreated }: CreateBoardInlineProps) {
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                    申请创建板块
+                     {t("apply_create_board")}
                   </h3>
                   <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                    只有管理员可以创建新板块。你可以提交申请，管理员审核后将为你创建。
+                     {t("admin_only_create")}
                   </p>
                 </div>
                 <div className="pt-2 space-y-3">
@@ -265,7 +267,7 @@ export function CreateBoardInline({ slug, onCreated }: CreateBoardInlineProps) {
                     onClick={() => setShowApplyForm(true)}
                     className="inline-block px-6 py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-medium transition-colors"
                   >
-                    去申请
+                     {t("go_apply")}
                   </button>
                   <div>
                     <Link
@@ -273,7 +275,7 @@ export function CreateBoardInline({ slug, onCreated }: CreateBoardInlineProps) {
                       className="text-sm text-gray-400 hover:text-blue-500 transition-colors flex items-center justify-center gap-1"
                     >
                       <ArrowLeftIcon className="w-3.5 h-3.5" />
-                      返回板块列表
+                       {t("back_to_board_list")}
                     </Link>
                   </div>
                 </div>
@@ -298,10 +300,10 @@ export function CreateBoardInline({ slug, onCreated }: CreateBoardInlineProps) {
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                    申请已提交
+                     {t("apply_submitted")}
                   </h3>
                   <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                    管理员将尽快审核你的申请，请耐心等待。
+                     {t("apply_wait_review")}
                   </p>
                 </div>
                 <div>
@@ -310,7 +312,7 @@ export function CreateBoardInline({ slug, onCreated }: CreateBoardInlineProps) {
                     className="text-sm text-blue-500 hover:text-blue-600 transition-colors flex items-center justify-center gap-1"
                   >
                     <ArrowLeftIcon className="w-3.5 h-3.5" />
-                    返回板块列表
+                     {t("back_to_board_list")}
                   </Link>
                 </div>
               </div>
@@ -319,17 +321,17 @@ export function CreateBoardInline({ slug, onCreated }: CreateBoardInlineProps) {
               <form onSubmit={handleApplySubmit} className="space-y-4">
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                    申请创建板块
+                     {t("apply_create_board")}
                   </h3>
                   <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                    请填写申请理由，管理员审核后将为你创建板块{" "}
+                     {t("apply_create_reason_desc")}{" "}
                     <span className="font-mono text-blue-600">/{slug}</span>
                   </p>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                    板块名称
+                     {t("board_name")}
                   </label>
                   <input
                     value={form.name}
@@ -337,7 +339,7 @@ export function CreateBoardInline({ slug, onCreated }: CreateBoardInlineProps) {
                       setForm({ ...form, name: e.target.value })
                     }
                     type="text"
-                    placeholder="请输入板块名称"
+                    placeholder={t("board_name_placeholder_disabled")}
                     className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed"
                     disabled
                   />
@@ -345,7 +347,7 @@ export function CreateBoardInline({ slug, onCreated }: CreateBoardInlineProps) {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                    申请理由 <span className="text-red-500">*</span>
+                     {t("apply_reason")} <span className="text-red-500">*</span>
                   </label>
                   <textarea
                     value={applyReason}
@@ -353,12 +355,12 @@ export function CreateBoardInline({ slug, onCreated }: CreateBoardInlineProps) {
                       setApplyReason(e.target.value);
                       setApplyError("");
                     }}
-                    placeholder="请说明为什么需要创建这个板块，以及它的用途..."
+                    placeholder={t("apply_reason_placeholder_board")}
                     rows={4}
                     className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition resize-none"
                   />
                   {applyError && (
-                    <p className="mt-1 text-sm text-red-500">{applyError}</p>
+                    <p className="mt-1 text-sm text-red-500">{t(applyError)}</p>
                   )}
                 </div>
 
@@ -372,7 +374,7 @@ export function CreateBoardInline({ slug, onCreated }: CreateBoardInlineProps) {
                     }}
                     className="flex-1 px-4 py-2.5 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                   >
-                    取消
+                     {t("cancel")}
                   </button>
                   <button
                     type="submit"
@@ -380,7 +382,7 @@ export function CreateBoardInline({ slug, onCreated }: CreateBoardInlineProps) {
                     className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-amber-600 hover:bg-amber-700 disabled:opacity-60 disabled:cursor-not-allowed text-white rounded-xl font-medium transition-colors"
                   >
                     <MailIcon className="w-4 h-4" />
-                    {applySubmitting ? "提交中..." : "提交申请"}
+                    {applySubmitting ? t("submitting") : t("submit_application")}
                   </button>
                 </div>
               </form>

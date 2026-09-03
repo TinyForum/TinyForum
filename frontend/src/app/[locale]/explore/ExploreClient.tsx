@@ -3,6 +3,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useAuthStore } from "@/store/auth";
 import { toast } from "react-hot-toast";
 import {
@@ -36,28 +37,28 @@ import { LeaderboardItemResponse } from "@/shared/api/types/user.model";
 const exploreTabs = [
   {
     id: "hot",
-    label: "热门",
+    labelKey: "hot",
     icon: FireIcon,
     sortBy: "hot",
     color: "text-red-500",
   },
   {
     id: "latest",
-    label: "最新",
+    labelKey: "latest",
     icon: ClockIcon,
     sortBy: "latest",
     color: "text-blue-500",
   },
   {
     id: "trending",
-    label: "趋势",
+    labelKey: "trending",
     icon: ArrowTrendingUpIcon,
     sortBy: "views",
     color: "text-green-500",
   },
   {
     id: "recommended",
-    label: "推荐",
+    labelKey: "recommended",
     icon: SparklesIcon,
     sortBy: "recommended",
     color: "text-purple-500",
@@ -66,6 +67,7 @@ const exploreTabs = [
 
 export default function ExploreClient() {
   const { isAuthenticated } = useAuthStore();
+  const t = useTranslations("Explore");
   const [activeTab, setActiveTab] = useState("hot");
   const [searchKeyword, setSearchKeyword] = useState("");
   const [submittedKeyword, setSubmittedKeyword] = useState("");
@@ -99,7 +101,7 @@ export default function ExploreClient() {
   // 搜索
   const handleSearch = () => {
     if (!searchKeyword.trim()) {
-      toast.error("请输入搜索关键词");
+      toast.error(t("enter_search_keyword"));
       return;
     }
     setSubmittedKeyword(searchKeyword.trim());
@@ -122,10 +124,10 @@ export default function ExploreClient() {
             <SparklesIcon className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-red-600 to-red-500 bg-clip-text text-transparent">
-            探索
+            {t("title")}
           </h1>
           <p className="text-base-content/60 mt-2">
-            发现热门内容、话题和活跃用户
+            {t("subtitle")}
           </p>
         </div>
 
@@ -140,7 +142,7 @@ export default function ExploreClient() {
                   value={searchKeyword}
                   onChange={(e) => setSearchKeyword(e.target.value)}
                   onKeyPress={(e) => e.key === "Enter" && handleSearch()}
-                  placeholder="搜索帖子..."
+                  placeholder={t("search_placeholder")}
                   className="w-full pl-11 pr-4 py-2.5 bg-transparent text-base-content placeholder-base-content/40 focus:outline-none"
                 />
               </div>
@@ -152,12 +154,12 @@ export default function ExploreClient() {
                 {searching ? (
                   <span className="loading loading-spinner loading-sm"></span>
                 ) : (
-                  "搜索"
+                  t("search_button")
                 )}
               </button>
               {searchKeyword && (
                 <button onClick={clearSearch} className="btn btn-ghost">
-                  清除
+                  {t("clear_button")}
                 </button>
               )}
             </div>
@@ -189,7 +191,7 @@ export default function ExploreClient() {
                           <Icon
                             className={`w-4 h-4 ${isActive ? tab.color : ""}`}
                           />
-                          {tab.label}
+                          {t(tab.labelKey)}
                         </button>
                       );
                     })}
@@ -222,13 +224,13 @@ export default function ExploreClient() {
                 <div className="card-body py-16 text-center">
                   <div className="text-6xl mb-4">✨</div>
                   <h3 className="text-lg font-semibold text-base-content mb-2">
-                    登录后获得个性化推荐
+                    {t("login_for_recommendation")}
                   </h3>
                   <p className="text-base-content/60 mb-4">
-                    系统将根据您的浏览和互动行为，为您推荐感兴趣的内容
+                    {t("recommendation_desc")}
                   </p>
                   <Link href="/auth/login" className="btn btn-primary">
-                    立即登录
+                    {t("login_now")}
                     <ArrowRightIcon className="w-4 h-4" />
                   </Link>
                 </div>
@@ -250,9 +252,9 @@ export default function ExploreClient() {
                       )}
                       <div className="flex items-center justify-between text-xs text-base-content/40">
                         <div className="flex items-center gap-3">
-                          <span>{item.view_count} 浏览</span>
-                          <span>{item.like_count} 赞</span>
-                          <span>{item.comment_count} 评论</span>
+                          <span>{t("views", { count: item.view_count })}</span>
+                          <span>{t("likes", { count: item.like_count })}</span>
+                          <span>{t("comments", { count: item.comment_count })}</span>
                         </div>
                         <span className="badge badge-sm badge-outline text-purple-500 border-purple-300">
                           {item.reason}
@@ -267,17 +269,17 @@ export default function ExploreClient() {
                 <div className="card-body py-16 text-center">
                   <div className="text-6xl mb-4">🔍</div>
                   <h3 className="text-lg font-semibold text-base-content mb-2">
-                    {searchKeyword ? "未找到相关结果" : "暂无内容"}
+                    {searchKeyword ? t("no_results") : t("no_content")}
                   </h3>
                   <p className="text-base-content/60">
                     {searchKeyword
-                      ? "尝试使用其他关键词"
-                      : "还没有内容，去发布第一个帖子吧！"}
+                      ? t("try_other_keywords")
+                      : t("no_content_create")}
                   </p>
                   {!searchKeyword && (
                     <Link href="/posts/new" className="btn btn-primary mt-4">
                       <ChatBubbleLeftRightIcon className="w-4 h-4" />
-                      发布帖子
+                      {t("publish_post")}
                     </Link>
                   )}
                 </div>
@@ -304,7 +306,7 @@ export default function ExploreClient() {
                   <div className="w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/20 flex items-center justify-center">
                     <HashtagIcon className="w-4 h-4 text-red-500" />
                   </div>
-                  <h2 className="font-semibold text-base-content">热门标签</h2>
+                  <h2 className="font-semibold text-base-content">{t("hot_tags")}</h2>
                 </div>
                 {isLoading ? (
                   <div className="space-y-2">
@@ -317,7 +319,7 @@ export default function ExploreClient() {
                   </div>
                 ) : hotTags.length === 0 ? (
                   <p className="text-sm text-base-content/40 text-center py-4">
-                    暂无标签
+                    {t("no_tags")}
                   </p>
                 ) : (
                   <div className="flex flex-wrap gap-2">
@@ -336,7 +338,7 @@ export default function ExploreClient() {
                   <div className="w-8 h-8 rounded-lg bg-green-100 dark:bg-green-900/20 flex items-center justify-center">
                     <NewspaperIcon className="w-4 h-4 text-green-500" />
                   </div>
-                  <h2 className="font-semibold text-base-content">热门话题</h2>
+                  <h2 className="font-semibold text-base-content">{t("hot_topics")}</h2>
                 </div>
                 {isLoading ? (
                   <div className="space-y-2">
@@ -349,7 +351,7 @@ export default function ExploreClient() {
                   </div>
                 ) : hotTopics.length === 0 ? (
                   <p className="text-sm text-base-content/40 text-center py-4">
-                    暂无话题
+                    {t("no_topics")}
                   </p>
                 ) : (
                   <div className="space-y-2">
@@ -362,7 +364,7 @@ export default function ExploreClient() {
                   href="/topics"
                   className="flex items-center justify-center gap-1 text-sm text-primary hover:text-primary-focus mt-3 transition-colors"
                 >
-                  查看更多话题
+                  {t("view_more_topics")}
                   <ArrowRightIcon className="w-3 h-3" />
                 </Link>
               </div>
@@ -375,7 +377,7 @@ export default function ExploreClient() {
                   <div className="w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-900/20 flex items-center justify-center">
                     <UserGroupIcon className="w-4 h-4 text-purple-500" />
                   </div>
-                  <h2 className="font-semibold text-base-content">积分榜</h2>
+                  <h2 className="font-semibold text-base-content">{t("leaderboard")}</h2>
                 </div>
                 {isLoading ? (
                   <div className="space-y-2">
@@ -388,7 +390,7 @@ export default function ExploreClient() {
                   </div>
                 ) : activeUsers.length === 0 ? (
                   <p className="text-sm text-base-content/40 text-center py-4">
-                    暂无用户
+                    {t("no_users")}
                   </p>
                 ) : (
                   <div className="space-y-2">
@@ -404,14 +406,14 @@ export default function ExploreClient() {
             <div className="card bg-gradient-to-r from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/10 border border-red-200 dark:border-red-800/30">
               <div className="card-body p-5">
                 <h3 className="font-semibold text-base-content mb-2">
-                  发现更多
+                  {t("discover_more")}
                 </h3>
                 <p className="text-sm text-base-content/70 mb-3">
-                  关注热门话题、标签和活跃用户，发现更多精彩内容
+                  {t("discover_more_desc")}
                 </p>
                 {!isAuthenticated && (
                   <Link href="/auth/login" className="btn btn-primary btn-sm">
-                    登录后获得个性化推荐
+                    {t("login_for_personalized")}
                     <ArrowRightIcon className="w-3 h-3" />
                   </Link>
                 )}

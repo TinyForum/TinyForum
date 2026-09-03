@@ -1,5 +1,8 @@
 // hooks/useBots.ts
+"use client";
+
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "react-hot-toast";
 import {
   BotVO,
@@ -41,6 +44,7 @@ interface UseBotsReturn {
 }
 
 export function useBots(options: UseBotsOptions = {}): UseBotsReturn {
+  const t = useTranslations("Bot");
   const { autoLoad = true, page = 1, pageSize = 20 } = options;
 
   // 查询：机器人市场列表（分页）
@@ -49,10 +53,10 @@ export function useBots(options: UseBotsOptions = {}): UseBotsReturn {
     queryFn: async () => {
       const res = await botApi.list({ page, pageSize });
       if (res.data.code !== 0) {
-        throw new Error(res.data.message || "加载机器人列表失败");
+        throw new Error(res.data.message || t("load_bots_failed"));
       }
       if (!res.data.data) {
-        throw new Error("机器人列表数据为空");
+        throw new Error(t("bot_list_empty"));
       }
       return res.data.data;
     },
@@ -91,6 +95,7 @@ interface UseMyBotsReturn {
 }
 
 export function useMyBots(options: UseMyBotsOptions = {}): UseMyBotsReturn {
+  const t = useTranslations("Bot");
   const { autoLoad = true, page = 1, pageSize = 20 } = options;
 
   // 查询：我的机器人列表（分页）
@@ -99,10 +104,10 @@ export function useMyBots(options: UseMyBotsOptions = {}): UseMyBotsReturn {
     queryFn: async () => {
       const res = await botApi.listMy({ page, pageSize });
       if (res.data.code !== 0) {
-        throw new Error(res.data.message || "加载我的机器人失败");
+        throw new Error(res.data.message || t("load_my_bots_failed"));
       }
       if (!res.data.data) {
-        throw new Error("我的机器人列表数据为空");
+        throw new Error(t("my_bot_list_empty"));
       }
       return res.data.data;
     },
@@ -141,6 +146,7 @@ interface UseBotDetailReturn {
 export function useBotDetail(
   options: UseBotDetailOptions = {},
 ): UseBotDetailReturn {
+  const t = useTranslations("Bot");
   const { autoLoad = false } = options;
   const queryClient = useQueryClient();
   const [currentId, setCurrentId] = useState<number | null>(null);
@@ -150,14 +156,14 @@ export function useBotDetail(
     queryKey: botKeys.detail(currentId ?? -1),
     queryFn: async () => {
       if (currentId === null) {
-        throw new Error("缺少机器人ID");
+        throw new Error(t("missing_bot_id"));
       }
       const res = await botApi.get(currentId);
       if (res.data.code !== 0) {
-        throw new Error(res.data.message || "获取机器人详情失败");
+        throw new Error(res.data.message || t("get_bot_detail_failed"));
       }
       if (!res.data.data) {
-        throw new Error("机器人详情数据为空");
+        throw new Error(t("bot_detail_empty"));
       }
       return res.data.data;
     },
@@ -196,6 +202,7 @@ interface UseBotActionsReturn {
 }
 
 export function useBotActions(): UseBotActionsReturn {
+  const t = useTranslations("Bot");
   const queryClient = useQueryClient();
   const [error, setError] = useState<string | null>(null);
 
@@ -204,15 +211,15 @@ export function useBotActions(): UseBotActionsReturn {
     mutationFn: async (data: CreateBotRequest): Promise<{ id: number }> => {
       const res = await botApi.create(data);
       if (res.data.code !== 0) {
-        throw new Error(res.data.message || "创建机器人失败");
+        throw new Error(res.data.message || t("create_bot_failed"));
       }
       if (!res.data.data) {
-        throw new Error("创建机器人返回数据为空");
+        throw new Error(t("create_bot_empty"));
       }
       return res.data.data;
     },
     onSuccess: () => {
-      toast.success("机器人创建成功");
+      toast.success(t("create_bot_success"));
       queryClient.invalidateQueries({ queryKey: botKeys.lists() });
       queryClient.invalidateQueries({ queryKey: botKeys.myLists() });
     },
@@ -234,11 +241,11 @@ export function useBotActions(): UseBotActionsReturn {
     }): Promise<void> => {
       const res = await botApi.update(id, data);
       if (res.data.code !== 0) {
-        throw new Error(res.data.message || "更新机器人失败");
+        throw new Error(res.data.message || t("update_bot_failed"));
       }
     },
     onSuccess: (_, variables) => {
-      toast.success("机器人更新成功");
+      toast.success(t("update_bot_success"));
       queryClient.invalidateQueries({ queryKey: botKeys.lists() });
       queryClient.invalidateQueries({ queryKey: botKeys.myLists() });
       queryClient.invalidateQueries({
@@ -257,11 +264,11 @@ export function useBotActions(): UseBotActionsReturn {
     mutationFn: async (id: number): Promise<void> => {
       const res = await botApi.delete(id);
       if (res.data.code !== 0) {
-        throw new Error(res.data.message || "删除机器人失败");
+        throw new Error(res.data.message || t("delete_bot_failed"));
       }
     },
     onSuccess: (_, id) => {
-      toast.success("机器人删除成功");
+      toast.success(t("delete_bot_success"));
       queryClient.invalidateQueries({ queryKey: botKeys.lists() });
       queryClient.invalidateQueries({ queryKey: botKeys.myLists() });
       queryClient.invalidateQueries({ queryKey: botKeys.detail(id) });
@@ -284,11 +291,11 @@ export function useBotActions(): UseBotActionsReturn {
     }): Promise<void> => {
       const res = await botApi.runNow(id, eventData);
       if (res.data.code !== 0) {
-        throw new Error(res.data.message || "触发机器人失败");
+        throw new Error(res.data.message || t("run_bot_failed"));
       }
     },
     onSuccess: (_, variables) => {
-      toast.success("机器人已触发执行");
+      toast.success(t("run_bot_success"));
       queryClient.invalidateQueries({
         queryKey: botKeys.detail(variables.id),
       });

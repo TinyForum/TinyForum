@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 
 // ==================== 插件日志 ====================
 export function PluginLogsTab() {
+  const t = useTranslations("Plugin");
   const [logs, setLogs] = useState<
     { time: string; level: string; plugin: string; message: string }[]
   >([]);
@@ -25,17 +27,17 @@ export function PluginLogsTab() {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h3 className="text-base font-semibold">插件运行日志</h3>
-        <button className="btn btn-xs btn-ghost">清空日志</button>
+        <h3 className="text-base font-semibold">{t("plugin_logs_title")}</h3>
+        <button className="btn btn-xs btn-ghost">{t("clear_logs")}</button>
       </div>
       <div className="overflow-x-auto">
         <table className="table table-xs">
           <thead>
             <tr>
-              <th>时间</th>
-              <th>级别</th>
-              <th>插件</th>
-              <th>消息</th>
+              <th>{t("time")}</th>
+              <th>{t("level")}</th>
+              <th>{t("plugin")}</th>
+              <th>{t("message")}</th>
             </tr>
           </thead>
           <tbody>

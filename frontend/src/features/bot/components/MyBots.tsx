@@ -1,5 +1,6 @@
 // features/bot/components/MyBots.tsx
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   BotVO,
   CreateBotRequest,
@@ -23,6 +24,7 @@ interface MyBotsProps {
 }
 
 export function MyBots({ page, pageSize, onPageChange }: MyBotsProps) {
+  const t = useTranslations("Bot");
   const { bots, loading, total, refresh } = useMyBots({
     page,
     pageSize,
@@ -63,7 +65,7 @@ export function MyBots({ page, pageSize, onPageChange }: MyBotsProps) {
     setModalOpen(true);
   };
   const handleDelete = async (id: number) => {
-    if (window.confirm("确定删除该机器人吗？") && (await deleteBot(id)))
+    if (window.confirm(t("delete_confirm")) && (await deleteBot(id)))
       refresh();
   };
   const handleRun = async (id: number) => {
@@ -89,20 +91,20 @@ export function MyBots({ page, pageSize, onPageChange }: MyBotsProps) {
   };
 
   if (loading && bots.length === 0)
-    return <div className="flex justify-center p-8">加载机器人列表中...</div>;
+    return <div className="flex justify-center p-8">{t("loading_bots")}</div>;
 
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">我的机器人</h1>
+        <h1 className="text-2xl font-bold">{t("my_bots")}</h1>
         <button className="btn btn-primary" onClick={handleCreate}>
-          创建机器人
+          {t("create_bot")}
         </button>
       </div>
 
       {bots.length === 0 ? (
         <div className="card bg-base-100 shadow-xl p-8 text-center">
-          还没有机器人，点击上方按钮创建第一个机器人吧！
+          {t("no_my_bots")}
         </div>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -117,13 +119,13 @@ export function MyBots({ page, pageSize, onPageChange }: MyBotsProps) {
                   {bot.description}
                 </p>
                 <div className="flex flex-wrap gap-2 text-xs text-base-content/60 mt-2">
-                  <span>版本: {bot.version}</span>
-                  <span>类型: {bot.type}</span>
-                  <span>触发: {bot.triggerType}</span>
+                  <span>{t("version_label")} {bot.version}</span>
+                  <span>{t("type_label")} {bot.type}</span>
+                  <span>{t("trigger_label")} {bot.triggerType}</span>
                   {bot.triggerType === "schedule" && (
-                    <span>计划: {bot.cronExpr}</span>
+                    <span>{t("schedule_label")} {bot.cronExpr}</span>
                   )}
-                  <span>执行次数: {bot.execCount}</span>
+                  <span>{t("exec_count_label")} {bot.execCount}</span>
                 </div>
                 <div className="card-actions justify-end mt-4">
                   <button
@@ -131,27 +133,27 @@ export function MyBots({ page, pageSize, onPageChange }: MyBotsProps) {
                     onClick={() => handleRun(bot.id)}
                     disabled={actionLoading}
                   >
-                    运行
+                    {t("run")}
                   </button>
                   <button
                     className="btn btn-xs btn-outline"
                     onClick={() => handleToggleEnable(bot)}
                     disabled={actionLoading}
                   >
-                    {bot.enabled ? "禁用" : "启用"}
+                    {bot.enabled ? t("disable") : t("enable")}
                   </button>
                   <button
                     className="btn btn-xs btn-outline"
                     onClick={() => handleEdit(bot)}
                   >
-                    编辑
+                    {t("edit")}
                   </button>
                   <button
                     className="btn btn-xs btn-error"
                     onClick={() => handleDelete(bot.id)}
                     disabled={actionLoading}
                   >
-                    删除
+                    {t("delete")}
                   </button>
                 </div>
 

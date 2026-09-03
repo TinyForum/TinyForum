@@ -4,6 +4,7 @@ import { moderatorApi } from "@/shared/api/modules/moderator";
 import { ReviewApplicationRequest } from "@/shared/api/types/moderator.model";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
+import { useTranslations } from "next-intl";
 import { adminKeys } from "./useAdminKeys";
 // import { ApiResponse } from "@/shared/api/types";
 
@@ -72,6 +73,7 @@ export const useAdminApplications = (params?: ApplicationParams) => {
 
 export const useReviewApplication = () => {
   const queryClient = useQueryClient();
+  const t = useTranslations("Admin");
 
   return useMutation({
     mutationFn: ({
@@ -82,7 +84,7 @@ export const useReviewApplication = () => {
       data: ReviewApplicationRequest;
     }) => adminModeratorApi.reviewApplication(applicationId, data),
     onSuccess: () => {
-      toast.success("审批成功");
+      toast.success(t("application_approved"));
       queryClient.invalidateQueries({ queryKey: adminKeys.applications() });
       queryClient.invalidateQueries({
         queryKey: ["boards", "moderators", "apply"],
@@ -90,7 +92,7 @@ export const useReviewApplication = () => {
     },
     onError: (error: unknown) => {
       const err = error as ErrorResponse;
-      toast.error(err.response?.data?.message || "审批失败");
+      toast.error(err.response?.data?.message || t("application_review_failed"));
     },
   });
 };
@@ -98,12 +100,13 @@ export const useReviewApplication = () => {
 // 管理员 - 版主任命与管理
 export const useAddModerator = (boardId: number) => {
   const queryClient = useQueryClient();
+  const t = useTranslations("Admin");
 
   return useMutation({
     mutationFn: (data: AddModeratorData) =>
       moderatorApi.addModerator(boardId, data),
     onSuccess: () => {
-      toast.success("任命版主成功");
+      toast.success(t("moderator_appointed"));
       queryClient.invalidateQueries({
         queryKey: ["boards", boardId, "moderators"],
       });
@@ -111,45 +114,47 @@ export const useAddModerator = (boardId: number) => {
     },
     onError: (error: unknown) => {
       const err = error as ErrorResponse;
-      toast.error(err.response?.data?.message || "任命失败");
+      toast.error(err.response?.data?.message || t("moderator_appoint_failed"));
     },
   });
 };
 
 export const useRemoveModerator = (boardId: number) => {
   const queryClient = useQueryClient();
+  const t = useTranslations("Admin");
 
   return useMutation({
     mutationFn: (userId: number) =>
       moderatorApi.removeModerator(boardId, userId),
     onSuccess: () => {
-      toast.success("移除版主成功");
+      toast.success(t("moderator_removed_success"));
       queryClient.invalidateQueries({
         queryKey: ["boards", boardId, "moderators"],
       });
     },
     onError: (error: unknown) => {
       const err = error as ErrorResponse;
-      toast.error(err.response?.data?.message || "移除失败");
+      toast.error(err.response?.data?.message || t("moderator_remove_failed"));
     },
   });
 };
 
 export const useUpdateModeratorPermissions = (boardId: number) => {
   const queryClient = useQueryClient();
+  const t = useTranslations("Admin");
 
   return useMutation({
     mutationFn: ({ userId, data }: UpdatePermissionsParams) =>
       moderatorApi.updateModeratorPermissions(boardId, userId, data),
     onSuccess: () => {
-      toast.success("更新权限成功");
+      toast.success(t("permissions_updated_success"));
       queryClient.invalidateQueries({
         queryKey: ["boards", boardId, "moderators"],
       });
     },
     onError: (error: unknown) => {
       const err = error as ErrorResponse;
-      toast.error(err.response?.data?.message || "更新权限失败");
+      toast.error(err.response?.data?.message || t("permissions_update_failed"));
     },
   });
 };
@@ -157,23 +162,25 @@ export const useUpdateModeratorPermissions = (boardId: number) => {
 // 管理员 - 全局内容管理
 export const useAdminDeletePost = () => {
   const queryClient = useQueryClient();
+  const t = useTranslations("Admin");
 
   return useMutation({
     mutationFn: ({ boardId, postId }: { boardId: number; postId: number }) =>
       moderatorApi.deletePost(boardId, postId),
     onSuccess: () => {
-      toast.success("删除帖子成功");
+      toast.success(t("post_deleted_success"));
       queryClient.invalidateQueries({ queryKey: ["moderator", "boards"] });
     },
     onError: (error: unknown) => {
       const err = error as ErrorResponse;
-      toast.error(err.response?.data?.message || "删除失败");
+      toast.error(err.response?.data?.message || t("post_delete_failed"));
     },
   });
 };
 
 export const useAdminPinPost = () => {
   const queryClient = useQueryClient();
+  const t = useTranslations("Admin");
 
   return useMutation({
     mutationFn: ({ boardId, postId, pinInBoard }: PinPostParams) =>
@@ -183,7 +190,7 @@ export const useAdminPinPost = () => {
     },
     onError: (error: unknown) => {
       const err = error as ErrorResponse;
-      toast.error(err.response?.data?.message || "操作失败");
+      toast.error(err.response?.data?.message || t("operation_failed"));
     },
   });
 };
@@ -191,36 +198,38 @@ export const useAdminPinPost = () => {
 // 管理员 - 禁言管理
 export const useAdminBanUser = (boardId: number) => {
   const queryClient = useQueryClient();
+  const t = useTranslations("Admin");
 
   return useMutation({
     mutationFn: (data: BanUserData) => moderatorApi.banUser(boardId, data),
     onSuccess: () => {
-      toast.success("禁言用户成功");
+      toast.success(t("user_banned_success"));
       queryClient.invalidateQueries({
         queryKey: ["moderator", "boards", boardId, "bans"],
       });
     },
     onError: (error: unknown) => {
       const err = error as ErrorResponse;
-      toast.error(err.response?.data?.message || "禁言失败");
+      toast.error(err.response?.data?.message || t("user_ban_failed"));
     },
   });
 };
 
 export const useAdminUnbanUser = (boardId: number) => {
   const queryClient = useQueryClient();
+  const t = useTranslations("Admin");
 
   return useMutation({
     mutationFn: (userId: number) => moderatorApi.unbanUser(boardId, userId),
     onSuccess: () => {
-      toast.success("解除禁言成功");
+      toast.success(t("user_unbanned_success"));
       queryClient.invalidateQueries({
         queryKey: ["moderator", "boards", boardId, "bans"],
       });
     },
     onError: (error: unknown) => {
       const err = error as ErrorResponse;
-      toast.error(err.response?.data?.message || "解除禁言失败");
+      toast.error(err.response?.data?.message || t("user_unban_failed"));
     },
   });
 };

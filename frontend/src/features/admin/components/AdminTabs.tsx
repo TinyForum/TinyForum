@@ -31,7 +31,7 @@ export function AdminTabs({
         className={`tab gap-2 ${activeTab === "plugins" ? "tab-active" : ""}`}
         onClick={() => onTabChange("plugins")}
       >
-        <Puzzle className="w-4 h-4" /> Plugins
+        <Puzzle className="w-4 h-4" /> {t("plugins")}
       </button>
     </div>
   );

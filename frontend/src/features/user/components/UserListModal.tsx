@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { X } from "lucide-react";
 import Avatar from "@/shared/ui/common/Avatar";
 import { UserDO } from "@/shared/api/types/user.model.do";
@@ -21,6 +22,7 @@ export function UserListModal({
   onUserClick,
   isLoading,
 }: UserListModalProps) {
+  const t = useTranslations("Common");
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
@@ -54,7 +56,7 @@ export function UserListModal({
             </div>
           ) : users.length === 0 ? (
             <div className="text-center py-8 text-base-content/40">
-              暂无数据
+              {t("no_data")}
             </div>
           ) : (
             <div className="space-y-1">

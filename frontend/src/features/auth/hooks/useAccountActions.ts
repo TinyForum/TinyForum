@@ -2,6 +2,7 @@
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+import { useTranslations } from "next-intl";
 import { authApi } from "@/shared/api/modules/auth";
 import { useAuthStore } from "@/store/auth";
 
@@ -26,6 +27,7 @@ export function useAccountActions(options?: UseAccountActionsOptions) {
   const { redirectOnLogout = "/", onRestoreSuccess, onDeleteSuccess } =
     options ?? {};
   const router = useRouter();
+  const t = useTranslations("Auth");
   const { logout } = useAuthStore();
 
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
@@ -43,11 +45,11 @@ export function useAccountActions(options?: UseAccountActionsOptions) {
   // 恢复账户
   const handleRestore = useCallback(async (): Promise<void> => {
     setIsLoading(true);
-    const loadingToast = toast.loading("正在恢复账户...");
+    const loadingToast = toast.loading(t("restoring_account"));
 
     try {
       await authApi.cancelDeletion();
-      toast.success("账户已成功恢复！", { id: loadingToast });
+      toast.success(t("account_restored"), { id: loadingToast });
 
       // 刷新用户状态
       await useAuthStore.getState().refreshUser();
@@ -67,28 +69,26 @@ export function useAccountActions(options?: UseAccountActionsOptions) {
       }
     } catch (err: unknown) {
       const error = err as ErrorResponse;
-      toast.error(error?.response?.data?.message || "恢复失败，请重试", {
+      toast.error(t(error?.response?.data?.message || "restore_failed"), {
         id: loadingToast,
       });
     } finally {
       setIsLoading(false);
     }
-  }, [onRestoreSuccess]);
+  }, [onRestoreSuccess, t]);
 
   // 立即永久删除
   const handlePermanentDelete = useCallback(async (): Promise<void> => {
-    const confirmDelete = window.confirm(
-      "⚠️ 警告：此操作将永久删除您的账户，所有数据无法恢复！\n\n确认永久删除吗？",
-    );
+    const confirmDelete = window.confirm(t("permanent_delete_warning"));
 
     if (!confirmDelete) return;
 
     setIsLoading(true);
-    const loadingToast = toast.loading("正在永久删除账户...");
+    const loadingToast = toast.loading(t("permanently_deleting_account"));
 
     try {
       await authApi.confirmDeletion({ confirm: "PERMANENT_DELETE" });
-      toast.success("账户已永久删除", { id: loadingToast });
+      toast.success(t("account_permanently_deleted"), { id: loadingToast });
 
       // 退出登录
       await authApi.logout();
@@ -108,34 +108,34 @@ export function useAccountActions(options?: UseAccountActionsOptions) {
       router.refresh();
     } catch (err: unknown) {
       const error = err as ErrorResponse;
-      toast.error(error?.response?.data?.message || "删除失败，请重试", {
+      toast.error(t(error?.response?.data?.message || "delete_failed"), {
         id: loadingToast,
       });
     } finally {
       setIsLoading(false);
     }
-  }, [logout, onDeleteSuccess, redirectOnLogout, router]);
+  }, [logout, onDeleteSuccess, redirectOnLogout, router, t]);
 
   // 退出登录
   const handleLogout = useCallback(async (): Promise<void> => {
     setIsLoading(true);
-    const loadingToast = toast.loading("正在退出登录...");
+    const loadingToast = toast.loading(t("logging_out"));
 
     try {
       await authApi.logout();
       logout();
       setIsDialogOpen(false);
       setHasShown(false);
-      toast.success("您已退出登录", { id: loadingToast });
+      toast.success(t("logout_success"), { id: loadingToast });
       router.push(redirectOnLogout);
       router.refresh();
     } catch {
       // 移除未使用的 error 参数
-      toast.error("退出登录失败", { id: loadingToast });
+      toast.error(t("logout_failed"), { id: loadingToast });
     } finally {
       setIsLoading(false);
     }
-  }, [logout, redirectOnLogout, router]);
+  }, [logout, redirectOnLogout, router, t]);
 
   return {
     isDialogOpen,

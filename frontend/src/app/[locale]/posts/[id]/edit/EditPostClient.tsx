@@ -1,7 +1,7 @@
 // src/app/[locale]/posts/[id]/edit/EditPostClient.tsx
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useForm, Controller, useWatch } from "react-hook-form";
 import type { FieldErrors } from "react-hook-form";
@@ -29,18 +29,13 @@ function isValidImageUrl(val: string): boolean {
   return /^(\/|https?:\/\/)/.test(val);
 }
 
-const schema = z.object({
-  title: z.string().min(2, "标题至少2个字符").max(200, "标题最多200个字符"),
-  content: z.string().refine(
-    (val) => stripHtml(val).length >= 10,
-    "内容至少10个字符",
-  ),
-  summary: z.string().max(500, "摘要最多500个字符").optional(),
-  cover: z.string().refine(isValidImageUrl, "请输入有效的图片URL").optional().or(z.literal("")),
-  tag_ids: z.array(z.number()),
-});
-
-type EditForm = z.infer<typeof schema>;
+type EditForm = {
+  title: string;
+  content: string;
+  summary?: string;
+  cover?: string;
+  tag_ids: number[];
+};
 
 /** 数据加载层：在 postData 就绪前展示骨架屏 */
 export default function EditPostClient({ postId }: { postId: number }) {
@@ -84,6 +79,28 @@ function EditPostForm({
   const t = useTranslations("Post");
   const [loading, setLoading] = useState(false);
   const { mutateAsync: updatePost } = useUpdatePost();
+
+  const schema = useMemo(
+    () =>
+      z.object({
+        title: z
+          .string()
+          .min(2, t("title_min_length"))
+          .max(200, t("title_max_length")),
+        content: z.string().refine(
+          (val) => stripHtml(val).length >= 10,
+          t("content_min_length"),
+        ),
+        summary: z.string().max(500, t("summary_max_length")).optional(),
+        cover: z
+          .string()
+          .refine(isValidImageUrl, t("invalid_image_url"))
+          .optional()
+          .or(z.literal("")),
+        tag_ids: z.array(z.number()),
+      }),
+    [t],
+  );
 
   const p = postData.post;
 

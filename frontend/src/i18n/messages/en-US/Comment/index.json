@@ -16,5 +16,10 @@
   "login": "log in",
   "to_comment": "to comment",
   "no_comments": "No comments yet. Be the first to comment!",
-  "comment_success": "Comment posted successfully"
+  "comment_success": "Comment posted successfully",
+
+  "create_failed_no_data": "Failed to create comment: empty data returned",
+  "load_comments_failed": "Failed to load comments",
+  "comments_data_empty": "Comment data is empty",
+  "comment_data_empty": "Empty data returned when creating comment"
 }

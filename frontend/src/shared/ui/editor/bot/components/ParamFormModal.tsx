@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { ParamMeta } from "@/shared/api/types/nocode.model";
 
 interface ParamFormModalProps {
@@ -32,6 +33,7 @@ export function ParamFormModal({
   onSave,
   onClose,
 }: ParamFormModalProps) {
+  const t = useTranslations("Bot");
   const [formValues, setFormValues] = useState<Record<string, unknown>>(() => {
     const initial: Record<string, unknown> = {};
     paramMetas.forEach((meta) => {
@@ -60,10 +62,10 @@ export function ParamFormModal({
       if (meta.required) {
         const val = formValues[meta.key];
         if (val === undefined || val === null || val === "") {
-          newErrors[meta.key] = `${meta.label} 为必填项`;
+          newErrors[meta.key] = t("required_field", { label: meta.label });
         }
         if (meta.type === "tags" && Array.isArray(val) && val.length === 0) {
-          newErrors[meta.key] = `${meta.label} 至少需要一个`;
+          newErrors[meta.key] = t("at_least_one", { label: meta.label });
         }
       }
     });
@@ -79,19 +81,19 @@ export function ParamFormModal({
       <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
         <div className="bg-white rounded-xl shadow-2xl w-96 p-6">
           <h3 className="font-bold text-lg mb-4">{title}</h3>
-          <p className="text-gray-500 text-sm mb-4">该节点无需额外配置</p>
+          <p className="text-gray-500 text-sm mb-4">{t("no_config_needed")}</p>
           <div className="flex justify-end gap-2">
             <button
               className="px-4 py-2 border rounded-lg hover:bg-gray-100 text-sm"
               onClick={onClose}
             >
-              取消
+              {t("cancel")}
             </button>
             <button
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
               onClick={() => onSave({})}
             >
-              确认
+              {t("confirm")}
             </button>
           </div>
         </div>
@@ -134,7 +136,7 @@ export function ParamFormModal({
                   value={String(formValues[meta.key] ?? "")}
                   onChange={(e) => setField(meta.key, e.target.value)}
                 >
-                  <option value="">请选择</option>
+                  <option value="">{t("please_select")}</option>
                   {meta.options?.map((opt) => (
                     <option key={String(opt.value)} value={String(opt.value)}>
                       {opt.label}
@@ -162,7 +164,7 @@ export function ParamFormModal({
                     onChange={(e) => setField(meta.key, e.target.checked)}
                   />
                   <span className="text-sm text-gray-600">
-                    {meta.placeholder || "启用"}
+                    {meta.placeholder || t("enable_switch")}
                   </span>
                 </label>
               ) : meta.type === "tags" ? (
@@ -197,13 +199,13 @@ export function ParamFormModal({
             className="px-4 py-2 border rounded-lg hover:bg-gray-100 text-sm"
             onClick={onClose}
           >
-            取消
+            {t("cancel")}
           </button>
           <button
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
             onClick={handleSave}
           >
-            保存
+            {t("save")}
           </button>
         </div>
       </div>
@@ -221,6 +223,7 @@ function TagsInput({
   onChange: (tags: string[]) => void;
   placeholder?: string;
 }) {
+  const t = useTranslations("Bot");
   const [input, setInput] = useState("");
 
   const addTag = () => {
@@ -267,14 +270,14 @@ function TagsInput({
               addTag();
             }
           }}
-          placeholder={placeholder || "输入后按回车添加"}
+          placeholder={placeholder || t("enter_and_press_add")}
         />
         <button
           type="button"
           className="px-3 py-1.5 border rounded-lg text-sm hover:bg-gray-100"
           onClick={addTag}
         >
-          添加
+          {t("add")}
         </button>
       </div>
     </div>

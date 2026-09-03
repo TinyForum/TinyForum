@@ -1,11 +1,11 @@
 // components/nav/SearchBar.tsx
 import { Search } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface SearchBarProps {
   keyword: string;
   onKeywordChange: (keyword: string) => void;
   placeholder?: string;
-  t?: (key: string) => string;
 }
 
 export default function SearchBar({
@@ -13,6 +13,7 @@ export default function SearchBar({
   onKeywordChange,
   placeholder,
 }: SearchBarProps) {
+  const t = useTranslations("Moderator");
   // TODO: 真实数据
   return (
     <div className="relative">
@@ -21,7 +22,7 @@ export default function SearchBar({
         type="text"
         value={keyword}
         onChange={(e) => onKeywordChange(e.target.value)}
-        placeholder={placeholder || "搜索..."}
+        placeholder={placeholder || t("search")}
         className="input input-bordered w-full pl-10"
       />
     </div>

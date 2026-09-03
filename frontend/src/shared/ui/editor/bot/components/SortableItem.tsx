@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
@@ -15,6 +16,7 @@ export function SortableItem({
   onEdit,
   onDelete,
 }: SortableItemProps) {
+  const t = useTranslations("Bot");
   const {
     attributes,
     listeners,
@@ -51,13 +53,13 @@ export function SortableItem({
           onClick={onEdit}
           className="text-blue-600 hover:text-blue-800 text-sm"
         >
-          配置
+          {t("configure")}
         </button>
         <button
           onClick={onDelete}
           className="text-red-600 hover:text-red-800 text-sm"
         >
-          删除
+          {t("delete")}
         </button>
       </div>
     </div>

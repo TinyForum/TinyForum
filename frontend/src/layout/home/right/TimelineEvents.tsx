@@ -33,6 +33,7 @@ interface TimelineEventsProps {
 
 export function TimelineEvents({ timelineEvents }: TimelineEventsProps) {
   const t = useTranslations("Sidebar");
+  const t2 = useTranslations("Timeline");
 
   const getEventIcon = (action: string) => {
     switch (action) {
@@ -106,7 +107,7 @@ export function TimelineEvents({ timelineEvents }: TimelineEventsProps) {
           href="/timeline"
           className="block text-xs text-center text-muted-foreground hover:text-primary"
         >
-          查看更多动态 →
+          {t2("view_more_timeline")}
         </Link>
       </div>
     </div>

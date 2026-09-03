@@ -119,5 +119,6 @@
   "delete_post_failed": "Delete post failed",
   "post_pinned": "Post pinned",
   "post_unpinned": "Post unpinned",
-  "pin_failed": "Pin failed"
+  "pin_failed": "Pin failed",
+  "search": "Search..."
 }

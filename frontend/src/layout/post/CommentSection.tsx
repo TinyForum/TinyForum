@@ -37,12 +37,12 @@ export default function CommentSection({ postId }: CommentSectionProps) {
   // 使用封装好的创建评论 Mutation
   const createMutation = useCreateComment({
     onSuccess: () => {
-      toast.success(t("comment_success") || "评论成功");
+      toast.success(t("comment_success"));
       setContent("");
       setReplyTo(null);
       // 可选额外操作，失效已由 Hook 内部处理
     },
-    onError: () => toast.error(t("comment_failed") || "评论失败"),
+    onError: () => toast.error(t("comment_failed")),
   });
 
   const handleSubmit = (e: React.FormEvent) => {

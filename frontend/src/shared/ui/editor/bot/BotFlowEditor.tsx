@@ -26,6 +26,7 @@ import { BotTriggerType } from "@/shared/api/types/bot.model.do";
 import { NodeMeta } from "@/shared/api/types/nocode.model";
 import toast from "react-hot-toast";
 
+import { useTranslations } from "next-intl";
 import { NodePalette } from "./components/NodePalette";
 import { FlowNode, FlowNodeData } from "./components/FlowNode";
 import { ParamFormModal } from "./components/ParamFormModal";
@@ -36,6 +37,7 @@ const nodeTypes = { flowNode: FlowNode };
 
 // ── 主编辑器组件 ──
 function FlowEditor() {
+  const t = useTranslations("Bot");
   const {
     metadata,
     loading: metaLoading,
@@ -180,13 +182,13 @@ function FlowEditor() {
     // 深度检查
     const depthCheck = validateDepth(nodes, edges);
     if (!depthCheck.valid) {
-      toast.error(`流程校验失败：\n${depthCheck.errors.join("\n")}`);
+      toast.error(`${t("flow_validate_errors")}\n${depthCheck.errors.join("\n")}`);
       return;
     }
 
     const flow = graphToFlow(nodes, edges);
     if (!flow) {
-      toast.error("请先添加一个触发器节点");
+      toast.error(t("add_trigger_first"));
       return;
     }
 
@@ -194,14 +196,14 @@ function FlowEditor() {
       (n) => n.data.category !== "trigger",
     );
     if (nonTriggerNodes.length === 0) {
-      toast.error("请至少添加一个节点（控制/变量/动作）");
+      toast.error(t("add_at_least_one_node"));
       return;
     }
 
     const validation = await validate(flow);
     if (!validation.valid) {
       toast.error(
-        `校验失败：\n${validation.errors?.join("\n") || "未知错误"}`,
+        `${t("validate_errors")}\n${validation.errors?.join("\n") || t("unknown_error_suffix")}`,
       );
       return;
     }
@@ -211,9 +213,9 @@ function FlowEditor() {
     );
 
     const requestData: CreateBotRequest = {
-      name: "未命名零代码机器人",
+      name: t("unnamed_nocode_bot"),
       version: "1.0.0",
-      description: "通过可视化节点图创建",
+      description: t("nocode_bot_desc"),
       type: "task",
       scriptCode: "nocode",
       triggerType,
@@ -225,7 +227,7 @@ function FlowEditor() {
 
     const id = await createBot(requestData);
     if (id) {
-      toast.success(`机器人创建成功！ID: ${id}`);
+      toast.success(t("create_bot_success_with_id", { id }));
       setNodes([]);
       setEdges([]);
     }
@@ -236,7 +238,7 @@ function FlowEditor() {
     return (
       <div className="flex items-center justify-center h-[calc(100vh-24rem)]">
         <span className="loading loading-spinner loading-md" />
-        <span className="ml-3 text-gray-500">加载节点定义中...</span>
+        <span className="ml-3 text-gray-500">{t("loading_node_definitions")}</span>
       </div>
     );
   }
@@ -244,7 +246,7 @@ function FlowEditor() {
   if (metaError || !metadata) {
     return (
       <div className="flex items-center justify-center h-[calc(100vh-24rem)] text-red-500">
-        加载失败：{metaError || "未知错误"}
+        {t("load_failed")}{metaError || t("unknown_error_label")}
       </div>
     );
   }
@@ -303,7 +305,7 @@ function FlowEditor() {
       {/* 底部操作栏 */}
       <div className="flex-shrink-0 border-t bg-white px-4 py-3 flex items-center justify-between">
         <div className="text-sm text-gray-500">
-          拖拽左侧节点到画布 · 双击节点配置参数 · 连接节点定义流程顺序
+          {t("drag_node_hint")}
         </div>
         <div className="flex gap-2">
           <button
@@ -311,7 +313,7 @@ function FlowEditor() {
               disabled:opacity-50"
             disabled={validating}
           >
-            {validating ? "校验中..." : "校验流程"}
+            {validating ? t("validating") : t("validate_flow")}
           </button>
           <button
             className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm
@@ -319,7 +321,7 @@ function FlowEditor() {
             onClick={handleSave}
             disabled={saving || validating}
           >
-            {saving ? "保存中..." : "保存机器人"}
+            {saving ? t("saving") : t("save_bot")}
           </button>
         </div>
       </div>

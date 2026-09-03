@@ -201,7 +201,7 @@ export default function PostDetailClient({ postId }: { postId: number }) {
                   <span title={formatDate(post.created_at)}>{timeAgo(post.created_at)}</span>
                   <span>·</span>
                   <Eye className="w-3 h-3" />
-                  <span>{post.creation.view_count} 阅读</span>
+                  <span>{post.creation.view_count} {t("Read")}</span>
                 </div>
               </div>
               {(isAuthor || isAdmin) && (
@@ -219,7 +219,7 @@ export default function PostDetailClient({ postId }: { postId: number }) {
             {/* 类型标签 */}
             <div className="flex items-center flex-wrap gap-1.5 mb-4">
               <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-base-200 text-base-content/60">
-                {post.creation.creation_type === "article" ? "文章" : post.creation.creation_type === "topic" ? t("the_topic") : post.creation.creation_type === "question" ? "问答" : t("the_post")}
+                {post.creation.creation_type === "article" ? t("article") : post.creation.creation_type === "topic" ? t("the_topic") : post.creation.creation_type === "question" ? t("work_type_question") : t("the_post")}
               </span>
               {post.creation.tags?.map((tag) => (
                 <Link key={tag.id} href={`/posts?tag_id=${tag.id}`}
@@ -264,7 +264,7 @@ export default function PostDetailClient({ postId }: { postId: number }) {
                 {post.creation.like_count}
               </button>
               <button className="flex items-center gap-2 px-4 py-2 rounded-full text-sm bg-base-200 text-base-content/60 hover:bg-base-300 transition-all" onClick={handleShare}>
-                <Share2 className="w-4 h-4" /> 分享
+                <Share2 className="w-4 h-4" /> {t("share")}
               </button>
             </div>
           </div>
@@ -276,6 +276,7 @@ export default function PostDetailClient({ postId }: { postId: number }) {
 
 /** 图片矩阵展示 */
 function ImageGrid({ images }: { images: string[] }) {
+  const t = useTranslations("Post");
   const count = images.length;
   if (count === 0) return null;
   const cols = count === 1 ? 1 : count === 2 ? 2 : count === 4 ? 2 : 3;
@@ -289,7 +290,7 @@ function ImageGrid({ images }: { images: string[] }) {
         <div key={idx} className="relative aspect-square cursor-pointer">
           <Image
             src={normalizeUrl(url)}
-            alt={`图片 ${idx + 1}`}
+            alt={t("image_number", { count: idx + 1 })}
             fill
             className="object-cover hover:scale-105 transition-transform"
             sizes={cols === 1 ? "100vw" : cols === 2 ? "50vw" : "33vw"}

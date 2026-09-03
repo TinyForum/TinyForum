@@ -23,5 +23,7 @@
   "submit_appeal": "Submit Appeal",
   "appeal_submitted": "Appeal submitted, please wait for review",
   "appeal_failed": "Appeal submission failed, please try again later",
-  "no_violations": "No violations"
+  "no_violations": "No violations",
+  "retry": "Retry",
+  "cancel": "Cancel"
 }

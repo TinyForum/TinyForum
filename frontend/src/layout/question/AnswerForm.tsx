@@ -3,6 +3,7 @@
 
 import { useState } from "react";
 import { toast } from "react-hot-toast";
+import { useTranslations } from "next-intl";
 import { useAnswerSubmit } from "@/features/question/hooks/useAnswerSubmit";
 import {
   PaperAirplaneIcon,
@@ -43,6 +44,7 @@ export function AnswerForm({
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [showPreview, setShowPreview] = useState<boolean>(false);
   const submitAnswer = useAnswerSubmit(questionId);
+  const t = useTranslations("Questions");
 
   const contentLength: number = content.trim().length;
   const isContentValid: boolean = contentLength >= 10;
@@ -50,17 +52,17 @@ export function AnswerForm({
 
   const handleSubmit = async (): Promise<void> => {
     if (!content.trim()) {
-      toast.error("请输入回答内容");
+      toast.error(t("answer_content_required"));
       return;
     }
 
     if (contentLength < 10) {
-      toast.error("回答内容至少需要 10 个字符");
+      toast.error(t("answer_min_length"));
       return;
     }
 
     if (contentLength > 50000) {
-      toast.error("回答内容不能超过 50000 个字符");
+      toast.error(t("answer_max_length"));
       return;
     }
 
@@ -71,11 +73,11 @@ export function AnswerForm({
       // 统一使用 code === 0 判断成功
       setContent("");
       setShowPreview(false);
-      toast.success("回答发布成功");
+      toast.success(t("answer_published"));
 
       // 如果有悬赏，显示额外提示
       if (rewardScore > 0 && questionAuthorId) {
-        toast.success(`💡 回答被采纳可获得 ${rewardScore} 积分悬赏`, {
+        toast.success(t("answer_reward_tip", { score: rewardScore }), {
           duration: 5000,
         });
       }
@@ -87,7 +89,7 @@ export function AnswerForm({
       const errorMsg =
         error.response?.data?.message ||
         error.message ||
-        "发布失败，请稍后重试";
+        t("publish_failed_retry");
       toast.error(errorMsg);
     } finally {
       setSubmitting(false);
@@ -103,10 +105,10 @@ export function AnswerForm({
             <CheckCircleIcon className="w-6 h-6 text-success" />
           </div>
           <h3 className="text-lg font-semibold text-base-content mb-2">
-            问题已解决
+            {t("question_resolved")}
           </h3>
           <p className="text-sm text-base-content/60">
-            这个问题已经有采纳的回答了，你可以查看其他问题或发布新问题
+            {t("question_resolved_desc")}
           </p>
         </div>
       </div>
@@ -121,7 +123,7 @@ export function AnswerForm({
           <div className="flex items-center gap-2">
             <SparklesIcon className="w-4 h-4 text-white" />
             <span className="text-sm font-medium text-white">
-              本问题悬赏 {rewardScore} 积分，优质回答有机会获得悬赏！
+              {t("reward_banner", { score: rewardScore })}
             </span>
           </div>
         </div>
@@ -134,7 +136,7 @@ export function AnswerForm({
               <PaperAirplaneIcon className="w-4 h-4 text-primary" />
             </div>
             <h3 className="text-lg font-semibold text-base-content">
-              你的回答
+              {t("your_answer")}
             </h3>
           </div>
 
@@ -146,7 +148,7 @@ export function AnswerForm({
               className="btn btn-ghost btn-xs"
               disabled={submitting}
             >
-              {showPreview ? "编辑" : "预览"}
+              {showPreview ? t("edit") : t("preview")}
             </button>
           </div>
         </div>
@@ -161,7 +163,7 @@ export function AnswerForm({
                 }}
               />
             ) : (
-              <p className="text-base-content/40 text-center">暂无内容</p>
+              <p className="text-base-content/40 text-center">{t("no_content")}</p>
             )}
           </div>
         ) : (
@@ -172,14 +174,7 @@ export function AnswerForm({
                 setContent(e.target.value)
               }
               rows={8}
-              placeholder={`写下你的回答...
-
-💡 优质回答小贴士：
-• 直接回答问题核心
-• 提供可运行的代码示例
-• 给出具体的操作步骤
-• 附上相关文档或参考资料
-• 使用 Markdown 格式化内容`}
+              placeholder={t("answer_placeholder")}
               className={`textarea w-full resize-y font-mono text-sm ${
                 !isContentValid && contentLength > 0
                   ? "textarea-error"
@@ -196,19 +191,19 @@ export function AnswerForm({
                 {contentLength > 0 && !isContentValid && (
                   <span className="text-xs text-warning flex items-center gap-1">
                     <ExclamationTriangleIcon className="w-3 h-3" />
-                    至少需要 10 个字符
+                    {t("answer_min_hint")}
                   </span>
                 )}
                 {isContentValid && !isContentTooLong && (
                   <span className="text-xs text-success flex items-center gap-1">
                     <CheckCircleIcon className="w-3 h-3" />
-                    内容完整
+                    {t("answer_complete")}
                   </span>
                 )}
                 {isContentTooLong && (
                   <span className="text-xs text-error flex items-center gap-1">
                     <ExclamationTriangleIcon className="w-3 h-3" />
-                    内容过长，请精简到 50000 字符以内
+                    {t("answer_too_long")}
                   </span>
                 )}
               </div>
@@ -237,7 +232,7 @@ export function AnswerForm({
               className="btn btn-ghost gap-2"
             >
               <XMarkIcon className="w-4 h-4" />
-              取消
+              {t("cancel")}
             </button>
           )}
           <button
@@ -248,12 +243,12 @@ export function AnswerForm({
             {submitting ? (
               <>
                 <span className="loading loading-spinner loading-sm"></span>
-                发布中...
+                {t("publishing")}
               </>
             ) : (
               <>
                 <PaperAirplaneIcon className="w-4 h-4" />
-                发布回答
+                {t("post_answer")}
               </>
             )}
           </button>
@@ -264,12 +259,12 @@ export function AnswerForm({
           <div className="flex items-start gap-2">
             <InformationCircleIcon className="w-4 h-4 text-base-content/40 shrink-0 mt-0.5" />
             <div className="text-xs text-base-content/60 space-y-1">
-              <p className="font-medium">💡 回答提示：</p>
+              <p className="font-medium">{t("answer_tips_title")}</p>
               <ul className="list-disc list-inside space-y-0.5 ml-2">
-                <li>支持 Markdown 格式，代码块请使用 ``` 包裹</li>
-                <li>优质回答有机会获得悬赏积分和采纳</li>
-                <li>尊重他人，友善发言</li>
-                <li>回答被采纳后，悬赏积分将自动发放</li>
+                <li>{t("answer_tip_markdown")}</li>
+                <li>{t("answer_tip_reward")}</li>
+                <li>{t("answer_tip_respect")}</li>
+                <li>{t("answer_tip_accepted")}</li>
               </ul>
             </div>
           </div>

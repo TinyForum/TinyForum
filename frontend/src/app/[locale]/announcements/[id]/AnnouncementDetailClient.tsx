@@ -13,39 +13,8 @@ import {
   UserIcon,
   AlertTriangleIcon,
 } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { useAnnouncementDetail } from "@/features/announcements/hooks/useAnnouncementDetail";
-
-// 公告类型配置 - 使用主题色
-const TYPE_CONFIG: Record<
-  string,
-  { color: string; label: string; bgColor: string; icon: typeof MegaphoneIcon }
-> = {
-  normal: {
-    color: "text-primary",
-    label: "普通公告",
-    bgColor: "bg-primary/10",
-    icon: MegaphoneIcon,
-  },
-  important: {
-    color: "text-secondary",
-    label: "重要公告",
-    bgColor: "bg-secondary/10",
-    icon: AlertTriangleIcon,
-  },
-  emergency: {
-    color: "text-error",
-    label: "紧急公告",
-    bgColor: "bg-error/10",
-    icon: AlertTriangleIcon,
-  },
-  event: {
-    color: "text-accent",
-    label: "活动公告",
-    bgColor: "bg-accent/10",
-    icon: CalendarIcon,
-  },
-};
 
 // 加载骨架屏
 function LoadingSkeleton() {
@@ -85,17 +54,19 @@ function LoadingSkeleton() {
 
 // 错误状态组件
 function ErrorState({ message }: { message: string }) {
+  const t = useTranslations("Announcement");
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-base-200 to-base-100 flex items-center justify-center">
       <div className="text-center">
         <div className="text-6xl mb-5">😕</div>
         <h3 className="text-xl font-semibold text-base-content mb-2">
-          加载失败
+          {t("load_failed")}
         </h3>
         <p className="text-base-content/60 mb-6">{message}</p>
         <Link href="/announcements" className="btn btn-primary btn-sm gap-2">
           <ArrowLeftIcon className="w-4 h-4" />
-          返回公告列表
+          {t("back_to_announcements")}
         </Link>
       </div>
     </div>
@@ -104,16 +75,17 @@ function ErrorState({ message }: { message: string }) {
 
 export default function AnnouncementDetailClient({ id }: { id: string }) {
   const t = useTranslations("Announcement");
+  const locale = useLocale();
 
   const rawId = parseInt(id);
   const idNum = isNaN(rawId) ? null : rawId;
   const { announcement, loading, error } = useAnnouncementDetail(idNum);
 
   const formatDate = (dateStr: string | null, withTime: boolean = true) => {
-    if (!dateStr) return "待发布";
+    if (!dateStr) return t("pending_publish");
     const date = new Date(dateStr);
     if (withTime) {
-      return date.toLocaleDateString("zh-CN", {
+      return date.toLocaleDateString(locale, {
         year: "numeric",
         month: "long",
         day: "numeric",
@@ -121,7 +93,7 @@ export default function AnnouncementDetailClient({ id }: { id: string }) {
         minute: "2-digit",
       });
     }
-    return date.toLocaleDateString("zh-CN", {
+    return date.toLocaleDateString(locale, {
       year: "numeric",
       month: "long",
       day: "numeric",
@@ -130,9 +102,42 @@ export default function AnnouncementDetailClient({ id }: { id: string }) {
 
   const isExpired =
     announcement?.expired_at && new Date(announcement.expired_at) < new Date();
-  const typeConfig = announcement
-    ? TYPE_CONFIG[announcement.type] || TYPE_CONFIG.normal
-    : null;
+
+  // 公告类型配置 - 使用翻译
+  const getTypeConfig = (type: string) => {
+    const configs: Record<
+      string,
+      { color: string; bgColor: string; icon: typeof MegaphoneIcon; label: string }
+    > = {
+      normal: {
+        color: "text-primary",
+        bgColor: "bg-primary/10",
+        icon: MegaphoneIcon,
+        label: t("normal_announcement"),
+      },
+      important: {
+        color: "text-secondary",
+        bgColor: "bg-secondary/10",
+        icon: AlertTriangleIcon,
+        label: t("important_announcement"),
+      },
+      emergency: {
+        color: "text-error",
+        bgColor: "bg-error/10",
+        icon: AlertTriangleIcon,
+        label: t("emergency_announcement"),
+      },
+      event: {
+        color: "text-accent",
+        bgColor: "bg-accent/10",
+        icon: CalendarIcon,
+        label: t("event_announcement"),
+      },
+    };
+    return configs[type] || configs.normal;
+  };
+
+  const typeConfig = announcement ? getTypeConfig(announcement.type) : null;
   const TypeIcon = typeConfig?.icon || MegaphoneIcon;
 
   if (loading) {
@@ -140,7 +145,7 @@ export default function AnnouncementDetailClient({ id }: { id: string }) {
   }
 
   if (error || !announcement) {
-    return <ErrorState message={error || "公告不存在"} />;
+    return <ErrorState message={error || t("not_found")} />;
   }
 
   return (
@@ -152,7 +157,7 @@ export default function AnnouncementDetailClient({ id }: { id: string }) {
           className="inline-flex items-center gap-2 text-base-content/60 hover:text-primary transition-all duration-200 mb-6 group"
         >
           <ArrowLeftIcon className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
-          <span className="text-sm font-medium">返回公告列表</span>
+          <span className="text-sm font-medium">{t("back_to_announcements")}</span>
         </Link>
 
         {/* 公告卡片 - 使用主题色和现代化设计 */}
@@ -175,13 +180,13 @@ export default function AnnouncementDetailClient({ id }: { id: string }) {
               {announcement.is_pinned && (
                 <span className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1 rounded-full bg-warning/10 text-warning">
                   <PinIcon className="w-3.5 h-3.5" />
-                  置顶公告
+                  {t("pinned_announcement")}
                 </span>
               )}
               {isExpired && (
                 <span className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1 rounded-full bg-error/10 text-error">
                   <ClockIcon className="w-3.5 h-3.5" />
-                  已过期
+                  {t("expired")}
                 </span>
               )}
               {announcement.board && (
@@ -202,7 +207,7 @@ export default function AnnouncementDetailClient({ id }: { id: string }) {
               <div className="flex items-center gap-1.5">
                 <CalendarIcon className="w-4 h-4" />
                 <span>
-                  发布于{" "}
+                  {t("published_on")}
                   {formatDate(
                     announcement.published_at || announcement.created_at,
                   )}
@@ -210,7 +215,7 @@ export default function AnnouncementDetailClient({ id }: { id: string }) {
               </div>
               <div className="flex items-center gap-1.5">
                 <EyeIcon className="w-4 h-4" />
-                <span>{announcement.view_count || 0} 次阅读</span>
+                <span>{announcement.view_count || 0}{t("view_count")}</span>
               </div>
               {announcement.created_by && (
                 <div className="flex items-center gap-1.5">
@@ -248,14 +253,14 @@ export default function AnnouncementDetailClient({ id }: { id: string }) {
                 <div className="flex items-center justify-center gap-2 text-sm text-error">
                   <AlertTriangleIcon className="w-4 h-4" />
                   <span>
-                    此公告已于 {formatDate(announcement.expired_at, false)} 过期
+                    {t("expired_on", { date: formatDate(announcement.expired_at, false) })}
                   </span>
                 </div>
               ) : (
                 <div className="flex items-center justify-center gap-2 text-sm text-base-content/40">
                   <ClockIcon className="w-4 h-4" />
                   <span>
-                    有效期至 {formatDate(announcement.expired_at, false)}
+                    {t("valid_until", { date: formatDate(announcement.expired_at, false) })}
                   </span>
                 </div>
               )}
@@ -266,7 +271,7 @@ export default function AnnouncementDetailClient({ id }: { id: string }) {
           <div className="p-6 bg-base-200/30 border-t border-base-200 flex justify-center gap-3">
             <Link href="/announcements" className="btn btn-ghost btn-sm gap-2">
               <MegaphoneIcon className="w-4 h-4" />
-              查看全部公告
+              {t("view_all_announcements")}
             </Link>
           </div>
         </article>

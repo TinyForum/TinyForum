@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
+import { useTranslations } from "next-intl";
 import {
   pluginApi,
   CreatePluginPayload,
@@ -12,6 +13,7 @@ import { pluginKeys } from "./hooks/usePluginKeys";
 const PAGE_SIZE = 10;
 
 export function useAdminPlugins() {
+  const t = useTranslations("Plugin");
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
   const [isUploading, setIsUploading] = useState(false);
@@ -59,28 +61,28 @@ export function useAdminPlugins() {
   // ── Mutations ─────────────────────────────────────────────────────────────
   const createMutation = useMutation({
     mutationFn: (payload: CreatePluginPayload) => pluginApi.create(payload),
-    onSuccess: () => invalidateAndToast("Plugin installed successfully"),
-    onError: () => toast.error("Failed to install plugin"),
+    onSuccess: () => invalidateAndToast(t("install_success")),
+    onError: () => toast.error(t("install_failed")),
   });
 
   const updateMutation = useMutation({
     mutationFn: (payload: UpdatePluginPayload) => pluginApi.update(payload),
-    onSuccess: () => invalidateAndToast("Plugin updated"),
-    onError: () => toast.error("Failed to update plugin"),
+    onSuccess: () => invalidateAndToast(t("update_success")),
+    onError: () => toast.error(t("update_failed")),
   });
 
   const toggleMutation = useMutation({
     mutationFn: ({ id, enabled }: { id: string; enabled: boolean }) =>
       pluginApi.toggle(id, enabled),
     onSuccess: (_, { enabled }) =>
-      invalidateAndToast(enabled ? "Plugin enabled" : "Plugin disabled"),
-    onError: () => toast.error("Failed to toggle plugin"),
+      invalidateAndToast(enabled ? t("enable_success") : t("disable_success")),
+    onError: () => toast.error(t("toggle_failed")),
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => pluginApi.delete(id),
-    onSuccess: () => invalidateAndToast("Plugin removed"),
-    onError: () => toast.error("Failed to remove plugin"),
+    onSuccess: () => invalidateAndToast(t("remove_success")),
+    onError: () => toast.error(t("remove_failed")),
   });
 
   // ── 稳定引用的处理函数 ────────────────────────────────────────────────────

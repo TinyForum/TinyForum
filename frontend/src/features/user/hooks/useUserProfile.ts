@@ -1,6 +1,7 @@
 // hooks/useUserProfile.ts
 import { useState, useCallback } from "react"
 import { toast } from "react-hot-toast"
+import { useTranslations } from "next-intl"
 import {
   useQuery,
   useMutation,
@@ -27,6 +28,7 @@ interface UseProfileReturn {
 }
 
 export function useUserProfile(): UseProfileReturn {
+  const t = useTranslations("Profile")
   const queryClient = useQueryClient()
   // 当前查询的用户 ID（null 时不发起请求）
   const [userId, setUserId] = useState<number | null>(null)
@@ -38,14 +40,14 @@ export function useUserProfile(): UseProfileReturn {
     queryKey: userKeys.detail(userId ?? 0),
     queryFn: async () => {
       if (userId === null) {
-        throw new Error("缺少用户 ID")
+        throw new Error(t("missing_user_id"))
       }
       const res = await userApi.getProfile(userId)
       if (res.data.code !== 0) {
-        throw new Error(res.data.message || "获取用户信息失败")
+        throw new Error(res.data.message || t("profile_load_failed"))
       }
       if (!res.data.data) {
-        throw new Error("获取用户信息失败")
+        throw new Error(t("profile_load_failed"))
       }
       return res.data.data
     },
@@ -62,20 +64,20 @@ export function useUserProfile(): UseProfileReturn {
     mutationFn: async (data) => {
       const res = await userApi.updateProfile(data)
       if (res.data.code !== 0) {
-        throw new Error(res.data.message || "更新失败")
+        throw new Error(res.data.message || t("update_failed"))
       }
       if (!res.data.data) {
-        throw new Error("更新失败")
+        throw new Error(t("update_failed"))
       }
       return res.data.data
     },
     onSuccess: (updatedUser) => {
       setUser(updatedUser)
       queryClient.invalidateQueries({ queryKey: userKeys.details() })
-      toast.success("资料更新成功")
+      toast.success(t("profile_update_success"))
     },
     onError: (err) => {
-      toast.error(err.message || "更新失败")
+      toast.error(err.message || t("update_failed"))
     },
   })
 

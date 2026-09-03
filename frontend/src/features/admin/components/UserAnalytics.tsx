@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import * as echarts from "echarts";
+import { useTranslations } from "next-intl";
 import { useComprehensiveUserAnalysis } from "../hooks/useRecommendationStats";
 import {
   Users,
@@ -81,6 +82,7 @@ function BehaviorTypeChart({ patterns }: { patterns: ComprehensiveUserAnalysis["
 }
 
 export function UserAnalytics() {
+  const t = useTranslations("Admin");
   const { data, isLoading } = useComprehensiveUserAnalysis(true);
 
   if (isLoading) {
@@ -91,7 +93,7 @@ export function UserAnalytics() {
     );
   }
 
-  if (!data) return <div className="text-center text-base-content/50 py-8">暂无数据</div>;
+  if (!data) return <div className="text-center text-base-content/50 py-8">{t("no_data")}</div>;
 
   const { overview } = data;
 

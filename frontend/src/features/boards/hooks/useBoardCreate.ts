@@ -9,7 +9,7 @@ export function useBoardCreate() {
     mutationFn: async (data: CreateBoardPayload): Promise<Board | null> => {
       const res = await boardApi.create(data);
       if (res.data.code !== 0) {
-        throw new Error(res.data.message || "创建失败");
+        throw new Error(res.data.message || "create_failed");
       }
       return res.data.data ?? null;
     },

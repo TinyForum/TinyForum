@@ -2,6 +2,7 @@
 import { useCallback, useMemo, useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
+import { useTranslations } from 'next-intl'
 import { adminAnnouncementApi } from '@/shared/api/modules/admin/announcements'
 import { announcementApi } from '@/shared/api/modules/announcements'
 import {
@@ -72,6 +73,7 @@ export function useAnnouncementsData(
   options?: UseAnnouncementsDataOptions,
 ): UseAnnouncementsDataReturn {
   const queryClient = useQueryClient()
+  const t = useTranslations("Admin")
   const { defaultParams = {}, autoLoadPinned = true } = options || {}
 
   // 分页与筛选状态
@@ -162,7 +164,7 @@ export function useAnnouncementsData(
         })
       } catch (error) {
         console.error('获取公告详情失败:', error)
-        toast.error('获取公告详情失败，请稍后重试')
+        toast.error(t('get_announcement_detail_failed'))
         return null
       }
     },
@@ -181,12 +183,12 @@ export function useAnnouncementsData(
       return result || null
     },
     onSuccess: () => {
-      toast.success('创建公告成功')
+      toast.success(t('create_announcement_success'))
       queryClient.invalidateQueries({ queryKey: announcementKeys.lists() })
     },
     onError: (error) => {
       console.error('创建公告失败:', error)
-      toast.error('创建公告失败，请稍后重试')
+      toast.error(t('create_announcement_failed'))
     },
   })
 
@@ -213,7 +215,7 @@ export function useAnnouncementsData(
       return result || null
     },
     onSuccess: (_, { data }) => {
-      toast.success('更新公告成功')
+      toast.success(t('update_announcement_success'))
       queryClient.invalidateQueries({ queryKey: announcementKeys.lists() })
       // 如果影响置顶状态，刷新置顶列表
       if (data.is_pinned !== undefined) {
@@ -222,7 +224,7 @@ export function useAnnouncementsData(
     },
     onError: (error) => {
       console.error('更新公告失败:', error)
-      toast.error('更新公告失败，请稍后重试')
+      toast.error(t('update_announcement_failed'))
     },
   })
 
@@ -248,13 +250,13 @@ export function useAnnouncementsData(
       return true
     },
     onSuccess: () => {
-      toast.success('删除公告成功')
+      toast.success(t('delete_announcement_success'))
       queryClient.invalidateQueries({ queryKey: announcementKeys.lists() })
       queryClient.invalidateQueries({ queryKey: announcementKeys.pinned() })
     },
     onError: (error) => {
       console.error('删除公告失败:', error)
-      toast.error('删除公告失败，请稍后重试')
+      toast.error(t('delete_announcement_failed'))
     },
   })
 
@@ -277,13 +279,13 @@ export function useAnnouncementsData(
       return true
     },
     onSuccess: () => {
-      toast.success('发布公告成功')
+      toast.success(t('publish_announcement_success'))
       queryClient.invalidateQueries({ queryKey: announcementKeys.lists() })
       queryClient.invalidateQueries({ queryKey: announcementKeys.pinned() })
     },
     onError: (error) => {
       console.error('发布公告失败:', error)
-      toast.error('发布公告失败，请稍后重试')
+      toast.error(t('publish_announcement_failed'))
     },
   })
 
@@ -306,12 +308,12 @@ export function useAnnouncementsData(
       return true
     },
     onSuccess: () => {
-      toast.success('归档公告成功')
+      toast.success(t('archive_announcement_success'))
       queryClient.invalidateQueries({ queryKey: announcementKeys.lists() })
     },
     onError: (error) => {
       console.error('归档公告失败:', error)
-      toast.error('归档公告失败，请稍后重试')
+      toast.error(t('archive_announcement_failed'))
     },
   })
 
@@ -343,7 +345,7 @@ export function useAnnouncementsData(
     },
     onError: (error) => {
       console.error('置顶操作失败:', error)
-      toast.error('操作失败，请稍后重试')
+      toast.error(t('pin_operation_failed'))
     },
   })
 

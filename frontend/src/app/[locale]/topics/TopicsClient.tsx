@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "@/store/auth";
 import { toast } from "react-hot-toast";
+import { useTranslations } from "next-intl";
 import {
   PlusIcon,
   UserGroupIcon,
@@ -63,17 +64,18 @@ function EmptyState({
   isAuthenticated: boolean;
   onOpenModal: () => void;
 }) {
+  const t = useTranslations("Topic");
   return (
     <div className="card bg-base-100 shadow-sm p-12 text-center border border-base-200">
       <div className="text-6xl mb-4 opacity-50">📚</div>
-      <h3 className="text-xl font-semibold text-base-content mb-2">暂无话题</h3>
+      <h3 className="text-xl font-semibold text-base-content mb-2">{t("no_topics")}</h3>
       <p className="text-base-content/60 mb-6">
-        成为第一个创建话题的人，开启精彩讨论！
+        {t("no_topics_desc")}
       </p>
       {isAuthenticated && (
         <button onClick={onOpenModal} className="btn btn-primary gap-2">
           <PlusIcon className="w-4 h-4" />
-          创建第一个话题
+          {t("create_first_topic")}
         </button>
       )}
     </div>
@@ -90,12 +92,13 @@ function StatsCards({
   totalFollowers: number;
   hotTopicsCount: number;
 }) {
+  const t = useTranslations("Topic");
   return (
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
       <div className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-2xl p-4 text-center border border-primary/20">
         <div className="flex items-center justify-center gap-2 mb-2">
           <DocumentTextIcon className="w-5 h-5 text-primary" />
-          <span className="text-sm font-medium text-primary">话题总数</span>
+          <span className="text-sm font-medium text-primary">{t("total_topics")}</span>
         </div>
         <div className="text-2xl font-bold text-base-content">
           {totalTopics}
@@ -105,7 +108,7 @@ function StatsCards({
       <div className="bg-gradient-to-br from-secondary/10 to-secondary/5 rounded-2xl p-4 text-center border border-secondary/20">
         <div className="flex items-center justify-center gap-2 mb-2">
           <UserGroupIcon className="w-5 h-5 text-secondary" />
-          <span className="text-sm font-medium text-secondary">总关注数</span>
+          <span className="text-sm font-medium text-secondary">{t("total_followers")}</span>
         </div>
         <div className="text-2xl font-bold text-base-content">
           {totalFollowers}
@@ -115,7 +118,7 @@ function StatsCards({
       <div className="bg-gradient-to-br from-warning/10 to-warning/5 rounded-2xl p-4 text-center border border-warning/20">
         <div className="flex items-center justify-center gap-2 mb-2">
           <FireIcon className="w-5 h-5 text-warning" />
-          <span className="text-sm font-medium text-warning">热门话题</span>
+          <span className="text-sm font-medium text-warning">{t("hot_topics")}</span>
         </div>
         <div className="text-2xl font-bold text-base-content">
           {hotTopicsCount}
@@ -135,6 +138,8 @@ function Pagination({
   totalPages: number;
   onPageChange: (page: number) => void;
 }) {
+  const t = useTranslations("Topic");
+
   const getPageNumbers = (): number[] => {
     const pages: number[] = [];
     const maxVisible = 5;
@@ -161,7 +166,7 @@ function Pagination({
         disabled={currentPage === 1}
         className="btn btn-ghost btn-sm gap-1"
       >
-        上一页
+        {t("previous_page")}
       </button>
 
       <div className="flex gap-1.5 mx-2">
@@ -183,7 +188,7 @@ function Pagination({
         disabled={currentPage >= totalPages}
         className="btn btn-ghost btn-sm gap-1"
       >
-        下一页
+        {t("next_page")}
       </button>
     </div>
   );
@@ -212,6 +217,7 @@ function CreateTopicModal({
   });
   const [creating, setCreating] = useState(false);
   const { uploadCover } = useTopicCoverUpload();
+  const t = useTranslations("Topic");
 
   // 封面图上传函数（使用通用上传接口）
   const handleUploadCover = async (file: File): Promise<{ url: string }> => {
@@ -219,7 +225,7 @@ function CreateTopicModal({
       // 使用通用附件上传接口，返回 { data: { url } }
       return await uploadCover(file);
     } catch (error) {
-      toast.error("封面上传失败");
+      toast.error(t("cover_upload_failed"));
       throw error;
     }
   };
@@ -235,7 +241,7 @@ function CreateTopicModal({
 
   const handleSubmit = async () => {
     if (!form.title.trim()) {
-      toast.error("请输入话题标题");
+      toast.error(t("enter_title"));
       return;
     }
 
@@ -262,7 +268,7 @@ function CreateTopicModal({
                 <PlusIcon className="w-5 h-5 text-primary" />
               </div>
               <h2 className="card-title text-xl font-bold text-base-content">
-                创建话题
+                {t("create_topic")}
               </h2>
             </div>
             <button
@@ -280,7 +286,7 @@ function CreateTopicModal({
             <div className="form-control">
               <label className="label">
                 <span className="label-text font-medium">
-                  标题 <span className="text-error">*</span>
+                  {t("title_label")} <span className="text-error">*</span>
                 </span>
               </label>
               <input
@@ -289,7 +295,7 @@ function CreateTopicModal({
                 onChange={(e) =>
                   setForm((prev) => ({ ...prev, title: e.target.value }))
                 }
-                placeholder="例如：科技前沿、美食分享、旅行日记"
+                placeholder={t("title_placeholder")}
                 className="input input-bordered w-full focus:input-primary"
                 maxLength={100}
                 autoFocus
@@ -303,14 +309,14 @@ function CreateTopicModal({
 
             <div className="form-control">
               <label className="label">
-                <span className="label-text font-medium">描述</span>
+                <span className="label-text font-medium">{t("description_label")}</span>
               </label>
               <textarea
                 value={form.description}
                 onChange={(e) =>
                   setForm((prev) => ({ ...prev, description: e.target.value }))
                 }
-                placeholder="描述这个话题的讨论方向和内容范围..."
+                placeholder={t("desc_placeholder")}
                 rows={3}
                 className="textarea textarea-bordered w-full focus:textarea-primary resize-none"
                 maxLength={500}
@@ -325,7 +331,7 @@ function CreateTopicModal({
             {/* 封面图上传：只允许单张，作为封面 */}
             <div className="form-control">
               <label className="label">
-                <span className="label-text font-medium">封面图</span>
+                <span className="label-text font-medium">{t("cover_image")}</span>
               </label>
               <ImageUploader
                 initialImages={form.cover ? [{ url: form.cover }] : []}
@@ -338,7 +344,7 @@ function CreateTopicModal({
               />
               <label className="label">
                 <span className="label-text-alt text-base-content/40">
-                  可选，建议尺寸 1200x630
+                  {t("cover_hint")}
                 </span>
               </label>
             </div>
@@ -357,9 +363,9 @@ function CreateTopicModal({
                   className="checkbox checkbox-primary"
                 />
                 <div>
-                  <span className="label-text font-medium">公开话题</span>
+                  <span className="label-text font-medium">{t("is_public")}</span>
                   <p className="text-xs text-base-content/40 mt-0.5">
-                    公开话题所有人可见，私密话题仅关注者可查看
+                    {t("is_public_desc")}
                   </p>
                 </div>
               </label>
@@ -369,7 +375,7 @@ function CreateTopicModal({
           {/* 按钮区域 */}
           <div className="modal-action mt-6 gap-3">
             <button onClick={onClose} className="btn btn-ghost flex-1">
-              取消
+              {t("cancel")}
             </button>
             <button
               onClick={handleSubmit}
@@ -379,7 +385,7 @@ function CreateTopicModal({
               {creating && (
                 <span className="loading loading-spinner loading-sm"></span>
               )}
-              {creating ? "创建中..." : "创建话题"}
+              {creating ? t("creating") : t("create_topic")}
             </button>
           </div>
         </div>
@@ -395,6 +401,7 @@ export default function TopicsClient() {
   const pageSize = 20;
   const queryClient = useQueryClient();
   const { createTopic } = useCreateTopic();
+  const t = useTranslations("Topic");
 
   // 加载话题列表
   const { data, isLoading: loading, refetch } = useTopicList(page, pageSize);
@@ -418,15 +425,15 @@ export default function TopicsClient() {
       });
 
       if (response.data.code === 0) {
-        toast.success("话题创建成功");
+        toast.success(t("create_success"));
         await queryClient.invalidateQueries({ queryKey: ["topics", "list"] });
       } else {
-        toast.error(response.data.message || "创建失败");
+        toast.error(response.data.message || t("create_failed"));
         throw new Error(response.data.message);
       }
     } catch (err: unknown) {
       const error = err as ErrorResponse;
-      toast.error(error.response?.data?.message || "创建失败");
+      toast.error(error.response?.data?.message || t("create_failed"));
       throw err;
     }
   };
@@ -452,10 +459,10 @@ export default function TopicsClient() {
             </div>
           </div>
           <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-            话题广场
+            {t("topic_square")}
           </h1>
           <p className="text-base-content/60 mt-2">
-            发现和参与感兴趣的话题讨论
+            {t("topic_square_desc")}
           </p>
         </div>
 
@@ -476,7 +483,7 @@ export default function TopicsClient() {
               className="btn btn-primary gap-2 shadow-md hover:shadow-lg transition-all"
             >
               <PlusIcon className="w-4 h-4" />
-              创建话题
+              {t("create_topic")}
             </button>
           )}
         </div>
@@ -514,7 +521,7 @@ export default function TopicsClient() {
 
             {/* 底部提示 */}
             <div className="text-center text-xs text-base-content/40 mt-6 pt-4 border-t border-base-200">
-              共 {total} 个话题，找到你感兴趣的
+              {t("total_topics_count", { count: total })}
             </div>
           </>
         )}

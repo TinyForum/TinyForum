@@ -20,5 +20,16 @@
   "edit_profile": "编辑资料",
   "the_posts": "帖子",
   "the_articles": "文章",
-  "login_to_follow": "登录后可关注"
+  "login_to_follow": "登录后可关注",
+  "follow_success": "关注成功",
+  "follow_failed": "关注失败",
+  "unfollow_success": "取消关注成功",
+  "unfollow_failed": "取消关注失败",
+  "missing_user_id": "缺少用户 ID",
+  "followers_load_failed": "获取粉丝列表失败",
+  "following_load_failed": "获取关注列表失败",
+  "profile_load_failed": "获取用户信息失败",
+  "profile_update_success": "资料更新成功",
+  "update_failed": "更新失败",
+  "posts_load_failed": "获取帖子失败"
 }

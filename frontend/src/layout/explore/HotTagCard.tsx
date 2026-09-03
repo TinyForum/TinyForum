@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import {
   HashtagIcon,
@@ -17,6 +18,8 @@ export function HotTagCard({
   size = "md",
   showStats = true,
 }: HotTagCardProps) {
+  const t = useTranslations("Explore");
+
   // 尺寸配置
   const sizeClasses = {
     sm: {
@@ -81,7 +84,7 @@ export function HotTagCard({
 
               {/* 热门标识 */}
               {tag.post_count !== undefined && tag.post_count > 100 && (
-                <span className="badge badge-primary badge-xs">热门</span>
+                <span className="badge badge-primary badge-xs">{t("badge_hot")}</span>
               )}
             </div>
 
@@ -100,7 +103,7 @@ export function HotTagCard({
                 className={`flex items-center gap-1 text-base-content/40 ${classes.stats}`}
               >
                 <DocumentTextIcon className={`${classes.icon} opacity-60`} />
-                <span>{tag.post_count} 个帖子</span>
+                <span>{t("tag_post_count", { count: tag.post_count })}</span>
               </div>
             )}
           </div>

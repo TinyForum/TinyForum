@@ -1,6 +1,7 @@
 // components/question/BoardSelector.tsx
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Board } from "@/shared/api/types/board.model";
 import { HashtagIcon } from "@heroicons/react/24/outline";
 
@@ -17,10 +18,12 @@ export function BoardSelector({
   onBoardChange,
   loading,
 }: BoardSelectorProps) {
+  const t = useTranslations("Board");
+
   if (loading) {
     return (
       <div className="select select-bordered w-full bg-base-100">
-        <option>加载中...</option>
+        <option>{t("loading")}</option>
       </div>
     );
   }
@@ -34,7 +37,7 @@ export function BoardSelector({
         required
       >
         <option value="" disabled>
-          请选择板块
+          {t("select_board")}
         </option>
         {boards.map((board) => (
           <option key={board.id} value={board.id}>
@@ -45,7 +48,7 @@ export function BoardSelector({
       <label className="label">
         <span className="label-text-alt text-base-content/50">
           <HashtagIcon className="w-3 h-3 inline mr-1" />
-          选择正确的板块能让问题更快得到回答
+           {t("select_board_hint")}
         </span>
       </label>
     </div>

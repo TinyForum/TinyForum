@@ -46,7 +46,7 @@ export const useLoginStore = create<LoginState>()((set, get) => ({
     const { email, password, resetForm } = get();
 
     if (!email || !password) {
-      set({ error: "请输入邮箱和密码" });
+      set({ error: "enter_email_and_password" });
       return { success: false };
     }
 
@@ -63,11 +63,11 @@ export const useLoginStore = create<LoginState>()((set, get) => ({
       }
 
       // 响应格式错误
-      set({ error: "响应数据格式错误" });
+      set({ error: "invalid_response_format" });
       return { success: false };
     } catch (err: unknown) {
       const error = err as ApiError;
-      const errorMessage = error.response?.data?.message || "登录失败，请重试";
+      const errorMessage = error.response?.data?.message || "login_failed";
       set({ error: errorMessage });
       return { success: false };
     } finally {

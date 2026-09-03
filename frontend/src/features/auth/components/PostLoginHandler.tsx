@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useAuthStore } from "@/store/auth";
 import toast from "react-hot-toast";
+import { useTranslations } from "next-intl";
 import RestoreDialog from "./RestoreDialog";
 import { useDeletionStatus } from "../hooks/useDeletionStatus";
 import type { DeletionStatus } from "../hooks/useDeletionStatus";
@@ -21,6 +22,7 @@ export default function PostLoginHandler({
   onDeleteSuccess,
   redirectOnLogout = "/",
 }: PostLoginHandlerProps) {
+  const t = useTranslations("Auth");
   const { user, isAuthenticated } = useAuthStore();
   const [deletionStatus, setDeletionStatus] = useState<DeletionStatus | null>(
     null,
@@ -58,7 +60,7 @@ export default function PostLoginHandler({
       !deletionStatusQuery.can_restore
     ) {
       // 账户已永久删除，强制登出
-      toast.error("您的账户已被永久删除，请联系管理员");
+      toast.error(t("account_permanently_deleted_contact_admin"));
       handleForceLogout();
     }
   }, [

@@ -1,7 +1,7 @@
 "use client";
 
 import { routing } from "@/i18n/routing";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useRouter, usePathname } from "next/navigation";
 import {
   Popover,
@@ -17,6 +17,7 @@ export default function LanguageSwitcher() {
   const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
+  const t = useTranslations("Nav");
 
   const switchLanguage = (newLocale: string) => {
     const segments = pathname.split("/");
@@ -33,8 +34,8 @@ export default function LanguageSwitcher() {
   };
 
   const getDisplayText = (loc: string) => {
-    if (loc === "zh-CN") return "简体中文";
-    if (loc === "en-US") return "English";
+    if (loc === "zh-CN") return t("language_chinese_simplified");
+    if (loc === "en-US") return t("language_english");
     return loc;
   };
 
@@ -46,7 +47,11 @@ export default function LanguageSwitcher() {
 
   const currentFlag = getFlagEmoji(locale);
   const currentText =
-    locale === "zh-CN" ? "中文" : locale === "en-US" ? "EN" : locale;
+    locale === "zh-CN"
+      ? t("language_chinese_short")
+      : locale === "en-US"
+        ? t("language_english_short")
+        : locale;
 
   return (
     <Popover className="relative inline-block">

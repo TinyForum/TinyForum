@@ -1,5 +1,6 @@
 // hooks/useAnnouncementDetail.ts
 import { useState, useCallback, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { announcementApi } from "@/shared/api/modules/announcements";
 import { AnnouncementDO } from "@/shared/api/types/announcement.model.do";
 
@@ -16,13 +17,14 @@ interface ErrorResponse {
 
 // 公告详情 Hook（id 为 null 时视为无效 ID，不做请求）
 export function useAnnouncementDetail(id: number | null) {
+  const t = useTranslations("Announcement");
   const [announcement, setAnnouncement] = useState<AnnouncementDO | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     if (id === null) {
-      setError("无效的公告ID");
+      setError(t("invalid_id"));
       setLoading(false);
       return;
     }
@@ -36,20 +38,20 @@ export function useAnnouncementDetail(id: number | null) {
           setAnnouncement(response.data.data);
         }
       } else {
-        setError(response.data.message || "公告不存在");
+        setError(response.data.message || t("not_found"));
       }
     } catch (err: unknown) {
       console.error("Failed to load announcement:", err);
       const e = err as ErrorResponse;
       if (e.response?.status === 404) {
-        setError("公告不存在");
+        setError(t("not_found"));
       } else {
-        setError("加载失败，请稍后重试");
+        setError(t("load_failed_retry"));
       }
     } finally {
       setLoading(false);
     }
-  }, [id]);
+  }, [id, t]);
 
   useEffect(() => {
     load();

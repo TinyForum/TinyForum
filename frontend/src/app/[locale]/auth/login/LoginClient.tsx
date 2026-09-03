@@ -1,7 +1,7 @@
 // auth/login/page.tsx 客户端组件
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
@@ -14,12 +14,7 @@ import { Mail, Lock, Eye, EyeOff, LogIn } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
 import { useLogin } from "@/features/auth/hooks/useLogin";
 
-const loginSchema = z.object({
-  email: z.string().email("请输入有效的邮箱"),
-  password: z.string().min(1, "请输入密码"),
-});
-
-type LoginForm = z.infer<typeof loginSchema>;
+type LoginForm = { email: string; password: string };
 
 export default function LoginClient() {
   const router = useRouter();
@@ -59,6 +54,15 @@ export default function LoginClient() {
     locale,
     showRestoreDialog,
   ]);
+
+  const loginSchema = useMemo(
+    () =>
+      z.object({
+        email: z.string().email(t("invalid_email_address")),
+        password: z.string().min(1, t("enter_password")),
+      }),
+    [t],
+  );
 
   const {
     register,
@@ -200,7 +204,7 @@ export default function LoginClient() {
 
                 {error && (
                   <div className="alert alert-error py-2">
-                    <span className="text-sm">{error}</span>
+                    <span className="text-sm">{t(error)}</span>
                   </div>
                 )}
 

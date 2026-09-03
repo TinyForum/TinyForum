@@ -1,3 +1,6 @@
+"use client";
+
+import { useTranslations } from "next-intl";
 import { UserDO } from "@/shared/api/types/user.model.do";
 import { Mail, Shield } from "lucide-react";
 import { History } from "lucide-react";
@@ -12,7 +15,8 @@ export function SecurityOverview({
   lastLoginTime,
   securityLevel,
 }: SecurityOverviewProps) {
-  const emailStatus = user?.email ? "已验证" : "未验证";
+  const t = useTranslations("Settings");
+  const emailStatus = user?.email ? t("verified") : t("unverified");
   return (
     <div className="grid gap-4 md:grid-cols-3">
       {/* 安全等级卡片 */}
@@ -23,8 +27,8 @@ export function SecurityOverview({
               <Shield className="w-5 h-5 text-green-600" />
             </div>
             <div>
-              <p className="text-xs text-base-content/60">安全等级</p>
-              <p className="font-semibold text-sm">{securityLevel + " 分"}</p>
+              <p className="text-xs text-base-content/60">{t("security_level")}</p>
+              <p className="font-semibold text-sm">{t("security_level_points", { points: securityLevel })}</p>
             </div>
           </div>
         </div>
@@ -38,7 +42,7 @@ export function SecurityOverview({
               <History className="w-5 h-5 text-blue-600" />
             </div>
             <div>
-              <p className="text-xs text-base-content/60">最后登录</p>
+              <p className="text-xs text-base-content/60">{t("last_login")}</p>
               <p className="font-semibold text-sm">{lastLoginTime}</p>
             </div>
           </div>
@@ -53,7 +57,7 @@ export function SecurityOverview({
               <Mail className="w-5 h-5 text-purple-600" />
             </div>
             <div>
-              <p className="text-xs text-base-content/60">邮箱状态</p>
+              <p className="text-xs text-base-content/60">{t("email_status")}</p>
               <p className="font-semibold text-sm">{emailStatus}</p>
             </div>
           </div>

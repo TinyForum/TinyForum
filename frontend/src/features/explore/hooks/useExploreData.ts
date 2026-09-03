@@ -1,5 +1,8 @@
 // hooks/useExploreData.ts
+"use client";
+
 import { useQuery } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { toast } from "react-hot-toast";
 import { postApi } from "@/shared/api/modules/posts";
 import { tagApi } from "@/shared/api/modules/tags";
@@ -12,6 +15,8 @@ import { LeaderboardItemResponse } from "@/shared/api/types/user.model";
 
 // 探索页数据查询 Hook：聚合帖子、标签、话题与活跃用户
 export function useExploreData(activeTab: string, sortBy?: string) {
+  const t = useTranslations("Explore");
+
   return useQuery<{
     posts: Post[];
     hotTags: Tag[];
@@ -55,7 +60,7 @@ export function useExploreData(activeTab: string, sortBy?: string) {
         };
       } catch (error) {
         console.error("Failed to load explore data:", error);
-        toast.error("加载失败");
+        toast.error(t("loading_failed"));
         throw error;
       }
     },
@@ -64,6 +69,8 @@ export function useExploreData(activeTab: string, sortBy?: string) {
 
 // 探索页搜索 Hook：按关键词搜索帖子
 export function useExploreSearch(submittedKeyword: string) {
+  const t = useTranslations("Explore");
+
   return useQuery<Post[]>({
     queryKey: ["explore-search", submittedKeyword],
     queryFn: async () => {
@@ -74,16 +81,16 @@ export function useExploreSearch(submittedKeyword: string) {
           page_size: 20,
         });
         if (response.data.code !== 0) {
-          throw new Error(response.data.message || "搜索失败");
+          throw new Error(response.data.message || t("search_failed"));
         }
         const list = response.data.data?.list || [];
         if (list.length === 0) {
-          toast("未找到相关结果");
+          toast(t("no_results_found"));
         }
         return list;
       } catch (error) {
         console.error("Search failed:", error);
-        toast.error("搜索失败");
+        toast.error(t("search_failed"));
         throw error;
       }
     },

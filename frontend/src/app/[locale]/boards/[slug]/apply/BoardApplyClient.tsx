@@ -4,6 +4,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useAuthStore } from "@/store/auth";
 import {
   ShieldCheckIcon,
@@ -24,28 +25,29 @@ import { useBoardApply } from "@/features/moderator/hooks/useBoardApply";
 type AppStatus = ModeratorApplication["status"];
 
 function StatusBadge({ status }: { status: AppStatus }) {
+  const t = useTranslations("Board");
   const map: Record<
     AppStatus,
     { icon: React.ReactNode; label: string; cls: string }
   > = {
     pending: {
       icon: <ClockIcon className="w-4 h-4" />,
-      label: "审核中",
+      label: t("status_pending"),
       cls: "text-yellow-600 bg-yellow-100 dark:bg-yellow-900/30 dark:text-yellow-400",
     },
     approved: {
       icon: <CheckCircleIcon className="w-4 h-4" />,
-      label: "已通过",
+      label: t("status_approved"),
       cls: "text-green-600 bg-green-100 dark:bg-green-900/30 dark:text-green-400",
     },
     rejected: {
       icon: <XCircleIcon className="w-4 h-4" />,
-      label: "已拒绝",
+      label: t("status_rejected"),
       cls: "text-red-600 bg-red-100 dark:bg-red-900/30 dark:text-red-400",
     },
     canceled: {
       icon: <XCircleIcon className="w-4 h-4" />,
-      label: "已取消",
+      label: t("status_canceled"),
       cls: "text-gray-600 bg-gray-100 dark:bg-gray-700/30 dark:text-gray-400",
     },
   };
@@ -64,6 +66,7 @@ function StatusBadge({ status }: { status: AppStatus }) {
 export default function BoardApplyClient({ slug }: { slug: string }) {
   const router = useRouter();
   const { user, isAuthenticated } = useAuthStore();
+  const t = useTranslations("Board");
 
   const [board, setBoard] = useState<Board | null>(null);
   const [loadingBoard, setLoadingBoard] = useState(true);
@@ -137,11 +140,11 @@ export default function BoardApplyClient({ slug }: { slug: string }) {
     if (!board) return;
     const trimmed = reason.trim();
     if (!trimmed) {
-      setError("请填写申请理由");
+      setError("validation_reason_required");
       return;
     }
     if (trimmed.length < 20) {
-      setError("申请理由至少需要 20 个字符");
+      setError("validation_reason_min_length");
       return;
     }
 
@@ -164,7 +167,7 @@ export default function BoardApplyClient({ slug }: { slug: string }) {
       });
       router.push(`/boards/${slug}?applied=1`);
     } catch {
-      setError("提交失败，请稍后重试");
+      setError("submit_failed_retry");
     } finally {
       setSubmitting(false);
     }
@@ -191,7 +194,7 @@ export default function BoardApplyClient({ slug }: { slug: string }) {
         className="inline-flex items-center gap-1.5 text-sm text-gray-400 hover:text-blue-500 transition-colors mb-8"
       >
         <ArrowLeftIcon className="w-4 h-4" />
-        返回 {board.name}
+         {t("back_to", { name: board.name })}
       </Link>
 
       <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
@@ -201,7 +204,7 @@ export default function BoardApplyClient({ slug }: { slug: string }) {
             <ShieldCheckIcon className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-white">申请版主</h1>
+            <h1 className="text-xl font-bold text-white">{t("apply_moderator")}</h1>
             <p className="text-blue-100 text-sm mt-0.5">{board.name}</p>
           </div>
         </div>
@@ -214,26 +217,26 @@ export default function BoardApplyClient({ slug }: { slug: string }) {
                 <ExclamationTriangleIcon className="w-5 h-5 text-yellow-500 shrink-0 mt-0.5" />
                 <div className="space-y-2 flex-1">
                   <p className="font-medium text-gray-900 dark:text-white">
-                    你已提交过申请
+                     {t("already_applied")}
                   </p>
                   <div className="text-sm text-gray-500 dark:text-gray-400 space-y-1">
                     <p>
-                      提交时间：
+                       {t("submitted_at")}
                       {new Date(existing.created_at).toLocaleString("zh-CN")}
                     </p>
                     <div className="flex items-center gap-2">
-                      状态：
+                       {t("status_colon")}
                       <StatusBadge status={existing.status} />
                     </div>
                   </div>
                   {existing.status === "rejected" && existing.review_note && (
                     <div className="mt-2 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded-lg px-3 py-2">
-                      拒绝理由：{existing.review_note}
+                       {t("rejection_reason")}{existing.review_note}
                     </div>
                   )}
                   {existing.status === "approved" && (
                     <p className="text-sm text-green-600 dark:text-green-400">
-                      🎉 恭喜！你已成为该板块的版主。
+                       {t("approved_congratulations")}
                     </p>
                   )}
                   {existing.status === "rejected" && (
@@ -251,7 +254,7 @@ export default function BoardApplyClient({ slug }: { slug: string }) {
                       className="mt-2 inline-flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors"
                     >
                       <PencilSquareIcon className="w-4 h-4" />
-                      重新申请
+                       {t("reapply")}
                     </button>
                   )}
                 </div>
@@ -265,9 +268,9 @@ export default function BoardApplyClient({ slug }: { slug: string }) {
               {/* Board stats */}
               <div className="grid grid-cols-3 gap-3">
                 {[
-                  { label: "帖子总数", value: board.post_count },
-                  { label: "今日发帖", value: board.today_count },
-                  { label: "主题数", value: board.thread_count },
+                  { label: t("board_total_posts"), value: board.post_count },
+                  { label: t("board_today_posts"), value: board.today_count },
+                  { label: t("board_total_threads"), value: board.thread_count },
                 ].map(({ label, value }) => (
                   <div
                     key={label}
@@ -284,14 +287,14 @@ export default function BoardApplyClient({ slug }: { slug: string }) {
               {/* Responsibilities */}
               <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4">
                 <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  版主职责
+                   {t("moderator_duties")}
                 </p>
                 <ul className="text-sm text-gray-500 dark:text-gray-400 space-y-1">
                   {[
-                    "维护板块秩序，删除违规内容",
-                    "管理优质内容，设置精华和置顶",
-                    "及时回复用户问题，提供帮助",
-                    "处理举报，维护社区和谐",
+                    t("duty_maintain_order"),
+                    t("duty_manage_content"),
+                    t("duty_reply_users"),
+                    t("duty_handle_reports"),
                   ].map((r) => (
                     <li key={r} className="flex items-center gap-2">
                       <span className="w-1 h-1 rounded-full bg-blue-400 shrink-0" />
@@ -304,7 +307,7 @@ export default function BoardApplyClient({ slug }: { slug: string }) {
               {/* 期望权限（可选） */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  期望权限（可选）
+                   {t("desired_permissions")}
                 </label>
                 <div className="space-y-2">
                   <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
@@ -314,7 +317,7 @@ export default function BoardApplyClient({ slug }: { slug: string }) {
                       onChange={(e) => setReqDeletePost(e.target.checked)}
                       className="rounded"
                     />
-                    删除帖子权限
+                     {t("perm_delete_post")}
                   </label>
                   <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                     <input
@@ -323,7 +326,7 @@ export default function BoardApplyClient({ slug }: { slug: string }) {
                       onChange={(e) => setReqPinPost(e.target.checked)}
                       className="rounded"
                     />
-                    置顶帖子权限
+                     {t("perm_pin_post")}
                   </label>
                   <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                     <input
@@ -332,7 +335,7 @@ export default function BoardApplyClient({ slug }: { slug: string }) {
                       onChange={(e) => setReqEditAnyPost(e.target.checked)}
                       className="rounded"
                     />
-                    编辑任意帖子权限
+                     {t("perm_edit_any_post")}
                   </label>
                   <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                     <input
@@ -341,7 +344,7 @@ export default function BoardApplyClient({ slug }: { slug: string }) {
                       onChange={(e) => setReqManageModerator(e.target.checked)}
                       className="rounded"
                     />
-                    管理版主权限
+                     {t("perm_manage_moderator")}
                   </label>
                   <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                     <input
@@ -350,18 +353,18 @@ export default function BoardApplyClient({ slug }: { slug: string }) {
                       onChange={(e) => setReqBanUser(e.target.checked)}
                       className="rounded"
                     />
-                    禁言用户权限
+                     {t("perm_ban_user")}
                   </label>
                 </div>
                 <p className="text-xs text-gray-400 mt-2">
-                  注：最终权限由管理员审批决定
+                   {t("perm_final_note")}
                 </p>
               </div>
 
               {/* Reason textarea */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                  申请理由 <span className="text-red-500">*</span>
+                   {t("apply_reason")} <span className="text-red-500">*</span>
                 </label>
                 <textarea
                   value={reason}
@@ -369,15 +372,15 @@ export default function BoardApplyClient({ slug }: { slug: string }) {
                     setReason(e.target.value);
                     setError("");
                   }}
-                  placeholder="请详细说明你为什么想成为版主，你有哪些优势，以及你打算如何管理这个板块..."
+                  placeholder={t("apply_reason_placeholder")}
                   rows={5}
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition resize-none text-sm"
                 />
                 <div className="flex justify-between mt-1 text-xs">
                   {error ? (
-                    <span className="text-red-500">{error}</span>
+                    <span className="text-red-500">{t(error)}</span>
                   ) : (
-                    <span className="text-gray-400">至少 20 个字符</span>
+                     <span className="text-gray-400">{t("at_least_chars")}</span>
                   )}
                   <span
                     className={
@@ -386,7 +389,7 @@ export default function BoardApplyClient({ slug }: { slug: string }) {
                         : "text-green-500"
                     }
                   >
-                    {reason.trim().length} 字
+                     {reason.trim().length} {t("char_count")}
                   </span>
                 </div>
               </div>
@@ -402,14 +405,14 @@ export default function BoardApplyClient({ slug }: { slug: string }) {
                     }}
                     className="text-sm text-gray-400 hover:text-gray-600 transition-colors"
                   >
-                    取消重新申请
+                     {t("cancel_reapply")}
                   </button>
                 ) : (
                   <Link
                     href={`/boards/${slug}`}
                     className="text-sm text-gray-400 hover:text-blue-500 transition-colors"
                   >
-                    取消
+                     {t("cancel")}
                   </Link>
                 )}
                 <button
@@ -418,7 +421,7 @@ export default function BoardApplyClient({ slug }: { slug: string }) {
                   className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl text-sm font-medium transition-colors"
                 >
                   <ShieldCheckIcon className="w-4 h-4" />
-                  {submitting ? "提交中..." : "提交申请"}
+                   {submitting ? t("submitting") : t("submit_application")}
                 </button>
               </div>
             </form>
@@ -429,14 +432,14 @@ export default function BoardApplyClient({ slug }: { slug: string }) {
       {/* Tips */}
       <div className="mt-5 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-4">
         <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">
-          温馨提示
+           {t("warm_tips")}
         </p>
         <ul className="text-xs text-gray-400 space-y-1">
           {[
-            "申请后请耐心等待管理员审核，通常需要 1–3 个工作日",
-            "审核通过后你将获得版主权限，可在板块内进行管理操作",
-            "如申请被拒绝，可根据反馈修改后重新申请",
-            "成为版主后请认真履行职责，长期不活跃可能被撤销权限",
+            t("tip_wait_review"),
+            t("tip_permissions_after"),
+            t("tip_reapply_after_rejection"),
+            t("tip_active_duty"),
           ].map((tip) => (
             <li key={tip} className="flex items-start gap-1.5">
               <span className="mt-1.5 w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-600 shrink-0" />

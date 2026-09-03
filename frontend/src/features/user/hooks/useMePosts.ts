@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react"
+import { useTranslations } from "next-intl"
 import { useQuery } from "@tanstack/react-query"
 import { userPostApi } from "@/shared/api/modules/user/post"
 import {
@@ -29,6 +30,7 @@ const DEFAULT_PARAMS: GetUserPostsRequest = {
 export function useMePosts(
   initialParams?: Partial<GetUserPostsRequest>,
 ): UseMePostsReturn {
+  const t = useTranslations("User")
   // 当前完整查询参数（合并默认值）
   const [params, setParams] = useState<GetUserPostsRequest>({
     ...DEFAULT_PARAMS,
@@ -41,10 +43,10 @@ export function useMePosts(
     queryFn: async () => {
       const res = await userPostApi.listUserPosts(params)
       if (res.data.code !== 0) {
-        throw new Error(res.data.message || "获取帖子列表失败")
+        throw new Error(res.data.message || t("posts_load_failed"))
       }
       if (!res.data.data) {
-        throw new Error("返回数据为空")
+        throw new Error(t("empty_response"))
       }
       return res.data.data
     },

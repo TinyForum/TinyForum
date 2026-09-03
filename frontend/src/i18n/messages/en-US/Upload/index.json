@@ -1,0 +1,21 @@
+{
+  "video_too_large": "Video file cannot exceed {size}MB",
+  "click_to_upload_video": "Click to upload video",
+  "video_support_formats": "Supports MP4, WebM, etc. Max {size}MB",
+  "upload_failed": "Upload failed",
+  "invalid_upload_response": "Invalid upload response",
+  "invalid_url_returned": "Invalid URL returned",
+  "get_file_failed": "Failed to get file",
+  "max_images": "Maximum {max} images",
+  "upload_image": "Upload image",
+  "set_as_cover": "Set as cover",
+  "cover": "Cover",
+  "delete": "Delete",
+  "expand": "Expand",
+  "collapse": "Collapse",
+  "grid_layout": "Grid",
+  "waterfall_layout": "Waterfall",
+  "horizontal_scroll_layout": "Horizontal scroll",
+  "tile_layout": "Tile",
+  "preview_alt": "Preview"
+}

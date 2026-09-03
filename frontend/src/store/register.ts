@@ -84,31 +84,31 @@ export const useRegisterStore = create<RegisterState>()((set, get) => ({
     const errors: Record<string, string> = {};
 
     if (!username) {
-      errors.username = "请输入用户名";
+      errors.username = "enter_username";
     } else if (username.length < 2) {
-      errors.username = "用户名至少 2 个字符";
+      errors.username = "username_min_length";
     } else if (username.length > 50) {
-      errors.username = "用户名最多 50 个字符";
+      errors.username = "username_max_length";
     } else if (!/^[a-zA-Z0-9_\u4e00-\u9fa5]+$/.test(username)) {
-      errors.username = "用户名只能包含字母、数字、下划线和中文";
+      errors.username = "username_invalid_chars";
     }
 
     if (!email) {
-      errors.email = "请输入邮箱";
+      errors.email = "enter_email";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      errors.email = "请输入有效的邮箱地址";
+      errors.email = "invalid_email_address";
     }
 
     if (!password) {
-      errors.password = "请输入密码";
+      errors.password = "enter_password";
     } else if (password.length < 6) {
-      errors.password = "密码至少 6 个字符";
+      errors.password = "password_min_length";
     } else if (password.length > 32) {
-      errors.password = "密码最多 32 个字符";
+      errors.password = "password_max_length";
     }
 
     if (password !== confirmPassword) {
-      errors.confirmPassword = "两次输入的密码不一致";
+      errors.confirmPassword = "passwords_not_match";
     }
 
     const isValid = Object.keys(errors).length === 0;
@@ -120,7 +120,7 @@ export const useRegisterStore = create<RegisterState>()((set, get) => ({
     const { username, email, password, validateForm, resetForm } = get();
 
     if (!validateForm()) {
-      return { success: false, message: "请检查表单填写" };
+      return { success: false, message: "check_form_fields" };
     }
 
     set({ isLoading: true, serverError: null });
@@ -132,12 +132,12 @@ export const useRegisterStore = create<RegisterState>()((set, get) => ({
         const { user } = res.data.data;
         useAuthStore.getState().setAuth(user);
         resetForm();
-        return { success: true, message: "注册成功" };
+        return { success: true, message: "registration_successful" };
       }
 
-      return { success: false, message: "响应数据格式错误" };
+      return { success: false, message: "invalid_response_format" };
     } catch (err: unknown) {
-      let errorMessage = "注册失败，请重试";
+      let errorMessage = "registration_failed";
       const error = err as ApiError; // ← 使用 ApiError 类型
 
       if (error.response?.data?.errors) {
@@ -146,7 +146,7 @@ export const useRegisterStore = create<RegisterState>()((set, get) => ({
           fieldErrors[errItem.field] = errItem.message;
         });
         set({ errors: fieldErrors });
-        errorMessage = "请检查表单填写";
+        errorMessage = "check_form_fields";
       } else if (error.response?.data?.message) {
         errorMessage = error.response.data.message;
       } else if (error.message) {

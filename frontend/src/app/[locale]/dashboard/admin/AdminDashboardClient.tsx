@@ -181,7 +181,7 @@ export default function AdminDashboardClient() {
                 {t("qa_feature_coming_soon")}
               </p>
               <Link href="/questions" className="btn btn-outline mx-auto">
-                前往问答社区
+                {t("go_to_qa_community")}
               </Link>
             </div>
           </div>

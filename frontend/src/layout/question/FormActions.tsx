@@ -7,6 +7,7 @@ import {
   PaperAirplaneIcon,
   ExclamationTriangleIcon,
 } from "@heroicons/react/24/outline";
+import { useTranslations } from "next-intl";
 
 interface FormActionsProps {
   loading: boolean;
@@ -22,10 +23,14 @@ export function FormActions({
   onCancel,
   isDirty = true,
   isValid = true,
-  submitText = "发布问题",
-  cancelText = "取消",
+  submitText,
+  cancelText,
 }: FormActionsProps) {
   const router = useRouter();
+  const t = useTranslations("Questions");
+
+  const finalSubmitText = submitText || t("publish_question");
+  const finalCancelText = cancelText || t("cancel");
 
   const handleCancel = () => {
     if (onCancel) {
@@ -33,7 +38,7 @@ export function FormActions({
     } else {
       // 如果有未保存的内容，提示确认
       if (isDirty) {
-        const confirmed = confirm("有未保存的内容，确定要离开吗？");
+        const confirmed = confirm(t("unsaved_confirm"));
         if (!confirmed) return;
       }
       router.back();
@@ -48,7 +53,7 @@ export function FormActions({
       {isDirty && !isValid && (
         <div className="flex-1 flex items-center gap-2 text-sm text-warning">
           <ExclamationTriangleIcon className="w-4 h-4" />
-          <span>请填写所有必填项后再发布</span>
+          <span>{t("fill_required")}</span>
         </div>
       )}
 
@@ -68,7 +73,7 @@ export function FormActions({
           disabled={loading}
         >
           <ArrowLeftIcon className="w-4 h-4" />
-          {cancelText}
+          {finalCancelText}
         </button>
 
         {/* 提交按钮 */}
@@ -82,12 +87,12 @@ export function FormActions({
           {loading ? (
             <>
               <span className="loading loading-spinner loading-sm"></span>
-              发布中...
+              {t("publishing")}
             </>
           ) : (
             <>
               <PaperAirplaneIcon className="w-4 h-4" />
-              {submitText}
+              {finalSubmitText}
             </>
           )}
         </button>

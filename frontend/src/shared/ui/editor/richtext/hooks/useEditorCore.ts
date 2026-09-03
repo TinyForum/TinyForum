@@ -47,7 +47,7 @@ export const useEditorCore = ({
   }
 
   const placeholderExtension = Placeholder.configure({
-    placeholder: placeholder || "写点什么...",
+    placeholder: placeholder || "write something...",
   });
   const placeholderIndex = extensions.findIndex(
     (ext) => ext.name === "placeholder",

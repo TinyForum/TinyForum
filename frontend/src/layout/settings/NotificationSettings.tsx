@@ -1,9 +1,14 @@
+"use client";
+
+import { useTranslations } from "next-intl";
+
 export default function NotificationSettings() {
+  const t = useTranslations("Settings");
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6">通知设置</h1>
+      <h1 className="text-2xl font-bold mb-6">{t("notification_settings")}</h1>
       <div className="card bg-base-100 border border-base-200 shadow-sm p-6">
-        <p>通知设置功能开发中...</p>
+        <p>{t("notification_settings_development")}</p>
       </div>
     </div>
   );

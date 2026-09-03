@@ -23,5 +23,11 @@
   "track": "追踪",
   "questions": "问答",
   "topics": "话题",
-  "timeline": "时间线"
+  "timeline": "时间线",
+
+  "mobile_menu": "菜单",
+  "language_chinese_simplified": "简体中文",
+  "language_english": "English",
+  "language_chinese_short": "中文",
+  "language_english_short": "EN"
 }

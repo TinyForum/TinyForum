@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { BotVO } from "@/shared/api/types/bot.model";
 
 export function BotExecutionLog({ bot }: { bot: BotVO }) {
+  const t = useTranslations("Bot");
   const [open, setOpen] = useState(false);
   const logs = bot.lastExecLogs ?? [];
   const hasData = logs.length > 0 || !!bot.errorMsg || bot.lastExecDurationMs > 0;
@@ -25,16 +27,16 @@ export function BotExecutionLog({ bot }: { bot: BotVO }) {
         className="text-xs text-blue-600 hover:underline"
         onClick={() => setOpen(!open)}
       >
-        {open ? "▲ 收起日志" : "▼ 展开执行日志"}
+        {open ? t("collapse_log") : t("expand_log")}
         {bot.errorMsg && (
-          <span className="text-red-500 ml-1">(错误)</span>
+          <span className="text-red-500 ml-1">{t("error_badge")}</span>
         )}
       </button>
       {open && (
         <div className="mt-2 text-xs space-y-1">
           {bot.lastExecDurationMs > 0 && (
             <div className="text-gray-500">
-              耗时: {bot.lastExecDurationMs} ms · 执行次数: {bot.execCount}
+              {t("duration_label")} {bot.lastExecDurationMs} ms · {t("execution_count_label")} {bot.execCount}
             </div>
           )}
           {bot.errorMsg && (

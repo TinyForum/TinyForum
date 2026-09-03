@@ -52,7 +52,7 @@ export default function MobileNavbar({
       <button
         onClick={onMobileMenuToggle}
         className="btn btn-ghost btn-sm btn-square flex-shrink-0"
-        aria-label="菜单"
+        aria-label={t("mobile_menu")}
         aria-expanded={isMobileMenuOpen}
       >
         <Menu className="w-5 h-5" />

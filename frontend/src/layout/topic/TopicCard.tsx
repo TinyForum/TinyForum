@@ -15,6 +15,7 @@ import Image from "next/image";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Topic } from "@/shared/api/types/topic.model";
 import { useFollowTopic } from "@/features/topic/hooks/useFollowTopic";
 
@@ -45,12 +46,14 @@ export function TopicCard({
   const [following, setFollowing] = useState<boolean>(false);
   const [followLoading, setFollowLoading] = useState<boolean>(false);
 
+  const t = useTranslations("Topic");
+
   const handleFollow = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
 
     if (!isAuthenticated) {
-      toast.error("请先登录");
+      toast.error(t("please_login"));
       router.push("/login");
       return;
     }
@@ -60,16 +63,16 @@ export function TopicCard({
       if (following) {
         await unfollowMutation.mutateAsync(topic.id);
         setFollowing(false);
-        toast.success("已取消收藏");
+        toast.success(t("unfollow_success"));
       } else {
         await followMutation.mutateAsync(topic.id);
         setFollowing(true);
-        toast.success("已收藏话题");
+        toast.success(t("follow_success"));
       }
       onFollowChange?.();
     } catch (err: unknown) {
       const error = err as ErrorResponse;
-      toast.error(error.response?.data?.message || "操作失败");
+      toast.error(error.response?.data?.message || t("operation_failed"));
     } finally {
       setFollowLoading(false);
     }
@@ -109,22 +112,22 @@ export function TopicCard({
           <div className="flex flex-wrap items-center gap-3 text-sm text-base-content/50 mt-2">
             <div className="flex items-center gap-1.5">
               <DocumentTextIcon className="w-4 h-4" />
-              <span>{topic.post_count || 0} 个帖子</span>
+              <span>{t("post_count", { count: topic.post_count || 0 })}</span>
             </div>
             <div className="flex items-center gap-1.5">
               <UserGroupIcon className="w-4 h-4" />
-              <span>{topic.follower_count || 0} 人收藏</span>
+              <span>{t("follower_count", { count: topic.follower_count || 0 })}</span>
             </div>
             <div className="flex items-center gap-1.5">
               {topic.is_public ? (
                 <>
                   <GlobeAltIcon className="w-4 h-4" />
-                  <span className="badge badge-ghost badge-xs">公开</span>
+                  <span className="badge badge-ghost badge-xs">{t("public")}</span>
                 </>
               ) : (
                 <>
                   <LockClosedIcon className="w-4 h-4" />
-                  <span className="badge badge-ghost badge-xs">私密</span>
+                  <span className="badge badge-ghost badge-xs">{t("private")}</span>
                 </>
               )}
             </div>
@@ -141,7 +144,7 @@ export function TopicCard({
                 </div>
               </div>
               <span className="text-xs text-base-content/40">
-                由 {topic.creator.username || `用户${topic.creator_id}`} 创建
+                {t("created_by", { username: topic.creator.username || t("user_id_format", { id: topic.creator_id }) })}
               </span>
             </div>
           )}
@@ -162,7 +165,7 @@ export function TopicCard({
               ) : (
                 <HeartIcon className="w-4 h-4" />
               )}
-              {following ? "已收藏" : "收藏"}
+              {following ? t("followed") : t("follow")}
             </button>
           </div>
         </div>

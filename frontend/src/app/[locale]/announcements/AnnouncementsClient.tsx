@@ -9,6 +9,7 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { AnnouncementCard } from "@/features/announcements/components/AnnouncementCard";
 import { usePublishedAnnouncements } from "@/features/announcements/hooks/usePublishedAnnouncements";
 
@@ -22,6 +23,8 @@ function Pagination({
   totalPages: number;
   onPageChange: (page: number) => void;
 }) {
+  const t = useTranslations("Announcement");
+
   const getPageNumbers = () => {
     const pages: number[] = [];
     const maxVisible = 5;
@@ -49,7 +52,7 @@ function Pagination({
         className="btn btn-ghost btn-sm gap-1"
       >
         <ChevronLeftIcon className="w-4 h-4" />
-        上一页
+        {t("previous_page")}
       </button>
 
       <div className="flex gap-1.5 mx-2">
@@ -71,7 +74,7 @@ function Pagination({
         disabled={currentPage >= totalPages}
         className="btn btn-ghost btn-sm gap-1"
       >
-        下一页
+        {t("next_page")}
         <ChevronRightIcon className="w-4 h-4" />
       </button>
     </div>
@@ -99,16 +102,19 @@ function LoadingSkeleton() {
 
 // 空状态组件
 function EmptyState() {
+  const t = useTranslations("Announcement");
+
   return (
     <div className="bg-base-100 rounded-xl p-16 text-center">
       <div className="text-7xl mb-5 opacity-50">📢</div>
-      <h3 className="text-xl font-semibold text-base-content mb-2">暂无公告</h3>
-      <p className="text-base-content/60">暂时没有公告，稍后再来看看吧</p>
+      <h3 className="text-xl font-semibold text-base-content mb-2">{t("no_announcements")}</h3>
+      <p className="text-base-content/60">{t("no_announcements_desc")}</p>
     </div>
   );
 }
 
 export default function AnnouncementsClient() {
+  const t = useTranslations("Announcement");
   const [page, setPage] = useState(1);
   const pageSize = 12;
 
@@ -137,11 +143,11 @@ export default function AnnouncementsClient() {
                   <MegaphoneIcon className="w-8 h-8 text-primary" />
                 </div>
                 <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                  公告中心
+                  {t("title")}
                 </h1>
               </div>
               <p className="text-base-content/70 text-lg">
-                了解最新的平台动态和重要通知
+                {t("description")}
               </p>
             </div>
 
@@ -150,7 +156,7 @@ export default function AnnouncementsClient() {
               <div className="mt-6 md:mt-0 flex gap-4">
                 <div className="text-center px-6 py-3 bg-base-100/50 backdrop-blur-sm rounded-2xl">
                   <div className="text-2xl font-bold text-primary">{total}</div>
-                  <div className="text-xs text-base-content/50">总公告数</div>
+                  <div className="text-xs text-base-content/50">{t("total_announcements")}</div>
                 </div>
               </div>
             )}
@@ -178,7 +184,7 @@ export default function AnnouncementsClient() {
                     <div className="w-1 h-6 bg-primary rounded-full" />
                     <PinIcon className="w-4 h-4 text-warning" />
                     <h2 className="text-sm font-semibold text-base-content/70 uppercase tracking-wide">
-                      置顶公告
+                      {t("pinned_announcements")}
                     </h2>
                     <div className="flex-1 h-px bg-gradient-to-r from-base-200 to-transparent" />
                   </div>
@@ -201,7 +207,7 @@ export default function AnnouncementsClient() {
                       <div className="w-1 h-6 bg-secondary rounded-full" />
                       <FileTextIcon className="w-4 h-4 text-secondary" />
                       <h2 className="text-sm font-semibold text-base-content/70 uppercase tracking-wide">
-                        最新公告
+                        {t("latest_announcements")}
                       </h2>
                       <div className="flex-1 h-px bg-gradient-to-r from-base-200 to-transparent" />
                     </div>
@@ -229,7 +235,7 @@ export default function AnnouncementsClient() {
 
             {/* 显示总数 */}
             <div className="text-center text-xs text-base-content/40 mt-6">
-              共 {total} 条公告
+              {t("total_count", { total })}
             </div>
           </>
         )}

@@ -3,6 +3,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { keepPreviousData } from "@tanstack/react-query";
 import { useAuthStore } from "@/store/auth";
 import {
@@ -33,6 +34,7 @@ interface ErrorResponse {
 
 export default function BoardDetailClient({ slug }: { slug: string }) {
   const { user } = useAuthStore();
+  const t = useTranslations("Board");
 
   const [page, setPage] = useState(1);
 
@@ -80,18 +82,18 @@ export default function BoardDetailClient({ slug }: { slug: string }) {
   }
 
   if (!board) {
-    return <div className="text-center py-10">板块加载失败</div>;
+    return <div className="text-center py-10">{t("board_load_failed")}</div>;
   }
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <nav className="mb-6 flex items-center gap-1.5 text-sm text-gray-400">
         <Link href="/" className="hover:text-blue-500 transition-colors">
-          首页
+           {t("home")}
         </Link>
         <span>/</span>
         <Link href="/boards" className="hover:text-blue-500 transition-colors">
-          板块
+           {t("boards")}
         </Link>
         <span>/</span>
         <span className="text-gray-700 dark:text-gray-200 font-medium">
@@ -137,6 +139,7 @@ interface BoardHeaderProps {
 }
 
 function BoardHeader({ board, slug, user }: BoardHeaderProps) {
+  const t = useTranslations("Board");
   return (
     <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm p-6 mb-6">
       <div className="flex items-start justify-between gap-4">
@@ -151,19 +154,19 @@ function BoardHeader({ board, slug, user }: BoardHeaderProps) {
           )}
           <div className="flex items-center gap-4 mt-3 text-xs text-gray-400">
             <span>
-              帖子{" "}
+              {t("posts_label")}{" "}
               <strong className="text-gray-600 dark:text-gray-300">
                 {board.post_count}
               </strong>
             </span>
             <span>
-              主题{" "}
+              {t("threads_label")}{" "}
               <strong className="text-gray-600 dark:text-gray-300">
                 {board.thread_count}
               </strong>
             </span>
             <span>
-              今日{" "}
+              {t("today_label")}{" "}
               <strong className="text-gray-600 dark:text-gray-300">
                 {board.today_count}
               </strong>
@@ -177,7 +180,7 @@ function BoardHeader({ board, slug, user }: BoardHeaderProps) {
             className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-xl font-medium transition-colors"
           >
             <PlusIcon className="w-4 h-4" />
-            发帖
+             {t("post_action")}
           </Link>
           {user && (
             <Link
@@ -185,7 +188,7 @@ function BoardHeader({ board, slug, user }: BoardHeaderProps) {
               className="flex items-center gap-1.5 px-4 py-2 border border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm text-gray-600 dark:text-gray-300 rounded-xl transition-colors"
             >
               <ShieldCheckIcon className="w-4 h-4" />
-              申请版主
+               {t("apply_moderator")}
             </Link>
           )}
         </div>
@@ -196,18 +199,19 @@ function BoardHeader({ board, slug, user }: BoardHeaderProps) {
 
 // 空状态组件
 function EmptyState({ boardId }: { boardId: number }) {
+  const t = useTranslations("Board");
   return (
     <div className="text-center py-16 bg-white dark:bg-gray-800 rounded-2xl border border-dashed border-gray-200 dark:border-gray-700">
       <ChatBubbleLeftRightIcon className="w-10 h-10 text-gray-300 mx-auto mb-3" />
       <p className="text-gray-500 dark:text-gray-400 mb-4">
-        还没有帖子，来发第一帖吧
+        {t("no_posts_yet_desc")}
       </p>
       <Link
         href={`/posts/new?board_id=${boardId}`}
         className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-xl transition-colors"
       >
         <PlusIcon className="w-4 h-4" />
-        发布新帖
+        {t("publish_new_post")}
       </Link>
     </div>
   );
@@ -223,25 +227,25 @@ function Pagination({
   totalPages: number;
   onPageChange: (page: number) => void;
 }) {
+  const t = useTranslations("Board");
   return (
     <div className="flex items-center justify-center gap-2 mt-8">
       <button
         onClick={() => onPageChange(page - 1)}
         disabled={page === 1}
         className="p-2 rounded-lg border border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-        aria-label="上一页"
+        aria-label={t("previous_page")}
       >
         <ChevronLeftIcon className="w-4 h-4" />
       </button>
       <span className="text-sm text-gray-500 px-2">
-        第 <strong className="text-gray-900 dark:text-white">{page}</strong> /{" "}
-        {totalPages} 页
+        {t("page_of", { page, totalPages })}
       </span>
       <button
         onClick={() => onPageChange(page + 1)}
         disabled={page >= totalPages}
         className="p-2 rounded-lg border border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-        aria-label="下一页"
+        aria-label={t("next_page")}
       >
         <ChevronRightIcon className="w-4 h-4" />
       </button>

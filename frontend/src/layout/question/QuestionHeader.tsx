@@ -16,6 +16,7 @@ import {
 import { formatDistanceToNow } from "date-fns";
 import { zhCN } from "date-fns/locale";
 import { toast } from "react-hot-toast";
+import { useTranslations } from "next-intl";
 import { Tag } from "@/shared/api/types/tag.model";
 import { QuestionResponse } from "@/shared/api/types/question.model";
 import Avatar from "@/shared/ui/common/Avatar";
@@ -43,6 +44,7 @@ export function QuestionHeader({
   onShare,
   onReport,
 }: QuestionHeaderProps) {
+  const t = useTranslations("Questions");
   const timeAgo = formatDistanceToNow(new Date(question.created_at), {
     addSuffix: true,
     locale: zhCN,
@@ -58,10 +60,10 @@ export function QuestionHeader({
     const url = window.location.href;
     try {
       await navigator.clipboard.writeText(url);
-      toast.success("链接已复制到剪贴板");
+      toast.success(t("link_copied"));
     } catch {
       // 捕获错误但不使用 err 变量
-      toast.error("复制失败，请手动复制");
+      toast.error(t("copy_failed"));
     }
   };
 
@@ -73,25 +75,25 @@ export function QuestionHeader({
 
     // 默认举报行为
     toast(
-      (t) => (
+      (toastItem) => (
         <div className="flex flex-col gap-2">
-          <p className="text-sm font-medium">确定要举报这个问题吗？</p>
+          <p className="text-sm font-medium">{t("confirm_report")}</p>
           <div className="flex gap-2 justify-end">
             <button
               className="btn btn-xs btn-ghost"
-              onClick={() => toast.dismiss(t.id)}
+              onClick={() => toast.dismiss(toastItem.id)}
             >
-              取消
+              {t("cancel")}
             </button>
             <button
               className="btn btn-xs btn-error"
               onClick={() => {
                 // 这里调用举报 API
-                toast.success("已提交举报，我们会尽快处理");
-                toast.dismiss(t.id);
+                toast.success(t("report_submitted"));
+                toast.dismiss(toastItem.id);
               }}
             >
-              确认举报
+              {t("confirm_report_btn")}
             </button>
           </div>
         </div>
@@ -108,7 +110,7 @@ export function QuestionHeader({
             <div className="flex items-center gap-2">
               <CurrencyDollarIcon className="w-4 h-4 text-primary-content" />
               <span className="text-sm font-medium text-primary-content">
-                悬赏 {rewardScore} 积分
+                {t("reward_header", { score: rewardScore })}
               </span>
             </div>
             <SparklesIcon className="w-3.5 h-3.5 text-primary-content/80 animate-pulse" />
@@ -151,7 +153,7 @@ export function QuestionHeader({
                     </span>
                     {/* </div> */}
                   </div>
-                  {question.author?.username || `用户${question.author.id}`}
+                  {question.author?.username || t("user_name_fallback", { id: question.author.id })}
                 </div>
               </Link>
             </div>
@@ -165,13 +167,13 @@ export function QuestionHeader({
             {/* 浏览 */}
             <div className="flex items-center gap-1">
               <EyeIcon className="w-3.5 h-3.5" />
-              <span>{question.view_count || 0} 浏览</span>
+              <span>{question.view_count || 0} {t("view_count_label")}</span>
             </div>
 
             {/* 回答数 */}
             <div className="flex items-center gap-1">
               <ChatBubbleLeftRightIcon className="w-3.5 h-3.5" />
-              <span>{answersCount} 回答</span>
+              <span>{answersCount} {t("answer_count_label")}</span>
             </div>
 
             {/* 点赞按钮 - 使用红色主题 */}
@@ -196,17 +198,17 @@ export function QuestionHeader({
               {hasAccepted && (
                 <div className="badge badge-success gap-1 badge-sm">
                   <CheckBadgeIcon className="w-3 h-3" />
-                  已解决
+                  {t("resolved_badge")}
                 </div>
               )}
               {!hasAccepted && rewardScore && rewardScore > 0 && (
                 <div className="badge badge-warning gap-1 badge-sm">
                   <CurrencyDollarIcon className="w-3 h-3" />
-                  待采纳
+                  {t("pending_acceptance")}
                 </div>
               )}
               {!hasAccepted && (!rewardScore || rewardScore === 0) && (
-                <div className="badge badge-ghost gap-1 badge-sm">待解决</div>
+                <div className="badge badge-ghost gap-1 badge-sm">{t("pending_solution")}</div>
               )}
             </div>
           </div>
@@ -248,14 +250,14 @@ export function QuestionHeader({
             className="btn btn-ghost btn-sm gap-1.5 hover:bg-primary/5 transition-all duration-200"
           >
             <ShareIcon className="w-4 h-4" />
-            分享
+            {t("share")}
           </button>
           <button
             onClick={handleReport}
             className="btn btn-ghost btn-sm gap-1.5 hover:bg-error/10 hover:text-error transition-all duration-200"
           >
             <FlagIcon className="w-4 h-4" />
-            举报
+            {t("report")}
           </button>
         </div>
       </div>

@@ -1,6 +1,7 @@
 import { CheckCircle, XCircle, ClipboardList } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { useTranslations } from "next-intl";
 import {
   useAdminApplications,
   useReviewApplication,
@@ -50,6 +51,7 @@ const DEFAULT_PERMISSIONS: ModeratorPermissions = {
 };
 
 export function ApplicationManagement() {
+  const t = useTranslations("Admin");
   const [selectedBoardId, setSelectedBoardId] = useState<number | undefined>();
   const [status, setStatus] = useState<"pending" | "approved" | "rejected">(
     "pending",
@@ -87,14 +89,14 @@ export function ApplicationManagement() {
       },
       {
         onSuccess: () => {
-          toast.success(approve ? "申请已通过" : "申请已拒绝");
+          toast.success(approve ? t("application_approved") : t("application_rejected"));
           setSelectedApp(null);
           setReviewNote("");
           setPermissions(DEFAULT_PERMISSIONS);
           refetch();
         },
         onError: () => {
-          toast.error("操作失败");
+          toast.error(t("operation_failed"));
         },
       },
     );
@@ -109,11 +111,11 @@ export function ApplicationManagement() {
   const getStatusBadge = (status: Application["status"]) => {
     switch (status) {
       case "pending":
-        return <span className="badge badge-warning badge-sm">待审批</span>;
+        return <span className="badge badge-warning badge-sm">{t("pending_review")}</span>;
       case "approved":
-        return <span className="badge badge-success badge-sm">已通过</span>;
+        return <span className="badge badge-success badge-sm">{t("approved")}</span>;
       case "rejected":
-        return <span className="badge badge-error badge-sm">已拒绝</span>;
+        return <span className="badge badge-error badge-sm">{t("reject_success")}</span>;
     }
   };
 
@@ -130,11 +132,11 @@ export function ApplicationManagement() {
       <div className="flex gap-4 flex-wrap">
         <div className="form-control">
           <label className="label">
-            <span className="label-text">板块 ID</span>
+            <span className="label-text">{t("board_id")}</span>
           </label>
           <input
             type="number"
-            placeholder="板块 ID (可选)"
+            placeholder={t("board_id_optional")}
             value={selectedBoardId ?? ""}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
               setSelectedBoardId(
@@ -146,7 +148,7 @@ export function ApplicationManagement() {
         </div>
         <div className="form-control">
           <label className="label">
-            <span className="label-text">状态</span>
+            <span className="label-text">{t("status")}</span>
           </label>
           <select
             className="select select-bordered w-32"
@@ -155,9 +157,9 @@ export function ApplicationManagement() {
               setStatus(e.target.value as "pending" | "approved" | "rejected")
             }
           >
-            <option value="pending">待审批</option>
-            <option value="approved">已通过</option>
-            <option value="rejected">已拒绝</option>
+            <option value="pending">{t("pending_review")}</option>
+            <option value="approved">{t("approved")}</option>
+            <option value="rejected">{t("reject_success")}</option>
           </select>
         </div>
         <div className="form-control">
@@ -165,7 +167,7 @@ export function ApplicationManagement() {
             <span className="label-text">&nbsp;</span>
           </label>
           <button className="btn btn-outline" onClick={() => refetch()}>
-            刷新
+            {t("refresh")}
           </button>
         </div>
       </div>
@@ -199,11 +201,11 @@ export function ApplicationManagement() {
                   <p className="text-sm text-base-content/70">{app.reason}</p>
                   {app.review_note && (
                     <p className="text-xs text-base-content/50">
-                      审批备注: {app.review_note}
+                      {t("review_note")}: {app.review_note}
                     </p>
                   )}
                   <p className="text-xs text-base-content/40">
-                    申请时间: {new Date(app.created_at).toLocaleString()}
+                    {t("application_time")}: {new Date(app.created_at).toLocaleString()}
                   </p>
                   {app.status === "pending" && (
                     <div className="flex gap-2 mt-2">
@@ -212,7 +214,7 @@ export function ApplicationManagement() {
                         onClick={() => openReviewDialog(app)}
                       >
                         <CheckCircle className="w-3 h-3 mr-1" />
-                        审批
+                        {t("approve_application")}
                       </button>
                     </div>
                   )}
@@ -226,7 +228,7 @@ export function ApplicationManagement() {
         {applicationList.length === 0 && (
           <div className="text-center py-12 text-base-content/50">
             <ClipboardList className="w-12 h-12 mx-auto mb-3 opacity-30" />
-            <p>暂无申请记录</p>
+            <p>{t("no_applications")}</p>
           </div>
         )}
       </div>
@@ -245,38 +247,38 @@ export function ApplicationManagement() {
             className="modal-box max-w-md"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="font-bold text-lg">审批版主申请</h3>
+            <h3 className="font-bold text-lg">{t("review_application")}</h3>
             <div className="space-y-4 mt-4">
               <div className="space-y-2 p-3 bg-base-200/50 rounded-lg">
                 <p className="text-sm">
-                  <strong className="text-base-content/70">申请人:</strong>{" "}
+                  <strong className="text-base-content/70">{t("applicant")}:</strong>{" "}
                   {selectedApp.user?.username || `用户${selectedApp.user_id}`}
                 </p>
                 <p className="text-sm">
-                  <strong className="text-base-content/70">申请版块:</strong>{" "}
+                  <strong className="text-base-content/70">{t("application_board")}:</strong>{" "}
                   {selectedApp.board_id}
                 </p>
                 <p className="text-sm">
-                  <strong className="text-base-content/70">申请理由:</strong>{" "}
+                  <strong className="text-base-content/70">{t("application_reason")}:</strong>{" "}
                   {selectedApp.reason}
                 </p>
                 <p className="text-sm">
-                  <strong className="text-base-content/70">申请时间:</strong>{" "}
+                  <strong className="text-base-content/70">{t("application_time")}:</strong>{" "}
                   {new Date(selectedApp.created_at).toLocaleString()}
                 </p>
               </div>
 
-              <div className="divider my-2">审批操作</div>
+              <div className="divider my-2">{t("review_operation")}</div>
 
               <div className="form-control">
                 <label className="label">
-                  <span className="label-text font-medium">审批备注</span>
+                  <span className="label-text font-medium">{t("review_note")}</span>
                   <span className="label-text-alt text-base-content/50">
-                    可选
+                    {t("optional")}
                   </span>
                 </label>
                 <textarea
-                  placeholder="填写审批备注..."
+                  placeholder={t("review_note_placeholder")}
                   value={reviewNote}
                   onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
                     setReviewNote(e.target.value)
@@ -286,11 +288,10 @@ export function ApplicationManagement() {
                 />
               </div>
 
-              {/* 通过时显示权限设置 */}
               <div className="space-y-2">
-                <p className="font-medium text-sm">版主权限设置</p>
+                <p className="font-medium text-sm">{t("moderator_permissions")}</p>
                 <p className="text-xs text-base-content/50 mb-2">
-                  (仅通过审批时生效)
+                  {t("permissions_only_on_approval")}
                 </p>
                 <div className="space-y-2">
                   <label className="flex items-center gap-2 cursor-pointer">
@@ -305,7 +306,7 @@ export function ApplicationManagement() {
                       }
                       className="checkbox checkbox-sm checkbox-primary"
                     />
-                    <span className="text-sm">可以删除帖子</span>
+                    <span className="text-sm">{t("can_delete_post")}</span>
                   </label>
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
@@ -319,7 +320,7 @@ export function ApplicationManagement() {
                       }
                       className="checkbox checkbox-sm checkbox-primary"
                     />
-                    <span className="text-sm">可以置顶帖子</span>
+                    <span className="text-sm">{t("can_pin_post")}</span>
                   </label>
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
@@ -333,7 +334,7 @@ export function ApplicationManagement() {
                       }
                       className="checkbox checkbox-sm checkbox-primary"
                     />
-                    <span className="text-sm">可以编辑任何帖子</span>
+                    <span className="text-sm">{t("can_edit_any_post")}</span>
                   </label>
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
@@ -347,9 +348,9 @@ export function ApplicationManagement() {
                       }
                       className="checkbox checkbox-sm checkbox-primary"
                     />
-                    <span className="text-sm">可以管理其他版主</span>
+                    <span className="text-sm">{t("can_manage_moderator")}</span>
                     <span className="text-xs text-warning ml-1">
-                      (高级权限)
+                      ({t("advanced_permission")})
                     </span>
                   </label>
                   <label className="flex items-center gap-2 cursor-pointer">
@@ -364,14 +365,14 @@ export function ApplicationManagement() {
                       }
                       className="checkbox checkbox-sm checkbox-primary"
                     />
-                    <span className="text-sm">可以禁言用户</span>
+                    <span className="text-sm">{t("can_ban_user")}</span>
                   </label>
                 </div>
               </div>
             </div>
             <div className="modal-action">
               <button className="btn" onClick={() => setSelectedApp(null)}>
-                取消
+                {t("cancel")}
               </button>
               <button
                 className="btn btn-error"
@@ -383,7 +384,7 @@ export function ApplicationManagement() {
                 ) : (
                   <XCircle className="w-4 h-4 mr-1" />
                 )}
-                拒绝
+                {t("reject")}
               </button>
               <button
                 className="btn btn-success"
@@ -395,7 +396,7 @@ export function ApplicationManagement() {
                 ) : (
                   <CheckCircle className="w-4 h-4 mr-1" />
                 )}
-                通过
+                {t("approve")}
               </button>
             </div>
           </div>

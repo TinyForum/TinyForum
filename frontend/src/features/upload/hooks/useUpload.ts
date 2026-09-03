@@ -1,6 +1,7 @@
 import { uploadApi, type UploadResponse } from "@/shared/api/modules/uploads";
 import type { ApiResponse } from "@/shared/api/types/basic.model";
 import { useState, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import {
   useQuery,
   useMutation,
@@ -48,6 +49,7 @@ interface FileInfo {
 
 // 上传 Hook（适配多种响应格式）
 export function useUpload() {
+  const t = useTranslations("Upload");
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
 
@@ -69,9 +71,9 @@ export function useUpload() {
         if (fileUrl && typeof fileUrl === "string") {
           return fileUrl;
         }
-        throw new Error("上传响应无效");
+        throw new Error(t("invalid_upload_response"));
       } catch (err: unknown) {
-        let errorMsg = "上传失败";
+        let errorMsg = t("upload_failed");
         if (err && typeof err === "object" && "response" in err) {
           const response = (err as { response: unknown }).response;
           if (response && typeof response === "object" && "data" in response) {
@@ -87,7 +89,7 @@ export function useUpload() {
         setIsUploading(false);
       }
     },
-    [],
+    [t],
   );
 
   // 上传帖子文件
@@ -123,12 +125,12 @@ export function useUpload() {
           if (url && typeof url === "string") {
             return url;
           }
-          throw new Error("返回的URL无效");
+          throw new Error(t("invalid_url_returned"));
         } else {
-          throw new Error(response.data.message || "上传失败");
+          throw new Error(response.data.message || t("upload_failed"));
         }
       } catch (err: unknown) {
-        let errorMsg = "上传失败";
+        let errorMsg = t("upload_failed");
         if (err && typeof err === "object" && "response" in err) {
           const response = (err as { response: unknown }).response;
           if (response && typeof response === "object" && "data" in response) {
@@ -144,7 +146,7 @@ export function useUpload() {
         setIsUploading(false);
       }
     },
-    [],
+    [t],
   );
 
   return {
@@ -285,6 +287,7 @@ export function useUserFiles() {
 
 // 文件预览/下载 Hook（非认证）
 export function useFileServe() {
+  const t = useTranslations("Upload");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -312,12 +315,12 @@ export function useFileServe() {
           setTimeout(() => URL.revokeObjectURL(url), 1000);
         }
       } catch (err: unknown) {
-        setError((err as Error).message || "获取文件失败");
+        setError((err as Error).message || t("get_file_failed"));
       } finally {
         setIsLoading(false);
       }
     },
-    [],
+    [t],
   );
 
   return { serveFile, isLoading, error };

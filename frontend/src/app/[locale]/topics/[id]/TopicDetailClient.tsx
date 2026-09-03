@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuthStore } from "@/store/auth";
 import { toast } from "react-hot-toast";
+import { useTranslations } from "next-intl";
 import { useTopicDetail } from "@/features/topic/hooks/useTopicDetail";
 import {
   ArrowLeftIcon,
@@ -73,6 +74,8 @@ export default function TopicDetailClient({ id }: { id: string }) {
   const [followLoading, setFollowLoading] = useState(false);
   const pageSize = 20;
 
+  const t = useTranslations("Topic");
+
   const topicId = Number(id);
 
   const {
@@ -95,14 +98,14 @@ export default function TopicDetailClient({ id }: { id: string }) {
           setTopic(data);
         } else {
           setTopic(null);
-          toast.error("话题不存在");
+          toast.error(t("topic_not_found"));
         }
       } else {
-        toast.error(response.data.message || "加载失败");
+        toast.error(response.data.message || t("load_failed"));
       }
     } catch (err: unknown) {
       const error = err as ErrorResponse;
-      toast.error(error.response?.data?.message || "加载失败");
+      toast.error(error.response?.data?.message || t("load_failed"));
     }
   }, [topicId, fetchTopic]);
 
@@ -125,7 +128,7 @@ export default function TopicDetailClient({ id }: { id: string }) {
       }
     } catch (err: unknown) {
       const error = err as ErrorResponse;
-      toast.error(error.response?.data?.message || "加载失败");
+      toast.error(error.response?.data?.message || t("load_failed"));
     }
   }, [topicId, page, fetchTopicPosts]);
 
@@ -145,7 +148,7 @@ export default function TopicDetailClient({ id }: { id: string }) {
       }
     } catch (err: unknown) {
       const error = err as ErrorResponse;
-      toast.error(error.response?.data?.message || "加载失败");
+      toast.error(error.response?.data?.message || t("load_failed"));
     }
   }, [topicId, page, fetchTopicFollowers]);
 
@@ -173,7 +176,7 @@ export default function TopicDetailClient({ id }: { id: string }) {
   // 关注/取消关注
   const handleFollow = async () => {
     if (!isAuthenticated) {
-      toast.error("请先登录");
+      toast.error(t("please_login"));
       router.push("/login");
       return;
     }
@@ -183,7 +186,7 @@ export default function TopicDetailClient({ id }: { id: string }) {
       if (following) {
         await unfollowTopic(topicId);
         setFollowing(false);
-        toast.success("已取消收藏");
+        toast.success(t("unfollow_success"));
         if (topic) {
           setTopic({
             ...topic,
@@ -193,7 +196,7 @@ export default function TopicDetailClient({ id }: { id: string }) {
       } else {
         await followTopic(topicId);
         setFollowing(true);
-        toast.success("已收藏话题");
+        toast.success(t("follow_success"));
         if (topic) {
           setTopic({
             ...topic,
@@ -206,7 +209,7 @@ export default function TopicDetailClient({ id }: { id: string }) {
       }
     } catch (err: unknown) {
       const error = err as ErrorResponse;
-      toast.error(error.response?.data?.message || "操作失败");
+      toast.error(error.response?.data?.message || t("operation_failed"));
     } finally {
       setFollowLoading(false);
     }
@@ -216,7 +219,7 @@ export default function TopicDetailClient({ id }: { id: string }) {
   const handleAddPost = async () => {
     const postIdNum = parseInt(postId);
     if (isNaN(postIdNum)) {
-      toast.error("请输入有效的帖子ID");
+      toast.error(t("enter_valid_post_id"));
       return;
     }
 
@@ -224,7 +227,7 @@ export default function TopicDetailClient({ id }: { id: string }) {
     try {
       const response = await addPostToTopic(topicId, postIdNum);
       if (response.data.code === 0) {
-        toast.success("帖子已添加到话题");
+        toast.success(t("post_added_success"));
         setShowAddPostModal(false);
         setPostId("");
         await loadPosts();
@@ -232,11 +235,11 @@ export default function TopicDetailClient({ id }: { id: string }) {
           setTopic({ ...topic, post_count: (topic.post_count || 0) + 1 });
         }
       } else {
-        toast.error(response.data.message || "添加失败");
+        toast.error(response.data.message || t("add_failed"));
       }
     } catch (err: unknown) {
       const error = err as ErrorResponse;
-      toast.error(error.response?.data?.message || "添加失败");
+      toast.error(error.response?.data?.message || t("add_failed"));
     } finally {
       setAddingPost(false);
     }
@@ -247,9 +250,9 @@ export default function TopicDetailClient({ id }: { id: string }) {
     const url = window.location.href;
     try {
       await navigator.clipboard.writeText(url);
-      toast.success("链接已复制到剪贴板");
+      toast.success(t("link_copied"));
     } catch {
-      toast.error("复制失败，请手动复制");
+      toast.error(t("copy_failed"));
     }
   };
 
@@ -282,7 +285,7 @@ export default function TopicDetailClient({ id }: { id: string }) {
   if (loading && !topic) {
     return (
       <div className="min-h-screen bg-base-200 flex items-center justify-center">
-        <div className="text-base-content/60">加载中...</div>
+        <div className="text-base-content/60">{t("loading")}</div>
       </div>
     );
   }
@@ -291,9 +294,9 @@ export default function TopicDetailClient({ id }: { id: string }) {
     return (
       <div className="min-h-screen bg-base-200 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-base-content/60 mb-4">话题不存在</p>
+          <p className="text-base-content/60 mb-4">{t("topic_not_found")}</p>
           <Link href="/topics" className="text-primary hover:underline">
-            返回话题列表
+            {t("back_to_topic_list")}
           </Link>
         </div>
       </div>
@@ -347,7 +350,7 @@ export default function TopicDetailClient({ id }: { id: string }) {
             className="inline-flex items-center gap-2 text-base-content/70 hover:text-primary transition-colors"
           >
             <ArrowLeftIcon className="w-4 h-4" />
-            返回话题列表
+            {t("back_to_topic_list")}
           </Link>
         </div>
 
@@ -381,28 +384,28 @@ export default function TopicDetailClient({ id }: { id: string }) {
                 <div className="flex flex-wrap items-center gap-4 text-sm text-base-content/50">
                   <div className="flex items-center gap-1.5">
                     <DocumentTextIcon className="w-4 h-4" />
-                    <span>{topic.post_count || 0} 个帖子</span>
+                    <span>{t("post_count", { count: topic.post_count || 0 })}</span>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <UserGroupIcon className="w-4 h-4" />
-                    <span>{topic.follower_count || 0} 人收藏</span>
+                    <span>{t("follower_count", { count: topic.follower_count || 0 })}</span>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <CalendarIcon className="w-4 h-4" />
                     <span>
-                      创建于 {new Date(topic.created_at).toLocaleDateString()}
+                      {t("created_at", { date: new Date(topic.created_at).toLocaleDateString() })}
                     </span>
                   </div>
                   <div className="flex items-center gap-1.5">
                     {topic.is_public ? (
                       <>
                         <GlobeAltIcon className="w-4 h-4" />
-                        <span className="badge badge-ghost badge-xs">公开</span>
+                        <span className="badge badge-ghost badge-xs">{t("public")}</span>
                       </>
                     ) : (
                       <>
                         <LockClosedIcon className="w-4 h-4" />
-                        <span className="badge badge-ghost badge-xs">私密</span>
+                        <span className="badge badge-ghost badge-xs">{t("private")}</span>
                       </>
                     )}
                   </div>
@@ -413,7 +416,7 @@ export default function TopicDetailClient({ id }: { id: string }) {
                 <button
                   onClick={handleShare}
                   className="btn btn-ghost btn-square"
-                  title="分享"
+                  title={t("share")}
                 >
                   <ShareIcon className="w-5 h-5" />
                 </button>
@@ -432,7 +435,7 @@ export default function TopicDetailClient({ id }: { id: string }) {
                   ) : (
                     <HeartIcon className="w-5 h-5" />
                   )}
-                  {following ? "已收藏" : "收藏"}
+                  {following ? t("followed") : t("follow")}
                 </button>
 
                 {isCreator && (
@@ -441,7 +444,7 @@ export default function TopicDetailClient({ id }: { id: string }) {
                     className="btn btn-secondary gap-2"
                   >
                     <PlusIcon className="w-5 h-5" />
-                    添加帖子
+                    {t("add_post")}
                   </button>
                 )}
               </div>
@@ -459,7 +462,7 @@ export default function TopicDetailClient({ id }: { id: string }) {
               }}
               className={`tab flex-1 ${activeTab === "posts" ? "tab-active" : ""}`}
             >
-              帖子列表 ({topic.post_count || 0})
+              {t("post_list")} ({topic.post_count || 0})
             </button>
             <button
               onClick={() => {
@@ -468,7 +471,7 @@ export default function TopicDetailClient({ id }: { id: string }) {
               }}
               className={`tab flex-1 ${activeTab === "followers" ? "tab-active" : ""}`}
             >
-              收藏者 ({topic.follower_count || 0})
+              {t("followers")} ({topic.follower_count || 0})
             </button>
           </div>
         </div>
@@ -480,17 +483,17 @@ export default function TopicDetailClient({ id }: { id: string }) {
               <div className="card bg-base-100 shadow-sm p-12 text-center">
                 <div className="text-6xl mb-4">📝</div>
                 <h3 className="text-lg font-bold text-base-content mb-2">
-                  暂无帖子
+                  {t("no_posts")}
                 </h3>
                 <p className="text-base-content/60 mb-6">
-                  还没有帖子被添加到这个话题
+                  {t("no_posts_desc")}
                 </p>
                 {isCreator && (
                   <button
                     onClick={() => setShowAddPostModal(true)}
                     className="btn btn-primary"
                   >
-                    添加第一个帖子
+                    {t("add_first_post")}
                   </button>
                 )}
               </div>
@@ -509,7 +512,7 @@ export default function TopicDetailClient({ id }: { id: string }) {
                       disabled={page === 1}
                       className="btn btn-outline btn-sm"
                     >
-                      上一页
+                      {t("previous_page")}
                     </button>
                     <div className="join">{renderPaginationButtons()}</div>
                     <button
@@ -519,7 +522,7 @@ export default function TopicDetailClient({ id }: { id: string }) {
                       disabled={page >= totalPages}
                       className="btn btn-outline btn-sm"
                     >
-                      下一页
+                      {t("next_page")}
                     </button>
                   </div>
                 )}
@@ -535,10 +538,10 @@ export default function TopicDetailClient({ id }: { id: string }) {
               <div className="card bg-base-100 shadow-sm p-12 text-center">
                 <div className="text-6xl mb-4">👥</div>
                 <h3 className="text-lg font-bold text-base-content mb-2">
-                  暂无收藏者
+                  {t("no_followers")}
                 </h3>
                 <p className="text-base-content/60">
-                  成为第一个收藏这个话题的人吧！
+                  {t("no_followers_desc")}
                 </p>
               </div>
             ) : (
@@ -565,16 +568,16 @@ export default function TopicDetailClient({ id }: { id: string }) {
                             href={`/users/${follow.user_id}`}
                             className="font-medium text-base-content hover:text-primary transition-colors"
                           >
-                            {follow.user?.username || `用户 ${follow.user_id}`}
+                            {follow.user?.username || t("user_id_format", { id: follow.user_id })}
                           </Link>
                           <div className="text-xs text-base-content/40">
-                            收藏于{" "}
+                            {t("followed_at")}{" "}
                             {/* {new Date(follow.created_at).toLocaleDateString()} */}
                           </div>
                         </div>
                         {follow.user_id === user?.id && (
                           <span className="badge badge-primary badge-sm">
-                            我
+                            {t("me")}
                           </span>
                         )}
                       </div>
@@ -587,20 +590,20 @@ export default function TopicDetailClient({ id }: { id: string }) {
                     <button
                       onClick={() => setPage((p) => Math.max(1, p - 1))}
                       disabled={page === 1}
-                      className="btn btn-outline btn-sm"
-                    >
-                      上一页
-                    </button>
-                    <div className="join">{renderPaginationButtons()}</div>
-                    <button
-                      onClick={() =>
-                        setPage((p) => Math.min(totalPages, p + 1))
-                      }
-                      disabled={page >= totalPages}
-                      className="btn btn-outline btn-sm"
-                    >
-                      下一页
-                    </button>
+                  className="btn btn-outline btn-sm"
+                >
+                  {t("previous_page")}
+                </button>
+                <div className="join">{renderPaginationButtons()}</div>
+                <button
+                  onClick={() =>
+                    setPage((p) => Math.min(totalPages, p + 1))
+                  }
+                  disabled={page >= totalPages}
+                  className="btn btn-outline btn-sm"
+                >
+                  {t("next_page")}
+                </button>
                   </div>
                 )}
               </>
@@ -616,7 +619,7 @@ export default function TopicDetailClient({ id }: { id: string }) {
             <div className="card-body p-6">
               <div className="flex items-center justify-between mb-2">
                 <h2 className="card-title text-xl font-bold text-base-content">
-                  添加帖子到话题
+                  {t("add_post_to_topic")}
                 </h2>
                 <button
                   onClick={() => setShowAddPostModal(false)}
@@ -630,31 +633,31 @@ export default function TopicDetailClient({ id }: { id: string }) {
                 <div className="form-control">
                   <label className="label">
                     <span className="label-text font-medium">
-                      帖子ID <span className="text-error">*</span>
+                      {t("post_id_label")} <span className="text-error">*</span>
                     </span>
                   </label>
                   <input
                     type="number"
                     value={postId}
                     onChange={(e) => setPostId(e.target.value)}
-                    placeholder="请输入要添加的帖子ID"
+                    placeholder={t("enter_post_id")}
                     className="input input-bordered w-full focus:input-primary"
                   />
                   <label className="label">
                     <span className="label-text-alt text-base-content/40">
-                      输入现有帖子的ID，该帖子将被添加到当前话题
+                      {t("enter_post_id_hint")}
                     </span>
                   </label>
                 </div>
               </div>
 
               <div className="modal-action mt-6">
-                <button
-                  onClick={() => setShowAddPostModal(false)}
-                  className="btn btn-ghost"
-                >
-                  取消
-                </button>
+                  <button
+                    onClick={() => setShowAddPostModal(false)}
+                    className="btn btn-ghost"
+                  >
+                    {t("cancel")}
+                  </button>
                 <button
                   onClick={handleAddPost}
                   disabled={addingPost || !postId}
@@ -663,7 +666,7 @@ export default function TopicDetailClient({ id }: { id: string }) {
                   {addingPost && (
                     <span className="loading loading-spinner loading-sm"></span>
                   )}
-                  {addingPost ? "添加中..." : "添加"}
+                  {addingPost ? t("adding") : t("add")}
                 </button>
               </div>
             </div>

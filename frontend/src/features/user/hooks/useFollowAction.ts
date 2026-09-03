@@ -1,4 +1,5 @@
 import { useCallback, useState } from "react"
+import { useTranslations } from "next-intl"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import toast from "react-hot-toast"
 import { userApi } from "@/shared/api/modules/user"
@@ -14,6 +15,7 @@ interface UseFollowReturn {
 }
 
 export function useFollowAction(): UseFollowReturn {
+  const t = useTranslations("Profile")
   const queryClient = useQueryClient()
   const [following, setFollowing] = useState<boolean>(false)
 
@@ -22,17 +24,17 @@ export function useFollowAction(): UseFollowReturn {
     mutationFn: async (userId) => {
       const res = await userApi.follow(userId)
       if (res.data.code !== 0) {
-        throw new Error(res.data.message || "关注失败")
+        throw new Error(res.data.message || t("follow_failed"))
       }
       return true
     },
     onSuccess: () => {
       setFollowing(true)
       queryClient.invalidateQueries({ queryKey: userKeys.all })
-      toast.success("关注成功")
+      toast.success(t("follow_success"))
     },
     onError: (err) => {
-      toast.error(err.message || "关注失败")
+      toast.error(err.message || t("follow_failed"))
     },
   })
 
@@ -41,17 +43,17 @@ export function useFollowAction(): UseFollowReturn {
     mutationFn: async (userId) => {
       const res = await userApi.unfollow(userId)
       if (res.data.code !== 0) {
-        throw new Error(res.data.message || "取消关注失败")
+        throw new Error(res.data.message || t("unfollow_failed"))
       }
       return true
     },
     onSuccess: () => {
       setFollowing(false)
       queryClient.invalidateQueries({ queryKey: userKeys.all })
-      toast.success("取消关注成功")
+      toast.success(t("unfollow_success"))
     },
     onError: (err) => {
-      toast.error(err.message || "取消关注失败")
+      toast.error(err.message || t("unfollow_failed"))
     },
   })
 

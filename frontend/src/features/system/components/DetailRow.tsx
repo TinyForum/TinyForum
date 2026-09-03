@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { Puzzle, Plus } from "lucide-react";
 
 export function DetailRow({ label, value }: { label: string; value: string }) {
@@ -18,15 +19,17 @@ export function EmptyState({
   keyword: string;
   onInstall: () => void;
 }) {
+  const t = useTranslations("System");
+
   return (
     <div className="flex flex-col items-center justify-center h-40 gap-3 text-base-content/40">
       <Puzzle className="w-8 h-8" />
       <p className="text-sm">
-        {keyword ? `没有找到"${keyword}"相关插件` : "尚未安装任何插件"}
+        {keyword ? t("no_plugins_found", { keyword }) : t("no_plugins_installed")}
       </p>
       {!keyword && (
         <button onClick={onInstall} className="btn btn-ghost btn-xs gap-1">
-          <Plus className="w-3 h-3" /> 安装第一个插件
+          <Plus className="w-3 h-3" /> {t("install_first_plugin")}
         </button>
       )}
     </div>

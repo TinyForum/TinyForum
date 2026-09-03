@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import * as echarts from "echarts";
+import { useTranslations } from "next-intl";
 import {
   useRecOverview,
   useRecBehaviorStats,
@@ -23,6 +24,7 @@ import {
 } from "lucide-react";
 
 export function RecommendationAnalytics() {
+  const t = useTranslations("Admin");
   const { data: overview, isLoading } = useRecOverview(true);
   const { data: behaviorStats, isLoading: bhLoading } = useRecBehaviorStats(7, true);
   const { data: userAnalysis, isLoading: uaLoading } = useRecUserAnalysis(7, true);
@@ -171,7 +173,7 @@ export function RecommendationAnalytics() {
           <div className="stat-figure text-primary">
             <Activity className="w-6 h-6" />
           </div>
-          <div className="stat-title">行为总数</div>
+          <div className="stat-title">{t("total_behaviors")}</div>
           <div className="stat-value text-2xl">
             {(overview?.total_behaviors || 0).toLocaleString()}
           </div>
@@ -182,7 +184,7 @@ export function RecommendationAnalytics() {
           <div className="stat-figure text-info">
             <Eye className="w-6 h-6" />
           </div>
-          <div className="stat-title">今日曝光</div>
+          <div className="stat-title">{t("today_impressions")}</div>
           <div className="stat-value text-2xl">
             {(overview?.today_impressions || 0).toLocaleString()}
           </div>
@@ -195,7 +197,7 @@ export function RecommendationAnalytics() {
           <div className="stat-figure text-success">
             <Users className="w-6 h-6" />
           </div>
-          <div className="stat-title">追踪用户</div>
+          <div className="stat-title">{t("tracked_users")}</div>
           <div className="stat-value text-2xl">
             {(overview?.user_count || 0).toLocaleString()}
           </div>
@@ -208,7 +210,7 @@ export function RecommendationAnalytics() {
           <div className="stat-figure text-warning">
             <Target className="w-6 h-6" />
           </div>
-          <div className="stat-title">已分析内容</div>
+          <div className="stat-title">{t("analyzed_content")}</div>
           <div className="stat-value text-2xl">
             {(overview?.content_count || 0).toLocaleString()}
           </div>
@@ -225,7 +227,7 @@ export function RecommendationAnalytics() {
           <div className="card-body p-4">
             <h4 className="text-sm font-medium flex items-center gap-1 mb-2">
               <MousePointerClick className="w-4 h-4 text-primary" />
-              行为分布
+              {t("behavior_distribution")}
             </h4>
             <div ref={behaviorDistRef} className="h-72 w-full" />
           </div>
@@ -408,14 +410,14 @@ export function RecommendationAnalytics() {
         <div className="space-y-4">
           <h3 className="text-lg font-bold flex items-center gap-2 mt-4">
             <Shield className="w-5 h-5 text-warning" />
-            风控关联分析
+              {t("risk_correlation_analysis")}
           </h3>
 
           {/* 风控指标卡片 */}
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
             <div className="stat bg-base-100 rounded-lg border border-base-300 shadow-sm p-3">
               <div className="stat-figure text-warning"><AlertTriangle className="w-5 h-5" /></div>
-              <div className="stat-title text-xs">风险用户</div>
+              <div className="stat-title text-xs">{t("risk_users")}</div>
               <div className="stat-value text-lg">{riskAnalysis.total_risk_users}</div>
               <div className="stat-desc text-xs text-error">高危 {riskAnalysis.danger_level_users}</div>
             </div>

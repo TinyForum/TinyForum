@@ -20,6 +20,7 @@ import {
   UserPlusIcon,
   HomeIcon,
 } from "@heroicons/react/24/outline";
+import { useTranslations } from "next-intl";
 import { TimelineEvent } from "@/shared/api/types/timeline.model";
 import { useTimelineFeed } from "@/features/timeline/hooks/useTimelineFeed";
 import { useTimelineSubscriptions } from "@/features/timeline/hooks/useTimelineSubscriptions";
@@ -35,50 +36,50 @@ interface ErrorResponse {
   message?: string;
 }
 
-// 事件类型配置
+// 事件类型配置（labelKey 为 i18n key）
 const eventTypeConfig: Record<
   string,
-  { icon: string; label: string; color: string; bgColor: string }
+  { icon: string; labelKey: string; color: string; bgColor: string }
 > = {
   create_post: {
     icon: "📝",
-    label: "发布了新帖子",
+    labelKey: "create_post",
     color: "text-primary",
     bgColor: "bg-primary/10",
   },
   create_answer: {
     icon: "💬",
-    label: "回答了问题",
+    labelKey: "create_answer",
     color: "text-secondary",
     bgColor: "bg-secondary/10",
   },
   like_post: {
     icon: "❤️",
-    label: "点赞了帖子",
+    labelKey: "like_post",
     color: "text-error",
     bgColor: "bg-error/10",
   },
   like_answer: {
     icon: "❤️",
-    label: "点赞了回答",
+    labelKey: "like_answer",
     color: "text-error",
     bgColor: "bg-error/10",
   },
   follow_user: {
     icon: "➕",
-    label: "关注了",
+    labelKey: "follow_user",
     color: "text-accent",
     bgColor: "bg-accent/10",
   },
   accept_answer: {
     icon: "✓",
-    label: "采纳了答案",
+    labelKey: "accept_answer",
     color: "text-warning",
     bgColor: "bg-warning/10",
   },
   reward_question: {
     icon: "💰",
-    label: "获得了悬赏",
+    labelKey: "reward_question",
     color: "text-warning",
     bgColor: "bg-warning/10",
   },
@@ -125,10 +126,11 @@ function LoadingSkeleton() {
 
 // 时间线事件卡片组件
 function TimelineEventCard({ event }: { event: TimelineEvent }) {
+  const t = useTranslations("Timeline");
   const payload = parsePayload(event.payload);
   const config = eventTypeConfig[event.action] || {
     icon: "📄",
-    label: event.action,
+    labelKey: event.action,
     color: "text-base-content/60",
     bgColor: "bg-base-200",
   };
@@ -170,9 +172,9 @@ function TimelineEventCard({ event }: { event: TimelineEvent }) {
                 href={`/users/${event.actor_id}`}
                 className="font-semibold text-base-content hover:text-primary transition-colors"
               >
-                {event.actor?.username || `用户${event.actor_id}`}
+                {event.actor?.username || t("user_fallback", { id: event.actor_id })}
               </Link>
-              <span className="text-base-content/50">{config.label}</span>
+              <span className="text-base-content/50">{t(config.labelKey)}</span>
               <span className="text-lg">{config.icon}</span>
             </div>
 
@@ -217,7 +219,7 @@ function TimelineEventCard({ event }: { event: TimelineEvent }) {
               {event.target_type === "comment" && (
                 <div className="flex items-center gap-1.5">
                   <div className="w-1.5 h-1.5 bg-success rounded-full" />
-                  <span>回答</span>
+                  <span>{t("answer")}</span>
                 </div>
               )}
             </div>
@@ -230,7 +232,7 @@ function TimelineEventCard({ event }: { event: TimelineEvent }) {
                   className="flex items-center gap-1.5 text-base-content/50 hover:text-primary transition-all duration-200"
                 >
                   <ChatBubbleLeftRightIcon className="w-4 h-4" />
-                  <span className="text-sm">查看详情</span>
+                  <span className="text-sm">{t("view_details")}</span>
                 </Link>
               </div>
             )}
@@ -249,6 +251,7 @@ function SubscribeCard({
   user: { id: number; username: string; avatar_url?: string; bio?: string };
   onUnsubscribe: (userId: number) => void;
 }) {
+  const t = useTranslations("Timeline");
   return (
     <div className="flex items-center justify-between p-3 bg-base-200/50 rounded-xl hover:bg-base-200 transition-all duration-200 group">
       <Link
@@ -285,7 +288,7 @@ function SubscribeCard({
         onClick={() => onUnsubscribe(subUser.id)}
         className="px-3 py-1.5 text-sm text-error/70 hover:text-error hover:bg-error/10 rounded-lg transition-all duration-200 opacity-0 group-hover:opacity-100"
       >
-        取消关注
+        {t("unsubscribe")}
       </button>
     </div>
   );
@@ -293,23 +296,25 @@ function SubscribeCard({
 
 // 空状态组件
 function EmptyState({ activeTab }: { activeTab: "home" | "following" }) {
+  const t = useTranslations("Timeline");
+
   return (
     <div className="card bg-base-100 shadow-sm p-12 text-center border border-base-200">
       <div className="text-6xl mb-4 opacity-50">
         {activeTab === "home" ? "📭" : "👥"}
       </div>
       <h3 className="text-lg font-semibold text-base-content mb-2">
-        {activeTab === "home" ? "暂无动态" : "暂无关注动态"}
+        {activeTab === "home" ? t("no_events") : t("no_following_events")}
       </h3>
       <p className="text-base-content/60 mb-4">
         {activeTab === "home"
-          ? "还没有任何动态，去探索更多内容吧！"
-          : "关注用户后，他们的动态会显示在这里"}
+          ? t("no_events_desc")
+          : t("following_events_desc")}
       </p>
       {activeTab === "following" && (
         <Link href="/explore" className="btn btn-primary btn-sm gap-2">
           <UserPlusIcon className="w-4 h-4" />
-          发现用户
+          {t("discover_users")}
         </Link>
       )}
     </div>
@@ -326,6 +331,7 @@ function Pagination({
   totalPages: number;
   onPageChange: (page: number) => void;
 }) {
+  const t = useTranslations("Timeline");
   const getPageNumbers = (): number[] => {
     const pages: number[] = [];
     const maxVisible = 5;
@@ -352,7 +358,7 @@ function Pagination({
         disabled={currentPage === 1}
         className="btn btn-ghost btn-sm gap-1"
       >
-        上一页
+        {t("prev_page")}
       </button>
 
       <div className="flex gap-1.5 mx-2">
@@ -374,7 +380,7 @@ function Pagination({
         disabled={currentPage >= totalPages}
         className="btn btn-ghost btn-sm gap-1"
       >
-        下一页
+        {t("next_page")}
       </button>
     </div>
   );
@@ -384,6 +390,7 @@ export default function TimelineClient() {
   const router = useRouter();
   const { isAuthenticated } = useAuthStore();
   const queryClient = useQueryClient();
+  const t = useTranslations("Timeline");
   const [activeTab, setActiveTab] = useState<"home" | "following">("home");
   const [page, setPage] = useState(1);
   const [showSubscriptions, setShowSubscriptions] = useState(false);
@@ -418,7 +425,7 @@ export default function TimelineClient() {
       try {
         const response = await unsubscribe(userId);
         if (response.code === 0) {
-          toast.success("已取消关注");
+          toast.success(t("unsubscribe_success"));
           await queryClient.invalidateQueries({
             queryKey: timelineKeys.all,
           });
@@ -426,11 +433,11 @@ export default function TimelineClient() {
             queryKey: [...timelineKeys.all, "subscriptions"],
           });
         } else {
-          toast.error(response.message || "操作失败");
+          toast.error(response.message || t("operation_failed"));
         }
       } catch (err: unknown) {
         const error = err as ErrorResponse;
-        toast.error(error.response?.data?.message || "操作失败");
+        toast.error(error.response?.data?.message || t("operation_failed"));
       }
     },
     [unsubscribe, queryClient],
@@ -454,9 +461,9 @@ export default function TimelineClient() {
             </div>
           </div>
           <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-            时间线
+            {t("title")}
           </h1>
-          <p className="text-base-content/60 mt-2">关注你感兴趣的人和内容</p>
+          <p className="text-base-content/60 mt-2">{t("subtitle")}</p>
         </div>
 
         {/* Tab 切换 */}
@@ -475,7 +482,7 @@ export default function TimelineClient() {
             >
               <div className="flex items-center justify-center gap-2">
                 <SparklesIcon className="w-4 h-4" />
-                推荐
+                {t("recommended")}
               </div>
             </button>
             <button
@@ -491,7 +498,7 @@ export default function TimelineClient() {
             >
               <div className="flex items-center justify-center gap-2">
                 <UsersIcon className="w-4 h-4" />
-                关注
+                {t("following")}
               </div>
             </button>
           </div>
@@ -505,7 +512,7 @@ export default function TimelineClient() {
               className="flex items-center gap-2 text-base-content/70 hover:text-primary transition-colors group"
             >
               <span className="font-medium">
-                我关注的人 ({subscriptions.length})
+                {t("my_following", { count: subscriptions.length })}
               </span>
               {showSubscriptions ? (
                 <ChevronUpIcon className="w-4 h-4 group-hover:-translate-y-0.5 transition-transform" />
@@ -556,7 +563,7 @@ export default function TimelineClient() {
 
             {/* 底部提示 */}
             <div className="text-center text-xs text-base-content/40 mt-6 pt-4 border-t border-base-200">
-              已加载全部内容
+              {t("all_loaded")}
             </div>
           </>
         )}

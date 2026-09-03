@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 // ---------- 配置弹窗（编辑节点的 params）----------
 interface ConfigModalProps {
@@ -14,6 +15,7 @@ export function ConfigModal({
   onSave,
   onClose,
 }: ConfigModalProps) {
+  const t = useTranslations("Bot");
   const [config, setConfig] = useState<Record<string, unknown>>(params);
 
   const handleSave = () => {
@@ -24,7 +26,7 @@ export function ConfigModal({
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white p-4 rounded shadow-lg w-96">
-        <h3 className="font-bold text-lg mb-2">配置 {title}</h3>
+        <h3 className="font-bold text-lg mb-2">{t("config_node", { title })}</h3>
         <textarea
           className="w-full border p-2 mt-2 font-mono text-sm"
           rows={6}
@@ -46,13 +48,13 @@ export function ConfigModal({
             className="px-3 py-1 border rounded hover:bg-gray-100"
             onClick={onClose}
           >
-            取消
+            {t("cancel")}
           </button>
           <button
             className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
             onClick={handleSave}
           >
-            保存
+            {t("save")}
           </button>
         </div>
       </div>

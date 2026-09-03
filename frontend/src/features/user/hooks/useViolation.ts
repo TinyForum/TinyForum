@@ -1,4 +1,5 @@
 import { useCallback } from "react"
+import { useTranslations } from "next-intl"
 import {
   useQuery,
   useMutation,
@@ -22,6 +23,7 @@ interface UseViolationReturn {
 }
 
 export function useUserViolation(): UseViolationReturn {
+  const t = useTranslations("User")
   const queryClient = useQueryClient()
 
   // 查询：拉取当前用户的违规列表
@@ -30,7 +32,7 @@ export function useUserViolation(): UseViolationReturn {
     queryFn: async () => {
       const res = await userViolationApi.listUserViolations()
       if (res.data.code !== 0) {
-        throw new Error(res.data.message || "获取违规列表失败")
+        throw new Error(res.data.message || t("violations_load_failed"))
       }
       return res.data.data ?? []
     },
@@ -50,10 +52,10 @@ export function useUserViolation(): UseViolationReturn {
           queryFn: async () => {
             const res = await userViolationApi.getViolationDetail(id)
             if (res.data.code !== 0) {
-              throw new Error(res.data.message || "获取详情失败")
+              throw new Error(res.data.message || t("detail_load_failed"))
             }
             if (!res.data.data) {
-              throw new Error("获取详情失败")
+              throw new Error(t("detail_load_failed"))
             }
             return res.data.data
           },
@@ -62,7 +64,7 @@ export function useUserViolation(): UseViolationReturn {
         return null // ✅ 明确返回 null 表示失败
       }
     },
-    [queryClient],
+    [queryClient, t],
   )
 
   // 变更：提交申诉
@@ -74,7 +76,7 @@ export function useUserViolation(): UseViolationReturn {
     mutationFn: async ({ id, reason }) => {
       const res = await userViolationApi.appeal(id, reason)
       if (res.data.code !== 0) {
-        throw new Error(res.data.message || "申诉提交失败")
+        throw new Error(res.data.message || t("appeal_submit_failed"))
       }
       return true
     },

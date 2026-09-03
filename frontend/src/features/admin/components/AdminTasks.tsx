@@ -3,6 +3,7 @@
 
 import { useState } from "react";
 import { Shield, Flag, FileText, Ban, Bell } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { ApplicationManagement } from "./ApplicationManagement";
 import { BanManagement } from "./BanManagement";
 import { ModeratorManagement } from "./ModeratorManagement";
@@ -12,15 +13,16 @@ import { ReviewManagement } from "./ReviewManagement";
 
 // ============ 主组件 ============
 export function AdminTasks() {
+  const t = useTranslations("Admin");
   const [activeTab, setActiveTab] = useState("risks");
 
   const tabs = [
-    { id: "risks", label: "风控审查", icon: Bell },
-    { id: "applications", label: "版主申请", icon: FileText },
-    { id: "moderators", label: "版主任命", icon: Shield },
-    { id: "reports", label: "举报管理", icon: Flag },
-    { id: "posts", label: "帖子管理", icon: FileText },
-    { id: "bans", label: "禁言管理", icon: Ban },
+    { id: "risks", label: t("risk_review_tab"), icon: Bell },
+    { id: "applications", label: t("applications_tab"), icon: FileText },
+    { id: "moderators", label: t("moderators_tab"), icon: Shield },
+    { id: "reports", label: t("reports_tab"), icon: Flag },
+    { id: "posts", label: t("posts_tab"), icon: FileText },
+    { id: "bans", label: t("bans_tab"), icon: Ban },
   ];
 
   return (
@@ -45,10 +47,10 @@ export function AdminTasks() {
             <div className="card-body">
               <h2 className="card-title">
                 <FileText className="w-5 h-5" />
-                版主申请审批
+                {t("application_approval")}
               </h2>
               <p className="text-gray-500">
-                审核用户提交的版主申请，通过后用户将成为对应板块的版主
+                {t("application_approval_desc")}
               </p>
               <div className="mt-4">
                 <ApplicationManagement />
@@ -67,9 +69,9 @@ export function AdminTasks() {
             <div className="card-body">
               <h2 className="card-title">
                 <Shield className="w-5 h-5" />
-                版主任命与管理
+                {t("moderator_appointment")}
               </h2>
-              <p className="text-gray-500">任命新版主、管理现有版主及其权限</p>
+              <p className="text-gray-500">{t("moderator_appointment_desc")}</p>
               <div className="mt-4">
                 <ModeratorManagement />
               </div>
@@ -82,9 +84,9 @@ export function AdminTasks() {
             <div className="card-body">
               <h2 className="card-title">
                 <Flag className="w-5 h-5" />
-                举报处理
+                {t("report_handling")}
               </h2>
-              <p className="text-gray-500">处理用户举报，维护社区秩序</p>
+              <p className="text-gray-500">{t("report_handling_desc")}</p>
               <div className="mt-4">
                 <ReportManagement />
               </div>
@@ -97,10 +99,10 @@ export function AdminTasks() {
             <div className="card-body">
               <h2 className="card-title">
                 <FileText className="w-5 h-5" />
-                帖子管理
+                {t("post_management")}
               </h2>
               <p className="text-gray-500">
-                搜索、置顶、删除帖子，管理板块内容
+                {t("post_management_desc")}
               </p>
               <div className="mt-4">
                 <PostManagement />
@@ -114,10 +116,10 @@ export function AdminTasks() {
             <div className="card-body">
               <h2 className="card-title">
                 <Ban className="w-5 h-5" />
-                禁言管理
+                {t("ban_management")}
               </h2>
               <p className="text-gray-500">
-                禁言违规用户，查看禁言列表，解除禁言
+                {t("ban_management_desc")}
               </p>
               <div className="mt-4">
                 <BanManagement />

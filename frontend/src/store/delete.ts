@@ -78,7 +78,7 @@ export const useDeleteAccountStore = create<DeleteAccountState>()(
       const { confirmText, password } = get();
 
       if (confirmText !== "DELETE") {
-        set({ error: "请输入 DELETE 确认删除" });
+        set({ error: "enter_delete_confirm" });
         return { success: false };
       }
 
@@ -98,7 +98,7 @@ export const useDeleteAccountStore = create<DeleteAccountState>()(
       } catch (err: unknown) {
         const error = err as ApiError;
         const errorMessage =
-          error.response?.data?.message || "注销请求失败，请重试";
+          error.response?.data?.message || "reset_request_failed";
         set({ error: errorMessage });
         return { success: false };
       } finally {
@@ -123,7 +123,7 @@ export const useDeleteAccountStore = create<DeleteAccountState>()(
       } catch (err: unknown) {
         const error = err as ApiError;
         const errorMessage =
-          error.response?.data?.message || "取消注销失败，请重试";
+          error.response?.data?.message || "cancel_reset_failed";
         set({ error: errorMessage });
         return { success: false };
       } finally {
@@ -136,7 +136,7 @@ export const useDeleteAccountStore = create<DeleteAccountState>()(
       const { confirmText, password } = get();
 
       if (confirmText !== "PERMANENT_DELETE") {
-        set({ error: "请输入 PERMANENT_DELETE 确认永久删除" });
+        set({ error: "invalid_permanent_delete_confirm" });
         return { success: false };
       }
 
@@ -156,7 +156,7 @@ export const useDeleteAccountStore = create<DeleteAccountState>()(
       } catch (err: unknown) {
         const error = err as ApiError;
         const errorMessage =
-          error.response?.data?.message || "永久删除失败，请重试";
+          error.response?.data?.message || "permanent_delete_failed";
         set({ error: errorMessage });
         return { success: false };
       } finally {

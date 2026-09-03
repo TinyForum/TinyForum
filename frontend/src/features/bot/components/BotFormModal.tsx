@@ -1,5 +1,6 @@
 // components/BotFormModal.tsx
 
+import { useTranslations } from "next-intl";
 import {
   BotConfigField,
   BotVO,
@@ -24,6 +25,7 @@ function DynamicConfigForm({
   values: Record<string, unknown>;
   onChange: (key: string, value: string | boolean) => void;
 }) {
+  const t = useTranslations("Bot");
   if (!schema?.length) return null;
   return (
     <div className="space-y-3">
@@ -53,7 +55,7 @@ function DynamicConfigForm({
               value={String(values[field.key] ?? field.defaultValue ?? "")}
               onChange={(e) => onChange(field.key, e.target.value)}
             >
-              <option value="">请选择</option>
+              <option value="">{t("please_select")}</option>
               {field.options?.map((opt) => (
                 <option key={String(opt.value)} value={String(opt.value)}>
                   {opt.label}
@@ -115,6 +117,7 @@ export function BotFormModal({
   onSave,
   isLoading,
 }: BotFormModalProps) {
+  const t = useTranslations("Bot");
   const [formData, setFormData] = useState<Partial<CreateBotRequest>>({
     name: "",
     version: "1.0.0",
@@ -175,7 +178,7 @@ export function BotFormModal({
 
   const handleSubmit = async () => {
     if (!formData.name || !formData.scriptCode) {
-      toast.error("请填写名称和脚本代码");
+      toast.error(t("fill_name_and_script"));
       return;
     }
     if (
@@ -183,7 +186,7 @@ export function BotFormModal({
       !formData.cronExpr &&
       !schedulePreset
     ) {
-      toast.error("定时任务必须填写 Cron 表达式或选择一个预设频率");
+      toast.error(t("schedule_requires_cron"));
       return;
     }
 
@@ -250,13 +253,13 @@ export function BotFormModal({
     <div className="modal modal-open">
       <div className="modal-box max-w-2xl">
         <h3 className="font-bold text-lg">
-          {editingBot ? "编辑机器人" : "创建机器人"}
+          {editingBot ? t("edit_bot") : t("create_bot_title")}
         </h3>
         <div className="py-4 space-y-4">
           {/* 基本信息 */}
           <div className="form-control">
             <label className="label">
-              <span className="label-text">名称 *</span>
+              <span className="label-text">{t("name_required")}</span>
             </label>
             <input
               type="text"
@@ -269,7 +272,7 @@ export function BotFormModal({
           </div>
           <div className="form-control">
             <label className="label">
-              <span className="label-text">描述</span>
+              <span className="label-text">{t("description")}</span>
             </label>
             <textarea
               className="textarea textarea-bordered"
@@ -282,7 +285,7 @@ export function BotFormModal({
           </div>
           <div className="form-control">
             <label className="label">
-              <span className="label-text">类型 *</span>
+              <span className="label-text">{t("type_required")}</span>
             </label>
             <select
               className="select select-bordered"
@@ -291,19 +294,19 @@ export function BotFormModal({
                 setFormData({ ...formData, type: e.target.value as BotType })
               }
             >
-              <option value="task">任务 (task)</option>
-              <option value="chat">聊天 (chat)</option>
-              <option value="moderate">审核 (moderate)</option>
-              <option value="notify">通知 (notify)</option>
-              <option value="sync">同步 (sync)</option>
-              <option value="webhook">Webhook (webhook)</option>
-              <option value="analysis">分析 (analysis)</option>
+              <option value="task">{t("type_task")}</option>
+              <option value="chat">{t("type_chat")}</option>
+              <option value="moderate">{t("type_moderate")}</option>
+              <option value="notify">{t("type_notify")}</option>
+              <option value="sync">{t("type_sync")}</option>
+              <option value="webhook">{t("type_webhook")}</option>
+              <option value="analysis">{t("type_analysis")}</option>
             </select>
           </div>
           {/* Lua 脚本 */}
           <div className="form-control">
             <label className="label">
-              <span className="label-text">Lua 脚本 *</span>
+              <span className="label-text">{t("lua_script_required")}</span>
             </label>
             <textarea
               className="textarea textarea-bordered font-mono"
@@ -318,7 +321,7 @@ export function BotFormModal({
           {/* 触发方式 */}
           <div className="form-control">
             <label className="label">
-              <span className="label-text">触发方式</span>
+              <span className="label-text">{t("trigger_type")}</span>
             </label>
             <select
               className="select select-bordered"
@@ -330,10 +333,10 @@ export function BotFormModal({
                 })
               }
             >
-              <option value="schedule">定时执行</option>
-              <option value="event">事件触发</option>
-              <option value="webhook">Webhook</option>
-              <option value="manual">手动触发</option>
+              <option value="schedule">{t("trigger_schedule")}</option>
+              <option value="event">{t("trigger_event")}</option>
+              <option value="webhook">{t("trigger_webhook")}</option>
+              <option value="manual">{t("trigger_manual")}</option>
             </select>
           </div>
           {/* 定时配置 */}
@@ -341,23 +344,23 @@ export function BotFormModal({
             <>
               <div className="form-control">
                 <label className="label">
-                  <span className="label-text">预设频率</span>
+                  <span className="label-text">{t("schedule_preset")}</span>
                 </label>
                 <select
                   className="select select-bordered"
                   value={schedulePreset}
                   onChange={(e) => setSchedulePreset(e.target.value)}
                 >
-                  <option value="">自定义 Cron</option>
-                  <option value="hourly">每小时</option>
-                  <option value="daily">每天</option>
-                  <option value="weekly">每周</option>
+                  <option value="">{t("cron_custom")}</option>
+                  <option value="hourly">{t("hourly")}</option>
+                  <option value="daily">{t("daily")}</option>
+                  <option value="weekly">{t("weekly")}</option>
                 </select>
               </div>
               <div className="form-control">
                 <label className="label">
-                  <span className="label-text">Cron 表达式</span>
-                  <span className="label-text-alt">(使用预设可留空)</span>
+                  <span className="label-text">{t("cron_expression")}</span>
+                  <span className="label-text-alt">{t("cron_leave_empty")}</span>
                 </label>
                 <input
                   type="text"
@@ -375,7 +378,7 @@ export function BotFormModal({
           {formData.triggerType === "event" && (
             <div className="form-control">
               <label className="label">
-                <span className="label-text">事件过滤</span>
+                <span className="label-text">{t("event_filter")}</span>
               </label>
               <input
                 type="text"
@@ -392,7 +395,7 @@ export function BotFormModal({
           <div className="grid grid-cols-2 gap-4">
             <div className="form-control">
               <label className="label">
-                <span className="label-text">超时(秒)</span>
+                <span className="label-text">{t("timeout_seconds")}</span>
               </label>
               <input
                 type="number"
@@ -408,7 +411,7 @@ export function BotFormModal({
             </div>
             <div className="form-control">
               <label className="label">
-                <span className="label-text">重试次数</span>
+                <span className="label-text">{t("retry_times")}</span>
               </label>
               <input
                 type="number"
@@ -427,7 +430,7 @@ export function BotFormModal({
           {formData.configSchema && formData.configSchema.length > 0 && (
             <div>
               <label className="label">
-                <span className="label-text">机器人配置</span>
+                <span className="label-text">{t("bot_config")}</span>
               </label>
               <DynamicConfigForm
                 schema={formData.configSchema}
@@ -447,7 +450,7 @@ export function BotFormModal({
           {/* 定价模型 */}
           <div className="form-control">
             <label className="label">
-              <span className="label-text">定价模型</span>
+              <span className="label-text">{t("pricing_model")}</span>
             </label>
             <select
               className="select select-bordered"
@@ -462,17 +465,17 @@ export function BotFormModal({
                 })
               }
             >
-              <option value="free">免费</option>
-              <option value="freemium">免费增值</option>
-              <option value="paid">付费</option>
-              <option value="subscription">订阅</option>
+              <option value="free">{t("pricing_free")}</option>
+              <option value="freemium">{t("pricing_freemium")}</option>
+              <option value="paid">{t("pricing_paid")}</option>
+              <option value="subscription">{t("pricing_subscription")}</option>
             </select>
           </div>
           {/* 编辑模式下显示启用开关 */}
           {editingBot && (
             <div className="form-control">
               <label className="label cursor-pointer">
-                <span className="label-text">启用机器人</span>
+                <span className="label-text">{t("enable_bot")}</span>
                 <input
                   type="checkbox"
                   className="toggle"
@@ -487,14 +490,14 @@ export function BotFormModal({
         </div>
         <div className="modal-action">
           <button className="btn" onClick={onClose}>
-            取消
+            {t("cancel")}
           </button>
           <button
             className="btn btn-primary"
             onClick={handleSubmit}
             disabled={isLoading}
           >
-            {isLoading ? "保存中..." : "保存"}
+            {isLoading ? t("saving") : t("save")}
           </button>
         </div>
       </div>

@@ -12,7 +12,7 @@ import {
   EyeIcon,
   FileTextIcon,
 } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import Link from "next/link";
 
 export function AnnouncementCard({
@@ -20,13 +20,14 @@ export function AnnouncementCard({
 }: {
   announcement: AnnouncementDO;
 }) {
-  const t = useTranslations("Announcement"); // 获取翻译函数
+  const t = useTranslations("Announcement");
+  const locale = useLocale();
 
   // 使用工具函数获取类型样式和文本
   const typeBadgeClass = getAnnouncementTypeBadge(announcement.type);
   const typeLabel = getAnnouncementTypeText(announcement.type, t);
 
-  // 获取状态样式和文本（根据过期时间判断是否显示“已过期”）
+  // 获取状态样式和文本（根据过期时间判断是否显示"已过期"）
   const statusBadgeClass = getAnnouncementStatusBadge(
     announcement.status,
     announcement.expired_at,
@@ -40,7 +41,7 @@ export function AnnouncementCard({
   // 格式化时间
   const formatDate = (dateStr: string | null) => {
     if (!dateStr) return t("pending_publish");
-    return new Date(dateStr).toLocaleDateString("zh-CN", {
+    return new Date(dateStr).toLocaleDateString(locale, {
       year: "numeric",
       month: "2-digit",
       day: "2-digit",

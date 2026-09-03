@@ -28,5 +28,20 @@
   "total_violations": "Total violations",
   "bot": "Bot",
   "score": "Score",
-  "search_my_posts": "Search my posts"
+  "search_my_posts": "Search my posts",
+  "admin": "Admin",
+  "moderator": "Moderator",
+  "delete": "Delete",
+  "refresh": "Refresh",
+  "load_more": "Load more",
+  "retry": "Retry",
+  "posts_load_failed": "Failed to load posts",
+  "empty_response": "Empty response data",
+  "stats_load_failed": "Failed to load statistics",
+  "role_load_failed": "Failed to load role",
+  "violations_load_failed": "Failed to load violations",
+  "detail_load_failed": "Failed to load details",
+  "appeal_submit_failed": "Failed to submit appeal",
+  "leaderboard_load_failed": "Failed to load leaderboard",
+  "loading": "Loading..."
 }

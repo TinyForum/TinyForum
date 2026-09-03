@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Play, Video } from "lucide-react";
+import { useTranslations } from "next-intl";
 import Avatar from "@/shared/ui/common/Avatar";
 import { UserDO } from "@/shared/api/types/user.model.do";
 import { normalizeUrl, getYouTubeThumb, isYouTubeUrl } from "./WorkCard";
@@ -21,6 +22,7 @@ export function ShortVideoCard({
   postId: number;
   author?: UserDO;
 }) {
+  const t = useTranslations("Common");
   const thumbUrl = coverUrl
     || (videoUrl && isYouTubeUrl(videoUrl) ? getYouTubeThumb(videoUrl) : undefined);
 
@@ -53,7 +55,7 @@ export function ShortVideoCard({
           </div>
         </div>
         <div className="absolute top-3 left-3 bg-black/50 backdrop-blur-sm text-white text-[10px] px-2 py-0.5 rounded-full">
-          短视频
+          {t("creation_type.short_video")}
         </div>
       </div>
       <div className="p-3">

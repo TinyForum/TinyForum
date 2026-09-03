@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   SystemSidebar,
   type SystemMenuId,
@@ -11,22 +12,23 @@ import { FeatureFlagsPanel } from "@/features/system/components/FeatureFlagsPane
 import { useSiteConfig } from "@/features/system/hooks/useSiteConfig";
 import { useFeatureFlags } from "@/features/system/hooks/useFeatureFlags";
 
-const PAGE_META: Record<SystemMenuId, { title: string; subtitle: string }> = {
+const PAGE_META: Record<SystemMenuId, { titleKey: string; subtitleKey: string }> = {
   website_config: {
-    title: "website_config",
-    subtitle: "自动从后端加载配置项，修改后即时保存并重载",
+    titleKey: "website_config",
+    subtitleKey: "auto_load_from_backend",
   },
   plugins_center: {
-    title: "plugins_center",
-    subtitle: "安装、启用或移除扩展插件",
+    titleKey: "plugins_center",
+    subtitleKey: "plugin_install_tip",
   },
   features_flags: {
-    title: "features_flags",
-    subtitle: "实时控制各功能模块的启用状态",
+    titleKey: "features_flags",
+    subtitleKey: "feature_control_tip",
   },
 };
 
 export default function SystemDashboardClient() {
+  const t = useTranslations("System");
   const [activeMenu, setActiveMenu] = useState<SystemMenuId>("website_config");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
@@ -60,8 +62,8 @@ export default function SystemDashboardClient() {
       <div className="flex-1 flex flex-col overflow-hidden">
         <header className="shrink-0 px-6 py-4 border-b border-base-300 bg-base-100 flex items-end gap-3">
           <div>
-            <h1 className="text-lg font-bold leading-none">{meta.title}</h1>
-            <p className="text-xs text-base-content/40 mt-1">{meta.subtitle}</p>
+            <h1 className="text-lg font-bold leading-none">{t(meta.titleKey)}</h1>
+            <p className="text-xs text-base-content/40 mt-1">{t(meta.subtitleKey)}</p>
           </div>
         </header>
 

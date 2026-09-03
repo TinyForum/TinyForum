@@ -11,6 +11,7 @@ import {
   Upload,
 } from "lucide-react";
 import toast from "react-hot-toast";
+import { useTranslations } from "next-intl";
 import { useAdminPlugins } from "../useAdminPlugins";
 import { Pagination } from "@/shared/ui/common/Pagination";
 import { pluginKeys } from "../hooks/usePluginKeys";
@@ -19,6 +20,7 @@ import { pluginKeys } from "../hooks/usePluginKeys";
 // 如果实际 API 不支持，请先修改后端或增加一个获取总数的接口
 
 export function MyPluginsTab() {
+  const t = useTranslations("Plugin");
   const queryClient = useQueryClient();
   const [showUploadForm, setShowUploadForm] = useState(false);
   const [uploadedFlag, setUploadedFlag] = useState(false);
@@ -41,7 +43,7 @@ export function MyPluginsTab() {
   const handleDeletePlugin = (pluginSlug: string) => {
     handleDelete(pluginSlug);
     queryClient.invalidateQueries({ queryKey: pluginKeys.all });
-    toast.success("插件已删除");
+    toast.success(t("plugin_deleted"));
   };
 
   // 上传文件处理
@@ -49,7 +51,7 @@ export function MyPluginsTab() {
   const handleUploadSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!file) {
-      toast.error("请选择 ZIP 文件");
+      toast.error(t("select_zip"));
       return;
     }
     const result = await upload(file);
@@ -60,7 +62,7 @@ export function MyPluginsTab() {
       queryClient.invalidateQueries({ queryKey: pluginKeys.all });
       setTimeout(() => setUploadedFlag(false), 3000);
     } else {
-      toast.error("上传失败");
+      toast.error(t("upload_failed"));
     }
   };
 
@@ -69,15 +71,15 @@ export function MyPluginsTab() {
     return (
       <div className="card bg-base-200 p-6 text-center">
         <CheckCircle2 className="w-12 h-12 text-success mx-auto mb-3" />
-        <h3 className="text-lg font-semibold">上传成功！</h3>
+        <h3 className="text-lg font-semibold">{t("upload_success")}</h3>
         <p className="text-sm text-base-content/60">
-          插件已提交审核，稍后可在列表中查看。
+          {t("upload_success_desc")}
         </p>
         <button
           className="btn btn-sm btn-outline mt-4"
           onClick={() => setUploadedFlag(false)}
         >
-          返回我的插件
+          {t("back_to_my_plugins")}
         </button>
       </div>
     );
@@ -89,15 +91,15 @@ export function MyPluginsTab() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <Package className="w-5 h-5 text-secondary" />
-          <h2 className="text-xl font-semibold">我的插件</h2>
-          <span className="badge badge-ghost badge-sm">{total} 个插件</span>
+          <h2 className="text-xl font-semibold">{t("my_plugins")}</h2>
+          <span className="badge badge-ghost badge-sm">{t("plugin_count", { count: total })}</span>
         </div>
         <button
           onClick={() => setShowUploadForm(!showUploadForm)}
           className="btn btn-secondary btn-sm gap-2"
         >
           <Upload className="w-4 h-4" />
-          {showUploadForm ? "取消上传" : "上传插件"}
+          {showUploadForm ? t("cancel_upload") : t("upload_plugin")}
         </button>
       </div>
 
@@ -106,7 +108,7 @@ export function MyPluginsTab() {
         <div className="card bg-base-200 border border-base-300 p-4">
           <form onSubmit={handleUploadSubmit} className="space-y-4">
             <div>
-              <label className="label-text">插件 ZIP 包 *</label>
+              <label className="label-text">{t("plugin_zip_label")}</label>
               <input
                 type="file"
                 accept=".zip"
@@ -115,7 +117,7 @@ export function MyPluginsTab() {
                 className="file-input file-input-bordered w-full"
               />
               <p className="text-xs text-base-content/50 mt-1">
-                请打包符合规范的插件目录为 ZIP 文件，系统将自动读取插件信息。
+                {t("zip_instruction")}
               </p>
             </div>
             <div className="flex justify-end gap-2">
@@ -127,7 +129,7 @@ export function MyPluginsTab() {
                 {isUploading && (
                   <span className="loading loading-spinner loading-xs" />
                 )}
-                提交审核
+                {t("submit_review")}
               </button>
             </div>
           </form>
@@ -143,7 +145,7 @@ export function MyPluginsTab() {
         <div className="card bg-base-200 p-8 text-center">
           <Package className="w-12 h-12 text-base-content/30 mx-auto mb-3" />
           <p className="text-base-content/60">
-            暂无插件，点击上方按钮上传你的第一个插件吧~
+            {t("no_plugins")}
           </p>
         </div>
       ) : (
@@ -163,11 +165,11 @@ export function MyPluginsTab() {
                       </span>
                       {plugin.enabled ? (
                         <span className="badge badge-success badge-sm">
-                          已启用
+                          {t("enabled")}
                         </span>
                       ) : (
                         <span className="badge badge-warning badge-sm">
-                          未启用
+                          {t("disabled")}
                         </span>
                       )}
                     </div>
@@ -175,8 +177,8 @@ export function MyPluginsTab() {
                       {plugin.description}
                     </p>
                     <div className="flex gap-3 text-xs text-base-content/50">
-                      <span>作者: {plugin.author}</span>
-                      <span>上传时间: {plugin.createdAt}</span>
+                      <span>{t("author_label", { author: plugin.author ?? "" })}</span>
+                      <span>{t("upload_time_label", { time: plugin.createdAt ?? "" })}</span>
                     </div>
                   </div>
                   <div className="flex gap-2">
@@ -195,7 +197,7 @@ export function MyPluginsTab() {
                       onClick={() => handleDeletePlugin(plugin.slug)}
                     >
                       <Trash2 className="w-4 h-4" />
-                      删除
+                      {t("delete")}
                     </button>
                   </div>
                 </div>

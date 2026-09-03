@@ -20,5 +20,16 @@
   "edit_profile": "Edit profile",
   "the_posts": "Posts",
   "the_articles": "Articles",
-  "login_to_follow": "Log in to follow"
+  "login_to_follow": "Log in to follow",
+  "follow_success": "Followed successfully",
+  "follow_failed": "Failed to follow",
+  "unfollow_success": "Unfollowed successfully",
+  "unfollow_failed": "Failed to unfollow",
+  "missing_user_id": "Missing user ID",
+  "followers_load_failed": "Failed to load followers",
+  "following_load_failed": "Failed to load following",
+  "profile_load_failed": "Failed to load profile",
+  "profile_update_success": "Profile updated successfully",
+  "update_failed": "Update failed",
+  "posts_load_failed": "Failed to load posts"
 }

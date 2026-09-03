@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 import {
   Lock,
@@ -17,6 +17,7 @@ import Link from "next/link";
 import { useValidateTokenStore, useResetPasswordStore } from "@/store/token";
 
 export default function ResetPasswordClient() {
+  const t = useTranslations("Auth");
   const router = useRouter();
   const searchParams = useSearchParams();
   const locale = useLocale();
@@ -87,15 +88,15 @@ export default function ResetPasswordClient() {
           <div className="card bg-base-100 shadow-xl border border-base-300">
             <div className="card-body p-8 text-center">
               <div className="text-6xl mb-4">🔒</div>
-              <h2 className="text-2xl font-bold mb-2">无效的密码重置链接</h2>
+              <h2 className="text-2xl font-bold mb-2">{t("invalid_reset_link")}</h2>
               <p className="text-base-content/70 mb-6">
-                {validationError || "这个密码重置链接无效或者已过期。"}
+                {t(validationError || "invalid_reset_link_expired")}
               </p>
               <Link
                 href={`/${locale}/auth/forgot-password`}
                 className="btn btn-primary"
               >
-                获取新的密码重置链接
+                {t("get_new_reset_link")}
               </Link>
             </div>
           </div>
@@ -124,17 +125,16 @@ export default function ResetPasswordClient() {
                 <CheckCircle className="w-16 h-16 text-success mx-auto" />
               </div>
               <h2 className="text-2xl font-bold mb-2">
-                Password Reset Success!
+                {t("reset_password_success")}
               </h2>
               <p className="text-base-content/70 mb-6">
-                Your password has been reset successfully. Please login with
-                your new password.
+                {t("reset_password_success_desc")}
               </p>
               <Link
                 href={`/${locale}/auth/login`}
                 className="btn btn-primary w-full"
               >
-                Go to Login
+                {t("to_login")}
               </Link>
             </div>
           </div>
@@ -153,9 +153,9 @@ export default function ResetPasswordClient() {
               <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white text-2xl font-black mx-auto mb-4">
                 B
               </div>
-              <h1 className="text-2xl font-bold">Set New Password</h1>
+              <h1 className="text-2xl font-bold">{t("set_new_password")}</h1>
               <p className="text-base-content/50 text-sm mt-1">
-                Please enter your new password
+                {t("enter_new_password_desc")}
               </p>
             </div>
 
@@ -177,7 +177,7 @@ export default function ResetPasswordClient() {
               {/* New Password */}
               <div className="form-control">
                 <label className="label pb-1">
-                  <span className="label-text font-medium">New Password</span>
+                  <span className="label-text font-medium">{t("new_password")}</span>
                 </label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-base-content/40" />
@@ -208,9 +208,9 @@ export default function ResetPasswordClient() {
               {/* Confirm Password */}
               <div className="form-control">
                 <label className="label pb-1">
-                  <span className="label-text font-medium">
-                    Confirm Password
-                  </span>
+                    <span className="label-text font-medium">
+                      {t("confirm_password")}
+                    </span>
                 </label>
                 <div className="relative">
                   <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-base-content/40" />
@@ -239,7 +239,7 @@ export default function ResetPasswordClient() {
 
               {resetError && (
                 <div className="alert alert-error text-sm p-3">
-                  {resetError}
+                  {t(resetError)}
                 </div>
               )}
 
@@ -253,7 +253,7 @@ export default function ResetPasswordClient() {
                 ) : (
                   <KeyRound className="w-4 h-4" />
                 )}
-                {isResetting ? "Resetting..." : "Reset Password"}
+                {isResetting ? t("resetting") : t("reset_password")}
               </button>
 
               <div className="text-center">
@@ -262,7 +262,7 @@ export default function ResetPasswordClient() {
                   className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
                 >
                   <ArrowLeft className="w-3 h-3" />
-                  Back to Login
+                  {t("back_to_login")}
                 </Link>
               </div>
             </form>

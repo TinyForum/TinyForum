@@ -2,6 +2,7 @@
 "use client";
 
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import {
   ChatBubbleLeftRightIcon,
   FireIcon,
@@ -16,6 +17,7 @@ interface BoardCardProps {
 }
 
 export function BoardCard({ board }: BoardCardProps) {
+  const t = useTranslations("Board");
   return (
     <Link
       href={`/boards/${board.slug}`}
@@ -49,16 +51,16 @@ export function BoardCard({ board }: BoardCardProps) {
             <div className="flex flex-wrap items-center gap-4 text-xs">
               <div className="flex items-center gap-1.5 text-base-content/50">
                 <ChatBubbleLeftRightIcon className="w-3.5 h-3.5" />
-                <span>{board.post_count || 0} 帖子</span>
+                <span>{board.post_count || 0} {t("posts_label")}</span>
               </div>
               <div className="flex items-center gap-1.5 text-base-content/50">
                 <DocumentTextIcon className="w-3.5 h-3.5" />
-                <span>{board.thread_count || 0} 主题</span>
+                <span>{board.thread_count || 0} {t("threads_label")}</span>
               </div>
               {board.today_count > 0 && (
                 <div className="flex items-center gap-1.5 text-orange-500">
                   <FireIcon className="w-3.5 h-3.5" />
-                  <span>今日 {board.today_count}</span>
+                  <span>{t("today_label")} {board.today_count}</span>
                 </div>
               )}
             </div>

@@ -28,5 +28,20 @@
   "total_violations": "总违规数",
   "bot": "机器人",
   "score": "积分",
-  "search_my_posts": "搜索我的帖子"
+  "search_my_posts": "搜索我的帖子",
+  "admin": "管理员",
+  "moderator": "版主",
+  "delete": "删除",
+  "refresh": "刷新",
+  "load_more": "加载更多",
+  "retry": "重试",
+  "posts_load_failed": "获取帖子列表失败",
+  "empty_response": "返回数据为空",
+  "stats_load_failed": "获取统计数量失败",
+  "role_load_failed": "获取角色失败",
+  "violations_load_failed": "获取违规列表失败",
+  "detail_load_failed": "获取详情失败",
+  "appeal_submit_failed": "申诉提交失败",
+  "leaderboard_load_failed": "加载排行榜失败",
+  "loading": "加载中..."
 }

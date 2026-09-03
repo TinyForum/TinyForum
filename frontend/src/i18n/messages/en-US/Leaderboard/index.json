@@ -1,4 +1,25 @@
 {
   "title": "Leaderboard",
-  "description": "Participate in discussions, post, and comment to earn points"
+  "description": "Participate in discussions, post, and comment to earn points",
+  "total_users": "Total Users",
+  "highest_score": "Highest Score",
+  "lowest_score": "Lowest Score",
+  "average_score": "Average Score",
+  "total_score": "Total Score",
+  "champion": "Champion",
+  "medal": "Medal",
+  "medal_count": "Medal Count",
+  "rank": "Rank",
+  "score": "Score",
+  "username": "Username",
+  "avatar": "Avatar",
+  "level": "Level",
+  "user_score": "User Score",
+  "more_users": "More users",
+  "no_data": "No data",
+  "showing_top_users": "Showing top {count} users",
+  "no_data_description": "No user data yet. Be the first to make the leaderboard!",
+  "active_score": "Active Score",
+  "load_failed": "Load Failed",
+  "retry_later": "Please try again later"
 }

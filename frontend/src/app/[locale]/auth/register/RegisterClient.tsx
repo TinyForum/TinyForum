@@ -47,12 +47,10 @@ export default function RegisterClient() {
 
     if (result.success) {
       const currentUser = useAuthStore.getState().user;
-      toast.success(
-        `${t("registration_successful")}，${currentUser?.username || ""}！`,
-      );
+      toast.success(t("registration_successful_with_username", { username: currentUser?.username || "" }));
       router.push("/");
     } else {
-      toast.error(serverError || result.message || t("registration_failed"));
+      toast.error(t(serverError || result.message || "registration_failed"));
     }
   };
 
@@ -119,7 +117,7 @@ export default function RegisterClient() {
                 {errors.username && (
                   <label className="label pt-1">
                     <span className="label-text-alt text-error">
-                      {errors.username}
+                      {t(errors.username)}
                     </span>
                   </label>
                 )}
@@ -145,7 +143,7 @@ export default function RegisterClient() {
                 {errors.email && (
                   <label className="label pt-1">
                     <span className="label-text-alt text-error">
-                      {errors.email}
+                      {t(errors.email)}
                     </span>
                   </label>
                 )}
@@ -185,7 +183,7 @@ export default function RegisterClient() {
                 {errors.password && (
                   <label className="label pt-1">
                     <span className="label-text-alt text-error">
-                      {errors.password}
+                      {t(errors.password)}
                     </span>
                   </label>
                 )}
@@ -213,7 +211,7 @@ export default function RegisterClient() {
                 {errors.confirmPassword && (
                   <label className="label pt-1">
                     <span className="label-text-alt text-error">
-                      {errors.confirmPassword}
+                      {t(errors.confirmPassword)}
                     </span>
                   </label>
                 )}
@@ -222,7 +220,7 @@ export default function RegisterClient() {
               {/* Server Error */}
               {serverError && !Object.keys(errors).length && (
                 <div className="alert alert-error py-2">
-                  <span className="text-sm">{serverError}</span>
+                  <span className="text-sm">{t(serverError)}</span>
                 </div>
               )}
 

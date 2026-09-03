@@ -1,9 +1,11 @@
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { useAdminPlugins } from "../useAdminPlugins";
 import { CreatePluginPayload } from "@/shared/api/modules/plugin/plugins";
 import Image from "next/image";
 
 export function PluginMarketTab() {
+  const t = useTranslations("Plugin");
   const {
     plugins,
     total,
@@ -72,11 +74,11 @@ export function PluginMarketTab() {
     <div className="space-y-4">
       {/* 头部：标题 + 搜索 + 安装按钮 */}
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h3 className="text-base font-medium">官方插件市场</h3>
+        <h3 className="text-base font-medium">{t("official_market")}</h3>
         <div className="flex items-center gap-2">
           <input
             type="text"
-            placeholder="搜索插件（当前页）..."
+            placeholder={t("search_current_page")}
             className="input input-bordered input-sm w-64"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -85,7 +87,7 @@ export function PluginMarketTab() {
             {uploading ? (
               <span className="loading loading-spinner loading-xs" />
             ) : (
-              "安装插件"
+              t("install_plugin")
             )}
             <input
               type="file"
@@ -106,8 +108,8 @@ export function PluginMarketTab() {
       ) : filteredPlugins.length === 0 ? (
         <div className="py-12 text-center text-base-content/70">
           {plugins.length === 0
-            ? "暂无已安装插件，点击上方按钮安装第一个插件"
-            : "没有找到匹配的插件"}
+            ? t("no_installed_plugins")
+            : t("no_matching_plugins")}
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -133,10 +135,10 @@ export function PluginMarketTab() {
                       </span>
                     </div>
                     <p className="text-sm text-base-content/70 mt-1 line-clamp-2">
-                      {plugin.description || "暂无描述"}
+                      {plugin.description || t("no_description")}
                     </p>
                     <div className="mt-2 text-xs text-base-content/50">
-                      作者：{plugin.author || "未知"}
+                      {t("author_label", { author: plugin.author || t("unknown_author") })}
                     </div>
                   </div>
                   <div className="flex items-center gap-1">
@@ -147,7 +149,7 @@ export function PluginMarketTab() {
                       }`}
                       onClick={() => handleToggle(plugin.slug, !plugin.enabled)}
                       disabled={isUpdating || isDeleting}
-                      title={plugin.enabled ? "禁用" : "启用"}
+                      title={plugin.enabled ? t("disable") : t("enable")}
                     >
                       {plugin.enabled ? (
                         <svg
@@ -186,11 +188,11 @@ export function PluginMarketTab() {
                       className="btn btn-xs btn-square btn-outline btn-error"
                       onClick={() => handleDelete(plugin.slug)}
                       disabled={isDeleting}
-                      title="卸载"
+                      title={t("uninstall")}
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4"
+                        className="h-4 h-4"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
@@ -223,7 +225,7 @@ export function PluginMarketTab() {
               «
             </button>
             <span className="join-item btn btn-sm btn-disabled">
-              第 {page} / {totalPages} 页
+              {t("page_info", { page, totalPages })}
             </span>
             <button
               className="join-item btn btn-sm"
@@ -238,7 +240,7 @@ export function PluginMarketTab() {
 
       {/* 底部信息 */}
       <div className="text-xs text-center text-base-content/50">
-        共 {total} 个插件，当前页显示 {filteredPlugins.length} 个
+        {t("market_total_count", { total, count: filteredPlugins.length })}
       </div>
     </div>
   );

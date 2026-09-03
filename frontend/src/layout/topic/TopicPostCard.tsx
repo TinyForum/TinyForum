@@ -10,12 +10,14 @@ import {
 import type { Post } from "@/shared/api/types/post.model";
 import { formatDistanceToNow } from "date-fns";
 import { zhCN } from "date-fns/locale";
+import { useTranslations } from "next-intl";
 
 interface TopicPostCardProps {
   post: Post;
 }
 
 export function TopicPostCard({ post }: TopicPostCardProps) {
+  const t = useTranslations("Topic");
   const timeAgo = formatDistanceToNow(new Date(post.created_at), {
     addSuffix: true,
     locale: zhCN,
@@ -44,7 +46,7 @@ export function TopicPostCard({ post }: TopicPostCardProps) {
               </div>
               <span>
                 {post.creation.author?.username ||
-                  `用户${post.creation.author_id}`}
+                  t("user_id_format", { id: post.creation.author_id })}
               </span>
             </div>
 

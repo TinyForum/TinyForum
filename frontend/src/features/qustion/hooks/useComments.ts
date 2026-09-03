@@ -16,6 +16,7 @@ import {
   CreateCommentPayload,
   CreateCommentResponse,
 } from "@/shared/api/types/comment.model";
+import { useTranslations } from "next-intl";
 
 // ---------- 查询：获取某帖子的评论列表（分页） ----------
 export function useCommentsByPost(
@@ -26,16 +27,17 @@ export function useCommentsByPost(
     "queryKey" | "queryFn"
   >,
 ) {
+  const t = useTranslations("Comment");
   return useQuery<PageData<CommentResponse>, AxiosError>({
     queryKey: commentKeys.list(postId, params),
     queryFn: async () => {
       const res = await commentApi.listByPost(postId, params);
       // 假设 res 为 AxiosResponse<ApiResponse<PageData<CommentResponse>>>
       if (res.data.code !== 0) {
-        throw new Error(res.data.message || "获取评论列表失败");
+        throw new Error(res.data.message || t("load_comments_failed"));
       }
       if (!res.data.data) {
-        throw new Error("评论数据为空");
+        throw new Error(t("comments_data_empty"));
       }
       return res.data.data;
     },
@@ -53,15 +55,16 @@ export function useCreateComment(
   >,
 ) {
   const queryClient = useQueryClient();
+  const t = useTranslations("Comment");
 
   return useMutation<CreateCommentResponse, AxiosError, CreateCommentPayload>({
     mutationFn: async (payload) => {
       const res = await commentApi.create(payload);
       if (res.data.code !== 0) {
-        throw new Error(res.data.message || "创建评论失败");
+        throw new Error(res.data.message || t("comment_failed"));
       }
       if (!res.data.data) {
-        throw new Error("创建评论返回数据为空");
+        throw new Error(t("comment_data_empty"));
       }
       return res.data.data;
     },
@@ -86,12 +89,13 @@ export function useDeleteComment(
   options?: UseMutationOptions<void, AxiosError, number>,
 ) {
   const queryClient = useQueryClient();
+  const t = useTranslations("Comment");
 
   return useMutation<void, AxiosError, number>({
     mutationFn: async (commentId) => {
       const res = await commentApi.delete(commentId);
       if (res.data.code !== 0) {
-        throw new Error(res.data.message || "删除评论失败");
+        throw new Error(res.data.message || t("delete_failed"));
       }
     },
     onSuccess: () => {

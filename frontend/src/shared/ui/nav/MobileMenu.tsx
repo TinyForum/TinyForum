@@ -15,23 +15,18 @@ import {
   Bookmark,
   MessageCircleQuestion,
   LayoutGrid,
-  type LucideIcon,
 } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import Avatar from "@/shared/ui/common/Avatar";
 import { UserDO } from "@/shared/api/types/user.model.do";
 
-interface NavItem {
-  key: string;
-  href: string;
-  icon: LucideIcon;
-}
+import { NavItem as NavItemType } from "@/shared/ui/nav/types";
 
 interface MobileMenuProps {
   isOpen: boolean;
   onClose: () => void;
-  navItems: NavItem[];
+  navItems: NavItemType[];
   isAuthenticated: boolean;
   user: UserDO | null;
   onLogout: () => void;
@@ -136,7 +131,7 @@ export default function MobileMenu({
                 <div className="text-xs font-semibold text-base-content/50 mb-2 px-3">
                   {t("navigation")}
                 </div>
-                {navItems.map((item: NavItem) => {
+                {navItems.map((item: NavItemType) => {
                   const active = isActive(item.href);
                   const Icon = item.icon;
                   return (
@@ -153,9 +148,7 @@ export default function MobileMenu({
                       <Icon
                         className={`w-5 h-5 ${active ? "text-primary" : ""}`}
                       />
-                      <span>
-                        {item.key.charAt(0).toUpperCase() + item.key.slice(1)}
-                      </span>
+                      <span>{item.name}</span>
                       {active && (
                         <span className="ml-auto w-1.5 h-1.5 bg-primary rounded-full" />
                       )}

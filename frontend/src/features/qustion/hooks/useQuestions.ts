@@ -23,6 +23,7 @@ import {
   QuestionSimple,
 } from "@/shared/api/types/question.model";
 import { AnswerResponse } from "@/shared/api/types/answer.model";
+import { useTranslations } from "next-intl";
 
 // ---------- 查询：问题详情 ----------
 export function useQuestion(
@@ -32,15 +33,16 @@ export function useQuestion(
     "queryKey" | "queryFn"
   >,
 ) {
+  const t = useTranslations("Questions");
   return useQuery<QuestionResponse, AxiosError>({
     queryKey: questionKeys.detail(questionId),
     queryFn: async () => {
       const res = await questionApi.getDetail(questionId);
       if (res.data.code !== 0) {
-        throw new Error(res.data.message || "获取问题详情失败");
+        throw new Error(res.data.message || t("load_question_failed"));
       }
       if (!res.data.data) {
-        throw new Error("问题详情数据为空");
+        throw new Error(t("question_data_empty"));
       }
       return res.data.data;
     },
@@ -58,15 +60,16 @@ export function useAnswers(
     "queryKey" | "queryFn"
   >,
 ) {
+  const t = useTranslations("Questions");
   return useQuery<PageData<AnswerResponse>, AxiosError>({
     queryKey: questionKeys.answers(questionId, params),
     queryFn: async () => {
       const res = await questionApi.getAnswers(questionId, params);
       if (res.data.code !== 0) {
-        throw new Error(res.data.message || "获取回答列表失败");
+        throw new Error(res.data.message || t("load_answers_failed"));
       }
       if (!res.data.data) {
-        throw new Error("回答列表数据为空");
+        throw new Error(t("answers_data_empty"));
       }
       return res.data.data; // 假设返回 PageData<CommentResponse>
     },
@@ -85,6 +88,7 @@ export function useCreateAnswer(
   >,
 ) {
   const queryClient = useQueryClient();
+  const t = useTranslations("Questions");
 
   return useMutation<
     CommentResponse,
@@ -99,10 +103,10 @@ export function useCreateAnswer(
       };
       const res = await questionApi.createAnswer(questionId, fullPayload);
       if (res.data.code !== 0) {
-        throw new Error(res.data.message || "创建回答失败");
+        throw new Error(res.data.message || t("create_answer_failed"));
       }
       if (!res.data.data) {
-        throw new Error("创建回答返回数据为空");
+        throw new Error(t("answer_data_empty"));
       }
       return res.data.data;
     },
@@ -235,11 +239,12 @@ export function useQuestionList(
     "queryKey" | "queryFn"
   >,
 ) {
+  const t = useTranslations("Questions");
   return useQuery<PageData<QuestionSimple>, AxiosError>({
     queryKey: [...questionKeys.list(), params],
     queryFn: async () => {
       const res = await questionApi.getSimple(params);
-      return unwrap(res);
+      return unwrap(res, t);
     },
     enabled: !!params?.page, // 或者根据是否有参数决定，但默认启用
     ...options,
@@ -247,14 +252,17 @@ export function useQuestionList(
 }
 
 // 辅助解包函数
-function unwrap<T>(res: {
-  data: { code: number; message?: string; data?: T };
-}): T {
+function unwrap<T>(
+  res: {
+    data: { code: number; message?: string; data?: T };
+  },
+  t: (key: string) => string,
+): T {
   if (res.data.code !== 0) {
-    throw new Error(res.data.message || "请求失败");
+    throw new Error(res.data.message || t("request_failed"));
   }
   if (!res.data.data) {
-    throw new Error("返回数据为空");
+    throw new Error(t("data_empty"));
   }
   return res.data.data;
 }

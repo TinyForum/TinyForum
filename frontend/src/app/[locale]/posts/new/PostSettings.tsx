@@ -105,7 +105,7 @@ export function PostSettings({
         </label>
         <select
           {...register("board_id", {
-            required: "请选择板块",
+            required: t("select_board_error"),
             valueAsNumber: true,
           })}
           className={`select select-bordered w-full focus:outline-none focus:border-primary ${
@@ -150,7 +150,9 @@ export function PostSettings({
                 className="hidden peer"
               />
               <div className="border-2 border-base-300 rounded-lg py-2 text-center peer-checked:border-primary peer-checked:bg-primary/5 transition-all">
-                <div className="font-medium text-sm">{typeOption.label}</div>
+                <div className="font-medium text-sm">
+                  {t(typeOption.labelKey)}
+                </div>
               </div>
             </label>
           ))}
