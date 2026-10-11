@@ -2,10 +2,52 @@ package reports
 
 import (
 	"context"
+	"time"
 	"tiny-forum/internal/model/bo"
 	"tiny-forum/internal/model/common"
 	"tiny-forum/internal/model/do"
 )
+
+// Create 新增一条举报记录
+func (r *reportsRepository) Create(ctx context.Context, report *do.Report) error {
+	return r.db.WithContext(ctx).Create(report).Error
+}
+
+// CountIllegalStats 统计指定时间段内按被举报对象类型分组的举报数量
+func (r *reportsRepository) CountIllegalStats(ctx context.Context, startDate, endDate time.Time) (*IllegalStats, error) {
+	stats := &IllegalStats{}
+
+	if err := r.db.WithContext(ctx).Model(&do.Report{}).
+		Where("created_at BETWEEN ? AND ?", startDate, endDate).
+		Count(&stats.Total).Error; err != nil {
+		return nil, err
+	}
+
+	type typeCount struct {
+		TargetType string
+		Cnt        int64
+	}
+	var rows []typeCount
+	if err := r.db.WithContext(ctx).Model(&do.Report{}).
+		Select("target_type, count(*) AS cnt").
+		Where("created_at BETWEEN ? AND ?", startDate, endDate).
+		Group("target_type").
+		Scan(&rows).Error; err != nil {
+		return nil, err
+	}
+
+	for _, row := range rows {
+		switch do.ReportTargetType(row.TargetType) {
+		case do.ReportTargetTypeUser:
+			stats.UserCount = row.Cnt
+		case do.ReportTargetTypePost:
+			stats.ArticleCnt = row.Cnt
+		case do.ReportTargetTypeComment:
+			stats.CommentCnt = row.Cnt
+		}
+	}
+	return stats, nil
+}
 
 func (r *reportsRepository) List(ctx context.Context, listReportBO *common.PageQuery[bo.ListReportBO]) ([]do.Report, int64, error) {
 	var reports []do.Report

@@ -7,6 +7,7 @@ import (
 	postRepo "tiny-forum/internal/repository/article"
 	boardRepo "tiny-forum/internal/repository/board"
 	commentRepo "tiny-forum/internal/repository/comment"
+	reportsRepo "tiny-forum/internal/repository/reports"
 	statsRepo "tiny-forum/internal/repository/stats"
 	tagRepo "tiny-forum/internal/repository/tag"
 	userRepo "tiny-forum/internal/repository/user"
@@ -26,6 +27,7 @@ type statsService struct {
 	boardRepo   boardRepo.BoardRepository
 	userRepo    userRepo.UserRepository
 	commentRepo commentRepo.CommentRepository
+	reportsRepo reportsRepo.ReportsRepository
 }
 
 func NewStatsService(
@@ -35,6 +37,7 @@ func NewStatsService(
 	boardRepo boardRepo.BoardRepository,
 	userRepo userRepo.UserRepository,
 	commentRepo commentRepo.CommentRepository,
+	reportsRepo reportsRepo.ReportsRepository,
 ) StatsService {
 	return &statsService{
 		statsRepo:   statsRepo,
@@ -43,5 +46,6 @@ func NewStatsService(
 		boardRepo:   boardRepo,
 		userRepo:    userRepo,
 		commentRepo: commentRepo,
+		reportsRepo: reportsRepo,
 	}
 }

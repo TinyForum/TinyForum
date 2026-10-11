@@ -43,7 +43,6 @@ func (s *statsService) GetStatsByDate(ctx context.Context, date time.Time, stats
 
 // GetTotalStats 获取指定时间范围的汇总统计数据
 func (s *statsService) GetTotalStats(ctx context.Context, startDate, endDate time.Time, statsType string) (*dto.StatsInfoResp, error) {
-	fmt.Printf("GetTotalStats: start_date=%s, end_date=%s, stats_type=%s", startDate, endDate, statsType)
 	resp := &dto.StatsInfoResp{StatTime: time.Now()}
 	baseInfo, err := s.getBaseInfo(ctx)
 	if err != nil {
@@ -98,13 +97,29 @@ func (s *statsService) GetTrendStats(ctx context.Context, startDate, endDate tim
 	for _, date := range dates {
 		var count int64
 		var err error
+
+		// 计算当前区间的起止时间：generateDateRange 返回的已是各区间起始日，
+		// 因此只需按粒度向后推算出区间末日，再对该区间单独统计，
+		// 否则每个数据点都会统计整个 [startDate, endDate] 而得到相同值。
+		bucketStart := time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, date.Location())
+		var bucketEnd time.Time
+		switch intervals {
+		case "week":
+			bucketEnd = bucketStart.AddDate(0, 0, 6)
+		case "month":
+			bucketEnd = bucketStart.AddDate(0, 1, -1)
+		default: // "day"
+			bucketEnd = bucketStart
+		}
+		bucketEnd = time.Date(bucketEnd.Year(), bucketEnd.Month(), bucketEnd.Day(), 23, 59, 59, 999999999, bucketEnd.Location())
+
 		switch statsType {
 		case "users":
-			count, err = s.userRepo.CountByDateRange(ctx, startDate, endDate)
+			count, err = s.userRepo.CountByDateRange(ctx, bucketStart, bucketEnd)
 		case "posts":
-			count, err = s.postRepo.CountByDateRange(ctx, startDate, endDate)
+			count, err = s.postRepo.CountByDateRange(ctx, bucketStart, bucketEnd)
 		case "comments":
-			count, err = s.commentRepo.CountByDateRange(ctx, startDate, endDate)
+			count, err = s.commentRepo.CountByDateRange(ctx, bucketStart, bucketEnd)
 		default:
 			continue
 		}

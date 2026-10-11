@@ -182,9 +182,18 @@ func (s *statsService) getRangeStats(ctx context.Context, startDate, endDate tim
 }
 
 // getIllegalInfo 获取违规统计（基于 reports 表）
-func (s *statsService) getIllegalInfo(_ context.Context, _, _ time.Time) (*dto.StatsIllegalInfo, error) {
-	// TODO: 注入 ReportRepository 后按 target_type 分组统计
-	return &dto.StatsIllegalInfo{}, nil
+func (s *statsService) getIllegalInfo(ctx context.Context, startDate, endDate time.Time) (*dto.StatsIllegalInfo, error) {
+	stats, err := s.reportsRepo.CountIllegalStats(ctx, startDate, endDate)
+	if err != nil {
+		return nil, fmt.Errorf("统计违规数据: %w", err)
+	}
+	return &dto.StatsIllegalInfo{
+		Total:      stats.Total,
+		UserCount:  stats.UserCount,
+		ArticleCnt: stats.ArticleCnt,
+		CommentCnt: stats.CommentCnt,
+		BoardCnt:   0, // 举报对象类型当前仅支持 post/comment/user，板块违规无数据来源
+	}, nil
 }
 
 // getActiveUserInfo 获取活跃用户列表及发帖/评论数
