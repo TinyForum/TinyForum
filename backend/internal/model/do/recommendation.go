@@ -1,6 +1,8 @@
 package do
 
 import (
+	"time"
+
 	"tiny-forum/internal/model/common"
 )
 
@@ -38,14 +40,14 @@ func (b BehaviorType) IsValid() bool {
 // UserBehaviorEvent 用户行为事件：记录每一次用户与内容的交互
 type UserBehaviorEvent struct {
 	common.BaseModel
-	UserID      uint         `gorm:"not null;index" json:"user_id"`
-	TargetID    uint         `gorm:"not null;index" json:"target_id"`
-	TargetType  string       `gorm:"type:varchar(30);not null;default:'creation'" json:"target_type"`
+	UserID       uint         `gorm:"not null;index" json:"user_id"`
+	TargetID     uint         `gorm:"not null;index" json:"target_id"`
+	TargetType   string       `gorm:"type:varchar(30);not null;default:'creation'" json:"target_type"`
 	BehaviorType BehaviorType `gorm:"type:varchar(30);not null" json:"behavior_type"`
-	Value       float64      `gorm:"not null;default:1.0" json:"value"`
-	SessionID   string       `gorm:"type:varchar(64);not null;default:''" json:"session_id"`
-	ContextJSON string       `gorm:"type:text;not null;default:'{}'" json:"context_json"`
-	CreatedTS   int64        `gorm:"not null;default:0" json:"created_ts"`
+	Value        float64      `gorm:"not null;default:1.0" json:"value"`
+	SessionID    string       `gorm:"type:varchar(64);not null;default:''" json:"session_id"`
+	ContextJSON  string       `gorm:"type:text;not null;default:'{}'" json:"context_json"`
+	CreatedTS    int64        `gorm:"not null;default:0" json:"created_ts"`
 }
 
 func (UserBehaviorEvent) TableName() string {
@@ -107,11 +109,11 @@ func (RecommendationFeedback) TableName() string {
 // UserInterestProfile 用户兴趣画像：缓存用户近期兴趣向量
 type UserInterestProfile struct {
 	common.BaseModel
-	UserID          uint      `gorm:"not null;uniqueIndex" json:"user_id"`
-	TagWeightsJSON  string    `gorm:"type:text;not null;default:'{}'" json:"tag_weights_json"`
-	BoardWeightsJSON string   `gorm:"type:text;not null;default:'{}'" json:"board_weights_json"`
-	ActiveTagsJSON  string    `gorm:"type:text;not null;default:'[]'" json:"active_tags_json"`
-	LastUpdatedAt   string    `gorm:"type:timestamptz;not null;default:now()" json:"last_updated_at"`
+	UserID           uint      `gorm:"not null;uniqueIndex" json:"user_id"`
+	TagWeightsJSON   string    `gorm:"type:text;not null;default:'{}'" json:"tag_weights_json"`
+	BoardWeightsJSON string    `gorm:"type:text;not null;default:'{}'" json:"board_weights_json"`
+	ActiveTagsJSON   string    `gorm:"type:text;not null;default:'[]'" json:"active_tags_json"`
+	LastUpdatedAt    time.Time `gorm:"type:timestamptz;not null;default:now()" json:"last_updated_at"`
 }
 
 func (UserInterestProfile) TableName() string {

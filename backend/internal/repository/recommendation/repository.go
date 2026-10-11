@@ -2,6 +2,7 @@ package recommendation
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"tiny-forum/internal/model/do"
@@ -119,12 +120,14 @@ func (r *recommendationRepository) GetContentFeaturesByTags(tagIDs []uint, exclu
 		return nil, nil
 	}
 	var features []do.ContentFeature
-	tagJSONs := make([]string, len(tagIDs))
-	for i, tid := range tagIDs {
-		tagJSONs[i] = string(rune(tid))
+	// tag_ids_json 存储为 JSON 数组（如 [1,2,3]），使用 JSONB 包含匹配，
+	// 避免此前 string(rune(tid)) 生成乱码及字符串拼接导致的误匹配。
+	tagCond := r.db.Where("1 = 0")
+	for _, tid := range tagIDs {
+		tagCond = tagCond.Or("tag_ids_json::jsonb @> ?::jsonb", fmt.Sprintf("[%d]", tid))
 	}
 	q := r.db.Model(&do.ContentFeature{}).
-		Where("tag_ids_json LIKE ?", "%"+tagJSONs[0]+"%").
+		Where(tagCond).
 		Order("hot_score DESC").Limit(limit)
 	if len(excludeIDs) > 0 {
 		q = q.Where("creation_id NOT IN ?", excludeIDs)

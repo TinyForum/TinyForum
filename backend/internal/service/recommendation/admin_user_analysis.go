@@ -156,8 +156,11 @@ func (s *recommendationService) GetUAProfiles(ctx context.Context, page, pageSiz
 	}
 
 	where := ""
+	args := []interface{}{day30}
 	if keyword != "" {
-		where += ` AND (u.username ILIKE '%` + keyword + `%' OR u.nickname ILIKE '%` + keyword + `%' OR u.email ILIKE '%` + keyword + `%')`
+		where += ` AND (u.username ILIKE ? OR u.nickname ILIKE ? OR u.email ILIKE ?)`
+		like := "%" + keyword + "%"
+		args = append(args, like, like, like)
 	}
 	if tier == "power" {
 		where += ` AND b.active_days >= 20`
@@ -174,13 +177,16 @@ func (s *recommendationService) GetUAProfiles(ctx context.Context, page, pageSiz
 	}
 
 	var total int64
-	s.db.WithContext(ctx).Raw(`SELECT COUNT(*) `+base+where, day30).Scan(&total)
+	s.db.WithContext(ctx).Raw(`SELECT COUNT(*) `+base+where, args...).Scan(&total)
 
 	type row struct {
-		ID uint; Username, Nickname, Avatar, Email string
-		Joined, LastActive *time.Time
-		Cnt, ActiveDays int64
-		Vcnt int64; RiskLevel string; IsBanned bool
+		ID                                uint
+		Username, Nickname, Avatar, Email string
+		Joined, LastActive                *time.Time
+		Cnt, ActiveDays                   int64
+		Vcnt                              int64
+		RiskLevel                         string
+		IsBanned                          bool
 	}
 	var rows []row
 	s.db.WithContext(ctx).Raw(`
@@ -189,13 +195,16 @@ func (s *recommendationService) GetUAProfiles(ctx context.Context, page, pageSiz
 			COALESCE(b.cnt,0) as cnt, COALESCE(b.active_days,0) as active_days,
 			COALESCE(v.vcnt,0) as vcnt, COALESCE(urr.risk_level,'normal') as risk_level,
 			EXISTS(SELECT 1 FROM violations WHERE user_id = u.id AND punish_type IN ('ban','permanent_ban') AND deleted_at IS NULL) as is_banned
-		`+base+where+` `+order+` LIMIT ? OFFSET ?`, day30, pageSize, offset).Scan(&rows)
+		`+base+where+` `+order+` LIMIT ? OFFSET ?`, append(args, pageSize, offset)...).Scan(&rows)
 
 	userIDs := make([]uint, len(rows))
 	for i, rw := range rows {
 		userIDs[i] = rw.ID
 	}
-	type tagRow struct{ UserID uint; Tags string }
+	type tagRow struct {
+		UserID uint
+		Tags   string
+	}
 	var tagRows []tagRow
 	if len(userIDs) > 0 {
 		s.db.WithContext(ctx).Raw(`SELECT user_id, active_tags_json FROM user_interest_profiles WHERE user_id IN ? AND deleted_at IS NULL`, userIDs).Scan(&tagRows)
@@ -260,7 +269,10 @@ func (s *recommendationService) GetUABehavior(ctx context.Context) (*vo.UABehavi
 	}
 
 	// Event distribution
-	type ed struct{ Et string; Cnt, Ucnt int64 }
+	type ed struct {
+		Et        string
+		Cnt, Ucnt int64
+	}
 	var eds []ed
 	s.db.WithContext(ctx).Raw(`SELECT behavior_type as et, COUNT(*) as cnt, COUNT(DISTINCT user_id) as ucnt FROM user_behavior_events WHERE created_at >= ? GROUP BY et ORDER BY cnt DESC`, day7).Scan(&eds)
 	var etotal int64
@@ -283,7 +295,12 @@ func (s *recommendationService) GetUABehavior(ctx context.Context) (*vo.UABehavi
 	}
 
 	// Top event users
-	type eu struct{ UID uint; Uname string; Cnt int64; Et string }
+	type eu struct {
+		UID   uint
+		Uname string
+		Cnt   int64
+		Et    string
+	}
 	var eus []eu
 	s.db.WithContext(ctx).Raw(`SELECT user_id as uid, COUNT(*) as cnt FROM user_behavior_events WHERE created_at >= ? GROUP BY user_id ORDER BY cnt DESC LIMIT 10`, day7).Scan(&eus)
 	for _, e := range eus {
@@ -350,12 +367,16 @@ func (s *recommendationService) GetUARisk(ctx context.Context) (*vo.UARisk, erro
 	s.db.WithContext(ctx).Raw(`SELECT COUNT(*) FROM user_risk_records WHERE created_at >= ? AND deleted_at IS NULL`, today).Scan(&r.NewRisksToday)
 	s.db.WithContext(ctx).Raw(`SELECT COUNT(*) FROM violations WHERE status = 'pending' AND deleted_at IS NULL`).Scan(&r.PendingReviews)
 
-	// 风险分分布
-	buckets := []string{"0-20", "21-40", "41-60", "61-80", "81-100"}
-	for _, b := range buckets {
-		var cnt int64
-		s.db.WithContext(ctx).Raw(`SELECT COUNT(*) FROM user_risk_records WHERE risk_level = 'danger' AND deleted_at IS NULL`).Scan(&cnt) // simplified
-		r.ScoreDistribution = append(r.ScoreDistribution, vo.UARiskScoreDist{Range: b, Count: cnt / int64(len(buckets))})
+	// 风险分布：按风险等级聚合（user_risk_records 只有 risk_level，没有数值得分，
+	// 原实现虚构了 0-100 的分数桶并在每一桶里跑同一条查询，数据毫无意义）
+	type riskDistRow struct {
+		Level string
+		Cnt   int64
+	}
+	var distRows []riskDistRow
+	s.db.WithContext(ctx).Raw(`SELECT risk_level as level, COUNT(*) as cnt FROM user_risk_records WHERE deleted_at IS NULL GROUP BY risk_level`).Scan(&distRows)
+	for _, d := range distRows {
+		r.ScoreDistribution = append(r.ScoreDistribution, vo.UARiskScoreDist{Range: d.Level, Count: d.Cnt})
 	}
 
 	// 违规趋势 (reuse trend)
@@ -368,7 +389,12 @@ func (s *recommendationService) GetUARisk(ctx context.Context) (*vo.UARisk, erro
 
 	// Top risky users
 	type ru struct {
-		UID uint; Uname string; RL string; Vcnt, Bcnt int64; LFR string; IsB bool
+		UID        uint
+		Uname      string
+		RL         string
+		Vcnt, Bcnt int64
+		LFR        string
+		IsB        bool
 	}
 	var rus []ru
 	s.db.WithContext(ctx).Raw(`
@@ -394,7 +420,11 @@ func (s *recommendationService) GetUARisk(ctx context.Context) (*vo.UARisk, erro
 
 	// Flagged content queue
 	type fq struct {
-		CID uint; Title, Aname string; Rcnt int64; Reason string; Cat time.Time
+		CID          uint
+		Title, Aname string
+		Rcnt         int64
+		Reason       string
+		Cat          time.Time
 	}
 	var fqs []fq
 	s.db.WithContext(ctx).Raw(`

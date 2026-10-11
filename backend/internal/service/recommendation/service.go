@@ -3,11 +3,10 @@ package recommendation
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"math"
 	"sort"
 	"strconv"
-	"strings"
-	"sync"
 	"time"
 
 	"tiny-forum/internal/model/do"
@@ -128,11 +127,11 @@ func (s *recommendationService) BatchRecordBehaviors(userID uint, events []reque
 
 func (s *recommendationService) RecordView(ctx context.Context, userID, creationID uint, sessionID string) error {
 	return s.RecordBehavior(userID, request.RecordBehaviorRequest{
-		TargetID:    creationID,
-		TargetType:  "creation",
+		TargetID:     creationID,
+		TargetType:   "creation",
 		BehaviorType: string(do.BehaviorView),
-		Value:       0.3,
-		SessionID:   sessionID,
+		Value:        0.3,
+		SessionID:    sessionID,
 	})
 }
 
@@ -201,14 +200,14 @@ func (s *recommendationService) GetPersonalizedFeed(ctx context.Context, userID 
 }
 
 type scoredItem struct {
-	CreationID    uint
-	ContentScore  float64
-	CollabScore   float64
-	PopScore      float64
-	FreshScore    float64
-	ExploreScore  float64
-	TotalScore    float64
-	Reason        string
+	CreationID   uint
+	ContentScore float64
+	CollabScore  float64
+	PopScore     float64
+	FreshScore   float64
+	ExploreScore float64
+	TotalScore   float64
+	Reason       string
 }
 
 func (s *recommendationService) computeScores(ctx context.Context, userID uint) []scoredItem {
@@ -284,7 +283,7 @@ func (s *recommendationService) computeScores(ctx context.Context, userID uint) 
 			candidateSet[f.CreationID] = &scoredItem{CreationID: f.CreationID}
 		}
 		candidateSet[f.CreationID].PopScore = f.HotScore * 0.8
-		candidateSet[f.CreationID].FreshScore = math.Exp(-float64(now.Hour()) / 24.0) * f.FreshnessScore
+		candidateSet[f.CreationID].FreshScore = math.Exp(-float64(now.Hour())/24.0) * f.FreshnessScore
 	}
 
 	// 4. 探索：随机新鲜内容
@@ -511,11 +510,11 @@ func (s *recommendationService) SubmitFeedback(userID uint, req request.Recommen
 	// 如果用户点了"不感兴趣"，同步记录行为事件
 	if fbType == do.FeedbackNotInterested {
 		_ = s.RecordBehavior(userID, request.RecordBehaviorRequest{
-			TargetID:    req.CreationID,
-			TargetType:  "creation",
+			TargetID:     req.CreationID,
+			TargetType:   "creation",
 			BehaviorType: string(do.BehaviorNotInterested),
-			Value:       -1.0,
-			SessionID:   req.SessionID,
+			Value:        -1.0,
+			SessionID:    req.SessionID,
 		})
 	}
 
@@ -617,10 +616,14 @@ func (s *recommendationService) AnalyzeContent(ctx context.Context, creationID u
 func (s *recommendationService) GetInterestProfile(userID uint) (*vo.UserInterestProfileVO, error) {
 	profile, err := s.repo.GetInterestProfile(userID)
 	if err != nil {
-		return &vo.UserInterestProfileVO{
-			ActiveTags: []string{},
-			TagWeights: make(map[string]float64),
-		}, nil
+		// 新用户尚无画像属于正常情况，返回空画像；其他错误必须上抛，不能静默吞掉
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return &vo.UserInterestProfileVO{
+				ActiveTags: []string{},
+				TagWeights: make(map[string]float64),
+			}, nil
+		}
+		return nil, err
 	}
 
 	var tagWeights map[string]float64
@@ -631,7 +634,7 @@ func (s *recommendationService) GetInterestProfile(userID uint) (*vo.UserInteres
 	return &vo.UserInterestProfileVO{
 		ActiveTags: activeTags,
 		TagWeights: tagWeights,
-		UpdatedAt:  profile.LastUpdatedAt,
+		UpdatedAt:  profile.LastUpdatedAt.Format(time.RFC3339),
 	}, nil
 }
 
@@ -672,7 +675,7 @@ func (s *recommendationService) RefreshUserProfile(userID uint) error {
 
 	// 归一化
 	for tag := range tagWeights {
-		tagWeights[tag] /= float64(tagCount[tag]+1)
+		tagWeights[tag] /= float64(tagCount[tag] + 1)
 	}
 
 	// 获取最高的标签
@@ -705,11 +708,11 @@ func (s *recommendationService) RefreshUserProfile(userID uint) error {
 	activeTagsJSON, _ := json.Marshal(activeTags)
 
 	profile := &do.UserInterestProfile{
-		UserID:          userID,
-		TagWeightsJSON:  string(tagWeightsJSON),
+		UserID:           userID,
+		TagWeightsJSON:   string(tagWeightsJSON),
 		BoardWeightsJSON: "{}",
-		ActiveTagsJSON:  string(activeTagsJSON),
-		LastUpdatedAt:   now.Format(time.RFC3339),
+		ActiveTagsJSON:   string(activeTagsJSON),
+		LastUpdatedAt:    now,
 	}
 
 	return s.repo.UpsertInterestProfile(profile)
@@ -729,9 +732,4 @@ func sliceMapKeys(m map[uint]bool) []uint {
 	return keys
 }
 
-var (
-	_ RecommendationService = (*recommendationService)(nil)
-	_                       = sync.Mutex{}
-	_                       = strings.ReplaceAll
-	_                       = zap.String
-)
+var _ RecommendationService = (*recommendationService)(nil)
