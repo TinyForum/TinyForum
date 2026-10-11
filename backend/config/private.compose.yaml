@@ -1,0 +1,34 @@
+# private.yml — SENSITIVE configuration (docker-compose template)
+# Mounted to /app/config/private.yml
+# DO NOT commit real secrets — override via environment variables in .env
+#   PRIVATE_JWT_SECRET, PRIVATE_ADMIN_PASSWORD, PRIVATE_SYSTEM_PASSWORD, ...
+email:
+  host: "smtp.example.com"
+  port: 587
+  username: "noreply@example.com"
+  password: "change-me"
+  from: "noreply@example.com"
+  from_name: "TinyForum"
+  ssl: false
+  tls: true
+  pool_size: 5
+
+jwt:
+  secret: "tiny-forum-secret-change-in-production-32chars"
+  expire: "24h"
+  refresh_expire: "168h"
+  issuer: "tiny-forum"
+
+admin:
+  email: admin@example.com
+  password: "change-me-please"
+  username: admin
+  role: super_admin
+  score: 10000
+
+system:
+  email: system@example.com
+  password: "change-me-please"
+  username: system
+  role: system_maintainer
+  score: 10000

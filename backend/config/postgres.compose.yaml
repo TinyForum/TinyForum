@@ -1,0 +1,18 @@
+# postgres.yml — database configuration (docker-compose)
+# Mounted to /app/config/postgres.yml
+# Host/user/password/dbname can be overridden via POSTGRES_* environment variables
+host: postgres
+port: 5432
+user: postgres
+password: postgres
+dbname: tiny_forum
+sslmode: disable
+timezone: Asia/Shanghai
+max_idle_conns: 10
+max_open_conns: 100
+conn_max_lifetime: 1h
+logger:
+  slow_threshold: "200ms"
+  log_level: info
+  ignore_record_not_found_error: true
+  colorful: false

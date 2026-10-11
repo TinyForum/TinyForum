@@ -1,0 +1,39 @@
+# ai.yml — AI module configuration (docker-compose)
+# Mounted to /app/config/ai.yml
+# `enable` is required and must be true (validation rule)
+enable: true
+provider: openai
+config:
+  api-key: ""
+  base-url: ""
+  model: ""
+  timeout: 60s
+  max-retries: 3
+  temperature: 0.7
+  max-tokens: 2048
+  top-p: 1
+  frequency-penalty: 0
+  presence-penalty: 0
+defaults:
+  timeout: 60
+  max-retries: 3
+  temperature: 0.7
+  max-tokens: 2048
+  top-p: 1
+  frequency-penalty: 0
+  presence-penalty: 0
+retry:
+  enabled: true
+  max-attempts: 3
+  backoff:
+    initial-interval: 1
+    multiplier: 2
+    max-interval: 10
+logging:
+  enabled: false
+  level: info
+  log-payload: false
+cache:
+  enabled: false
+  ttl: 60
+  max-size: 1000

@@ -1,0 +1,8 @@
+# redis.yml — cache configuration (docker-compose)
+# Mounted to /app/config/redis.yml
+# Host/port/password can be overridden via REDIS_* environment variables
+host: redis
+port: 6379
+db: 0
+password: ""
+pool_size: 10

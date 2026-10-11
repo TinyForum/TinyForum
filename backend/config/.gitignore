@@ -5,3 +5,6 @@ private.*
 *.crt
 *.yml
 !rbac_model.conf
+
+# docker-compose 配置模板（占位值，非真实密钥）需要提交
+!*.compose.yaml

@@ -1,0 +1,4 @@
+# app.yml — application configuration (docker-compose)
+# Mounted to /app/config/app.yml
+# `debug` is declared required by the config validator, so it must be true
+debug: true

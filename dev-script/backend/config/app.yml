@@ -1,0 +1,3 @@
+# app.yml — 应用配置
+# debug 在校验规则中声明为 required，必须为 true
+debug: true

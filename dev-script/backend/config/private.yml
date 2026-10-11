@@ -20,25 +20,16 @@ jwt:
   refresh_expire: "168h"
   issuer: "tiny-forum"
 
-database:
-  host: localhost
-  port: 5432
-  user: "caoyang"
-  password: "tf-password"
-  dbname: tiny_forum
-  sslmode: disable
-  timezone: Asia/Shanghai
-
-redis:
-  host: localhost
-  port: 6379
-  user: "tinyforum"
-  password: "tf-password"
-  db: 0
-
 admin:
   email: admin@test.com
   password: password
   username: admin
   role: super_admin
+  score: 10000
+
+system:
+  email: system@test.com
+  password: password
+  username: system
+  role: system_maintainer
   score: 10000
