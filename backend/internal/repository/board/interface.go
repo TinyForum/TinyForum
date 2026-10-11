@@ -26,6 +26,13 @@ type BoardRepository interface {
 		page, pageSize int,
 	) ([]do.ModeratorApplication, int64, error)
 	CancelUserApplications(userID, boardID uint) error
+	// board creation apply
+	CreateBoardApplication(app *do.BoardCreationApplication) error
+	FindPendingBoardApplicationBySlug(slug string) (*do.BoardCreationApplication, error)
+	GetBoardApplicationByID(id uint) (*do.BoardCreationApplication, error)
+	GetBoardApplicationsByUserID(userID uint, page, pageSize int) ([]do.BoardCreationApplication, int64, error)
+	UpdateBoardApplication(app *do.BoardCreationApplication) error
+	ListBoardApplications(status do.ApplicationStatus, page, pageSize int) ([]do.BoardCreationApplication, int64, error)
 	// ban
 	BanUser(ban *do.BoardBan) error
 	UnbanUser(userID, boardID uint) error

@@ -32,6 +32,10 @@ func (h *BoardHandler) RegisterRoutes(api *gin.RouterGroup, mw middleware.Middle
 		boards.GET("/moderators/managed", mw.Auth(), h.GetUserModeratorBoards)         // GET /api/v1/boards/moderators/managed 获取用户管理的版块列表
 		boards.DELETE("/applications/:application_id", mw.Auth(), h.CancelApplication) // DELETE /api/v1/boards/applications/:application_id 取消版主申请
 
+		// 板块创建申请（需要认证）
+		boards.POST("/creation-applications", mw.Auth(), h.ApplyBoardCreation)         // POST /api/v1/boards/creation-applications 申请创建板块
+		boards.GET("/creation-applications/my", mw.Auth(), h.GetUserBoardApplications) // GET /api/v1/boards/creation-applications/my 我的板块创建申请
+
 		// 管理员操作
 		adminGroup := boards.Group("")
 		adminGroup.Use(mw.Auth(), mw.AdminRequired())
@@ -39,6 +43,10 @@ func (h *BoardHandler) RegisterRoutes(api *gin.RouterGroup, mw middleware.Middle
 			adminGroup.POST("", h.Create)       // POST /api/v1/boards 创建版块
 			adminGroup.PUT("/:id", h.Update)    // PUT /api/v1/boards/:id 更新版块
 			adminGroup.DELETE("/:id", h.Delete) // DELETE /api/v1/boards/:id 删除版块
+
+			// 板块创建申请审批（管理员）
+			adminGroup.GET("/creation-applications", h.ListBoardApplications)                      // GET /api/v1/boards/creation-applications 板块创建申请列表
+			adminGroup.POST("/creation-applications/:id/review", h.ReviewBoardCreationApplication) // POST /api/v1/boards/creation-applications/:id/review 审批板块创建申请
 		}
 
 		// 版主管理（需要版主权限）

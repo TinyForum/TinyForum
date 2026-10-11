@@ -9,6 +9,7 @@ import (
 	"tiny-forum/internal/model/request"
 	postRepo "tiny-forum/internal/repository/article"
 	boardRepo "tiny-forum/internal/repository/board"
+	"tiny-forum/internal/repository/transaction"
 	userRepo "tiny-forum/internal/repository/user"
 	attachment "tiny-forum/internal/service/attachment"
 	"tiny-forum/internal/service/notification"
@@ -21,6 +22,10 @@ type BoardService interface {
 	GetUserApplications(userID uint, page, pageSize int) ([]do.ModeratorApplication, int64, error)
 	ReviewApplication(_ context.Context, input request.ReviewApplicationRequest, reviewerID uint) error
 	ListApplications(boardID *uint, status do.ApplicationStatus, page, pageSize int) ([]do.ModeratorApplication, int64, error)
+	ApplyBoardCreation(ctx context.Context, input request.ApplyBoardCreationRequest) error
+	GetUserBoardApplications(userID uint, page, pageSize int) ([]do.BoardCreationApplication, int64, error)
+	ListBoardApplications(status do.ApplicationStatus, page, pageSize int) ([]do.BoardCreationApplication, int64, error)
+	ReviewBoardCreationApplication(ctx context.Context, input request.ReviewBoardCreationRequest, reviewerID uint) error
 	// ban
 	BanUser(ctx context.Context, input request.BoardBanUserRequest, bannerID uint) error
 	UnbanUser(userID, boardID uint) error
@@ -53,6 +58,7 @@ type boardService struct {
 	postRepo      postRepo.ArticleRepository
 	notifSvc      notification.NotificationService
 	attachmentSvc attachment.AttachmentService
+	txManager     transaction.TransactionManager
 }
 
 func NewBoardService(
@@ -61,6 +67,7 @@ func NewBoardService(
 	postRepo postRepo.ArticleRepository,
 	notifSvc notification.NotificationService,
 	attachmentSvc attachment.AttachmentService,
+	txManager transaction.TransactionManager,
 ) BoardService {
 	return &boardService{
 		boardRepo:     boardRepo,
@@ -68,5 +75,6 @@ func NewBoardService(
 		postRepo:      postRepo,
 		notifSvc:      notifSvc,
 		attachmentSvc: attachmentSvc,
+		txManager:     txManager,
 	}
 }
