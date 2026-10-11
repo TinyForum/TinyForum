@@ -26,7 +26,7 @@ type UserService interface {
 	// adin score
 	GetScoreById(userID uint) (int, error) // 获取用户积分
 	SetScoreById(userID uint, score int) error
-	onScoreChanged(userID uint, newScore int) error // TODO: 未完成
+	onScoreChanged(userID uint, newScore int) error // 积分变更回调（内部用，记录审计日志）
 	ListUsersScore() ([]vo.UserScoreVO, error)      // 获取用户及其积分
 	// user status
 	SetBlocked(targetID uint, operatorID uint, isBlocked bool) error

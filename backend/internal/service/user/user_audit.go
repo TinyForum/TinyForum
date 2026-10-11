@@ -1,10 +1,19 @@
 package user
 
-import "context"
+import (
+	"context"
 
-// logAudit 记录审计日志（可扩展）
-func (s *userService) logAudit(ctx context.Context, operatorID, targetID uint, action, detail string) error {
-	// 如果项目有日志库或审计表，在此实现
-	// 例如：s.logger.Info("audit_log", "operator", operatorID, "target", targetID, "action", action, "detail", detail)
+	"tiny-forum/pkg/logger"
+
+	"go.uber.org/zap"
+)
+
+// logAudit 记录管理员敏感操作的审计日志（结构化写入 Zap）
+func (s *userService) logAudit(_ context.Context, operatorID, targetID uint, action, detail string) error {
+	logger.Info("管理员操作审计",
+		zap.Uint("operator_id", operatorID),
+		zap.Uint("target_id", targetID),
+		zap.String("action", action),
+		zap.String("detail", detail))
 	return nil
 }

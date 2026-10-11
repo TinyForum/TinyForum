@@ -52,9 +52,6 @@ func (r *authRepository) FindByResetToken(ctx context.Context, token string) (*d
 // internal/repository/auth/user_repository.go
 
 func (r *authRepository) GetUserByResetToken(ctx context.Context, token string) (*do.User, error) {
-	logger.Infof("=== GetUserByResetToken ===")
-	logger.Infof("Token: %s", token)
-
 	if token == "" {
 		return nil, errors.New("token is empty")
 	}
@@ -78,7 +75,7 @@ func (r *authRepository) GetUserByResetToken(ctx context.Context, token string) 
 		return nil, err
 	}
 
-	logger.Infof("Found reset token: UserID=%d, ExpiresAt=%v", resetToken.UserID, resetToken.ExpiresAt)
+	logger.Infof("Found reset token: UserID=%d", resetToken.UserID)
 
 	// 然后查询用户
 	var user do.User
@@ -99,9 +96,8 @@ func (r *authRepository) GetUserByResetToken(ctx context.Context, token string) 
 	logger.Infof("Found user: ID=%d, Email=%s", user.ID, user.Email)
 	return &user, nil
 }
-func (r *authRepository) GetUserEmailByResetToken(ctx context.Context, token string) (string, error) {
-	logger.Infof("=== GetUserEmailByResetToken: %s ===", token)
 
+func (r *authRepository) GetUserEmailByResetToken(ctx context.Context, token string) (string, error) {
 	if token == "" {
 		return "", errors.New("token is empty")
 	}

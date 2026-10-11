@@ -80,7 +80,7 @@ func (a *forumAPIImpl) DeletePost(ctx context.Context, postID uint) error {
 	return a.postRepo.Delete(uint(postID))
 }
 
-// ModeratePost 支持 action: hide | pin | lock | delete
+// ModeratePost 支持 action: hide | pin | delete（lock 需数据库 schema 支持，暂不支持）
 func (a *forumAPIImpl) ModeratePost(ctx context.Context, postID uint, action, reason string) error {
 	p, err := a.postRepo.FindByArticleID(uint(postID))
 	if err != nil {
@@ -93,16 +93,11 @@ func (a *forumAPIImpl) ModeratePost(ctx context.Context, postID uint, action, re
 	case "pin":
 		return a.postRepo.TogglePinInBoard(uint(postID), true)
 	case "lock":
-		// do.Post 没有 locked 字段，用 Hidden 作降级处理
-		// 如有需要可扩展 Post 模型
-		p.Creation.CreationStatus = do.CreationStatusHidden
-		return a.postRepo.Update(p)
+		// 帖子模型当前没有 locked 字段，无法真正实现"锁定（禁止评论）"。
+		// 明确返回错误，禁止降级为隐藏（那会错误地把帖子内容隐藏掉）。
+		return fmt.Errorf("moderate action 'lock' is not supported: post model has no lock field")
 	case "delete":
-		attachments, _ := a.attachmentRepo.FindByPostID(ctx, int64(postID))
-		for _, att := range attachments {
-			_ = a.attachmentRepo.SoftDelete(ctx, att.FileID)
-		}
-		return a.postRepo.Delete(uint(postID))
+		return a.DeletePost(ctx, postID)
 	default:
 		return fmt.Errorf("unknown moderate action: %s", action)
 	}

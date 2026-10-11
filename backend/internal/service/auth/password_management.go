@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strings"
 	"time"
+	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/dto"
 	apperrors "tiny-forum/pkg/errors"
 	"tiny-forum/pkg/logger"
@@ -13,12 +14,22 @@ import (
 	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
+)
+
+const (
+	// forgotPasswordEmailLimit 同一邮箱 1 小时内允许的最大请求次数
+	forgotPasswordEmailLimit = 300
+	// forgotPasswordIPLimit 同一 IP 1 分钟内允许的最大请求次数
+	forgotPasswordIPLimit = 500
+	// forgotPasswordGlobalLimit 全局 1 分钟内允许的最大请求次数
+	forgotPasswordGlobalLimit = 1000
 )
 
 // FIXME: 在配置 / 管理后台中进行控制
 // 修改 ForgotPassword 方法，使用 tokenRepo 保存重置令牌
 func (s *authService) ForgotPassword(ctx context.Context, email, ip, userAgent, locale string) error {
-	// 1. 邮箱限流：1小时内最多3次请求
+	// 1. 邮箱限流：1小时内最多 forgotPasswordEmailLimit 次请求
 	emailKey := fmt.Sprintf("forgot_password:email:%s", email)
 
 	emailCount, err := s.redis.Incr(ctx, emailKey).Result()
@@ -39,14 +50,14 @@ func (s *authService) ForgotPassword(ctx context.Context, email, ip, userAgent, 
 	}
 
 	// 检查是否超过限制
-	if emailCount > 300 {
+	if emailCount > forgotPasswordEmailLimit {
 		logger.Warn("Email rate limit exceeded",
 			zap.String("email", email),
 			zap.Int64("count", emailCount))
 		return nil // 限流期内，静默返回成功
 	}
 
-	// 2. IP 限流：1分钟内最多5次请求
+	// 2. IP 限流：1分钟内最多 forgotPasswordIPLimit 次请求
 	ipKey := fmt.Sprintf("forgot_password:ip:%s", ip)
 	ipCount, err := s.redis.Incr(ctx, ipKey).Result()
 	if err != nil {
@@ -64,14 +75,14 @@ func (s *authService) ForgotPassword(ctx context.Context, email, ip, userAgent, 
 		}
 	}
 
-	if ipCount > 500 {
+	if ipCount > forgotPasswordIPLimit {
 		logger.Warn("IP rate limit exceeded",
 			zap.String("ip", ip),
 			zap.Int64("count", ipCount))
 		return nil // IP 限流，静默返回成功
 	}
 
-	// 3. 全局限流：整个系统每分钟最多100次请求
+	// 3. 全局限流：整个系统每分钟最多 forgotPasswordGlobalLimit 次请求
 	globalKey := "forgot_password:global"
 	globalCount, err := s.redis.Incr(ctx, globalKey).Result()
 	if err != nil {
@@ -81,7 +92,7 @@ func (s *authService) ForgotPassword(ctx context.Context, email, ip, userAgent, 
 		if globalCount == 1 {
 			s.redis.Expire(ctx, globalKey, 1*time.Minute)
 		}
-		if globalCount > 1000 {
+		if globalCount > forgotPasswordGlobalLimit {
 			logger.Warn("Global rate limit exceeded",
 				zap.Int64("count", globalCount))
 
@@ -144,9 +155,8 @@ func (s *authService) ForgotPassword(ctx context.Context, email, ip, userAgent, 
 				logger.Error("Recovered from panic in ForgotPassword goroutine", zap.Any("panic", r))
 			}
 		}()
-		err = s.emailSvc.SendResetPasswordEmail(email, token, tokenExpiresIn, user.Username, appURL, apiVersion, ip, userAgent, locale)
-		if err != nil {
-			logger.Errorf("failed to send reset password email", "error", err)
+		if sendErr := s.emailSvc.SendResetPasswordEmail(email, token, tokenExpiresIn, user.Username, appURL, apiVersion, ip, userAgent, locale); sendErr != nil {
+			logger.Errorf("failed to send reset password email: %v", sendErr)
 		}
 
 	}()
@@ -195,39 +205,74 @@ func (s *authService) buildAppURL(protocol, host string, port int, basePath stri
 	fullURL := baseURL.String()
 
 	// 调试输出
-	logger.Debugf("built app URL",
-		"protocol", protocol,
-		"host", host,
-		"port", port,
-		"base_path", basePath,
-		"full_url", fullURL,
-	)
+	logger.Debugf("built app URL: protocol=%s host=%s port=%d base_path=%s full_url=%s",
+		protocol, host, port, basePath, fullURL)
 
 	return fullURL
 }
 
-// FIXME: 应该从 token 表查
+// consumeResetTokenAndUpdatePassword 在单个事务内原子地消费重置令牌并更新密码。
+// 通过行锁 + is_used=false 条件读取，确保令牌只能被消费一次，杜绝重放。
+func (s *authService) consumeResetTokenAndUpdatePassword(ctx context.Context, token, hashedPassword string) error {
+	return s.txManager.ExecuteInTransaction(ctx, func(tx *gorm.DB) error {
+		var rt do.RefreshToken
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).
+			Where("token = ?", token).
+			Where("jti LIKE ?", "reset_%").
+			Where("deleted_at IS NULL").
+			Where("is_used = ?", false).
+			First(&rt).Error; err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return apperrors.ErrInvalidToken
+			}
+			return err
+		}
+		if time.Now().After(rt.ExpiresAt) {
+			return apperrors.ErrInvalidToken
+		}
+
+		var user do.User
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(&user, rt.UserID).Error; err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return apperrors.ErrUserNotFound
+			}
+			return err
+		}
+		if user.DeletedAt.Valid {
+			return apperrors.ErrUserDeleted
+		}
+		if user.IsBlocked {
+			return apperrors.ErrUserBlocked
+		}
+
+		// 标记令牌已使用（消费）
+		if err := tx.Model(&do.RefreshToken{}).Where("id = ?", rt.ID).
+			Update("is_used", true).Error; err != nil {
+			return err
+		}
+		// 更新密码
+		if err := tx.Model(&do.User{}).Where("id = ?", rt.UserID).
+			Update("password", hashedPassword).Error; err != nil {
+			return err
+		}
+		return nil
+	})
+}
+
 // 重置密码
 func (s *authService) ResetPassword(ctx context.Context, req *dto.ResetPasswordRequest) error {
-	// 查找令牌
-	user, err := s.authRepo.GetUserByResetToken(ctx, req.Token)
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return errors.New("invalid or expired reset token")
-		}
-		return err
+	// 密码强度校验：与注册/修改密码保持一致，至少 8 位
+	if len(req.Password) < 8 {
+		return apperrors.ErrPasswordTooShort
 	}
 
-	// 哈希新密码
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return err
 	}
 
-	// 更新密码并清除令牌
-	user.Password = string(hashedPassword)
-
-	return s.userRepo.Update(ctx, user)
+	// 原子消费令牌并更新密码，防止令牌重放
+	return s.consumeResetTokenAndUpdatePassword(ctx, req.Token, string(hashedPassword))
 }
 
 // 验证密码
@@ -243,52 +288,25 @@ func (s *authService) ValidateOldPassword(userID uint, oldPassword string) (bool
 }
 
 func (s *authService) ResetPasswordWithToken(ctx context.Context, token, newPassword string) error {
-	logger.Infof("Service: ResetPasswordWithToken called with token: %s", token)
-
-	// 1. 验证 token 并获取用户
-	user, err := s.authRepo.GetUserByResetToken(ctx, token)
-	if err != nil {
-		if errors.Is(err, apperrors.ErrInvalidToken) {
-			logger.Infof("Token already used or expired (idempotent response): %s", token)
-			return nil
-		}
-		// 其他错误才记录 Error
-		logger.Errorf("Failed to get user by token: %v", err)
-		return err
-	}
-
-	// 2. 检查用户状态
-	if user.DeletedAt.Valid {
-		logger.Warnf("User deleted: %d", user.ID)
-		return apperrors.ErrUserDeleted
-	}
-	if user.IsBlocked {
-		logger.Warnf("User blocked: %d", user.ID)
-		return apperrors.ErrUserBlocked
-	}
-
-	// 3. 哈希新密码
+	// 1. 哈希新密码
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
 	if err != nil {
 		logger.Errorf("Failed to hash password: %v", err)
 		return apperrors.ErrInternalError
 	}
 
-	// 4. 更新用户密码
-	user.Password = string(hashedPassword)
-	if err := s.authRepo.Update(ctx, user); err != nil {
-		logger.Errorf("Failed to update user: %v", err)
-		return apperrors.ErrInternalError
+	// 2. 原子消费令牌并更新密码
+	if err := s.consumeResetTokenAndUpdatePassword(ctx, token, string(hashedPassword)); err != nil {
+		if errors.Is(err, apperrors.ErrInvalidToken) {
+			// 令牌已使用/过期/无效：按幂等处理，不泄露令牌状态
+			logger.Infof("Token already used or expired (idempotent response)")
+			return nil
+		}
+		logger.Errorf("Failed to reset password with token: %v", err)
+		return err
 	}
 
-	// 5. 删除已使用的 reset token
-	if err := s.authRepo.DeleteResetToken(ctx, token); err != nil {
-		// 删除失败不影响主流程，改为 Warn 级别
-		logger.Warnf("Failed to delete reset token (may already be deleted): %v", err)
-		// 不返回错误
-	}
-
-	logger.Infof("Password reset successfully for user: %s", user.Email)
+	logger.Infof("Password reset successfully with token")
 	return nil
 }
 

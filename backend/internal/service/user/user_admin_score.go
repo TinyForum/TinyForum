@@ -4,6 +4,9 @@ import (
 	"errors"
 	"fmt"
 	"tiny-forum/internal/model/vo"
+	"tiny-forum/pkg/logger"
+
+	"go.uber.org/zap"
 )
 
 // GetScoreById 获取用户积分
@@ -24,9 +27,11 @@ func (s *userService) SetScoreById(userID uint, score int) error {
 	return nil
 }
 
-// onScoreChanged 积分变更后的回调
+// onScoreChanged 积分变更后的回调：记录审计日志，供后台追踪管理员改分行为
 func (s *userService) onScoreChanged(userID uint, newScore int) error {
-	// 可扩展：发送通知、更新缓存等
+	logger.Info("管理员调整用户积分",
+		zap.Uint("user_id", userID),
+		zap.Int("new_score", newScore))
 	return nil
 }
 

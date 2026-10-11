@@ -52,12 +52,12 @@ func (c *AuthHandler) ResetPassword(ctx *gin.Context) {
 	var req dto.ResetPasswordRequest
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		response.HandleError(ctx, apperrors.ErrInternalError)
+		response.BadRequest(ctx, "请求参数错误")
 		return
 	}
 
-	if err := c.authSvc.ResetPassword(ctx, &req); err != nil {
-		response.HandleError(ctx, apperrors.ErrInternalError)
+	if err := c.authSvc.ResetPassword(ctx.Request.Context(), &req); err != nil {
+		response.HandleError(ctx, err)
 		return
 	}
 	responseData := common.ResponseMessage{
@@ -88,9 +88,9 @@ func (h *AuthHandler) ResetPasswordWithToken(ctx *gin.Context) {
 		return
 	}
 
-	// 验证密码
-	if len(req.Password) < 6 {
-		response.BadRequest(ctx, "Password must be at least 6 characters")
+	// 验证密码（与注册/修改密码一致，至少 8 位）
+	if len(req.Password) < 8 {
+		response.BadRequest(ctx, "Password must be at least 8 characters")
 		return
 	}
 

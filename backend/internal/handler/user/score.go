@@ -31,7 +31,7 @@ func (h *UserHandler) GetScore(c *gin.Context) {
 		response.BadRequest(c, "无效的用户身份信息")
 		return
 	}
-	viewerRole, _ := c.Get("role")
+	viewerRole, _ := c.Get("user_role")
 	viewerRoleStr, _ := viewerRole.(string)
 
 	var targetID uint
@@ -39,12 +39,12 @@ func (h *UserHandler) GetScore(c *gin.Context) {
 	if idParam != "" {
 		userID, err := strconv.ParseUint(idParam, 10, 64)
 		if err != nil {
-			response.HandleError(c, err)
+			response.BadRequest(c, "无效的用户ID")
 			return
 		}
 		targetID = uint(userID)
 		if viewerUint != targetID && viewerRoleStr != "admin" && viewerRoleStr != "super_admin" {
-			response.HandleError(c, err)
+			response.Forbidden(c, "无权限查看该用户积分")
 			return
 		}
 	} else {

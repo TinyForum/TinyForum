@@ -14,7 +14,7 @@ type ForgotPasswordResponse struct {
 }
 type ResetPasswordRequest struct {
 	Token                string `json:"token" binding:"required"`
-	Password             string `json:"password" binding:"required,min=6"`
+	Password             string `json:"password" binding:"required,min=8"`
 	PasswordConfirmation string `json:"password_confirmation" binding:"required,eqfield=Password"`
 }
 
@@ -28,7 +28,7 @@ type ValidateTokenResponse struct {
 
 type ResetPasswordWithTokenRequest struct {
 	Token    string `json:"token" binding:"required"`
-	Password string `json:"password" binding:"required,min=6"`
+	Password string `json:"password" binding:"required,min=8"`
 }
 
 type ResetPasswordWithTokenResponse struct {

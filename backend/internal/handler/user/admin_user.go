@@ -137,9 +137,14 @@ func (h *UserHandler) AdminSetBlocked(c *gin.Context) {
 //
 // Deprecated: 迁移到 adminHandler.SetRoleUsers
 func (h *UserHandler) AdminSetRole(c *gin.Context) {
-	operatorID, exists := c.Get("user_id")
+	operatorIDVal, exists := c.Get("user_id")
 	if !exists {
 		response.Unauthorized(c, "未授权操作")
+		return
+	}
+	operatorID, ok := operatorIDVal.(uint)
+	if !ok {
+		response.Unauthorized(c, "无效的用户身份信息")
 		return
 	}
 	targetID, err := strconv.ParseUint(c.Param("id"), 10, 64)
@@ -152,7 +157,7 @@ func (h *UserHandler) AdminSetRole(c *gin.Context) {
 		response.HandleError(c, err)
 		return
 	}
-	if err := h.userSvc.SetRole(operatorID.(uint), uint(targetID), body.Role); err != nil {
+	if err := h.userSvc.SetRole(operatorID, uint(targetID), body.Role); err != nil {
 		// handleRoleError(c, err)
 		response.HandleError(c, err)
 		return

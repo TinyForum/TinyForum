@@ -59,7 +59,10 @@ func (s *userService) ResetUserPasswordWithTemp(operatorID uint, targetID uint) 
 	}
 
 	expiresAt := time.Now().Add(tempPasswordTTL)
-	_ = s.repo.SetTempPasswordFlag(ctx, targetID, true, expiresAt)
+	// 过期标记写失败必须返回错误，否则临时密码永不失效
+	if err := s.repo.SetTempPasswordFlag(ctx, targetID, true, expiresAt); err != nil {
+		return "", fmt.Errorf("设置临时密码过期标记失败: %w", err)
+	}
 
 	s.logAudit(ctx, operatorID, targetID, "reset_password_temp",
 		fmt.Sprintf("管理员 %d 为用户 %d (%s) 生成了临时密码", operatorID, targetID, targetUser.Username))

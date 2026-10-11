@@ -27,9 +27,14 @@ import (
 // @Router /attachments [post]
 func (h *AttachmentHandler) UploadFile(c *gin.Context) {
 	// 1. 获取用户ID
-	userID, exists := c.Get("user_id")
+	userIDVal, exists := c.Get("user_id")
 	if !exists {
-		response.HandleError(c, errors.New("unauthorized"))
+		response.Unauthorized(c, "请先登录")
+		return
+	}
+	userID, ok := userIDVal.(uint)
+	if !ok {
+		response.Unauthorized(c, "无效的用户身份信息")
 		return
 	}
 
@@ -72,7 +77,7 @@ func (h *AttachmentHandler) UploadFile(c *gin.Context) {
 	}
 
 	// 7. 调用服务层
-	resp, err := h.svc.UploadFile(c.Request.Context(), userID.(uint), file, &req, c.ClientIP())
+	resp, err := h.svc.UploadFile(c.Request.Context(), userID, file, &req, c.ClientIP())
 	if err != nil {
 		response.HandleError(c, err)
 		return
