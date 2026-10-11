@@ -14,11 +14,13 @@ import {
 import { formatDistanceToNow } from "date-fns";
 import { zhCN } from "date-fns/locale";
 import { toast } from "react-hot-toast";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import CommentSection from "../post/CommentSection";
 import { useAnswerVote } from "@/features/answer/hooks/useAnswerVote";
+import { useCreateAnswerReport } from "@/features/answer/hooks/useAnswerReport";
 import { CommentResponse } from "@/shared/api/types/comment.model";
+import { sanitizeHtml } from "@/shared/lib/utils";
 // import CommentSection from '../CommentSection'; // 导入评论组件
 
 interface AnswerCardProps {
@@ -51,14 +53,7 @@ export function AnswerCard({
     handleVote, // 投票/取消投票函数
   } = useAnswerVote(answer.id, currentUserId);
 
-  // 调试：打印投票状态变化
-  useEffect(() => {
-    console.log(`Answer ${answer.id} - Vote Status:`, {
-      userVote,
-      voteCount,
-      loading,
-    });
-  }, [answer.id, userVote, voteCount, loading]);
+  const reportMutation = useCreateAnswerReport();
 
   const handleUpVote = async () => {
     if (loading) return;
@@ -98,7 +93,17 @@ export function AnswerCard({
               className="btn btn-xs btn-error"
               onClick={() => {
                 toast.dismiss(toastItem.id);
-                toast.success(t("report_submitted"));
+                const reason = prompt(t("report_reason_label"))?.trim();
+                if (!reason || reason.length < 2) {
+                  toast.error(t("report_reason_invalid"));
+                  return;
+                }
+                reportMutation.mutate({
+                  target_id: answer.id,
+                  target_type: "comment",
+                  reason,
+                  content_snapshot: answer.reply.content.slice(0, 2000),
+                });
               }}
             >
               {t("confirm_report_btn")}
@@ -121,12 +126,6 @@ export function AnswerCard({
       }, 100);
     }
   };
-
-  useEffect(() => {
-    console.log(
-      `Answer ${answer.id} - voteCount: ${voteCount}, userVote: ${userVote}`,
-    );
-  }, [answer.id, voteCount, userVote]);
 
   return (
     <div
@@ -231,7 +230,7 @@ export function AnswerCard({
             <div className="prose prose-sm max-w-none mb-4">
               <div
                 className="text-base-content/80 leading-relaxed break-words"
-                dangerouslySetInnerHTML={{ __html: answer.reply.content }}
+                dangerouslySetInnerHTML={{ __html: sanitizeHtml(answer.reply.content) }}
               />
             </div>
 

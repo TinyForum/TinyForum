@@ -2,6 +2,9 @@ import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { formatDistanceToNow, format } from "date-fns";
 import { zhCN } from "date-fns/locale";
+import { sanitizeHtml } from "./sanitize";
+
+export { sanitizeHtml };
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));

@@ -5,6 +5,7 @@ import { useState } from "react";
 import { toast } from "react-hot-toast";
 import { useTranslations } from "next-intl";
 import { useAnswerSubmit } from "@/features/question/hooks/useAnswerSubmit";
+import { sanitizeHtml } from "@/shared/lib/utils";
 import {
   PaperAirplaneIcon,
   XMarkIcon,
@@ -159,7 +160,7 @@ export function AnswerForm({
             {content ? (
               <div
                 dangerouslySetInnerHTML={{
-                  __html: content.replace(/\n/g, "<br/>"),
+                  __html: sanitizeHtml(content.replace(/\n/g, "<br/>")),
                 }}
               />
             ) : (

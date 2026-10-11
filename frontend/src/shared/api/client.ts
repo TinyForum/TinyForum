@@ -39,9 +39,13 @@ function createClient(config?: AxiosRequestConfig): AxiosInstance {
     (err: AxiosError) => {
       const url = err.config?.url ?? "";
 
-      // ✅ 登出接口：直接返回成功，不触发重定向
+      // ✅ 登出接口：token 已失效(401)视为成功，不触发重定向；
+      //    其它错误（网络/5xx）照常抛出，交由调用方决定本地清理
       if (url.includes("/auth/logout")) {
-        return Promise.resolve({ data: { code: 0 } });
+        if (err.response?.status === 401) {
+          return Promise.resolve({ data: { code: 0 } });
+        }
+        return Promise.reject(err);
       }
 
       // ✅ 会话检查/账户状态接口：仅拒绝，由调用方自行处理

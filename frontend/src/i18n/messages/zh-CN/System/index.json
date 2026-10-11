@@ -67,5 +67,25 @@
   "feature_enabled": "{name} 已开启",
   "feature_disabled": "{name} 已关闭",
   "operation_failed_retry": "操作失败，请重试",
-  "all_features_enabled": "已启用所有功能"
+  "all_features_enabled": "已启用所有功能",
+
+  "feature_user_registration": "用户注册",
+  "feature_user_registration_desc": "允许新用户注册账号",
+  "feature_comments": "评论系统",
+  "feature_comments_desc": "允许用户在内容下发表评论",
+  "feature_content_review": "内容审核",
+  "feature_content_review_desc": "新发布内容需要管理员审核",
+  "feature_api_access": "API 接口",
+  "feature_api_access_desc": "开放 RESTful API 接口供第三方调用",
+  "feature_email_notification": "邮件通知",
+  "feature_email_notification_desc": "发送系统邮件通知",
+  "feature_multilingual": "多语言支持",
+  "feature_multilingual_desc": "启用多语言界面切换功能",
+  "category_user_management": "用户管理",
+  "category_interaction": "互动功能",
+  "category_security": "安全策略",
+  "category_developer": "开发者工具",
+  "category_notification": "通知系统",
+  "category_i18n": "国际化",
+  "feature_toggle_unsupported": "该功能开关暂不支持在线修改"
 }

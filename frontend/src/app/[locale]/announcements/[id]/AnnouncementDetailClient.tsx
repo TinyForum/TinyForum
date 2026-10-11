@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
 import { useAnnouncementDetail } from "@/features/announcements/hooks/useAnnouncementDetail";
+import { sanitizeHtml } from "@/shared/lib/utils";
 
 // 加载骨架屏
 function LoadingSkeleton() {
@@ -242,7 +243,7 @@ export default function AnnouncementDetailClient({ id }: { id: string }) {
                 prose-blockquote:border-l-primary prose-blockquote:bg-primary/5 prose-blockquote:py-2
                 prose-img:rounded-lg prose-img:shadow-md
                 dark:prose-invert"
-              dangerouslySetInnerHTML={{ __html: announcement.content }}
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(announcement.content) }}
             />
           </div>
 

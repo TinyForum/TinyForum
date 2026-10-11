@@ -19,6 +19,7 @@ import { useNotifications } from "@/features/notification/hooks/useNotification"
 import { notificationKeys } from "@/features/notification/hooks/useNotificationKeys";
 import { notificationApi } from "@/shared/api/modules/notifications";
 import { Notification } from "@/shared/api/types/notification.model";
+import { PageData } from "@/shared/api/types/basic.model";
 
 // interface Notification {
 //   id: number;
@@ -77,11 +78,11 @@ export default function NotificationBell({
     onSuccess: () => {
       queryClient.setQueryData(
         notificationKeys.preview(),
-        (oldData: Notification[]) => {
+        (oldData: PageData<Notification> | undefined) => {
           if (!oldData) return oldData;
           return {
             ...oldData,
-            list: oldData.map((n: Notification) =>
+            list: oldData.list.map((n: Notification) =>
               n.id === selectedNotification?.id ? { ...n, is_read: true } : n,
             ),
           };
@@ -167,7 +168,7 @@ export default function NotificationBell({
     if (content.length <= maxLength) return content;
     return content.substring(0, maxLength) + "...";
   };
-  const { markAsRead } = useNotifications();
+  const { markAsRead, markAllAsRead } = useNotifications();
 
   // 处理通知点击事件
   const handleNotificationClick = (notification: Notification) => {
@@ -196,7 +197,13 @@ export default function NotificationBell({
           </h3>
           {unreadCount > 0 && (
             <button
-              onClick={handleClose}
+              onClick={async () => {
+                await markAllAsRead();
+                queryClient.invalidateQueries({
+                  queryKey: notificationKeys.preview(),
+                });
+                handleClose();
+              }}
               className="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 hover:underline"
             >
               {t("mark_all_read")}

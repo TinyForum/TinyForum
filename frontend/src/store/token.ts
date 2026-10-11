@@ -81,7 +81,6 @@ export const useValidateTokenStore = create<ValidateTokenState>()((set) => ({
       return isValid;
     } catch (err: unknown) {
       const error = err as ApiError;
-      console.error("Token validation error:", error);
       set({
         isValid: false,
         isLoading: false,
@@ -179,56 +178,35 @@ export const useResetPasswordStore = create<ResetPasswordState>()(
     resetPassword: async () => {
       const { token, password, confirmPassword } = get();
 
-      console.log("=== ResetPassword Debug ===");
-      console.log("1. Token:", token);
-      console.log("2. Password length:", password?.length);
-      console.log("3. Confirm password length:", confirmPassword?.length);
-      console.log("4. Passwords match:", password === confirmPassword);
-
       if (!token) {
-        console.log("❌ No token");
         set({ error: "invalid_reset_link" });
         return { success: false };
       }
 
       if (!password) {
-        console.log("❌ No password");
         set({ error: "enter_new_password" });
         return { success: false };
       }
 
       if (password.length < 6) {
-        console.log("❌ Password too short");
         set({ error: "password_too_short" });
         return { success: false };
       }
 
       if (password !== confirmPassword) {
-        console.log("❌ Passwords don't match");
         set({ error: "passwords_not_match" });
         return { success: false };
       }
 
-      console.log("✅ Validation passed, calling API...");
       set({ isLoading: true, error: null });
 
       try {
-        console.log("Calling authApi.resetPassword with:", {
-          token,
-          password: "***",
-        });
         const response = await authApi.resetPasswordWithToken({
           token,
           password,
         });
 
-        console.log("5. Response status:", response.status);
-        console.log("6. Response data:", response.data);
-        console.log("7. Response code:", response.data?.code);
-        console.log("8. Response success:", response.data?.data?.success);
-
         if (response.data.code === 0 && response.data.data?.success) {
-          console.log("✅ Reset successful!");
           set({
             isSuccess: true,
             isLoading: false,
@@ -237,7 +215,6 @@ export const useResetPasswordStore = create<ResetPasswordState>()(
           return { success: true };
         }
 
-        console.log("❌ Reset failed - unexpected response");
         set({
           error: response.data.message || "reset_password_failed",
           isLoading: false,
@@ -245,11 +222,6 @@ export const useResetPasswordStore = create<ResetPasswordState>()(
         return { success: false };
       } catch (err: unknown) {
         const error = err as ApiError;
-        console.error("❌ Reset password error:", error);
-        console.error("Error response:", error.response);
-        console.error("Error message:", error.message);
-        console.error("Error code:", error.response?.data?.code);
-        console.error("Error data:", error.response?.data);
 
         set({
           error: error.response?.data?.message || "reset_password_failed",

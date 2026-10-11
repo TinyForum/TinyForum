@@ -16,6 +16,14 @@ import { useLogin } from "@/features/auth/hooks/useLogin";
 
 type LoginForm = { email: string; password: string };
 
+// 仅允许站内相对路径，防止开放重定向（协议相对 // 或带 scheme 的地址一律拒绝）
+function sanitizeRedirectPath(raw: string | null): string | null {
+  if (!raw || raw === "/") return null;
+  if (!raw.startsWith("/") || raw.startsWith("//")) return null;
+  if (raw.includes("://")) return null;
+  return raw;
+}
+
 export default function LoginClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -38,11 +46,11 @@ export default function LoginClient() {
 
   const [showPassword, setShowPassword] = useState(false);
 
-  const redirectTo = searchParams.get("redirect") || "/";
+  const redirectTo = sanitizeRedirectPath(searchParams.get("redirect"));
 
   useEffect(() => {
     if (isHydrated && isAuthenticated && user && !showRestoreDialog) {
-      const destination = redirectTo === "/" ? `/${locale}` : redirectTo;
+      const destination = redirectTo ?? `/${locale}`;
       router.replace(destination);
     }
   }, [

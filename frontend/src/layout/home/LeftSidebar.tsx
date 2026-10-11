@@ -107,7 +107,7 @@ export default function LeftSidebar({
             )}
             <span className="flex-shrink-0 w-4 h-4">
               {board.icon ? (
-                <span dangerouslySetInnerHTML={{ __html: board.icon }} />
+                <span>{board.icon}</span>
               ) : (
                 <Hash className="w-4 h-4" />
               )}

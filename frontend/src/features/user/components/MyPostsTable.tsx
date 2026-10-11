@@ -2,7 +2,9 @@
 
 import { useTranslations } from "next-intl";
 import Link from "next/link";
+import { toast } from "react-hot-toast";
 import { useMePosts } from "@/features/user/hooks/useMePosts";
+import { useDeletePost } from "@/features/post/hooks/usePosts";
 
 export function MyPostsTable() {
   const t = useTranslations("User");
@@ -14,6 +16,22 @@ export function MyPostsTable() {
     loadMore,
     refresh,
   } = useMePosts();
+
+  const deletePost = useDeletePost();
+
+  // 删除帖子：确认后调用删除接口，成功后刷新列表
+  const handleDelete = (postId: number) => {
+    if (!confirm(t("delete_confirm"))) return;
+    deletePost.mutate(postId, {
+      onSuccess: () => {
+        toast.success(t("delete_success"));
+        refresh();
+      },
+      onError: () => {
+        toast.error(t("delete_failed"));
+      },
+    });
+  };
 
   // 加载骨架屏
   if (isLoading && posts.length === 0) {
@@ -212,10 +230,8 @@ export function MyPostsTable() {
                   <td className="text-center">
                     <button
                       className="btn btn-error btn-xs min-h-0 h-8 gap-1 rounded-full px-4 shadow-sm transition-all hover:shadow-md"
-                      onClick={() => {
-                        // TODO: 实现删除逻辑
-                        console.log("delete post", post.id);
-                      }}
+                      onClick={() => handleDelete(post.id)}
+                      disabled={deletePost.isPending}
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"

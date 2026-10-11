@@ -1,7 +1,6 @@
 // store/logout.ts
 import { create } from "zustand";
 import { useAuthStore } from "./auth";
-import { authApi } from "@/shared/api/modules/auth";
 
 interface LogoutState {
   isLoading: boolean;
@@ -20,19 +19,9 @@ export const useLogoutStore = create<LogoutState>()((set) => ({
     set({ isLoading: true });
 
     try {
-      // 调用后端登出 API
-      await authApi.logout();
-    } catch (error) {
-      console.error("登出 API 失败:", error);
-      // 即使 API 失败，也继续清除本地状态
+      // auth store 的 logout 内部已尽力调用后端登出并清理本地会话
+      await useAuthStore.getState().logout();
     } finally {
-      // 清除认证状态
-      useAuthStore.getState().logout().catch(console.error);
-
-      // 清除其他 Store 状态（如果需要）
-      //   useUserStore.getState().reset();
-      // useCartStore.getState().clear();
-
       set({ isLoading: false });
     }
   },

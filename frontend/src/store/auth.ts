@@ -30,12 +30,17 @@ export const useAuthStore = create<AuthState>()(
         set({ user, isAuthenticated: true });
       },
 
-      // 登出
+      // 登出：服务端调用尽力而为，无论成功与否都清除本地会话
       logout: async () => {
-        await authApi.logout();
-        localStorage.removeItem("tiny-auth");
-        sessionStorage.clear();
-        set({ user: null, isAuthenticated: false });
+        try {
+          await authApi.logout();
+        } catch (error) {
+          console.error("登出接口调用失败，仍清除本地会话:", error);
+        } finally {
+          localStorage.removeItem("tiny-auth");
+          sessionStorage.clear();
+          set({ user: null, isAuthenticated: false });
+        }
       },
 
       // 更新用户信息
@@ -67,8 +72,14 @@ export const useAuthStore = create<AuthState>()(
             set({ user: updatedUser, isAuthenticated: true });
           }
         } catch (error) {
-          console.error("刷新用户信息失败:", error);
-          await get().logout();
+          // 仅在认证失效（401/403）时登出；网络或服务端瞬时错误保留本地会话
+          const status = (error as { response?: { status?: number } })?.response
+            ?.status;
+          if (status === 401 || status === 403) {
+            await get().logout();
+          } else {
+            console.error("刷新用户信息失败:", error);
+          }
         }
       },
     }),

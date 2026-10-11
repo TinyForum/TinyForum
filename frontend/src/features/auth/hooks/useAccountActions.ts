@@ -36,8 +36,7 @@ export function useAccountActions(options?: UseAccountActionsOptions) {
 
   // 强制退出（用于永久删除的账户）
   const handleForceLogout = useCallback(async (): Promise<void> => {
-    await authApi.logout();
-    logout();
+    await logout();
     router.push(redirectOnLogout);
     router.refresh();
   }, [logout, redirectOnLogout, router]);
@@ -91,8 +90,7 @@ export function useAccountActions(options?: UseAccountActionsOptions) {
       toast.success(t("account_permanently_deleted"), { id: loadingToast });
 
       // 退出登录
-      await authApi.logout();
-      logout();
+      await logout();
 
       // 关闭对话框
       setIsDialogOpen(false);
@@ -122,8 +120,7 @@ export function useAccountActions(options?: UseAccountActionsOptions) {
     const loadingToast = toast.loading(t("logging_out"));
 
     try {
-      await authApi.logout();
-      logout();
+      await logout();
       setIsDialogOpen(false);
       setHasShown(false);
       toast.success(t("logout_success"), { id: loadingToast });

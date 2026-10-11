@@ -170,7 +170,7 @@ export function useQuestionForm({ onSuccess }: UseQuestionFormProps = {}) {
 
           toast.error(
             errorMessages[statusCode || 0] ||
-              t("publish_failed_status", { code: statusCode }),
+              t("publish_failed_status", { code: statusCode ?? 0 }),
           );
 
           if (statusCode === 401) {

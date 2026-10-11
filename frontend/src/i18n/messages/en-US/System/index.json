@@ -67,5 +67,25 @@
   "feature_enabled": "{name} enabled",
   "feature_disabled": "{name} disabled",
   "operation_failed_retry": "Operation failed, please retry",
-  "all_features_enabled": "All features enabled"
+  "all_features_enabled": "All features enabled",
+
+  "feature_user_registration": "User Registration",
+  "feature_user_registration_desc": "Allow new users to register accounts",
+  "feature_comments": "Comments",
+  "feature_comments_desc": "Allow users to comment on content",
+  "feature_content_review": "Content Review",
+  "feature_content_review_desc": "Newly published content requires admin review",
+  "feature_api_access": "API Access",
+  "feature_api_access_desc": "Expose RESTful API for third-party use",
+  "feature_email_notification": "Email Notifications",
+  "feature_email_notification_desc": "Send system email notifications",
+  "feature_multilingual": "Multilingual",
+  "feature_multilingual_desc": "Enable language switching in the UI",
+  "category_user_management": "User Management",
+  "category_interaction": "Interaction",
+  "category_security": "Security Policy",
+  "category_developer": "Developer Tools",
+  "category_notification": "Notifications",
+  "category_i18n": "Internationalization",
+  "feature_toggle_unsupported": "This feature flag cannot be changed online"
 }

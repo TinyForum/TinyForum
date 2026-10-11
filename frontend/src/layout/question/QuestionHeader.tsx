@@ -20,6 +20,8 @@ import { useTranslations } from "next-intl";
 import { Tag } from "@/shared/api/types/tag.model";
 import { QuestionResponse } from "@/shared/api/types/question.model";
 import Avatar from "@/shared/ui/common/Avatar";
+import { sanitizeHtml } from "@/shared/lib/utils";
+import { useCreateQuestionReport } from "@/features/question/hooks/useQuestionReport";
 
 interface QuestionHeaderProps {
   question: QuestionResponse;
@@ -45,6 +47,7 @@ export function QuestionHeader({
   onReport,
 }: QuestionHeaderProps) {
   const t = useTranslations("Questions");
+  const reportMutation = useCreateQuestionReport();
   const timeAgo = formatDistanceToNow(new Date(question.created_at), {
     addSuffix: true,
     locale: zhCN,
@@ -88,9 +91,18 @@ export function QuestionHeader({
             <button
               className="btn btn-xs btn-error"
               onClick={() => {
-                // 这里调用举报 API
-                toast.success(t("report_submitted"));
                 toast.dismiss(toastItem.id);
+                const reason = prompt(t("report_reason_label"))?.trim();
+                if (!reason || reason.length < 2) {
+                  toast.error(t("report_reason_invalid"));
+                  return;
+                }
+                reportMutation.mutate({
+                  target_id: question.creations_id || question.id,
+                  target_type: "post",
+                  reason,
+                  content_snapshot: question.content.slice(0, 2000),
+                });
               }}
             >
               {t("confirm_report_btn")}
@@ -238,7 +250,7 @@ export function QuestionHeader({
           <div className="prose prose-sm sm:prose-base max-w-none pt-3">
             <div
               className="text-base-content/80 leading-relaxed [&_p]:mb-3 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_h1]:text-2xl [&_h1]:font-bold [&_h2]:text-xl [&_h2]:font-bold [&_h3]:text-lg [&_h3]:font-bold [&_pre]:bg-base-200 [&_pre]:p-3 [&_pre]:rounded-lg [&_code]:text-primary [&_code]:bg-primary/5 [&_code]:px-1 [&_code]:rounded"
-              dangerouslySetInnerHTML={{ __html: question.content }}
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(question.content) }}
             />
           </div>
         </div>

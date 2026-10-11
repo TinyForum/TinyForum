@@ -4,7 +4,7 @@
 import { useAuthStore } from "@/store/auth";
 import Image from "next/image";
 import Link from "next/link";
-import { timeAgo, formatDate } from "@/shared/lib/utils";
+import { timeAgo, formatDate, sanitizeHtml } from "@/shared/lib/utils";
 import {
   Eye,
   Heart,
@@ -246,7 +246,7 @@ export default function PostDetailClient({ postId }: { postId: number }) {
             {/* 正文内容 */}
             <div
               className="prose-content text-base-content/80 leading-relaxed text-[15px]"
-              dangerouslySetInnerHTML={{ __html: post.creation.content }}
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.creation.content) }}
             />
 
             {/* 底部操作栏 */}
