@@ -75,7 +75,6 @@ func Load(configDir string) (*Config, error) {
 	}
 
 	fmt.Printf("✅ 所有配置文件成功加载\n")
-	fmt.Printf("✅ 配置信息: %+v\n", cfg)
 	cfg.setDefaults()
 	if err := cfg.validate(); err != nil {
 		return nil, fmt.Errorf("配置验证失败: %w", err)

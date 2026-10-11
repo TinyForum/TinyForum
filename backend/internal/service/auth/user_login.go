@@ -7,6 +7,7 @@ import (
 	"tiny-forum/internal/model/vo"
 	userSvc "tiny-forum/internal/service/user"
 	apperrors "tiny-forum/pkg/errors"
+	"tiny-forum/pkg/logger"
 
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
@@ -46,7 +47,10 @@ func (s *authService) Login(ctx context.Context, input userSvc.LoginInput) (*vo.
 	}
 	now := time.Now()
 	user.LastLogin = &now
-	_ = s.userRepo.Update(ctx, user)
+	if err := s.userRepo.Update(ctx, user); err != nil {
+		// 更新最后登录时间失败不应阻断登录流程，仅记录
+		logger.Warnf("更新最后登录时间失败 (user_id=%d): %v", user.ID, err)
+	}
 
 	token, err := s.jwtMgr.Generate(user.ID, user.Username, string(user.Role))
 	if err != nil {

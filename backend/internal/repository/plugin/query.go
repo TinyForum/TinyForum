@@ -3,13 +3,28 @@ package plugin
 import (
 	"context"
 	"errors"
-	"fmt"
+	"strings"
 	"tiny-forum/internal/model/common"
 	"tiny-forum/internal/model/do"
 	"tiny-forum/pkg/logger"
 
 	"gorm.io/gorm"
 )
+
+// allowedSortFields 允许排序的列白名单，防止 ORDER BY 注入
+var allowedSortFields = map[string]bool{
+	"id":            true,
+	"name":          true,
+	"slug":          true,
+	"version":       true,
+	"category":      true,
+	"type":          true,
+	"status":        true,
+	"rating":        true,
+	"install_count": true,
+	"created_at":    true,
+	"updated_at":    true,
+}
 
 // GetByName 根据名称获取未软删除的插件
 func (r *pluginRepo) GetByName(ctx context.Context, name string) (*do.PluginManifest, error) {
@@ -92,18 +107,16 @@ func (r *pluginRepo) List(ctx context.Context, queryBO *common.PageQuery[do.Plug
 		db = db.Where("name LIKE ? OR description LIKE ?", keyword, keyword)
 	}
 
-	// 排序
+	// 排序（白名单校验，防止 ORDER BY 注入）
 	sortField := queryBO.SortBy
-	if sortField == "" {
+	if !allowedSortFields[sortField] {
 		sortField = "created_at"
 	}
-	// 默认降序
-	order := queryBO.Order
-	if order == "" {
-		order = "desc"
+	order := "desc"
+	if strings.EqualFold(queryBO.Order, "asc") {
+		order = "asc"
 	}
-	// 支持自定义排序字段
-	db = db.Order(fmt.Sprintf("%s %s", sortField, order))
+	db = db.Order(sortField + " " + order)
 
 	// 分页查询
 	var total int64

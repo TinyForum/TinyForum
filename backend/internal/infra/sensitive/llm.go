@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -88,26 +87,37 @@ func (c *LLMClient) Call(ctx context.Context, prompt string) (string, error) {
 		Temperature: c.config.Temperature,
 		MaxTokens:   c.config.MaxTokens,
 	}
-	jsonData, _ := json.Marshal(reqBody)
-
-	req, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewReader(jsonData))
+	jsonData, err := json.Marshal(reqBody)
 	if err != nil {
 		return "", err
 	}
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+c.config.APIKey)
 
 	var lastErr error
 	for i := 0; i <= c.config.MaxRetries; i++ {
+		// 每次重试都重建请求：http.Request 的 body 在首次发送后即被消费，
+		// 复用同一个 req 会导致后续重试发送空 body。
+		req, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewReader(jsonData))
+		if err != nil {
+			return "", err
+		}
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", "Bearer "+c.config.APIKey)
+
 		resp, err := c.client.Do(req)
 		if err != nil {
 			lastErr = err
 			time.Sleep(time.Second * time.Duration(i+1))
 			continue
 		}
-		defer resp.Body.Close()
 
-		body, _ := io.ReadAll(resp.Body)
+		body, readErr := io.ReadAll(resp.Body)
+		// 循环内必须立即关闭，不能 defer，否则每次重试都会泄漏连接与响应体
+		resp.Body.Close()
+		if readErr != nil {
+			lastErr = readErr
+			time.Sleep(time.Second * time.Duration(i+1))
+			continue
+		}
 		if resp.StatusCode != http.StatusOK {
 			lastErr = fmt.Errorf("LLM API error: %d %s", resp.StatusCode, string(body))
 			time.Sleep(time.Second * time.Duration(i+1))
@@ -175,6 +185,5 @@ func buildReviewPrompt(text string, hitWords []string) string {
 文本：“这部电影很垃圾” 命中词：["垃圾"] → {"level":"safe","reason":"评价物品，无攻击对象"}
 
 现在请只输出你的判断 JSON。`, string(wordsJSON), text)
-	log.Printf("[sensitive] LLM 复判 Prompt: %s", prompt)
 	return prompt
 }

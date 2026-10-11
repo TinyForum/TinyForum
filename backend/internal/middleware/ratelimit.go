@@ -3,7 +3,6 @@ package middleware
 
 import (
 	"fmt"
-	"log"
 	"net"
 	"strings"
 	"sync/atomic"
@@ -11,16 +10,15 @@ import (
 	"tiny-forum/internal/infra/ratelimit"
 	"tiny-forum/internal/model/do"
 	riskservice "tiny-forum/internal/service/risk"
+	"tiny-forum/pkg/logger"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
-// Context 键常量
-// const (
-// 	ContextUserID = "user_id"
-// )
+// lowScoreThreshold 低积分账号的限流阈值
+const lowScoreThreshold = 50
 
 // RateLimitMiddleware 限流中间件结构体
 type RateLimitMiddleware struct {
@@ -43,14 +41,16 @@ func NewRateLimitMiddleware(db *gorm.DB, riskSvc riskservice.RiskService, cfg *c
 // UpdateConfig 更新限流配置（支持动态热更新）
 func (m *RateLimitMiddleware) UpdateConfig(cfg config.RateLimitConfig) {
 	m.cfg.Store(&cfg)
-	log.Printf("[RateLimitMiddleware] Config updated: enabled=%v, whitelist=%v",
+	logger.Infof("[RateLimitMiddleware] Config updated: enabled=%v, whitelist=%v",
 		cfg.Enabled, cfg.IPWhitelist)
 }
 
 // getConfig 获取当前配置（线程安全）
 func (m *RateLimitMiddleware) getConfig() *config.RateLimitConfig {
 	if val := m.cfg.Load(); val != nil {
-		return val.(*config.RateLimitConfig)
+		if cfg, ok := val.(*config.RateLimitConfig); ok {
+			return cfg
+		}
 	}
 	return &config.RateLimitConfig{}
 }
@@ -66,7 +66,7 @@ func (m *RateLimitMiddleware) Middleware(action ratelimit.Action) gin.HandlerFun
 			return
 		}
 
-		log.Printf("[RateLimit] Processing request: %s %s, action: %s",
+		logger.Debugf("[RateLimit] Processing request: %s %s, action: %s",
 			c.Request.Method, c.Request.URL.Path, action)
 
 		userIDRaw, exists := c.Get(ContextUserID)
@@ -85,25 +85,25 @@ func (m *RateLimitMiddleware) Middleware(action ratelimit.Action) gin.HandlerFun
 // handleAnonymousUser 处理未登录用户的限流
 func (m *RateLimitMiddleware) handleAnonymousUser(c *gin.Context, action ratelimit.Action, cfg *config.RateLimitConfig) {
 	ip := c.ClientIP()
-	log.Printf("[RateLimit] Anonymous user, IP: %s, action: %s", ip, action)
+	logger.Debugf("[RateLimit] Anonymous user, IP: %s, action: %s", ip, action)
 
 	// 使用配置的白名单
 	if m.isWhitelistedIP(ip, cfg) {
-		log.Printf("[RateLimit] IP %s is whitelisted, skipping rate limit", ip)
+		logger.Debugf("[RateLimit] IP %s is whitelisted, skipping rate limit", ip)
 		c.Next()
 		return
 	}
 
 	result, err := m.riskSvc.CheckRateLimitByIP(c.Request.Context(), ip, action)
 	if err != nil {
-		log.Printf("[RateLimit] CheckRateLimitByIP error for IP %s: %v, allowing request", ip, err)
+		logger.Warnf("[RateLimit] CheckRateLimitByIP error for IP %s: %v, allowing request", ip, err)
 		c.Next()
 		return
 	}
 
 	resetSeconds := max(int(result.ResetIn.Seconds()), 0)
 
-	log.Printf("[RateLimit] IP %s - Allowed: %v, Current: %d, Limit: %d, ResetIn: %ds",
+	logger.Debugf("[RateLimit] IP %s - Allowed: %v, Current: %d, Limit: %d, ResetIn: %ds",
 		ip, result.Allowed, result.Current, result.Limit, resetSeconds)
 
 	if !result.Allowed {
@@ -125,22 +125,22 @@ func (m *RateLimitMiddleware) handleAnonymousUser(c *gin.Context, action ratelim
 func (m *RateLimitMiddleware) handleAuthenticatedUser(c *gin.Context, action ratelimit.Action, userIDRaw any, cfg *config.RateLimitConfig) {
 	userID, ok := userIDRaw.(uint)
 	if !ok {
-		log.Printf("[RateLimit] Invalid user ID type, skipping rate limit")
+		logger.Warnf("[RateLimit] Invalid user ID type, skipping rate limit")
 		c.Next()
 		return
 	}
 
-	log.Printf("[RateLimit] Authenticated user, UserID: %d, action: %s", userID, action)
+	logger.Debugf("[RateLimit] Authenticated user, UserID: %d, action: %s", userID, action)
 
 	var user do.User
 	if err := m.db.Select("id, score, is_blocked, created_at").First(&user, userID).Error; err != nil {
-		log.Printf("[RateLimit] User not found: %d, error: %v, fallback to IP rate limit", userID, err)
+		logger.Warnf("[RateLimit] User not found: %d, error: %v, fallback to IP rate limit", userID, err)
 		m.handleAnonymousUser(c, action, cfg)
 		return
 	}
 
 	if user.IsBlocked {
-		log.Printf("[RateLimit] User %d is blocked", userID)
+		logger.Warnf("[RateLimit] User %d is blocked", userID)
 		response.Forbidden(c, "账号已被封禁")
 		c.Abort()
 		return
@@ -148,19 +148,19 @@ func (m *RateLimitMiddleware) handleAuthenticatedUser(c *gin.Context, action rat
 
 	result, err := m.riskSvc.CheckRateLimit(c.Request.Context(), &user, action)
 	if err != nil {
-		log.Printf("[RateLimit] CheckRateLimit error for user %d: %v, fallback to IP rate limit", userID, err)
+		logger.Warnf("[RateLimit] CheckRateLimit error for user %d: %v, fallback to IP rate limit", userID, err)
 		m.handleAnonymousUser(c, action, cfg)
 		return
 	}
 
-	log.Printf("[RateLimit] User %d - Allowed: %v, Current: %d, Limit: %d, ResetIn: %ds",
+	logger.Debugf("[RateLimit] User %d - Allowed: %v, Current: %d, Limit: %d, ResetIn: %ds",
 		userID, result.Allowed, result.Current, result.Limit, result.ResetIn)
 
 	resetSeconds := max(int(result.ResetIn.Seconds()), 0)
 	if !result.Allowed {
 		m.setRateLimitHeaders(c, result)
 
-		if user.Score < 50 {
+		if user.Score < lowScoreThreshold {
 			response.TooManyRequests(c, "您的账号积分较低，操作频率受限，请提升积分后再试")
 		} else {
 			response.TooManyRequests(c, fmt.Sprintf("操作过于频繁，请 %d 秒后再试", resetSeconds))

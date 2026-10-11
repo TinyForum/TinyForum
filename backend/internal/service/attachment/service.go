@@ -33,10 +33,18 @@ func (s *service) UploadFile(ctx context.Context, userID uint, fileHeader *multi
 	}
 
 	// 2. 检查是否已存在相同哈希的文件（去重）
-	dup, _ := s.repo.FindDuplicate(ctx, result.FileHash, do.FileType(req.Type))
+	dup, dupErr := s.repo.FindDuplicate(ctx, result.FileHash, do.FileType(req.Type))
+	if dupErr != nil {
+		logger.Warnf("查询重复文件失败: %v", dupErr)
+	}
 	if dup != nil {
+		// 命中重复：本次 Upload 已写入的物理文件若与已有文件不同，需清理，避免产生孤儿文件
+		if dup.StoredPath != result.StoredPath {
+			if delErr := s.uploadEng.DeleteFile(ctx, result.StoredPath); delErr != nil {
+				logger.Warnf("清理重复物理文件失败 (path=%s): %v", result.StoredPath, delErr)
+			}
+		}
 		logger.Infof("文件已存在: %s", s.urlPrefix+"/"+dup.StoredPath)
-		// 已存在，返回已有文件的信息（物理文件已存在，无需重复保存）
 		return &dto.UploadResponse{
 			FileID: dup.FileID,
 			URL:    s.urlPrefix + "/" + dup.StoredPath,

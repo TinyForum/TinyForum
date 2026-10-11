@@ -41,7 +41,7 @@ type ConfigPlugins struct {
 type ConfigPrivate struct {
 	JWT        JWTConfig        `mapstructure:"jwt" validate:"required"`
 	Email      EmailConfig      `mapstructure:"email" validate:"required"`
-	OAuth      OAuthConfig      `mapstructure:"oauth" validate:"required"`
+	OAuth      OAuthConfig      `mapstructure:"oauth" validate:"omitempty"`
 	AdminUser  AdminUserConfig  `mapstructure:"admin" validate:"required"`
 	SystemUser SystemUserConfig `mapstructure:"system" validate:"required"`
 }

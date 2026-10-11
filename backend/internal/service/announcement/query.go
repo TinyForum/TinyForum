@@ -7,6 +7,7 @@ import (
 	"tiny-forum/internal/model/request"
 	"tiny-forum/internal/model/vo"
 	apperrors "tiny-forum/pkg/errors"
+	"tiny-forum/pkg/logger"
 
 	"gorm.io/gorm"
 )
@@ -19,7 +20,11 @@ func (s *announcementService) GetByID(ctx context.Context, id uint) (*do.Announc
 		}
 		return nil, err
 	}
-	go s.repo.IncrementViewCount(context.Background(), id)
+	go func() {
+		if err := s.repo.IncrementViewCount(context.Background(), id); err != nil {
+			logger.Warnf("增加公告浏览量失败 (id=%d): %v", id, err)
+		}
+	}()
 	return announcement, nil
 }
 

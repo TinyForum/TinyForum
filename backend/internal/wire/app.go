@@ -2,6 +2,7 @@
 package wire
 
 import (
+	"context"
 	"fmt"
 	"log"
 	initdata "tiny-forum/init"
@@ -141,8 +142,8 @@ func InitAppWithDynamic(dynCfg *config.DynamicConfig) (*App, error) {
 	RegisterRoutes(engine, handlers, mw, repos, cfg)
 
 	// 13. 启动后台任务
-	go job.CleanTempFiles(db, userStorage, repos.Attachment)
-	go job.CleanTempFiles(db, pluginsStorage, repos.Attachment)
+	go job.CleanTempFiles(context.Background(), db, userStorage, repos.Attachment)
+	go job.CleanTempFiles(context.Background(), db, pluginsStorage, repos.Attachment)
 
 	// 14. 注册配置变更回调（关键：热更新逻辑）
 	app.registerConfigCallbacks()

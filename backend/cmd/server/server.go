@@ -34,12 +34,12 @@ func runApp(configDir string, version string) error {
 
 	// ===== 2. 创建动态配置管理器 =====
 	dynCfg, err := config.NewDynamicConfig(configDir)
-	logger.Infof("动态配置: %s", dynCfg.Get)
 	if err != nil {
 		logger.Fatal(fmt.Sprintf("Failed to create dynamic config: %v", err))
 		printConfigError(err)
 		os.Exit(1)
 	}
+	logger.Info("动态配置初始化完成")
 	defer dynCfg.Close()
 
 	// 打印启动信息

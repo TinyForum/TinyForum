@@ -47,7 +47,7 @@ func ListPluginFiles(c *gin.Context) {
 	}
 
 	fullPath := filepath.Join(rootDir, subPath)
-	logger.Infof("路径：", fullPath)
+	logger.Infof("路径：%s", fullPath)
 	// 确保最终路径仍在 rootDir 内
 	// absRoot, _ := filepath.Abs(rootDir)
 	absFull, _ := filepath.Abs(fullPath)

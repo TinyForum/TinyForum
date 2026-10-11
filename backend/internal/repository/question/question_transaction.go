@@ -8,6 +8,7 @@ import (
 	"tiny-forum/pkg/utils"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 // CreateWithTransaction 使用事务创建问答（包括帖子、标签、积分扣减）
@@ -49,10 +50,10 @@ func (r *questionRepository) CreateWithTransaction(userID uint, input dto.Create
 		}
 	}
 
-	// 3. 扣减积分
+	// 3. 扣减积分（行锁防止并发扣分导致余额为负）
 	if input.RewardScore > 0 {
 		var user do.User
-		if err := tx.Where("id = ?", userID).First(&user).Error; err != nil {
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Where("id = ?", userID).First(&user).Error; err != nil {
 			tx.Rollback()
 			return nil, err
 		}

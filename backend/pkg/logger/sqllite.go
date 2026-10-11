@@ -66,7 +66,6 @@ var (
 // InitDB 初始化 SQLite 日志数据库。
 // 可在 logger.Init 之前或之后单独调用；若在 Init 之后调用，需重新调用 Init 以接入 dbCore。
 func InitDB(cfg *config.DBConfig) error {
-	fmt.Printf("dsn %v", cfg.DSN)
 	globalDBMu.Lock()
 	defer globalDBMu.Unlock()
 

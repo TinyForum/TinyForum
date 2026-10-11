@@ -2,9 +2,9 @@ package bot
 
 import (
 	"context"
-	"fmt"
 	"tiny-forum/internal/infra/lua/nocode"
 	"tiny-forum/internal/model/do"
+	"tiny-forum/pkg/logger"
 )
 
 // ─── 调度器 ───────────────────────────────────────────────────────────────
@@ -13,14 +13,14 @@ func (s *service) StartScheduler() {
 	ctx := context.Background()
 	bots, err := s.repo.ListActive(ctx)
 	if err != nil {
-		fmt.Println("[Scheduler] ListActive error:", err)
+		logger.Errorf("调度器加载机器人失败: %v", err)
 		return
 	}
 	for _, bot := range bots {
 		s.registerBot(bot)
 	}
 	s.cron.Start()
-	fmt.Printf("[Scheduler] 启动，已注册 %d 个机器人\n", len(bots))
+	logger.Infof("[Scheduler] 启动，已注册 %d 个机器人", len(bots))
 }
 
 func (s *service) registerBot(bot *do.Bot) {
@@ -35,7 +35,7 @@ func (s *service) registerBot(bot *do.Bot) {
 				if cron, ok := flow.Trigger.Params["cron"].(string); ok && cron != "" {
 					_, err := s.cron.AddFunc(cron, func() { s.executeBot(b, nil) })
 					if err != nil {
-						fmt.Printf("[Scheduler] bot=%d nocode cron='%s' 注册失败: %v\n", bot.ID, cron, err)
+						logger.Errorf("[Scheduler] bot=%d nocode cron='%s' 注册失败: %v", bot.ID, cron, err)
 					}
 				}
 			case nocode.TriggerOnNewPost:
@@ -58,7 +58,7 @@ func (s *service) registerBot(bot *do.Bot) {
 		if bot.CronExpr != "" {
 			_, err := s.cron.AddFunc(bot.CronExpr, func() { s.executeBot(b, nil) })
 			if err != nil {
-				fmt.Printf("[Scheduler] bot=%d cron='%s' 注册失败: %v\n", bot.ID, bot.CronExpr, err)
+				logger.Errorf("[Scheduler] bot=%d cron='%s' 注册失败: %v", bot.ID, bot.CronExpr, err)
 			}
 		}
 	case do.TriggerEvent:

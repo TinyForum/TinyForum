@@ -14,8 +14,6 @@
 package middleware
 
 import (
-	"fmt"
-	"log"
 	"tiny-forum/pkg/response"
 
 	"github.com/casbin/casbin/v3"
@@ -40,28 +38,10 @@ func casbinAuth(enforcer *casbin.Enforcer) gin.HandlerFunc {
 			return
 		}
 
-		// DEBUG: 打印完整入参，确认后删除
-		log.Printf("[Casbin] Enforce(%q, %q, %q)", role, path, method)
-		// log.Printf("[Casbin] All policies: %s", enforcer.GetPolicy())
-		if policies, err := enforcer.GetPolicy(); err == nil {
-			log.Printf("[Casbin] All policies: %v", policies)
-		} else {
-			log.Printf("[Casbin] Failed to get policies: %v", err)
-		}
-		if roles, err := enforcer.GetRolesForUser(role); err == nil {
-			log.Printf("[Casbin] Roles for %q: %v", role, roles)
-		} else {
-			log.Printf("[Casbin] Failed to get roles for %q: %v", role, err)
-		}
-		// log.Printf("[Casbin] Roles for %q: %v", role, enforcer.GetRolesForUser(role))
-
 		ok, err := enforcer.Enforce(role, path, method)
 
-		log.Printf("[Casbin] result: ok=%v err=%v", ok, err)
-
 		if err != nil {
-			log.Printf("[Casbin] ERROR: %v", err)
-			response.InternalError(c, fmt.Sprintf("权限校验异常: %v", err))
+			response.InternalError(c, "权限校验异常")
 			c.Abort()
 			return
 		}

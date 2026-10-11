@@ -4,11 +4,11 @@ import (
 	"bytes"
 	"encoding/json"
 	"io"
-	"log"
 	"strings"
 
 	"tiny-forum/internal/infra/sensitive"
 	"tiny-forum/internal/service/check"
+	"tiny-forum/pkg/logger"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -36,7 +36,7 @@ const (
 // fields: 需要检测的 JSON 字段名，如 []string{"title", "content"}
 // ContentCheckMiddleware 内容安全前置检测中间件（同步 Pre-check）
 func ContentCheckMiddleware(checkSvc check.ContentCheckService, fields []string) gin.HandlerFunc {
-	log.Printf("ContentCheckMiddleware: fields=%v", fields)
+	logger.Infof("ContentCheckMiddleware: fields=%v", fields)
 
 	return func(c *gin.Context) {
 		body, restore, err := peekBody(c)
@@ -67,8 +67,6 @@ func ContentCheckMiddleware(checkSvc check.ContentCheckService, fields []string)
 
 		combined := strings.Join(parts, "\n")
 		res := checkSvc.CheckText(combined)
-
-		log.Printf("[DEBUG] combined check: level=%+v, hits=%v", res.Level, res.HitWords)
 
 		switch res.Action {
 		case sensitive.ActionBlock:

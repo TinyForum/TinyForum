@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"mime/multipart"
+	"net/http"
 	"path/filepath"
 	"strings"
 	"tiny-forum/internal/model/do"
@@ -20,17 +21,43 @@ type BaseHandler struct {
 	AllowedMime []string
 }
 
+// Validate 验证文件大小与真实内容类型
+// 不能信任客户端提交的 Content-Type，这里通过读取文件头（magic bytes）嗅探真实 MIME，
+// 并拒绝可在浏览器中执行的内容（HTML/SVG/XML/JS），防止存储型 XSS。
 func (h *BaseHandler) Validate(file *multipart.FileHeader) error {
 	if file.Size > h.MaxSize {
 		return fmt.Errorf("file too large: max %d bytes", h.MaxSize)
 	}
-	ct := file.Header.Get("Content-Type")
+	f, err := file.Open()
+	if err != nil {
+		return fmt.Errorf("open file: %w", err)
+	}
+	defer f.Close()
+
+	buf := make([]byte, 512)
+	n, err := f.Read(buf)
+	if err != nil && err != io.EOF {
+		return fmt.Errorf("read file: %w", err)
+	}
+	detected := strings.ToLower(http.DetectContentType(buf[:n]))
+
+	// 允许的媒介类型前缀
 	for _, allowed := range h.AllowedMime {
-		if strings.HasPrefix(ct, allowed) {
+		if strings.HasPrefix(detected, strings.ToLower(allowed)) {
+			// image/* 仍需单独排除可执行内容的子类型
+			if strings.HasPrefix(detected, "image/") && strings.Contains(detected, "svg") {
+				return fmt.Errorf("file type not allowed: %s", detected)
+			}
 			return nil
 		}
 	}
-	return fmt.Errorf("unsupported mime type: %s", ct)
+	// 黑名单：即使不在允许列表中，也必须明确拒绝可执行内容
+	for _, bad := range []string{"text/html", "text/xml", "application/xhtml+xml", "application/javascript", "application/x-httpd-php"} {
+		if strings.HasPrefix(detected, bad) {
+			return fmt.Errorf("file type not allowed: %s", detected)
+		}
+	}
+	return fmt.Errorf("unsupported mime type: %s", detected)
 }
 
 func (h *BaseHandler) Process(src io.Reader, meta *do.Attachment) (io.Reader, error) {
