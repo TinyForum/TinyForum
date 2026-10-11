@@ -30,25 +30,25 @@ import (
 
 // Repositories 聚合所有 Repository
 type Repositories struct {
-	Token        token.TokenRepository
-	User         user.UserRepository
-	Post         post.ArticleRepository
-	Violation    violation.ViolationRepository
-	Comment      comment.CommentRepository
-	Tag          tag.TagRepository
-	Notification notification.NotificationRepository
-	Board        board.BoardRepository
-	Timeline     timeline.TimelineRepository
-	Topic        topic.TopicRepository
-	Question     question.QuestionRepository
-	Vote         vote.VoteRepository
-	Announcement announcement.AnnouncementRepository
-	Stats        stats.StatsRepository
-	Auth         auth.AuthRepository
-	Risk         risk.RiskRepository
-	Transaction  transaction.TransactionManager
-	Attachment   attachment.AttachmentRepository
-	Plugin       plugin.PluginRepository
+	Token          token.TokenRepository
+	User           user.UserRepository
+	Post           post.ArticleRepository
+	Violation      violation.ViolationRepository
+	Comment        comment.CommentRepository
+	Tag            tag.TagRepository
+	Notification   notification.NotificationRepository
+	Board          board.BoardRepository
+	Timeline       timeline.TimelineRepository
+	Topic          topic.TopicRepository
+	Question       question.QuestionRepository
+	Vote           vote.VoteRepository
+	Announcement   announcement.AnnouncementRepository
+	Stats          stats.StatsRepository
+	Auth           auth.AuthRepository
+	Risk           risk.RiskRepository
+	Transaction    transaction.TransactionManager
+	Attachment     attachment.AttachmentRepository
+	Plugin         plugin.PluginRepository
 	Bot            bot.Repository
 	Reports        reports.ReportsRepository
 	Recommendation recommendation.RecommendationRepository
@@ -61,25 +61,25 @@ func NewRepositories(db *gorm.DB, redis *redis.Client) *Repositories {
 	violation := violation.NewPostRepository(db)
 
 	return &Repositories{
-		Token:        tokenRepo,
-		Post:         postRepo,
-		Violation:    violation,
-		User:         user.NewUserRepository(db, tokenRepo, postRepo),
-		Comment:      comment.NewCommentRepository(db),
-		Tag:          tag.NewTagRepository(db),
-		Notification: notification.NewNotificationRepository(db),
-		Board:        board.NewBoardRepository(db),
-		Timeline:     timeline.NewTimelineRepository(db),
-		Topic:        topic.NewTopicRepository(db),
-		Question:     question.NewQuestionRepository(db),
-		Vote:         vote.NewVoteRepository(db),
-		Announcement: announcement.NewAnnouncementRepository(db),
-		Stats:        stats.NewStatsRepository(db),
-		Auth:         auth.NewAuthRepository(db),
-		Risk:         risk.NewRiskRepository(db),
-		Transaction:  transaction.NewTransactionManager(db),
-		Attachment:   attachment.NewAttachmentRepository(db),
-		Plugin:       plugin.NewPluginRepository(db),
+		Token:          tokenRepo,
+		Post:           postRepo,
+		Violation:      violation,
+		User:           user.NewUserRepository(db, tokenRepo, postRepo),
+		Comment:        comment.NewCommentRepository(db),
+		Tag:            tag.NewTagRepository(db),
+		Notification:   notification.NewNotificationRepository(db),
+		Board:          board.NewBoardRepository(db),
+		Timeline:       timeline.NewTimelineRepository(db),
+		Topic:          topic.NewTopicRepository(db),
+		Question:       question.NewQuestionRepository(db),
+		Vote:           vote.NewVoteRepository(db),
+		Announcement:   announcement.NewAnnouncementRepository(db),
+		Stats:          stats.NewStatsRepository(db),
+		Auth:           auth.NewAuthRepository(db),
+		Risk:           risk.NewRiskRepository(db),
+		Transaction:    transaction.NewTransactionManager(db),
+		Attachment:     attachment.NewAttachmentRepository(db),
+		Plugin:         plugin.NewPluginRepository(db),
 		Bot:            bot.NewRepository(db),
 		Reports:        reports.NewRiskRepository(db),
 		Recommendation: recommendation.NewRecommendationRepository(db),

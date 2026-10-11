@@ -17,6 +17,7 @@ import (
 	pluginHandler "tiny-forum/internal/handler/plugin"
 	questionHandler "tiny-forum/internal/handler/questions"
 	recHandler "tiny-forum/internal/handler/recommendation"
+	reportHandler "tiny-forum/internal/handler/report"
 	riskhandler "tiny-forum/internal/handler/risk"
 	statsHandler "tiny-forum/internal/handler/stats"
 	tagHandler "tiny-forum/internal/handler/tags"
@@ -30,26 +31,27 @@ import (
 
 // Handlers 聚合所有 Handler
 type Handlers struct {
-	Auth         *authHandler.AuthHandler
-	User         *userHandler.UserHandler
-	Tag          *tagHandler.TagHandler
-	Notification *notificationHandler.NotificationHandler
-	Article      *articleHandler.ArticleHandler
-	Comment      *commentHandler.CommentHandler
-	Board        *boardHandler.BoardHandler
-	Timeline     *timelineHandler.TimelineHandler
-	Topic        *topicHandler.TopicHandler
-	Question     *questionHandler.QuestionHandler
-	Answer       *answerHandler.AnswerHandler
-	Announcement *announcementHandler.AnnouncementHandler
-	Stats        *statsHandler.StatsHandler
-	Risk         *riskhandler.RiskHandler
-	Attachment   *attachment.AttachmentHandler
-	Admin        *adminHandler.AdminHandler
-	Plugin       *pluginHandler.Handler
-	Config       *configHandler.ConfigHandler
-	Bot          *botHandler.Handler
+	Auth           *authHandler.AuthHandler
+	User           *userHandler.UserHandler
+	Tag            *tagHandler.TagHandler
+	Notification   *notificationHandler.NotificationHandler
+	Article        *articleHandler.ArticleHandler
+	Comment        *commentHandler.CommentHandler
+	Board          *boardHandler.BoardHandler
+	Timeline       *timelineHandler.TimelineHandler
+	Topic          *topicHandler.TopicHandler
+	Question       *questionHandler.QuestionHandler
+	Answer         *answerHandler.AnswerHandler
+	Announcement   *announcementHandler.AnnouncementHandler
+	Stats          *statsHandler.StatsHandler
+	Risk           *riskhandler.RiskHandler
+	Attachment     *attachment.AttachmentHandler
+	Admin          *adminHandler.AdminHandler
+	Plugin         *pluginHandler.Handler
+	Config         *configHandler.ConfigHandler
+	Bot            *botHandler.Handler
 	Recommendation *recHandler.Handler
+	Report         *reportHandler.ReportHandler
 }
 
 // NewHandlers 创建所有 Handler 实例
@@ -75,27 +77,29 @@ func NewHandlers(svc *Services, timeHelpers *timeutil.TimeHelpers, cfg *config.C
 	bot := botHandler.NewHandler(svc.Bot)
 	config := configHandler.NewConfigHandler(configSvc)
 	recommendation := recHandler.NewHandler(svc.Recommendation)
+	report := reportHandler.NewReportHandler(svc.Reports)
 	return &Handlers{
-		Auth:         auth,
-		User:         user,
-		Tag:          tag,
-		Notification: notification,
-		Article:      article,
-		Comment:      comment,
-		Board:        board,
-		Timeline:     timeline,
-		Topic:        topic,
-		Question:     question,
-		Answer:       answer,
-		Announcement: announcement,
-		Stats:        stats,
-		Risk:         risk,
-		Attachment:   attachment,
-		Admin:        admin,
-		Plugin:       plugin,
-		Bot:           bot,
-		Config:        config,
+		Auth:           auth,
+		User:           user,
+		Tag:            tag,
+		Notification:   notification,
+		Article:        article,
+		Comment:        comment,
+		Board:          board,
+		Timeline:       timeline,
+		Topic:          topic,
+		Question:       question,
+		Answer:         answer,
+		Announcement:   announcement,
+		Stats:          stats,
+		Risk:           risk,
+		Attachment:     attachment,
+		Admin:          admin,
+		Plugin:         plugin,
+		Bot:            bot,
+		Config:         config,
 		Recommendation: recommendation,
+		Report:         report,
 	}
 }
 

@@ -18,8 +18,9 @@
 package wire
 
 import (
-	"fmt"
 	"net/http"
+	"path/filepath"
+	"strings"
 	"tiny-forum/internal/infra/config"
 	"tiny-forum/internal/middleware"
 	"tiny-forum/internal/routes"
@@ -38,8 +39,6 @@ func RegisterRoutes(
 	repos *Repositories,
 	cfg *config.Config,
 ) {
-	fmt.Printf("DEBUG: AllowOrigins = %v, len = %d\n", cfg.Basic.AllowOrigins, len(cfg.Basic.AllowOrigins))
-
 	// CORS
 	engine.Use(cors.New(cors.Config{
 		AllowOrigins:     cfg.Basic.AllowOrigins,
@@ -79,6 +78,9 @@ func RegisterRoutes(
 	handlers.Comment.RegisterRoutes(api, mw)
 	handlers.Answer.RegisterRoutes(api, mw)
 
+	// 举报
+	handlers.Report.RegisterRoutes(api, mw)
+
 	// 通告
 	handlers.Notification.RegisterRoutes(api, mw)
 	handlers.Announcement.RegisterRoutes(api, mw)
@@ -101,8 +103,21 @@ func RegisterRoutes(
 	handlers.Recommendation.RegisterRoutes(api, mw)
 
 	// 静态路由
+	// 上传目录按内容嗅探过文件类型后仍加一层静态服务防御：
+	// - X-Content-Type-Options: nosniff 禁止浏览器重新嗅探内容类型
+	// - 直接拒绝可执行扩展名，防止历史遗留/绕过校验的 HTML/SVG 被当作页面渲染
+	uploadsGroup := engine.Group("/uploads", func(c *gin.Context) {
+		c.Header("X-Content-Type-Options", "nosniff")
+		c.Header("X-Frame-Options", "DENY")
+		switch strings.ToLower(filepath.Ext(c.Request.URL.Path)) {
+		case ".html", ".htm", ".svg", ".xhtml", ".xml", ".js", ".mjs", ".json", ".php":
+			c.AbortWithStatus(http.StatusNotFound)
+			return
+		}
+		c.Next()
+	})
+	uploadsGroup.Static("", "./uploads")
 	engine.StaticFS("/store", http.Dir("./store"))
-	engine.StaticFS("/uploads", http.Dir("./uploads"))
 
 	// ── Admin 路由组（示例：Casbin 替代 AdminRequired）───────────────────────
 	//

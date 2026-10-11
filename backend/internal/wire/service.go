@@ -33,25 +33,25 @@ import (
 
 // Services 聚合所有 Service
 type Services struct {
-	User         user.UserService
-	Auth         auth.AuthService
-	Tag          tag.TagService
-	Notification notification.NotificationService
-	Article      article.ArticleService
-	Comment      comment.CommentService
-	Board        board.BoardService
-	Timeline     timeline.TimelineService
-	Topic        topic.TopicService
-	Question     question.QuestionService
-	Announcement announcement.AnnouncementService
-	Stats        stats.StatsService
-	Risk         risk.RiskService
-	ContentCheck check.ContentCheckService
-	Attachment   attachment.AttachmentService
-	Admin        admin.AdminService
-	Plugin       plugin.PluginService
-	Bot          bot.Service
-	Reports      reports.ReportsService
+	User           user.UserService
+	Auth           auth.AuthService
+	Tag            tag.TagService
+	Notification   notification.NotificationService
+	Article        article.ArticleService
+	Comment        comment.CommentService
+	Board          board.BoardService
+	Timeline       timeline.TimelineService
+	Topic          topic.TopicService
+	Question       question.QuestionService
+	Announcement   announcement.AnnouncementService
+	Stats          stats.StatsService
+	Risk           risk.RiskService
+	ContentCheck   check.ContentCheckService
+	Attachment     attachment.AttachmentService
+	Admin          admin.AdminService
+	Plugin         plugin.PluginService
+	Bot            bot.Service
+	Reports        reports.ReportsService
 	Recommendation recommendation.RecommendationService
 }
 
@@ -81,7 +81,7 @@ func NewServices(
 	tagSvc := tag.NewTagService(repos.Tag)
 	engine := upload.NewEngine(userStorage, registry)
 	attachmentSvc := attachment.NewAttachmentService(repos.Attachment, cfg.Basic.Attachment, engine)
-	boardSvc := board.NewBoardService(repos.Board, repos.User, repos.Post, notifSvc, attachmentSvc)
+	boardSvc := board.NewBoardService(repos.Board, repos.User, repos.Post, notifSvc, attachmentSvc, repos.Transaction)
 	timelineSvc := timeline.NewTimelineService(repos.Timeline, repos.User, repos.Post, repos.Comment)
 	topicSvc := topic.NewTopicService(repos.Topic, repos.Post, repos.User, notifSvc)
 	botSvc := bot.NewService(repos.Bot, repos.Post, repos.Comment, repos.User, repos.Notification, repos.Attachment)
@@ -91,7 +91,7 @@ func NewServices(
 	articleSvc := article.NewPostService(repos.Post, repos.Tag, repos.User, repos.Board, notifSvc, botSvc, attachmentSvc, checkSvc, recSvc)
 	commentSvc := comment.NewCommentService(repos.Comment, repos.Post, repos.User, notifSvc, botSvc, repos.Vote, recSvc)
 	announcementSvc := announcement.NewAnnouncementService(repos.Announcement)
-	statsSvc := stats.NewStatsService(repos.Stats, repos.Post, repos.Tag, repos.Board, repos.User, repos.Comment)
+	statsSvc := stats.NewStatsService(repos.Stats, repos.Post, repos.Tag, repos.Board, repos.User, repos.Comment, repos.Reports)
 	emailSvc := email.NewEmailService(&cfg.Private.Email)
 	authSvc := auth.NewAuthService(repos.Auth, repos.User, jwtMgr, notifSvc, emailSvc, cfg, repos.Token, repos.Transaction, infra.RedisClient)
 	reportsSvc := reports.NewReportsService(repos.Reports)
@@ -99,23 +99,23 @@ func NewServices(
 	pluginSvc := plugin.NewPluginService(repos.Plugin, publicStorage, &cfg.Basic.Plugins)
 
 	return &Services{
-		User:         userSvc,
-		Auth:         authSvc,
-		Tag:          tagSvc,
-		Notification: notifSvc,
-		Article:      articleSvc,
-		Comment:      commentSvc,
-		Board:        boardSvc,
-		Timeline:     timelineSvc,
-		Topic:        topicSvc,
-		Question:     questionSvc,
-		Announcement: announcementSvc,
-		Stats:        statsSvc,
-		Risk:         riskSvc,
-		ContentCheck: checkSvc,
-		Attachment:   attachmentSvc,
-		Admin:        adminSvc,
-		Plugin:       pluginSvc,
+		User:           userSvc,
+		Auth:           authSvc,
+		Tag:            tagSvc,
+		Notification:   notifSvc,
+		Article:        articleSvc,
+		Comment:        commentSvc,
+		Board:          boardSvc,
+		Timeline:       timelineSvc,
+		Topic:          topicSvc,
+		Question:       questionSvc,
+		Announcement:   announcementSvc,
+		Stats:          statsSvc,
+		Risk:           riskSvc,
+		ContentCheck:   checkSvc,
+		Attachment:     attachmentSvc,
+		Admin:          adminSvc,
+		Plugin:         pluginSvc,
 		Bot:            botSvc,
 		Reports:        reportsSvc,
 		Recommendation: recSvc,

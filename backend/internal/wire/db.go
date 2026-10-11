@@ -83,11 +83,12 @@ func InitDB(cfg *config.Config) (*gorm.DB, error) {
 		&do.UserTimeline{},         // 用户时间线
 		&do.TimelineSubscription{}, // 时间线订阅
 		// 主题
-		&do.Topic{},                // 主题
-		&do.TopicCreation{},        // 主题帖子
-		&do.TopicFollow{},          // 主题关注
-		&do.Announcement{},         // 公告
-		&do.ModeratorApplication{}, // 版主申请
+		&do.Topic{},                    // 主题
+		&do.TopicCreation{},            // 主题帖子
+		&do.TopicFollow{},              // 主题关注
+		&do.Announcement{},             // 公告
+		&do.ModeratorApplication{},     // 版主申请
+		&do.BoardCreationApplication{}, // 板块创建申请
 
 		// 帖子
 		&do.Post{}, // 帖子
