@@ -47,19 +47,25 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     environment:
-      PRIVATE_DATABASE_HOST: postgres
-      PRIVATE_DATABASE_PORT: 5432
-      PRIVATE_DATABASE_USER: ${DB_USER:-postgres}
-      PRIVATE_DATABASE_PASSWORD: ${DB_PASSWORD:-postgres}
-      PRIVATE_DATABASE_DBNAME: ${DB_NAME:-tiny_forum}
-      PRIVATE_REDIS_HOST: redis
-      PRIVATE_REDIS_PORT: 6379
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_DBNAME: ${DB_NAME:-tiny_forum}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
       PRIVATE_JWT_SECRET: ${JWT_SECRET:-tiny-forum-secret-change-in-production-32chars}
       TZ: Asia/Shanghai
     volumes:
-      - ./backend/config/basic.compose.yaml:/app/config/basic.yaml:ro
-      - ./backend/config/private.compose.yaml:/app/config/private.yaml:ro
-      - ./backend/dicts:/app/dicts:ro
+      - ./backend/config/basic.compose.yaml:/app/config/basic.yml:ro
+      - ./backend/config/private.compose.yaml:/app/config/private.yml:ro
+      - ./backend/config/risk_control.compose.yaml:/app/config/risk_control.yml:ro
+      - ./backend/config/postgres.compose.yaml:/app/config/postgres.yml:ro
+      - ./backend/config/redis.compose.yaml:/app/config/redis.yml:ro
+      - ./backend/config/ai.compose.yaml:/app/config/ai.yml:ro
+      - ./backend/config/app.compose.yaml:/app/config/app.yml:ro
+      - ./backend/config/rbac_model.conf:/app/config/rbac_model.conf:ro
+      - ./backend/sensitive-dicts:/app/sensitive-dicts:ro
       - backend_logs:/app/logs
       - backend_uploads:/app/uploads
     ports:

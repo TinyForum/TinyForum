@@ -1,0 +1,28 @@
+# 依赖与构建产物（镜像内重新安装/构建）
+node_modules
+.next
+out
+coverage
+
+# 版本控制与 CI
+.git
+.gitignore
+.github
+
+# 环境变量与密钥（防止泄漏进镜像）
+.env
+.env.*
+*.local
+
+# 日志与编辑器
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.vscode
+.idea
+.DS_Store
+
+# Docker 自身
+Dockerfile
+.dockerignore

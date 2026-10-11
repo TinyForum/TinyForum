@@ -28,6 +28,8 @@ CFG_PRIVATE  := $(CFG_DIR)/private.yml
 CFG_RISK     := $(CFG_DIR)/risk_control.yml
 CFG_POSTGRES := $(CFG_DIR)/postgres.yml
 CFG_REDIS    := $(CFG_DIR)/redis.yml
+CFG_AI       := $(CFG_DIR)/ai.yml
+CFG_APP      := $(CFG_DIR)/app.yml
 
 
 

@@ -102,12 +102,14 @@ rate_limit:
       update_profile: {limit:  1, window: 1h} # 每小时最多更新 1 次个人资料
 
 ip_whitelist:
-  - "127.0.0.1" # 本地回环地址
-  - "::1" # IPv6 本地回环地址
-  - "localhost" # 本地主机名
+  - "127.0.0.1/32" # 本地回环地址
+  - "::1/128" # IPv6 本地回环地址
   - "10.0.0.0/8" # 私有网络地址
   - "172.16.0.0/12" # 私有网络地址
-  - "${LOCAL_IP}" # 本地 IP 地址
+  - "${LOCAL_IP}/32" # 本地 IP 地址
+
+content_check:
+  enabled: true
 EOF
 )
     _write_config "risk_control.yml" "$config_content"
@@ -126,10 +128,6 @@ write_basic_yaml() {
     local api_host; api_host=$(_get_default api_host)
     local api_port; api_port=$(_get_default api_port)
     local log_level; log_level=$(_get_default log_level)
-    local ollama_url; ollama_url=$(_get_default ollama_url)
-    local ollama_model; ollama_model=$(_get_default ollama_model)
-    local llamacpp_url; llamacpp_url=$(_get_default llamacpp_url)
-    local llamacpp_model; llamacpp_model=$(_get_default llamacpp_model)
     local upload_dir; upload_dir=$(_get_default upload_dir)
     local upload_url_prefix; upload_url_prefix=$(_get_default upload_url_prefix)
     local upload_allowed_ext; upload_allowed_ext=$(_get_default upload_allowed_ext)
@@ -198,20 +196,6 @@ log:
     flush_every: 5s
     retention: 7
 
-ollama:
-  base_url: ${ollama_url}
-  model: ${ollama_model}
-  num_predict: 256
-  temperature: 0.7
-  timeout: 60
-
-llamacpp:
-  base_url: ${llamacpp_url}
-  model: ${llamacpp_model}
-  num_predict: 256
-  temperature: 0.7
-  timeout: 60
-
 allow_origins:
 ${allow_origins_yaml}
 
@@ -220,30 +204,9 @@ attachment:
   url_prefix: ${upload_url_prefix}
   allowed_ext: ${upload_allowed_ext}
   max_size: 10485760
-  allowed_types:
-    - .jpg
-    - .jpeg
-    - .png
-    - .gif
-    - .webp
-    - .pdf
-    - .zip
-  avatar:
-    max_size: 2097152
-    allowed_types: [.jpg, .jpeg, .png, .webp]
-    width: 512
-    height: 512
-  post_image:
-    max_size: 5242880
-    allowed_types: [.jpg, .jpeg, .png, .gif, .webp]
 
-  storage:
-    type: local
-    local_path: ./attachments
-    
 plugins:
   storage_dir: plugins
-  base_url: //plugins
   "
 
   
@@ -265,18 +228,6 @@ write_private_yaml() {
     local jwt_expire; jwt_expire=$(_get_default jwt_expire)
     local jwt_refresh; jwt_refresh=$(_get_default jwt_refresh)
     local jwt_issuer; jwt_issuer=$(_get_default jwt_issuer)
-    local db_host; db_host=$(_get_default db_host)
-    local db_port; db_port=$(_get_default db_port)
-    local db_user; db_user=$(_get_default db_user)
-    local db_pass; db_pass=$(_get_default db_pass)
-    local db_name; db_name=$(_get_default db_name)
-    local db_sslmode; db_sslmode=$(_get_default db_sslmode)
-    local db_timezone; db_timezone=$(_get_default db_timezone)
-    local redis_host; redis_host=$(_get_default redis_host)
-    local redis_port; redis_port=$(_get_default redis_port)
-    local redis_user; redis_user=$(_get_default redis_user)
-    local redis_pass; redis_pass=$(_get_default redis_pass)
-    local redis_db; redis_db=$(_get_default redis_db)
     # admin user
     local admin_email; admin_email=$(_get_default admin_email)
     local admin_pass; admin_pass=$(_get_default admin_pass)
@@ -314,22 +265,6 @@ jwt:
   refresh_expire: \"${jwt_refresh}\"
   issuer: \"${jwt_issuer}\"
 
-database:
-  host: ${db_host}
-  port: ${db_port}
-  user: \"${db_user}\"
-  password: \"${db_pass}\"
-  dbname: ${db_name}
-  sslmode: ${db_sslmode}
-  timezone: ${db_timezone}
-
-redis:
-  host: ${redis_host}
-  port: ${redis_port}
-  user: \"${redis_user}\"
-  password: \"${redis_pass}\"
-  db: ${redis_db}
-
 admin:
   email: ${admin_email}
   password: ${admin_pass}
@@ -347,6 +282,65 @@ system:
     _write_config "private.yml" "$content"
 }
 
+# ── ai.yml ───────────────────────────────────────────────────────────────────
+write_ai_yaml() {
+    local config_content
+    config_content=$(cat <<'EOF'
+# ai.yml — AI 模块配置
+# enable 为必填项，校验规则要求为 true
+enable: true
+provider: openai
+config:
+  api-key: ""
+  base-url: ""
+  model: ""
+  timeout: 60s
+  max-retries: 3
+  temperature: 0.7
+  max-tokens: 2048
+  top-p: 1
+  frequency-penalty: 0
+  presence-penalty: 0
+defaults:
+  timeout: 60
+  max-retries: 3
+  temperature: 0.7
+  max-tokens: 2048
+  top-p: 1
+  frequency-penalty: 0
+  presence-penalty: 0
+retry:
+  enabled: true
+  max-attempts: 3
+  backoff:
+    initial-interval: 1
+    multiplier: 2
+    max-interval: 10
+logging:
+  enabled: false
+  level: info
+  log-payload: false
+cache:
+  enabled: false
+  ttl: 60
+  max-size: 1000
+EOF
+)
+    _write_config "ai.yml" "$config_content"
+}
+
+# ── app.yml ──────────────────────────────────────────────────────────────────
+write_app_yaml() {
+    local config_content
+    config_content=$(cat <<'EOF'
+# app.yml — 应用配置
+# debug 在校验规则中声明为 required，必须为 true
+debug: true
+EOF
+)
+    _write_config "app.yml" "$config_content"
+}
+
 # ── 主函数 ───────────────────────────────────────────────────────────────────
 
 setup_backend_config() {
@@ -355,6 +349,8 @@ setup_backend_config() {
     write_risk_control_yml
     write_basic_yaml
     write_private_yaml
+    write_ai_yaml
+    write_app_yaml
     echo -e "${GREEN}✅ Backend configuration files generated.${NC}"
     echo -e "${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 }

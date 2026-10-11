@@ -9,6 +9,54 @@ on:
       - "**" # 所有分支的 PR 都触发
 
 jobs:
+  build-test:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: backend/go.mod
+          cache-dependency-path: backend/go.sum
+
+      - name: Go build
+        working-directory: backend
+        run: go build ./...
+
+      - name: Go vet
+        working-directory: backend
+        run: go vet ./...
+
+      - name: Go test
+        working-directory: backend
+        run: go test ./...
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: frontend/pnpm-lock.yaml
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: pnpm install --frozen-lockfile
+
+      - name: Frontend type-check
+        working-directory: frontend
+        run: pnpm run type-check
+
+      - name: Frontend lint
+        working-directory: frontend
+        run: pnpm run lint
+
   deploy-docsify:
     name: Deploy Docsify
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'

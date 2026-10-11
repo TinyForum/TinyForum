@@ -1,0 +1,29 @@
+# 编译产物（镜像内重新编译）
+bin
+server
+*.exe
+
+# 运行时数据（通过 volume 挂载）
+logs
+uploads
+
+# 版本控制与 CI
+.git
+.gitignore
+.github
+
+# 环境变量与本地私有配置（防止密钥泄漏进镜像）
+.env
+.env.*
+config/private.yml
+*.local
+
+# 日志与编辑器
+*.log
+.vscode
+.idea
+.DS_Store
+
+# Docker 自身
+Dockerfile
+.dockerignore
