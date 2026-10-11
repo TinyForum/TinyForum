@@ -8,6 +8,7 @@ import { ArrowLeftIcon, FolderPlusIcon, MailIcon } from "lucide-react";
 import { useState } from "react";
 import { Board } from "@/shared/api/types/board.model";
 import { useBoardCreate } from "@/features/boards/hooks/useBoardCreate";
+import { useBoardCreationApply } from "@/features/boards/hooks/useBoardCreationApply";
 
 interface CreateBoardInlineProps {
   slug: string;
@@ -40,6 +41,7 @@ export function CreateBoardInline({ slug, onCreated }: CreateBoardInlineProps) {
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
   const createBoard = useBoardCreate();
+  const applyBoardCreation = useBoardCreationApply();
 
   // 申请表单相关状态
   const [showApplyForm, setShowApplyForm] = useState<boolean>(false);
@@ -99,6 +101,10 @@ export function CreateBoardInline({ slug, onCreated }: CreateBoardInlineProps) {
   // 处理申请提交
   const handleApplySubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
+    if (!form.name.trim()) {
+      setApplyError("validation_board_name_required");
+      return;
+    }
     if (!applyReason.trim()) {
       setApplyError("validation_reason_required");
       return;
@@ -108,19 +114,21 @@ export function CreateBoardInline({ slug, onCreated }: CreateBoardInlineProps) {
     setApplyError("");
 
     try {
-      // TODO: 替换为实际的申请API接口
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await applyBoardCreation.mutateAsync({
+        name: form.name.trim(),
+        slug: form.slug.trim(),
+        description: form.description.trim(),
+        reason: applyReason.trim(),
+      });
 
       setApplySuccess(true);
-      // 3秒后关闭申请表单
-      setTimeout(() => {
-        setShowApplyForm(false);
-        setApplySuccess(false);
-        setApplyReason("");
-      }, 3000);
     } catch (err: unknown) {
       const error = err as ErrorResponse;
-      setApplyError(error.response?.data?.message || "submit_failed_retry");
+      setApplyError(
+        error.response?.data?.message ||
+          (error instanceof Error ? error.message : "") ||
+          "submit_failed_retry",
+      );
     } finally {
       setApplySubmitting(false);
     }
@@ -331,17 +339,17 @@ export function CreateBoardInline({ slug, onCreated }: CreateBoardInlineProps) {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                     {t("board_name")}
+                     {t("board_name")} <span className="text-red-500">*</span>
                   </label>
                   <input
                     value={form.name}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                      setForm({ ...form, name: e.target.value })
-                    }
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                      setForm({ ...form, name: e.target.value });
+                      setApplyError("");
+                    }}
                     type="text"
-                    placeholder={t("board_name_placeholder_disabled")}
-                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed"
-                    disabled
+                    placeholder={t("board_name_placeholder")}
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition"
                   />
                 </div>
 

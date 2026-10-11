@@ -6,6 +6,7 @@ import type { ReportResponse } from "@/shared/api/modules/admin/report";
 import {
   useAdminGetReports,
   useAdminHandleReport,
+  useAdminDeleteReportedContent,
 } from "../hooks/useAdminReport";
 
 // 扩展类型（如果目标对象信息需要）
@@ -34,6 +35,9 @@ export function ReportManagement() {
   const { mutate: handleReport, isPending: isHandling } =
     useAdminHandleReport();
 
+  const { mutate: deleteContent, isPending: isDeletingContent } =
+    useAdminDeleteReportedContent();
+
     // 处理通过举报
   const handleResolve = (reportId: number) => {
     handleReport({
@@ -58,10 +62,10 @@ export function ReportManagement() {
     });
   };
 
-  // 删除被举报内容（需单独实现 API，暂留空）
-  const handleDeleteContent = (reportId: number) => {
-    console.log("删除内容:", reportId);
-    // TODO: 调用删除内容 API
+  // 删除被举报内容（按 target_type 分派到帖子/评论/用户删除接口）
+  const handleDeleteContent = (report: ReportResponse) => {
+    if (!confirm(t("delete_content_confirm"))) return;
+    deleteContent({ targetType: report.target_type, targetId: report.target_id });
   };
 
   if (isLoading) {
@@ -181,8 +185,8 @@ export function ReportManagement() {
                     </button>
                     <button
                       className="btn btn-sm btn-error gap-1"
-                      onClick={() => handleDeleteContent(report.id)}
-                      disabled={isHandling}
+                      onClick={() => handleDeleteContent(report)}
+                      disabled={isHandling || isDeletingContent}
                     >
                       <Trash2 className="w-4 h-4" />
                       {t("delete_content")}

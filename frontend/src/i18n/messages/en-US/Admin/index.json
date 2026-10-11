@@ -173,6 +173,7 @@
 
   "refresh": "Refresh",
   "export_data": "Export data",
+  "export_failed": "Export failed",
   "online_now": "Online now",
   "user_count": "User count",
   "post_count": "Post count",
@@ -389,6 +390,10 @@
   "content_violation_handled": "Content violation, handled",
   "report_not_established": "Report not established",
   "delete_content": "Delete content",
+  "delete_content_confirm": "Are you sure you want to delete the reported content? This cannot be undone.",
+  "delete_content_success": "Content deleted",
+  "delete_content_failed": "Failed to delete content",
+  "delete_content_unsupported": "Deleting this content type is not supported",
 
   "post_review": "Post Review",
   "publisher_info": "Publisher info",

@@ -6,8 +6,10 @@
 import apiClient from "../client";
 import {
   AddModeratorPayload,
+  ApplyBoardCreationPayload,
   BanUserPayload,
   Board,
+  BoardCreationApplication,
   BoardPostListItem,
   CreateBoardPayload,
   PinPostPayload,
@@ -61,6 +63,45 @@ export const boardApi = {
     apiClient.put<ApiResponse<Board>>(`/boards/${id}`, data),
 
   delete: (id: number) => apiClient.delete<ApiResponse<null>>(`/boards/${id}`),
+
+  // ── 板块创建申请 ──────────────────────────────────────────────────────────────
+  /** 提交板块创建申请（普通用户） */
+  applyBoardCreation: (data: ApplyBoardCreationPayload) =>
+    apiClient.post<ApiResponse<{ message: string }>>(
+      "/boards/creation-applications",
+      data,
+    ),
+
+  /** 获取我的板块创建申请列表 */
+  getMyBoardCreationApplications: (params?: {
+    page?: number;
+    page_size?: number;
+  }) =>
+    apiClient.get<ApiResponse<PageData<BoardCreationApplication>>>(
+      "/boards/creation-applications/my",
+      { params },
+    ),
+
+  /** 管理员获取板块创建申请列表 */
+  listBoardCreationApplications: (params?: {
+    status?: string;
+    page?: number;
+    page_size?: number;
+  }) =>
+    apiClient.get<ApiResponse<PageData<BoardCreationApplication>>>(
+      "/boards/creation-applications",
+      { params },
+    ),
+
+  /** 管理员审批板块创建申请 */
+  reviewBoardCreationApplication: (
+    id: number,
+    data: { approve: boolean; review_note?: string },
+  ) =>
+    apiClient.post<ApiResponse<{ message: string }>>(
+      `/boards/creation-applications/${id}/review`,
+      data,
+    ),
 
   // ── 版主管理 ──────────────────────────────────────────────────────────────────
   getModerators: (boardId: number) =>

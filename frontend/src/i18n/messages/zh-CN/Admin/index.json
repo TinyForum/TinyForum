@@ -173,6 +173,7 @@
 
   "refresh": "刷新",
   "export_data": "导出数据",
+  "export_failed": "导出失败",
   "online_now": "当前在线",
   "user_count": "用户数",
   "post_count": "帖子数",
@@ -389,6 +390,10 @@
   "content_violation_handled": "内容违规，已处理",
   "report_not_established": "举报不成立",
   "delete_content": "删除内容",
+  "delete_content_confirm": "确认删除被举报内容？删除后不可恢复。",
+  "delete_content_success": "内容已删除",
+  "delete_content_failed": "删除内容失败",
+  "delete_content_unsupported": "暂不支持删除该类型内容",
 
   "post_review": "帖子审核",
   "publisher_info": "发布人信息",

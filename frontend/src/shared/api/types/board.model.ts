@@ -46,6 +46,37 @@ export interface CreateBoardPayload {
 
 export type UpdateBoardPayload = Partial<CreateBoardPayload>;
 
+export type BoardCreationApplicationStatus =
+  | "pending"
+  | "approved"
+  | "rejected"
+  | "canceled";
+
+export interface BoardCreationApplication {
+  id: number;
+  user_id: number;
+  name: string;
+  slug: string;
+  description: string;
+  reason: string;
+  status: BoardCreationApplicationStatus;
+  reviewer_id?: number;
+  review_note: string;
+  reviewed_at?: string;
+  created_board_id?: number;
+  created_at: string;
+  updated_at: string;
+  user?: { id: number; username: string };
+  created_board?: Board;
+}
+
+export interface ApplyBoardCreationPayload {
+  name: string;
+  slug: string;
+  description?: string;
+  reason: string;
+}
+
 export interface AddModeratorPayload {
   user_id: number;
   can_delete_post?: boolean;

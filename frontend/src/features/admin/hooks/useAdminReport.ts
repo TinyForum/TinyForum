@@ -5,6 +5,9 @@ import type {
   ListReportsParams,
 } from "@/shared/api/modules/admin/report";
 import { adminReportsApi } from "@/shared/api/modules/admin/report";
+import { postApi } from "@/shared/api/modules/posts";
+import { commentApi } from "@/shared/api/modules/comments";
+import { adminUsersApi } from "@/shared/api/modules/admin/user";
 import { PageData } from "@/shared/api/types/basic.model";
 import { toast } from "react-hot-toast";
 import { useTranslations } from "next-intl";
@@ -65,6 +68,39 @@ export function useAdminHandleReport() {
     },
     onError: (error: Error) => {
       toast.error(error.message || t("report_handle_failed"));
+    },
+  });
+}
+
+// ========== 删除被举报内容（按 target_type 分派到对应删除接口）==========
+export function useAdminDeleteReportedContent() {
+  const queryClient = useQueryClient();
+  const t = useTranslations("Admin");
+  return useMutation({
+    mutationFn: async ({
+      targetType,
+      targetId,
+    }: {
+      targetType: string;
+      targetId: number;
+    }) => {
+      switch (targetType) {
+        case "post":
+          return postApi.delete(targetId);
+        case "comment":
+          return commentApi.delete(targetId);
+        case "user":
+          return adminUsersApi.deleteUser(targetId);
+        default:
+          throw new Error(t("delete_content_unsupported"));
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: adminReportsKeys.all });
+      toast.success(t("delete_content_success"));
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || t("delete_content_failed"));
     },
   });
 }
