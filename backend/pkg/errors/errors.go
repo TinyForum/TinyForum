@@ -125,6 +125,7 @@ var (
 	ErrUpdateVoteRecordFailed  = New(CodeUpdateVoteRecordFailed, "更新投票记录失败")    // 更新投票记录失败
 	ErrDeleteVoteFailed        = New(CodeDeleteVoteFailed, "删除投票失败")            // 删除投票失败
 	ErrQueryVoteUserListFailed = New(CodeQueryVoteUserListFailed, "查询投票用户列表失败") // 查询投票用户列表失败
+	ErrInvalidVoteRecord       = New(CodeInvalidVoteRecord, "投票记录缺失或数据损坏")      // 投票记录缺失或数据损坏
 
 	// 权限模块 - 版主申请
 	ErrModeratorApplyExist    = New(CodeModeratorApplyExist, "已经提交过版主申请，请勿重复提交") // 已经提交过版主申请，请勿重复提交

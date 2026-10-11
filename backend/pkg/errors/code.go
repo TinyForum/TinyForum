@@ -83,6 +83,7 @@ const (
 	CodeUpdateVoteRecordFailed  = 30243 // 更新投票记录失败
 	CodeDeleteVoteFailed        = 30244 // 删除投票失败
 	CodeQueryVoteUserListFailed = 30245 // 查询投票用户列表失败
+	CodeInvalidVoteRecord       = 30246 // 投票记录缺失或数据损坏
 
 	// 权限模块 (40000-40999)
 	//

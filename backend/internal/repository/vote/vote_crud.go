@@ -41,6 +41,16 @@ func (r *voteRepository) CreateOrUpdateVote(answerID, userID uint, voteType do.A
 	logger.Infof("CreateOrUpdateVote: answerID=%d, userID=%d, voteType=%s", answerID, userID, voteType)
 
 	return r.db.Transaction(func(tx *gorm.DB) error {
+		// 先锁定回答行，串行化同一回答上的并发投票，
+		// 避免"记录不存在 → 并发首投 → 唯一索引冲突"的竞态。
+		var answer do.Answer
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Where("id = ?", answerID).First(&answer).Error; err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return apperrors.ErrAnswerNotFound
+			}
+			return apperrors.ErrQueryVoteRecordFailed
+		}
+
 		var existing do.AnswerVote
 		err := tx.Unscoped().
 			Clauses(clause.Locking{Strength: "UPDATE"}).
@@ -67,6 +77,9 @@ func (r *voteRepository) CreateOrUpdateVote(answerID, userID uint, voteType do.A
 		}
 
 		// 记录存在
+		if existing.VoteType == nil {
+			return apperrors.ErrInvalidVoteRecord
+		}
 		oldVoteType := *existing.VoteType
 		isDeleted := existing.DeletedAt.Valid && !existing.DeletedAt.Time.IsZero()
 		logger.Debugf("CreateOrUpdateVote: existing vote id=%d, oldType=%s, newType=%s, isDeleted=%v",
@@ -106,6 +119,16 @@ func (r *voteRepository) CreateOrUpdateVote(answerID, userID uint, voteType do.A
 func (r *voteRepository) RemoveVote(answerID, userID uint) error {
 	logger.Infof("RemoveVote: answerID=%d, userID=%d", answerID, userID)
 	return r.db.Transaction(func(tx *gorm.DB) error {
+		// 先锁定回答行，与 CreateOrUpdateVote 保持一致的加锁顺序（answer → vote），
+		// 否则两条路径相反顺序并发会互相等待形成死锁。
+		var answer do.Answer
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Where("id = ?", answerID).First(&answer).Error; err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return apperrors.ErrAnswerNotFound
+			}
+			return apperrors.ErrQueryVoteRecordFailed
+		}
+
 		var vote do.AnswerVote
 		err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).
 			Where("answer_id = ? AND user_id = ?", answerID, userID).
@@ -118,6 +141,9 @@ func (r *voteRepository) RemoveVote(answerID, userID uint) error {
 			return apperrors.ErrQueryVoteRecordFailed
 		}
 
+		if vote.VoteType == nil {
+			return apperrors.ErrInvalidVoteRecord
+		}
 		voteType := *vote.VoteType
 		logger.Debugf("RemoveVote: found vote id=%d, type=%s", vote.ID, voteType)
 
