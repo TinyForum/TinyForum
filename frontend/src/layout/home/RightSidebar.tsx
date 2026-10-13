@@ -35,7 +35,6 @@ export function RightSidebar({
   unreadCount,
   timelineEvents,
 }: RightSidebarProps) {
-  console.log("RightSidebar 用户信息:", userProfile);
   return (
     <aside className="space-y-4">
       {/* 用户信息卡片 */}

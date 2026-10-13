@@ -7,8 +7,11 @@ import (
 	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/dto"
 	"tiny-forum/internal/model/request"
+	"tiny-forum/internal/model/vo"
 	postRepo "tiny-forum/internal/repository/article"
 	boardRepo "tiny-forum/internal/repository/board"
+	commentRepo "tiny-forum/internal/repository/comment"
+	reportsRepo "tiny-forum/internal/repository/reports"
 	"tiny-forum/internal/repository/transaction"
 	userRepo "tiny-forum/internal/repository/user"
 	attachment "tiny-forum/internal/service/attachment"
@@ -51,11 +54,17 @@ type BoardService interface {
 	// post
 	DeletePost(boardID, postID, userID uint, isAdmin bool) error
 	PinPost(boardID, postID uint, pin bool) error
+	// moderator panel
+	ListModeratorPosts(ctx context.Context, boardID uint, req *request.ListModeratorPostsRequest) ([]vo.ModeratorPostVO, int64, error)   // 版主面板：板块帖子列表
+	ListModeratorReports(ctx context.Context, boardID uint, req *request.ListModeratorReportsRequest) ([]vo.ModeratorReportVO, int64, error) // 版主面板：板块举报列表
+	ListModeratorBans(ctx context.Context, boardID uint, req *request.ListModeratorBansRequest) ([]vo.BannedUserVO, int64, error)           // 版主面板：板块封禁列表
 }
 type boardService struct {
 	boardRepo     boardRepo.BoardRepository
 	userRepo      userRepo.UserRepository
 	postRepo      postRepo.ArticleRepository
+	commentRepo   commentRepo.CommentRepository
+	reportRepo    reportsRepo.ReportsRepository
 	notifSvc      notification.NotificationService
 	attachmentSvc attachment.AttachmentService
 	txManager     transaction.TransactionManager
@@ -65,6 +74,8 @@ func NewBoardService(
 	boardRepo boardRepo.BoardRepository,
 	userRepo userRepo.UserRepository,
 	postRepo postRepo.ArticleRepository,
+	commentRepo commentRepo.CommentRepository,
+	reportRepo reportsRepo.ReportsRepository,
 	notifSvc notification.NotificationService,
 	attachmentSvc attachment.AttachmentService,
 	txManager transaction.TransactionManager,
@@ -73,6 +84,8 @@ func NewBoardService(
 		boardRepo:     boardRepo,
 		userRepo:      userRepo,
 		postRepo:      postRepo,
+		commentRepo:   commentRepo,
+		reportRepo:    reportRepo,
 		notifSvc:      notifSvc,
 		attachmentSvc: attachmentSvc,
 		txManager:     txManager,

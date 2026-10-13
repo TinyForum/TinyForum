@@ -100,7 +100,7 @@ export async function checkBackendReachable(url: string): Promise<void> {
     const timeoutId = setTimeout(() => controller.abort(), 2000);
     await fetch(url, { method: "HEAD", signal: controller.signal });
     clearTimeout(timeoutId);
-    console.log(`✅ 后端服务检测正常: ${url}`);
+    console.info(`✅ 后端服务检测正常: ${url}`);
   } catch (err) {
     console.warn(
       `⚠️ 无法连接到后端服务 ${url}，请确保后端已启动。\nERROR: ${err}`,

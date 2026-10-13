@@ -148,18 +148,26 @@ export function useRemoveVote(
 
 // ---------- 变更：采纳为正确答案 ----------
 export function useAcceptAnswer(
-  options?: UseMutationOptions<void, AxiosError, number>,
+  options?: UseMutationOptions<
+    void,
+    AxiosError,
+    { answerId: number; questionId: number }
+  >,
 ) {
   const queryClient = useQueryClient();
 
-  return useMutation<void, AxiosError, number>({
-    mutationFn: async (answerId) => {
-      const res = await answerApi.acceptAnswer(answerId);
+  return useMutation<
+    void,
+    AxiosError,
+    { answerId: number; questionId: number }
+  >({
+    mutationFn: async ({ answerId, questionId }) => {
+      const res = await answerApi.acceptAnswer(answerId, questionId);
       if (res.data.code !== 0) {
         throw new Error(res.data.message || "采纳失败");
       }
     },
-    onSuccess: (_, answerId) => {
+    onSuccess: (_, { answerId }) => {
       // 采纳后影响该答案本身、问题详情（可能存储 acceptedAnswerId）以及回答列表
       // 这里我们使相关缓存失效，具体哪些需要失效取决于应用数据结构
       queryClient.invalidateQueries({ queryKey: answerKeys.detail(answerId) });

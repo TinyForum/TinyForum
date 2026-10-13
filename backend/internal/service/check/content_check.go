@@ -132,9 +132,28 @@ func (s *contentCheckService) HandleReportAggregate(
 	return true, nil
 }
 
+// CheckAndCreateCommentTask 检测评论内容，命中规则则创建审核任务
+func (s *contentCheckService) CheckAndCreateCommentTask(commentID uint, content string) error {
+	r := s.CheckText(content)
+	if r.Action == sensitive.ActionPass {
+		return nil
+	}
+	return s.CreateAuditTaskForComment(commentID, "sensitive_word", r.HitWords)
+}
+
 // GetListPendingTasks 获取待审核任务列表
 func (s *contentCheckService) GetListPendingTasks(limit, offset int) ([]do.ContentAuditTask, int64, error) {
 	return s.repo.ListPendingTasks(limit, offset)
+}
+
+// GetResolvedTasks 获取已处理的审核任务列表
+func (s *contentCheckService) GetResolvedTasks(limit, offset int) ([]do.ContentAuditTask, int64, error) {
+	return s.repo.ListResolvedTasks(limit, offset)
+}
+
+// GetTaskByID 根据 ID 获取审核任务
+func (s *contentCheckService) GetTaskByID(taskID uint) (*do.ContentAuditTask, error) {
+	return s.repo.GetTaskByID(taskID)
 }
 
 // ResolveTask 处理审核任务

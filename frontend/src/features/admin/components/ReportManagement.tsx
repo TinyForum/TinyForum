@@ -28,7 +28,7 @@ export function ReportManagement() {
     refetch,
   } = useAdminGetReports({
     page,
-    pageSize,
+    page_size: pageSize,
     status: status,
   });
 

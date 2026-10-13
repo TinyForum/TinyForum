@@ -7,7 +7,9 @@ import (
 
 type BoardBan struct {
 	common.BaseModel
-	UserID    uint       `gorm:"not null;uniqueIndex:idx_active_ban,priority:1" json:"user_id"`  // 被封禁用户
+	// 唯一索引必须是部分索引（deleted_at IS NULL），否则软删后可解封记录会阻塞再次封禁。
+	// 与 migrations/20261013_board_ban_partial_unique.up.sql 保持一致。
+	UserID    uint       `gorm:"not null;uniqueIndex:idx_active_ban,priority:1,where:deleted_at IS NULL" json:"user_id"`  // 被封禁用户
 	BoardID   uint       `gorm:"not null;uniqueIndex:idx_active_ban,priority:2" json:"board_id"` // 被禁言板块
 	BannedBy  uint       `gorm:"not null" json:"banned_by"`                                      // 封禁者
 	Reason    string     `gorm:"type:text" json:"reason"`                                        // 禁言原因

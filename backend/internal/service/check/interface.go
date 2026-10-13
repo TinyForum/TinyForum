@@ -14,7 +14,11 @@ type ContentCheckService interface {
 	CreateAuditTaskForComment(commentID uint, triggerType string, hitWords []string) error
 	HandleReportAggregate(targetType do.AuditTargetType, targetID uint) (triggered bool, err error)
 	GetListPendingTasks(limit, offset int) ([]do.ContentAuditTask, int64, error)
+	GetResolvedTasks(limit, offset int) ([]do.ContentAuditTask, int64, error)
+	GetTaskByID(taskID uint) (*do.ContentAuditTask, error)
 	ResolveTask(taskID uint, approved bool, reviewerID uint, note string) error
+	// CheckAndCreateCommentTask 检测评论内容，命中规则则创建审核任务
+	CheckAndCreateCommentTask(commentID uint, content string) error
 }
 
 // ContentCheckService 内容安全检测服务

@@ -49,10 +49,15 @@ type UserService interface {
 	GetUserRoleById(userID uint) (string, error)
 	// stats
 	GetGlobalStatsCount(ctx context.Context, userID uint) (*dto.StatsInfo, error)
-	// posts
+// posts
 	GetUserPosts(ctx context.Context, req request.GetUserPostsRequest, userID uint) (*common.PageResult[vo.UserPosts], error)
+	GetUserPost(ctx context.Context, postID, userID uint) (*vo.UserPosts, error)
+	// comments
+	GetUserComments(ctx context.Context, req request.GetUserCommentsRequest, userID uint) (*common.PageResult[vo.UserComment], error)
 	// 违规
 	ListUserViolation(ctx context.Context, req request.ListUserViolationRequest, userID uint) (*common.PageResult[vo.ViolationVO], error)
+	GetUserViolation(ctx context.Context, id, userID uint) (*vo.ViolationVO, error)
+	AppealUserViolation(ctx context.Context, id, userID uint, reason string) (*vo.ViolationVO, error)
 }
 
 type userService struct {

@@ -6,7 +6,6 @@ import (
 	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/request"
 	"tiny-forum/internal/service/plugin"
-	apperrors "tiny-forum/pkg/errors"
 	"tiny-forum/pkg/logger"
 	"tiny-forum/pkg/response"
 
@@ -134,10 +133,6 @@ func (h *Handler) DeletePlugin(c *gin.Context) {
 
 	// 2. 获取路径参数中的插件ID
 	pluginISlug := c.Param("slug")
-	var err error
-	if err != nil {
-		response.HandleError(c, apperrors.ErrValidation)
-	}
 
 	// 3. 调用服务层删除
 	if err := h.svc.DeletePlugin(c.Request.Context(), pluginISlug, userID); err != nil {

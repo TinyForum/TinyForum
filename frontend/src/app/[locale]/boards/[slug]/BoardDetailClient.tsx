@@ -43,6 +43,7 @@ export default function BoardDetailClient({ slug }: { slug: string }) {
     data: board,
     isLoading: loadingBoard,
     error: boardError,
+    refetch,
   } = useBoardBySlug(slug);
 
   // 查询帖子列表 - 修复类型问题
@@ -65,8 +66,9 @@ export default function BoardDetailClient({ slug }: { slug: string }) {
     setPage(1);
   }, [slug]);
 
-  const handleBoardCreated = (newBoard: Board) => {
-    console.log("Board created", newBoard);
+  // 板块创建成功后重新拉取，使 404 的创建视图切换为正常的板块详情
+  const handleBoardCreated = () => {
+    refetch();
   };
 
   // 检查是否为 404 错误

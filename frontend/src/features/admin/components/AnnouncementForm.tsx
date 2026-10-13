@@ -138,7 +138,6 @@ export function AnnouncementForm({
   };
 
   const handleFormSubmit = async (values: AnnouncementFormValues) => {
-    console.log(values);
     await onSubmit(values);
     // 提交成功后关闭弹窗，表单重置会在下次打开时由 useEffect 处理
   };

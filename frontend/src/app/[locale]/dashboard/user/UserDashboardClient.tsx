@@ -154,7 +154,7 @@ export default function UserDashboardClient() {
       case "comments":
         return (
           <div className="space-y-4">
-            <MyCommentsTable comments={[]} />
+            <MyCommentsTable />
             <Pagination
               currentPage={page}
               total={total_comment}
@@ -167,7 +167,7 @@ export default function UserDashboardClient() {
       case "likes":
         return (
           <div className="space-y-4">
-            <FavoritesList favorites={[]} />
+            <FavoritesList />
             <Pagination
               currentPage={page}
               total={total_like}

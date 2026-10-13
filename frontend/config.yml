@@ -17,10 +17,9 @@ images:
 # 允许的来源（dev 模式 HMR / _next 资源校验）：局域网 IP 与内网穿透域名需在此登记，
 # 内网穿透域名每次可能变化，可改为通配符形式，如 "*.ngrok-free.app"
 allowed_dev_origins:
-  - "192.168.43.53"
   - "localhost"
   - "127.0.0.1"
-  - "*.ngrok-free.app"
+  - "localhost"
 
 experimental:
   proxy_timeout: 10000

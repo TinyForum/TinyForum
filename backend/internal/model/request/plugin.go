@@ -23,3 +23,14 @@ type PluginListRequest struct {
 	SortBy   string          `json:"sort_by" form:"sort_by" default:"id"`
 	Status   do.PluginStatus `json:"status" form:"status" default:"active"`
 }
+
+// UpdatePluginRequest 更新插件元数据的请求参数
+type UpdatePluginRequest struct {
+	Name        string                 `json:"name" binding:"omitempty,max=100"`        // 插件名称
+	Version     string                 `json:"version" binding:"omitempty,max=50"`      // 版本号
+	Description string                 `json:"description" binding:"omitempty,max=2000"` // 描述
+	Summary     string                 `json:"summary" binding:"omitempty,max=500"`     // 摘要
+	Enabled     *bool                  `json:"enabled"`                                 // 是否启用
+	Slots       []string               `json:"slots"`                                   // 注入插槽
+	Config      map[string]interface{} `json:"config"`                                  // 插件配置
+}

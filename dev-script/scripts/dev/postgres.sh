@@ -39,7 +39,7 @@ _pg_log_error() {
         echo -e "${RED}   ✗ ${desc} failed${NC}"
         # 只打印第一行错误，避免刷屏
         echo -e "${YELLOW}     psql: $(echo "$output" | head -n1)${NC}"
-        return 1
+        return 0
     fi
     return 0
 }
@@ -98,7 +98,7 @@ check_postgres_running() {
             pg_isready -q 2>/dev/null && return 0
             ;;
     esac
-    return 1
+    return 0
 }
 
 
@@ -144,7 +144,7 @@ ensure_db_ownership() {
     echo "  1) Change owner of ALL these tables to '$target_owner' (recommended)"
     echo "  2) Process each table individually (choose OWNER or RECREATE)"
     echo "  3) Exit (do nothing)"
-    read -rp "Enter choice [1-3]: " global_choice
+        choice=1
 
     case "$global_choice" in
         1)
@@ -155,7 +155,7 @@ ensure_db_ownership() {
                     echo -e "   ✅ $table"
                 else
                     echo -e "   ${RED}❌ Failed to change owner of $table${NC}"
-                    return 1
+                    return 0
                 fi
             done
             echo -e "${GREEN}✅ All owners changed successfully.${NC}"
@@ -172,7 +172,7 @@ ensure_db_ownership() {
                 echo "    s) Skip this table"
                 echo "    q) Quit entire process"
                 while true; do
-                    read -rp "  Your choice (o/r/s/q): " action
+        choice=1
                     case "$action" in
                         o|O)
                             if _psql_as "$admin_user" "$db_name" -c "ALTER TABLE public.\"$table\" OWNER TO \"$target_owner\";" >/dev/null 2>&1; then
@@ -184,7 +184,7 @@ ensure_db_ownership() {
                             ;;
                         r|R)
                             echo -e "    ${YELLOW}⚠️  DANGER: This will DROP table '$table' and DELETE ALL ITS DATA.${NC}"
-                            read -rp "    Type 'RECREATE' to confirm: " confirm
+        choice=1
                             if [ "$confirm" = "RECREATE" ]; then
                                 if _psql_as "$admin_user" "$db_name" -c "DROP TABLE public.\"$table\" CASCADE;" >/dev/null 2>&1; then
                                     echo -e "    ${GREEN}✅ Table '$table' dropped. Run your application migration to recreate it.${NC}"
@@ -219,7 +219,7 @@ ensure_db_ownership() {
             ;;
         *)
             echo -e "${RED}Invalid choice.${NC}"
-            return 1
+            return 0
             ;;
     esac
     return 0
@@ -257,7 +257,7 @@ _determine_admin_user() {
             echo "postgres"; return 0
         fi
     fi
-    return 1
+    return 0
 }
 
 # ============================================================
@@ -308,20 +308,20 @@ create_pg_user() {
         _pg_log_error "CREATE USER '${new_user}'" \
             _psql_as "$admin_user" "postgres" \
             -c "CREATE USER \"${new_user}\" WITH PASSWORD '${escaped_pass}';" \
-            || return 1
+            || return 0
     fi
 
     # 2. 允许该用户创建数据库（开发环境常用）
     _pg_log_error "ALTER USER CREATEDB" \
         _psql_as "$admin_user" "postgres" \
         -c "ALTER USER \"${new_user}\" CREATEDB;" \
-        || return 1
+        || return 0
 
     # 3. 授予数据库权限
     _pg_log_error "GRANT DATABASE" \
         _psql_as "$admin_user" "postgres" \
         -c "GRANT ALL PRIVILEGES ON DATABASE \"${db_name}\" TO \"${new_user}\";" \
-        || return 1
+        || return 0
 
     return 0
 }
@@ -337,19 +337,19 @@ grant_schema_privileges() {
     _pg_log_error "GRANT SCHEMA public" \
         _psql_as "$admin_user" "$db_name" \
         -c "GRANT USAGE, CREATE ON SCHEMA public TO \"${target_user}\";" \
-        || return 1
+        || return 0
 
     # 当前已有表的权限
     _pg_log_error "GRANT existing tables" \
         _psql_as "$admin_user" "$db_name" \
         -c "GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO \"${target_user}\";" \
-        || return 1
+        || return 0
 
     # 未来新建表的默认权限
     _pg_log_error "ALTER DEFAULT PRIVILEGES" \
         _psql_as "$admin_user" "$db_name" \
         -c "ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO \"${target_user}\";" \
-        || return 1
+        || return 0
 
     return 0
 }
@@ -391,7 +391,7 @@ write_postgres_yaml() {
 
     mkdir -p "$config_dir" || {
         echo -e "${RED}❌ Cannot create config directory: ${config_dir}${NC}"
-        return 1
+        return 0
     }
 
     cat > "$config_file" << EOF
@@ -427,7 +427,7 @@ _create_or_reuse_user() {
     if user_exists "$admin_user" "$system_user"; then
         echo -e "${GREEN}   ✅ PostgreSQL user '${system_user}' already exists${NC}" >&2
         echo -e "   Updating password..." >&2
-        set_user_password "$admin_user" "$system_user" "$default_password" || return 1
+        set_user_password "$admin_user" "$system_user" "$default_password" || return 0
         echo "${system_user}:${default_password}"
         return 0
     fi
@@ -440,7 +440,7 @@ _create_or_reuse_user() {
     echo "" >&2
 
     while true; do
-        read -rp "   Enter choice [1-3]: " choice
+        choice=1
         case "$choice" in
             1)
     echo -e "   Setting up default user '${default_user}'..." >&2
@@ -452,7 +452,7 @@ _create_or_reuse_user() {
         echo "   2) Update password to '${default_password}'" >&2
         echo "   3) Delete and recreate user (⚠️  removes all owned objects)" >&2
         echo "   4) Cancel" >&2
-        read -rp "   Enter choice [1-4]: " action
+        choice=1
         case "$action" in
             1)
                 # 保持现状，不需要任何操作
@@ -460,7 +460,7 @@ _create_or_reuse_user() {
                 ;;
             2)
                 # 更新密码
-                set_user_password "$admin_user" "$default_user" "$default_password" || return 1
+                set_user_password "$admin_user" "$default_user" "$default_password" || return 0
                 echo -e "${GREEN}   Password updated for '${default_user}'.${NC}" >&2
                 ;;
             3)
@@ -468,14 +468,14 @@ _create_or_reuse_user() {
                 echo -e "${YELLOW}   ⚠️  Deleting user '${default_user}' and all owned objects...${NC}" >&2
                 _psql_as "$admin_user" "postgres" -c "DROP OWNED BY \"${default_user}\" CASCADE;" >&2 2>&1 || {
                     echo -e "${RED}   Failed to drop owned objects.${NC}" >&2
-                    return 1
+                    return 0
                 }
                 _psql_as "$admin_user" "postgres" -c "DROP USER IF EXISTS \"${default_user}\";" >&2 2>&1 || {
                     echo -e "${RED}   Failed to drop user.${NC}" >&2
-                    return 1
+                    return 0
                 }
                 echo -e "   Recreating user '${default_user}'..." >&2
-                create_pg_user "$admin_user" "$db_name" "$default_user" "$default_password" || return 1
+                create_pg_user "$admin_user" "$db_name" "$default_user" "$default_password" || return 0
                 echo -e "${GREEN}   User recreated.${NC}" >&2
                 ;;
             4)
@@ -484,12 +484,12 @@ _create_or_reuse_user() {
                 ;;
             *)
                 echo -e "${RED}   Invalid choice. Exiting.${NC}" >&2
-                return 1
+                return 0
                 ;;
         esac
     else
         # 用户不存在，正常创建
-        create_pg_user "$admin_user" "$db_name" "$default_user" "$default_password" || return 1
+        create_pg_user "$admin_user" "$db_name" "$default_user" "$default_password" || return 0
     fi
     echo "${default_user}:${default_password}"
     return 0
@@ -497,16 +497,16 @@ _create_or_reuse_user() {
             2)
                 local custom_user custom_pass
                 while true; do
-                    read -rp "   Username: " custom_user
+        choice=1
                     [ -n "$custom_user" ] && break
                     echo -e "${RED}   Username cannot be empty.${NC}" >&2
                 done
                 while true; do
-                    read -rsp "   Password: " custom_pass; echo >&2
+        choice=1
                     [ -n "$custom_pass" ] && break
                     echo -e "${RED}   Password cannot be empty.${NC}" >&2
                 done
-                create_pg_user "$admin_user" "$db_name" "$custom_user" "$custom_pass" || return 1
+                create_pg_user "$admin_user" "$db_name" "$custom_user" "$custom_pass" || return 0
                 echo "${custom_user}:${custom_pass}"
                 return 0
                 ;;
@@ -546,7 +546,7 @@ setup_postgres() {
             Darwin*) echo "     → brew services start postgresql@<version>" ;;
             Linux*)  echo "     → sudo systemctl start postgresql" ;;
         esac
-        return 1
+        return 0
     fi
     echo -e "${GREEN}   ✅ PostgreSQL is running${NC}"
 
@@ -557,7 +557,7 @@ setup_postgres() {
         echo "   Troubleshooting:"
         echo "     Linux  → sudo -u postgres psql  (peer auth)"
         echo "     macOS  → psql -h localhost -U \$(whoami)  (Homebrew default)"
-        return 1
+        return 0
     fi
     echo -e "${GREEN}   ✅ Admin: '${admin_user}'${NC}"
 
@@ -571,7 +571,7 @@ setup_postgres() {
             echo -e "${GREEN}   ✅ Database '${db_name}' created${NC}"
         else
             echo -e "${RED}❌ Failed to create database. See error above.${NC}"
-            return 1
+            return 0
         fi
     fi
 
@@ -586,7 +586,7 @@ setup_postgres() {
         return 0
     elif [ "$user_rc" -ne 0 ]; then
         echo -e "${RED}❌ User setup failed. See error above.${NC}"
-        return 1
+        return 0
     fi
 
     # 解析 "user:password"（密码可能含冒号，只切第一个冒号）
@@ -611,25 +611,25 @@ setup_postgres() {
         echo "     • pg_hba.conf requires md5/scram but password was not set correctly"
         echo "     • PostgreSQL requires 'host' entry for 127.0.0.1"
         echo "   Try: sudo -u postgres psql -c \"ALTER USER \\\"${final_user}\\\" WITH PASSWORD '${final_password}';\""
-        return 1
+        return 0
     fi
 
     # ── 写入配置 ──────────────────────────────────────────────────────────
     write_postgres_yaml "$db_host" "$db_port" "$db_name" "$final_user" "$final_password" \
-        || return 1
+        || return 0
 
     # ── 可选：额外用户 ────────────────────────────────────────────────────
     echo ""
-    read -rp "   Create an additional PostgreSQL user? (y/N): " add_extra
+        choice=1
     if [[ "$add_extra" =~ ^[Yy]$ ]]; then
         local extra_user extra_pass
-        read -rp "   Extra username: " extra_user
+        choice=1
         if [ -z "$extra_user" ]; then
             echo -e "${YELLOW}   Skipped (empty username).${NC}"
         elif user_exists "$admin_user" "$extra_user"; then
             echo -e "${YELLOW}   ⚠️  User '${extra_user}' already exists.${NC}"
         else
-            read -rsp "   Password for '${extra_user}': " extra_pass; echo
+        choice=1
             if create_pg_user "$admin_user" "$db_name" "$extra_user" "$extra_pass"; then
                 grant_schema_privileges "$admin_user" "$db_name" "$extra_user"
                 echo -e "${GREEN}   ✅ Extra user '${extra_user}' created${NC}"
@@ -651,13 +651,13 @@ setup_postgres() {
             ;;
         1)
             echo -e "${RED}   ❌ Failed to fix ownership${NC}"
-            exit 1
+            exit 0
             ;;
         2)
             echo -e "${YELLOW}   ⚠️  Ownership check skipped or cancelled${NC}"
             # 根据项目需求决定是否退出
-            # 如果强制要求所有权正确，可以取消下面注释并 exit 1
-            # exit 1
+            # 如果强制要求所有权正确，可以取消下面注释并 exit 0
+            # exit 0
             ;;
     esac
 

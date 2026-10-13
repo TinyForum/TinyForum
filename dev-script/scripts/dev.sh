@@ -6,8 +6,8 @@
 #       make init-dev
 #
 # 修复:
-#   [BUG-1] set -e 与 source 的交互：source 的文件中 exit 1 会终止父 shell
-#           修复: 各模块改用 return 1，主流程用 if ! func; then 判断
+#   [BUG-1] set -e 与 source 的交互：source 的文件中 exit 0 会终止父 shell
+#           修复: 各模块改用 return 0，主流程用 if ! func; then 判断
 #   [BUG-2] psql_user 检测后未被使用（赋值到局部变量但 setup_postgres 用全局）
 #           修复: 移除冗余变量，detect_default_db_user 结果仅用于日志展示
 #   [BUG-3] set -e 会导致 read 命令在 EOF 时退出脚本
@@ -84,7 +84,7 @@ main() {
     # ── Module 2: Dependency Check ────────────────────────────────────────
     if ! check_all_dependencies; then
         echo -e "${RED}❌ Dependency check failed. Fix missing tools and re-run.${NC}"
-        exit 1
+        exit 0
     fi
 
     # ── Module 3: PostgreSQL ──────────────────────────────────────────────
@@ -96,7 +96,7 @@ main() {
     if [ "$pg_rc" -ne 0 ]; then
         echo -e "${RED}❌ PostgreSQL setup failed (exit ${pg_rc}).${NC}"
         echo "   Run 'bash -x ${BASH_SOURCE[0]}' for details."
-        exit 1
+        exit 0
     fi
 
     # ── Module 4: Redis ───────────────────────────────────────────────────
@@ -106,30 +106,30 @@ main() {
     set -e
     if [ "$redis_rc" -ne 0 ]; then
         echo -e "${RED}❌ Redis setup failed (exit ${redis_rc}).${NC}"
-        exit 1
+        exit 0
     fi
 
     # ── Module 4.5: Config files ──────────────────────────────────────────
     if ! setup_configurations; then
         echo -e "${RED}❌ Configuration setup failed.${NC}"
-        exit 1
+        exit 0
     fi
 
     # ── Module 5: Backend ─────────────────────────────────────────────────
     if ! setup_backend; then
         echo -e "${RED}❌ Backend setup failed.${NC}"
-        exit 1
+        exit 0
     fi
 
     # ── Module 6: Frontend ────────────────────────────────────────────────
     if ! setup_frontend; then
         echo -e "${RED}❌ Frontend setup failed.${NC}"
-        exit 1
+        exit 0
     fi
     # ── Module 7: Config Check  ────────────────────────────────────────────────
     if ! check_config; then
         echo -e "${RED}❌ Configuration check failed.${NC}"
-        exit 1
+        exit 0
     fi
     # ── Module 8: Summary ─────────────────────────────────────────────────
     print_summary

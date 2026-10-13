@@ -65,9 +65,7 @@ export function ModeratorsTable({ boardId }: ModeratorsTableProps) {
     can_ban_user: false,
   });
 
-  const { data: moderatorsData, refetch } = useAdminModeratorList(
-    (boardId = 1),
-  );
+  const { data: moderatorsData, refetch } = useAdminModeratorList(boardId);
   const removeModerator = useRemoveModerator(boardId);
   const updatePermissions = useUpdateModeratorPermissions(boardId);
 
@@ -154,7 +152,6 @@ export function ModeratorsTable({ boardId }: ModeratorsTableProps) {
   };
 
   if (!moderators.length) {
-    console.log("moderators: ", moderators);
     return (
       <div className="text-center py-8 text-base-content/50">
         {t("no_moderators")}

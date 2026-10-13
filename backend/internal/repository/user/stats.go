@@ -18,7 +18,10 @@ func (r *userRepository) GetGlobalStatsCount(ctx context.Context, userID uint) (
 	// 用户发帖数
 	eg.Go(func() error {
 		var count int64
-		err := r.db.WithContext(ctx).Model(&do.Article{}).Where("author_id = ?", userID).Count(&count).Error
+		err := r.db.WithContext(ctx).Model(&do.Article{}).
+			Joins("JOIN creations ON creations.id = articles.creation_id").
+			Where("creations.author_id = ?", userID).
+			Count(&count).Error
 		stats.TotalPost = int64(count)
 		return err
 	})
@@ -26,24 +29,28 @@ func (r *userRepository) GetGlobalStatsCount(ctx context.Context, userID uint) (
 	// 用户评论数
 	eg.Go(func() error {
 		var count int64
-		err := r.db.WithContext(ctx).Model(&do.Comment{}).Where("author_id = ?", userID).Count(&count).Error
+		err := r.db.WithContext(ctx).Model(&do.Comment{}).
+			Joins("JOIN replies ON replies.id = comments.reply_id").
+			Where("replies.author_id = ?", userID).
+			Count(&count).Error
 		stats.TotalComment = int64(count)
 		return err
 	})
 
 	// 用户收到的点赞数（对用户所有帖子和评论的点赞）
 	eg.Go(func() error {
-		// 方式：联合查询 Post 和 Comment 的 author_id
+		// 方式：likes 为多态关联，分别 JOIN creations / replies 判断作者
 		var likeCount int64
 		// 子查询：帖子点赞
 		postLikeSub := r.db.WithContext(ctx).Model(&do.Like{}).
-			Joins("JOIN posts ON likes.post_id = posts.id").
-			Where("posts.author_id = ?", userID).
+			Joins("JOIN creations ON creations.id = likes.target_id").
+			Where("likes.target_type = ? AND creations.author_id = ?", do.LikeTargetCreation, userID).
 			Select("COUNT(*)")
 		// 子查询：评论点赞
 		commentLikeSub := r.db.WithContext(ctx).Model(&do.Like{}).
-			Joins("JOIN comments ON likes.comment_id = comments.id").
-			Where("comments.author_id = ?", userID).
+			Joins("JOIN comments ON comments.id = likes.target_id").
+			Joins("JOIN replies ON replies.id = comments.reply_id").
+			Where("likes.target_type = ? AND replies.author_id = ?", do.LikeTargetComment, userID).
 			Select("COUNT(*)")
 
 		// 执行两个计数并相加
@@ -87,7 +94,7 @@ func (r *userRepository) GetGlobalStatsCount(ctx context.Context, userID uint) (
 	eg.Go(func() error {
 		var count int64
 		err := r.db.WithContext(ctx).Model(&do.Follow{}).Where("following_id = ?", userID).Count(&count).Error
-		stats.TotalFollowing = int64(count)
+		stats.TotalFollower = int64(count)
 		return err
 	})
 

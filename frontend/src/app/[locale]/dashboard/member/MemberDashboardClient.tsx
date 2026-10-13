@@ -6,6 +6,10 @@ import { useTranslations } from "next-intl";
 import { MemberProfile } from "@/features/member/MemberProfile";
 import { MemberSidebar } from "@/features/member/MemberSidebar";
 import { MemberStats } from "@/features/member/MemberStats";
+import { MemberNotifications } from "@/features/member/MemberNotifications";
+import { FavoritesList } from "@/features/user/components/FavoritesList";
+import { MyCommentsTable } from "@/features/user/components/MyCommentsTable";
+import { MyPostsTable } from "@/features/user/components/MyPostsTable";
 import { useUserStats } from "@/features/user/hooks/useUserStats";
 
 export default function MemberDashboardClient() {
@@ -35,28 +39,18 @@ export default function MemberDashboardClient() {
     { id: "profile", label: t("profile"), icon: "👤" },
   ];
 
-  const renderPlaceholder = (feature: string) => (
-    <div className="flex flex-col items-center justify-center py-20 text-center">
-      <span className="text-4xl mb-4">🚧</span>
-      <h3 className="text-lg font-semibold">{t("feature_under_development")}</h3>
-      <p className="text-sm text-base-content/60 mt-2">
-        {t("feature_coming_soon", { feature })}
-      </p>
-    </div>
-  );
-
   const renderContent = () => {
     switch (activeMenu) {
       case "dashboard":
         return <MemberStats stats={stats} />;
       case "posts":
-        return renderPlaceholder(t("my_posts"));
+        return <MyPostsTable />;
       case "comments":
-        return renderPlaceholder(t("my_comments"));
+        return <MyCommentsTable />;
       case "favorites":
-        return renderPlaceholder(t("my_favorites"));
+        return <FavoritesList />;
       case "notifications":
-        return renderPlaceholder(t("notifications"));
+        return <MemberNotifications />;
       case "profile":
         return <MemberProfile />;
       default:

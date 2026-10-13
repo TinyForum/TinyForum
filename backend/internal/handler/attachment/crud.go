@@ -3,6 +3,7 @@ package attachment
 import (
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"tiny-forum/internal/model/common"
 	"tiny-forum/internal/model/request"
@@ -161,14 +162,22 @@ func (h *AttachmentHandler) DeleteFile(c *gin.Context) {
 // @Router /files/{file_id} [get]
 func (h *AttachmentHandler) ServeFile(c *gin.Context) {
 	fileID := c.Param("file_id")
-	// 获取文件路径
-	fileInfo, err := h.svc.GetFile(c.Request.Context(), fileID)
+	rc, info, err := h.svc.OpenFile(c.Request.Context(), fileID)
 	if err != nil {
 		response.HandleError(c, err)
 		return
 	}
-	// 注意：这里假设 fileInfo.URL 是相对路径或绝对路径，需要映射到实际存储位置
-	// 简化处理：读取物理文件返回。实际应根据 config 中的存储目录拼接。
-	// 这里仅示意，你需要实现真正的文件读取逻辑。
-	c.File(fileInfo.URL) // 如果 URL 是绝对路径
+	defer rc.Close()
+
+	if info.MimeType != "" {
+		c.Header("Content-Type", info.MimeType)
+	}
+	c.Header("Content-Disposition", fmt.Sprintf("inline; filename=%q", info.OriginalName))
+	if info.Size > 0 {
+		c.Header("Content-Length", fmt.Sprintf("%d", info.Size))
+	}
+	c.Status(http.StatusOK)
+	if _, err := io.Copy(c.Writer, rc); err != nil {
+		logger.Errorf("发送文件内容失败 (file_id=%s): %v", fileID, err)
+	}
 }

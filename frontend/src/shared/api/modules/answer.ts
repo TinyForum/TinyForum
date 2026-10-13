@@ -28,8 +28,10 @@ export const answerApi = {
     ),
 
   // 接受为正确答案
-  acceptAnswer: (id: number) =>
-    apiClient.post<ApiResponse<null>>(`/answers/${id}/accept`),
+  acceptAnswer: (id: number, questionId: number) =>
+    apiClient.post<ApiResponse<null>>(
+      `/answers/${id}/accept/${questionId}`,
+    ),
 
   // 取消接受答案
   unacceptAnswer: (id: number) =>

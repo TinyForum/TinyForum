@@ -23,6 +23,10 @@ type CommentRepository interface {
 	UpdateVoteCount(commentID uint, voteCount int) error
 	// list
 	ListByPost(postID uint, page, pageSize int) ([]do.Comment, int64, error)
+	// ListByAuthor 查询指定用户发表的评论（含回复内容），按回复创建时间倒序
+	ListByAuthor(ctx context.Context, authorID uint, offset, limit int) ([]do.Comment, int64, error)
+	// UpdateReplyStatusByCommentID 更新评论对应回复的显示状态（审核用）
+	UpdateReplyStatusByCommentID(ctx context.Context, commentID uint, status do.ReplyStatus) error
 	// GetAnswersByPostID(postID uint, limit, offset int) ([]do.Answer, int64, error)
 	GetAnswersByQuestionID(questionID uint, limit, offset int) ([]do.Answer, int64, error)
 	GetAnswersByPostIDOrderByNewest(postID uint, limit, offset int) ([]do.Answer, int64, error)

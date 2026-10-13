@@ -34,7 +34,6 @@ export default function ResetPasswordClient() {
   } = useValidateTokenStore();
 
   const {
-    token, // ✅ 从 store 获取 token
     password,
     confirmPassword,
     isLoading: isResetting,
@@ -162,10 +161,7 @@ export default function ResetPasswordClient() {
             <form
               onSubmit={async (e) => {
                 e.preventDefault();
-                console.log("Submitting reset password...");
-                console.log("Current token in store:", token); // 调试日志
                 const result = await resetPassword();
-                console.log("Reset result:", result);
                 if (result.success) {
                   setTimeout(() => {
                     router.push(`/${locale}/auth/login`);

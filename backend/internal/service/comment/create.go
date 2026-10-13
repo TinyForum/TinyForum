@@ -14,6 +14,9 @@ func (s *commentService) CreateComment(authorID uint, input bo.CreateCommentInpu
 	if err != nil {
 		return nil, apperrors.ErrPostNotFound
 	}
+	if post.Creation.Locked {
+		return nil, apperrors.ErrPostLocked
+	}
 
 	if input.ParentID != nil && *input.ParentID != 0 {
 		if err := s.commentRepo.ValidateParentComment(*input.ParentID, input.PostID); err != nil {
@@ -44,6 +47,13 @@ func (s *commentService) CreateComment(authorID uint, input bo.CreateCommentInpu
 	})
 
 	_ = s.userRepo.AddScore(authorID, 3)
+
+	// 评论内容安全检测：命中敏感词则异步创建审核任务
+	if s.checkSvc != nil {
+		go func(commentID uint, content string) {
+			_ = s.checkSvc.CheckAndCreateCommentTask(commentID, content)
+		}(comment.ID, input.Content)
+	}
 
 	if post.Creation.AuthorID != authorID {
 		s.notifSvc.Create(post.Creation.AuthorID, &authorID, do.NotifyComment,
@@ -76,6 +86,9 @@ func (s *commentService) CreateAnswer(authorID uint, input bo.CreateAnswerInput)
 	if err != nil {
 		return nil, apperrors.ErrPostNotFound
 	}
+	if question.Creation.Locked {
+		return nil, apperrors.ErrPostLocked
+	}
 	// if post.Creation.Type != "question" {
 	// 	return nil, errors.New("该帖子不是问答类型，请使用普通评论")
 	// }
@@ -95,10 +108,10 @@ func (s *commentService) CreateAnswer(authorID uint, input bo.CreateAnswerInput)
 
 	// 发布事件（触发零代码机器人）
 	s.botSvc.PublishEvent("comment.created", map[string]any{
-		"comment_id":  comment.ID,
-		"post_id":     input.QuestionID,
-		"content":     input.Content,
-		"author_id":   authorID,
+		"comment_id": comment.ID,
+		"post_id":    input.QuestionID,
+		"content":    input.Content,
+		"author_id":  authorID,
 	})
 
 	_ = s.userRepo.AddScore(authorID, 2)

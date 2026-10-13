@@ -1,67 +1,47 @@
 package vo
 
-import (
-	"tiny-forum/internal/model/common"
-	"tiny-forum/internal/model/do"
-)
+import "time"
 
-type ModeratorApplication struct {
-	common.BaseModel
-	UserID     uint                 `             json:"user_id"` //
-	BoardID    uint                 `gorm:"not null;index"               json:"board_id"`
-	Reason     string               `gorm:"size:500"                     json:"reason"`
-	Status     do.ApplicationStatus `gorm:"type:varchar(20);default:'pending'" json:"status"`
-	ReviewerID *uint                `gorm:"index"                        json:"reviewer_id"` // 审批人（管理员）
-	ReviewNote string               `gorm:"size:500"                     json:"review_note"` // 审批备注
-
-	// 申请时希望获得的初始权限（审批人可在通过时调整）
-	ReqDeletePost      bool `json:"req_delete_post"`
-	ReqPinPost         bool `json:"req_pin_post"`
-	ReqEditAnyPost     bool `json:"req_edit_any_post"`
-	ReqManageModerator bool `json:"req_manage_moderator"`
-	ReqBanUser         bool `json:"req_ban_user"`
-
-	User     do.User  `gorm:"foreignKey:UserID"    json:"user,omitempty"`
-	Board    do.Board `gorm:"foreignKey:BoardID"   json:"board,omitempty"`
-	Reviewer *do.User `gorm:"foreignKey:ReviewerID" json:"reviewer,omitempty"`
+// ModeratorPostVO 版主面板的帖子视图对象
+type ModeratorPostVO struct {
+	ID           uint      `json:"id"`                     // 帖子ID
+	Title        string    `json:"title"`                  // 标题
+	Content      string    `json:"content"`                // 内容摘要（截断）
+	AuthorID     uint      `json:"author_id"`              // 作者ID
+	AuthorName   string    `json:"author_name"`            // 作者名称
+	AuthorAvatar string    `json:"author_avatar,omitempty"` // 作者头像
+	BoardID      uint      `json:"board_id"`               // 所属板块ID
+	IsPinned     bool      `json:"is_pinned"`              // 是否板块内置顶
+	ViewCount    int       `json:"view_count"`             // 浏览量
+	LikeCount    int       `json:"like_count"`             // 点赞数
+	CommentCount int64     `json:"comment_count"`          // 评论数
+	Status       string    `json:"status"`                 // 内容状态：pending/published/deleted
+	CreatedAt    time.Time `json:"created_at"`             // 创建时间
 }
 
-// ModeratorApplicationVO 版主申请脱敏视图
-type ModeratorApplicationVO struct {
-	ID        uint   `json:"id"`
-	CreatedAt string `json:"created_at"` // 时间格式按需
-	UpdatedAt string `json:"updated_at"`
+// ModeratorReportVO 版主面板的举报视图对象
+type ModeratorReportVO struct {
+	ID            uint      `json:"id"`                       // 举报ID
+	TargetType    string    `json:"target_type"`              // 举报目标类型：post/comment
+	TargetID      uint      `json:"target_id"`                // 举报目标ID
+	TargetTitle   string    `json:"target_title"`             // 目标标题
+	TargetContent string    `json:"target_content"`           // 目标内容摘要（截断）
+	ReporterID    uint      `json:"reporter_id"`              // 举报人ID
+	ReporterName  string    `json:"reporter_name"`            // 举报人名称
+	Reason        string    `json:"reason"`                   // 举报原因
+	Status        string    `json:"status"`                   // 举报状态：pending/resolved/rejected
+	CreatedAt     time.Time `json:"created_at"`               // 举报时间
+}
 
-	UserID  uint `json:"user_id"`
-	BoardID uint `json:"board_id"`
-
-	// 脱敏后的申请人信息（仅展示必要公开字段）
-	User struct {
-		ID       uint   `json:"id"`
-		Username string `json:"username"`
-		// 不包含 email, password, role 等
-	} `json:"user"`
-
-	// 脱敏后的版块信息
-	Board struct {
-		ID   uint   `json:"id"`
-		Name string `json:"name"`
-	} `json:"board"`
-
-	Reason     string `json:"reason"`
-	Status     string `json:"status"` // 申请状态
-	ReviewNote string `json:"review_note"`
-
-	// 审批人脱敏
-	Reviewer struct {
-		ID       uint   `json:"id"`
-		Username string `json:"username"`
-	} `json:"reviewer"`
-
-	// 申请权限（按需保留）
-	ReqDeletePost      bool `json:"req_delete_post"`
-	ReqPinPost         bool `json:"req_pin_post"`
-	ReqEditAnyPost     bool `json:"req_edit_any_post"`
-	ReqManageModerator bool `json:"req_manage_moderator"`
-	ReqBanUser         bool `json:"req_ban_user"`
+// BannedUserVO 版主面板的封禁用户视图对象
+type BannedUserVO struct {
+	ID        uint       `json:"id"`               // 封禁记录ID
+	UserID    uint       `json:"user_id"`          // 被禁用户ID
+	Username  string     `json:"username"`         // 被禁用户名称
+	AvatarURL string     `json:"avatar_url,omitempty"` // 被禁用户头像
+	BoardID   uint       `json:"board_id"`         // 封禁所属板块ID
+	Reason    string     `json:"reason"`           // 封禁原因
+	ExpiresAt *time.Time `json:"expires_at,omitempty"` // 解封时间（nil 表示永久）
+	IsActive  bool       `json:"is_active"`        // 是否仍在封禁期内
+	CreatedAt time.Time  `json:"created_at"`       // 封禁时间
 }

@@ -41,9 +41,20 @@ func (s *articleService) AdminLists(ctx context.Context, listPostsBO *common.Pag
 	return s.postRepo.AdminList(ctx, listPostsDO)
 }
 
-// SetStatus 设置帖子状态（暂未完全实现，保留接口）
+// SetStatus 设置帖子状态
 func (s *articleService) SetStatus(postID uint, status do.CreationStatus) error {
-	return s.postRepo.Update(&do.Article{})
+	if !status.IsValid() {
+		return apperrors.ErrInvalidRequest.WithDetail("非法的帖子状态")
+	}
+	post, err := s.postRepo.FindByArticleID(postID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return apperrors.ErrPostNotFound
+		}
+		return fmt.Errorf("查询帖子失败: %w", err)
+	}
+	post.Creation.CreationStatus = status
+	return s.postRepo.Update(post)
 }
 
 // TogglePin 切换帖子置顶状态

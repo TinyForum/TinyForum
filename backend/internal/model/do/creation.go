@@ -32,6 +32,7 @@ type Creation struct {
 
 	BoardID    uint `gorm:"index" json:"board_id"`             // 所属板块
 	PinInBoard bool `gorm:"default:false" json:"pin_in_board"` // 板块置顶
+	Locked     bool `gorm:"default:false" json:"locked"`       // 是否锁定评论
 
 	// 关联（子表一对一）
 	Article       *Article       `gorm:"foreignKey:ID;references:ID" json:"article,omitempty"`

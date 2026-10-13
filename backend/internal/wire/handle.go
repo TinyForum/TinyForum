@@ -13,11 +13,13 @@ import (
 	botHandler "tiny-forum/internal/handler/bot"
 	commentHandler "tiny-forum/internal/handler/comment"
 	configHandler "tiny-forum/internal/handler/config"
+	favoriteHandler "tiny-forum/internal/handler/favorite"
 	notificationHandler "tiny-forum/internal/handler/notification"
 	pluginHandler "tiny-forum/internal/handler/plugin"
 	questionHandler "tiny-forum/internal/handler/questions"
 	recHandler "tiny-forum/internal/handler/recommendation"
 	reportHandler "tiny-forum/internal/handler/report"
+	reviewerHandler "tiny-forum/internal/handler/reviewer"
 	riskhandler "tiny-forum/internal/handler/risk"
 	statsHandler "tiny-forum/internal/handler/stats"
 	tagHandler "tiny-forum/internal/handler/tags"
@@ -52,6 +54,8 @@ type Handlers struct {
 	Bot            *botHandler.Handler
 	Recommendation *recHandler.Handler
 	Report         *reportHandler.ReportHandler
+	Favorite       *favoriteHandler.FavoriteHandler
+	Reviewer       *reviewerHandler.ReviewerHandler
 }
 
 // NewHandlers 创建所有 Handler 实例
@@ -78,6 +82,8 @@ func NewHandlers(svc *Services, timeHelpers *timeutil.TimeHelpers, cfg *config.C
 	config := configHandler.NewConfigHandler(configSvc)
 	recommendation := recHandler.NewHandler(svc.Recommendation)
 	report := reportHandler.NewReportHandler(svc.Reports)
+	favorite := favoriteHandler.NewFavoriteHandler(svc.Favorite)
+	reviewer := reviewerHandler.NewReviewerHandler(svc.Reviewer)
 	return &Handlers{
 		Auth:           auth,
 		User:           user,
@@ -100,6 +106,8 @@ func NewHandlers(svc *Services, timeHelpers *timeutil.TimeHelpers, cfg *config.C
 		Config:         config,
 		Recommendation: recommendation,
 		Report:         report,
+		Favorite:       favorite,
+		Reviewer:       reviewer,
 	}
 }
 

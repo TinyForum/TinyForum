@@ -80,7 +80,7 @@ func (a *forumAPIImpl) DeletePost(ctx context.Context, postID uint) error {
 	return a.postRepo.Delete(uint(postID))
 }
 
-// ModeratePost 支持 action: hide | pin | delete（lock 需数据库 schema 支持，暂不支持）
+// ModeratePost 支持 action: hide | pin | lock | delete
 func (a *forumAPIImpl) ModeratePost(ctx context.Context, postID uint, action, reason string) error {
 	p, err := a.postRepo.FindByArticleID(uint(postID))
 	if err != nil {
@@ -93,9 +93,8 @@ func (a *forumAPIImpl) ModeratePost(ctx context.Context, postID uint, action, re
 	case "pin":
 		return a.postRepo.TogglePinInBoard(uint(postID), true)
 	case "lock":
-		// 帖子模型当前没有 locked 字段，无法真正实现"锁定（禁止评论）"。
-		// 明确返回错误，禁止降级为隐藏（那会错误地把帖子内容隐藏掉）。
-		return fmt.Errorf("moderate action 'lock' is not supported: post model has no lock field")
+		p.Creation.Locked = true
+		return a.postRepo.Update(p)
 	case "delete":
 		return a.DeletePost(ctx, postID)
 	default:

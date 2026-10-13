@@ -38,6 +38,7 @@ type BoardRepository interface {
 	UnbanUser(userID, boardID uint) error
 	IsBanned(userID, boardID uint) (bool, error)
 	GetBan(userID, boardID uint) (*do.BoardBan, error)
+	ListBans(ctx context.Context, boardID uint, limit, offset int) ([]do.BoardBan, int64, error)
 	// moderator
 	AddModerator(mod *do.Moderator) error
 	UpdateModerator(mod *do.Moderator) error

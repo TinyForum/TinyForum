@@ -13,11 +13,13 @@ import (
 	"tiny-forum/internal/service/check"
 	"tiny-forum/internal/service/comment"
 	"tiny-forum/internal/service/email"
+	"tiny-forum/internal/service/favorite"
 	"tiny-forum/internal/service/notification"
 	"tiny-forum/internal/service/plugin"
 	"tiny-forum/internal/service/question"
 	"tiny-forum/internal/service/recommendation"
 	"tiny-forum/internal/service/reports"
+	"tiny-forum/internal/service/reviewer"
 	"tiny-forum/internal/service/risk"
 	"tiny-forum/internal/service/stats"
 	"tiny-forum/internal/service/tag"
@@ -53,6 +55,8 @@ type Services struct {
 	Bot            bot.Service
 	Reports        reports.ReportsService
 	Recommendation recommendation.RecommendationService
+	Favorite       favorite.FavoriteService
+	Reviewer       reviewer.ReviewerService
 }
 
 // NewServices 创建所有 Service 实例
@@ -80,8 +84,8 @@ func NewServices(
 	userSvc := user.NewUserService(repos.User, jwtMgr, notifSvc, repos.Post, repos.Comment, violation)
 	tagSvc := tag.NewTagService(repos.Tag)
 	engine := upload.NewEngine(userStorage, registry)
-	attachmentSvc := attachment.NewAttachmentService(repos.Attachment, cfg.Basic.Attachment, engine)
-	boardSvc := board.NewBoardService(repos.Board, repos.User, repos.Post, notifSvc, attachmentSvc, repos.Transaction)
+	attachmentSvc := attachment.NewAttachmentService(repos.Attachment, cfg.Basic.Attachment, engine, userStorage)
+	boardSvc := board.NewBoardService(repos.Board, repos.User, repos.Post, repos.Comment, repos.Reports, notifSvc, attachmentSvc, repos.Transaction)
 	timelineSvc := timeline.NewTimelineService(repos.Timeline, repos.User, repos.Post, repos.Comment)
 	topicSvc := topic.NewTopicService(repos.Topic, repos.Post, repos.User, notifSvc)
 	botSvc := bot.NewService(repos.Bot, repos.Post, repos.Comment, repos.User, repos.Notification, repos.Attachment)
@@ -89,12 +93,14 @@ func NewServices(
 	// 推荐服务须先于 article/comment 创建，以便注入
 	recSvc := recommendation.NewRecommendationService(repos.Recommendation, repos.Transaction.DB())
 	articleSvc := article.NewPostService(repos.Post, repos.Tag, repos.User, repos.Board, notifSvc, botSvc, attachmentSvc, checkSvc, recSvc)
-	commentSvc := comment.NewCommentService(repos.Comment, repos.Post, repos.User, notifSvc, botSvc, repos.Vote, recSvc)
+	commentSvc := comment.NewCommentService(repos.Comment, repos.Post, repos.User, notifSvc, botSvc, repos.Vote, recSvc, checkSvc)
 	announcementSvc := announcement.NewAnnouncementService(repos.Announcement)
 	statsSvc := stats.NewStatsService(repos.Stats, repos.Post, repos.Tag, repos.Board, repos.User, repos.Comment, repos.Reports)
 	emailSvc := email.NewEmailService(&cfg.Private.Email)
 	authSvc := auth.NewAuthService(repos.Auth, repos.User, jwtMgr, notifSvc, emailSvc, cfg, repos.Token, repos.Transaction, infra.RedisClient)
-	reportsSvc := reports.NewReportsService(repos.Reports)
+	reportsSvc := reports.NewReportsService(repos.Reports, checkSvc)
+	favoriteSvc := favorite.NewFavoriteService(repos.Favorite)
+	reviewerSvc := reviewer.NewReviewerService(checkSvc, articleSvc, repos.Comment)
 	adminSvc := admin.NewAdminService(announcementSvc, userSvc, articleSvc, boardSvc, reportsSvc)
 	pluginSvc := plugin.NewPluginService(repos.Plugin, publicStorage, &cfg.Basic.Plugins)
 
@@ -119,5 +125,7 @@ func NewServices(
 		Bot:            botSvc,
 		Reports:        reportsSvc,
 		Recommendation: recSvc,
+		Favorite:       favoriteSvc,
+		Reviewer:       reviewerSvc,
 	}
 }

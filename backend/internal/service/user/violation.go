@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+
 	"tiny-forum/internal/model/common"
 	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/request"
@@ -15,10 +16,12 @@ func (s *userService) ListUserViolation(ctx context.Context, req request.ListUse
 		return nil, err
 	}
 
-	total := int64(len(violations))
+	total, err := s.violationSvc.CountUserViolationByUserID(ctx, req, userID)
+	if err != nil {
+		return nil, err
+	}
 
-	// 3. 转换为 VO
-	// voList := make([]vo.ViolationVO, 0, len(violations))
+	// 2. 转换为 VO
 	voList := make([]vo.ViolationVO, 0, len(violations))
 	for _, v := range violations {
 		voList = append(voList, s.convertViolationToVO(v))
@@ -57,4 +60,24 @@ func (s *userService) convertViolationToVO(v *do.Violation) vo.ViolationVO {
 		AppealTime:     v.AppealTime,
 		AppealResult:   v.AppealResult,
 	}
+}
+
+// GetUserViolation 获取当前用户的违规记录详情
+func (s *userService) GetUserViolation(ctx context.Context, id, userID uint) (*vo.ViolationVO, error) {
+	v, err := s.violationSvc.GetViolation(ctx, id, userID)
+	if err != nil {
+		return nil, err
+	}
+	ret := s.convertViolationToVO(v)
+	return &ret, nil
+}
+
+// AppealUserViolation 当前用户对违规记录提交申诉
+func (s *userService) AppealUserViolation(ctx context.Context, id, userID uint, reason string) (*vo.ViolationVO, error) {
+	v, err := s.violationSvc.AppealViolation(ctx, id, userID, reason)
+	if err != nil {
+		return nil, err
+	}
+	ret := s.convertViolationToVO(v)
+	return &ret, nil
 }

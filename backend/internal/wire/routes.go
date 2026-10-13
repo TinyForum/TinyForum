@@ -81,6 +81,12 @@ func RegisterRoutes(
 	// 举报
 	handlers.Report.RegisterRoutes(api, mw)
 
+	// 收藏
+	handlers.Favorite.RegisterRoutes(api, mw)
+
+	// 审核员工作流
+	handlers.Reviewer.RegisterRoutes(api, mw)
+
 	// 通告
 	handlers.Notification.RegisterRoutes(api, mw)
 	handlers.Announcement.RegisterRoutes(api, mw)

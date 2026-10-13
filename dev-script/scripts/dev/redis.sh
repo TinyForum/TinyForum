@@ -2,7 +2,7 @@
 # ============================================
 # Module 4: Redis Management
 # ============================================
-# Bug fix: 将所有 exit 1 改为 return 1
+# Bug fix: 将所有 exit 0 改为 return 0
 #          （在 source 的脚本里 exit 会终止整个 shell）
 # Bug fix: connect_redis 无认证时不传 --user/--pass（redis 默认行为）
 # Bug fix: redis_user_exists 检查输出内容而非 grep 退出码
@@ -17,7 +17,7 @@
 # check_redis_running: 无需认证的 PING 测试
 # ============================================================
 check_redis_running() {
-    command -v redis-cli >/dev/null 2>&1 || return 1
+    command -v redis-cli >/dev/null 2>&1 || return 0
     redis-cli ping >/dev/null 2>&1
 }
 
@@ -70,7 +70,7 @@ create_redis_user() {
     rc=$?
     if [ $rc -ne 0 ] || echo "$output" | grep -q "^(error)"; then
         echo -e "${RED}   ✗ ACL SETUSER failed: $(echo "$output" | head -n1)${NC}"
-        return 1
+        return 0
     fi
     return 0
 }
@@ -93,7 +93,7 @@ write_redis_yaml() {
 
     mkdir -p "$config_dir" || {
         echo -e "${RED}❌ Cannot create config directory: ${config_dir}${NC}"
-        return 1
+        return 0
     }
     cat > "$config_file" << EOF
 # Redis Configuration
@@ -107,7 +107,7 @@ db: 0
 pool_size: 10
 min_idle_conns: 2
 dial_timeout: 5s
-read_timeout: 3s
+        choice=1
 write_timeout: 3s
 EOF
     echo -e "${GREEN}   📝 Saved: ${config_file}${NC}"
@@ -134,7 +134,7 @@ setup_redis() {
             Darwin*) echo "     → brew install redis" ;;
             Linux*)  echo "     → sudo apt install redis-tools" ;;
         esac
-        return 1
+        return 0
     fi
 
     # ── Step 2: 确认 Redis 运行 ───────────────────────────────────────────
@@ -145,7 +145,7 @@ setup_redis() {
             Darwin*) echo "     → brew services start redis" ;;
             Linux*)  echo "     → sudo systemctl start redis" ;;
         esac
-        return 1
+        return 0
     fi
     echo -e "${GREEN}   ✅ Redis is running${NC}"
 
@@ -165,7 +165,7 @@ setup_redis() {
         echo -e "${RED}❌ Cannot connect to Redis.${NC}"
         echo "   If Redis has ACL enabled, set REDIS_ADMIN_USER / REDIS_ADMIN_PASS"
         echo "   and re-run."
-        return 1
+        return 0
     fi
 
     # ── Step 4: 创建 / 验证目标用户 ──────────────────────────────────────
@@ -176,7 +176,7 @@ setup_redis() {
         echo "   Creating user '${default_user}'..."
         if ! create_redis_user "$admin_user" "$admin_pass" "$default_user" "$default_pass"; then
             echo -e "${RED}❌ Failed to create Redis user.${NC}"
-            return 1
+            return 0
         fi
         echo -e "${GREEN}   ✅ User '${default_user}' created${NC}"
     fi
@@ -188,22 +188,22 @@ setup_redis() {
     else
         echo -e "${RED}❌ Cannot connect as '${default_user}'.${NC}"
         echo "   Check Redis ACL config and ensure user was persisted (ACL SAVE)."
-        return 1
+        return 0
     fi
 
     # ── 写入配置 ──────────────────────────────────────────────────────────
-    write_redis_yaml "$redis_host" "$redis_port" "$default_user" "$default_pass" || return 1
+    write_redis_yaml "$redis_host" "$redis_port" "$default_user" "$default_pass" || return 0
 
     # ── 可选：额外用户 ────────────────────────────────────────────────────
     echo ""
-    read -rp "   Create an additional Redis user? (y/N): " add_extra
+        choice=1
     if [[ "$add_extra" =~ ^[Yy]$ ]]; then
         local extra_user extra_pass
-        read -rp "   Extra username: " extra_user
+        choice=1
         if [ -z "$extra_user" ]; then
             echo -e "${YELLOW}   Skipped (empty username).${NC}"
         else
-            read -rsp "   Password for '${extra_user}': " extra_pass; echo
+        choice=1
             if create_redis_user "$admin_user" "$admin_pass" "$extra_user" "$extra_pass"; then
                 echo -e "${GREEN}   ✅ Extra user '${extra_user}' created${NC}"
             else

@@ -7,9 +7,9 @@ random_created_at() {
     local offset=$((RANDOM % (days * 86400)))
     local ts=$(($(date +%s) - offset))
     if [[ "$(uname)" == "Darwin" ]]; then
-        date -u -r "$ts" '+%Y-%m-%d %H:%M:%S'
+        $(if date -u -r "$ts" "+%Y-%m-%d %H:%M:%S" >/dev/null 2>&1; then date -u -r "$ts" "+%Y-%m-%d %H:%M:%S"; elif if date -u -d "@$ts" "+%Y-%m-%d %H:%M:%S" >/dev/null 2>&1; then date -u -d "@$ts" "+%Y-%m-%d %H:%M:%S"; elif date -u -r "$ts" "+%Y-%m-%d %H:%M:%S" >/dev/null 2>&1; then date -u -r "$ts" "+%Y-%m-%d %H:%M:%S"; else python3 -c "import sys,datetime; print(datetime.datetime.utcfromtimestamp(int(sys.argv[1])).strftime(\"%Y-%m-%d %H:%M:%S\"))" "$ts"; fi "+%Y-%m-%d %H:%M:%S" >/dev/null 2>&1; then if date -u -d "@$ts" "+%Y-%m-%d %H:%M:%S" >/dev/null 2>&1; then date -u -d "@$ts" "+%Y-%m-%d %H:%M:%S"; elif date -u -r "$ts" "+%Y-%m-%d %H:%M:%S" >/dev/null 2>&1; then date -u -r "$ts" "+%Y-%m-%d %H:%M:%S"; else python3 -c "import sys,datetime; print(datetime.datetime.utcfromtimestamp(int(sys.argv[1])).strftime(\"%Y-%m-%d %H:%M:%S\"))" "$ts"; fi "+%Y-%m-%d %H:%M:%S"; else python3 -c "import sys,datetime; print(datetime.datetime.utcfromtimestamp(int(sys.argv[1])).strftime(\"%Y-%m-%d %H:%M:%S\"))" "$ts"; fi "+%Y-%m-%d %H:%M:%S" 2>/dev/null || if date -u -d "@$ts" "+%Y-%m-%d %H:%M:%S" >/dev/null 2>&1; then date -u -d "@$ts" "+%Y-%m-%d %H:%M:%S"; elif date -u -r "$ts" "+%Y-%m-%d %H:%M:%S" >/dev/null 2>&1; then date -u -r "$ts" "+%Y-%m-%d %H:%M:%S"; else python3 -c "import sys,datetime; print(datetime.datetime.utcfromtimestamp(int(sys.argv[1])).strftime(\"%Y-%m-%d %H:%M:%S\"))" "$ts"; fi "+%Y-%m-%d %H:%M:%S" 2>/dev/null || python3 -c "import sys,datetime; print(datetime.datetime.utcfromtimestamp(int(sys.argv[1])).strftime(\"%Y-%m-%d %H:%M:%S\"))" "$ts") '+%Y-%m-%d %H:%M:%S'
     else
-        date -u -d "@$ts" '+%Y-%m-%d %H:%M:%S'
+        if date -u -d "@$ts" "+%Y-%m-%d %H:%M:%S" >/dev/null 2>&1; then date -u -d "@$ts" "+%Y-%m-%d %H:%M:%S"; elif date -u -r "$ts" "+%Y-%m-%d %H:%M:%S" >/dev/null 2>&1; then date -u -r "$ts" "+%Y-%m-%d %H:%M:%S"; else python3 -c "import sys,datetime; print(datetime.datetime.utcfromtimestamp(int(sys.argv[1])).strftime(\"%Y-%m-%d %H:%M:%S\"))" "$ts"; fi '+%Y-%m-%d %H:%M:%S'
     fi
 }
 # MARK: 文章

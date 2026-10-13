@@ -49,6 +49,30 @@ func (r *riskRepository) ListPendingTasks(limit, offset int) ([]do.ContentAuditT
 	return tasks, total, err
 }
 
+// ListResolvedTasks 分页获取已处理（通过/拒绝）的审核任务
+func (r *riskRepository) ListResolvedTasks(limit, offset int) ([]do.ContentAuditTask, int64, error) {
+	var tasks []do.ContentAuditTask
+	var total int64
+	resolved := []do.ModerationStatus{do.ModerationStatusApproved, do.ModerationStatusRejected}
+	r.db.Model(&do.ContentAuditTask{}).Where("status IN ?", resolved).Count(&total)
+	err := r.db.Where("status IN ?", resolved).
+		Preload("Reviewer").
+		Order("reviewed_at DESC").
+		Limit(limit).Offset(offset).
+		Find(&tasks).Error
+	return tasks, total, err
+}
+
+// GetTaskByID 根据 ID 获取审核任务（预加载审核人）
+func (r *riskRepository) GetTaskByID(taskID uint) (*do.ContentAuditTask, error) {
+	var task do.ContentAuditTask
+	err := r.db.Preload("Reviewer").First(&task, taskID).Error
+	if err != nil {
+		return nil, err
+	}
+	return &task, nil
+}
+
 func (r *riskRepository) UpdateTaskStatus(taskID uint, status do.ModerationStatus, reviewerID uint, note string) error {
 	now := time.Now()
 	return r.db.Model(&do.ContentAuditTask{}).Where("id = ?", taskID).Updates(map[string]interface{}{

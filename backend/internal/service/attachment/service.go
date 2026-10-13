@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"mime/multipart"
 
 	"tiny-forum/internal/model/do"
@@ -98,6 +99,32 @@ func (s *service) GetFile(ctx context.Context, fileID string) (*dto.FileInfo, er
 		URL:          s.urlPrefix + "/" + att.StoredPath,
 		// CreatedAt:    att.CreatedAt,
 	}, nil
+}
+
+// OpenFile 获取文件内容流，用于直接下载/预览
+func (s *service) OpenFile(ctx context.Context, fileID string) (io.ReadCloser, *dto.FileInfo, error) {
+	att, err := s.repo.GetByFileID(ctx, fileID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil, apperrors.ErrNotFound
+		}
+		return nil, nil, err
+	}
+	rc, err := s.storage.Get(att.StoredPath)
+	if err != nil {
+		logger.Warnf("打开文件失败 (file_id=%s, path=%s): %v", fileID, att.StoredPath, err)
+		return nil, nil, apperrors.ErrNotFound.WithDetail("文件内容不存在")
+	}
+	info := &dto.FileInfo{
+		FileID:       att.FileID,
+		OriginalName: att.OriginalName,
+		Size:         att.Size,
+		FileType:     string(att.FileType),
+		MimeType:     att.MimeType,
+		URL:          s.urlPrefix + "/" + att.StoredPath,
+		CreatedAt:    att.CreatedAt,
+	}
+	return rc, info, nil
 }
 
 func (s *service) DeleteFile(ctx context.Context, userID uint, fileID string) error {

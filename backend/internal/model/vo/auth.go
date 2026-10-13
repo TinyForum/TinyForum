@@ -48,6 +48,26 @@ type UserLoginVO struct {
 	// LastLogin   *time.Time  `json:"last_login,omitempty"`
 	InvitedByID *uint `json:"invited_by_id,omitempty"`
 }
+// NewUserLoginVO 将 do.User 转换为前端登录态所需的视图对象（不含密码等敏感字段）
+func NewUserLoginVO(user *do.User) *UserLoginVO {
+	if user == nil {
+		return nil
+	}
+	return &UserLoginVO{
+		ID:          user.ID,
+		CreatedAt:   user.CreatedAt,
+		UpdatedAt:   user.UpdatedAt,
+		Username:    user.Username,
+		AvatarUrl:   user.AvatarUrl,
+		Bio:         user.Bio,
+		Role:        user.Role,
+		Score:       user.Score,
+		LastLogin:   user.LastLogin,
+		Email:       user.Email,
+		InvitedByID: user.InvitedByID,
+	}
+}
+
 type AuthResultVO struct {
 	Token          string          `json:"token"`
 	User           *UserRegisterVO `json:"user"`

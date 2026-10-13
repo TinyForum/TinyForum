@@ -26,4 +26,12 @@ func (h *ArticleHandler) RegisterRoutes(api *gin.RouterGroup, mw middleware.Midd
 		postGroup.DELETE("/:id/like", mw.Auth(), h.Unlike) // 用户取消点赞帖子
 	}
 
+	// 管理员帖子管理（置顶、审核）
+	adminPosts := api.Group("/admin", mw.Auth(), mw.AdminRequired())
+	{
+		adminPosts.PUT("/posts/:id/pin", h.AdminTogglePin)              // PUT /api/v1/admin/posts/:id/pin 置顶/取消置顶帖子
+		adminPosts.PUT("/audit/tasks/:id/approve", h.AdminApprovePost)  // PUT /api/v1/admin/audit/tasks/:id/approve 审核通过
+		adminPosts.PUT("/audit/tasks/:id/reject", h.AdminRejectPost)    // PUT /api/v1/admin/audit/tasks/:id/reject 审核拒绝
+	}
+
 }

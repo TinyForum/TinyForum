@@ -24,7 +24,6 @@ export function UserRankCard({
 
   const scoreColor = isTopThree ? "text-warning" : "text-base-content/40";
 
-  console.log(user);
   return (
     <Link href={`/users/${user.id}`}>
       <div

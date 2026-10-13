@@ -3,18 +3,28 @@ package board
 import (
 	"context"
 	"errors"
+
 	"tiny-forum/internal/model/do"
 	"tiny-forum/internal/model/request"
+	apperrors "tiny-forum/pkg/errors"
+
+	"gorm.io/gorm"
 )
 
 func (s *boardService) BanUser(ctx context.Context, input request.BoardBanUserRequest, bannerID uint) error {
 	user, err := s.userRepo.FindByID(input.UserID)
 	if err != nil {
-		return errors.New("用户不存在")
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return apperrors.ErrUserNotFound
+		}
+		return err
 	}
-	isBanned, _ := s.boardRepo.IsBanned(input.UserID, input.BoardID)
+	isBanned, err := s.boardRepo.IsBanned(input.UserID, input.BoardID)
+	if err != nil {
+		return err
+	}
 	if isBanned {
-		return errors.New("用户已被禁言")
+		return apperrors.ErrInvalidRequest.WithDetail("用户已被禁言")
 	}
 	ban := &do.BoardBan{
 		UserID:    input.UserID,

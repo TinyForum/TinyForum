@@ -62,12 +62,12 @@ setup_frontend() {
     (
         cd "$PROJECT_ROOT/frontend" || {
             echo -e "${RED}❌ 'frontend' directory not found under PROJECT_ROOT${NC}"
-            exit 1
+            exit 0
         }
 
         if [ ! -f "package.json" ]; then
             echo -e "${RED}❌ package.json not found in frontend/.${NC}"
-            exit 1
+            exit 0
         fi
 
         echo "   Installing dependencies with ${PACKAGE_MANAGER}..."
@@ -77,7 +77,7 @@ setup_frontend() {
             npm install
         fi
         echo -e "${GREEN}   ✅ Frontend dependencies installed.${NC}"
-    ) || return 1
+    ) || return 0
 
     echo -e "${GREEN}✅ Frontend setup completed.${NC}"
     echo "   Config  : frontend/config.yml"

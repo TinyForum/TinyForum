@@ -11,6 +11,8 @@ type RiskRepository interface {
 	ListAuditLogs(targetType string, targetID uint, limit int) ([]do.AuditLog, error)
 	CreateAuditTask(task *do.ContentAuditTask) error
 	ListPendingTasks(limit, offset int) ([]do.ContentAuditTask, int64, error)
+	ListResolvedTasks(limit, offset int) ([]do.ContentAuditTask, int64, error)
+	GetTaskByID(taskID uint) (*do.ContentAuditTask, error)
 	UpdateTaskStatus(taskID uint, status do.ModerationStatus, reviewerID uint, note string) error
 	CountPendingByTarget(targetType do.AuditTargetType, targetID uint) (int64, error)
 	AddRiskRecord(record *do.UserRiskRecord) error

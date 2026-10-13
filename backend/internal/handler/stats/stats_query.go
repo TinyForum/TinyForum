@@ -1,11 +1,10 @@
 package stats
 
 import (
-	"fmt"
-	"log"
 	"time"
 	"tiny-forum/internal/model/dto"
 	"tiny-forum/internal/model/vo"
+	"tiny-forum/pkg/logger"
 	"tiny-forum/pkg/response"
 
 	// "tiny-forum/pkg/utils"
@@ -49,8 +48,7 @@ func (h *StatsHandler) GetStatsDay(c *gin.Context) {
 
 	stats, err := h.statsSvc.GetStatsByDate(c.Request.Context(), date, req.Type)
 	if err != nil {
-		// 记录详细错误日志，便于排查
-		log.Printf("获取统计数据失败: %v", err) // 或者使用 slog
+		logger.ErrorKV("获取统计数据失败", "err", err)
 		response.InternalError(c, "获取统计数据失败，请稍后重试")
 		return
 	}
@@ -94,13 +92,12 @@ func (h *StatsHandler) GetStatsTotal(c *gin.Context) {
 		return
 	}
 
-	fmt.Printf("Parsed time range: %v to %v\n", date.Start, date.End)
-	fmt.Printf("User requested: start_date=%s, end_date=%s, type=%s\n",
-		req.StartDate, req.EndDate, req.Type)
+	logger.Debugf("parsed time range: %v to %v, type=%s", date.Start, date.End, req.Type)
 
 	totals, err := h.statsSvc.GetTotalStats(c.Request.Context(), date.Start, date.End, req.Type)
 	if err != nil {
-		response.InternalError(c, "获取总计数据失败: "+err.Error())
+		logger.ErrorKV("获取总计统计数据失败", "err", err)
+		response.InternalError(c, "获取统计信息失败，请稍后重试")
 		return
 	}
 

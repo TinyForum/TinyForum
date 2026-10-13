@@ -52,6 +52,41 @@ export interface RoleResponse {
   user_id: number;
   role: UserRoleType;
 }
+
+export interface UserCommentVO {
+  id: number;
+  created_at: string;
+  works_id: number;
+  content: string;
+  like_count: number;
+  author: {
+    id: number;
+    nickname: string;
+    avatar_url: string;
+  };
+}
+
+export type GetUserCommentsRequest = PageRequest;
+
+export interface UserFavoriteVO {
+  id: number;
+  created_at: string;
+  target_id: number;
+  title: string;
+  summary: string;
+  like_count: number;
+  board_name: string;
+}
+
+export interface ListFavoritesRequest extends PageRequest {
+  target_type?: string;
+}
+
+export interface AddFavoritePayload {
+  target_id: number;
+  target_type?: string;
+  group_id?: number;
+}
 export interface LeaderboardRequest {
   limit?: number;
   // fields?: string;

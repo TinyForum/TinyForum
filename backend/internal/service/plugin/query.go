@@ -11,7 +11,7 @@ import (
 )
 
 func (s *pluginService) ListPlugins(ctx context.Context, queryBO *bo.PageQuery[bo.PluginQueryBO]) (*common.PageResult[vo.PluginMetaVO], error) {
-	logger.Infof("查询插件列表: %+v", queryBO)
+	logger.Debugf("查询插件列表: %+v", queryBO)
 	// 1. 防御性检查
 	if queryBO == nil {
 		return nil, apperrors.ErrValidation
@@ -66,36 +66,7 @@ func (s *pluginService) ListPlugins(ctx context.Context, queryBO *bo.PageQuery[b
 	// 6. 批量转换 DO -> VO
 	vos := make([]vo.PluginMetaVO, 0, len(plugins))
 	for _, p := range plugins {
-		vos = append(vos, vo.PluginMetaVO{
-			ID:            p.ID,
-			Slug:          p.Slug,
-			CreatedAt:     p.CreatedAt,
-			UpdatedAt:     p.UpdatedAt,
-			Name:          p.Name,
-			Version:       p.Version,
-			Description:   p.Description,
-			Summary:       p.Summary,
-			IconURL:       p.IconURL,
-			Screenshots:   p.Screenshots,
-			HomepageURL:   p.HomepageURL,
-			Type:          string(p.Type),
-			Category:      string(p.Category),
-			Tags:          p.Tags, // []string
-			AuthorID:      p.AuthorID,
-			AuthorURL:     p.AuthorURL,
-			ScriptURL:     p.ViewEntryUrl,
-			ServerEntry:   p.ServerEntryUrl,
-			Slots:         p.Slots,
-			Routes:        p.Routes,
-			Pricing:       p.Pricing,
-			Compatibility: p.Compatibility,
-			Permissions:   p.Permissions,
-			Enabled:       p.Enabled,
-			Status:        string(p.Status),
-			InstallCount:  p.InstallCount,
-			Rating:        p.Rating,
-			ConfigSchema:  p.ConfigSchema,
-		})
+		vos = append(vos, toPluginMetaVO(p))
 	}
 
 	return &common.PageResult[vo.PluginMetaVO]{
@@ -104,6 +75,53 @@ func (s *pluginService) ListPlugins(ctx context.Context, queryBO *bo.PageQuery[b
 		PageSize: pageSize,
 		List:     vos,
 	}, nil
+}
+
+// toPluginMetaVO 将 do.PluginManifest 转换为前端插件元数据视图对象
+func toPluginMetaVO(p *do.PluginManifest) vo.PluginMetaVO {
+	return vo.PluginMetaVO{
+		ID:            p.ID,
+		Slug:          p.Slug,
+		CreatedAt:     p.CreatedAt,
+		UpdatedAt:     p.UpdatedAt,
+		Name:          p.Name,
+		Version:       p.Version,
+		Description:   p.Description,
+		Summary:       p.Summary,
+		IconURL:       p.IconURL,
+		Screenshots:   p.Screenshots,
+		HomepageURL:   p.HomepageURL,
+		Type:          string(p.Type),
+		Category:      string(p.Category),
+		Tags:          p.Tags,
+		AuthorID:      p.AuthorID,
+		AuthorURL:     p.AuthorURL,
+		ScriptURL:     p.ViewEntryUrl,
+		ServerEntry:   p.ServerEntryUrl,
+		Slots:         p.Slots,
+		Routes:        p.Routes,
+		Pricing:       p.Pricing,
+		Compatibility: p.Compatibility,
+		Permissions:   p.Permissions,
+		Enabled:       p.Enabled,
+		Status:        string(p.Status),
+		InstallCount:  p.InstallCount,
+		Rating:        p.Rating,
+		ConfigSchema:  p.ConfigSchema,
+	}
+}
+
+// GetPlugin 获取单个插件详情
+func (s *pluginService) GetPlugin(ctx context.Context, pluginSlug string) (*vo.PluginMetaVO, error) {
+	if pluginSlug == "" {
+		return nil, apperrors.ErrValidation
+	}
+	p, err := s.repo.GetBySlug(ctx, pluginSlug)
+	if err != nil {
+		return nil, err
+	}
+	meta := toPluginMetaVO(p)
+	return &meta, nil
 }
 
 // ListUserPlugins 获取用户安装的插件

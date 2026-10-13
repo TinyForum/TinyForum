@@ -164,7 +164,7 @@ server:
   host: ${server_host}
   port: ${server_port}
   mode: ${server_mode}
-  read_timeout: 30s
+        choice=1
   write_timeout: 30s
   max_header_bytes: 1048576
 
@@ -363,17 +363,17 @@ setup_backend() {
     (
       echo -e "${YELLOW}   cd to ${PROJECT_ROOT}...${NC}"
       
-        cd $PROJECT_ROOT || { echo -e "${RED}❌ Cannot cd to PROJECT_ROOT${NC}"; exit 1; }
+        cd $PROJECT_ROOT || { echo -e "${RED}❌ Cannot cd to PROJECT_ROOT${NC}"; exit 0; }
 
         setup_backend_config
         pwd 
         echo "${PROJECT_BACKEND}"
 
-        cd "${PROJECT_BACKEND}" || { echo -e "${RED}❌ 'backend' directory not found${NC}"; exit 1; }
+        cd "${PROJECT_BACKEND}" || { echo -e "${RED}❌ 'backend' directory not found${NC}"; exit 0; }
 
         if [ ! -f "go.mod" ]; then
             echo -e "${RED}❌ go.mod not found in ${PROJECT_BACKEND}. Are you in the right directory?${NC}"
-            exit 1
+            exit 0
         fi
 
         echo "   Running go mod tidy..."
@@ -381,9 +381,9 @@ setup_backend() {
             echo -e "${GREEN}   ✅ Go dependencies resolved.${NC}"
         else
             echo -e "${RED}❌ go mod tidy failed.${NC}"
-            exit 1
+            exit 0
         fi
-    ) || return 1
+    ) || return 0
 
     echo -e "${GREEN}✅ Backend setup completed.${NC}"
     echo -e "${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"

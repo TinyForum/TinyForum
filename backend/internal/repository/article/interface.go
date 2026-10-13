@@ -37,6 +37,10 @@ type ArticleRepository interface {
 
 	// 板块相关
 	GetByBoardID(boardID uint, limit, offset int) ([]do.Article, int64, error) // 根据板块ID获取帖子
+	// ListPostsByBoardID 分页获取指定板块下的帖子（版主面板，不做已发布过滤），可按关键词/状态过滤
+	ListPostsByBoardID(ctx context.Context, boardID uint, keyword string, status do.CreationStatus, limit, offset int) ([]do.Article, int64, error)
+	// CountCommentsByPostID 批量统计指定帖子 ID 下的评论数
+	CountCommentsByPostID(ctx context.Context, postIDs []uint) (map[uint]int64, error)
 
 	// 问答相关
 	GetQuestions(limit, offset int) ([]do.Question, int64, error)           // 获取问题列表

@@ -52,12 +52,29 @@ func (h *UserHandler) RegisterRoutes(api *gin.RouterGroup, mw middleware.Middlew
 
 		posts := me.Group("/posts")
 		{
-			posts.GET("", h.GetUserPosts) // GET /api/v1/users/me/posts 用户帖子列表
+			posts.GET("", h.GetUserPosts)              // GET /api/v1/users/me/posts 用户帖子列表
+			posts.GET("/:post_id", h.GetUserPostById)  // GET /api/v1/users/me/posts/:post_id 我的单个帖子
 		}
+		me.GET("/comments", h.GetUserComments) // GET /api/v1/users/me/comments 我的评论列表
 		violation := me.Group("/violations")
 		{
-			violation.GET("", h.ListUserViolations) // GET /api/v1/users/me/violations 用户违规记录
+			violation.GET("", h.ListUserViolations)              // GET /api/v1/users/me/violations 用户违规记录
+			violation.GET("/:id", h.GetUserViolation)            // GET /api/v1/users/me/violations/:id 违规详情
+			violation.POST("/:id/appeal", h.AppealUserViolation) // POST /api/v1/users/me/violations/:id/appeal 违规申诉
 		}
 		// me.PATCH("/password", h.ChangePassword) // PATCH /api/v1/users/me/password 修改密码
+	}
+
+	// 4. 管理员用户管理（密码重置、积分设置）
+	adminUsers := api.Group("/admin/users", mw.Auth(), mw.AdminRequired())
+	{
+		adminUsers.POST("/:id/reset-password", h.AdminResetUserPassword) // POST /api/v1/admin/users/:id/reset-password 重置用户密码
+		adminUsers.PUT("/:id/score", h.AdminSetScore)                    // PUT /api/v1/admin/users/:id/score 设置用户积分
+	}
+
+	// 5. 当前登录用户信息（前端登录态刷新使用）
+	authGroup := api.Group("/auth")
+	{
+		authGroup.GET("/me", mw.Auth(), h.Me) // GET /api/v1/auth/me 获取当前用户信息
 	}
 }

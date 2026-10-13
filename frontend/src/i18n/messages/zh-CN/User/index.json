@@ -46,5 +46,12 @@
   "detail_load_failed": "获取详情失败",
   "appeal_submit_failed": "申诉提交失败",
   "leaderboard_load_failed": "加载排行榜失败",
-  "loading": "加载中..."
+  "loading": "加载中...",
+  "remove": "移除",
+  "view_post": "查看帖子",
+  "comments_load_failed": "获取评论列表失败",
+  "favorites_load_failed": "获取收藏列表失败",
+  "delete_comment_confirm": "确定要删除这条评论吗？删除后不可恢复。",
+  "delete_comment_success": "评论已删除",
+  "delete_comment_failed": "删除失败"
 }

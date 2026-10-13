@@ -36,7 +36,6 @@ export async function loadPluginScript(
   }
 
   const windowKey = `__plugin_${pluginId.replace(/-/g, "_")}__`;
-  console.log(`Loading plugin "${pluginId}" from "${scriptUrl}"...`);
 
   return new Promise((resolve, reject) => {
     const existingScript = document.getElementById(`plugin-script-${pluginId}`);
@@ -77,8 +76,7 @@ export async function loadPluginScript(
       }
     };
 
-    script.onerror = (event) => {
-      console.log("事件: ", event);
+    script.onerror = () => {
       clearTimeout(timer);
       script.remove();
       reject(
@@ -104,17 +102,6 @@ export async function loadPlugin(
   }
 
   pluginRegistry.registerPlugin(meta);
-  console.log(
-    "[PluginLoader] Loading plugin: ",
-    "Slug: ",
-    meta.slug,
-    " Name: ",
-    meta.name,
-    " Version: ",
-    meta.version,
-    "\n",
-    meta,
-  );
 
   try {
     const entryFn = await loadPluginScript(
@@ -161,7 +148,6 @@ export async function loadPlugins(
   }
 
   const enabledPlugins = plugins.filter((p) => p.enabled);
-  console.log("plugin: ", plugins);
   console.info(
     `[PluginLoader] Loading ${enabledPlugins.length}/${plugins.length} enabled plugins`,
   );

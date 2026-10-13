@@ -46,5 +46,20 @@
   "reviewer": "审核员",
   "reviewers": "审核员列表",
   "feature_under_development": "功能开发中",
-  "feature_coming_soon": "{feature} 功能正在建设中，敬请期待。"
+  "feature_coming_soon": "{feature} 功能正在建设中，敬请期待。",
+  "load_failed": "加载失败",
+  "retry": "重试",
+  "loading": "加载中...",
+  "reviewing": "处理中...",
+  "target_id": "目标ID",
+  "trigger_type": "触发类型",
+  "trigger_sensitive_word": "敏感词",
+  "trigger_report_aggregate": "举报聚合",
+  "trigger_manual": "手动",
+  "target_post": "帖子",
+  "target_comment": "评论",
+  "target_user": "用户",
+  "reject_reason": "拒绝原因",
+  "confirm": "确定",
+  "cancel": "取消"
 }

@@ -23,7 +23,9 @@ func (h *Handler) RegisterRoutes(api *gin.RouterGroup, mw middleware.MiddlewareS
 
 		// 获取当前用户的插件列表
 		pluginGroup.GET("/me", h.ListMyPlugins)            // GET /api/v1/plugins/me 获取当前用户的插件列表
-		pluginGroup.PATCH("/:slug/toggle", h.TogglePlugin) // PATCH /api/v1/plugins/toggle 切换插件启用状态
+		pluginGroup.GET("/:slug", h.GetPlugin)             // GET /api/v1/plugins/:slug 获取插件详情
+		pluginGroup.PUT("/:slug", mw.AdminRequired(), h.UpdatePlugin) // PUT /api/v1/plugins/:slug 更新插件元数据（管理员）
+		pluginGroup.PATCH("/:slug/toggle", mw.AdminRequired(), h.TogglePlugin) // PATCH /api/v1/plugins/toggle 切换插件启用状态（管理员）
 
 	}
 }

@@ -31,7 +31,7 @@ func (h *BoardHandler) ApplyModerator(c *gin.Context) {
 	// 1. 解析并校验 boardID
 	boardID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil || boardID == 0 {
-		response.HandleError(c, err) // 使用预定义错误
+		response.HandleError(c, apperrors.ErrInvalidRequest)
 		return
 	}
 

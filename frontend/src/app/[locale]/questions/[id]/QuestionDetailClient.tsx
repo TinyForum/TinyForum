@@ -110,7 +110,7 @@ export default function QuestionDetailClient({ id }: { id: string }) {
       router.push("/login");
       return;
     }
-    acceptMutation.mutate(answerId);
+    acceptMutation.mutate({ answerId, questionId });
   };
 
   // 移除问题点赞功能（API 不存在），因此无需 handleLike

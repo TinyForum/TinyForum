@@ -112,7 +112,6 @@ export function useAdminResetUserPassword() {
       // 可在此处展示新密码（如果后端返回）
       if (data?.message?.includes("新密码")) {
         // 例如通过 alert 或额外弹窗展示
-        console.log("重置结果:", data);
       }
     },
     onError: (error: Error) => {

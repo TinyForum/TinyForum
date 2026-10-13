@@ -13,6 +13,50 @@ func (r *reportsRepository) Create(ctx context.Context, report *do.Report) error
 	return r.db.WithContext(ctx).Create(report).Error
 }
 
+// GetByID 根据 ID 查询单条举报（预加载举报人与处理人）
+func (r *reportsRepository) GetByID(ctx context.Context, id uint) (*do.Report, error) {
+	var report do.Report
+	err := r.db.WithContext(ctx).
+		Preload("Reporter").
+		Preload("Handler").
+		First(&report, id).Error
+	if err != nil {
+		return nil, err
+	}
+	return &report, nil
+}
+
+// ListByBoardID 分页查询指定板块下的举报（帖子或其评论属于该板块），可按状态过滤
+func (r *reportsRepository) ListByBoardID(ctx context.Context, boardID uint, status do.ReportStatus, limit, offset int) ([]do.Report, int64, error) {
+	base := r.db.WithContext(ctx).Model(&do.Report{}).
+		Joins("LEFT JOIN creations AS pc ON pc.id = reports.target_id AND reports.target_type = ?", do.ReportTargetTypePost).
+		Joins("LEFT JOIN comments AS cc ON cc.id = reports.target_id AND reports.target_type = ?", do.ReportTargetTypeComment).
+		Joins("LEFT JOIN creations AS pc2 ON pc2.id = cc.works_id").
+		Where(`(reports.target_type = ? AND pc.board_id = ?) OR (reports.target_type = ? AND pc2.board_id = ?)`,
+			do.ReportTargetTypePost, boardID,
+			do.ReportTargetTypeComment, boardID)
+	if status != "" {
+		base = base.Where("reports.status = ?", status)
+	}
+	var total int64
+	if err := base.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+	var reports []do.Report
+	err := base.Select("reports.*").
+		Order("reports.created_at DESC").
+		Offset(offset).Limit(limit).
+		Preload("Reporter").
+		Preload("Handler").
+		Find(&reports).Error
+	return reports, total, err
+}
+
+// Update 更新举报记录
+func (r *reportsRepository) Update(ctx context.Context, report *do.Report) error {
+	return r.db.WithContext(ctx).Save(report).Error
+}
+
 // CountIllegalStats 统计指定时间段内按被举报对象类型分组的举报数量
 func (r *reportsRepository) CountIllegalStats(ctx context.Context, startDate, endDate time.Time) (*IllegalStats, error) {
 	stats := &IllegalStats{}

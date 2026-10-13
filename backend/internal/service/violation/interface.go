@@ -9,10 +9,12 @@ import (
 
 type ViolationService interface {
 	ListUserViolationByUserID(ctx context.Context, req request.ListUserViolationRequest, userID uint) ([]*do.Violation, error)
-	// CreateViolation(ctx context.Context, violation *model.Violation) (*model.Violation, error)
-	// GetViolation(ctx context.Context, id string) (*model.Violation, error)
-	// UpdateViolation(ctx context.Context, violation *model.Violation) (*model.Violation, error)
-	// DeleteViolation(ctx context.Context, id string) error
+	// CountUserViolationByUserID 统计用户违规记录总数
+	CountUserViolationByUserID(ctx context.Context, req request.ListUserViolationRequest, userID uint) (int64, error)
+	// GetViolation 获取用户自己的违规记录详情
+	GetViolation(ctx context.Context, id, userID uint) (*do.Violation, error)
+	// AppealViolation 提交违规申诉
+	AppealViolation(ctx context.Context, id, userID uint, reason string) (*do.Violation, error)
 }
 
 type violationService struct {

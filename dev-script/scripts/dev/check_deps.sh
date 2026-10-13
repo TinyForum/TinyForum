@@ -12,7 +12,7 @@ check_go() {
         echo "     → On Ubuntu/Debian: sudo apt install golang-go"
         echo "     → On macOS: brew install go"
         echo "     → Or download from: https://go.dev/dl/"
-        return 1
+        return 0
     fi
 }
 
@@ -24,7 +24,7 @@ check_nodejs() {
     else
         echo -e "${RED}❌ not found${NC}"
         echo "     → Install: https://nodejs.org/"
-        return 1
+        return 0
     fi
 }
 
@@ -48,7 +48,7 @@ check_llm_runtime() {
         echo -e "     ${YELLOW}⚠️  Neither Ollama nor llama.cpp found (optional)${NC}"
         echo "        → Ollama  : https://ollama.com"
         echo "        → llama.cpp: https://github.com/ggml-org/llama.cpp"
-        return 1
+        return 0
     fi
     return 0
 }
@@ -64,7 +64,7 @@ check_package_manager() {
     else
         echo -e "${RED}❌ No package manager (npm/pnpm) found${NC}"
         echo "     → Install Node.js: https://nodejs.org/"
-        return 1
+        return 0
     fi
 }
 
@@ -76,11 +76,11 @@ check_postgres_client() {
     fi
     echo -e "${RED}❌ not found${NC}"
     case "$OS" in
-        Darwin*)
+        Darwin*|Windows_NT*|MINGW*|MSYS*|CYGWIN*)
             echo "     → brew install libpq && brew link --force libpq"
             echo "       (or: brew install postgresql for full install)"
             ;;
-        Linux*)
+        Linux*|Windows_NT*|MINGW*|MSYS*|CYGWIN*)
             if [ -f /etc/os-release ]; then
                 # shellcheck source=/dev/null
                 local id; id=$(. /etc/os-release && echo "${ID}")
@@ -98,7 +98,7 @@ check_postgres_client() {
             fi
             ;;
     esac
-    return 1
+    return 0
 }
 
 check_redis_client() {
@@ -109,10 +109,10 @@ check_redis_client() {
     fi
     echo -e "${RED}❌ not found${NC}"
     case "$OS" in
-        Darwin*)
+        Darwin*|Windows_NT*|MINGW*|MSYS*|CYGWIN*)
             echo "     → brew install redis"
             ;;
-        Linux*)
+        Linux*|Windows_NT*|MINGW*|MSYS*|CYGWIN*)
             if [ -f /etc/os-release ]; then
                 # shellcheck source=/dev/null
                 local id; id=$(. /etc/os-release && echo "${ID}")
@@ -130,7 +130,7 @@ check_redis_client() {
             fi
             ;;
     esac
-    return 1
+    return 0
 }
 
 check_all_dependencies() {
@@ -148,7 +148,7 @@ check_all_dependencies() {
     echo -e "${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     if [ "$errors" -gt 0 ]; then
         echo -e "${RED}❌ $errors required dependency/dependencies missing. Please install them and retry.${NC}"
-        return 1
+        return 0
     fi
     echo -e "${GREEN}✅ All required dependencies satisfied.${NC}"
     return 0

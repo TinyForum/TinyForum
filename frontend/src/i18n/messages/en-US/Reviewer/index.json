@@ -46,5 +46,20 @@
   "reviewer": "Reviewer",
   "reviewers": "Reviewers",
   "feature_under_development": "Feature Under Development",
-  "feature_coming_soon": "{feature} is under construction, stay tuned."
+  "feature_coming_soon": "{feature} is under construction, stay tuned.",
+  "load_failed": "Failed to load",
+  "retry": "Retry",
+  "loading": "Loading...",
+  "reviewing": "Processing...",
+  "target_id": "Target ID",
+  "trigger_type": "Trigger type",
+  "trigger_sensitive_word": "Sensitive word",
+  "trigger_report_aggregate": "Report aggregate",
+  "trigger_manual": "Manual",
+  "target_post": "Post",
+  "target_comment": "Comment",
+  "target_user": "User",
+  "reject_reason": "Reject reason",
+  "confirm": "Confirm",
+  "cancel": "Cancel"
 }

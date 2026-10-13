@@ -19,10 +19,10 @@ func (FavoriteGroup) TableName() string { return "favorite_groups" }
 // Favorite 收藏记录（使用软删除实现取消）
 type Favorite struct {
 	common.BaseModel
-	UserID     int64  `gorm:"not null;uniqueIndex:idx_fav_unique,priority:1"`         // 收藏者
-	TargetID   int64  `gorm:"not null;uniqueIndex:idx_fav_unique,priority:2"`         // 收藏对象
-	TargetType string `gorm:"size:50;not null;uniqueIndex:idx_fav_unique,priority:3"` // 收藏对象类型
-	GroupID    int64  `gorm:"not null;index"`                                         // 收藏夹
+	UserID     int64  `gorm:"not null;uniqueIndex:idx_fav_unique,priority:1,where:deleted_at IS NULL"`         // 收藏者
+	TargetID   int64  `gorm:"not null;uniqueIndex:idx_fav_unique,priority:2"`                                   // 收藏对象
+	TargetType string `gorm:"size:50;not null;uniqueIndex:idx_fav_unique,priority:3"`                           // 收藏对象类型
+	GroupID    int64  `gorm:"not null;index"`                                                                  // 收藏夹
 }
 
 func (Favorite) TableName() string { return "favorites" }

@@ -24,7 +24,6 @@ export function UserProfileCard({
   unreadCount,
 }: UserProfileCardProps) {
   const t = useTranslations("Sidebar");
-  console.log("用户信息：", userProfile);
 
   return (
     <div className="rounded-lg border bg-card shadow-sm hover:shadow-md transition-shadow duration-200 z-0">

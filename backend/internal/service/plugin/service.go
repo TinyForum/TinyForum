@@ -8,6 +8,7 @@ import (
 	"tiny-forum/internal/model/bo"
 	"tiny-forum/internal/model/common"
 	"tiny-forum/internal/model/do"
+	"tiny-forum/internal/model/request"
 	"tiny-forum/internal/model/vo"
 	pluginRepo "tiny-forum/internal/repository/plugin"
 	"tiny-forum/internal/storage"
@@ -24,10 +25,12 @@ type PluginService interface {
 	// query
 	ListPlugins(ctx context.Context, queryBO *bo.PageQuery[bo.PluginQueryBO]) (*common.PageResult[vo.PluginMetaVO], error) // 获取插件列表
 	ListUserPlugins(ctx context.Context, userID uint) ([]*do.PluginManifest, error)                                        // 获取当前用户创建的插件列表
+	GetPlugin(ctx context.Context, pluginSlug string) (*vo.PluginMetaVO, error)                                             // 获取单个插件详情
 	// delete
 	DeletePlugin(ctx context.Context, pluginSlug string, userID uint) error // 删除插件
 	// update
-	TogglePluginStatus(ctx context.Context, pluginSlug string) error // 切换插件状态
+	TogglePluginStatus(ctx context.Context, pluginSlug string) error                            // 切换插件状态
+	UpdatePlugin(ctx context.Context, pluginSlug string, req *request.UpdatePluginRequest) error // 更新插件元数据
 }
 
 func NewPluginService(repo pluginRepo.PluginRepository, storage storage.StorageDriver, cfg *config.ConfigPlugins) PluginService {

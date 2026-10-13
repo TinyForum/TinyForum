@@ -29,7 +29,7 @@ export const adminReportsApi = {
 // ---------- 请求参数 ----------
 export interface ListReportsParams {
   page?: number; // 页码，默认1
-  pageSize?: number; // 每页条数，默认10
+  page_size?: number; // 每页条数，默认20（与后端 page_size 参数一致）
   keyword?: string; // 全局搜索：理由(reason)、内容快照(content_snapshot)、举报人IP(reporter_ip)
   reporterId?: number; // 按举报人ID筛选（仅管理员可用）
   targetId?: number; // 按被举报对象ID筛选

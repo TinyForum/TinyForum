@@ -62,6 +62,16 @@ type UserPosts struct {
 	PinInBoard       bool                `gorm:"default:false" json:"pin_in_board"`                    // 板块置顶
 }
 
+// UserComment 我的评论视图对象
+type UserComment struct {
+	ID        uint         `json:"id"`         // 评论ID
+	CreatedAt time.Time    `json:"created_at"` // 评论创建时间
+	WorksID   uint         `json:"works_id"`   // 所属作品（帖子）ID
+	Content   string       `json:"content"`    // 评论内容
+	LikeCount int          `json:"like_count"` // 点赞数
+	Author    UserPublicVO `json:"author"`     // 评论作者
+}
+
 // 不包含手机号、邮箱、IP 等
 type UserPublicVO struct {
 	ID        uint   `json:"id"`         // 用户ID

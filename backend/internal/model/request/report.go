@@ -10,3 +10,10 @@ type CreateReportRequest struct {
 	IsAnonymous     bool   `json:"is_anonymous"`                                                                       // 是否匿名举报
 	ReporterIP      string `json:"-"`                                                                                  // 举报人IP（仅服务端填充，不接收客户端传入）
 }
+
+// HandleReportRequest 处理举报的请求参数
+type HandleReportRequest struct {
+	Status       string `json:"status" binding:"required,oneof=resolved rejected"` // 处理结果：通过/驳回
+	HandleNote   string `json:"handle_note" binding:"required,min=1,max=500"`      // 处理备注
+	RejectReason string `json:"reject_reason" binding:"omitempty,max=500"`          // 驳回原因（可选）
+}

@@ -8,6 +8,7 @@ import (
 	"tiny-forum/internal/repository/board"
 	"tiny-forum/internal/repository/bot"
 	"tiny-forum/internal/repository/comment"
+	"tiny-forum/internal/repository/favorite"
 	"tiny-forum/internal/repository/notification"
 	"tiny-forum/internal/repository/plugin"
 	"tiny-forum/internal/repository/question"
@@ -52,13 +53,14 @@ type Repositories struct {
 	Bot            bot.Repository
 	Reports        reports.ReportsRepository
 	Recommendation recommendation.RecommendationRepository
+	Favorite       favorite.FavoriteRepository
 }
 
 // NewRepositories 创建所有 Repository 实例
 func NewRepositories(db *gorm.DB, redis *redis.Client) *Repositories {
 	tokenRepo := token.NewTokenRepository(db, redis)
 	postRepo := post.NewPostRepository(db)
-	violation := violation.NewPostRepository(db)
+	violation := violation.NewViolationRepository(db)
 
 	return &Repositories{
 		Token:          tokenRepo,
@@ -81,7 +83,8 @@ func NewRepositories(db *gorm.DB, redis *redis.Client) *Repositories {
 		Attachment:     attachment.NewAttachmentRepository(db),
 		Plugin:         plugin.NewPluginRepository(db),
 		Bot:            bot.NewRepository(db),
-		Reports:        reports.NewRiskRepository(db),
+		Reports:        reports.NewReportsRepository(db),
 		Recommendation: recommendation.NewRecommendationRepository(db),
+		Favorite:       favorite.NewFavoriteRepository(db),
 	}
 }

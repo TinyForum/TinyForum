@@ -8,6 +8,9 @@ export const userKeys = {
   // 更细粒度的 key 工厂
   stats: () => [...userKeys.all, "stats"] as const,
   role: () => [...userKeys.all, "role"] as const,
+  comments: (params?: object) => [...userKeys.all, "comments", params] as const,
+  favorites: (params?: object) =>
+    [...userKeys.all, "favorites", params] as const,
   violations: () => [...userKeys.all, "violations"] as const,
   violationDetail: (id: string) => [...userKeys.all, "violation", id] as const,
   followers: (id: number, params?: object) =>

@@ -18,8 +18,11 @@ detect_os() {
             fi
             echo -e "${GREEN}✓ Linux detected${distro:+ (${distro})}${NC}"
             ;;
+        Windows_NT*|MINGW*|MSYS*|CYGWIN*)
+            echo -e "${GREEN}? Windows detected ($OS)${NC}"
+            ;;
         *)
-            echo -e "${YELLOW}⚠ Unknown operating system: $OS${NC}"
+            echo -e "${YELLOW}? Unknown operating system: $OS${NC}"
             ;;
     esac
     echo -e "  Local IP  : ${LOCAL_IP}"
@@ -33,18 +36,18 @@ detect_default_db_user() {
     case "$OS" in
         Darwin*)
             # macOS Homebrew: 超级用户是当前系统用户
-            echo "$(whoami)"
+            echo "$(whoami 2>/dev/null || cmd /c "echo %USERNAME%" 2>/dev/null || echo user)"
             ;;
         Linux*)
             # Linux: 先用 peer auth 测试 postgres，再测试当前用户
             if sudo -n -u postgres psql -c "SELECT 1" >/dev/null 2>&1; then
                 echo "postgres"
             else
-                echo "$(whoami)"
+                echo "$(whoami 2>/dev/null || cmd /c "echo %USERNAME%" 2>/dev/null || echo user)"
             fi
             ;;
         *)
-            echo "$(whoami)"
+            echo "$(whoami 2>/dev/null || cmd /c "echo %USERNAME%" 2>/dev/null || echo user)"
             ;;
     esac
 }

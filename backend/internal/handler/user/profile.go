@@ -3,6 +3,7 @@ package user
 import (
 	"strconv"
 	"tiny-forum/internal/model/do"
+	"tiny-forum/internal/model/vo"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -75,5 +76,5 @@ func (h *UserHandler) Me(c *gin.Context) {
 		response.NotFound(c, "用户不存在")
 		return
 	}
-	response.Success(c, user)
+	response.Success(c, vo.NewUserLoginVO(user))
 }

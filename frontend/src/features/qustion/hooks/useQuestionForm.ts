@@ -124,14 +124,12 @@ export function useQuestionForm({ onSuccess }: UseQuestionFormProps = {}) {
       }
 
       const requestData = buildRequestData(data, selectedTags, boardId);
-      console.log("发送请求:", requestData);
 
       setLoading(true);
 
       try {
         const response: { data: ApiResponse<CreateQuestionResponse> } =
           await questionApi.create(requestData);
-        console.log("响应:", response.data);
 
         // 修复：统一使用 code === 0
         const isSuccess = response.data.code === 0;

@@ -75,4 +75,19 @@ func (h *BoardHandler) RegisterRoutes(api *gin.RouterGroup, mw middleware.Middle
 			postManageGroup.PUT("/:post_id/pin", mw.CanPinPost(repo), h.PinPost)      // PUT /api/v1/boards/:id/posts/:post_id/pin 置顶帖子
 		}
 	}
+
+	// 版主面板（需要版主权限）
+	moderatorPanel := api.Group("/moderator/boards/:id")
+	moderatorPanel.Use(mw.Auth(), mw.ModeratorRequired(repo))
+	{
+		moderatorPanel.GET("/posts", h.ListModeratorPosts)   // GET /api/v1/moderator/boards/:id/posts 版主面板帖子列表
+		moderatorPanel.GET("/reports", h.ListModeratorReports) // GET /api/v1/moderator/boards/:id/reports 版主面板举报列表
+		moderatorPanel.GET("/bans", h.ListModeratorBans)     // GET /api/v1/moderator/boards/:id/bans 版主面板封禁列表
+	}
+
+	// 管理员板块列表
+	adminBoards := api.Group("/admin/boards", mw.Auth(), mw.AdminRequired())
+	{
+		adminBoards.GET("", h.List) // GET /api/v1/admin/boards 板块列表（管理员）
+	}
 }

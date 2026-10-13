@@ -10,8 +10,6 @@ export default getRequestConfig(async ({ requestLocale }) => {
   // 从请求中获取 locale
   let locale = await requestLocale;
 
-  console.log("i18n request locale:", locale);
-
   // 确保 locale 有效
   if (!locale || !routing.locales.includes(locale as Locale)) {
     locale = routing.defaultLocale;

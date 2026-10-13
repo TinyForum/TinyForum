@@ -5,6 +5,7 @@ import (
 
 	"tiny-forum/internal/model/common"
 	"tiny-forum/internal/model/request"
+	apperrors "tiny-forum/pkg/errors"
 	"tiny-forum/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -37,7 +38,7 @@ func (h *BoardHandler) AddModerator(c *gin.Context) {
 	// 1. 解析并校验板块ID
 	boardID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil || boardID == 0 {
-		response.HandleError(c, err)
+		response.HandleError(c, apperrors.ErrInvalidRequest)
 		return
 	}
 
@@ -51,7 +52,7 @@ func (h *BoardHandler) AddModerator(c *gin.Context) {
 
 	// 3. 请求参数校验（非空、权限合法性等）
 	if req.UserID == 0 {
-		response.HandleError(c, err)
+		response.HandleError(c, apperrors.ErrInvalidRequest)
 		return
 	}
 	if err := req.Validate(); err != nil {

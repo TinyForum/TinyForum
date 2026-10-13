@@ -11,7 +11,8 @@ interface UseFollowReturn {
   loading: boolean
   follow: (userId: number) => Promise<boolean>
   unfollow: (userId: number) => Promise<boolean>
-  checkFollowStatus: (userId: number) => Promise<boolean>
+  // TODO: confirm before removal —— checkFollowStatus 无任何调用方（dead code），暂时注释保留
+  // checkFollowStatus: (userId: number) => Promise<boolean>
 }
 
 export function useFollowAction(): UseFollowReturn {
@@ -79,20 +80,20 @@ export function useFollowAction(): UseFollowReturn {
     [unfollowMutation],
   )
 
-  const checkFollowStatus = useCallback(
-    async (userId: number): Promise<boolean> => {
-      // 需要真实接口时可调用 userApi.getFollowing 检查
-      console.log("check follow status", userId, following)
-      return following
-    },
-    [following],
-  )
+  // TODO: confirm before removal —— checkFollowStatus 无任何调用方（dead code），暂时注释保留
+  // const checkFollowStatus = useCallback(
+  //   async (userId: number): Promise<boolean> => {
+  //     // 需要真实接口时可调用 userApi.getFollowing 检查
+  //     return following
+  //   },
+  //   [following],
+  // )
 
   return {
     following,
     loading: followMutation.isPending || unfollowMutation.isPending,
     follow,
     unfollow,
-    checkFollowStatus,
+    // checkFollowStatus,
   }
 }

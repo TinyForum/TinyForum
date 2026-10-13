@@ -88,7 +88,6 @@ export function AnnouncementsManager({ t }: { t: (key: string) => string }) {
     values: AnnouncementFormValues,
   ): Promise<void> => {
     const payload = formValuesToPayload(values);
-    console.log(payload);
 
     let result: AnnouncementDO | null;
     if (editingAnnouncement) {

@@ -1,4 +1,4 @@
-# ============================================================
+﻿# ============================================================
 # SQLite 日志查询 Makefile
 # 用法: make <target> [参数]
 # ============================================================
@@ -15,7 +15,7 @@ DB_PATH ?= $(_ROOT)/backend/logs/log.db
 LIMIT ?= 100
 
 # 今天日期，与 Go 分表后缀完全一致：logs_YYYYMMDD
-TODAY := $(shell date -u +%Y%m%d)
+TODAY := $(shell if date -u +%Y%m%d >/dev/null 2>&1; then date -u +%Y%m%d; elif date +%Y%m%d >/dev/null 2>&1; then date +%Y%m%d; else python3 -c "import datetime; print(datetime.datetime.utcnow().strftime(\"%Y%m%d\"))"; fi 2>/dev/null || powershell -NoProfile -Command "Get-Date -Format yyyyMMdd")
 
 # 今天完整表名，供内部引用
 _TABLE_TODAY := logs_$(TODAY)
